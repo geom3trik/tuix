@@ -1,5 +1,5 @@
 # tuix
-Cross-platform GUI toolkit written in Rust
+Tuix is a cross-platform GUI toolkit written in Rust.
 
 ## How to use
 Since it's probably best to learn by example, here is the "hello world" of GUI applications:
@@ -40,6 +40,10 @@ The build function takes 3 arguments: the state, the entity id of the parent wid
 The last line inside of main starts the application main loop.
 
 You can run this example with: ```cargo run --example hello_gui```
+
+## Styling the widgets
+
+Tuix uses a subset of CSS to style entities. 
 
 ## Creating your own widgets
 
