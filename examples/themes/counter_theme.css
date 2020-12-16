@@ -1,0 +1,21 @@
+button {
+    font-size: 16px;
+    text-align: center;
+    text-justify: center;
+    flex-grow: 1.0;
+}
+
+button.increment {
+    background-color: #326432;
+}
+
+button.decrement {
+    background-color: #323e64;
+}
+
+.counter {
+    background-color: #008000;
+    display: flex;
+    align-items: stretch;
+    flex-direction: row;
+}

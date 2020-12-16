@@ -1,0 +1,224 @@
+
+
+/* SCROLL CONTAINER */
+
+scroll_container {
+    width: 100%;
+    height: 100%;
+    background-color: #262626;
+    flex-direction: row;
+}
+
+scroll_container>.container {
+    /* position: absolute; */
+    align-self: flex-start;
+    /* width: 95%; */
+    flex-grow: 1.0;
+    background-color: #b42b2b;
+}
+
+scroll_container>.scrollbar {
+    background-color: #464646;
+}
+
+scroll_container>.scrollbar:enabled {
+    width: 10px;
+    transition: width 0.1;
+}
+
+scroll_container>.scrollbar:disabled {
+    width: 0px;
+    transition: width 0.1;
+}
+
+hbox {
+    margin-bottom: 5px;
+}
+
+/* PANEL */
+
+panel {
+    /* opacity: 1.0; */
+    /* background-color: blue; */
+    /* width: 289px; */
+    /* margin-top: 1px; */
+    /* background-color: red; */
+    /* height: 60px; */
+}
+
+/* panel:checked>.container * {
+    opacity: 1.0;
+    transition: opacity 0.15 0.1;
+} */
+
+/* panel>.container * {
+    opacity: 0.0;
+    transition: opacity 0.15 0.0;
+} */
+
+panel>.container {
+    background-color: #383838;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+}
+
+
+
+panel>.header {
+    height: 30px;
+    background-color: #424242;
+}
+
+/* VECTOR EDIT */
+
+/* vector_edit {
+    background-color: red;
+} */
+
+/* RADIO */
+
+radio {
+    background-color: #494949;
+    border-color: black;
+}
+
+radio>.marker {
+    background-color: #262626;
+}
+
+/* LABELS */
+
+label {
+    padding-left: 5px;
+}
+
+
+
+
+dropdown>.header {
+    text-align: center;
+}
+
+dropdown.unit>.container {
+    width: 80px;
+}
+
+dropdown.dim>.container {
+    width: 30px;
+}
+
+
+
+button.img {
+    width: 200px;
+    height: 200px;
+    /* background-color: red; */
+    background-image: "resources/lenna.png";
+}
+
+
+
+
+dropdown.unit>.header {
+    text-justify: center;
+}
+
+dropdown.dim>.header {
+    text-justify: center;
+}
+
+dropdown.dim>.header:enabled {
+    background-color: #2e2e2e;
+}
+
+dropdown>.container {
+    background-color: #404041;
+    /* background-color: red; */
+}
+
+dropdown>.header {
+    background-color: #494949;
+}
+
+dropdown>.container>.item {
+    height: 30px;
+    background-color: #404041;
+    /* transition: background-color 0.1; */
+}
+
+dropdown>.container>.item:hover {
+    background-color: #4f4f4f;
+    /* transition: background-color 0.05; */
+}
+
+
+
+
+/* panel>.header>.arrow {
+    background-color: red;
+} */
+
+checkbox {
+    width: 30px;
+    /* height: 40px; */
+    /* border-width: 1px;
+    border-color: #000000; */
+    /* margin: 5px; */
+}
+
+.check {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+    border-color: #818181;
+}
+
+.check:checked {
+    border-width: 0px;
+    background-color: #2a98f0;
+    color: #383838;
+}
+
+/* .other {
+    background-color: #4169e1;
+} */
+
+.item {
+    height: 30px;
+    /* padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px; */
+}
+
+.label {
+    flex-basis: 80px;
+    padding-left: 5px;
+}
+
+textbox {
+    background-color: #2e2e2e;
+    padding-left: 5px;
+}
+
+slider>.front {
+    background-color: #4f4f4f;
+}
+
+slider {
+    background-color: #2e2e2e;
+}
+
+
+numedit .increment {
+    background-color: #4f4f4f;
+}
+
+numedit .decrement {
+    background-color: #4f4f4f;
+}
+
+/* textbox:active {
+    border-width: 1px;
+    border-color: #ffc000;
+} */

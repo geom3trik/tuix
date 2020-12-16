@@ -1,0 +1,34 @@
+button 
+{
+    width: 100px;
+    height: 50px;
+    opacity: 1.0;
+    margin-bottom: 0px;
+}
+
+.first 
+{
+    background-color: blue;
+}
+
+.first:hover 
+{
+    width: 150px;
+    opacity: 0.0;
+    background-color: #00ff00;
+    /* transition: background-color 2.0; */
+    transition: width 2.0;
+    transition: opacity 2.0;
+}
+
+.second 
+{
+    background-color: #ff0000;
+    opacity: 0.5;
+}
+
+.third {
+    width: 25px;
+    height: 25px;
+    background-color: #00ff00;
+}

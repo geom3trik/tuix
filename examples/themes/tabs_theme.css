@@ -1,0 +1,47 @@
+
+
+tab_container {
+    background-color: red;
+    width: 300px;
+    height: 500px;
+}
+
+tab_bar {
+    background-color: #202020;
+}
+
+tab_bar>button {
+    background-color: #2e2e2e;
+    /* background-color: red; */
+    margin-right: 1px;
+    margin-bottom: 1px;
+    flex-basis: 80px;
+    text-justify: center;
+}
+
+tab_bar>button:checked {
+    margin-bottom: 0px;
+    background-color: #383838;
+}
+
+.item1 {
+    background-color: #383838;
+    height: 100%;
+    width: 100%;
+}
+
+.item2 {
+    background-color: #383838;
+    height: 100%;
+}
+
+tab_container>.container {
+    background-color: #555555;
+    height: 100%;
+}
+
+.test {
+    width: 100px;
+    height: 30px;
+    background-color: green;
+}
