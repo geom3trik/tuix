@@ -253,7 +253,6 @@ pub trait EventHandler {
             paint.set_text_align(align);
             paint.set_text_baseline(baseline);
 
-            println!("Draw Text: {} {}", x, y);
             canvas.fill_text(x.round(), y.round(), &text_string, paint);
         }
 

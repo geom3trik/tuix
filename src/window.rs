@@ -162,6 +162,8 @@ impl Window {
         let dpi_factor = handle.window().scale_factor();
         let size = handle.window().inner_size();
 
+        println!("width: {} height: {}", size.width, size.height);
+
         canvas.set_size(size.width as u32, size.height as u32, dpi_factor as f32);
         canvas.clear_rect(0, 0, size.width as u32, size.height as u32, Color::rgbf(0.3, 0.3, 0.32));
 

@@ -601,7 +601,7 @@ pub fn main() {
     let mut app = Application::new(|window| {
         window
             .with_title("Calculator")
-            //.with_inner_size(400, 400)
+            //.with_inner_size(400, 400) This causes text to dissapear, not sure why
             .with_min_inner_size(200, 300)
             .with_icon(icon.to_bytes(), icon.width(), icon.height())
     });
