@@ -237,7 +237,7 @@ fn main() {
         builder
     });
 
-    Label::new("Langth").build(state, row, |builder| builder.class("label"));
+    Label::new("Length").build(state, row, |builder| builder.class("label"));
     LengthBox::new().build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
 
     let row = HBox::new().build(state, panel, |builder| {
@@ -256,33 +256,34 @@ fn main() {
     NumEdit::new(100.0,1.0).build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
     
     
-    // let row = HBox::new().build(state, panel, |builder| {
-    //     builder
-    // });
+    let row = HBox::new().build(state, panel, |builder| {
+        builder
+    });
 
-    //Button::with_label("Button").build(state, row, |builder| builder.class("label"));
-    // Button::with_label("Press Me").build(state, row, |builder| builder.set_flex_grow(1.0));
+    Button::with_label("Button").build(state, row, |builder| builder.class("label"));
+    //Button::with_label("Press Me").build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
+    Button::new().build(state, row, |builder| builder.set_flex_grow(1.0).set_text("PRESS").class("item"));
     // //Dropdown::new("Position").add_item("Absolute", "Absolute").add_item("Relative", "Relative").build(state, row, |builder| builder.set_flex_grow(1.0));
     // //Textbox::new("Textbox").build(state, row, |builder| builder.set_flex_grow(1.0).set_background_color(Color::rgb(50, 100, 100)));
 
-    // let row = HBox::new().build(state, panel, |builder| {
-    //     builder
-    // });
+    let row = HBox::new().build(state, panel, |builder| {
+        builder
+    });
 
-    // Label::new("Radio").build(state, row, |builder| builder.class("label"));
-    // let radio_list = RadioList::new("First").build(state, row, |builder| builder.set_flex_grow(1.0));
+    Label::new("Radio").build(state, row, |builder| builder.class("label"));
+    let radio_list = RadioList::new("First").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
-    // RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
-    // Label::new("TEST1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+    let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
+    RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
+    Label::new("Option 1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
-    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
-    // RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
-    // Label::new("TEST2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+    let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
+    RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
+    Label::new("Option 2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
-    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
-    // RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
-    // Label::new("TEST3").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+    let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
+    RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
+    Label::new("Option 3").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
     // let row = HBox::new().build(state, panel, |builder| {
     //     builder

@@ -116,6 +116,7 @@ impl BuildHandler for Calculator {
         self.display =
             Button::new().build(state, container, |builder| builder.set_text("0").class("display"));
 
+        
         // Currently using flexbox to create the layout but would be good to use grid when working
 
         let row1 = Button::new().build(state, container, |builder| builder.class("row"));
@@ -278,7 +279,7 @@ impl BuildHandler for Calculator {
             .set_focus_order(state, self.decimal_point, self.eight);
         self.decimal_point
             .set_focus_order(state, self.display, self.nine);
-
+        
         entity
     }
 
@@ -595,32 +596,23 @@ impl EventHandler for Calculator {
 
 pub fn main() {
     // Replace this with icon loading using resource manager when working
-    let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
+    let icon = image::open("examples/resources/icons/calculator_dark-128.png").unwrap();
 
     let mut app = Application::new(|window| {
         window
             .with_title("Calculator")
-            .with_inner_size(349, 400)
+            //.with_inner_size(400, 400)
             .with_min_inner_size(200, 300)
             .with_icon(icon.to_bytes(), icon.width(), icon.height())
     });
 
-    // Need to find a better way to do this part
     let state = &mut app.state;
 
     state.style.parse_theme(LIGHT_THEME);
 
-    // Replace this with theme laoding using resource manager when working
-    // state.style.parse_theme(LIGHT_THEME);
-
     Calculator::default().build(state, state.root, |builder| {
         builder.class("calculator")
     });
-
-    // Calculator::new()
-    //     .build(state, root)
-    //     .set_width(1.0)
-    //     .set_height(1.0);
 
     app.run();
 }

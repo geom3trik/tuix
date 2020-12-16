@@ -19,7 +19,7 @@ impl Default for Text {
             text: "".to_string(),
             font: "Sans".to_string(),
             font_size: 14.0,
-            font_color: Color::rgb(255, 255, 255),
+            font_color: Color::rgba(255, 255, 255, 255),
             indent: 0.0,
         }
     }

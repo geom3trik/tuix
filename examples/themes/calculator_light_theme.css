@@ -15,7 +15,7 @@
 .display {
     text-justify: end;
     font-size: 70.0;
-    color: white;
+    color: #FFFFFF;
     background-color: #363636;
     padding-right: 10px;
     flex-grow: 1.0;

@@ -86,7 +86,7 @@ impl BuildHandler for RadioBox {
             .set_width(state, Length::Pixels(16.0))
             .set_height(state, Length::Pixels(16.0))
             .set_border_radius(state, Length::Percentage(0.5))
-            .set_border_width(state, 2.0)
+            //.set_border_width(state, 2.0)
             .set_align_items(state, AlignItems::Center)
             .set_justify_content(state, JustifyContent::Center);
 
