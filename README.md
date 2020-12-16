@@ -55,7 +55,7 @@ pub struct MyAwesomeWidget {
 }
 ```
 
-### Step 2 - Implementing the widget struct
+### Step 2 - Implement the widget struct
 
 Techinally this step is optional, but if you've got data inside your widget then it's just good practice.
 
@@ -89,7 +89,7 @@ impl BuildHandler for MyAwesomeWidget {
 }
 ```
 
-## Step 4 - Implement the EventHandler trait
+### Step 4 - Implement the EventHandler trait
 
 ```
 impl EventHandler for MyAwesomeWidget {
