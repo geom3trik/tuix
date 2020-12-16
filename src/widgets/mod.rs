@@ -44,9 +44,6 @@ pub use length_box::LengthBox;
 pub mod panel;
 pub use panel::*;
 
-pub mod tree_view;
-pub use tree_view::*;
-
 pub mod radio;
 pub use radio::*;
 
