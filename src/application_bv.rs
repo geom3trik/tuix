@@ -1,7 +1,8 @@
+
+
 #![allow(deprecated)]
 
-use glutin::event_loop::{ControlFlow, EventLoop};
-pub use glutin::*;
+
 
 use crate::window::{KeyboardInput, Window, WindowDescription, WindowEvent, WindowWidget};
 
@@ -16,98 +17,443 @@ use crate::state::hierarchy::IntoHierarchyIterator;
 
 use crate::state::Fonts;
 
-use crate::VirtualKeyCode;
+use femtovg::{
+    renderer::OpenGl,
+    Canvas,
+    Color,
+};
 
-type GEvent<'a, T> = glutin::event::Event<'a, T>;
+use baseview::{WindowHandler, WindowScalePolicy};
 
-pub struct Application {
-    pub window: Window,
-    pub state: State,
-    event_loop: EventLoop<()>,
-    pub event_manager: EventManager,
+use raw_gl_context::GlContext;
+
+struct OpenWindowExample {
+    context: GlContext,
+    canvas: Canvas<OpenGl>,
+    state: State,
+    event_manager: EventManager,
 }
 
-impl Application {
-    pub fn new<F: FnMut(WindowDescription) -> WindowDescription>(mut win: F) -> Self {
-        let event_loop = EventLoop::new();
-        let mut state = State::new();
+impl WindowHandler for OpenWindowExample {
+    fn on_frame(&mut self) {
 
-        let event_manager = EventManager::new();
+        self.canvas.set_size(512, 512, 1.0);
+        self.canvas.clear_rect(0, 0, 512, 512, Color::rgbf(0.3, 0.3, 0.32));
 
-        let window_description = win(WindowDescription::new());
+        let hierarchy = self.state.hierarchy.clone();
 
-        let mut window = Window::new(&event_loop, &window_description);
+        if self.state.apply_animations() {
+            self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(Entity::new(0, 0)));
+            self.state.insert_event(Event::new(WindowEvent::Redraw));
+        }
 
-        let fonts = Fonts {
-            regular: Some(window.canvas
-                .add_font("examples/resources/Roboto-Regular.ttf")
-                .expect("Cannot add font")),
-            bold: Some(window.canvas
-                .add_font("examples/resources/Roboto-Bold.ttf")
-                .expect("Cannot add font")),
-            icons: Some(window.canvas.add_font("examples/resources/entypo.ttf").expect("Cannot add font")),
+        //while !self.state.event_queue.is_empty() {
+            self.event_manager.flush_events(&mut self.state);
+
+
+
+            self.event_manager.draw(&mut self.state, &hierarchy, &mut self.canvas);
+            
+        //}
+
+        self.context.make_current();
+
+        // unsafe {
+        //     gl::ClearColor(1.0, 0.0, 1.0, 1.0);
+        //     gl::Clear(gl::COLOR_BUFFER_BIT);
+        // }
+
+
+
+
+
+        //draw_colorwheel(&mut self.canvas, 200.0, 200.0, 200.0, 200.0, 0.0);
+
+        self.canvas.flush();
+        self.context.swap_buffers();
+    }
+
+    fn on_event(&mut self, _window: &mut baseview::Window, event: baseview::Event) {
+        match event {
+            baseview::Event::Mouse(e) => {
+                match e {
+                    baseview::MouseEvent::CursorMoved{position} => {
+                        let cursorx = (position.x) as f32;
+                        let cursory = (position.y) as f32;
+
+                        self.state.mouse.cursorx = cursorx as f32;
+                        self.state.mouse.cursory = cursory as f32;
+
+                        let mut hovered_widget = Entity::new(0, 0);
+
+                        // This only really needs to be computed when the hierarchy changes
+                        // Can be optimised
+                        let mut draw_hierarchy: Vec<Entity> = self.state.hierarchy.into_iter().collect();
+
+                        draw_hierarchy.sort_by_cached_key(|entity| self.state.transform.get_z_order(*entity));
+
+
+                        for widget in draw_hierarchy.into_iter() {
+                            // Skip invisible widgets
+                            if self.state.transform.get_visibility(widget) == Visibility::Invisible
+                            {
+                                continue;
+                            }
+                            
+                            // This shouldn't be here but there's a bug if it isn't 
+                            if self.state.transform.get_opacity(widget) == 0.0 {
+                                continue;
+                            }
+                            
+                            // Skip non-hoverable widgets
+                            if self.state.transform.get_hoverability(widget) != true {
+                                continue;
+                            }
+
+                            let border_width = self.state
+                                .style
+                                .border_width
+                                .get(widget)
+                                .cloned()
+                                .unwrap_or_default();
+
+                            let posx = self.state.transform.get_posx(widget) - (border_width / 2.0);
+                            let posy = self.state.transform.get_posy(widget) - (border_width / 2.0);
+                            let width = self.state.transform.get_width(widget) + (border_width);
+                            let height = self.state.transform.get_height(widget) + (border_width);
+
+                            let clip_widget = self.state.transform.get_clip_widget(widget);
+
+
+                            let clip_posx = self.state.transform.get_posx(clip_widget);
+                            let clip_posy = self.state.transform.get_posy(clip_widget);
+                            let clip_width = self.state.transform.get_width(clip_widget);
+                            let clip_height = self.state.transform.get_height(clip_widget);
+
+                            if cursorx >= posx && cursorx >= clip_posx
+                                && cursorx < (posx + width) && cursorx < (clip_posx + clip_width)
+                                && cursory >= posy && cursory >= clip_posy
+                                && cursory < (posy + height) && cursory < (clip_posy + clip_height)
+                            {
+                                hovered_widget = widget;
+                                if let Some(pseudo_classes) = self.state.style.pseudo_classes.get_mut(hovered_widget) {
+                                    pseudo_classes.set_over(true);
+                                }
+                            } else {
+                                if let Some(pseudo_classes) = self.state.style.pseudo_classes.get_mut(hovered_widget) {
+                                    pseudo_classes.set_over(false);
+                                }
+                            }
+                        }
+
+                        if hovered_widget != self.state.hovered {
+
+                            // Useful for debugging
+                        
+                            println!(
+                                "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+                                hovered_widget,
+                                self.state.hierarchy.get_parent(hovered_widget),
+                                self.state.transform.get_posx(hovered_widget),
+                                self.state.transform.get_posy(hovered_widget),
+                                self.state.transform.get_width(hovered_widget),
+                                self.state.transform.get_height(hovered_widget),
+                                self.state.transform.get_z_order(hovered_widget),
+                            );
+
+                            if let Some(pseudo_classes) = self.state.style.pseudo_classes.get_mut(hovered_widget) {
+                                pseudo_classes.set_hover(true);
+                            }
+
+                            if let Some(pseudo_classes) = self.state.style.pseudo_classes.get_mut(self.state.hovered) {
+                                pseudo_classes.set_hover(false);
+                            }
+
+                            self.state.insert_event(Event::new(WindowEvent::MouseOver).target(hovered_widget));
+                            self.state.insert_event(Event::new(WindowEvent::MouseOut).target(self.state.hovered));
+
+                            self.state.hovered = hovered_widget;
+                            self.state.active = Entity::null();
+
+                            self.state
+                                .insert_event(Event::new(WindowEvent::Restyle));
+                            self.state
+                                .insert_event(Event::new(WindowEvent::Redraw));
+                        }
+
+                        if self.state.captured != Entity::null() {
+                            self.state.insert_event(
+                                Event::new(WindowEvent::MouseMove(cursorx, cursory))
+                                    .target(self.state.captured)
+                                    .propagate(Propagation::Direct),
+                            );
+                        } else if self.state.hovered != Entity::new(0, 0) {
+                            self.state.insert_event(
+                                Event::new(WindowEvent::MouseMove(cursorx, cursory))
+                                    .target(self.state.hovered),
+                            );
+                        }
+                    }
+
+                    baseview::MouseEvent::ButtonPressed(button) => {
+                        let b = match button {
+                            baseview::MouseButton::Left => MouseButton::Left,
+                            baseview::MouseButton::Right => MouseButton::Right,
+                            baseview::MouseButton::Middle => MouseButton::Middle,
+                            baseview::MouseButton::Other(id) => MouseButton::Other(id),
+                            _=> MouseButton::Left,
+                        };
+
+                        match b {
+                            MouseButton::Left => {
+                                self.state.mouse.left.state = MouseButtonState::Pressed;
+                            }
+
+                            MouseButton::Right => {
+                                self.state.mouse.right.state = MouseButtonState::Pressed;
+                            }
+
+                            MouseButton::Middle => {
+                                self.state.mouse.middle.state = MouseButtonState::Pressed;
+                            }
+
+                            _ => {}
+                        }
+
+                        if self.state.hovered != Entity::null()
+                            && self.state.active != self.state.hovered
+                        {
+                            self.state.active = self.state.hovered;
+                            self.state.insert_event(Event::new(WindowEvent::Restyle));
+                        }
+
+                        if self.state.captured != Entity::null() {
+                            self.state.insert_event(
+                                Event::new(WindowEvent::MouseDown(b))
+                                    .target(self.state.captured)
+                                    .propagate(Propagation::Direct),
+                            );
+                        } else {
+                            self.state.insert_event(
+                                Event::new(WindowEvent::MouseDown(b))
+                                    .target(self.state.hovered),
+                            );
+                        }
+
+                        match b {
+                            MouseButton::Left => {
+                                self.state.mouse.left.pos_down = (self.state.mouse.cursorx, self.state.mouse.cursory);
+                                self.state.mouse.left.pressed = self.state.hovered;
+                            }
+
+                            MouseButton::Middle => {
+                                self.state.mouse.middle.pos_down = (self.state.mouse.cursorx, self.state.mouse.cursory);
+                                self.state.mouse.left.pressed = self.state.hovered;
+                            }
+                            
+                            MouseButton::Right => {
+                                self.state.mouse.right.pos_down = (self.state.mouse.cursorx, self.state.mouse.cursory);
+                                self.state.mouse.left.pressed = self.state.hovered;
+                            } 
+                            
+                            _ => {}
+                        }
+                            
+                    }
+
+                    baseview::MouseEvent::ButtonReleased(button) => {
+
+                        let b = match button {
+                            baseview::MouseButton::Left => MouseButton::Left,
+                            baseview::MouseButton::Right => MouseButton::Right,
+                            baseview::MouseButton::Middle => MouseButton::Middle,
+                            baseview::MouseButton::Other(id) => MouseButton::Other(id),
+                            _=> MouseButton::Left,
+                        };
+
+                        match b {
+                            MouseButton::Left => {
+                                self.state.mouse.left.state = MouseButtonState::Released;
+                            }
+
+                            MouseButton::Right => {
+                                self.state.mouse.right.state = MouseButtonState::Released;
+                            }
+
+                            MouseButton::Middle => {
+                                self.state.mouse.middle.state = MouseButtonState::Released;
+                            }
+
+                            _ => {}
+                        }
+
+                        self.state.active = Entity::null();
+                        self.state.insert_event(Event::new(WindowEvent::Restyle));
+
+                        if self.state.captured != Entity::null() {
+                            self.state.insert_event(
+                                Event::new(WindowEvent::MouseUp(b))
+                                    .target(self.state.captured)
+                                    .propagate(Propagation::Direct),
+                            );
+                        } else {
+                            self.state.insert_event(
+                                Event::new(WindowEvent::MouseUp(b))
+                                    .target(self.state.hovered),
+                            );
+                        }
+
+                        match b {
+                            MouseButton::Left => {
+                                self.state.mouse.left.pos_up = (self.state.mouse.cursorx, self.state.mouse.cursory);
+                                self.state.mouse.left.released = self.state.hovered;
+                            }
+                            
+                            MouseButton::Middle => {
+                                self.state.mouse.middle.pos_up = (self.state.mouse.cursorx, self.state.mouse.cursory);
+                                self.state.mouse.left.released = self.state.hovered;
+                            } 
+                                
+                            MouseButton::Right => {
+                                self.state.mouse.right.pos_up = (self.state.mouse.cursorx, self.state.mouse.cursory);
+                                self.state.mouse.left.released = self.state.hovered;
+                            }
+
+                            _ => {}
+                        }
+                    }
+
+                    _=> {}
+                }
+                //println!("Mouse event: {:?}", e)
+            },
+            baseview::Event::Keyboard(e) => println!("Keyboard event: {:?}", e),
+            baseview::Event::Window(e) => println!("Window event: {:?}", e),
+        }
+    }
+}
+
+pub struct ApplicationBV {
+    //pub state: State,
+    //pub event_manager: EventManager,
+    pub app_runner: Option<baseview::AppRunner>
+}
+
+impl ApplicationBV {
+    pub fn new<F: 'static + Send + FnMut(&mut State, Entity)>(mut win: F) -> Self {
+        
+        //let mut state = State::new();
+
+        //let event_manager = EventManager::new();
+
+        //let window_description = win(WindowDescription::new());
+
+        let window_open_options = baseview::WindowOpenOptions {
+            title: "baseview".into(),
+            size: baseview::Size::new(512.0, 512.0),
+            scale: WindowScalePolicy::SystemScaleFactor,
+            parent: baseview::Parent::None,
         };
 
-        state.fonts = fonts;
+        let opt_app_runner = baseview::Window::open(
+            window_open_options,
+            move |window| {
+                let context = GlContext::create(window).unwrap();
+                context.make_current();
+                gl::load_with(|symbol| context.get_proc_address(symbol) as *const _);
+                let renderer = OpenGl::new(|symbol| context.get_proc_address(symbol) as *const _).expect("Cannot create renderer");
+                let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
+    
+                // let fonts = Fonts {
+                //     regular: Some(canvas
+                //         .add_font("examples/resources/Roboto-Regular.ttf")
+                //         .expect("Cannot add font")),
+                //     bold: Some(canvas
+                //         .add_font("examples/resources/Roboto-Bold.ttf")
+                //         .expect("Cannot add font")),
+                //     icons: Some(canvas.add_font("examples/resources/entypo.ttf").expect("Cannot add font")),
+                // };
 
-        state.style.width.insert(
-            state.root,
-            Length::Pixels(window_description.inner_size.to_physical(1.0).width),
+                // state.fonts = fonts;
+
+                let mut state = State::new();
+
+
+                state.style.width.insert(
+                    state.root,
+                    Length::Pixels(512.0),
+                );
+
+                state.style.height.insert(
+                    state.root,
+                    Length::Pixels(512.0),
+                );
+        
+                state.transform.set_width(
+                    state.get_root(),
+                    512.0,
+                );
+                state.transform.set_height(
+                    state.get_root(),
+                    512.0,
+                );
+                state.transform.set_opacity(state.get_root(), 1.0);
+        
+                WindowWidget::new().build_window(&mut state);
+        
+                state.hierarchy.add(state.root, None);
+
+                let root = state.root;
+
+                state.insert_event(Event::new(WindowEvent::Restyle));
+                state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+
+                let fonts = Fonts {
+                    regular: Some(canvas
+                        .add_font("examples/resources/Roboto-Regular.ttf")
+                        .expect("Cannot add font")),
+                    bold: Some(canvas
+                        .add_font("examples/resources/Roboto-Bold.ttf")
+                        .expect("Cannot add font")),
+                    icons: Some(canvas.add_font("examples/resources/entypo.ttf").expect("Cannot add font")),
+                };
+
+                state.fonts = fonts;
+
+                win(&mut state, root);
+
+                OpenWindowExample {context, canvas, state, event_manager: EventManager::new()}
+            } 
         );
-        state.style.height.insert(
-            state.root,
-            Length::Pixels(window_description.inner_size.to_physical(1.0).height),
-        );
 
-        state.transform.set_width(
-            state.get_root(),
-            window_description.inner_size.to_physical(1.0).width,
-        );
-        state.transform.set_height(
-            state.get_root(),
-            window_description.inner_size.to_physical(1.0).height,
-        );
-        state.transform.set_opacity(state.get_root(), 1.0);
-
-        WindowWidget::new().build_window(&mut state);
-
-        state.hierarchy.add(state.root, None);
-
-        Application {
-            window: window,
-            event_loop: event_loop,
-            event_manager: event_manager,
-            state: state,
+ 
+        ApplicationBV {
+            // event_manager: event_manager,
+            // state: state,
+            app_runner: opt_app_runner,
         }
     }
 
-    pub fn get_window(&self) -> Entity {
-        self.state.root
-    }
 
-    pub fn get_state(&mut self) -> &mut State {
-        &mut self.state
-    }
-
-    pub fn get_event_manager(&mut self) -> &mut EventManager {
-        &mut self.event_manager
-    }
 
     pub fn run(self) {
         let mut pos: (f32, f32) = (0.0, 0.0);
 
-        let mut state = self.state;
-        let mut event_manager = self.event_manager;
+        //let mut state = self.state;
+        //let mut event_manager = self.event_manager;
 
-        let mut window = self.window;
+
         let mut should_quit = false;
 
         let mut should_redraw = false;
-        let hierarchy = state.hierarchy.clone();
+        //let hierarchy = state.hierarchy.clone();
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+        //state.insert_event(Event::new(WindowEvent::Restyle));
+        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
 
+        self.app_runner.unwrap().app_run_blocking();
+
+        /*
         self.event_loop.run(move |event, _, control_flow|{
         
 
@@ -548,5 +894,6 @@ impl Application {
                 *control_flow = ControlFlow::Exit;
             }
         });
+        */
     }
 }

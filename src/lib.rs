@@ -1,10 +1,13 @@
 pub mod state;
 pub use state::*;
 
-pub mod application;
+//pub mod application;
 pub mod window;
 
-pub use application::Application;
+pub mod application_bv;
+pub use application_bv::ApplicationBV;
+
+//pub use application::Application;
 pub use window::{KeyboardInput, Window, WindowEvent, CursorIcon};
 
 pub mod events;

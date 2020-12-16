@@ -188,6 +188,7 @@ pub trait EventHandler {
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
 
+        
         if let Some(text) = state.style.text.get_mut(entity) {
            
             let font_id = match text.font.as_ref() {
@@ -255,6 +256,7 @@ pub trait EventHandler {
 
             canvas.fill_text(x.round(), y.round(), &text_string, paint);
         }
+        
 
         canvas.restore();
 

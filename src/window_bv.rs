@@ -1,8 +1,10 @@
-use glutin::dpi::*;
-use glutin::event::VirtualKeyCode;
-use glutin::event_loop::EventLoop;
-use glutin::window::WindowBuilder;
-use glutin::ContextBuilder;
+// use glutin::dpi::*;
+// use glutin::event::VirtualKeyCode;
+// use glutin::event_loop::EventLoop;
+// use glutin::window::WindowBuilder;
+// use glutin::ContextBuilder;
+
+use baseview::{Event, Window, WindowHandler, WindowScalePolicy};
 
 use femtovg::{
     renderer::OpenGl,
@@ -199,13 +201,11 @@ impl EventHandler for WindowWidget {
                 }
 
                 WindowEvent::Restyle => {
-                    println!("Restyle");
                     apply_styles(state, &state.hierarchy.clone());
                     apply_visibility(state, &state.hierarchy.clone());
                 }
 
                 WindowEvent::Relayout => {
-                    println!("Relayout");
                     apply_z_ordering(state, &state.hierarchy.clone());
                     apply_visibility(state, &state.hierarchy.clone());
                     apply_clipping(state, &state.hierarchy.clone());

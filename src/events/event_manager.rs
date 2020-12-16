@@ -48,7 +48,7 @@ impl EventManager {
     //     self.event_queue.push_back(event);
     // }
 
-    pub fn flush_events(&mut self, state: &mut State, window: &mut Window) -> bool {
+    pub fn flush_events(&mut self, state: &mut State) -> bool {
         //println!("FLUSH");
 
         let mut needs_redraw = false;
@@ -80,6 +80,7 @@ impl EventManager {
         'events: for event in self.event_queue.iter_mut() {
             //println!("Event: {:?}", event);
             // If a redraw is needed then set the flag to return true
+            /*
             if let Some(window_event) = event.message.downcast::<WindowEvent>() {
                 match window_event {
                     WindowEvent::Redraw => {
@@ -106,6 +107,7 @@ impl EventManager {
                     _ => {}
                 }
             }
+            */
 
             let target = event.target;
 
@@ -187,13 +189,13 @@ impl EventManager {
         return needs_redraw;
     }
 
-    pub fn draw(&mut self, state: &mut State, hierarchy: &Hierarchy, window: &mut Window) {
+    pub fn draw(&mut self, state: &mut State, hierarchy: &Hierarchy, canvas: &mut Canvas<OpenGl>) {
 
-        let dpi_factor = window.handle.window().scale_factor();
-        let size = window.handle.window().inner_size();
+        //let dpi_factor = window.handle.window().scale_factor();
+        //let size = window.handle.window().inner_size();
 
-        window.canvas.set_size(size.width as u32, size.height as u32, dpi_factor as f32);
-        window.canvas.clear_rect(0, 0, size.width as u32, size.height as u32, Color::rgbf(0.3, 0.3, 0.32));
+        //window.canvas.set_size(size.width as u32, size.height as u32, dpi_factor as f32);
+        //window.canvas.clear_rect(0, 0, size.width as u32, size.height as u32, Color::rgbf(0.3, 0.3, 0.32));
 
         let hierarchy = state.hierarchy.clone();
 
@@ -203,15 +205,15 @@ impl EventManager {
 
         for widget in draw_hierarchy.into_iter() {
             if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
-                event_handler.on_draw(state, widget, &mut window.canvas);
+                event_handler.on_draw(state, widget, canvas);
             }
         }
 
-        window.canvas.flush();
+        canvas.flush();
 
-        window
-            .handle
-            .swap_buffers()
-            .expect("Failed to swap buffers");
+        // window
+        //     .handle
+        //     .swap_buffers()
+        //     .expect("Failed to swap buffers");
     }
 }
