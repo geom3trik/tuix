@@ -115,6 +115,13 @@ pub trait EventHandler {
             .cloned()
             .unwrap_or_default();
 
+        let font_color = state
+            .style
+            .font_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
         let border_color = state
             .style
             .border_color
@@ -172,6 +179,8 @@ pub trait EventHandler {
             .cloned()
             .unwrap_or_default();
 
+        println!("Border Width: {}", border_width);
+
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
 
         canvas.save();
@@ -181,12 +190,16 @@ pub trait EventHandler {
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
         
         let mut path = Path::new();
-        path.rounded_rect_varying(posx + 1.0, posy + 1.0, width + border_width, height + border_width, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
+        path.rounded_rect_varying(posx + border_width/2.0, posy + border_width / 2.0, width - border_width, height - border_width, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width*2.0);
         canvas.stroke_path(&mut path, paint);
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
+
+        // canvas.translate(posx+0.5*width, posy+0.5*height);
+        // canvas.scale(0.5,0.5);
+        // canvas.translate(-posx-0.5*width, -posy-0.5*height);
 
         if let Some(text) = state.style.text.get_mut(entity) {
            
@@ -244,7 +257,7 @@ pub trait EventHandler {
                 }
             };
 
-            let mut font_color: femtovg::Color = text.font_color.into();
+            let mut font_color: femtovg::Color = font_color.into();
             font_color.set_alphaf(font_color.a * opacity);
 
             let mut paint = Paint::color(font_color);
@@ -252,8 +265,9 @@ pub trait EventHandler {
             paint.set_font(&[font_id]);
             paint.set_text_align(align);
             paint.set_text_baseline(baseline);
+            paint.set_anti_alias(false);
 
-            canvas.fill_text(x.round(), y.round(), &text_string, paint);
+            canvas.fill_text(x, y, &text_string, paint);
         }
 
         canvas.restore();

@@ -1,0 +1,17 @@
+
+checkbox {
+    left: 20px;
+    top: 20px;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 3px;
+}
+
+checkbox:checked {
+    background-color: #3669c9;
+    border-color: #3669c9;
+    color: white;
+}

@@ -41,7 +41,7 @@ impl BuildHandler for Item {
         entity.set_flex_direction(state, FlexDirection::Row);
 
         self.checkbox =
-            Checkbox::new().build(state, entity, |builder| builder.set_hoverability(false));
+            Checkbox::new(false).build(state, entity, |builder| builder.set_hoverability(false));
         Button::with_label(&self.text).build(state, entity, |builder| {
             builder.set_flex_grow(1.0).set_hoverability(false)
         });

@@ -1065,12 +1065,9 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                         _ => {}
                     }
 
-                    state
-                        .transform
-                        .set_posx(child, new_posx + parent_border_width / 2.0);
-                    state
-                        .transform
-                        .set_posy(child, new_posy + parent_border_width / 2.0);
+                    state.transform.set_posx(child, new_posx + parent_border_width / 2.0);
+                    state.transform.set_posy(child, new_posy + parent_border_width / 2.0);
+
                 }
             }
         }

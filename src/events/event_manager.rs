@@ -193,7 +193,7 @@ impl EventManager {
         let size = window.handle.window().inner_size();
 
         window.canvas.set_size(size.width as u32, size.height as u32, dpi_factor as f32);
-        window.canvas.clear_rect(0, 0, size.width as u32, size.height as u32, Color::rgbf(0.3, 0.3, 0.32));
+        window.canvas.clear_rect(0, 0, size.width as u32, size.height as u32, Color::rgbf(1.0, 1.0, 1.0));
 
         let hierarchy = state.hierarchy.clone();
 

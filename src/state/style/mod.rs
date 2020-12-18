@@ -165,6 +165,8 @@ pub struct Style {
     //Text Properties
     pub text: DenseStorage<Text>,
 
+    pub font_color: AnimatableStorage<Color>,
+
     pub text_align: StyleStorage<Align>,
     pub text_justify: StyleStorage<Justify>,
 }
@@ -236,6 +238,8 @@ impl Style {
             // Text
             text_align: StyleStorage::new(),
             text_justify: StyleStorage::new(),
+
+            font_color: AnimatableStorage::new(),
 
             overflow: StyleStorage::new(),
             scroll: DenseStorage::new(),
@@ -424,6 +428,11 @@ impl Style {
                                 bottom_right: value,
                             },
                         );
+                    }
+
+                    Property::FontColor(value) => {
+                        println!("Val: {:?}", value);
+                        self.font_color.insert_rule(rule_id, value);
                     }
 
                     Property::BackgroundColor(value) => {

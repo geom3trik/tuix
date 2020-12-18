@@ -18,9 +18,11 @@ const ICON_DOWN_OPEN_MINI: &str = "\u{e760}";
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CheckboxEvent {
+    Check,
+    Uncheck,
+    Switch,
     Checked,
     Unchecked,
-    Switch,
 }
 
 pub enum CheckEvent {
@@ -71,16 +73,16 @@ pub struct Checkbox {
 }
 
 impl Checkbox {
-    pub fn new() -> Self {
+    pub fn new(checked: bool) -> Self {
         Checkbox {
-            checked: false,
+            checked,
             icon_unchecked: "".to_string(),
             icon_checked: ICON_CHECK.to_string(),
             group_name: "".to_string(),
         }
     }
 
-    pub fn checked(mut self, flag: bool) -> Self {
+    fn checked(mut self, flag: bool) -> Self {
         self.checked = flag;
 
         self
@@ -98,7 +100,7 @@ impl Checkbox {
         self
     }
 
-    pub fn switch(&mut self, state: &mut State, id: Entity) {
+    fn switch(&mut self, state: &mut State, id: Entity) {
         if self.checked {
             self.checked = false;
             id.set_text(state, &self.icon_unchecked);
@@ -148,6 +150,7 @@ impl BuildHandler for Checkbox {
 
 impl EventHandler for Checkbox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+
         if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
             match checkbox_event {
                 CheckboxEvent::Switch => {
@@ -158,7 +161,27 @@ impl EventHandler for Checkbox {
                                 .propagate(Propagation::Up),
                         );
                     }
-                    self.switch(state, entity);
+
+                    if event.target == entity {
+                        self.switch(state, entity);
+                    }
+                    
+                }
+
+                CheckboxEvent::Check => {
+                    if event.target == entity {
+                        self.checked = true;
+                        entity.set_text(state, &self.icon_checked);
+                        entity.set_checked(state, true);
+                    }
+                }
+
+                CheckboxEvent::Uncheck => {
+                    if event.target == entity {
+                        self.checked = false;
+                        entity.set_text(state, &self.icon_unchecked);
+                        entity.set_checked(state, false);
+                    }
                 }
 
                 _ => {}

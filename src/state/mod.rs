@@ -181,6 +181,10 @@ impl State {
             .background_color
             .animate(std::time::Instant::now());
 
+        self.style
+            .font_color
+            .animate(std::time::Instant::now());
+
         self.style.left.animate(std::time::Instant::now());
         self.style.right.animate(std::time::Instant::now());
         self.style.top.animate(std::time::Instant::now());
@@ -196,6 +200,7 @@ impl State {
         self.style.margin_bottom.animate(std::time::Instant::now());
 
         self.style.background_color.has_animations()
+            ||self.style.font_color.has_animations()
             || self.style.left.has_animations()
             || self.style.right.has_animations()
             || self.style.top.has_animations()
