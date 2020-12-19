@@ -1,7 +1,17 @@
 # tuix
 Tuix is a cross-platform GUI toolkit written in Rust.
 
-## How to use
+The driving principle behind tuix is to be a self-contained, small-as-possible, but still fast, toolkit for creating graphical user interfaces in Rust. 
+
+## Features
+
+// TODO
+
+## Getting Started
+
+// TODO
+
+### Hello GUI
 Since it's probably best to learn by example, here is the "hello world" of GUI applications:
 
 ```
@@ -41,63 +51,4 @@ The last line inside of main starts the application main loop.
 
 You can run this example with: ```cargo run --example hello_gui```
 
-## Styling the widgets
 
-Tuix uses a subset of CSS to style entities. 
-
-## Creating your own widgets
-
-Creating your own widgets in tuix is quite easy. There are just 4 steps.
-
-### Step 1 - Defining the widget struct
-
-The first step in creating a widget is to define a struct for it. You can have data inside the struct but this data will be local data.
-
-```
-pub struct MyAwesomeWidget {
-  pub some_local_data: f32,
-}
-```
-
-### Step 2 - Implement the widget struct
-
-Techinally this step is optional, but if you've got data inside your widget then it's just good practice.
-
-```
-impl MyAwesomeWidget {
-  pub fn new() -> Self {
-    MyAwesomeWidget {
-      some_local_data: 42.0
-    }
-  }
-}
-```
-
-### Step 3 - Implement the BuildHandler trait
-
-So this trait has one function, on_build(), which is called when a widget is built for the first time. The purpose of this function is to allow for inline properties to be set and for composition of widgets. For example, our brand new widget could contain a Button widget that gets created when an instance of MyAwesomeWidget is built.
-
-The on_build function has 3 arguments, a mutable reference to self, a mutable reference to State, and an Entity id. The Enitity id is created by the application when the widget is built and allows us to get and set the properties of the widget within the State. The mutable reference allows us to access, and modify if we want, the local data in the widget instance.
-
-You might have noticed already that the return type of the on_build function is an associated type. This is because the entity that is returned is the one you have access to when you call the build() function on a widget. However, if a widget is composed of multiple things we might need access to more than one entity. An example of this might be a tab container which has an entity for containing the tabs and an entity for containing the content, and in this case we might change Ret to (Entity, Entity) so we can return both. In this case though, we will just return the single entity which corresponds to the instance of our new widget.
-
-```
-impl BuildHandler for MyAwesomeWidget {
-    type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        
-        let some_button = Button::new().build(state, entity, |builder| builder);
-        
-        entity
-    }
-}
-```
-
-### Step 4 - Implement the EventHandler trait
-
-```
-impl EventHandler for MyAwesomeWidget {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        false
-    }
-}
