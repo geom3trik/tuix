@@ -165,6 +165,8 @@ pub struct Style {
     //Text Properties
     pub text: DenseStorage<Text>,
 
+    pub font_color: AnimatableStorage<Color>,
+
     pub text_align: StyleStorage<Align>,
     pub text_justify: StyleStorage<Justify>,
 }
@@ -236,6 +238,8 @@ impl Style {
             // Text
             text_align: StyleStorage::new(),
             text_justify: StyleStorage::new(),
+
+            font_color: AnimatableStorage::new(),
 
             overflow: StyleStorage::new(),
             scroll: DenseStorage::new(),
@@ -426,6 +430,11 @@ impl Style {
                         );
                     }
 
+                    Property::FontColor(value) => {
+                        println!("Val: {:?}", value);
+                        self.font_color.insert_rule(rule_id, value);
+                    }
+
                     Property::BackgroundColor(value) => {
                         self.background_color.insert_rule(rule_id, value);
                     }
@@ -470,6 +479,19 @@ impl Style {
                             match transition.property.as_ref() {
                                 "background-color" => {
                                     self.background_color.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "left" => {
+                                    self.left.insert_transition(
                                         rule_id,
                                         AnimationState::new()
                                             .with_duration(std::time::Duration::from_secs_f32(

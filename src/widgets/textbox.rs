@@ -503,7 +503,7 @@ impl EventHandler for Textbox {
             .unwrap_or_default();
 
         let mut path = Path::new();
-        path.rounded_rect_varying(posx + 1.0, posy + 1.0, width + border_width, height + border_width, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
+        path.rounded_rect_varying(posx + border_width/2.0, posy + border_width / 2.0, width - border_width, height - border_width, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width*2.0);
         canvas.stroke_path(&mut path, paint);

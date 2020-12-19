@@ -396,10 +396,20 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
+
+
         if state
             .style
             .background_image
             .link_rule(entity, &matched_rules)
+        {
+            state.insert_event(Event::new(WindowEvent::Redraw));
+        }
+
+        if state
+        .style
+        .font_color
+        .link_rule(entity, &matched_rules)
         {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }

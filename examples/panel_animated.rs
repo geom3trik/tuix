@@ -204,86 +204,120 @@ impl EventHandler for ColorEdit {
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|window| window.with_title("Panels").with_inner_size(800, 600));
+    let mut app = Application::new(|window, state, root| {
+
+        state.insert_style(THEME);
+
+        let rvbox = ResizableVBox::new().build(state, root, |builder| 
+            builder
+                .set_width(Length::Pixels(300.0))
+                .set_height(Length::Percentage(1.0))
+                .set_background_color(Color::rgb(100,50,50))
+        );
+    
+        //let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
+    
+    
+        let panel = Panel::new("Background Colour").build(state, rvbox, |builder| builder);
+    
+        let row = HBox::new().build(state, panel, |builder| {
+            builder
+        });
+    
+        Label::new("Colour").build(state, row, |builder| builder.class("label"));
+        let color_edit = ColorEdit::new().build(state, row, |builder| builder.set_flex_grow(1.0));
+    
+        let row = HBox::new().build(state, panel, |builder| {
+            builder
+        });
+    
+        Label::new("Length").build(state, row, |builder| builder.class("label"));
+        LengthBox::new().build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
+    
+        let row = HBox::new().build(state, panel, |builder| {
+            builder
+        });
+    
+        Label::new("Slider").build(state, row, |builder| builder.class("label"));
+        ValueSlider::new("test").build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
+        
+    
+        let row = HBox::new().build(state, panel, |builder| {
+            builder
+        });
+    
+        Label::new("Number").build(state, row, |builder| builder.class("label"));
+        NumEdit::new(100.0,1.0).build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
+        
+        
+        let row = HBox::new().build(state, panel, |builder| {
+            builder
+        });
+    
+        Button::with_label("Button").build(state, row, |builder| builder.class("label"));
+        //Button::with_label("Press Me").build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
+        Button::new().build(state, row, |builder| builder.set_flex_grow(1.0).set_text("PRESS").class("item"));
+        // //Dropdown::new("Position").add_item("Absolute", "Absolute").add_item("Relative", "Relative").build(state, row, |builder| builder.set_flex_grow(1.0));
+        // //Textbox::new("Textbox").build(state, row, |builder| builder.set_flex_grow(1.0).set_background_color(Color::rgb(50, 100, 100)));
+    
+        let row = HBox::new().build(state, panel, |builder| {
+            builder
+        });
+    
+        Label::new("Radio").build(state, row, |builder| builder.class("label"));
+        let radio_list = RadioList::new("First").build(state, row, |builder| builder.set_flex_grow(1.0));
+    
+        let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
+        RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
+        Label::new("Option 1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+    
+        let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
+        RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
+        Label::new("Option 2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+    
+        let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
+        RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
+        Label::new("Option 3").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+
+
+        let panel = Panel::new("Control Knobs").build(state, rvbox, |builder| builder);
+    
+
+        let row = HBox::new().build(state, panel, |builder| {
+            builder.set_justify_content(JustifyContent::SpaceEvenly)
+        });
+
+        let knob = ValueKnob::new().build(state, row, |builder|
+            builder
+                .set_width(Length::Pixels(50.0))
+                .set_height(Length::Pixels(75.0))
+        );
+
+        let knob = ValueKnob::new().build(state, row, |builder|
+            builder
+                .set_width(Length::Pixels(50.0))
+                .set_height(Length::Pixels(75.0))
+        );
+
+        let knob = ValueKnob::new().build(state, row, |builder|
+            builder
+                .set_width(Length::Pixels(50.0))
+                .set_height(Length::Pixels(75.0))
+        );
+
+
+        window.with_title("Panels").with_inner_size(800, 600)
+    });
+        
+        
 
     // Get the state from the window
-    let state = &mut app.state;
+    //let state = &mut app.state;
 
     // Get the window from the app
-    let window = state.root;
-
-    state.insert_style(THEME);
-
-    let rvbox = ResizableVBox::new().build(state, window, |builder| 
-        builder
-            .set_width(Length::Pixels(300.0))
-            .set_height(Length::Percentage(1.0))
-            .set_background_color(Color::rgb(100,50,50))
-    );
-
-    //let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
+    //let window = state.root;
 
 
-    let panel = Panel::new("Background Colour").build(state, rvbox, |builder| builder);
-
-    let row = HBox::new().build(state, panel, |builder| {
-        builder
-    });
-
-    Label::new("Colour").build(state, row, |builder| builder.class("label"));
-    let color_edit = ColorEdit::new().build(state, row, |builder| builder.set_flex_grow(1.0));
-
-    let row = HBox::new().build(state, panel, |builder| {
-        builder
-    });
-
-    Label::new("Length").build(state, row, |builder| builder.class("label"));
-    LengthBox::new().build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
-
-    let row = HBox::new().build(state, panel, |builder| {
-        builder
-    });
-
-    Label::new("Slider").build(state, row, |builder| builder.class("label"));
-    ValueSlider::new("test").build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
-    
-
-    let row = HBox::new().build(state, panel, |builder| {
-        builder
-    });
-
-    Label::new("Number").build(state, row, |builder| builder.class("label"));
-    NumEdit::new(100.0,1.0).build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
-    
-    
-    let row = HBox::new().build(state, panel, |builder| {
-        builder
-    });
-
-    Button::with_label("Button").build(state, row, |builder| builder.class("label"));
-    //Button::with_label("Press Me").build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
-    Button::new().build(state, row, |builder| builder.set_flex_grow(1.0).set_text("PRESS").class("item"));
-    // //Dropdown::new("Position").add_item("Absolute", "Absolute").add_item("Relative", "Relative").build(state, row, |builder| builder.set_flex_grow(1.0));
-    // //Textbox::new("Textbox").build(state, row, |builder| builder.set_flex_grow(1.0).set_background_color(Color::rgb(50, 100, 100)));
-
-    let row = HBox::new().build(state, panel, |builder| {
-        builder
-    });
-
-    Label::new("Radio").build(state, row, |builder| builder.class("label"));
-    let radio_list = RadioList::new("First").build(state, row, |builder| builder.set_flex_grow(1.0));
-
-    let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
-    RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
-    Label::new("Option 1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
-
-    let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
-    RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
-    Label::new("Option 2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
-
-    let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
-    RadioBox::new("First").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
-    Label::new("Option 3").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
     // let row = HBox::new().build(state, panel, |builder| {
     //     builder

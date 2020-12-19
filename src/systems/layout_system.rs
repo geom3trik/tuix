@@ -619,7 +619,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                 .unwrap_or_default();
             let mut child_grow_sum = state.transform.get_child_grow_sum(parent);
 
-            if child_grow_sum == 0.0 {
+            if child_grow_sum < 1.0 {
                 child_grow_sum = 1.0;
             }
 
@@ -667,6 +667,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                             new_width +=
                                 flex_fraction * parent_free_space;
+
+                            
                             
                             
 
@@ -746,7 +748,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                                 Length::Percentage(val) => {
                                     //current_pos += val * parent_width;
-                                    new_posx = current_pos + (val * parent_width);
+                                    new_posx = current_pos + (val * (parent_width - parent_padding_left - parent_padding_right));
                                 }
 
                                 _ => {}
@@ -1065,12 +1067,9 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                         _ => {}
                     }
 
-                    state
-                        .transform
-                        .set_posx(child, new_posx + parent_border_width / 2.0);
-                    state
-                        .transform
-                        .set_posy(child, new_posy + parent_border_width / 2.0);
+                    state.transform.set_posx(child, new_posx + parent_border_width / 2.0);
+                    state.transform.set_posy(child, new_posy + parent_border_width / 2.0);
+
                 }
             }
         }

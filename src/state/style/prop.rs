@@ -605,17 +605,7 @@ impl PropSet for Entity {
     }
 
     fn set_font_color(self, state: &mut State, value: Color) -> Self {
-        if let Some(data) = state.style.text.get_mut(self) {
-            data.font_color = value;
-        } else {
-            state.style.text.insert(
-                self,
-                Text {
-                    font_color: value,
-                    ..Default::default()
-                },
-            );
-        }
+        state.style.font_color.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 

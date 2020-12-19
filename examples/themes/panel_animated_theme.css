@@ -193,6 +193,7 @@ checkbox {
 }
 
 .label {
+    color: white;
     flex-basis: 80px;
     padding-left: 5px;
 }
@@ -218,6 +219,23 @@ numedit .increment {
 numedit .decrement {
     background-color: #4f4f4f;
 }
+
+knob {
+    background-color: #2e2e2e;
+}
+
+knob>.back {
+    background-color: #505050;
+}
+
+knob>.slider {
+    background-color: #3669c9;
+}
+
+knob>.tick {
+    background-color: #c8c8c8;
+}
+
 
 /* textbox:active {
     border-width: 1px;
