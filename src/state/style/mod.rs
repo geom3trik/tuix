@@ -490,6 +490,19 @@ impl Style {
                                     );
                                 }
 
+                                "left" => {
+                                    self.left.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
                                 "width" => {
                                     self.width.insert_transition(
                                         rule_id,

@@ -11,7 +11,6 @@ use femtovg::{
     Align,
     Baseline,
     Canvas,
-    Color,
     FillRule,
     FontId,
     ImageFlags,
@@ -67,6 +66,8 @@ pub trait EventHandler {
         let width = state.transform.get_width(entity);
         let height = state.transform.get_height(entity);
 
+        //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
+
         // Skip widgets with no width or no height
         if width == 0.0 || height == 0.0 {
             return;
@@ -120,7 +121,7 @@ pub trait EventHandler {
             .font_color
             .get(entity)
             .cloned()
-            .unwrap_or_default();
+            .unwrap_or(crate::Color::rgb(255, 255, 255));
 
         let border_color = state
             .style
@@ -179,7 +180,7 @@ pub trait EventHandler {
             .cloned()
             .unwrap_or_default();
 
-        println!("Border Width: {}", border_width);
+        //println!("Border Width: {}", border_radius_top_right);
 
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
 
@@ -188,11 +189,13 @@ pub trait EventHandler {
         canvas.rotate(rotate.to_radians());
         canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
+
+
         
         let mut path = Path::new();
         path.rounded_rect_varying(posx + border_width/2.0, posy + border_width / 2.0, width - border_width, height - border_width, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
         let mut paint = Paint::color(border_color);
-        paint.set_line_width(border_width*2.0);
+        paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);

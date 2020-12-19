@@ -4,20 +4,37 @@ use tuix::*;
 
 static THEME: &'static str = include_str!("themes/widget_theme.css");
 
+
+
 fn main() {
 
     // Create the app
-    let mut app = Application::new(|window| window.with_title("basic").with_inner_size(600, 600));
+    let mut app = Application::new(|window, state, root| {
+        
+        state.style.parse_theme(THEME);
+        // let checkbox = Checkbox::new(false).build(state, root, |builder| builder.class("widget"));
+        // let switch = Switch::new(false).build(state, root, |builder| builder);
+        
+        //let dropdown = Dropdown::new()
 
-    // Get the state from the window
-    let state = &mut app.state;
+        // let knob = ControlKnob::new().build(state, root, |builder|
+        //     builder
+        //         .set_width(Length::Pixels(50.0))
+        //         .set_height(Length::Pixels(50.0))
+        // );
 
-    state.style.parse_theme(THEME);
+        let knob = ValueKnob::new().build(state, root, |builder|
+            builder
+                .set_width(Length::Pixels(50.0))
+                .set_height(Length::Pixels(75.0))
+        );
 
-    // Get the window entity from the state
-    let window = state.root;
+        
 
-    let checkbox = Checkbox::new(false).build(state, window, |builder| builder.class("widget"));
+        window.with_title("basic").with_inner_size(600, 600)
+    
+    });
+
     
 
     app.run();

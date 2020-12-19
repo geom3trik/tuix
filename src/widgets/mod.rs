@@ -38,6 +38,9 @@ pub use numedit::*;
 pub mod value_slider;
 pub use value_slider::ValueSlider;
 
+pub mod value_knob;
+pub use value_knob::ValueKnob;
+
 pub mod length_box;
 pub use length_box::LengthBox;
 
@@ -49,6 +52,9 @@ pub use radio::*;
 
 pub mod label;
 pub use label::*;
+
+pub mod control_knob;
+pub use control_knob::*;
 
 pub mod containers;
 pub use containers::*;

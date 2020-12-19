@@ -28,13 +28,17 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new<F: FnMut(WindowDescription) -> WindowDescription>(mut win: F) -> Self {
+    pub fn new<F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription>(mut app: F) -> Self {
         let event_loop = EventLoop::new();
         let mut state = State::new();
 
         let event_manager = EventManager::new();
 
-        let window_description = win(WindowDescription::new());
+        let root = state.root;
+        state.hierarchy.add(state.root, None);
+
+        //let window_description = win(WindowDescription::new());
+        let window_description = app(WindowDescription::new(), &mut state, root);
 
         let mut window = Window::new(&event_loop, &window_description);
 
@@ -71,7 +75,9 @@ impl Application {
 
         WindowWidget::new().build_window(&mut state);
 
-        state.hierarchy.add(state.root, None);
+        
+
+        
         
         Application {
             window: window,
