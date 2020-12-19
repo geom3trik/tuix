@@ -1,10 +1,6 @@
 # tuix
 Tuix is a cross-platform GUI toolkit written in Rust.
 
-## How to build
-
-Currently, tuix depends on femtovg for drawing which depends on Harfbuzz for text shaping. To build a project with tuix you will need the harfbuzz libraries on your system.
-
 ## How to use
 Since it's probably best to learn by example, here is the "hello world" of GUI applications:
 
