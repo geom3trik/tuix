@@ -204,7 +204,7 @@ impl EventHandler for ColorEdit {
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|window, state, root| {
+    let mut app = ApplicationBV::new(|state, root| {
 
         state.insert_style(THEME);
 
@@ -305,8 +305,6 @@ fn main() {
                 .set_height(Length::Pixels(75.0))
         );
 
-
-        window.with_title("Panels").with_inner_size(800, 600)
     });
         
         

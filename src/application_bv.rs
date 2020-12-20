@@ -24,6 +24,7 @@ use femtovg::{
 };
 
 use baseview::{WindowHandler, WindowScalePolicy};
+use keyboard_types::{KeyboardEvent, KeyState};
 
 use raw_gl_context::GlContext;
 
@@ -327,7 +328,47 @@ impl WindowHandler for OpenWindowExample {
                 }
                 //println!("Mouse event: {:?}", e)
             },
-            baseview::Event::Keyboard(e) => println!("Keyboard event: {:?}", e),
+            baseview::Event::Keyboard(e) => {
+                match e {
+                    KeyboardEvent {state: s, key, code, location, modifiers, repeat, is_composing} => {
+                        
+                        
+                        if s == KeyState::Down {
+                            self.state.insert_event(
+                                Event::new(WindowEvent::KeyInput(
+                                    KeyboardInput {
+                                        scancode: 0,
+                                        virtual_keycode: Some(crate::VirtualKeyCode::Z),
+                                        state: MouseButtonState::Pressed,
+                                    }
+                                ))
+                                .target(self.state.hovered)
+                            );
+                        }
+
+                        if s == KeyState::Up {
+                            self.state.insert_event(
+                                Event::new(WindowEvent::KeyInput(
+                                    KeyboardInput {
+                                        scancode: 0,
+                                        virtual_keycode: Some(crate::VirtualKeyCode::Z),
+                                        state: MouseButtonState::Released,
+                                    }
+                                ))
+                                .target(self.state.hovered)
+                            );
+                        }
+
+
+                        
+                        
+                    }
+                }
+                //println!("Keyboard event: {:?}", e);
+            },
+            
+            
+            
             baseview::Event::Window(e) => println!("Window event: {:?}", e),
         }
     }

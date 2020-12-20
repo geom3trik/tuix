@@ -13,7 +13,8 @@ edition = "2018"
 [dependencies]
 gl = "0.14.0"
 glutin = "0.24.1"
-baseview = {git = "https://github.com/RustAudio/baseview"}
+baseview = {path = "../baseview"}
+keyboard-types = { version = "0.5.0", default-features = false }
 cssparser = "0.27.2"
 femtovg = {git = "https://github.com/femtovg/femtovg"}
 image = "0.23.12"

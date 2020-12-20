@@ -199,13 +199,11 @@ impl EventHandler for WindowWidget {
                 }
 
                 WindowEvent::Restyle => {
-                    println!("Restyle");
                     apply_styles(state, &state.hierarchy.clone());
                     apply_visibility(state, &state.hierarchy.clone());
                 }
 
                 WindowEvent::Relayout => {
-                    println!("Relayout");
                     apply_z_ordering(state, &state.hierarchy.clone());
                     apply_visibility(state, &state.hierarchy.clone());
                     apply_clipping(state, &state.hierarchy.clone());
