@@ -37,14 +37,17 @@ pub struct ControlKnob {
     back: Entity,
     slider: Entity,
     tick: Entity,
+
+    min_value: f32,
+    max_value: f32,
 }
 
 impl ControlKnob {
-    pub fn new() -> Self {
+    pub fn new(init: f32, min: f32, max: f32) -> Self {
         ControlKnob {
             sliding: false,
-            value: 0.0,
-            temp: 0.0,
+            value: init,
+            temp: init,
 
             mouse_down_posy: 0.0,
             shift_pressed: false,
@@ -52,6 +55,9 @@ impl ControlKnob {
             back: Entity::null(),
             slider: Entity::null(),
             tick: Entity::null(),
+
+            min_value: min,
+            max_value: max,
 
         }
     }
@@ -75,23 +81,28 @@ impl EventHandler for ControlKnob {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         
 
+        
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
                 SliderEvent::SetValue(id, val) => {
-                    if *id == entity {
+                    if event.target == entity {
+                        if *id == entity {
 
 
-                        self.value = ((*val).min(1.0)).max(0.0);
+                            self.value = ((*val).min(self.max_value)).max(self.min_value);
 
-                        state.insert_event(
-                            Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
-                        );
+                            state.insert_event(
+                                Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
+                            );
+                        }                        
                     }
+
                 }
 
                 _ => {}
             }
         }
+        
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
@@ -123,8 +134,10 @@ impl EventHandler for ControlKnob {
                             } else {
                                 dy/200.0
                             };
+
+                            let new_val = self.temp + (self.max_value - self.min_value) * normalised;
                             
-                            self.value = ((self.temp + normalised).min(1.0)).max(0.0);
+                            self.value = (new_val.min(self.max_value)).max(self.min_value);
 
                             state.insert_event(
                                 Event::new(SliderEvent::ValueChanged(entity, self.value))
@@ -200,7 +213,9 @@ impl EventHandler for ControlKnob {
         let start = -(PI + PI/4.0);
         let end = PI/4.0;
 
-        let current = self.value * (end - start) + start;
+        let normalised = self.value / (self.max_value - self.min_value);
+
+        let current = normalised * (end - start) + start;
 
 
 
