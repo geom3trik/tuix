@@ -358,7 +358,7 @@ impl ApplicationBV {
         let opt_app_runner = baseview::Window::open(
             window_open_options,
             move |window| {
-                let context = GlContext::create(window).unwrap();
+                let context = GlContext::create(window, Default::default()).unwrap();
                 context.make_current();
                 gl::load_with(|symbol| context.get_proc_address(symbol) as *const _);
                 let renderer = OpenGl::new(|symbol| context.get_proc_address(symbol) as *const _).expect("Cannot create renderer");
