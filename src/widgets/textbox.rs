@@ -98,25 +98,31 @@ impl BuildHandler for Textbox {
 
 impl EventHandler for Textbox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+        
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
                 TextboxEvent::SetValue(val) => {
-                    entity.set_text(state, val);
+                    if event.target == entity {
+                        println!("Received Set Value: {} {}", self.text, val);
+                        entity.set_text(state, val);
 
-                    state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)));
+                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)));
 
-                    state.insert_event(Event::new(WindowEvent::Redraw));
-                }
-
-                TextboxEvent::ResetValue => {
-                    if let Some(text_data) = state.style.text.get_mut(entity) {
-                        text_data.text = self.buffer.clone();
+                        state.insert_event(Event::new(WindowEvent::Redraw));                        
                     }
+
                 }
+
+                // TextboxEvent::ResetValue => {
+                //     if let Some(text_data) = state.style.text.get_mut(entity) {
+                //         text_data.text = self.buffer.clone();
+                //     }
+                // }
 
                 _ => {}
             }
         }
+        
 
         let text_data = state.style.text.get(entity).cloned().unwrap_or_default();
 
