@@ -44,12 +44,12 @@ impl Application {
 
         let fonts = Fonts {
             regular: Some(window.canvas
-                .add_font("examples/resources/Roboto-Regular.ttf")
+                .add_font("resources/Roboto-Regular.ttf")
                 .expect("Cannot add font")),
             bold: Some(window.canvas
-                .add_font("examples/resources/Roboto-Bold.ttf")
+                .add_font("resources/Roboto-Bold.ttf")
                 .expect("Cannot add font")),
-            icons: Some(window.canvas.add_font("examples/resources/entypo.ttf").expect("Cannot add font")),
+            icons: Some(window.canvas.add_font("resources/entypo.ttf").expect("Cannot add font")),
         };
 
         state.fonts = fonts;
