@@ -149,27 +149,33 @@ impl EventHandler for ControlKnob {
                     }
                 }
 
-                WindowEvent::KeyInput(input) => {
-                    if let Some(virtual_keycode) = input.virtual_keycode {
-                        if virtual_keycode == crate::VirtualKeyCode::LShift {
-                            
-                            if input.state == MouseButtonState::Pressed {
-                                if !self.shift_pressed {
-                                    self.shift_pressed = true;
-                                }
-                            } else {
-                                if self.shift_pressed {
-                                    self.shift_pressed = false; 
-                                }
+                WindowEvent::KeyDown(input) => {
+                    if let Some(virtual_keycode) = input {
+                        if *virtual_keycode == crate::VirtualKeyCode::LShift {
+                           
+                            if !self.shift_pressed {
+                                self.shift_pressed = true;
                             }
 
+                            self.mouse_down_posy = state.mouse.cursory;
+                            self.temp = self.value;
+                        }
+                    }
+                }
+
+                WindowEvent::KeyUp(input) => {
+                    if let Some(virtual_keycode) = input {
+                        if *virtual_keycode == crate::VirtualKeyCode::LShift {
+                            
+                            if self.shift_pressed {
+                                self.shift_pressed = false; 
+                            }
+                            
                             self.mouse_down_posy = state.mouse.cursory;
                             self.temp = self.value;
 
                             
                         }
-
-
                     }
                 }
 

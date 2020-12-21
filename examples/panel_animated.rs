@@ -287,22 +287,19 @@ fn main() {
             builder.set_justify_content(JustifyContent::SpaceEvenly)
         });
 
-        let knob = ValueKnob::new().build(state, row, |builder|
+        let knob = ValueKnob::new("Red",0.0, 0.0, 1.0).build(state, row, |builder|
             builder
                 .set_width(Length::Pixels(50.0))
-                .set_height(Length::Pixels(75.0))
         );
 
-        let knob = ValueKnob::new().build(state, row, |builder|
+        let knob = ValueKnob::new("Green", 0.0, 0.0, 1.0).build(state, row, |builder|
             builder
                 .set_width(Length::Pixels(50.0))
-                .set_height(Length::Pixels(75.0))
         );
 
-        let knob = ValueKnob::new().build(state, row, |builder|
+        let knob = ValueKnob::new("Blue", 0.0, 0.0, 1.0).build(state, row, |builder|
             builder
                 .set_width(Length::Pixels(50.0))
-                .set_height(Length::Pixels(75.0))
         );
 
 

@@ -234,31 +234,41 @@ impl Application {
                                 }
                             }
 
-                            if state.focused != Entity::null() {
-                                state.insert_event(
-                                    Event::new(WindowEvent::KeyInput(
-                                        KeyboardInput {
-                                            scancode: input.scancode,
-                                            virtual_keycode: input.virtual_keycode,
-                                            state: s,
-                                        }
-                                    ))
-                                    .target(state.focused)
-                                    .propagate(Propagation::DownUp),
-                                );
-                            } else {
-                                state.insert_event(
-                                    Event::new(WindowEvent::KeyInput(
-                                        KeyboardInput {
-                                            scancode: input.scancode,
-                                            virtual_keycode: input.virtual_keycode,
-                                            state: s,
-                                        }
-                                    ))
-                                    .target(state.hovered)
-                                    .propagate(Propagation::DownUp),
-                                );
+                            match s {
+                                MouseButtonState::Pressed => {
+                                    if state.focused != Entity::null() {
+                                        state.insert_event(
+                                            Event::new(WindowEvent::KeyDown(input.virtual_keycode))
+                                            .target(state.focused)
+                                            .propagate(Propagation::DownUp),
+                                        );
+                                    } else {
+                                        state.insert_event(
+                                            Event::new(WindowEvent::KeyDown(input.virtual_keycode))
+                                            .target(state.hovered)
+                                            .propagate(Propagation::DownUp),
+                                        );
+                                    }
+                                }
+
+                                MouseButtonState::Released => {
+                                    if state.focused != Entity::null() {
+                                        state.insert_event(
+                                            Event::new(WindowEvent::KeyUp(input.virtual_keycode))
+                                            .target(state.focused)
+                                            .propagate(Propagation::DownUp),
+                                        );
+                                    } else {
+                                        state.insert_event(
+                                            Event::new(WindowEvent::KeyUp(input.virtual_keycode))
+                                            .target(state.hovered)
+                                            .propagate(Propagation::DownUp),
+                                        );
+                                    }
+                                }
                             }
+
+
                             
                             
                         }
