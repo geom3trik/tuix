@@ -20,6 +20,7 @@ use crate::VirtualKeyCode;
 
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
+
 pub struct Application {
     pub window: Window,
     pub state: State,
@@ -42,14 +43,18 @@ impl Application {
 
         let mut window = Window::new(&event_loop, &window_description);
 
+        let regular_font = include_bytes!("../resources/Roboto-Regular.ttf");
+        let bold_font = include_bytes!("../resources/Roboto-Bold.ttf");
+        let icon_font = include_bytes!("../resources/Entypo.ttf");
+
         let fonts = Fonts {
             regular: Some(window.canvas
-                .add_font("resources/Roboto-Regular.ttf")
+                .add_font_mem(regular_font)
                 .expect("Cannot add font")),
             bold: Some(window.canvas
-                .add_font("resources/Roboto-Bold.ttf")
+                .add_font_mem(bold_font)
                 .expect("Cannot add font")),
-            icons: Some(window.canvas.add_font("resources/entypo.ttf").expect("Cannot add font")),
+            icons: Some(window.canvas.add_font_mem(icon_font).expect("Cannot add font")),
         };
 
         state.fonts = fonts;
