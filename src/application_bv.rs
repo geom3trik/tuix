@@ -454,13 +454,13 @@ impl ApplicationBV {
                 let icon_font = include_bytes!("../resources/Entypo.ttf");
 
                 let fonts = Fonts {
-                    regular: Some(window.canvas
+                    regular: Some(canvas
                         .add_font_mem(regular_font)
                         .expect("Cannot add font")),
-                    bold: Some(window.canvas
+                    bold: Some(canvas
                         .add_font_mem(bold_font)
                         .expect("Cannot add font")),
-                    icons: Some(window.canvas.add_font_mem(icon_font).expect("Cannot add font")),
+                    icons: Some(canvas.add_font_mem(icon_font).expect("Cannot add font")),
                 };
 
                 state.fonts = fonts;
