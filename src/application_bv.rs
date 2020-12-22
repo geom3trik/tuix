@@ -449,14 +449,18 @@ impl ApplicationBV {
                 state.insert_event(Event::new(WindowEvent::Restyle));
                 state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
 
+                let regular_font = include_bytes!("../resources/Roboto-Regular.ttf");
+                let bold_font = include_bytes!("../resources/Roboto-Bold.ttf");
+                let icon_font = include_bytes!("../resources/Entypo.ttf");
+
                 let fonts = Fonts {
-                    regular: Some(canvas
-                        .add_font("examples/resources/Roboto-Regular.ttf")
+                    regular: Some(window.canvas
+                        .add_font_mem(regular_font)
                         .expect("Cannot add font")),
-                    bold: Some(canvas
-                        .add_font("examples/resources/Roboto-Bold.ttf")
+                    bold: Some(window.canvas
+                        .add_font_mem(bold_font)
                         .expect("Cannot add font")),
-                    icons: Some(canvas.add_font("examples/resources/entypo.ttf").expect("Cannot add font")),
+                    icons: Some(window.canvas.add_font_mem(icon_font).expect("Cannot add font")),
                 };
 
                 state.fonts = fonts;
