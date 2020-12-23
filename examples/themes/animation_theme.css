@@ -14,11 +14,9 @@ button
 .first:hover 
 {
     width: 150px;
-    opacity: 0.0;
     background-color: #00ff00;
-    /* transition: background-color 2.0; */
-    transition: width 2.0;
-    transition: opacity 2.0;
+    transition: width 2.0 0.0;
+    transition: background-color 2.0 0.0;
 }
 
 .second 

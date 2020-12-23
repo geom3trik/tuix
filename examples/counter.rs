@@ -82,24 +82,24 @@ impl EventHandler for Counter {
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|window| window.with_title("Counter"));
+    let mut app = Application::new(|win_desc, state, window| {
 
-    // Get the global state from the window
-    let state = &mut app.state;
+        state.style.parse_theme(THEME);
 
-    let window = state.root;
+        Counter::new()
+            // Set local state
+            .set_value(50)
+            // Build the component
+            .build(state, window, |builder| {
+                builder
+                    .set_width(Length::Pixels(300.0))
+                    .set_height(Length::Pixels(50.0))
+            });
 
-    state.style.parse_theme(THEME);
 
-    Counter::new()
-        // Set local state
-        .set_value(50)
-        // Build the component
-        .build(state, window, |builder| {
-            builder
-                .set_width(Length::Pixels(300.0))
-                .set_height(Length::Pixels(50.0))
-        });
+        win_desc.with_title("Counter")
+    });
+        
 
     app.run();
 }

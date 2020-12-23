@@ -23,7 +23,7 @@ fn main() {
         //         .set_height(Length::Pixels(50.0))
         // );
 
-        let knob = ValueKnob::new().build(state, root, |builder|
+        let knob = ValueKnob::new("Dial", 0.0, 0.0, 1.0).build(state, root, |builder|
             builder
                 .set_width(Length::Pixels(50.0))
                 .set_height(Length::Pixels(75.0))

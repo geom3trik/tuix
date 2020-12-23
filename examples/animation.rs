@@ -37,7 +37,7 @@ impl Container {
 impl BuildHandler for Container {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.button1 = Button::new()
+        self.button1 = Button::with_label("Press Me")
             .on_press(Event::new(TriggerEvent::Start))
             .build(state, entity, |builder| builder.class("first"));
 
@@ -116,58 +116,20 @@ impl EventHandler for Container {
 static THEME: &'static str = include_str!("themes/animation_theme.css");
 
 fn main() {
-    let mut app = Application::new(|window| window.with_title("Animation"));
+    let mut app = Application::new(|win_desc, state, window| {
 
-    let state = &mut app.state;
+        state.style.parse_theme(THEME);
 
-    let window = state.root;
 
-    state.style.parse_theme(THEME);
+        Container::new().build(state, window, |builder| builder);
 
-    // state.style.insert_style_rule(
-    //     StyleRule::new()
-    //         .selector(Selector::from("button").class("animated"))
-    //         .property(Property::BackgroundColor(Color::rgb(
-    //             50, 50, 100,
-    //         ))), //.property(Property::Animation("example"))
-    //              //.property(Property::AnimationDuration(4.0))
-    // );
 
-    // state.style.insert_animation(
-    //     AnimationRule::new("example").keyframe(0.0, Property::Left(100.0)).keyframe(1.0, Property::Left(300.0))
-    // );
+        win_desc.with_title("Animation")
+    });
 
-    // state.rules.insert_animation_rule(
-    //     AnimationRule::new("example")
-    //         .with_duration(std::time::Duration::new(4, 0))
-    //         .keyframe(Keyframe::new(0.0).property(Property::BackgroundColor(
-    //             nanovg::Color::from_rgb(100, 50, 50),
-    //         )))
-    //         .keyframe(Keyframe::new(100.0).property(Property::BackgroundColor(
-    //             nanovg::Color::from_rgb(50, 100, 50),
-    //         ))),
-    // );
 
-    Container::new().build(state, window, |builder| builder);
 
-    // let my_button = Button::new()
-    //     .build(state, window, &mut app.event_manager)
-    //     .element("button")
-    //     .class("animated")
-    //     //.selector(Selector::from("button").class("animated"))
-    //     .set_left(100.0)
-    //     .set_top(100.0)
-    //     .set_width(100.0)
-    //     .set_height(50.0)
-    //     .set_background_color(nanovg::Color::from_rgb(100, 50, 50))
-    //     .entity();
 
-    // let mut test_animation_state = AnimationState::new(my_button);
-    // test_animation_state.set_duration(std::time::Duration::new(1, 0));
-    // test_animation_state.set_keyframe((0.0, 100.0));
-    // test_animation_state.set_keyframe((1.0, 300.0));
-
-    // state.animator.left.push(test_animation_state);
 
     app.run();
 }

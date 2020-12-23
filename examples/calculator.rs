@@ -405,185 +405,186 @@ impl EventHandler for Calculator {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::KeyInput(input) => {
+                WindowEvent::KeyDown(input) => {
                     println!("KeyInput: {:?}", input);
 
-                    match input.virtual_keycode {
+                    match input {
                         Some(virtual_keycode) => {
-                            if input.state == MouseButtonState::Pressed {
-                                match virtual_keycode {
-                                    VirtualKeyCode::Escape => {
-                                        state.active = self.clear;
-                                        self.clear_all(state);
-                                    }
+                            match virtual_keycode {
+                                VirtualKeyCode::Escape => {
+                                    state.active = self.clear;
+                                    self.clear_all(state);
+                                }
 
-                                    VirtualKeyCode::Key0 | VirtualKeyCode::Numpad0 => {
-                                        state.active = self.zero;
+                                VirtualKeyCode::Key0 | VirtualKeyCode::Numpad0 => {
+                                    state.active = self.zero;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Digit('0')).target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Key1 | VirtualKeyCode::Numpad1 => {
+                                    state.active = self.one;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Digit('1')).target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Key2 | VirtualKeyCode::Numpad2 => {
+                                    state.active = self.two;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Digit('2')).target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Key3 | VirtualKeyCode::Numpad3 => {
+                                    state.active = self.three;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Digit('3')).target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Key4 | VirtualKeyCode::Numpad4 => {
+                                    state.active = self.four;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Digit('4')).target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Key5 | VirtualKeyCode::Numpad5 => {
+                                    if state.modifiers.shift {
+                                        state.active = self.percent;
                                         state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('0')).target(entity),
+                                            Event::new(CalculatorEvent::Digit('%'))
+                                                .target(entity),
+                                        );
+                                    } else {
+                                        state.active = self.five;
+                                        state.insert_event(
+                                            Event::new(CalculatorEvent::Digit('5'))
+                                                .target(entity),
                                         );
                                     }
+                                }
 
-                                    VirtualKeyCode::Key1 | VirtualKeyCode::Numpad1 => {
-                                        state.active = self.one;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('1')).target(entity),
-                                        );
-                                    }
+                                VirtualKeyCode::Key6 | VirtualKeyCode::Numpad6 => {
+                                    state.active = self.six;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Digit('6')).target(entity),
+                                    );
+                                }
 
-                                    VirtualKeyCode::Key2 | VirtualKeyCode::Numpad2 => {
-                                        state.active = self.two;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('2')).target(entity),
-                                        );
-                                    }
+                                VirtualKeyCode::Key7 | VirtualKeyCode::Numpad7 => {
+                                    state.active = self.seven;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Digit('7')).target(entity),
+                                    );
+                                }
 
-                                    VirtualKeyCode::Key3 | VirtualKeyCode::Numpad3 => {
-                                        state.active = self.three;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('3')).target(entity),
-                                        );
-                                    }
-
-                                    VirtualKeyCode::Key4 | VirtualKeyCode::Numpad4 => {
-                                        state.active = self.four;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('4')).target(entity),
-                                        );
-                                    }
-
-                                    VirtualKeyCode::Key5 | VirtualKeyCode::Numpad5 => {
-                                        if state.modifiers.shift {
-                                            state.active = self.percent;
-                                            state.insert_event(
-                                                Event::new(CalculatorEvent::Digit('%'))
-                                                    .target(entity),
-                                            );
-                                        } else {
-                                            state.active = self.five;
-                                            state.insert_event(
-                                                Event::new(CalculatorEvent::Digit('5'))
-                                                    .target(entity),
-                                            );
-                                        }
-                                    }
-
-                                    VirtualKeyCode::Key6 | VirtualKeyCode::Numpad6 => {
-                                        state.active = self.six;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('6')).target(entity),
-                                        );
-                                    }
-
-                                    VirtualKeyCode::Key7 | VirtualKeyCode::Numpad7 => {
-                                        state.active = self.seven;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('7')).target(entity),
-                                        );
-                                    }
-
-                                    VirtualKeyCode::Key8 | VirtualKeyCode::Numpad8 => {
-                                        if state.modifiers.shift {
-                                            state.active = self.multiply;
-                                            state.insert_event(
-                                                Event::new(CalculatorEvent::Operator('*'))
-                                                    .target(entity),
-                                            );
-                                        } else {
-                                            state.active = self.eight;
-                                            state.insert_event(
-                                                Event::new(CalculatorEvent::Digit('8'))
-                                                    .target(entity),
-                                            );
-                                        }
-                                    }
-
-                                    VirtualKeyCode::Key9 | VirtualKeyCode::Numpad9 => {
-                                        state.active = self.nine;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('9')).target(entity),
-                                        );
-                                    }
-
-                                    VirtualKeyCode::Multiply => {
+                                VirtualKeyCode::Key8 | VirtualKeyCode::Numpad8 => {
+                                    if state.modifiers.shift {
                                         state.active = self.multiply;
                                         state.insert_event(
                                             Event::new(CalculatorEvent::Operator('*'))
                                                 .target(entity),
                                         );
-                                    }
-
-                                    VirtualKeyCode::Subtract | VirtualKeyCode::Minus => {
-                                        state.active = self.subtract;
+                                    } else {
+                                        state.active = self.eight;
                                         state.insert_event(
-                                            Event::new(CalculatorEvent::Operator('-'))
+                                            Event::new(CalculatorEvent::Digit('8'))
                                                 .target(entity),
                                         );
                                     }
+                                }
 
-                                    VirtualKeyCode::Add => {
+                                VirtualKeyCode::Key9 | VirtualKeyCode::Numpad9 => {
+                                    state.active = self.nine;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Digit('9')).target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Multiply => {
+                                    state.active = self.multiply;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Operator('*'))
+                                            .target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Subtract | VirtualKeyCode::Minus => {
+                                    state.active = self.subtract;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Operator('-'))
+                                            .target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Add => {
+                                    state.active = self.add;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Operator('+'))
+                                            .target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Divide | VirtualKeyCode::Slash => {
+                                    state.active = self.divide;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Operator('/'))
+                                            .target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Period => {
+                                    state.active = self.decimal_point;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Digit('.')).target(entity),
+                                    );
+                                }
+
+                                VirtualKeyCode::Equals => {
+                                    if state.modifiers.shift {
                                         state.active = self.add;
                                         state.insert_event(
                                             Event::new(CalculatorEvent::Operator('+'))
                                                 .target(entity),
                                         );
-                                    }
-
-                                    VirtualKeyCode::Divide | VirtualKeyCode::Slash => {
-                                        state.active = self.divide;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Operator('/'))
-                                                .target(entity),
-                                        );
-                                    }
-
-                                    VirtualKeyCode::Period => {
-                                        state.active = self.decimal_point;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('.')).target(entity),
-                                        );
-                                    }
-
-                                    VirtualKeyCode::Equals => {
-                                        if state.modifiers.shift {
-                                            state.active = self.add;
-                                            state.insert_event(
-                                                Event::new(CalculatorEvent::Operator('+'))
-                                                    .target(entity),
-                                            );
-                                        } else {
-                                            state.active = self.equals;
-                                            state.insert_event(
-                                                Event::new(CalculatorEvent::Operator('='))
-                                                    .target(entity),
-                                            );
-                                        }
-                                    }
-
-                                    VirtualKeyCode::Return => {
+                                    } else {
                                         state.active = self.equals;
                                         state.insert_event(
                                             Event::new(CalculatorEvent::Operator('='))
                                                 .target(entity),
                                         );
                                     }
-
-                                    _ => {}
                                 }
 
-                                state.insert_event(
-                                    Event::new(WindowEvent::Restyle).target(state.root),
-                                );
-                            } else {
-                                state.active = Entity::null();
-                                state.insert_event(
-                                    Event::new(WindowEvent::Restyle).target(state.root),
-                                );
+                                VirtualKeyCode::Return => {
+                                    state.active = self.equals;
+                                    state.insert_event(
+                                        Event::new(CalculatorEvent::Operator('='))
+                                            .target(entity),
+                                    );
+                                }
+
+                                _ => {}
                             }
+
+                            state.insert_event(
+                                Event::new(WindowEvent::Restyle).target(state.root),
+                            );
+
                         }
 
                         None => {}
                     }
+                }
+
+                WindowEvent::KeyUp(_) => {
+                    state.active = Entity::null();
+                    state.insert_event(
+                        Event::new(WindowEvent::Restyle).target(state.root),
+                    );
                 }
 
                 _ => {}
@@ -596,22 +597,21 @@ impl EventHandler for Calculator {
 
 pub fn main() {
     // Replace this with icon loading using resource manager when working
-    let icon = image::open("examples/resources/icons/calculator_dark-128.png").unwrap();
+    let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
-    let mut app = Application::new(|window| {
-        window
+    let mut app = Application::new(|win_desc, state, window| {
+        
+        state.style.parse_theme(LIGHT_THEME);
+
+        Calculator::default().build(state, window, |builder| {
+            builder.class("calculator")
+        });
+        
+        win_desc
             .with_title("Calculator")
-            //.with_inner_size(400, 400) This causes text to dissapear, not sure why
+            .with_inner_size(300, 400)
             .with_min_inner_size(200, 300)
             .with_icon(icon.to_bytes(), icon.width(), icon.height())
-    });
-
-    let state = &mut app.state;
-
-    state.style.parse_theme(LIGHT_THEME);
-
-    Calculator::default().build(state, state.root, |builder| {
-        builder.class("calculator")
     });
 
     app.run();
