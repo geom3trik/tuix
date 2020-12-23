@@ -23,7 +23,7 @@ cargo run --example example_name
 ### Hello GUI
 Since it's probably best to learn by example, here is the "hello world" of GUI applications:
 
-```
+```Rust
 extern crate tuix;
 
 use tuix::Application;
