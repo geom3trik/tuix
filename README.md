@@ -15,26 +15,32 @@ The driving principle behind tuix is to be a self-contained, small-as-possible, 
 Since it's probably best to learn by example, here is the "hello world" of GUI applications:
 
 ```
-extern crate rust_gui;
+extern crate tuix;
 
-use rust_gui::Application;
-use rust_gui::widgets::Button;
-use rust_gui::events::BuildHandler;
-use rust_gui::style::{Color, Length};
+use tuix::Application;
+use tuix::widgets::Button;
+
+use tuix::events::BuildHandler;
+
+use tuix::style::{Color, Length};
 
 fn main() {
-    let mut app = Application::new(|window| window.with_title("Hello GUI"));
+    let mut app = Application::new(|win_desc, state, window| {
 
-    let state = app.get_state();
-    let window = state.root;
+        Button::new().build(state, window, |builder| {
+            builder
+                .set_width(Length::Pixels(100.0))
+                .set_height(Length::Pixels(30.0))
+                .set_border_width(2.0)
+                .set_border_color(Color::rgb(0,0,0))
+                .set_background_color(Color::rgb(50,50,100))
+                .set_border_radius(Length::Pixels(5.0))
+                .set_text("TEST")
+        });        
 
-    Button::new().build(state, window, |builder| {
-        builder
-            .set_width(Length::Pixels(100.0))
-            .set_height(Length::Pixels(50.0))
-            .set_background_color(Color::rgb(50,50,100))
+        win_desc.with_title("Hello GUI")
     });
-
+        
     app.run();
 }
 ```
