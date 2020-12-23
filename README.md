@@ -1,3 +1,5 @@
+[Join the Discord channel](https://discord.gg/q4YEv5Zc)
+
 # tuix
 Tuix is a cross-platform GUI toolkit written in Rust.
 
@@ -65,5 +67,12 @@ The build function takes 3 arguments: the state, the entity id of the parent wid
 The last line inside of main starts the application main loop.
 
 You can run this example with: ```cargo run --example hello_gui```
+
+## Building a simple synth
+
+![alt text](https://github.com/geom3trik/tuix_audio_synth/blob/main/screenshot.png?raw=true)
+
+You can find an example application and a tutorial for building a simple synth here: https://github.com/geom3trik/tuix_audio_synth
+
 
 
