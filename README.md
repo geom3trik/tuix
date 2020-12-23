@@ -5,11 +5,20 @@ The driving principle behind tuix is to be a self-contained, small-as-possible, 
 
 ## Features
 
-// TODO
+ - Cross-platform
+ - 2D GPU based drawing using opengl (powered by femtovg)
+ - Flexbox-based layout system
+ - CSS-like styling
+ - Built-in widgets
 
 ## Getting Started
 
-// TODO
+### Running Examples
+
+You can run any of the examples with:
+```
+cargo run --example example_name
+```
 
 ### Hello GUI
 Since it's probably best to learn by example, here is the "hello world" of GUI applications:
