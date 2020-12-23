@@ -451,7 +451,7 @@ impl ApplicationBV {
 
                 let regular_font = include_bytes!("../resources/Roboto-Regular.ttf");
                 let bold_font = include_bytes!("../resources/Roboto-Bold.ttf");
-                let icon_font = include_bytes!("../resources/Entypo.ttf");
+                let icon_font = include_bytes!("../resources/entypo.ttf");
 
                 let fonts = Fonts {
                     regular: Some(canvas
