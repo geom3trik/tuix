@@ -80,14 +80,22 @@ Tuix can be thought of as 4 seperate processes which happen in order:
 ## Building
 Building is the process of creating the widgets in the application. This can be done before the application loop begins, or in response to an event.
 
+[Building Widgets](https://github.com/geom3trik/tuix/wiki/Building-Widgets)
+
 ## Layout
 Tuix uses a flexbox model to perform layout. The layout process positions the widgets based on the style properties you give them.
+
+[Layout Widgets](https://github.com/geom3trik/tuix/wiki/Layout-Widgets)
 
 ## Styling
 After layout, the widgets are styled using the CSS properties you give them.
 
+[Styling Widgets](https://github.com/geom3trik/tuix/wiki/Styling-Widgets)
+
 ## Rendering
 After styling, the widgets are rendered to the window. The visual look of the widgets is determined by the style propeties set on them, but it's also possible to override this with a custom drawing function for your own custom widgets.
+
+[Rendering Widgets](https://github.com/geom3trik/tuix/wiki/Rendering-Widgets)
 
 ## Building a simple synth
 
