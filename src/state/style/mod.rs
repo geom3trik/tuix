@@ -290,7 +290,7 @@ impl Style {
 
         for rule in rule_list.iter() {
             let rule_id = self.rule_selectors.len();
-            println!("Rule: {}, Specificity: {:?}, rule: {:?}", rule_id, rule.specificity(), rule);
+            //println!("Rule: {}, Specificity: {:?}, rule: {:?}", rule_id, rule.specificity(), rule);
             self.rule_selectors.push(rule.selectors.clone());
             //self.rules.push(rule_id);
             for property in rule.properties.clone() {

@@ -103,7 +103,6 @@ impl EventHandler for Textbox {
             match textbox_event {
                 TextboxEvent::SetValue(val) => {
                     if event.target == entity {
-                        println!("Received Set Value: {} {}", self.text, val);
                         entity.set_text(state, val);
 
                         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)));
