@@ -390,7 +390,7 @@ pub trait HierarchyTree<'a> {
     fn parent(&self, hierarchy: &'a Hierarchy) -> Option<Entity>;
     fn is_sibling(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool;
     fn is_child_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool;
-    //fn is_descendant_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool; TODO
+    fn is_descendant_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool;
 }
 
 impl<'a> HierarchyTree<'a> for Entity {
@@ -403,6 +403,10 @@ impl<'a> HierarchyTree<'a> for Entity {
     }
 
     fn is_child_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool {
+        if *self == Entity::null() { 
+            return false;
+        }
+        
         if let Some(parent) = hierarchy.get_parent(*self) {
             if parent == entity {
                 return true;
@@ -412,6 +416,21 @@ impl<'a> HierarchyTree<'a> for Entity {
         } else {
             return false;
         }
+    }
+
+    fn is_descendant_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool {
+        
+        if *self == Entity::null() { 
+            return false;
+        }
+
+        for parent in self.parent_iter(hierarchy) {
+            if parent == entity {
+                return true;
+            }
+        }
+
+        false
     }
 
     // TODO

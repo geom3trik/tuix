@@ -117,7 +117,7 @@ impl State {
     }
 
     pub fn capture(&mut self, id: Entity) {
-        //println!("Capture: {}", id);
+        println!("Capture: {}", id);
         if id != Entity::null() {
             self.insert_event(Event::new(WindowEvent::MouseCaptureEvent).target(id).propagate(Propagation::Direct));
         }

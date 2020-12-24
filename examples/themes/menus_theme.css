@@ -5,20 +5,27 @@ menu {
 }
 
 menu>.container {
-    background-color: #262626;
+    /* background-color: #262626; */
+    opacity: 0.0;
     width: 200px;
-    display: none;
+    /* display: none; */
 }
 
 menu:checked>.container {
-    display: flex;
-    flex-direction: column;
+    /* display: flex; */
+    opacity: 1.0;
+    /* transition: opacity 0.1 0.0; */
 }
 
-/* menu > .container:over {
-    display: flex;
-    flex-direction: column;
-} */
+.submenu>.container {
+    opacity: 0.0;
+    transition: opacity 0.1 1.0;
+}
+
+.submenu:checked>.container {
+    opacity: 1.0;
+    transition: opacity 0.1 0.3;
+}
 
 menu:hover {
     color: #ffffff;
@@ -29,19 +36,20 @@ menu:checked {
     color: #ffffff;
 }
 
-.item {
+menu .item {
     background-color: #383838;
     flex-basis: 30px;
     padding-left: 5px;
     color: #e4e4e4;
 }
 
-.item:hover {
+menu .item:hover {
     background-color: #494949;
+    transition: background-color 0.1 0.0;
 }
 
 .spacer {
-    background-color: #262626;
+    /* background-color: #262626; */
     flex-basis: 20px;
     display: flex;
     flex-direction: column;

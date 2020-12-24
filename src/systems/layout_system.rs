@@ -1024,7 +1024,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                         Length::Percentage(val) => {
                             new_posx =
-                                parent_posx + parent_width - new_width - (val * parent_width);
+                                parent_posx + parent_width - new_width - (val * (parent_width - parent_padding_left - parent_padding_right));
                         }
 
                         _ => {}
@@ -1036,7 +1036,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Length::Percentage(val) => {
-                            new_posx = parent_posx + (val * parent_width);
+                            new_posx = parent_posx + (val * (parent_width - parent_padding_left - parent_padding_right));
                         }
 
                         _ => {}
@@ -1049,7 +1049,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                         Length::Percentage(val) => {
                             new_posy =
-                                parent_posy + parent_height - new_height - (val * parent_height);
+                                parent_posy + parent_height - new_height - (val * (parent_height - parent_padding_top - parent_padding_bottom));
                         }
 
                         _ => {}
@@ -1061,7 +1061,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Length::Percentage(val) => {
-                            new_posy = parent_posy + (val * parent_height);
+                            new_posy = parent_posy + (val * (parent_height - parent_padding_top - parent_padding_bottom));
                         }
 
                         _ => {}
