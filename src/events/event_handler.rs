@@ -130,6 +130,8 @@ pub trait EventHandler {
             .cloned()
             .unwrap_or_default();
 
+        let shadow_color = state.style.shadow_color.get(entity).cloned().unwrap_or_default();
+
         let border_radius = state
             .style
             .border_radius
@@ -173,6 +175,9 @@ pub trait EventHandler {
         let mut border_color: femtovg::Color = border_color.into();
         border_color.set_alphaf(border_color.a * opacity);
 
+        let mut shadow_color: femtovg::Color = shadow_color.into();
+        shadow_color.set_alphaf(shadow_color.a * opacity);
+
         let border_width = state
             .style
             .border_width
@@ -182,6 +187,7 @@ pub trait EventHandler {
 
         //println!("Border Width: {}", border_width);
 
+        // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
 
         canvas.save();
@@ -189,21 +195,35 @@ pub trait EventHandler {
         canvas.rotate(rotate.to_radians());
         canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
-        
 
-        
+        let shadow_h_offset = state.style.shadow_h_offset.get(entity).cloned().unwrap_or_default();
+        let border_radius_bottom_left = match border_radius.bottom_left {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        // Draw shadow
         let mut path = Path::new();
         path.rounded_rect_varying(posx, posy, width, height, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
+
+
+
+        // Draw rounded rect
+        let mut path = Path::new();
+        path.rounded_rect_varying(posx, posy, width, height, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
+        let mut paint = Paint::color(background_color);
+        canvas.fill_path(&mut path, paint);
+        
+        // Draw border
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
 
-        // canvas.translate(posx+0.5*width, posy+0.5*height);
-        // canvas.scale(0.5,0.5);
-        // canvas.translate(-posx-0.5*width, -posy-0.5*height);
-
+        
+        // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
            
             let font_id = match text.font.as_ref() {

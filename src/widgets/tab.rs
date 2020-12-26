@@ -193,9 +193,6 @@ impl EventHandler for TabContainer {
                         }
 
                         tab.set_display(state, Display::Flexbox);
-
-                        state.insert_event(Event::new(WindowEvent::Restyle));
-                        state.insert_event(Event::new(WindowEvent::Relayout));
                     }
                 }
             }

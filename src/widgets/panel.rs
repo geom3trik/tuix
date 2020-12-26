@@ -5,7 +5,7 @@ use crate::{
     AnimationState, BuildHandler, Entity, Event, EventHandler, MouseButton, State, WindowEvent,
 };
 
-use crate::widgets::Button;
+use crate::widgets::{Button, Element};
 
 use crate::state::style::*;
 
@@ -64,7 +64,7 @@ impl Panel {
 impl BuildHandler for Panel {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.header = Button::new().build(state, entity, |builder| {
+        self.header = Element::new().build(state, entity, |builder| {
             builder
                 .set_flex_direction(FlexDirection::Row)
                 //.set_height(Length::Pixels(30.0))
@@ -72,8 +72,9 @@ impl BuildHandler for Panel {
         });
 
         self.checkbox =
-            Button::with_label(ICON_DOWN_OPEN_BIG).build(state, self.header, |builder| {
+            Element::new().build(state, self.header, |builder| {
                 builder
+                    .set_text(ICON_DOWN_OPEN_BIG)
                     .set_font("Icons".to_string())
                     .set_text_justify(Justify::Center)
                     .set_text_align(Align::Center)
@@ -90,14 +91,14 @@ impl BuildHandler for Panel {
         //         .set_hoverability(false)
         // });
 
-        Button::new().build(state, self.header, |builder| {
+        Element::new().build(state, self.header, |builder| {
             builder
                 .set_text(&self.title)
                 .set_flex_grow(1.0)
                 .set_hoverability(false)
         });
 
-        self.container = Button::new().build(
+        self.container = Element::new().build(
             state,
             entity,
             |builder| {
@@ -110,20 +111,20 @@ impl BuildHandler for Panel {
             },    
         );
 
-        self.other_container = Button::new().build(
+        self.other_container = Element::new().build(
             state,
             self.container,
             |builder| builder, //.set_flex_grow(1.0).class("test")
         );
 
-        entity.set_checked(state, true);
+        //entity.set_checked(state, true);
 
         state.style.insert_element(entity, "panel");
 
         let container_expand_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(200.0)));
+            .with_keyframe((1.0, Length::Pixels(0.0)));
 
         self.expand_animation = state
             .style
@@ -133,7 +134,7 @@ impl BuildHandler for Panel {
         let container_collapse_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
             .with_delay(std::time::Duration::from_millis(150))
-            .with_keyframe((0.0, Length::Pixels(200.0)))
+            .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
         self.collapse_animation = state

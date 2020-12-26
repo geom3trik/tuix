@@ -9,8 +9,8 @@ pub struct Text {
     pub text: String,
     pub font: String,
     pub font_size: f32,
-    pub font_color: Color,
-    pub indent: f32,
+    //pub font_color: Color,
+    //pub indent: f32,
 }
 
 impl Default for Text {
@@ -19,8 +19,8 @@ impl Default for Text {
             text: "".to_string(),
             font: "Sans".to_string(),
             font_size: 14.0,
-            font_color: Color::rgba(255, 255, 255, 255),
-            indent: 0.0,
+            //font_color: Color::rgba(255, 255, 255, 255),
+            //indent: 0.0,
         }
     }
 }
