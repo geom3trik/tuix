@@ -62,18 +62,18 @@ impl Interpolator for BorderRadius {
 
 #[derive(Copy, Clone, Debug)]
 pub struct BoxShadow {
-    pub horizontal_offset: f32,
-    pub vertical_offset: f32,
-    pub blur_radius: f32,
+    pub horizontal_offset: Length,
+    pub vertical_offset: Length,
+    pub blur_radius: Length,
     pub color: Color,
 }
 
 impl Default for BoxShadow {
     fn default() -> Self {
         BoxShadow {
-            horizontal_offset: 0.0,
-            vertical_offset: 0.0,
-            blur_radius: 0.0,
+            horizontal_offset: Length::Auto,
+            vertical_offset: Length::Auto,
+            blur_radius: Length::Auto,
             color: Color::rgba(0, 0, 0, 128),
         }
     }

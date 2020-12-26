@@ -18,6 +18,8 @@ use crate::state::Fonts;
 
 use crate::VirtualKeyCode;
 
+use crate::state::style::prop::*;
+
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
 
@@ -80,9 +82,6 @@ impl Application {
 
         WindowWidget::new().build_window(&mut state);
 
-        
-
-        
         
         Application {
             window: window,
@@ -207,7 +206,9 @@ impl Application {
 
                                     if state.modifiers.shift {
                                         if prev_focus != Entity::null() {
+                                            state.focused.set_focus(&mut state, false);
                                             state.focused = prev_focus;
+                                            state.focused.set_focus(&mut state, true);
                                         } else {
                                             // TODO impliment reverse iterator for hierarchy
                                             // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
@@ -217,12 +218,16 @@ impl Application {
                                         }
                                     } else {
                                         if next_focus != Entity::null() {
+                                            state.focused.set_focus(&mut state, false);
                                             state.focused = next_focus;
+                                            state.focused.set_focus(&mut state, true);
                                         } else {
+                                            state.focused.set_focus(&mut state, false);
                                             state.focused = match state.focused.into_iter(&hierarchy).next() {
                                                 Some(val) => val,
                                                 None => state.root,
                                             };
+                                            state.focused.set_focus(&mut state, true);
                                         }
                                     }
 

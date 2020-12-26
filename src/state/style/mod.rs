@@ -73,24 +73,21 @@ pub struct Style {
     //replace with custom bitmask storage for pseudoclasses
     //pub pseudo_classes: DenseStorage<HashSet<PseudoClass>>,
 
-    // Merge these
-    //pub enabled: DenseStorage<bool>,
-    //pub checked: DenseStorage<bool>,
-    //pub over: DenseStorage<bool>,
+    // 
     pub pseudo_classes: DenseStorage<PseudoClasses>,
 
     pub z_order: DenseStorage<i32>,
 
     // Transform
     pub rotate: AnimatableStorage<f32>, // in degrees
-    pub scaley: AnimatableStorage<Scale>,
+    pub scaley: AnimatableStorage<Scale>, // TODO
 
     // General
     pub display: StyleStorage<Display>,
     pub visibility: StyleStorage<Visibility>,
     pub opacity: AnimatableStorage<Opacity>,
 
-    pub overflow: StyleStorage<Overflow>,
+    pub overflow: StyleStorage<Overflow>, // TODO
 
     pub scroll: DenseStorage<Scroll>,
 
@@ -156,7 +153,7 @@ pub struct Style {
     pub background_color: AnimatableStorage<Color>,
     pub background_image: StyleStorage<String>,
 
-    pub box_shadow: DenseStorage<BoxShadow>,
+    pub box_shadow: DenseStorage<BoxShadow>, //TODO
 
     // Layout Properties
     //pub size_constraints: DenseStorage<SizeConstraints>,
