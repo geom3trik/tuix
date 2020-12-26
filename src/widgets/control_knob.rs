@@ -214,8 +214,7 @@ impl EventHandler for ControlKnob {
         let r1 = width/2.0;
         let r0 = r1 - 10.0;
 
-        let PI = 3.141592f32;
-
+        use std::f32::consts::PI;
         let start = -(PI + PI/4.0);
         let end = PI/4.0;
 
