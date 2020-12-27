@@ -21,7 +21,7 @@ button {
     height: 30px;
     flex-grow: 1.0;
     color: black;
-    background-color: #255a79;
+    background-color: #ffffff;
     margin: 5px;
     border-width: 1px;
     border-color: black;
@@ -34,8 +34,6 @@ label {
     color: black;
     background-color: white;
     margin: 5px;
-    border-width: 1px;
-    border-color: black;
 }
 
 checkbox {
