@@ -3,13 +3,9 @@
     background-color: green;
 }
 
-hbox {
-    background-color: red;
-}
-
 panel>.container {
     background-color: #ffffff;
-    border-width: 5px;
+    border-width: 1px;
     border-color:  #3669c9;;
     color: white;
 }
@@ -17,7 +13,7 @@ panel>.container {
 
 
 panel>.header {
-    height: 5px;
+    height: 30px;
     background-color: #3669c9;
 }
 
@@ -25,7 +21,11 @@ button {
     height: 30px;
     flex-grow: 1.0;
     color: black;
-    background-color: white;
+    background-color: #255a79;
+    margin: 5px;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 5px;
 }
 
 label {
@@ -33,6 +33,9 @@ label {
     height: 30px;
     color: black;
     background-color: white;
+    margin: 5px;
+    border-width: 1px;
+    border-color: black;
 }
 
 checkbox {

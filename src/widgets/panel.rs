@@ -198,8 +198,10 @@ impl EventHandler for Panel {
 
                         if !state.style.height.is_animating(self.container) {
                             let container_height = state.transform.get_height(self.container);
+                            let container_border = state.style.border_width.get(self.container).cloned().unwrap_or_default();
+                            println!("Container Height: {}", container_height);
                             if container_height > 0.0 {
-                                self.container_height = container_height;
+                                self.container_height = container_height + container_border;
 
                                 if let Some(animation) =
                                     state.style.height.get_animation_mut(self.expand_animation)
@@ -255,7 +257,7 @@ impl EventHandler for Panel {
                                     .play_animation(self.checkbox, self.arrow_expand_animation);
                             
 
-                                //println!("{}", self.other_container);
+                                println!("{}", self.container_height);
 
                                 self.checkbox.set_rotate(state, 0.0);
                                 self.container.set_height(state, Length::Pixels(self.container_height));

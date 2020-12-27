@@ -160,18 +160,23 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
         match flex_direction {
             FlexDirection::Row => {
+                // Set width to the sum of the widths of the children
                 new_width = state.transform.get_child_sum(*entity);
+                // Set height to the maximum height of the children
                 new_height = state.transform.get_child_max(*entity);
             }
 
             FlexDirection::Column => {
+                // Set width to the maximum width of the children
                 new_width = state.transform.get_child_max(*entity);
+                // Set height to the maximum height of the children
                 new_height = state.transform.get_child_sum(*entity);
             }
         }
 
         match parent_flex_direction {
             FlexDirection::Row => {
+                // Start with desired width if specified in pixels
                 match width {
                     Length::Pixels(val) => {
                         new_width = val;
@@ -180,10 +185,12 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                     _ => {}
                 };
 
+                // Flex basis overrides desired width
                 if let Some(flex_basis) = state.style.flex_basis.get(*entity) {
                     new_width = *flex_basis;
                 }
 
+                // Set height to desired height if specified in pixels
                 match height {
                     Length::Pixels(val) => {
                         new_height = val;
@@ -192,6 +199,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                     _ => {}
                 }
 
+                // Apply size constraints
                 if new_width < min_width {
                     new_width = min_width;
                 }
@@ -208,8 +216,9 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                     new_height = max_height;
                 }
 
-                new_width += margin_left + margin_right - border_width;
-                new_height += margin_top + margin_bottom - border_width;
+                // Apply margins
+                new_width += margin_left + margin_right;
+                new_height += margin_top + margin_bottom;
 
                 let position = state
                     .style
@@ -272,8 +281,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                     new_height = max_height;
                 }
 
-                new_width += margin_left + margin_right - border_width;
-                new_height += margin_top + margin_bottom - border_width;
+                new_width += margin_left + margin_right;
+                new_height += margin_top + margin_bottom;
 
                 let position = state
                     .style
@@ -323,9 +332,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
         .cloned()
         .unwrap_or_default();
 
-
-        let parent_width = state.transform.get_width(parent) - parent_border_width;
-        let parent_height = state.transform.get_height(parent) - parent_border_width;
+        let parent_width = state.transform.get_width(parent) - (2.0 * parent_border_width);
+        let parent_height = state.transform.get_height(parent) - (2.0 * parent_border_width);
 
         let parent_padding_left = match state
             .style
@@ -376,10 +384,13 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
         };
 
 
-        let parent_posx = state.transform.get_posx(parent) + parent_padding_left + (parent_border_width / 2.0);
-        let parent_posy = state.transform.get_posy(parent) + parent_padding_top + (parent_border_width / 2.0);
+        let parent_posx = state.transform.get_posx(parent) + parent_padding_left + parent_border_width;
+        let parent_posy = state.transform.get_posy(parent) + parent_padding_top + parent_border_width;
 
-        //TEMP
+
+        
+
+        //TEMP - Move to the walk up phase
         let mut num_children = 0;
         for _ in parent.child_iter(&hierarchy) {
             num_children += 1;
@@ -726,8 +737,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 new_height = max_height;
                             }
 
-                            new_width = new_width - child_border_width;
-                            new_height = new_height - child_border_width;
+                            //new_width = new_width - child_border_width;
+                            //new_height = new_height - child_border_width;
 
                             // if index % 2 == 0 {
                             //     new_width = new_width.floor();
@@ -757,7 +768,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                             // Position
                             state.transform.set_posx(
                                 child,
-                                parent_posx + new_posx + margin_left + (child_border_width / 2.0),
+                                parent_posx + new_posx + margin_left
+                                // + (child_border_width / 2.0),
                             );
 
                             //let align_items = state.style.align_items.get(parent).cloned().unwrap_or_default();
@@ -796,7 +808,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                             state.transform.set_posy(
                                 child,
-                                parent_posy + new_posy + margin_top + (child_border_width / 2.0),
+                                parent_posy + new_posy + margin_top
+                                // + (child_border_width / 2.0),
                             );
 
                             current_pos +=
@@ -825,9 +838,13 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 - parent_padding_top
                                 - parent_padding_bottom
                                 - state.transform.get_child_sum(parent);
+                        
+                            println!("Parent Free Space: {}", parent_free_space);
 
                             new_height +=
                                 flex_fraction * parent_free_space;
+
+                           
 
                             let align_items = state
                                 .style
@@ -883,8 +900,12 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 new_height = max_height;
                             }
 
-                            new_width = new_width - child_border_width;
-                            new_height = new_height - child_border_width;
+                            //println!("New Height: {}", new_height);
+
+                            //new_width = new_width - child_border_width;
+                            //new_height = new_height - child_border_width;
+
+                            //println!("New Height: {}", new_height);
 
                             state.transform.set_width(child, new_width);
                             state.transform.set_height(child, new_height);
@@ -904,7 +925,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                             // Position
                             state.transform.set_posy(
                                 child,
-                                parent_posy + new_posy + margin_top + (child_border_width / 2.0),
+                                parent_posy + new_posy + margin_top
+                                // + (child_border_width / 2.0),
                             );
 
                             //let align_items = state.style.align_items.get(parent).cloned().unwrap_or_default();
@@ -943,7 +965,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                             state.transform.set_posx(
                                 child,
-                                parent_posx + new_posx + margin_left + (child_border_width / 2.0),
+                                parent_posx + new_posx + margin_left
+                                // + (child_border_width / 2.0),
                             );
 
                             current_pos +=
@@ -1067,8 +1090,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                         _ => {}
                     }
 
-                    state.transform.set_posx(child, new_posx + parent_border_width / 2.0);
-                    state.transform.set_posy(child, new_posy + parent_border_width / 2.0);
+                    state.transform.set_posx(child, new_posx);
+                    state.transform.set_posy(child, new_posy);
 
                 }
             }

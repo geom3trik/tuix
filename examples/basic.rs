@@ -23,8 +23,8 @@ fn main() {
         // Button::with_label("Press Me").build(state, row, |builder| builder);
     
 
-        let inner = Button::new().build(state, outer, |builder| builder.class("inner"));
-        //let _innerinner = Button::new().build(state, inner, |builder| builder.class("innerinner"));
+        let inner = Element::new().build(state, outer, |builder| builder.class("inner"));
+        // let _innerinner = Element::new().build(state, outer, |builder| builder.class("inner2"));
 
         win_desc.with_title("basic").with_inner_size(600, 600)
     });

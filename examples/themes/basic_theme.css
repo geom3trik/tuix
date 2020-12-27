@@ -1,29 +1,32 @@
 
-
-.load {
-    width: 200px;
-    height: 50px;
-    background-color: grey;
-}
-.view {
-    width: 200px;
-    height: 50px;
-    background-color: red;
-}
-
 .outer {
-    width: 300px;
+    left: 10px;
+    top: 10px;
+    width: 40px;
+    height: 40px;
+
     /* height: 300px; */
     background-color: #912828;
-    border-width: 5;
+    border-width: 10px;
     border-color: blue;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .inner {
-    height: 30px;
-    width: 200px;
+    /* height: 60px; */
+    flex-grow: 1.0;
+    height: 20px;
     background-color: green;
+    border-width: 2px;
+    border-color: black;
+    /* flex-grow: 1.0; */
+}
+
+.inner2 {
+    height: 100px;
+    flex-grow: 1.0;
+    width: 100px;
+    background-color: blue;
     /* flex-grow: 1.0; */
 }
 
@@ -33,12 +36,12 @@ hbox {
 }
 
 
-/* button {
+button {
     height: 30px;
     flex-grow: 1.0;
     color: black;
     background-color: white;
-} */
+} 
 
 label {
     flex-grow: 1.0;
@@ -48,8 +51,7 @@ label {
 }
 
 .innerinner {
-    /* opacity: 1.0; */
     flex-grow: 1.0;
     background-color: yellow;
     margin: 10px;
-}
+} 
