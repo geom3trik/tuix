@@ -30,6 +30,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
         state.transform.set_child_sum(*entity, 0.0);
         state.transform.set_child_pos(*entity, 0.0);
         state.transform.set_child_grow_sum(*entity, 0.0);
+        state.transform.set_child_shrink_sum(*entity, 0.0);
     }
 
     //////////////////////
@@ -366,6 +367,13 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                 state.transform.get_child_grow_sum(parent) + flex_grow,
             );
         }
+
+        if let Some(flex_shrink) = state.style.flex_shrink.get(*entity) {
+            state.transform.set_child_shrink_sum(
+                parent,
+                state.transform.get_child_shrink_sum(parent) + flex_shrink
+            );
+        }
     }
 
     ////////////////////////
@@ -679,13 +687,33 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                 .get(child)
                 .cloned()
                 .unwrap_or_default();
+
+            let flex_shrink = state
+                .style
+                .flex_shrink
+                .get(child)
+                .cloned()
+                .unwrap_or_default();
+
             let mut child_grow_sum = state.transform.get_child_grow_sum(parent);
+            let mut child_shrink_sum = state.transform.get_child_shrink_sum(parent);
+
+            println!("Flex Shrink Sum: {} {}", parent, child_shrink_sum);
 
             if child_grow_sum < 1.0 {
                 child_grow_sum = 1.0;
             }
 
-            let flex_fraction = flex_grow / child_grow_sum;
+            if child_shrink_sum < 1.0 {
+                child_shrink_sum = 1.0;
+            }
+            
+
+
+            let flex_grow_fraction = flex_grow / child_grow_sum;
+            let flex_shrink_fraction = flex_shrink / child_shrink_sum;
+
+            //println!("Flex Shrink Fraction: {} {}", child, flex_shrink_fraction);
 
             let position = state.style.position.get(child).cloned().unwrap_or_default();
 
@@ -730,7 +758,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 - state.transform.get_child_sum(parent);
 
                             new_width +=
-                                flex_fraction * parent_free_space;
+                                flex_grow_fraction * parent_free_space;
 
                             
                             
@@ -886,7 +914,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 }
 
                                 Length::Percentage(val) => {
-                                    new_height = parent_height * val;
+                                    new_height = (parent_height -  parent_padding_top - parent_padding_bottom - parent_border_width - parent_border_width) * val;
                                 }
                                 _ => {}
                             };
@@ -902,10 +930,18 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 - parent_border_width
                                 - state.transform.get_child_sum(parent);
                         
-                            println!("Parent Free Space: {}", parent_free_space);
+                            println!("Parent Free Space: {} {} {}", parent, parent_free_space, state.transform.get_child_sum(parent));
 
-                            new_height +=
-                                flex_fraction * parent_free_space;
+                            // new_height +=
+                            //    flex_fraction * parent_free_space;
+
+                            println!("New Height: {}  Shrink Frac: {}", new_height, flex_shrink_fraction);
+
+                            if parent_free_space >= 0.0 {
+                                new_height += flex_grow_fraction * parent_free_space;
+                            } else {
+                                new_height += flex_shrink_fraction * parent_free_space;
+                            }
 
                            
 

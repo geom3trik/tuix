@@ -24,7 +24,7 @@ fn main() {
     
 
         let inner = Element::new().build(state, outer, |builder| builder.class("inner"));
-        // let inner = Element::new().build(state, outer, |builder| builder.class("inner"));
+        //let inner = Element::new().build(state, outer, |builder| builder.class("inner"));
         // let _innerinner = Element::new().build(state, outer, |builder| builder.class("inner2"));
 
         win_desc.with_title("basic").with_inner_size(600, 600)
