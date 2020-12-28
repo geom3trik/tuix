@@ -3,6 +3,10 @@
     background-color: green;
 }
 
+hbox {
+    align-items: center;
+}
+
 panel>.container {
     background-color: #ffffff;
     border-width: 1px;
@@ -25,22 +29,21 @@ button {
     margin: 5px;
     border-width: 1px;
     border-color: black;
-    border-radius: 5px;
+    border-radius: 3px;
 }
 
 label {
-    flex-grow: 1.0;
     height: 30px;
+    width: 100px;
     color: black;
-    background-color: white;
+    background-color: #b61b1b;
     margin: 5px;
 }
 
 checkbox {
-    left: 20px;
-    top: 20px;
     width: 20px;
     height: 20px;
+    margin: 5px;
     background-color: white;
     border-width: 1px;
     border-color: black;

@@ -698,7 +698,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             let mut child_grow_sum = state.transform.get_child_grow_sum(parent);
             let mut child_shrink_sum = state.transform.get_child_shrink_sum(parent);
 
-            println!("Flex Shrink Sum: {} {}", parent, child_shrink_sum);
+            //println!("Flex Shrink Sum: {} {}", parent, child_shrink_sum);
 
             if child_grow_sum < 1.0 {
                 child_grow_sum = 1.0;
@@ -930,12 +930,12 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 - parent_border_width
                                 - state.transform.get_child_sum(parent);
                         
-                            println!("Parent Free Space: {} {} {}", parent, parent_free_space, state.transform.get_child_sum(parent));
+                            //println!("Parent Free Space: {} {} {}", parent, parent_free_space, state.transform.get_child_sum(parent));
 
                             // new_height +=
                             //    flex_fraction * parent_free_space;
 
-                            println!("New Height: {}  Shrink Frac: {}", new_height, flex_shrink_fraction);
+                            //println!("New Height: {}  Shrink Frac: {}", new_height, flex_shrink_fraction);
 
                             if parent_free_space >= 0.0 {
                                 new_height += flex_grow_fraction * parent_free_space;
