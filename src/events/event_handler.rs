@@ -69,9 +69,9 @@ pub trait EventHandler {
         //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
 
         // Skip widgets with no width or no height
-        if width == 0.0 || height == 0.0 {
-            return;
-        }
+        // if width == 0.0 || height == 0.0 {
+        //     return;
+        // }
 
         let padding_left = match state
             .style

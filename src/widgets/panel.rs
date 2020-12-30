@@ -199,9 +199,9 @@ impl EventHandler for Panel {
                         if !state.style.height.is_animating(self.container) {
                             let container_height = state.transform.get_height(self.container);
                             let container_border = state.style.border_width.get(self.container).cloned().unwrap_or_default();
-                            println!("Container Height: {}", container_height);
+                            println!("Container Height: {} {}", container_height, container_border);
                             if container_height > 0.0 {
-                                self.container_height = container_height + container_border;
+                                self.container_height = container_height - 2.0 * container_border;
 
                                 if let Some(animation) =
                                     state.style.height.get_animation_mut(self.expand_animation)

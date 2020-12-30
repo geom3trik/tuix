@@ -18,7 +18,6 @@ fn main() {
             builder
                 .class("menu_bar")
                 .set_height(Length::Pixels(40.0))
-                .set_width(Length::Percentage(1.0))
         );
 
         // Horizontal Container
@@ -34,16 +33,20 @@ fn main() {
                 .set_background_color(Color::rgb(100,50,50))
         );
 
-        // 
+        // // 
         let panel = Panel::new("Buttons").build(state, rvbox, |builder| builder);
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Button").build(state, row, |builder| builder);
         Button::with_label("Press Me").build(state, row, |builder| builder);
     
-        let row = HBox::new().build(state, panel, |builder| builder);
-        Label::new("Checkbox").build(state, row, |builder| builder);
-        Checkbox::new(false).build(state, row, |builder| builder);
+        // let row = HBox::new().build(state, panel, |builder| builder);
+        // Label::new("Checkbox").build(state, row, |builder| builder);
+        // Checkbox::new(false).build(state, row, |builder| builder);
+
+        // let row = HBox::new().build(state, panel, |builder| builder);
+        // Label::new("Checkbox").build(state, row, |builder| builder);
+        // Switch::new(false).build(state, row, |builder| builder);
 
 
         // Tabs

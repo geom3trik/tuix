@@ -13,7 +13,7 @@ fn main() {
         
         state.style.parse_theme(THEME);
         // let checkbox = Checkbox::new(false).build(state, root, |builder| builder.class("widget"));
-        // let switch = Switch::new(false).build(state, root, |builder| builder);
+        let switch = Switch::new(false).build(state, root, |builder| builder);
         
         //let dropdown = Dropdown::new()
 
@@ -23,11 +23,11 @@ fn main() {
         //         .set_height(Length::Pixels(50.0))
         // );
 
-        let knob = ValueKnob::new("Dial", 0.0, 0.0, 1.0).build(state, root, |builder|
-            builder
-                .set_width(Length::Pixels(50.0))
-                .set_height(Length::Pixels(75.0))
-        );
+        // let knob = ValueKnob::new("Dial", 0.0, 0.0, 1.0).build(state, root, |builder|
+        //     builder
+        //         .set_width(Length::Pixels(50.0))
+        //         .set_height(Length::Pixels(75.0))
+        // );
 
         
 

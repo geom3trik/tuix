@@ -4,13 +4,22 @@
 }
 
 hbox {
+    /* align-items: center; */
+    background-color: #ff5100;
+    /* height: 30px; */
+    /* flex-grow: 1.0; */
+    /* padding: 10px; */
+    border-width: 10px;
+    border-color:  #000000;
     align-items: center;
 }
 
+
 panel>.container {
+    /* height: 100px; */
     background-color: #ffffff;
-    border-width: 1px;
-    border-color:  #3669c9;;
+    border-width: 5px;
+    border-color:  #23478a;;
     color: white;
 }
 
@@ -25,11 +34,13 @@ button {
     height: 30px;
     flex-grow: 1.0;
     color: black;
-    background-color: #ffffff;
-    margin: 5px;
-    border-width: 1px;
-    border-color: black;
+    background-color: #cab124;
+    /* margin: 5px; */
+    border-width: 2px;
+    border-color: #16bb7c;
     border-radius: 3px;
+    margin: 5px;
+    padding-left: 5px;
 }
 
 label {
@@ -37,6 +48,8 @@ label {
     width: 100px;
     color: black;
     background-color: #b61b1b;
+    /* margin: 5px; */
+    padding-left: 5px;
     margin: 5px;
 }
 
@@ -48,17 +61,17 @@ checkbox {
     border-width: 1px;
     border-color: black;
     border-radius: 3px;
+    transition: background-color 0.1 0.0;
 }
 
 checkbox:checked {
     background-color: #3669c9;
     border-color: #3669c9;
     color: white;
+    transition: background-color 0.1 0.0;
 }
 
 switch {
-    left: 20px;
-    top: 20px;
     width: 36px;
     height: 20px;
     background-color: #646464;
@@ -67,24 +80,26 @@ switch {
     padding-bottom: 2px;
     padding-left: 2.5px;
     padding-right: 2.5px;
-    transition: background-color 0.2 0.0;
-    border-radius: 9px;
+    transition: background-color 0.1 0.0;
+    border-radius: 11px;
+    margin: 5px;
 }
 
 switch>.front {
-    left: 0%;
-    flex-grow: 0.5;
+    left: 0px;
+    width: 20px;
     background-color: white;
-    transition: left 0.2 0.0;
-    border-radius: 7;
+    transition: left 0.1 0.0;
+    border-radius: 9;
 }
 
+
 switch:checked>.front {
-    left: 50%;
-    transition: left 0.2 0.0;
+    left: 16.5px;
+    transition: left 0.1 0.0;
 }
 
 switch:checked {
     background-color: #3669c9;
-    transition: background-color 0.2 0.0;
+    transition: background-color 0.1 0.0;
 }
