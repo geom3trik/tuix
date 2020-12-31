@@ -5,12 +5,12 @@
 
 hbox {
     /* align-items: center; */
-    background-color: #ff5100;
+    /* background-color: #ff5100; */
     /* height: 30px; */
     /* flex-grow: 1.0; */
     /* padding: 10px; */
-    border-width: 10px;
-    border-color:  #000000;
+    /* border-width: 10px; */
+    /* border-color:  #000000; */
     align-items: center;
 }
 
@@ -18,8 +18,8 @@ hbox {
 panel>.container {
     /* height: 100px; */
     background-color: #ffffff;
-    border-width: 5px;
-    border-color:  #23478a;;
+    border-width: 2px;
+    border-color:  #23478a;
     color: white;
 }
 
@@ -34,10 +34,10 @@ button {
     height: 30px;
     flex-grow: 1.0;
     color: black;
-    background-color: #cab124;
+    background-color: #3669c9;
     /* margin: 5px; */
-    border-width: 2px;
-    border-color: #16bb7c;
+    /* border-width: 2px; */
+    /* border-color: #16bb7c; */
     border-radius: 3px;
     margin: 5px;
     padding-left: 5px;
@@ -47,7 +47,7 @@ label {
     height: 30px;
     width: 100px;
     color: black;
-    background-color: #b61b1b;
+    /* background-color: #b61b1b; */
     /* margin: 5px; */
     padding-left: 5px;
     margin: 5px;
