@@ -17,6 +17,8 @@ pub trait PropSet {
     fn set_checked(self, state: &mut State, value: bool) -> Self;
     fn set_over(self, state: &mut State, value: bool) -> Self;
     fn set_active(self, state: &mut State, value: bool) -> Self;
+    fn set_hover(self, state: &mut State, value: bool) -> Self;
+    fn set_focus(self, state: &mut State, value: bool) -> Self;
 
     // Style
     fn set_element(self, state: &mut State, value: &str) -> Self;
@@ -178,6 +180,26 @@ impl PropSet for Entity {
             pseudo_classes.set_active(value);
         }
         
+        state.insert_event(Event::new(WindowEvent::Restyle));
+
+        self
+    }
+
+    fn set_hover(self, state: &mut State, value: bool) -> Self {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.set_hover(value);
+        }
+
+        state.insert_event(Event::new(WindowEvent::Restyle));
+
+        self
+    }
+
+    fn set_focus(self, state: &mut State, value: bool) -> Self {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.set_focus(value);
+        }
+
         state.insert_event(Event::new(WindowEvent::Restyle));
 
         self

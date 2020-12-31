@@ -8,7 +8,7 @@ use crate::{PropSet, State};
 
 use crate::state::style::*;
 
-use crate::widgets::Button;
+use crate::widgets::Element;
 
 #[derive(Clone)]
 pub struct Switch {
@@ -35,7 +35,7 @@ impl Switch {
 impl BuildHandler for Switch {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.front = Button::new().build(state, entity, |builder| {
+        self.front = Element::new().build(state, entity, |builder| {
             builder.class("front")
                 //.set_height(Length::Percentage(1.0))
                 //.set_width(Length::Percentage(0.5))

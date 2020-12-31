@@ -73,24 +73,21 @@ pub struct Style {
     //replace with custom bitmask storage for pseudoclasses
     //pub pseudo_classes: DenseStorage<HashSet<PseudoClass>>,
 
-    // Merge these
-    //pub enabled: DenseStorage<bool>,
-    //pub checked: DenseStorage<bool>,
-    //pub over: DenseStorage<bool>,
+    // 
     pub pseudo_classes: DenseStorage<PseudoClasses>,
 
     pub z_order: DenseStorage<i32>,
 
     // Transform
     pub rotate: AnimatableStorage<f32>, // in degrees
-    pub scaley: AnimatableStorage<Scale>,
+    pub scaley: AnimatableStorage<Scale>, // TODO
 
     // General
     pub display: StyleStorage<Display>,
     pub visibility: StyleStorage<Visibility>,
     pub opacity: AnimatableStorage<Opacity>,
 
-    pub overflow: StyleStorage<Overflow>,
+    pub overflow: StyleStorage<Overflow>, // TODO
 
     pub scroll: DenseStorage<Scroll>,
 
@@ -132,6 +129,7 @@ pub struct Style {
 
     pub focus_order: DenseStorage<FocusOrder>,
 
+    // Flexbox
     pub align_self: StyleStorage<AlignSelf>,
     pub flex_grow: AnimatableStorage<f32>,
     pub flex_shrink: StyleStorage<f32>,
@@ -142,25 +140,22 @@ pub struct Style {
     //pub justification: DenseStorage<Justification>,
     //pub alignment: DenseStorage<Alignment>,
 
-    //pub flex_container: DenseStorage<FlexContainer>,
     pub flex_direction: StyleStorage<FlexDirection>,
     pub justify_content: StyleStorage<JustifyContent>,
     pub align_items: StyleStorage<AlignItems>,
     pub align_content: StyleStorage<AlignContent>,
 
-    // pub area_container: DenseStorage<AreaContainer>,
-    //pub grid_container: DenseStorage<GridContainer>,
-
-    // Shape
-    //pub background: DenseStorage<Background>,
+    // Background
     pub background_color: AnimatableStorage<Color>,
     pub background_image: StyleStorage<String>,
 
-    pub box_shadow: DenseStorage<BoxShadow>,
+   
+    // Box Shadow
+    pub shadow_h_offset: AnimatableStorage<Length>,
+    pub shadow_v_offset: AnimatableStorage<Length>,
+    pub shadow_blur: AnimatableStorage<Length>,
+    pub shadow_color: AnimatableStorage<Color>,
 
-    // Layout Properties
-    //pub size_constraints: DenseStorage<SizeConstraints>,
-    //pub resize: CascadeStorage<Resize>,
 
     //Text Properties
     pub text: DenseStorage<Text>,
@@ -250,7 +245,12 @@ impl Style {
             visibility: StyleStorage::new(),
             clip_widget: DenseStorage::new(),
             focus_order: DenseStorage::new(),
-            box_shadow: DenseStorage::new(),
+
+            // Box Shadow
+            shadow_h_offset: AnimatableStorage::new(),
+            shadow_v_offset: AnimatableStorage::new(),
+            shadow_blur: AnimatableStorage::new(),
+            shadow_color: AnimatableStorage::new(),
 
             background_color: AnimatableStorage::new(),
             background_image: StyleStorage::new(),
@@ -258,8 +258,7 @@ impl Style {
             //justification: DenseStorage::new(),
             //alignment: DenseStorage::new(),
 
-            //flex_container: DenseStorage::new(),
-            //flex_item: DenseStorage::new(),
+            
             align_self: StyleStorage::new(),
             flex_grow: AnimatableStorage::new(),
             flex_shrink: StyleStorage::new(),
@@ -290,7 +289,7 @@ impl Style {
 
         for rule in rule_list.iter() {
             let rule_id = self.rule_selectors.len();
-            println!("Rule: {}, Specificity: {:?}, rule: {:?}", rule_id, rule.specificity(), rule);
+            //println!("Rule: {}, Specificity: {:?}, rule: {:?}", rule_id, rule.specificity(), rule);
             self.rule_selectors.push(rule.selectors.clone());
             //self.rules.push(rule_id);
             for property in rule.properties.clone() {
@@ -552,7 +551,6 @@ impl Style {
         self.visibility.insert(entity, Default::default());
         //self.clip_widget.insert(entity, Entity::new(0, 0));
         self.focus_order.insert(entity, Default::default());
-        self.box_shadow.insert(entity, Default::default());
     }
 
     pub fn set_margin(&mut self, entity: Entity, value: f32) {

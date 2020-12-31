@@ -60,6 +60,7 @@ pub struct Transform {
     pub child_max: Vec<f32>, // Max child width
     pub child_pos: Vec<f32>,
     pub child_grow_sum: Vec<f32>,
+    pub child_shrink_sum: Vec<f32>,
 
     pub opacity: Vec<f32>,
 }
@@ -75,6 +76,7 @@ impl Transform {
             child_max: Vec::new(),
             child_pos: Vec::new(),
             child_grow_sum: Vec::new(),
+            child_shrink_sum: Vec::new(),
             opacity: Vec::new(),
             z_order: Vec::new(),
             clip_widget: Vec::new(),
@@ -93,6 +95,7 @@ impl Transform {
             self.child_max.resize(key + 1, 0.0);
             self.child_pos.resize(key + 1, 0.0);
             self.child_grow_sum.resize(key + 1, 0.0);
+            self.child_shrink_sum.resize(key + 1, 0.0);
             self.opacity.resize(key + 1, 0.0);
             self.z_order.resize(key + 1, 0);
             self.clip_widget.resize(key + 1, Entity::new(0, 0));
@@ -139,6 +142,10 @@ impl Transform {
 
     pub fn get_child_grow_sum(&self, entity: Entity) -> f32 {
         self.child_grow_sum.get(entity.index()).cloned().unwrap()
+    }
+
+    pub fn get_child_shrink_sum(&self, entity: Entity) -> f32 {
+        self.child_shrink_sum.get(entity.index()).cloned().unwrap()
     }
 
     pub fn get_posx(&self, entity: Entity) -> f32 {
@@ -196,6 +203,12 @@ impl Transform {
     pub fn set_child_grow_sum(&mut self, entity: Entity, val: f32) {
         if let Some(child_grow_sum) = self.child_grow_sum.get_mut(entity.index()) {
             *child_grow_sum = val;
+        }
+    }
+
+    pub fn set_child_shrink_sum(&mut self, entity: Entity, val: f32) {
+        if let Some(child_shrink_sum) = self.child_shrink_sum.get_mut(entity.index()) {
+            *child_shrink_sum = val;
         }
     }
 

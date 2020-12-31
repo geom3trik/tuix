@@ -103,7 +103,6 @@ impl EventHandler for Textbox {
             match textbox_event {
                 TextboxEvent::SetValue(val) => {
                     if event.target == entity {
-                        println!("Received Set Value: {} {}", self.text, val);
                         entity.set_text(state, val);
 
                         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)));
@@ -572,6 +571,13 @@ impl EventHandler for Textbox {
             .cloned()
             .unwrap_or_default();
 
+        let font_color = state
+            .style
+            .font_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
         let border_radius = state
             .style
             .border_radius
@@ -614,6 +620,9 @@ impl EventHandler for Textbox {
 
         let mut border_color: femtovg::Color = border_color.into();
         border_color.set_alphaf(border_color.a * opacity);
+
+        let mut font_color: femtovg::Color = font_color.into();
+        font_color.set_alphaf(font_color.a * opacity);
 
         let border_width = state
             .style
@@ -684,9 +693,6 @@ impl EventHandler for Textbox {
                     Baseline::Bottom
                 }
             };
-
-            let mut font_color: femtovg::Color = text.font_color.into();
-            font_color.set_alphaf(font_color.a * opacity);
 
             let mut paint = Paint::color(font_color);
             paint.set_font_size(text.font_size);

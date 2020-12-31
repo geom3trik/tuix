@@ -1,0 +1,36 @@
+
+
+counter {
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+}
+
+counter>label {
+    flex-grow: 1.0;
+    background-color: white;
+    margin-right: 5px;
+}
+
+counter>button {
+    flex-grow: 1.0;
+    background-color: white;
+    margin-left: 5px;
+}
+
+label {
+    height: 40px;
+    color: black;
+    border-color: black;
+    border-width: 1px;
+    padding-left: 5px;
+}
+
+button {
+    height: 40px;
+    border-color: black;
+    border-width: 1px;
+    border-radius: 5px;
+}

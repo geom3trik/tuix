@@ -504,7 +504,7 @@ impl EventHandler for Calculator {
                                     );
                                 }
 
-                                VirtualKeyCode::Multiply => {
+                                VirtualKeyCode::Asterisk => {
                                     state.active = self.multiply;
                                     state.insert_event(
                                         Event::new(CalculatorEvent::Operator('*'))
@@ -512,7 +512,7 @@ impl EventHandler for Calculator {
                                     );
                                 }
 
-                                VirtualKeyCode::Subtract | VirtualKeyCode::Minus => {
+                                VirtualKeyCode::Minus => {
                                     state.active = self.subtract;
                                     state.insert_event(
                                         Event::new(CalculatorEvent::Operator('-'))
@@ -520,7 +520,7 @@ impl EventHandler for Calculator {
                                     );
                                 }
 
-                                VirtualKeyCode::Add => {
+                                VirtualKeyCode::Plus => {
                                     state.active = self.add;
                                     state.insert_event(
                                         Event::new(CalculatorEvent::Operator('+'))
@@ -528,7 +528,7 @@ impl EventHandler for Calculator {
                                     );
                                 }
 
-                                VirtualKeyCode::Divide | VirtualKeyCode::Slash => {
+                                VirtualKeyCode::Slash => {
                                     state.active = self.divide;
                                     state.insert_event(
                                         Event::new(CalculatorEvent::Operator('/'))

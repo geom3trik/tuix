@@ -69,9 +69,9 @@ pub trait EventHandler {
         //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
 
         // Skip widgets with no width or no height
-        if width == 0.0 || height == 0.0 {
-            return;
-        }
+        // if width == 0.0 || height == 0.0 {
+        //     return;
+        // }
 
         let padding_left = match state
             .style
@@ -130,6 +130,8 @@ pub trait EventHandler {
             .cloned()
             .unwrap_or_default();
 
+        let shadow_color = state.style.shadow_color.get(entity).cloned().unwrap_or_default();
+
         let border_radius = state
             .style
             .border_radius
@@ -173,6 +175,9 @@ pub trait EventHandler {
         let mut border_color: femtovg::Color = border_color.into();
         border_color.set_alphaf(border_color.a * opacity);
 
+        let mut shadow_color: femtovg::Color = shadow_color.into();
+        shadow_color.set_alphaf(shadow_color.a * opacity);
+
         let border_width = state
             .style
             .border_width
@@ -180,8 +185,9 @@ pub trait EventHandler {
             .cloned()
             .unwrap_or_default();
 
-        //println!("Border Width: {}", border_radius_top_right);
+        //println!("Border Width: {}", border_width);
 
+        // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
 
         canvas.save();
@@ -190,20 +196,36 @@ pub trait EventHandler {
         canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
 
+        let shadow_h_offset = state.style.shadow_h_offset.get(entity).cloned().unwrap_or_default();
+        let border_radius_bottom_left = match border_radius.bottom_left {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
 
-        
+        // Draw shadow
+        // let mut path = Path::new();
+        // path.rounded_rect_varying(posx, posy, width, height, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
+        // let mut paint = Paint::color(background_color);
+        // canvas.fill_path(&mut path, paint);
+
+
+
+        // Draw rounded rect
         let mut path = Path::new();
-        path.rounded_rect_varying(posx + border_width/2.0, posy + border_width / 2.0, width - border_width, height - border_width, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
-        let mut paint = Paint::color(border_color);
-        paint.set_line_width(border_width);
-        canvas.stroke_path(&mut path, paint);
+        path.rounded_rect_varying(posx + (border_width/2.0), posy+ (border_width/2.0), width - border_width, height - border_width, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
+        
+        // Draw border
+        let mut paint = Paint::color(border_color);
+        paint.set_line_width(border_width);
+        //paint.set_anti_alias(false);
+        canvas.stroke_path(&mut path, paint);
+        //println!("posx: {}", posx);
 
-        // canvas.translate(posx+0.5*width, posy+0.5*height);
-        // canvas.scale(0.5,0.5);
-        // canvas.translate(-posx-0.5*width, -posy-0.5*height);
-
+        
+        // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
            
             let font_id = match text.font.as_ref() {
@@ -212,8 +234,8 @@ pub trait EventHandler {
                 _ => state.fonts.regular.unwrap(),
             };
 
-            let mut x = posx;
-            let mut y = posy;
+            let mut x = posx + (border_width/2.0);
+            let mut y = posy + (border_width/2.0);
 
             let text_string = text.text.to_owned();
 
