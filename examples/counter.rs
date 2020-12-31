@@ -83,7 +83,6 @@ impl EventHandler for Counter {
 fn main() {
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
-
         state.style.parse_theme(THEME);
 
         Counter::new()
@@ -96,10 +95,8 @@ fn main() {
                     .set_height(Length::Pixels(50.0))
             });
 
-
         win_desc.with_title("Counter")
     });
-        
 
     app.run();
 }

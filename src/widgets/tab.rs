@@ -127,8 +127,7 @@ impl TabContainer {
 impl BuildHandler for TabContainer {
     type Ret = (Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
-        entity.set_background_color(state, Color::rgb(50,70,90));
+        entity.set_background_color(state, Color::rgb(50, 70, 90));
 
         self.tab_bar = TabBar::new().build(state, entity, |builder| {
             builder

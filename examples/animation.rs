@@ -117,19 +117,12 @@ static THEME: &'static str = include_str!("themes/animation_theme.css");
 
 fn main() {
     let mut app = Application::new(|win_desc, state, window| {
-
         state.style.parse_theme(THEME);
-
 
         Container::new().build(state, window, |builder| builder);
 
-
         win_desc.with_title("Animation")
     });
-
-
-
-
 
     app.run();
 }

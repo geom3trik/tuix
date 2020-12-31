@@ -5,11 +5,8 @@ use tuix::*;
 static THEME: &'static str = include_str!("themes/basic_theme.css");
 
 fn main() {
-
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
-
-
         state.style.parse_theme(THEME);
 
         //let outer = ScrollContainer::new().build(state, window, |builder| builder.class("container"));
@@ -21,7 +18,6 @@ fn main() {
 
         // Label::new("Button").build(state, row, |builder| builder);
         // Button::with_label("Press Me").build(state, row, |builder| builder);
-    
 
         let inner = Element::new().build(state, outer, |builder| builder.class("inner"));
         //let inner = Element::new().build(state, outer, |builder| builder.class("inner"));
@@ -29,7 +25,6 @@ fn main() {
 
         win_desc.with_title("basic")
     });
-
 
     app.run();
 }

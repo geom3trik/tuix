@@ -106,8 +106,6 @@ pub enum Relation {
     Parent,
 }
 
-
-
 #[derive(Clone, Debug)]
 pub struct Selector {
     pub id: Option<u64>,
@@ -162,7 +160,6 @@ impl Selector {
     }
 
     pub fn matches(&self, entity_selector: &Selector) -> bool {
-
         // Universal selector always matches
         if self.asterisk {
             return true;
@@ -190,7 +187,9 @@ impl Selector {
 
         //println!("Selector: {:?}  Widget: {:?}  Combined: 0b{:08b}", self.pseudo_classes, other.pseudo_classes, (self.pseudo_classes.0 & other.pseudo_classes.0));
 
-        if self.pseudo_classes.0 != 0 && (self.pseudo_classes.0 & entity_selector.pseudo_classes.0) == 0 {
+        if self.pseudo_classes.0 != 0
+            && (self.pseudo_classes.0 & entity_selector.pseudo_classes.0) == 0
+        {
             return false;
         }
 

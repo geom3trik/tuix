@@ -169,7 +169,7 @@ impl PropSet for Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
             pseudo_classes.set_over(value);
         }
-        
+
         state.insert_event(Event::new(WindowEvent::Restyle));
 
         self
@@ -179,7 +179,7 @@ impl PropSet for Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
             pseudo_classes.set_active(value);
         }
-        
+
         state.insert_event(Event::new(WindowEvent::Restyle));
 
         self

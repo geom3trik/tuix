@@ -8,8 +8,7 @@ use crate::flexbox::AlignItems;
 pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
     //println!("Z ORDERING");
     for entity in hierarchy.into_iter() {
-
-        if entity == Entity::new(0,0) {
+        if entity == Entity::new(0, 0) {
             continue;
         }
 
@@ -106,28 +105,52 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             _ => std::f32::INFINITY,
         };
 
-        let child_margin_left = match state.style.margin_left.get(*entity).cloned().unwrap_or_default() {
+        let child_margin_left = match state
+            .style
+            .margin_left
+            .get(*entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
-            _=> 0.0,
+            _ => 0.0,
         };
 
-        let child_margin_right = match state.style.margin_right.get(*entity).cloned().unwrap_or_default() {
+        let child_margin_right = match state
+            .style
+            .margin_right
+            .get(*entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
-            _=> 0.0,
+            _ => 0.0,
         };
 
-        let child_margin_top = match state.style.margin_top.get(*entity).cloned().unwrap_or_default() {
+        let child_margin_top = match state
+            .style
+            .margin_top
+            .get(*entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_height * val,
-            _=> 0.0,
+            _ => 0.0,
         };
 
-        let child_margin_bottom = match state.style.margin_bottom.get(*entity).cloned().unwrap_or_default() {
+        let child_margin_bottom = match state
+            .style
+            .margin_bottom
+            .get(*entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_height * val,
-            _=> 0.0,
+            _ => 0.0,
         };
 
         let child_padding_left = match state
@@ -141,8 +164,6 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
-
-
 
         let child_padding_right = match state
             .style
@@ -181,19 +202,18 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
         };
 
         let child_border_width = state
-        .style
-        .border_width
-        .get(*entity)
-        .cloned()
-        .unwrap_or_default();
+            .style
+            .border_width
+            .get(*entity)
+            .cloned()
+            .unwrap_or_default();
 
-        
         let parent_border_width = state
-        .style
-        .border_width
-        .get(parent)
-        .cloned()
-        .unwrap_or_default();
+            .style
+            .border_width
+            .get(parent)
+            .cloned()
+            .unwrap_or_default();
 
         let parent_padding_left = match state
             .style
@@ -256,8 +276,6 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             .cloned()
             .unwrap_or_default();
 
-        
-        
         // Get the desired width from the style
         let width = state.style.width.get(*entity).cloned().unwrap_or_default();
 
@@ -292,13 +310,15 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     Length::Percentage(val) => {
-                        new_width = (parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width) * val;
+                        new_width = (parent_width
+                            - parent_padding_left
+                            - parent_padding_right
+                            - 2.0 * parent_border_width)
+                            * val;
                     }
 
                     _ => {}
                 };
-
-                
 
                 // Flex basis overrides desired width
                 if let Some(flex_basis) = state.style.flex_basis.get(*entity) {
@@ -332,8 +352,16 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                 }
 
                 // Apply margins, padding, and border
-                new_width += child_margin_left + child_margin_right + child_padding_left + child_padding_right + 2.0 * child_border_width;
-                new_height += child_margin_top + child_margin_bottom + child_padding_top + child_padding_bottom + 2.0 * child_border_width;
+                new_width += child_margin_left
+                    + child_margin_right
+                    + child_padding_left
+                    + child_padding_right
+                    + 2.0 * child_border_width;
+                new_height += child_margin_top
+                    + child_margin_bottom
+                    + child_padding_top
+                    + child_padding_bottom
+                    + 2.0 * child_border_width;
 
                 let position = state
                     .style
@@ -342,10 +370,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                     .cloned()
                     .unwrap_or_default();
 
-                    //println!("UP New Width: {} {}", entity, new_width);
+                //println!("UP New Width: {} {}", entity, new_width);
 
-                
-                    
                 match position {
                     Position::Relative => {
                         state.transform.set_child_sum(
@@ -370,7 +396,11 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     Length::Percentage(val) => {
-                        new_height = (parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width) * val;
+                        new_height = (parent_height
+                            - parent_padding_top
+                            - parent_padding_bottom
+                            - 2.0 * parent_border_width)
+                            * val;
                     }
                     _ => {}
                 };
@@ -403,9 +433,16 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                     new_height = child_max_height;
                 }
 
-                new_width += child_margin_left + child_margin_right + child_padding_left + child_padding_right + 2.0 * child_border_width;
-                new_height += child_margin_top + child_margin_bottom + child_padding_top + child_padding_bottom + 2.0 * child_border_width;
-
+                new_width += child_margin_left
+                    + child_margin_right
+                    + child_padding_left
+                    + child_padding_right
+                    + 2.0 * child_border_width;
+                new_height += child_margin_top
+                    + child_margin_bottom
+                    + child_padding_top
+                    + child_padding_bottom
+                    + 2.0 * child_border_width;
 
                 let position = state
                     .style
@@ -442,7 +479,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
         if let Some(flex_shrink) = state.style.flex_shrink.get(*entity) {
             state.transform.set_child_shrink_sum(
                 parent,
-                state.transform.get_child_shrink_sum(parent) + flex_shrink
+                state.transform.get_child_shrink_sum(parent) + flex_shrink,
             );
         }
     }
@@ -453,14 +490,12 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
     for parent in hierarchy.into_iter() {
         // Parent properties
 
-
-
         let parent_border_width = state
-        .style
-        .border_width
-        .get(parent)
-        .cloned()
-        .unwrap_or_default();
+            .style
+            .border_width
+            .get(parent)
+            .cloned()
+            .unwrap_or_default();
 
         let parent_width = state.transform.get_width(parent);
         let parent_height = state.transform.get_height(parent);
@@ -513,12 +548,10 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             _ => 0.0,
         };
 
-
-        let parent_posx = state.transform.get_posx(parent) + parent_padding_left + parent_border_width;
-        let parent_posy = state.transform.get_posy(parent) + parent_padding_top + parent_border_width;
-
-
-        
+        let parent_posx =
+            state.transform.get_posx(parent) + parent_padding_left + parent_border_width;
+        let parent_posy =
+            state.transform.get_posy(parent) + parent_padding_top + parent_border_width;
 
         //TEMP - Move to the walk up phase
         let mut num_children = 0;
@@ -538,11 +571,19 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
         let free_space = match parent_flex_direction {
             FlexDirection::Row => {
-                state.transform.get_width(parent) - parent_padding_left - parent_padding_right - 2.0 * parent_border_width - state.transform.get_child_sum(parent)
+                state.transform.get_width(parent)
+                    - parent_padding_left
+                    - parent_padding_right
+                    - 2.0 * parent_border_width
+                    - state.transform.get_child_sum(parent)
             }
 
             FlexDirection::Column => {
-                state.transform.get_height(parent)- parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width - state.transform.get_child_sum(parent)
+                state.transform.get_height(parent)
+                    - parent_padding_top
+                    - parent_padding_bottom
+                    - 2.0 * parent_border_width
+                    - state.transform.get_child_sum(parent)
             }
         };
 
@@ -574,19 +615,12 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
         }
 
         for (index, child) in parent.child_iter(&hierarchy).enumerate() {
-
             // Skip non-displayed widgets
-            let display = state
-            .style
-            .display
-            .get(child)
-            .cloned()
-            .unwrap_or_default();
-        
+            let display = state.style.display.get(child).cloned().unwrap_or_default();
+
             if display == Display::None {
                 continue;
             }
-
 
             // Get the desired width and height
             let width = state.style.width.get(child).cloned().unwrap_or_default();
@@ -780,8 +814,6 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             if child_shrink_sum < 1.0 {
                 child_shrink_sum = 1.0;
             }
-            
-
 
             let flex_grow_fraction = child_flex_grow / child_grow_sum;
             let flex_shrink_fraction = child_flex_shrink / child_shrink_sum;
@@ -792,13 +824,25 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
             match flex_direction {
                 FlexDirection::Row => {
-                    new_width = state.transform.get_child_sum(child) + child_padding_left + child_padding_right + 2.0 * child_border_width;
-                    new_height = state.transform.get_child_max(child) + child_padding_top + child_padding_bottom + 2.0 * child_border_width;
+                    new_width = state.transform.get_child_sum(child)
+                        + child_padding_left
+                        + child_padding_right
+                        + 2.0 * child_border_width;
+                    new_height = state.transform.get_child_max(child)
+                        + child_padding_top
+                        + child_padding_bottom
+                        + 2.0 * child_border_width;
                 }
 
                 FlexDirection::Column => {
-                    new_width = state.transform.get_child_max(child) + child_padding_left + child_padding_right + 2.0 * child_border_width;
-                    new_height = state.transform.get_child_sum(child) + child_padding_top + child_padding_bottom + 2.0 * child_border_width;
+                    new_width = state.transform.get_child_max(child)
+                        + child_padding_left
+                        + child_padding_right
+                        + 2.0 * child_border_width;
+                    new_height = state.transform.get_child_sum(child)
+                        + child_padding_top
+                        + child_padding_bottom
+                        + 2.0 * child_border_width;
                 }
             }
 
@@ -812,12 +856,22 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                             match width {
                                 Length::Pixels(val) => {
-                                    new_width = val + child_padding_left + child_padding_right + 2.0 * child_border_width;
+                                    new_width = val
+                                        + child_padding_left
+                                        + child_padding_right
+                                        + 2.0 * child_border_width;
                                 }
 
                                 Length::Percentage(val) => {
-                                    new_width = (parent_width - parent_padding_left - parent_padding_right - parent_border_width - parent_border_width) * val;
-                                    new_width += child_padding_left + child_padding_right + 2.0 * child_border_width;
+                                    new_width = (parent_width
+                                        - parent_padding_left
+                                        - parent_padding_right
+                                        - parent_border_width
+                                        - parent_border_width)
+                                        * val;
+                                    new_width += child_padding_left
+                                        + child_padding_right
+                                        + 2.0 * child_border_width;
                                 }
                                 _ => {}
                             };
@@ -843,7 +897,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                             } else {
                                 new_width += flex_shrink_fraction * parent_free_space;
                             }
-                            
+
                             //println!("New Width: {} {}", child, state.transform.get_child_sum(parent));
 
                             let align_items = state
@@ -879,12 +933,21 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                             match height {
                                 Length::Pixels(val) => {
-                                    new_height = val + child_padding_top + child_padding_bottom + 2.0 * child_border_width;
+                                    new_height = val
+                                        + child_padding_top
+                                        + child_padding_bottom
+                                        + 2.0 * child_border_width;
                                 }
 
                                 Length::Percentage(val) => {
-                                    new_height = (parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width) * val;
-                                    new_height += child_padding_top + child_padding_bottom + 2.0 * child_border_width;
+                                    new_height = (parent_height
+                                        - parent_padding_top
+                                        - parent_padding_bottom
+                                        - 2.0 * parent_border_width)
+                                        * val;
+                                    new_height += child_padding_top
+                                        + child_padding_bottom
+                                        + 2.0 * child_border_width;
                                 }
 
                                 _ => {}
@@ -909,9 +972,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                             //println!("DOWN2 New Width: {} {}", child, new_width);
 
-
-
-                          //new_width = new_width + child_border_width + child_border_width;
+                            //new_width = new_width + child_border_width + child_border_width;
                             //new_height = new_height + child_padding_top + child_padding_bottom + child_border_width + child_border_width;
 
                             // if index % 2 == 0 {
@@ -942,16 +1003,30 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                             // Position
                             state.transform.set_posx(
                                 child,
-                                parent_posx + new_posx + child_margin_left
-                                // + (child_border_width / 2.0),
+                                parent_posx + new_posx + child_margin_left, // + (child_border_width / 2.0),
                             );
 
                             //let align_items = state.style.align_items.get(parent).cloned().unwrap_or_default();
 
                             let mut new_posy = match align_items {
                                 AlignItems::FlexStart => 0.0,
-                                AlignItems::FlexEnd => parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width - new_height,
-                                AlignItems::Center => (parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width - new_height - child_margin_top - child_margin_bottom) / 2.0,
+                                AlignItems::FlexEnd => {
+                                    parent_height
+                                        - parent_padding_top
+                                        - parent_padding_bottom
+                                        - 2.0 * parent_border_width
+                                        - new_height
+                                }
+                                AlignItems::Center => {
+                                    (parent_height
+                                        - parent_padding_top
+                                        - parent_padding_bottom
+                                        - 2.0 * parent_border_width
+                                        - new_height
+                                        - child_margin_top
+                                        - child_margin_bottom)
+                                        / 2.0
+                                }
                                 AlignItems::Stretch => 0.0,
                                 //AlignItems::Baseline => 0.0, //TODO
                             };
@@ -982,12 +1057,13 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                             state.transform.set_posy(
                                 child,
-                                parent_posy + new_posy + child_margin_top
-                                // + (child_border_width / 2.0),
+                                parent_posy + new_posy + child_margin_top, // + (child_border_width / 2.0),
                             );
 
-                            current_pos +=
-                                new_width + space_per_widget + child_margin_left + child_margin_right;
+                            current_pos += new_width
+                                + space_per_widget
+                                + child_margin_left
+                                + child_margin_right;
                         }
 
                         FlexDirection::Column => {
@@ -995,12 +1071,22 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                             match height {
                                 Length::Pixels(val) => {
-                                    new_height = val + child_padding_top + child_padding_bottom  + 2.0 * child_border_width;
+                                    new_height = val
+                                        + child_padding_top
+                                        + child_padding_bottom
+                                        + 2.0 * child_border_width;
                                 }
 
                                 Length::Percentage(val) => {
-                                    new_height = (parent_height -  parent_padding_top - parent_padding_bottom - parent_border_width - parent_border_width) * val;
-                                    new_height += child_padding_top + child_padding_bottom + 2.0 * child_border_width;
+                                    new_height = (parent_height
+                                        - parent_padding_top
+                                        - parent_padding_bottom
+                                        - parent_border_width
+                                        - parent_border_width)
+                                        * val;
+                                    new_height += child_padding_top
+                                        + child_padding_bottom
+                                        + 2.0 * child_border_width;
                                 }
                                 _ => {}
                             };
@@ -1015,7 +1101,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 - parent_border_width
                                 - parent_border_width
                                 - state.transform.get_child_sum(parent);
-                        
+
                             //println!("Parent Free Space: {} {} {}", parent, parent_free_space, state.transform.get_child_sum(parent));
 
                             // new_height +=
@@ -1028,8 +1114,6 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                             } else {
                                 new_height += flex_shrink_fraction * parent_free_space;
                             }
-
-                           
 
                             let align_items = state
                                 .style
@@ -1051,23 +1135,32 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                             } else {
                                 if align_items == AlignItems::Stretch {
                                     new_width = parent_width
-                                         - parent_padding_left
-                                         - parent_padding_right
-                                         - parent_border_width
-                                         - parent_border_width
-                                         - child_margin_left
-                                         - child_margin_right;
+                                        - parent_padding_left
+                                        - parent_padding_right
+                                        - parent_border_width
+                                        - parent_border_width
+                                        - child_margin_left
+                                        - child_margin_right;
                                 }
                             }
 
                             match width {
                                 Length::Pixels(val) => {
-                                    new_width = val + child_padding_left + child_padding_right + 2.0 * child_border_width;
+                                    new_width = val
+                                        + child_padding_left
+                                        + child_padding_right
+                                        + 2.0 * child_border_width;
                                 }
 
                                 Length::Percentage(val) => {
-                                    new_width = (parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width) * val;
-                                    new_width += child_padding_left + child_padding_right + 2.0 * child_border_width;
+                                    new_width = (parent_width
+                                        - parent_padding_left
+                                        - parent_padding_right
+                                        - 2.0 * parent_border_width)
+                                        * val;
+                                    new_width += child_padding_left
+                                        + child_padding_right
+                                        + 2.0 * child_border_width;
                                 }
 
                                 _ => {}
@@ -1115,17 +1208,31 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                             ////////////////////
                             // Position Child //
                             ////////////////////
-                            state.transform.set_posy(
-                                child,
-                                parent_posy + new_posy + child_margin_top,
-                            );
+                            state
+                                .transform
+                                .set_posy(child, parent_posy + new_posy + child_margin_top);
 
                             //let align_items = state.style.align_items.get(parent).cloned().unwrap_or_default();
 
                             let mut new_posx = match align_items {
                                 AlignItems::FlexStart => 0.0,
-                                AlignItems::FlexEnd => parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width - new_width,
-                                AlignItems::Center => (parent_width- parent_padding_left - parent_padding_right - 2.0 * parent_border_width - new_width - child_margin_left - child_margin_right) / 2.0,
+                                AlignItems::FlexEnd => {
+                                    parent_width
+                                        - parent_padding_left
+                                        - parent_padding_right
+                                        - 2.0 * parent_border_width
+                                        - new_width
+                                }
+                                AlignItems::Center => {
+                                    (parent_width
+                                        - parent_padding_left
+                                        - parent_padding_right
+                                        - 2.0 * parent_border_width
+                                        - new_width
+                                        - child_margin_left
+                                        - child_margin_right)
+                                        / 2.0
+                                }
                                 AlignItems::Stretch => 0.0,
                                 //AlignItems::Baseline => 0.0, //TODO
                             };
@@ -1154,13 +1261,14 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 _ => {}
                             }
 
-                            state.transform.set_posx(
-                                child,
-                                parent_posx + new_posx + child_margin_left,
-                            );
+                            state
+                                .transform
+                                .set_posx(child, parent_posx + new_posx + child_margin_left);
 
-                            current_pos +=
-                                new_height + space_per_widget + child_margin_top + child_margin_bottom;
+                            current_pos += new_height
+                                + space_per_widget
+                                + child_margin_top
+                                + child_margin_bottom;
                         }
                     }
                 }
@@ -1236,8 +1344,10 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Length::Percentage(val) => {
-                            new_posx =
-                                parent_posx + parent_width - new_width - (val * (parent_width - parent_padding_left - parent_padding_right));
+                            new_posx = parent_posx + parent_width
+                                - new_width
+                                - (val
+                                    * (parent_width - parent_padding_left - parent_padding_right));
                         }
 
                         _ => {}
@@ -1249,7 +1359,9 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Length::Percentage(val) => {
-                            new_posx = parent_posx + (val * (parent_width - parent_padding_left - parent_padding_right));
+                            new_posx = parent_posx
+                                + (val
+                                    * (parent_width - parent_padding_left - parent_padding_right));
                         }
 
                         _ => {}
@@ -1261,8 +1373,10 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Length::Percentage(val) => {
-                            new_posy =
-                                parent_posy + parent_height - new_height - (val * (parent_height - parent_padding_top - parent_padding_bottom));
+                            new_posy = parent_posy + parent_height
+                                - new_height
+                                - (val
+                                    * (parent_height - parent_padding_top - parent_padding_bottom));
                         }
 
                         _ => {}
@@ -1274,7 +1388,9 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Length::Percentage(val) => {
-                            new_posy = parent_posy + (val * (parent_height - parent_padding_top - parent_padding_bottom));
+                            new_posy = parent_posy
+                                + (val
+                                    * (parent_height - parent_padding_top - parent_padding_bottom));
                         }
 
                         _ => {}
@@ -1282,7 +1398,6 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
                     state.transform.set_posx(child, new_posx);
                     state.transform.set_posy(child, new_posy);
-
                 }
             }
         }

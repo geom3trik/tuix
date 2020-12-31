@@ -94,8 +94,6 @@ static THEME: &'static str = include_str!("themes/menus_theme.css");
 fn main() {
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
-
-
         state.style.parse_theme(THEME);
 
         let menu1 = Menu::new("File", MenuPosition::Down).build(state, window, |builder| {
@@ -106,33 +104,33 @@ fn main() {
                 .set_text_justify(Justify::Center)
                 .class("menu")
         });
-    
+
         // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
-    
+
         Button::with_label("New").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Open").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Quit")
             .on_press(Event::new(WindowEvent::WindowClose))
             .build(state, menu1, |builder| builder.class("item"));
-    
+
         let spacer = Button::new().build(state, menu1, |builder| builder.class("spacer"));
         Button::new().build(state, spacer, |builder| builder.class("spacer1"));
         Button::new().build(state, spacer, |builder| builder.class("spacer2"));
-    
+
         let menu2 = Menu::new("Edit", MenuPosition::Right).build(state, menu1, |builder| {
             builder.class("item").class("submenu")
         });
 
         Button::with_label("Open").build(state, menu1, |builder| builder.class("item"));
-    
+
         // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
-    
+
         Button::with_label("Cut").build(state, menu2, |builder| builder.class("item"));
         Button::with_label("Copy").build(state, menu2, |builder| builder.class("item"));
         Button::with_label("Paste")
             .on_press(Event::new(WindowEvent::WindowClose))
             .build(state, menu2, |builder| builder.class("item"));
-    
+
         Button::new().build(state, menu1, |builder| builder.class("spacer2"));
 
         let menu3 = Menu::new("Edit", MenuPosition::Right).build(state, menu2, |builder| {
@@ -144,7 +142,6 @@ fn main() {
         Button::with_label("Paste")
             .on_press(Event::new(WindowEvent::WindowClose))
             .build(state, menu3, |builder| builder.class("item"));
-
 
         win_desc.with_title("Menus")
     });

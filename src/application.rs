@@ -22,7 +22,6 @@ use crate::state::style::prop::*;
 
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
-
 pub struct Application {
     pub window: Window,
     pub state: State,
@@ -31,7 +30,9 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new<F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription>(mut app: F) -> Self {
+    pub fn new<F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription>(
+        mut app: F,
+    ) -> Self {
         let event_loop = EventLoop::new();
         let mut state = State::new();
 
@@ -50,13 +51,24 @@ impl Application {
         let icon_font = include_bytes!("../resources/entypo.ttf");
 
         let fonts = Fonts {
-            regular: Some(window.canvas
-                .add_font_mem(regular_font)
-                .expect("Cannot add font")),
-            bold: Some(window.canvas
-                .add_font_mem(bold_font)
-                .expect("Cannot add font")),
-            icons: Some(window.canvas.add_font_mem(icon_font).expect("Cannot add font")),
+            regular: Some(
+                window
+                    .canvas
+                    .add_font_mem(regular_font)
+                    .expect("Cannot add font"),
+            ),
+            bold: Some(
+                window
+                    .canvas
+                    .add_font_mem(bold_font)
+                    .expect("Cannot add font"),
+            ),
+            icons: Some(
+                window
+                    .canvas
+                    .add_font_mem(icon_font)
+                    .expect("Cannot add font"),
+            ),
         };
 
         state.fonts = fonts;
@@ -82,7 +94,6 @@ impl Application {
 
         WindowWidget::new().build_window(&mut state);
 
-        
         Application {
             window: window,
             event_loop: event_loop,

@@ -73,13 +73,13 @@ pub struct Style {
     //replace with custom bitmask storage for pseudoclasses
     //pub pseudo_classes: DenseStorage<HashSet<PseudoClass>>,
 
-    // 
+    //
     pub pseudo_classes: DenseStorage<PseudoClasses>,
 
     pub z_order: DenseStorage<i32>,
 
     // Transform
-    pub rotate: AnimatableStorage<f32>, // in degrees
+    pub rotate: AnimatableStorage<f32>,   // in degrees
     pub scaley: AnimatableStorage<Scale>, // TODO
 
     // General
@@ -139,7 +139,6 @@ pub struct Style {
 
     //pub justification: DenseStorage<Justification>,
     //pub alignment: DenseStorage<Alignment>,
-
     pub flex_direction: StyleStorage<FlexDirection>,
     pub justify_content: StyleStorage<JustifyContent>,
     pub align_items: StyleStorage<AlignItems>,
@@ -149,13 +148,11 @@ pub struct Style {
     pub background_color: AnimatableStorage<Color>,
     pub background_image: StyleStorage<String>,
 
-   
     // Box Shadow
     pub shadow_h_offset: AnimatableStorage<Length>,
     pub shadow_v_offset: AnimatableStorage<Length>,
     pub shadow_blur: AnimatableStorage<Length>,
     pub shadow_color: AnimatableStorage<Color>,
-
 
     //Text Properties
     pub text: DenseStorage<Text>,
@@ -257,8 +254,6 @@ impl Style {
 
             //justification: DenseStorage::new(),
             //alignment: DenseStorage::new(),
-
-            
             align_self: StyleStorage::new(),
             flex_grow: AnimatableStorage::new(),
             flex_shrink: StyleStorage::new(),
@@ -483,7 +478,9 @@ impl Style {
                                             .with_duration(std::time::Duration::from_secs_f32(
                                                 transition.duration,
                                             ))
-                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
                                             .with_keyframe((0.0, Default::default()))
                                             .with_keyframe((1.0, Default::default())),
                                     );
@@ -496,7 +493,9 @@ impl Style {
                                             .with_duration(std::time::Duration::from_secs_f32(
                                                 transition.duration,
                                             ))
-                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
                                             .with_keyframe((0.0, Default::default()))
                                             .with_keyframe((1.0, Default::default())),
                                     );
@@ -509,7 +508,9 @@ impl Style {
                                             .with_duration(std::time::Duration::from_secs_f32(
                                                 transition.duration,
                                             ))
-                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
                                             .with_keyframe((0.0, Default::default()))
                                             .with_keyframe((1.0, Default::default())),
                                     );
@@ -522,13 +523,14 @@ impl Style {
                                             .with_duration(std::time::Duration::from_secs_f32(
                                                 transition.duration,
                                             ))
-                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
                                             .with_keyframe((0.0, Default::default()))
                                             .with_keyframe((1.0, Default::default())),
                                     );
                                 }
 
-                                
                                 _ => {}
                             }
                         }

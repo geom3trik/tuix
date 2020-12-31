@@ -2,7 +2,7 @@ use crate::state::{Entity, State};
 
 use crate::events::{BuildHandler, Event, EventHandler, Propagation};
 
-use crate::widgets::{Button, ControlKnob, SliderEvent, Textbox, TextboxEvent, Label};
+use crate::widgets::{Button, ControlKnob, Label, SliderEvent, Textbox, TextboxEvent};
 
 use crate::state::style::*;
 
@@ -58,23 +58,29 @@ impl ValueKnob {
 impl BuildHandler for ValueKnob {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
-        let label = Label::new(&self.label).build(state, entity, |builder| 
+        let label = Label::new(&self.label).build(state, entity, |builder| {
             builder
                 .set_height(Length::Pixels(25.0))
                 .set_text_justify(Justify::Center)
-        );
-        self.slider = ControlKnob::new(self.init, self.min_value, self.max_value).build(state, entity, |builder| builder.set_width(Length::Pixels(50.0)).set_height(Length::Pixels(50.0)));
-        
-        let val_str = format!("{:.*}", 5, &self.init.to_string());
-        self.value =
-            Textbox::new(&val_str).build(state, entity, |builder| 
+        });
+        self.slider = ControlKnob::new(self.init, self.min_value, self.max_value).build(
+            state,
+            entity,
+            |builder| {
                 builder
-                    .set_height(Length::Pixels(25.0))
-                    .set_margin_left(Length::Pixels(2.5))
-                    .set_margin_right(Length::Pixels(2.5))
-                    .set_flex_grow(1.0)
-            );
+                    .set_width(Length::Pixels(50.0))
+                    .set_height(Length::Pixels(50.0))
+            },
+        );
+
+        let val_str = format!("{:.*}", 5, &self.init.to_string());
+        self.value = Textbox::new(&val_str).build(state, entity, |builder| {
+            builder
+                .set_height(Length::Pixels(25.0))
+                .set_margin_left(Length::Pixels(2.5))
+                .set_margin_right(Length::Pixels(2.5))
+                .set_flex_grow(1.0)
+        });
 
         state.style.insert_element(entity, "value_knob");
 
@@ -84,7 +90,6 @@ impl BuildHandler for ValueKnob {
 
 impl EventHandler for ValueKnob {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
-        
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
                 SliderEvent::ValueChanged(_, val) => {
@@ -103,7 +108,6 @@ impl EventHandler for ValueKnob {
                 _ => {}
             }
         }
-        
 
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
@@ -111,7 +115,6 @@ impl EventHandler for ValueKnob {
                     println!("Textbox Value Changed:{}", text);
                     if event.target == self.value {
                         if let Ok(value) = text.parse::<f32>() {
-
                             let val = (value.min(self.max_value)).max(self.min_value);
 
                             let val_str = format!("{:.*}", 5, &val.to_string());

@@ -137,10 +137,6 @@ impl EventHandler for Menu {
                     } else {
                         self.open_on_hover = true;
                     }
-                    
-                    
-                    
-                    
                 }
 
                 MenuEvent::Close(id) => {
@@ -152,7 +148,7 @@ impl EventHandler for Menu {
                         //state.style.checked.set(entity, false);
                         entity.set_checked(state, false);
                         self.open = false;
-                    } 
+                    }
                     // else {
                     //     state.capture(entity);
                     // }
@@ -192,15 +188,12 @@ impl EventHandler for Menu {
                                         .propagate(Propagation::Direct),
                                 );
                             } else {
-                                
                                 state.insert_event(
                                     Event::new(MenuEvent::Open(entity))
                                         .target(entity)
                                         .propagate(Propagation::Fall),
                                 );
                             }
-
-                            
 
                             // if let Some(visibility) = state.style.visibility.get(self.container) {
                             //     match visibility {
@@ -223,10 +216,8 @@ impl EventHandler for Menu {
                             // }
 
                             state.insert_event(Event::new(WindowEvent::Restyle));
-                            
-                            //return true;
 
-
+                        //return true;
                         } else {
                             // state.insert_event(
                             //     Event::new(WindowEvent::MouseDown(*button, *mods))
@@ -298,8 +289,6 @@ impl EventHandler for Menu {
                 }
 
                 WindowEvent::MouseOver => {
-
-
                     if event.origin == Entity::null() {
                         println!("Capture mouse over event");
                         state.insert_event(
@@ -311,7 +300,7 @@ impl EventHandler for Menu {
 
                         return true;
                     }
-                    
+
                     if event.origin == entity {
                         println!("Mouse over - open menu: {}", entity);
                         if self.open_on_hover {
@@ -319,23 +308,25 @@ impl EventHandler for Menu {
                                 Event::new(MenuEvent::Open(entity))
                                     .target(entity)
                                     .propagate(Propagation::Fall),
-                            );   
-                            
+                            );
+
                             return true;
                         }
-
                     } else if event.origin.is_descendant_of(&state.hierarchy, entity) {
-                        println!("Mouse over descendant - do nothing: {}  {:?}", entity, event);
+                        println!(
+                            "Mouse over descendant - do nothing: {}  {:?}",
+                            entity, event
+                        );
 
                         //if event.target != self.container {
-                            // state.insert_event(
-                            //     Event::new(WindowEvent::MouseOver)
-                            //         .origin(event.target)
-                            //         .target(self.container)
-                            //         .propagate(Propagation::Fall),
-                            // );
+                        // state.insert_event(
+                        //     Event::new(WindowEvent::MouseOver)
+                        //         .origin(event.target)
+                        //         .target(self.container)
+                        //         .propagate(Propagation::Fall),
+                        // );
 
-                            //return true;
+                        //return true;
                         //}
 
                         state.insert_event(
@@ -343,24 +334,20 @@ impl EventHandler for Menu {
                                 .target(entity)
                                 .propagate(Propagation::Fall),
                         );
-                        
-                        
-                        //return true;
 
-                        //Do nothing
+                    //return true;
+
+                    //Do nothing
                     } else {
-
                         println!("Mouse over - close: {}", entity);
                         state.insert_event(
                             Event::new(MenuEvent::Close(entity))
                                 .target(entity)
                                 .propagate(Propagation::Fall),
                         );
-                        
+
                         return true;
                     }
-
-                    
 
                     //return true;
 
@@ -371,20 +358,17 @@ impl EventHandler for Menu {
                     //             .propagate(Propagation::Fall),
                     //     );
                     // }
-                    
 
                     //println!("Mouse over menu");
-
                 }
 
                 WindowEvent::MouseOut => {
                     //println!("Mouse over menu");
-                        // state.insert_event(
-                        //     Event::new(MenuEvent::Close(entity))
-                        //         .target(entity)
-                        //         .propagate(Propagation::Direct),
-                        // );                        
-                    
+                    // state.insert_event(
+                    //     Event::new(MenuEvent::Close(entity))
+                    //         .target(entity)
+                    //         .propagate(Propagation::Direct),
+                    // );
                 }
 
                 _ => {}

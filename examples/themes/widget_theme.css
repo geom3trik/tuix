@@ -76,3 +76,16 @@ value_knob {
     left: 50px;
     top: 50px;
 }
+
+level_bar {
+    background-color: #2e2e2e;
+    justify-content: flex-end;
+    border-radius: 2px;
+    top: 20px;
+    left: 20px;
+}
+
+level_bar>.front {
+    background-color: #00da48;
+    border-radius: 2px;
+}

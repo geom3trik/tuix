@@ -1,6 +1,5 @@
 use std::fmt;
 
-
 #[derive(Copy, Clone)]
 #[repr(packed)]
 pub struct Color {
@@ -113,7 +112,14 @@ impl PartialEq for Color {
 
 impl std::fmt::Debug for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "(r: {}, g: {}, b: {} a: {})", self.r(), self.g(), self.b(), self.a())
+        write!(
+            f,
+            "(r: {}, g: {}, b: {} a: {})",
+            self.r(),
+            self.g(),
+            self.b(),
+            self.a()
+        )
     }
 }
 

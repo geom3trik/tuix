@@ -106,11 +106,12 @@ impl EventHandler for ScrollContainer {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                
                 WindowEvent::Relayout => {
-
                     // // To prevent recursive loop when layout event is triggered inside here
-                    if event.origin != entity && event.origin != self.container && event.origin != self.vertical_scroll {
+                    if event.origin != entity
+                        && event.origin != self.container
+                        && event.origin != self.vertical_scroll
+                    {
                         let mut scrollh = state.transform.get_height(entity)
                             / state.transform.get_height(self.container);
 
@@ -150,7 +151,10 @@ impl EventHandler for ScrollContainer {
                         //     .set_height(state, Length::Percentage(scrollh));
 
                         // Setting it this way avoid calling Restyle automatically
-                        state.style.height.insert(self.vertical_scroll, Length::Percentage(scrollh));
+                        state
+                            .style
+                            .height
+                            .insert(self.vertical_scroll, Length::Percentage(scrollh));
 
                         let overflow = 1.0
                             - (state.transform.get_height(self.container)
@@ -161,22 +165,24 @@ impl EventHandler for ScrollContainer {
 
                         // self.container
                         //     .set_top(state, Length::Percentage(self.scrolly * overflow));
-                        state.style.top.insert(self.container, Length::Percentage(self.scrolly * overflow));
-                
+                        state
+                            .style
+                            .top
+                            .insert(self.container, Length::Percentage(self.scrolly * overflow));
+
                         // self.vertical_scroll
                         //     .set_top(state, Length::Percentage(self.scrolly * overflow2));
-                        state.style.top.insert(self.vertical_scroll, Length::Percentage(self.scrolly * overflow2));
-                        
-                        // Relayout and Redraw wont get called automatically so need to manually trigger them
-                        state.insert_event(
-                            Event::new(WindowEvent::Relayout)
-                                .origin(entity),
+                        state.style.top.insert(
+                            self.vertical_scroll,
+                            Length::Percentage(self.scrolly * overflow2),
                         );
+
+                        // Relayout and Redraw wont get called automatically so need to manually trigger them
+                        state.insert_event(Event::new(WindowEvent::Relayout).origin(entity));
                         //state.insert_event(Event::new(WindowEvent::Redraw));
                         //return true;
                     }
                 }
-                
 
                 WindowEvent::MouseScroll(_, y) => {
                     println!("Mouse Scroll Event");

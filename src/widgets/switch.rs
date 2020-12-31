@@ -37,10 +37,10 @@ impl BuildHandler for Switch {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.front = Element::new().build(state, entity, |builder| {
             builder.class("front")
-                //.set_height(Length::Percentage(1.0))
-                //.set_width(Length::Percentage(0.5))
-                //.set_left(Length::Pixels(0.0))
-                //.set_top(Length::Pixels(0.0))
+            //.set_height(Length::Percentage(1.0))
+            //.set_width(Length::Percentage(0.5))
+            //.set_left(Length::Pixels(0.0))
+            //.set_top(Length::Pixels(0.0))
         });
 
         state.style.insert_element(entity, "switch");
@@ -51,7 +51,6 @@ impl BuildHandler for Switch {
 
 impl EventHandler for Switch {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             //println!("received window event: {:?}", window_event);
             match window_event {
@@ -89,7 +88,6 @@ impl EventHandler for Switch {
                 _ => {}
             }
         }
-        
 
         false
     }

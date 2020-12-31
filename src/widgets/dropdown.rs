@@ -106,9 +106,7 @@ pub struct Dropdown {
 
     collapse_animation: usize,
     fade_out_animation: usize,
-
     //container_height: f32,
-
 }
 
 impl Dropdown {
@@ -275,31 +273,22 @@ impl EventHandler for Dropdown {
                 // }
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
-                        
                         if event.target == entity || event.target == self.header {
-
-                            
-
                             if state.hovered.is_child_of(&state.hierarchy, self.container) {
                                 state.insert_event(
-                                Event::new(WindowEvent::MouseDown(*button))
-                                    .target(state.hovered)
-                                    .propagate(Propagation::Direct),
+                                    Event::new(WindowEvent::MouseDown(*button))
+                                        .target(state.hovered)
+                                        .propagate(Propagation::Direct),
                                 );
                             }
-                            
-                            
-                            
+
                             return true;
-                            
                         }
-                        
                     }
                     _ => {}
                 },
 
                 WindowEvent::MouseCaptureOutEvent => {
-                    
                     self.open = false;
 
                     self.header.set_disabled(state, true);
@@ -315,9 +304,8 @@ impl EventHandler for Dropdown {
                 }
 
                 WindowEvent::MouseCaptureEvent => {
-
                     self.open = true;
-                    
+
                     self.header.set_enabled(state, true);
 
                     state
@@ -332,10 +320,8 @@ impl EventHandler for Dropdown {
                     self.container.set_z_order(state, 1);
                 }
 
-                
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-
                         if event.target == entity || event.target == self.header {
                             if state.mouse.left.pressed == state.hovered {
                                 if !self.open {
@@ -347,7 +333,8 @@ impl EventHandler for Dropdown {
                                 state.insert_event(
                                     Event::new(WindowEvent::MouseUp(*button))
                                         .target(state.hovered)
-                                        .propagate(Propagation::Direct));
+                                        .propagate(Propagation::Direct),
+                                );
 
                                 return true;
                             }
@@ -356,7 +343,6 @@ impl EventHandler for Dropdown {
 
                     _ => {}
                 },
-                
 
                 _ => {}
             }

@@ -1,6 +1,5 @@
 #![allow(warnings)]
 
-
 use crate::entity::Entity;
 use crate::state::storage::dense_storage::DenseStorage;
 pub use crate::state::style::*;
@@ -159,7 +158,6 @@ where
         }
     }
 
-
     pub fn with_duration(mut self, duration: Duration) -> Self {
         self.duration = duration;
 
@@ -167,7 +165,6 @@ where
     }
 
     pub fn with_delay(mut self, delay: Duration) -> Self {
-
         self.delay = delay.as_secs_f32() / self.duration.as_secs_f32();
 
         self
@@ -226,7 +223,6 @@ where
     }
 }
 
-
 impl Interpolator for Color {
     fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
         Color::interpolate(start.clone(), end.clone(), t as f64)
@@ -238,8 +234,6 @@ impl Interpolator for f32 {
         return start + (end - start) * t;
     }
 }
-
-
 
 impl Interpolator for i32 {
     fn interpolate(start: &Self, end: &Self, t: f32) -> Self {

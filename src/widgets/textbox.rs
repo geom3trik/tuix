@@ -3,30 +3,16 @@
 use crate::entity::Entity;
 use crate::events::*;
 use crate::mouse::*;
-use crate::{BuildHandler, Justify, Length, PropSet, State, Visibility, WindowEvent, Window};
+use crate::{BuildHandler, Justify, Length, PropSet, State, Visibility, Window, WindowEvent};
 
 use glutin::event::VirtualKeyCode;
 
 use std::collections::HashMap;
 
 use femtovg::{
-    renderer::OpenGl,
-    Align,
-    Baseline,
-    Canvas,
-    Color,
-    FillRule,
-    FontId,
-    ImageFlags,
-    ImageId,
-    LineCap,
-    LineJoin,
-    Paint,
-    Path,
-    Renderer,
-    Solidity,
+    renderer::OpenGl, Align, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId,
+    LineCap, LineJoin, Paint, Path, Renderer, Solidity,
 };
-
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TextboxEvent {
@@ -98,18 +84,18 @@ impl BuildHandler for Textbox {
 
 impl EventHandler for Textbox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
                 TextboxEvent::SetValue(val) => {
                     if event.target == entity {
                         entity.set_text(state, val);
 
-                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)));
+                        state.insert_event(
+                            Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
+                        );
 
-                        state.insert_event(Event::new(WindowEvent::Redraw));                        
+                        state.insert_event(Event::new(WindowEvent::Redraw));
                     }
-
                 }
 
                 // TextboxEvent::ResetValue => {
@@ -117,11 +103,9 @@ impl EventHandler for Textbox {
                 //         text_data.text = self.buffer.clone();
                 //     }
                 // }
-
                 _ => {}
             }
         }
-        
 
         let text_data = state.style.text.get(entity).cloned().unwrap_or_default();
 
@@ -210,8 +194,7 @@ impl EventHandler for Textbox {
                                 }
 
                                 state.insert_event(
-                                    Event::new(WindowEvent::Restyle)
-                                        .target(Entity::new(0, 0)),
+                                    Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                                 );
 
                                 state.insert_event(Event::new(WindowEvent::Redraw));
@@ -229,8 +212,7 @@ impl EventHandler for Textbox {
                                 }
 
                                 state.insert_event(
-                                    Event::new(WindowEvent::Restyle)
-                                        .target(Entity::new(0, 0)),
+                                    Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                                 );
 
                                 state.insert_event(Event::new(WindowEvent::Redraw));
@@ -238,10 +220,9 @@ impl EventHandler for Textbox {
                         }
                         if *virtual_keycode == VirtualKeyCode::Back {
                             if self.edit {
-                                let start = std::cmp::min(self.select_pos, self.cursor_pos)
-                                    as usize;
-                                let end = std::cmp::max(self.select_pos, self.cursor_pos)
-                                    as usize;
+                                let start =
+                                    std::cmp::min(self.select_pos, self.cursor_pos) as usize;
+                                let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
                                 //let start = text_data.select_pos as usize;
                                 //let end = text_data.cursor_pos as usize;
                                 if start == end && self.cursor_pos > 0 {
@@ -260,8 +241,7 @@ impl EventHandler for Textbox {
                                 }
 
                                 state.insert_event(
-                                    Event::new(WindowEvent::Restyle)
-                                        .target(Entity::new(0, 0)),
+                                    Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                                 );
 
                                 state.insert_event(Event::new(WindowEvent::Redraw));
@@ -271,10 +251,8 @@ impl EventHandler for Textbox {
                             if self.edit {
                                 //text_data.buffer = text_data.text.clone();
                                 state.insert_event(
-                                    Event::new(TextboxEvent::ValueChanged(
-                                        text_data.text.clone(),
-                                    ))
-                                    .target(entity),
+                                    Event::new(TextboxEvent::ValueChanged(text_data.text.clone()))
+                                        .target(entity),
                                 );
 
                                 self.edit = false;
@@ -283,8 +261,7 @@ impl EventHandler for Textbox {
                                 state.captured = Entity::null();
 
                                 state.insert_event(
-                                    Event::new(WindowEvent::Restyle)
-                                        .target(Entity::new(0, 0)),
+                                    Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                                 );
 
                                 state.insert_event(Event::new(WindowEvent::Redraw));
@@ -297,15 +274,12 @@ impl EventHandler for Textbox {
                                 entity.set_active(state, false);
 
                                 state.insert_event(
-                                    Event::new(WindowEvent::Restyle)
-                                        .target(Entity::new(0, 0)),
+                                    Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                                 );
 
                                 state.insert_event(Event::new(WindowEvent::Redraw));
                             }
                         }
-
-
                     }
                 }
 
@@ -447,7 +421,6 @@ impl EventHandler for Textbox {
                     }
                 }
                 */
-
                 WindowEvent::CharInput(input) => {
                     if *input as u8 != 8 && *input as u8 != 13 {
                         println!("{}", *input as u8);
@@ -488,7 +461,6 @@ impl EventHandler for Textbox {
         false
     }
 
-    
     fn on_draw(
         &mut self,
         state: &mut State,
@@ -496,7 +468,6 @@ impl EventHandler for Textbox {
         canvas: &mut Canvas<OpenGl>,
         //images: &HashMap<String, nanovg::Image>,
     ) {
-
         // Skip window
         if entity == Entity::new(0, 0) {
             return;
@@ -541,8 +512,7 @@ impl EventHandler for Textbox {
             _ => &0.0,
         };
 
-        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Length::Auto)
-        {
+        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Length::Auto) {
             Length::Pixels(val) => val,
             _ => &0.0,
         };
@@ -585,7 +555,10 @@ impl EventHandler for Textbox {
             .cloned()
             .unwrap_or_default();
 
-        let parent = state.hierarchy.get_parent(entity).expect("Failed to find parent somehow");
+        let parent = state
+            .hierarchy
+            .get_parent(entity)
+            .expect("Failed to find parent somehow");
 
         let parent_width = state.transform.get_width(parent);
 
@@ -632,9 +605,18 @@ impl EventHandler for Textbox {
             .unwrap_or_default();
 
         let mut path = Path::new();
-        path.rounded_rect_varying(posx + border_width/2.0, posy + border_width / 2.0, width - border_width, height - border_width, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
+        path.rounded_rect_varying(
+            posx + border_width / 2.0,
+            posy + border_width / 2.0,
+            width - border_width,
+            height - border_width,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left,
+        );
         let mut paint = Paint::color(border_color);
-        paint.set_line_width(border_width*2.0);
+        paint.set_line_width(border_width * 2.0);
         canvas.stroke_path(&mut path, paint);
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
@@ -699,16 +681,15 @@ impl EventHandler for Textbox {
             paint.set_font(&[font_id]);
             paint.set_text_align(align);
             paint.set_text_baseline(baseline);
-                
-            if let Ok(res) = canvas.fill_text(x, y, &text_string, paint) {
 
+            if let Ok(res) = canvas.fill_text(x, y, &text_string, paint) {
                 let text_width = res.width();
                 let mut glyph_positions = res.glyphs.iter().peekable();
 
                 let mut caretx = posx + padding_left;
 
                 let mut selectx = caretx;
-    
+
                 if self.edit {
                     if self.hitx != -1.0 {
                         selectx = if self.hitx < posx + padding_left + text_width / 2.0 {
@@ -718,7 +699,7 @@ impl EventHandler for Textbox {
                             self.select_pos = text.text.len() as u32;
                             posx + padding_left + text_width
                         };
-    
+
                         caretx = if self.dragx < posx + padding_left + text_width / 2.0 {
                             self.cursor_pos = 0;
                             posx + padding_left
@@ -726,10 +707,10 @@ impl EventHandler for Textbox {
                             self.cursor_pos = text.text.len() as u32;
                             posx + padding_left + text_width
                         };
-    
+
                         let mut n = 0;
                         let mut px = posx + padding_left;
-                        
+
                         for glyph in res.glyphs.iter() {
                             let left_edge = glyph.x;
                             let right_edge = left_edge + glyph.width;
@@ -737,13 +718,13 @@ impl EventHandler for Textbox {
 
                             if self.hitx >= px && self.hitx < gx {
                                 selectx = left_edge;
-    
+
                                 self.select_pos = n;
                             }
 
                             if self.dragx >= px && self.dragx < gx {
                                 caretx = left_edge;
-    
+
                                 self.cursor_pos = n;
                             }
 
@@ -757,46 +738,40 @@ impl EventHandler for Textbox {
                             if n == self.cursor_pos {
                                 caretx = glyph.x;
                             }
-    
+
                             if n == self.select_pos {
                                 selectx = glyph.x;
                             }
-    
+
                             n += 1;
                         }
-    
+
                         if self.cursor_pos as usize == text.text.len() {
                             caretx = x + text_width;
                         }
-    
+
                         if self.select_pos as usize == text.text.len() {
                             selectx = x + text_width;
                         }
                     }
-                    
-                    
+
                     //Draw selection
                     let select_width = (caretx - selectx).abs();
                     if selectx > caretx {
                         let mut path = Path::new();
-                        path.rect(caretx, y - 0.25*height, select_width, height * 0.5);
+                        path.rect(caretx, y - 0.25 * height, select_width, height * 0.5);
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     } else if caretx > selectx {
                         let mut path = Path::new();
-                        path.rect(selectx, y - 0.25*height, select_width, height * 0.5);
+                        path.rect(selectx, y - 0.25 * height, select_width, height * 0.5);
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
-                        
                     }
 
                     let mut path = Path::new();
-                    path.rect(caretx, y - 0.25*height, 1.0, height * 0.5);
+                    path.rect(caretx, y - 0.25 * height, 1.0, height * 0.5);
                     canvas.fill_path(&mut path, Paint::color(Color::rgba(255, 192, 0, 255)));
-                    
                 }
-                
             }
-            
         }
     }
-    
 }

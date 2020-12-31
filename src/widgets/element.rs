@@ -1,19 +1,12 @@
-
-
-
 use crate::entity::Entity;
 
-use crate::{State, BuildHandler, EventHandler};
+use crate::{BuildHandler, EventHandler, State};
 
-pub struct Element {
-
-}
+pub struct Element {}
 
 impl Element {
     pub fn new() -> Self {
-        Element {
-
-        }
+        Element {}
     }
 }
 

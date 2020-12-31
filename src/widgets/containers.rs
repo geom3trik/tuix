@@ -2,9 +2,9 @@
 
 use crate::widgets::*;
 
-use crate::events::{BuildHandler, EventHandler, Event};
-use crate::state::style::{Length, FlexDirection};
-use crate::{WindowEvent, MouseButton, CursorIcon};
+use crate::events::{BuildHandler, Event, EventHandler};
+use crate::state::style::{FlexDirection, Length};
+use crate::{CursorIcon, MouseButton, WindowEvent};
 
 pub struct HBox {}
 
@@ -77,13 +77,16 @@ impl BuildHandler for ResizableVBox {
 
 impl EventHandler for ResizableVBox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        
         if let Some(window_event) = event.is_type::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {
-                        if state.mouse.left.pos_down.0 >= state.transform.get_posx(entity) + state.transform.get_width(entity) - 4.0
-                            && state.mouse.left.pos_down.0 <= state.transform.get_posx(entity) + state.transform.get_width(entity)
+                        if state.mouse.left.pos_down.0
+                            >= state.transform.get_posx(entity) + state.transform.get_width(entity)
+                                - 4.0
+                            && state.mouse.left.pos_down.0
+                                <= state.transform.get_posx(entity)
+                                    + state.transform.get_width(entity)
                         {
                             self.resizing = true;
                             self.previous_width = state.transform.get_width(entity);
@@ -97,7 +100,13 @@ impl EventHandler for ResizableVBox {
                         if self.resizing == true {
                             //state.release(entity);
                             self.resizing = false;
-                            state.insert_event(Event::new(WindowEvent::MouseMove(state.mouse.cursorx, state.mouse.cursory)).target(entity));
+                            state.insert_event(
+                                Event::new(WindowEvent::MouseMove(
+                                    state.mouse.cursorx,
+                                    state.mouse.cursory,
+                                ))
+                                .target(entity),
+                            );
                         }
                     }
                 }
@@ -107,27 +116,30 @@ impl EventHandler for ResizableVBox {
                     if !self.resizing {
                         state.insert_event(Event::new(WindowEvent::SetCursor(CursorIcon::Arrow)));
                     }
-                    
                 }
 
                 WindowEvent::MouseMove(x, y) => {
-                
                     if self.resizing {
-                        let distx =  *x - state.mouse.left.pos_down.0;
+                        let distx = *x - state.mouse.left.pos_down.0;
                         entity.set_width(state, Length::Pixels(self.previous_width + distx));
                     } else {
-                        if *x > state.transform.get_posx(entity) + state.transform.get_width(entity) - 4.0
-                            && *x < state.transform.get_posx(entity) + state.transform.get_width(entity)
+                        if *x
+                            > state.transform.get_posx(entity) + state.transform.get_width(entity)
+                                - 4.0
+                            && *x
+                                < state.transform.get_posx(entity)
+                                    + state.transform.get_width(entity)
                         {
-                            state.insert_event(Event::new(WindowEvent::SetCursor(CursorIcon::EResize)));
-                            
+                            state.insert_event(Event::new(WindowEvent::SetCursor(
+                                CursorIcon::EResize,
+                            )));
                         } else {
-
-                            state.insert_event(Event::new(WindowEvent::SetCursor(CursorIcon::Arrow)));
+                            state.insert_event(Event::new(WindowEvent::SetCursor(
+                                CursorIcon::Arrow,
+                            )));
                             state.release(entity);
                         }
                     }
-                    
                 }
 
                 _ => {}

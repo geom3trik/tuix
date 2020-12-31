@@ -403,10 +403,10 @@ impl<'a> HierarchyTree<'a> for Entity {
     }
 
     fn is_child_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool {
-        if *self == Entity::null() { 
+        if *self == Entity::null() {
             return false;
         }
-        
+
         if let Some(parent) = hierarchy.get_parent(*self) {
             if parent == entity {
                 return true;
@@ -419,8 +419,7 @@ impl<'a> HierarchyTree<'a> for Entity {
     }
 
     fn is_descendant_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool {
-        
-        if *self == Entity::null() { 
+        if *self == Entity::null() {
             return false;
         }
 
@@ -436,15 +435,15 @@ impl<'a> HierarchyTree<'a> for Entity {
     // TODO
     //fn is_descendant_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool {
     //    return false;
-        
-        // if let Some(parent) = hierarchy.get_parent(*self) {
-        //     if parent == entity {
-        //         return true;
-        //     } else {
-        //         return false;
-        //     }
-        // } else {
-        //     return false;
-        // }
+
+    // if let Some(parent) = hierarchy.get_parent(*self) {
+    //     if parent == entity {
+    //         return true;
+    //     } else {
+    //         return false;
+    //     }
+    // } else {
+    //     return false;
+    // }
     //}
 }

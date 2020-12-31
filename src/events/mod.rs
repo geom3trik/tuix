@@ -1,6 +1,5 @@
 #![allow(warnings)]
 
-
 pub mod event_manager;
 pub use event_manager::*;
 

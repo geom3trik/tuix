@@ -188,7 +188,7 @@ fn parse_selectors<'i, 't>(
                 } else {
                     selector.asterisk = true;
                 }
-                
+
                 whitespace = false;
             }
 
@@ -554,10 +554,10 @@ fn parse_transition2<'i, 't>(
                     match input.next()? {
                         Token::Number { value: x, .. } => {
                             println!("With delay: {}", x);
-        
+
                             transition.delay = *x;
                         }
-        
+
                         t => {
                             println!("Failed to find delay");
                             let basic_error = BasicParseError {
@@ -874,7 +874,6 @@ fn parse_align_items<'i, 't>(
             "center" => AlignItems::Center,
             "stretch" => AlignItems::Stretch,
             //"baseline" => AlignItems::Baseline, //TODO
-
             _ => {
                 return Err(
                     CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
