@@ -604,17 +604,8 @@ impl PropSet for Entity {
     }
 
     fn set_font_size(self, state: &mut State, value: f32) -> Self {
-        if let Some(data) = state.style.text.get_mut(self) {
-            data.font_size = value;
-        } else {
-            state.style.text.insert(
-                self,
-                Text {
-                    font_size: value,
-                    ..Default::default()
-                },
-            );
-        }
+
+        state.style.font_size.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)

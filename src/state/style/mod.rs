@@ -158,6 +158,7 @@ pub struct Style {
     pub text: DenseStorage<Text>,
 
     pub font_color: AnimatableStorage<Color>,
+    pub font_size: AnimatableStorage<f32>,
 
     pub text_align: StyleStorage<Align>,
     pub text_justify: StyleStorage<Justify>,
@@ -232,6 +233,7 @@ impl Style {
             text_justify: StyleStorage::new(),
 
             font_color: AnimatableStorage::new(),
+            font_size: AnimatableStorage::new(),
 
             overflow: StyleStorage::new(),
             scroll: DenseStorage::new(),
@@ -424,8 +426,11 @@ impl Style {
                         );
                     }
 
+                    Property::FontSize(value) => {
+                        self.font_size.insert_rule(rule_id, value);
+                    }
+
                     Property::FontColor(value) => {
-                        println!("Val: {:?}", value);
                         self.font_color.insert_rule(rule_id, value);
                     }
 
@@ -553,10 +558,6 @@ impl Style {
         self.visibility.insert(entity, Default::default());
         //self.clip_widget.insert(entity, Entity::new(0, 0));
         self.focus_order.insert(entity, Default::default());
-    }
-
-    pub fn set_margin(&mut self, entity: Entity, value: f32) {
-        // Check if there is already a rule with the same entity id
     }
 
     pub fn remove(&mut self, entity: Entity) {}

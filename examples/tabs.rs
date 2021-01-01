@@ -22,7 +22,8 @@ fn main() {
             .on_press(Event::new(TabEvent::SwitchTab(1)))
             .build(state, tab_bar, |builder| builder);
         let second = Button::new().build(state, tab_container, |builder| {
-            builder.class("item1").set_display(Display::None)
+            builder.class("item2")
+            //.set_display(Display::None)
         });
         Button::with_label("Second Button").build(state, second, |builder| builder.class("test"));
 
@@ -30,7 +31,8 @@ fn main() {
             .on_press(Event::new(TabEvent::SwitchTab(2)))
             .build(state, tab_bar, |builder| builder);
         let third = Button::new().build(state, tab_container, |builder| {
-            builder.class("item1").set_display(Display::None)
+            builder.class("item1")
+            //.set_display(Display::None)
         });
         Button::with_label("Third Button").build(state, third, |builder| builder.class("test"));
 

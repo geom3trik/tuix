@@ -5,7 +5,7 @@ use crate::mouse::*;
 use crate::State;
 use crate::{BuildHandler, Event, EventHandler, WindowEvent};
 
-use crate::style::Display;
+use crate::style::{Display, Visibility};
 
 use crate::widgets::slider::SliderEvent;
 use crate::widgets::Element;
@@ -180,7 +180,13 @@ impl EventHandler for ControlKnob {
         return false;
     }
 
+    
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
+
+        if state.transform.get_visibility(entity) == Visibility::Invisible {
+            return;
+        }
+
         let opacity = state.transform.get_opacity(entity);
 
         let mut knob_color: femtovg::Color = state
@@ -240,22 +246,42 @@ impl EventHandler for ControlKnob {
         canvas.save();
 
         // Draw outer arc background
-        let mut path = Path::new();
-        path.arc(cx, cy, r0, start, end, Solidity::Hole);
-        path.arc(cx, cy, r1, end, start, Solidity::Solid);
-        path.close();
-        let mut paint = Paint::color(back_color);
-        canvas.fill_path(&mut path, paint);
+        // let mut path = Path::new();
+        // path.arc(cx, cy, r0, start, end, Solidity::Hole);
+        // path.arc(cx, cy, r1, end, start, Solidity::Solid);
+        // path.close();
+        // let mut paint = Paint::color(back_color);
+        // canvas.fill_path(&mut path, paint);
 
-        // Draw outer arc fill
+
+        let mut path = Path::new();
+        path.arc(cx, cy, r1 - 2.5, end, start, Solidity::Solid);
+        let mut paint = Paint::color(back_color);
+        paint.set_line_width(5.0);
+        paint.set_line_cap(LineCap::Round);
+        canvas.stroke_path(&mut path, paint);
+
         if current != start {
             let mut path = Path::new();
-            path.arc(cx, cy, r0, start, current, Solidity::Hole);
-            path.arc(cx, cy, r1, current, start, Solidity::Solid);
-            path.close();
+            path.arc(cx, cy, r1 - 2.5, current, start, Solidity::Solid);
             let mut paint = Paint::color(slider_color);
-            canvas.fill_path(&mut path, paint);
+            paint.set_line_width(5.0);
+            paint.set_line_cap(LineCap::Round);
+            canvas.stroke_path(&mut path, paint);
         }
+
+        // Draw outer arc fill
+        //if current != start {
+            //let mut path = Path::new();
+            //path.arc(cx, cy, r0, start, current, Solidity::Hole);
+            //path.arc(cx, cy, r1, current, start, Solidity::Solid);
+            //path.close();
+            // path.arc(cx, cy, r1 - 2.5, end, start, Solidity::Solid);
+            // let mut paint = Paint::color(back_color);
+            // paint.set_line_width(5.0);
+            // paint.set_line_cap(LineCap::Round);
+            // canvas.fill_path(&mut path, paint);
+        //}
 
         // Draw knob
         let mut path = Path::new();
@@ -269,11 +295,12 @@ impl EventHandler for ControlKnob {
         canvas.rotate(current - PI / 2.0);
 
         let mut path = Path::new();
-        path.circle(0.0, r0 - 5.0, 2.0);
+        path.circle(0.0, r0 - 2.5, 2.0);
         let mut paint = Paint::color(tick_color);
         canvas.fill_path(&mut path, paint);
 
         canvas.restore();
         canvas.restore();
     }
+    
 }

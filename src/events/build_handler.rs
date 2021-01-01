@@ -454,4 +454,16 @@ impl<'a> Builder<'a> {
 
         self
     }
+
+    pub fn set_rotate(mut self, rotate: f32) -> Self {
+        self.state.style.rotate.insert(self.entity, rotate);
+
+        self
+    }
+
+    pub fn set_scaley(mut self, scaley: f32) -> Self {
+        self.state.style.scaley.insert(self.entity, Scale::new(scaley));
+
+        self
+    }
 }

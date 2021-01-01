@@ -175,15 +175,39 @@ pub trait EventHandler {
 
         //println!("Border Width: {}", border_width);
 
+        
+        
+
+        
+        
         // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
+        let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
         canvas.save();
-        canvas.translate(posx + width / 2.0, posy + height / 2.0);
-        canvas.rotate(rotate.to_radians());
-        canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
-        //canvas.translate(posx + width / 2.0, posy + width / 2.0);
+        // canvas.translate(posx + width / 2.0, posy + height / 2.0);
+        // canvas.rotate(rotate.to_radians());
+        // canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
+        let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
+        //canvas.translate(posx + width / 2.0, posy + width / 2.0);
+        canvas.translate(pt.0, pt.1);
+        canvas.scale(1.0, scaley.0);
+        canvas.translate(-pt.0, -pt.1);
+
+
+        // Apply Scissor
+        let clip_entity = state.transform.get_clip_widget(entity);
+
+        let clip_posx = state.transform.get_posx(clip_entity);
+        let clip_posy = state.transform.get_posy(clip_entity);
+        let clip_width = state.transform.get_width(clip_entity);
+        let clip_height = state.transform.get_height(clip_entity);
+
+        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+
+
+        
         let shadow_h_offset = state
             .style
             .shadow_h_offset
@@ -283,8 +307,10 @@ pub trait EventHandler {
             let mut font_color: femtovg::Color = font_color.into();
             font_color.set_alphaf(font_color.a * opacity);
 
+            let font_size = state.style.font_size.get(entity).cloned().unwrap_or(16.0);
+
             let mut paint = Paint::color(font_color);
-            paint.set_font_size(text.font_size);
+            paint.set_font_size(font_size);
             paint.set_font(&[font_id]);
             paint.set_text_align(align);
             paint.set_text_baseline(baseline);
@@ -293,7 +319,7 @@ pub trait EventHandler {
             canvas.fill_text(x, y, &text_string, paint);
         }
 
-        canvas.restore();
+        //canvas.restore();
 
         /*
         window.context.borrow_mut().frame(

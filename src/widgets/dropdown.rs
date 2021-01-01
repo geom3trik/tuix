@@ -6,11 +6,13 @@ use crate::{AnimationState, BuildHandler, Event, EventHandler, Propagation, Wind
 use crate::{PropSet, State};
 
 use crate::state::style::*;
-use crate::widgets::{Button, Checkbox, CheckboxEvent, RadioList};
+use crate::widgets::{Button, Checkbox, CheckboxEvent, RadioList, Element, HBox, Label};
 
 use crate::state::hierarchy::HierarchyTree;
 
 const ICON_DOWN_OPEN: &str = "\u{e75c}";
+
+const ICON_DOWN_DIR: &str = "\u{25be}";
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DropdownEvent {
@@ -137,11 +139,22 @@ impl Dropdown {
 impl BuildHandler for Dropdown {
     type Ret = (Entity, Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.header = Button::with_label(&self.text).build(state, entity, |builder| {
+        self.header = HBox::new().build(state, entity, |builder| {
             builder
-                .set_width(Length::Percentage(1.0))
-                .set_height(Length::Percentage(1.0))
+                .set_flex_grow(1.0)
                 .class("header")
+        });
+
+        let label = Label::new(&self.text).build(state, self.header, |builder| 
+            builder
+            //.set_background_color(Color::rgb(100,50,50))
+            .set_flex_grow(1.0));
+
+        let icon = Element::new().build(state, self.header, |builder| {
+            builder
+                //.set_background_color(Color::rgb(100,100,50))
+                .set_text(ICON_DOWN_DIR)
+                .set_width(Length::Pixels(20.0))
         });
 
         // self.container = Button::new().build(state, entity, |builder| {

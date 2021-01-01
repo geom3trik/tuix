@@ -10,7 +10,7 @@ fn main() {
         state.style.parse_theme(THEME);
 
         //let outer = ScrollContainer::new().build(state, window, |builder| builder.class("container"));
-        let outer = Element::new().build(state, window, |builder| builder.class("outer"));
+        let outer = Element::new().build(state, window, |builder| builder.class("outer").set_scaley(1.0));
 
         // let row = HBox::new().build(state, outer, |builder| {
         //     builder
@@ -19,8 +19,8 @@ fn main() {
         // Label::new("Button").build(state, row, |builder| builder);
         // Button::with_label("Press Me").build(state, row, |builder| builder);
 
-        let inner = Element::new().build(state, outer, |builder| builder.class("inner"));
-        //let inner = Element::new().build(state, outer, |builder| builder.class("inner"));
+        let inner = Element::new().build(state, outer, |builder| builder.class("inner").set_clip_widget(outer));
+        let inner = Element::new().build(state, outer, |builder| builder.class("inner2"));
         // let _innerinner = Element::new().build(state, outer, |builder| builder.class("inner2"));
 
         win_desc.with_title("basic")

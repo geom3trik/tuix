@@ -165,7 +165,7 @@ impl Window {
             0,
             size.width as u32,
             size.height as u32,
-            Color::rgbf(0.3, 0.3, 0.32),
+            Color::rgb(255, 80, 80),
         );
 
         let height = size.height as f32;

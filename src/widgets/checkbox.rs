@@ -127,7 +127,7 @@ impl BuildHandler for Checkbox {
             // .set_flex_grow(state, 0.0)
             // .set_flex_shrink(state, 0.0)
             .set_font(state, "Icons".to_string())
-            .set_font_size(state, 14.0)
+            //.set_font_size(state, 14.0)
             .set_text(
                 state,
                 if self.checked {
@@ -141,6 +141,10 @@ impl BuildHandler for Checkbox {
         //.set_text_margin_left(state, 30.0)
         //.set_border_width(state, 1.0)
         //.set_border_color(state, Color::rgb(0, 0, 0));
+
+        if self.checked {
+            entity.set_checked(state, true);
+        }
 
         state.style.insert_element(entity, "checkbox");
 

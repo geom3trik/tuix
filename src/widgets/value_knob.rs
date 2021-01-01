@@ -58,6 +58,7 @@ impl ValueKnob {
 impl BuildHandler for ValueKnob {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+
         let label = Label::new(&self.label).build(state, entity, |builder| {
             builder
                 .set_height(Length::Pixels(25.0))
@@ -73,7 +74,7 @@ impl BuildHandler for ValueKnob {
             },
         );
 
-        let val_str = format!("{:.*}", 5, &self.init.to_string());
+        let val_str = format!("{:.*}", 4, &self.init.to_string());
         self.value = Textbox::new(&val_str).build(state, entity, |builder| {
             builder
                 .set_height(Length::Pixels(25.0))
@@ -95,7 +96,7 @@ impl EventHandler for ValueKnob {
                 SliderEvent::ValueChanged(_, val) => {
                     //println!("Slider Value Changed: {} {}", self.label, val);
                     if event.target == self.slider {
-                        let val_str = format!("{:.*}", 5, &val.to_string());
+                        let val_str = format!("{:.*}", 4, &val.to_string());
                         println!("val_str: {} {}", self.label, val_str);
                         state.insert_event(
                             Event::new(TextboxEvent::SetValue(val_str))
@@ -117,7 +118,7 @@ impl EventHandler for ValueKnob {
                         if let Ok(value) = text.parse::<f32>() {
                             let val = (value.min(self.max_value)).max(self.min_value);
 
-                            let val_str = format!("{:.*}", 5, &val.to_string());
+                            let val_str = format!("{:.*}", 4, &val.to_string());
                             state.insert_event(
                                 Event::new(TextboxEvent::SetValue(val_str))
                                     .target(self.value)

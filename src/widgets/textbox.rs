@@ -26,7 +26,6 @@ pub enum TextboxEvent {
 #[derive(Clone)]
 pub struct Textbox {
     entity: Entity,
-    enabled: bool,
     text: String,
 
     buffer: String,
@@ -45,7 +44,7 @@ impl Textbox {
 
         Textbox {
             entity: Entity::null(),
-            enabled: true,
+
             text: text.to_string(),
 
             buffer: String::new(),
@@ -73,6 +72,7 @@ impl BuildHandler for Textbox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &self.text);
+
 
         self.entity = entity;
 
@@ -676,8 +676,10 @@ impl EventHandler for Textbox {
                 }
             };
 
+            let font_size = state.style.font_size.get(entity).cloned().unwrap_or(16.0);
+
             let mut paint = Paint::color(font_color);
-            paint.set_font_size(text.font_size);
+            paint.set_font_size(font_size);
             paint.set_font(&[font_id]);
             paint.set_text_align(align);
             paint.set_text_baseline(baseline);

@@ -1,22 +1,20 @@
 
-checkbox {
-    left: 20px;
-    top: 20px;
-    width: 20px;
-    height: 20px;
-    background-color: white;
-    border-width: 1px;
-    border-color: black;
-    border-radius: 3px;
+eqchannel checkbox {
+    width: 50px;
+    height: 25px;
+    background-color: #353535;
+    border-radius: 2px;
+    margin-top: 5px;
+    margin-bottom: 10px;
 }
 
-checkbox:checked {
-    background-color: #3669c9;
-    border-color: #3669c9;
+
+eqchannel checkbox:checked {
+    background-color: #f74c00;
     color: white;
 }
 
-switch {
+/* eqchannel switch {
     left: 20px;
     top: 20px;
     width: 36px;
@@ -48,37 +46,50 @@ switch:checked {
     background-color: #3669c9;
     transition: background-color 0.2 0.0;
 }
-
+*/
 
 knob {
-    background-color: #2e2e2e;
-}
-
-knob>.back {
     background-color: #505050;
 }
 
+knob>.back {
+    background-color: #353535;
+}
+
 knob>.slider {
-    background-color: #3669c9;
+    background-color: #f74c00;
+}
+
+eqchannel:disabled knob>.slider {
+    background-color: #353535;
 }
 
 knob>.tick {
     background-color: #c8c8c8;
 }
 
+eqchannel:disabled knob>.tick {
+    background-color: #505050;
+}
+
 textbox {
-    background-color: #2e2e2e;
-    /* text-justify: center; */
+    color: white;
+    background-color: #353535;
     padding-left: 5px;
+    border-radius: 2px;
+}
+
+eqchannel textbox {
+    width: 45px;
 }
 
 value_knob {
-    left: 50px;
-    top: 50px;
+    margin-bottom: 5px;
+    align-items: center;
 }
 
 level_bar {
-    background-color: #2e2e2e;
+    background-color: #353535;
     justify-content: flex-end;
     border-radius: 2px;
     top: 20px;
@@ -89,3 +100,125 @@ level_bar>.front {
     background-color: #00da48;
     border-radius: 2px;
 }
+
+eqchannel {
+    background-color: #505050;
+    /* background-color: #582d8f; */
+    padding: 5px;
+    align-items: center;
+    flex-grow: 1.0;
+}
+
+
+eqeight>.header>label {
+    height: 25px;
+    width: 80px;
+}
+
+eqeight>.header>dropdown {
+    width: 100px;
+    height: 25px;
+    background-color: #353535;
+    border-radius: 2px;
+    text-justify: center;
+    text-align: center;
+    padding-left: 5px;
+    margin-left: 10px;
+}
+
+eqchannel dropdown {
+    width: 50px;
+    height: 25px;
+    background-color: #353535;
+    border-radius: 2px;
+    text-justify: center;
+    text-align: center;
+}
+
+eqeight>.header {
+    background-color: #202020;
+    align-items: center;
+}
+
+eqeight>.header>checkbox.enable {
+    margin: 10px;
+    background-color: #505050;
+    width: 20px;
+    height: 20px;
+    border-radius: 9.5px;
+}
+
+eqeight>.header>checkbox:checked.enable {
+    margin: 10px;
+    background-color: #00da48;
+    width: 20px;
+    height: 20px;
+    border-radius: 9.5px;
+}
+
+eqeight>.header>checkbox.save_preset {
+    font-size: 40px;
+    margin-left: 10px;
+    background-color: #353535;
+    width: 25px;
+    height: 25px;
+    border-radius: 2px;
+}
+
+eqeight>.header>checkbox.save_preset:checked {
+    font-size: 18px;
+    margin-left: 10px;
+    background-color: #353535;
+    width: 25px;
+    height: 25px;
+    border-radius: 2px;
+}
+
+eqeight>.body {
+    /* background-color: red; */
+    flex-grow: 1.0;
+}
+
+
+tab_container {
+    background-color: #505050;
+    flex-grow: 1.0;
+}
+
+tab_bar {
+    background-color: #2e2e2e;
+    height: 25px;
+}
+
+tab_bar>button {
+    background-color: #2e2e2e;
+    /* margin-right: 1px; */
+    /* margin-bottom: 1px; */
+    flex-basis: 80px;
+    text-justify: center;
+}
+
+tab_bar>button:checked {
+    /* margin-bottom: 0px; */
+    background-color:#505050;
+    /* border-radius: 3px; */
+}
+
+tab_container>.container {
+    padding: 5px;
+    flex-grow: 1.0;
+    /* background-color: yellow; */
+}
+
+
+
+/* .item1 {
+    background-color: #612e2e;
+    flex-grow: 1.0;
+}
+
+.item2 {
+    background-color: #37a850;
+    flex-grow: 1.0;
+} */
+

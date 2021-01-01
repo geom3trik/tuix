@@ -4,7 +4,7 @@ use crate::state::{Entity, State};
 
 use crate::events::{BuildHandler, Event, EventHandler};
 
-use crate::widgets::Button;
+use crate::widgets::Element;
 
 use crate::{IntoChildIterator, WindowEvent};
 
@@ -127,7 +127,7 @@ impl TabContainer {
 impl BuildHandler for TabContainer {
     type Ret = (Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_background_color(state, Color::rgb(50, 70, 90));
+        //entity.set_background_color(state, Color::rgb(50, 70, 90));
 
         self.tab_bar = TabBar::new().build(state, entity, |builder| {
             builder
@@ -145,7 +145,7 @@ impl BuildHandler for TabContainer {
 
         // }
 
-        self.container = Button::new().build(state, entity, |builder| builder.class("container"));
+        self.container = Element::new().build(state, entity, |builder| builder.class("container"));
 
         state.style.insert_element(entity, "tab_container");
 

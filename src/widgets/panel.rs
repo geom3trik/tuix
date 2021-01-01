@@ -188,7 +188,8 @@ impl EventHandler for Panel {
                     // Exclude relayout orginating from animations
                     if event.origin != Entity::new(0, 0) {
                         if !state.style.height.is_animating(self.container) {
-                            let container_height = state.transform.get_height(self.container);
+                            //let container_height = state.transform.get_height(self.container);
+                            let container_height = state.transform.get_child_sum(self.container);
                             let container_border = state
                                 .style
                                 .border_width
@@ -200,7 +201,8 @@ impl EventHandler for Panel {
                                 container_height, container_border
                             );
                             if container_height > 0.0 {
-                                self.container_height = container_height - 2.0 * container_border;
+                                self.container_height = container_height;
+                                println!("Do This");
 
                                 if let Some(animation) =
                                     state.style.height.get_animation_mut(self.expand_animation)
@@ -257,6 +259,8 @@ impl EventHandler for Panel {
                                 self.container
                                     .set_height(state, Length::Pixels(self.container_height));
                                 self.other_container.set_opacity(state, 1.0);
+
+                                println!("Height: {}", self.container_height);
 
                             //self.container.set_display(state, Display::Flexbox);
                             } else {

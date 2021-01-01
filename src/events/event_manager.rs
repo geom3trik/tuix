@@ -191,8 +191,10 @@ impl EventManager {
             0,
             size.width as u32,
             size.height as u32,
-            Color::rgb(60, 60, 60),
+            Color::rgb(80, 80, 80),
         );
+
+        window.canvas.reset();
 
         let hierarchy = state.hierarchy.clone();
 

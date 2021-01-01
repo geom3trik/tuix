@@ -3,22 +3,22 @@
     /* left: 10px; */
     /* top: 10px; */
     width: 100px;
-    height: 100px;
+    /* height: 100px; */
     /* margin: 10px; */
-    padding: 10px;
+    /* padding: 10px; */
 
     /* height: 300px; */
     background-color: #912828;
     border-width: 10px;
     border-color: blue;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
+    /* justify-content: center; */
     align-items: center;
 }
 
 .inner {
-    width: 60px;
-    height: 30px;
+    width: 50px;
+    height: 50px;
     /* flex-grow: 1.0; */
     /* flex-shrink: 1.0; */
     background-color: green;
@@ -34,7 +34,7 @@
     height: 100px;
     flex-grow: 1.0;
     width: 100px;
-    background-color: blue;
+    background-color: #37376d;
     /* flex-grow: 1.0; */
 }
 
