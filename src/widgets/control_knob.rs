@@ -239,7 +239,11 @@ impl EventHandler for ControlKnob {
         let start = -(PI + PI / 4.0);
         let end = PI / 4.0;
 
-        let normalised = self.value / (self.max_value - self.min_value);
+        let zero_position = (-self.min_value / (self.max_value - self.min_value)) * (end - start) + start;
+
+        let normalised = (self.value - self.min_value) / (self.max_value - self.min_value);
+
+        //println!("{}", self.min_value - self.value);
 
         let current = normalised * (end - start) + start;
 
@@ -261,9 +265,14 @@ impl EventHandler for ControlKnob {
         paint.set_line_cap(LineCap::Round);
         canvas.stroke_path(&mut path, paint);
 
-        if current != start {
+        if current != zero_position {
             let mut path = Path::new();
-            path.arc(cx, cy, r1 - 2.5, current, start, Solidity::Solid);
+            if current > zero_position {
+                path.arc(cx, cy, r1 - 2.5, current, zero_position, Solidity::Solid);
+            } else {
+                path.arc(cx, cy, r1 - 2.5, zero_position, current, Solidity::Solid);
+            }
+            
             let mut paint = Paint::color(slider_color);
             paint.set_line_width(5.0);
             paint.set_line_cap(LineCap::Round);

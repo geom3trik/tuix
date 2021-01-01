@@ -81,6 +81,7 @@ textbox {
 
 eqchannel textbox {
     width: 45px;
+    text-justify: center;
 }
 
 value_knob {
@@ -208,6 +209,13 @@ tab_container>.container {
     padding: 5px;
     flex-grow: 1.0;
     /* background-color: yellow; */
+}
+
+freq_graph {
+    background-color: #202020;
+    flex-grow: 1.0;
+    border-radius: 5px;
+    margin: 5px;
 }
 
 
