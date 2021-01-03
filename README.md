@@ -70,7 +70,7 @@ You can run this example with: ```cargo run --example hello_gui```
 
 # How tuix works
 
-Tuix can be thought of as 4 seperate processes which happen in order:
+Tuix can be thought of as 5 seperate processes which happen in order:
 
 - Building
 - Layout
@@ -92,8 +92,13 @@ After layout, the widgets are styled using the CSS properties you give them.
 
 [Styling Widgets](https://github.com/geom3trik/tuix/wiki/Styling-Widgets)
 
-## Rendering
-After styling, the widgets are rendered to the window. The visual look of the widgets is determined by the style propeties set on them, but it's also possible to override this with a custom drawing function for your own custom widgets.
+## Event Handling
+Tuix uses an event queue to pass custom messages between widgets.
+
+[Events](https://github.com/geom3trik/tuix/wiki/Events)
+
+## Drawing
+After styling, the widgets are drawn to the window. The visual look of the widgets is determined by the style propeties set on them, but it's also possible to override this with a custom drawing function for your own custom widgets.
 
 [Rendering Widgets](https://github.com/geom3trik/tuix/wiki/Rendering-Widgets)
 
