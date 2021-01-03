@@ -286,6 +286,7 @@ freq_graph {
 }
 
 control_point {
+    position: absolute;
     background-color:#f74c00;
     width: 20px;
     height: 20px;

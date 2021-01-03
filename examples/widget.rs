@@ -9,6 +9,18 @@ const ICON_PLUS: &str = "\u{2b}";
 
 const frequencies: [f32; 27] = [1.477121, 1.60206, 1.69897, 1.778151, 1.845098, 1.90309, 1.954243, 2.0, 2.30103, 2.477121, 2.60206, 2.69897, 2.778151, 2.845098, 2.90309, 2.954243, 3.0, 3.30103, 3.477121, 3.60206, 3.69897, 3.778151, 3.845098, 3.90309, 3.954243, 4.0, 4.30103];
 
+
+// TODO's
+
+//  - Figure out how events should be propagated without lots of forwarding
+//    I like the name lookup idea but the question is how to give entities names when they inaccessible 
+//  - Add the ability for children to be notified of parent size change
+//  - Add units to a textbox. Possibly should be a new widget?
+//  - Figure out how to plot filter responses
+//  - Propagate "disabled" flag?
+//  - The graph doesn't update correctly if the window is resized while on another tab
+//    I think it's because invisible widgets don't receive layout events.
+
 fn main() {
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
@@ -104,14 +116,13 @@ impl BuildHandler for EQ8 {
         let graph = FreqGraph::new().build(state, tab_container, |builder| builder);
 
         let control_point1 = ControlPoint::new("1").build(state, graph, |builder| builder);
-        let control_point2 = ControlPoint::new("1").build(state, graph, |builder| builder);
-        // let control_point3= ControlPoint::new("1").build(state, graph, |builder| builder);
-        // let control_point4 = ControlPoint::new("1").build(state, graph, |builder| builder);
-        // let control_point5 = ControlPoint::new("1").build(state, graph, |builder| builder);
-        // let control_point6 = ControlPoint::new("1").build(state, graph, |builder| builder);
-        // let control_point7 = ControlPoint::new("1").build(state, graph, |builder| builder);
-        // let control_point8 = ControlPoint::new("1").build(state, graph, |builder| builder);
-        //Button::with_label("First Button").build(state, first, |builder| builder.class("test"));
+        // let control_point2 = ControlPoint::new("2").build(state, graph, |builder| builder);
+        // let control_point3= ControlPoint::new("3").build(state, graph, |builder| builder);
+        // let control_point4 = ControlPoint::new("4").build(state, graph, |builder| builder);
+        // let control_point5 = ControlPoint::new("5").build(state, graph, |builder| builder);
+        // let control_point6 = ControlPoint::new("6").build(state, graph, |builder| builder);
+        // let control_point7 = ControlPoint::new("7").build(state, graph, |builder| builder);
+        // let control_point8 = ControlPoint::new("8").build(state, graph, |builder| builder);
 
         Button::with_label("Control")
          .on_press(Event::new(TabEvent::SwitchTab(1)))
@@ -653,28 +664,32 @@ impl EventHandler for ControlPoint {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
 
+                // Currently this gets stuck in a recursion because other control points trigger a relayout event
+                // Need a better way to figure out if a parent has been resized
+                // Current thinking is a GeometryChanged event that is passed directly to the widget changing size
+                // And then optionally propagated to the children
 
-                // WindowEvent::Relayout => {
-                //     // Prevents infinite recursion
-                //     if event.origin != entity {
-                //         let parent = state.hierarchy.get_parent(entity).unwrap();
-                //         let parent_width = state.transform.get_width(parent);
-                //         let parent_height = state.transform.get_height(parent);
-                //         let width = state.transform.get_width(entity);
-                //         let height = state.transform.get_height(entity);
+                WindowEvent::Relayout => {
+                    // Prevents infinite recursion (except when there are multiple control points)
+                    if event.origin != entity {
+                        let parent = state.hierarchy.get_parent(entity).unwrap();
+                        let parent_width = state.transform.get_width(parent);
+                        let parent_height = state.transform.get_height(parent);
+                        let width = state.transform.get_width(entity);
+                        let height = state.transform.get_height(entity);
 
-                //         let min = 1.477121;
-                //         let max = 4.3013;
-                //         let range = max - min;
+                        let min = 1.477121;
+                        let max = 4.3013;
+                        let range = max - min;
 
-                //         let new_left = 40.0 + (self.frequency.log10() - min) * ((parent_width - 80.0)/range);
-                //         let new_top = 40.0 + (-self.gain + 12.0) * ((parent_height - 80.0)/24.0);
+                        let new_left = 40.0 + (self.frequency.log10() - min) * ((parent_width - 80.0)/range);
+                        let new_top = 40.0 + (-self.gain + 12.0) * ((parent_height - 80.0)/24.0);
 
-                //         entity.set_left(state, Length::Pixels(new_left - width/2.0));
-                //         entity.set_top(state, Length::Pixels(new_top - height/2.0));                        
-                //     }
+                        entity.set_left(state, Length::Pixels(new_left - width/2.0));
+                        entity.set_top(state, Length::Pixels(new_top - height/2.0));                        
+                    }
 
-                // }
+                }
 
                 WindowEvent::MouseDown(button) => {
                     if event.target == entity && *button == MouseButton::Left {
