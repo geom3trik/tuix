@@ -29,6 +29,8 @@ pub struct ControlKnob {
 
     min_value: f32,
     max_value: f32,
+
+    is_log: bool,
 }
 
 impl ControlKnob {
@@ -47,7 +49,16 @@ impl ControlKnob {
 
             min_value: min,
             max_value: max,
+
+            is_log: false,
         }
+    }
+
+    pub fn with_log_scale(mut self) -> Self {
+
+        self.is_log = true;
+
+        self
     }
 }
 
@@ -83,9 +94,9 @@ impl EventHandler for ControlKnob {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
-                SliderEvent::SetValue(id, val) => {
+                SliderEvent::SetValue(val) => {
                     if event.target == entity {
-                        if *id == entity {
+                        if event.target == entity {
                             self.value = ((*val).min(self.max_value)).max(self.min_value);
 
                             state.insert_event(
@@ -130,10 +141,23 @@ impl EventHandler for ControlKnob {
                                 dy / 200.0
                             };
 
-                            let new_val =
-                                self.temp + (self.max_value - self.min_value) * normalised;
+                            let new_val = if self.is_log {
+                                let t = self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised;
+                                println!("norma: {}, t: {}", normalised, t);
+                                10.0f32.powf((self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised))
+                                
+                            } else {
+                                self.temp + (self.max_value - self.min_value) * normalised
+                            };
+
+                            
+                                
+
+                            
 
                             self.value = (new_val.min(self.max_value)).max(self.min_value);
+
+                            //println!("val: {}", normalised);
 
                             state.insert_event(
                                 Event::new(SliderEvent::ValueChanged(entity, self.value))
@@ -239,11 +263,25 @@ impl EventHandler for ControlKnob {
         let start = -(PI + PI / 4.0);
         let end = PI / 4.0;
 
-        let zero_position = (-self.min_value / (self.max_value - self.min_value)) * (end - start) + start;
+        let (min, max, value) = if self.is_log {
+            (self.min_value.log10(), self.max_value.log10(), self.value.log10())
+            //(self.min_value, self.max_value, self.value)
+        } else {
+            (self.min_value, self.max_value, self.value)
+        };
 
-        let normalised = (self.value - self.min_value) / (self.max_value - self.min_value);
 
-        //println!("{}", self.min_value - self.value);
+        let zero_position = if self.is_log {
+            start
+        } else {
+            (-min / (max - min)) * (end - start) + start
+        };
+        
+        
+
+        let normalised = (value - min) / (max - min);
+
+        //println!("{}", zero_position);
 
         let current = normalised * (end - start) + start;
 

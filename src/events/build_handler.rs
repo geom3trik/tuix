@@ -67,7 +67,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn id(&mut self, id: &str) -> &mut Self {
+    pub fn id(mut self, id: &str) -> Self {
         self.state.style.insert_id(self.entity, id);
 
         self

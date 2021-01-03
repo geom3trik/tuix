@@ -119,6 +119,11 @@ impl State {
         self.event_queue.push_back(event);
     }
 
+
+    pub fn id2entity(&self, id: &str) -> Option<Entity> {
+        self.style.ids.get_by_left(&id.to_string()).cloned()
+    }
+
     pub fn capture(&mut self, id: Entity) {
         println!("Capture: {}", id);
         if id != Entity::null() {

@@ -118,7 +118,7 @@ impl EventHandler for ValueSlider {
                             );
 
                             state.insert_event(
-                                Event::new(SliderEvent::SetValue(self.slider, val))
+                                Event::new(SliderEvent::SetValue(val))
                                     .target(self.slider)
                                     .propagate(Propagation::Direct),
                             );

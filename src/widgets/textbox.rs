@@ -30,6 +30,9 @@ pub struct Textbox {
 
     buffer: String,
 
+    units: String,
+    multiplier: f32,
+
     select_pos: u32,
     cursor_pos: u32,
     edit: bool,
@@ -49,12 +52,24 @@ impl Textbox {
 
             buffer: String::new(),
 
+            units: String::new(),
+
+            multiplier: 1.0,
+
             select_pos: 0,
             cursor_pos: 0,
             edit: false,
             hitx: -1.0,
             dragx: -1.0,
         }
+    }
+
+    
+    pub fn with_units(mut self, uints: &str) -> Self {
+
+        self.units = uints.to_string();
+
+        self
     }
 
     // pub fn set_enabled(&self, state: &mut WidgetState, val: bool) {
@@ -71,7 +86,7 @@ impl Textbox {
 impl BuildHandler for Textbox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_text(state, &self.text);
+        entity.set_text(state, &(self.text.to_owned() + &self.units));
 
 
         self.entity = entity;
@@ -88,7 +103,7 @@ impl EventHandler for Textbox {
             match textbox_event {
                 TextboxEvent::SetValue(val) => {
                     if event.target == entity {
-                        entity.set_text(state, val);
+                        entity.set_text(state, &(val.to_owned() + &self.units));
 
                         state.insert_event(
                             Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
@@ -125,21 +140,23 @@ impl EventHandler for Textbox {
 
                 WindowEvent::MouseDown(button) => {
                     if entity == state.hovered {
-                        if self.edit == false {
+                        if self.edit == false && !entity.is_disabled(state) {
                             self.cursor_pos = text_data.text.len() as u32;
                             self.select_pos = 0;
                             self.buffer = text_data.text.clone();
                             state.focused = entity;
                             //state.captured = entity;
                             state.capture(entity);
+                            self.edit = true;
+                            entity.set_active(state, true);
                         }
                         if self.edit == true {
                             self.hitx = state.mouse.cursorx;
                             self.dragx = state.mouse.cursorx;
                         }
-                        self.edit = true;
+                        //self.edit = true;
 
-                        entity.set_active(state, true);
+                        
 
                         state.insert_event(
                             Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
@@ -172,7 +189,6 @@ impl EventHandler for Textbox {
                         }
 
                         //state.captured = Entity::null();
-                        println!("Textbox release");
                         state.release(entity);
                     }
                 }
@@ -693,30 +709,57 @@ impl EventHandler for Textbox {
                 let mut selectx = caretx;
 
                 if self.edit {
+                    let startx = x - text_width / 2.0;
+                    let endx = x + text_width / 2.0;
                     if self.hitx != -1.0 {
-                        selectx = if self.hitx < posx + padding_left + text_width / 2.0 {
+
+                        //let endx = res.glyphs.last().unwrap().x + res.glyphs.last().unwrap().w;
+
+                        selectx = if self.hitx < startx + text_width / 2.0 {
                             self.select_pos = 0;
-                            posx + padding_left
+                            startx
                         } else {
                             self.select_pos = text.text.len() as u32;
-                            posx + padding_left + text_width
+                            endx
                         };
 
-                        caretx = if self.dragx < posx + padding_left + text_width / 2.0 {
+                        caretx = if self.dragx < startx + text_width / 2.0 {
                             self.cursor_pos = 0;
-                            posx + padding_left
+                            startx
                         } else {
                             self.cursor_pos = text.text.len() as u32;
-                            posx + padding_left + text_width
+                            endx
                         };
 
                         let mut n = 0;
-                        let mut px = posx + padding_left;
+                        let mut px = x + padding_left;
 
                         for glyph in res.glyphs.iter() {
                             let left_edge = glyph.x;
                             let right_edge = left_edge + glyph.width;
                             let gx = left_edge * 0.3 + right_edge * 0.7;
+
+                            // if n == 0 && self.hitx <= glyph.x {
+                            //     selectx = left_edge;
+                            //     self.select_pos = 0;
+                            // }
+
+                            // if n == res.glyphs.len() as u32 && self.hitx >= glyph.x + glyph.width {
+                            //     selectx = right_edge;
+                            //     self.select_pos = n;
+                            // }
+
+                            // if n == 0 && self.dragx <= glyph.x {
+                            //     caretx = left_edge;
+                            //     self.cursor_pos = 0;
+                            // }
+
+                            // if n == res.glyphs.len() as u32 && self.hitx >= glyph.x + glyph.width {
+                            //     caretx = right_edge;
+                            //     self.cursor_pos = n;
+                            // }
+
+
 
                             if self.hitx >= px && self.hitx < gx {
                                 selectx = left_edge;
@@ -736,7 +779,10 @@ impl EventHandler for Textbox {
                     } else {
                         let mut n = 0;
 
+                        //let mut start_x = 0.0;
+
                         for glyph in res.glyphs.iter() {
+
                             if n == self.cursor_pos {
                                 caretx = glyph.x;
                             }
@@ -749,11 +795,11 @@ impl EventHandler for Textbox {
                         }
 
                         if self.cursor_pos as usize == text.text.len() {
-                            caretx = x + text_width;
+                            caretx = endx;
                         }
 
                         if self.select_pos as usize == text.text.len() {
-                            selectx = x + text_width;
+                            selectx = endx;
                         }
                     }
 
@@ -772,6 +818,10 @@ impl EventHandler for Textbox {
                     let mut path = Path::new();
                     path.rect(caretx, y - 0.25 * height, 1.0, height * 0.5);
                     canvas.fill_path(&mut path, Paint::color(Color::rgba(255, 192, 0, 255)));
+
+                    // let mut path = Path::new();
+                    // path.rect(endx, y - 0.25 * height, 1.0, height * 0.5);
+                    // canvas.fill_path(&mut path, Paint::color(Color::rgba(255, 0, 0, 255)));
                 }
             }
         }

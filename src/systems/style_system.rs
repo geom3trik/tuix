@@ -3,6 +3,9 @@ use crate::{Entity, Event, HierarchyTree, IntoParentIterator, State, WindowEvent
 use crate::hierarchy::*;
 use crate::state::animator::*;
 
+use std::hash::{Hash, Hasher};
+use std::collections::hash_map::DefaultHasher;
+
 pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
     for entity in hierarchy.into_iter() {
         if entity == Entity::new(0, 0) {
@@ -76,7 +79,9 @@ fn check_match(state: &State, widget: Entity, selector: &Selector) -> bool {
     let mut widget_selector = Selector::new();
 
     // Get the widget id from state
-    widget_selector.id = state.style.ids.get(widget).cloned();
+    //widget_selector.id = state.style.ids.get(widget).cloned();
+    let mut s = DefaultHasher::new();
+    widget_selector.id = state.style.ids.get_by_right(&widget).map(|f| {f.hash(&mut s); s.finish()});
 
     // Get the widget element from state
     widget_selector.element = state.style.elements.get(widget).cloned();

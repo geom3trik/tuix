@@ -57,13 +57,17 @@ pub use color::Color;
 pub mod trans;
 pub use trans::Scale;
 
+use bimap::BiMap;
+
 pub struct Style {
     pub style_rules: Vec<StyleRule>,
 
     //pub rules: Vec<usize>,
     pub rule_selectors: Vec<Vec<Selector>>,
 
-    pub ids: DenseStorage<u64>,
+    //pub ids: DenseStorage<u64>,
+
+    pub ids: BiMap<String, Entity>,
 
     pub elements: DenseStorage<u64>,
 
@@ -172,7 +176,8 @@ impl Style {
             //rules: Vec::new(),
             rule_selectors: Vec::new(),
 
-            ids: DenseStorage::new(),
+            //ids: DenseStorage::new(),
+            ids: BiMap::new(),
             elements: DenseStorage::new(),
             classes: DenseStorage::new(),
             pseudo_classes: DenseStorage::new(),
@@ -569,9 +574,11 @@ impl Style {
     }
 
     pub fn insert_id(&mut self, entity: Entity, id: &str) -> &mut Self {
-        let mut s = DefaultHasher::new();
-        id.hash(&mut s);
-        self.ids.insert(entity, s.finish());
+        // let mut s = DefaultHasher::new();
+        // id.hash(&mut s);
+        // self.ids.insert(entity, s.finish());
+
+        self.ids.insert(id.to_string(), entity);
 
         self
     }
