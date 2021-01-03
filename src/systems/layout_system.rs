@@ -201,19 +201,29 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             _ => 0.0,
         };
 
-        let child_border_width = state
+        let child_border_width = match state
             .style
             .border_width
             .get(*entity)
             .cloned()
-            .unwrap_or_default();
+            .unwrap_or_default() 
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
 
-        let parent_border_width = state
+        let parent_border_width = match state
             .style
             .border_width
             .get(parent)
             .cloned()
-            .unwrap_or_default();
+            .unwrap_or_default() 
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
 
         let parent_padding_left = match state
             .style
@@ -490,15 +500,22 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
     for parent in hierarchy.into_iter() {
         // Parent properties
 
-        let parent_border_width = state
+
+
+        let parent_width = state.transform.get_width(parent);
+        let parent_height = state.transform.get_height(parent);
+
+        let parent_border_width = match state
             .style
             .border_width
             .get(parent)
             .cloned()
-            .unwrap_or_default();
-
-        let parent_width = state.transform.get_width(parent);
-        let parent_height = state.transform.get_height(parent);
+            .unwrap_or_default() 
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
 
         let parent_padding_left = match state
             .style
@@ -629,12 +646,17 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             let left = state.style.left.get(child).cloned().unwrap_or_default();
             let top = state.style.top.get(child).cloned().unwrap_or_default();
 
-            let child_border_width = state
+            let child_border_width = match state
                 .style
                 .border_width
                 .get(child)
                 .cloned()
-                .unwrap_or_default();
+                .unwrap_or_default() 
+            {
+                Length::Pixels(val) => val,
+                Length::Percentage(val) => parent_width * val,
+                _ => 0.0,
+            };
 
             let child_min_width = match state
                 .style

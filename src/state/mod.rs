@@ -193,11 +193,9 @@ impl State {
     // }
 
     pub fn apply_animations(&mut self) -> bool {
-        self.style
-            .background_color
-            .animate(std::time::Instant::now());
-
+        self.style.background_color.animate(std::time::Instant::now());
         self.style.font_color.animate(std::time::Instant::now());
+        self.style.border_color.animate(std::time::Instant::now());
 
         self.style.left.animate(std::time::Instant::now());
         self.style.right.animate(std::time::Instant::now());
@@ -208,13 +206,25 @@ impl State {
         self.style.opacity.animate(std::time::Instant::now());
         self.style.rotate.animate(std::time::Instant::now());
         self.style.flex_grow.animate(std::time::Instant::now());
+        self.style.flex_shrink.animate(std::time::Instant::now());
+        self.style.flex_basis.animate(std::time::Instant::now());
         self.style.margin_left.animate(std::time::Instant::now());
         self.style.margin_right.animate(std::time::Instant::now());
         self.style.margin_top.animate(std::time::Instant::now());
         self.style.margin_bottom.animate(std::time::Instant::now());
+        self.style.padding_left.animate(std::time::Instant::now());
+        self.style.padding_right.animate(std::time::Instant::now());
+        self.style.padding_top.animate(std::time::Instant::now());
+        self.style.padding_bottom.animate(std::time::Instant::now());
+        self.style.border_radius_top_left.animate(std::time::Instant::now());
+        self.style.border_radius_top_right.animate(std::time::Instant::now());
+        self.style.border_radius_bottom_left.animate(std::time::Instant::now());
+        self.style.border_radius_bottom_right.animate(std::time::Instant::now());
+        self.style.border_width.animate(std::time::Instant::now());
 
         self.style.background_color.has_animations()
             || self.style.font_color.has_animations()
+            || self.style.border_color.has_animations()
             || self.style.left.has_animations()
             || self.style.right.has_animations()
             || self.style.top.has_animations()
@@ -224,10 +234,21 @@ impl State {
             || self.style.opacity.has_animations()
             || self.style.rotate.has_animations()
             || self.style.flex_grow.has_animations()
+            || self.style.flex_shrink.has_animations()
+            || self.style.flex_basis.has_animations()
             || self.style.margin_left.has_animations()
             || self.style.margin_right.has_animations()
             || self.style.margin_top.has_animations()
             || self.style.margin_bottom.has_animations()
+            || self.style.padding_left.has_animations()
+            || self.style.padding_right.has_animations()
+            || self.style.padding_top.has_animations()
+            || self.style.padding_bottom.has_animations()
+            || self.style.border_radius_top_left.has_animations()
+            || self.style.border_radius_top_right.has_animations()
+            || self.style.border_radius_bottom_left.has_animations()
+            || self.style.border_radius_bottom_right.has_animations()
+            || self.style.border_width.has_animations()
     }
 
     pub fn get_root(&self) -> Entity {

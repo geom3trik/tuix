@@ -355,10 +355,15 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "font-size" => Property::FontSize(parse_font_size(input)?),
 
             // Border
-            "border-width" => Property::BorderWidth(parse_length_or_percentage(input)?),
+            "border-width" => Property::BorderWidth(parse_length(input)?),
             "border-color" => Property::BorderColor(parse_color(input)?),
             // TODO - Support array for specifying each corner
             "border-radius" => Property::BorderRadius(parse_length(input)?),
+
+            "border-top-left-radius" => Property::BorderTopLeftRadius(parse_length(input)?),
+            "border-top-right-radius" => Property::BorderTopRightRadius(parse_length(input)?),
+            "border-bottom-left-radius" => Property::BorderBottomLeftRadius(parse_length(input)?),
+            "border-bottom-right-radius" => Property::BorderBottomRightRadius(parse_length(input)?),
 
             "opacity" => Property::Opacity(parse_length_or_percentage(input)?),
 

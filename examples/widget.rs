@@ -327,13 +327,6 @@ impl EventHandler for FreqGraph {
             .cloned()
             .unwrap_or_default();
 
-        let border_radius = state
-            .style
-            .border_radius
-            .get(entity)
-            .cloned()
-            .unwrap_or_default();
-
         let parent = state
             .hierarchy
             .get_parent(entity)
@@ -341,25 +334,25 @@ impl EventHandler for FreqGraph {
 
         let parent_width = state.transform.get_width(parent);
 
-        let border_radius_top_left = match border_radius.top_left {
+        let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_top_right = match border_radius.top_right {
+        let border_radius_top_right = match state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default() {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_left = match border_radius.bottom_left {
+        let border_radius_bottom_left = match state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default() {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_right = match border_radius.bottom_right {
+        let border_radius_bottom_right = match state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default() {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
@@ -376,12 +369,11 @@ impl EventHandler for FreqGraph {
         let mut shadow_color: femtovg::Color = shadow_color.into();
         shadow_color.set_alphaf(shadow_color.a * opacity);
 
-        let border_width = state
-            .style
-            .border_width
-            .get(entity)
-            .cloned()
-            .unwrap_or_default();
+        let border_width = match state.style.border_width.get(entity).cloned().unwrap_or_default() {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
 
         //println!("Border Width: {}", border_width);
 
@@ -424,11 +416,6 @@ impl EventHandler for FreqGraph {
             .get(entity)
             .cloned()
             .unwrap_or_default();
-        let border_radius_bottom_left = match border_radius.bottom_left {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
-            _ => 0.0,
-        };
 
         // Draw shadow
         // let mut path = Path::new();

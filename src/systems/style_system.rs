@@ -304,7 +304,19 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
-        if state.style.border_radius.link_rule(entity, &matched_rules) {
+        if state.style.border_radius_top_left.link_rule(entity, &matched_rules) {
+            state.insert_event(Event::new(WindowEvent::Redraw));
+        }
+
+        if state.style.border_radius_top_right.link_rule(entity, &matched_rules) {
+            state.insert_event(Event::new(WindowEvent::Redraw));
+        }
+
+        if state.style.border_radius_bottom_left.link_rule(entity, &matched_rules) {
+            state.insert_event(Event::new(WindowEvent::Redraw));
+        }
+
+        if state.style.border_radius_bottom_right.link_rule(entity, &matched_rules) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 

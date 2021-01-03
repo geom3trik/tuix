@@ -345,13 +345,20 @@ impl Application {
                                 if state.transform.get_hoverability(widget) != true {
                                     continue;
                                 }
+
+                                
     
-                                let border_width = state
+                                let border_width = match state
                                     .style
                                     .border_width
                                     .get(widget)
                                     .cloned()
-                                    .unwrap_or_default();
+                                    .unwrap_or_default() 
+                                {
+                                    Length::Pixels(val) => val,
+                                    //Length::Percentage(val) => parent_width * val,
+                                    _ => 0.0,
+                                };
     
                                 let posx = state.transform.get_posx(widget) - (border_width / 2.0);
                                 let posy = state.transform.get_posy(widget) - (border_width / 2.0);

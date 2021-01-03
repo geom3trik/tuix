@@ -327,6 +327,7 @@ where
                     state.t = 1.0;
                     state.active = false;
                 } else {
+                    //println!("Should be persistent");
                     state.t = 1.0;
                 }
             } else if state.t <= 0.0 {
@@ -349,7 +350,8 @@ where
             .collect();
 
         // Remove inactive animation states from active animations list
-        self.active_animations.retain(|e| e.t0 < 1.0);
+        // Retains persistent animations
+        self.active_animations.retain(|e| e.t0 < 1.0 || e.persistent);
 
         for state in inactive.into_iter() {
             for entity in state.entities.iter() {
@@ -552,6 +554,7 @@ where
         let animation_index = self.entity_indices[entity.index()].animation_id;
 
         if animation_index < self.active_animations.len() {
+            
             return self.active_animations[animation_index].get_output();
         }
 

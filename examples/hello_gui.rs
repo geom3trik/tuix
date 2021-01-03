@@ -15,7 +15,7 @@ fn main() {
                 .set_height(Length::Pixels(30.0))
                 .set_left(Length::Pixels(30.0))
                 .set_top(Length::Pixels(30.0))
-                .set_border_width(1.0)
+                .set_border_width(Length::Pixels(1.0))
                 .set_border_color(Color::rgb(0, 0, 0))
                 .set_background_color(Color::rgb(50, 50, 100))
                 .set_border_radius(Length::Pixels(5.0))

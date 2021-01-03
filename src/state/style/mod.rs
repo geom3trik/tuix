@@ -119,15 +119,18 @@ pub struct Style {
     pub margin_bottom: AnimatableStorage<Length>,
 
     // Padding
-    pub padding_left: StyleStorage<Length>,
-    pub padding_right: StyleStorage<Length>,
-    pub padding_top: StyleStorage<Length>,
-    pub padding_bottom: StyleStorage<Length>,
+    pub padding_left: AnimatableStorage<Length>,
+    pub padding_right: AnimatableStorage<Length>,
+    pub padding_top: AnimatableStorage<Length>,
+    pub padding_bottom: AnimatableStorage<Length>,
 
     // Border
-    pub border_width: StyleStorage<f32>,
-    pub border_color: StyleStorage<Color>,
-    pub border_radius: StyleStorage<BorderRadius>,
+    pub border_width: AnimatableStorage<Length>,
+    pub border_color: AnimatableStorage<Color>,
+    pub border_radius_top_left: AnimatableStorage<Length>,
+    pub border_radius_top_right: AnimatableStorage<Length>,
+    pub border_radius_bottom_left: AnimatableStorage<Length>,
+    pub border_radius_bottom_right: AnimatableStorage<Length>,
 
     pub clip_widget: DenseStorage<Entity>,
 
@@ -136,8 +139,8 @@ pub struct Style {
     // Flexbox
     pub align_self: StyleStorage<AlignSelf>,
     pub flex_grow: AnimatableStorage<f32>,
-    pub flex_shrink: StyleStorage<f32>,
-    pub flex_basis: StyleStorage<f32>,
+    pub flex_shrink: AnimatableStorage<f32>,
+    pub flex_basis: AnimatableStorage<f32>,
 
     //pub grid_item: DenseStorage<GridItem>,
 
@@ -217,15 +220,18 @@ impl Style {
             margin_bottom: AnimatableStorage::new(),
 
             // Padding
-            padding_left: StyleStorage::new(),
-            padding_right: StyleStorage::new(),
-            padding_top: StyleStorage::new(),
-            padding_bottom: StyleStorage::new(),
+            padding_left: AnimatableStorage::new(),
+            padding_right: AnimatableStorage::new(),
+            padding_top: AnimatableStorage::new(),
+            padding_bottom: AnimatableStorage::new(),
 
             // Border
-            border_width: StyleStorage::new(),
-            border_color: StyleStorage::new(),
-            border_radius: StyleStorage::new(),
+            border_width: AnimatableStorage::new(),
+            border_color: AnimatableStorage::new(),
+            border_radius_top_left: AnimatableStorage::new(),
+            border_radius_top_right: AnimatableStorage::new(),
+            border_radius_bottom_left: AnimatableStorage::new(),
+            border_radius_bottom_right: AnimatableStorage::new(),
 
             // Flex Container
             flex_direction: StyleStorage::new(),
@@ -263,8 +269,8 @@ impl Style {
             //alignment: DenseStorage::new(),
             align_self: StyleStorage::new(),
             flex_grow: AnimatableStorage::new(),
-            flex_shrink: StyleStorage::new(),
-            flex_basis: StyleStorage::new(),
+            flex_shrink: AnimatableStorage::new(),
+            flex_basis: AnimatableStorage::new(),
 
             //grid_container: DenseStorage::new(),
             //grid_item: DenseStorage::new(),
@@ -420,16 +426,30 @@ impl Style {
                     }
 
                     Property::BorderRadius(value) => {
-                        self.border_radius.insert_rule(
-                            rule_id,
-                            BorderRadius {
-                                top_left: value,
-                                top_right: value,
-                                bottom_left: value,
-                                bottom_right: value,
-                            },
-                        );
+                        self.border_radius_top_left.insert_rule(rule_id, value);
+                        self.border_radius_top_right.insert_rule(rule_id, value);
+                        self.border_radius_bottom_left.insert_rule(rule_id, value);
+                        self.border_radius_bottom_right.insert_rule(rule_id, value);
                     }
+
+                    Property::BorderTopLeftRadius(value) => {
+                        self.border_radius_top_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderTopRightRadius(value) => {
+                        self.border_radius_top_right.insert_rule(rule_id, value);
+                    }
+
+
+                    Property::BorderBottomLeftRadius(value) => {
+                        self.border_radius_bottom_left.insert_rule(rule_id, value);
+                    }
+
+
+                    Property::BorderBottomRightRadius(value) => {
+                        self.border_radius_bottom_right.insert_rule(rule_id, value);
+                    }
+
 
                     Property::FontSize(value) => {
                         self.font_size.insert_rule(rule_id, value);

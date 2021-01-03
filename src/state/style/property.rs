@@ -64,7 +64,11 @@ pub enum Property {
 
     // Border
     BorderRadius(Length),
-    BorderWidth(f32),
+    BorderTopLeftRadius(Length),
+    BorderTopRightRadius(Length),
+    BorderBottomLeftRadius(Length),
+    BorderBottomRightRadius(Length),
+    BorderWidth(Length),
     BorderColor(Color),
 
     // Background

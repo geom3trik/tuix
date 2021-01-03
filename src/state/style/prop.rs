@@ -100,7 +100,7 @@ pub trait PropSet {
     fn set_background_color(self, state: &mut State, value: Color) -> Self;
 
     // Border
-    fn set_border_width(self, state: &mut State, value: f32) -> Self;
+    fn set_border_width(self, state: &mut State, value: Length) -> Self;
     fn set_border_color(self, state: &mut State, value: Color) -> Self;
 
     // Border Radius
@@ -702,7 +702,7 @@ impl PropSet for Entity {
     }
 
     // Border
-    fn set_border_width(self, state: &mut State, value: f32) -> Self {
+    fn set_border_width(self, state: &mut State, value: Length) -> Self {
         state.style.border_width.insert(self, value);
 
         state.insert_event(
@@ -725,15 +725,10 @@ impl PropSet for Entity {
 
     // Border Radius
     fn set_border_radius(self, state: &mut State, value: Length) -> Self {
-        state.style.border_radius.insert(
-            self,
-            BorderRadius {
-                top_left: value,
-                top_right: value,
-                bottom_left: value,
-                bottom_right: value,
-            },
-        );
+        state.style.border_radius_top_left.insert(self, value);
+        state.style.border_radius_top_right.insert(self, value);
+        state.style.border_radius_bottom_left.insert(self, value);
+        state.style.border_radius_bottom_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -741,9 +736,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_top_left(self, state: &mut State, value: Length) -> Self {
-        if let Some(data) = state.style.border_radius.get_mut(self) {
-            data.top_left = value;
-        }
+        state.style.border_radius_top_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -751,9 +744,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_top_right(self, state: &mut State, value: Length) -> Self {
-        if let Some(data) = state.style.border_radius.get_mut(self) {
-            data.top_right = value;
-        }
+        state.style.border_radius_top_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -761,9 +752,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_bottom_left(self, state: &mut State, value: Length) -> Self {
-        if let Some(data) = state.style.border_radius.get_mut(self) {
-            data.bottom_left = value;
-        }
+        state.style.border_radius_bottom_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -771,9 +760,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_bottom_right(self, state: &mut State, value: Length) -> Self {
-        if let Some(data) = state.style.border_radius.get_mut(self) {
-            data.bottom_right = value;
-        }
+        state.style.border_radius_bottom_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 

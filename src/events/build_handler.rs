@@ -360,22 +360,17 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_border_width(mut self, val: f32) -> Self {
+    pub fn set_border_width(mut self, val: Length) -> Self {
         self.state.style.border_width.insert(self.entity, val);
 
         self
     }
 
     pub fn set_border_radius(mut self, val: Length) -> Self {
-        self.state.style.border_radius.insert(
-            self.entity,
-            BorderRadius {
-                top_left: val,
-                top_right: val,
-                bottom_left: val,
-                bottom_right: val,
-            },
-        );
+        self.state.style.border_radius_top_left.insert(self.entity, val);
+        self.state.style.border_radius_top_right.insert(self.entity, val);
+        self.state.style.border_radius_bottom_left.insert(self.entity, val);
+        self.state.style.border_radius_bottom_right.insert(self.entity, val);
 
         self
     }

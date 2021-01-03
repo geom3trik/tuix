@@ -2,7 +2,7 @@ pub mod element;
 pub use element::Element;
 // pub mod button;
 pub mod button;
-pub use button::Button;
+pub use button::*;
 // pub mod button3;
 // pub mod menu;
 

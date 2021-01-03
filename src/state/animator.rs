@@ -195,6 +195,13 @@ where
         true
     }
 
+    pub fn set_persistent(mut self, flag: bool) -> Self {
+
+        self.persistent = flag;
+
+        self
+    }
+
     pub fn get_output(&self) -> Option<&Prop> {
         self.output.as_ref()
     }
