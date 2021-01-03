@@ -1,28 +1,14 @@
 use crate::{
-    BuildHandler, Builder, Entity, Event, EventHandler, Hierarchy, HierarchyTree,
-    IntoHierarchyIterator, IntoParentIterator, State, WidgetEvent, Window, WindowEvent, CursorIcon
+    BuildHandler, Builder, CursorIcon, Entity, Event, EventHandler, Hierarchy, HierarchyTree,
+    IntoHierarchyIterator, IntoParentIterator, State, WidgetEvent, Window, WindowEvent,
 };
 use std::collections::{HashMap, VecDeque};
 
 use std::time::{Duration, Instant};
 
-
 use femtovg::{
-    renderer::OpenGl,
-    Align,
-    Baseline,
-    Canvas,
-    Color,
-    FillRule,
-    FontId,
-    ImageFlags,
-    ImageId,
-    LineCap,
-    LineJoin,
-    Paint,
-    Path,
-    Renderer,
-    Solidity,
+    renderer::OpenGl, Align, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId,
+    LineCap, LineJoin, Paint, Path, Renderer, Solidity,
 };
 
 pub struct EventManager {
@@ -57,7 +43,7 @@ impl EventManager {
         let hierarchy = state.hierarchy.clone();
 
         //let mut draw_hierarchy: Vec<Entity> = state.hierarchy.into_iter().collect();
-    
+
         //draw_hierarchy.sort_by_cached_key(|entity| state.transform.get_z_order(*entity));
 
         // Clear the event queue in the event manager
@@ -86,22 +72,28 @@ impl EventManager {
                         needs_redraw = true;
                     }
 
-                    WindowEvent::SetCursor(cursor_icon) => {
-                        match cursor_icon {
-                            CursorIcon::Arrow => {
-                                window.handle.window().set_cursor_icon(glutin::window::CursorIcon::Arrow);
-                            }
-
-                            CursorIcon::NResize => {
-                                window.handle.window().set_cursor_icon(glutin::window::CursorIcon::NResize);
-                            }
-
-                            CursorIcon::EResize => {
-                                window.handle.window().set_cursor_icon(glutin::window::CursorIcon::EResize);
-                            }
+                    WindowEvent::SetCursor(cursor_icon) => match cursor_icon {
+                        CursorIcon::Arrow => {
+                            window
+                                .handle
+                                .window()
+                                .set_cursor_icon(glutin::window::CursorIcon::Arrow);
                         }
-                    
-                    }
+
+                        CursorIcon::NResize => {
+                            window
+                                .handle
+                                .window()
+                                .set_cursor_icon(glutin::window::CursorIcon::NResize);
+                        }
+
+                        CursorIcon::EResize => {
+                            window
+                                .handle
+                                .window()
+                                .set_cursor_icon(glutin::window::CursorIcon::EResize);
+                        }
+                    },
 
                     _ => {}
                 }
@@ -125,7 +117,6 @@ impl EventManager {
             if event.get_propagate_down() {
                 // Walk down the hierarchy
                 for entity in hierarchy.into_iter() {
-                    
                     // Stop before the target entity
                     if entity == event.target {
                         break;
@@ -174,7 +165,6 @@ impl EventManager {
                         continue;
                     }
 
-                    
                     if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
                         if event_handler.on_event(state, widget, event) {
                             continue 'events;
@@ -188,20 +178,28 @@ impl EventManager {
     }
 
     pub fn draw(&mut self, state: &mut State, hierarchy: &Hierarchy, window: &mut Window) {
-
         let dpi_factor = window.handle.window().scale_factor();
         let size = window.handle.window().inner_size();
 
         //println!("Width: {}  Height: {}", size.width, size.height);
 
-        window.canvas.set_size(size.width as u32, size.height as u32, dpi_factor as f32);
-        window.canvas.clear_rect(0, 0, size.width as u32, size.height as u32, Color::rgb(60, 60, 60));
+        window
+            .canvas
+            .set_size(size.width as u32, size.height as u32, dpi_factor as f32);
+        window.canvas.clear_rect(
+            0,
+            0,
+            size.width as u32,
+            size.height as u32,
+            Color::rgb(80, 80, 80),
+        );
+
+        window.canvas.reset();
 
         let hierarchy = state.hierarchy.clone();
 
         let mut draw_hierarchy: Vec<Entity> = hierarchy.into_iter().collect();
         draw_hierarchy.sort_by_cached_key(|entity| state.transform.get_z_order(*entity));
-
 
         for widget in draw_hierarchy.into_iter() {
             if let Some(event_handler) = self.event_handlers.get_mut(&widget) {

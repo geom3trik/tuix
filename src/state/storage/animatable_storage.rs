@@ -41,7 +41,7 @@ impl Index {
     // Second bit set to 1 to indicate that the value is inline
     pub fn set_inline(&mut self, val: bool) -> &mut Self {
         let mask = !(std::usize::MAX / 2) >> 1;
-        
+
         if val {
             self.0 = self.0 | mask;
         }
@@ -256,7 +256,6 @@ where
     }
 
     pub fn play_animation(&mut self, entity: Entity, description_id: usize) {
-
         // Check if animation exists
         if description_id >= self.animations.len() {
             return;
@@ -280,7 +279,8 @@ where
             self.active_animations[animation_index].delay = animation.delay;
             self.active_animations[animation_index].keyframes = animation.keyframes.clone();
             // FIX ME (Needed because sometimes drawing happens before animation for some reason. Stops output being null if accessed before animated)
-            self.active_animations[animation_index].output = Some(animation.keyframes.first().unwrap().1.clone());
+            self.active_animations[animation_index].output =
+                Some(animation.keyframes.first().unwrap().1.clone());
         } else {
             let mut animation = self.animations[description_id].clone();
             animation.active = true;
@@ -327,6 +327,7 @@ where
                     state.t = 1.0;
                     state.active = false;
                 } else {
+                    //println!("Should be persistent");
                     state.t = 1.0;
                 }
             } else if state.t <= 0.0 {
@@ -339,7 +340,6 @@ where
         self.remove_innactive_animations();
     }
 
-
     pub fn remove_innactive_animations(&mut self) {
         // Create a list of finished animations
         let inactive: Vec<AnimationState<T>> = self
@@ -350,7 +350,8 @@ where
             .collect();
 
         // Remove inactive animation states from active animations list
-        self.active_animations.retain(|e| e.t0 < 1.0);
+        // Retains persistent animations
+        self.active_animations.retain(|e| e.t0 < 1.0 || e.persistent);
 
         for state in inactive.into_iter() {
             for entity in state.entities.iter() {
@@ -368,7 +369,7 @@ where
     // WIP
 
     // pub fn cascade(&mut self, entity: Entity, parent: Entity) {
-        
+
     //     //println!("Parent: {}", parent);
 
     //     if parent.index() >= self.entity_indices.len() {
@@ -389,13 +390,11 @@ where
     //         self.entity_indices[entity.index()].data_index = parent_data_index;
     //     }
     // }
-    
 
     // When the style system has determined the matching rule with the highest
     // specificity for an entity. The entity can be "linked" to the rule by pointing the
     // same computed property.
     pub fn link(&mut self, entity: Entity, rule: usize) -> LinkType {
-
         // Check if rule exists
         if rule >= self.rule_indices.len() {
             return LinkType::NoRule;
@@ -421,7 +420,6 @@ where
 
         // Get the animation id for any transition on the rule
         let rule_animation_id = self.rule_indices[rule].animation_id;
-        
 
         // Check if the entity is already animating with a transition
         let animation_index = self.entity_indices[entity.index()].animation_id;
@@ -556,6 +554,7 @@ where
         let animation_index = self.entity_indices[entity.index()].animation_id;
 
         if animation_index < self.active_animations.len() {
+            
             return self.active_animations[animation_index].get_output();
         }
 

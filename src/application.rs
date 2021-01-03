@@ -22,7 +22,6 @@ use crate::state::style::prop::*;
 
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
-
 pub struct Application {
     pub window: Window,
     pub state: State,
@@ -31,7 +30,9 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new<F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription>(mut app: F) -> Self {
+    pub fn new<F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription>(
+        mut app: F,
+    ) -> Self {
         let event_loop = EventLoop::new();
         let mut state = State::new();
 
@@ -50,13 +51,24 @@ impl Application {
         let icon_font = include_bytes!("../resources/entypo.ttf");
 
         let fonts = Fonts {
-            regular: Some(window.canvas
-                .add_font_mem(regular_font)
-                .expect("Cannot add font")),
-            bold: Some(window.canvas
-                .add_font_mem(bold_font)
-                .expect("Cannot add font")),
-            icons: Some(window.canvas.add_font_mem(icon_font).expect("Cannot add font")),
+            regular: Some(
+                window
+                    .canvas
+                    .add_font_mem(regular_font)
+                    .expect("Cannot add font"),
+            ),
+            bold: Some(
+                window
+                    .canvas
+                    .add_font_mem(bold_font)
+                    .expect("Cannot add font"),
+            ),
+            icons: Some(
+                window
+                    .canvas
+                    .add_font_mem(icon_font)
+                    .expect("Cannot add font"),
+            ),
         };
 
         state.fonts = fonts;
@@ -82,7 +94,6 @@ impl Application {
 
         WindowWidget::new().build_window(&mut state);
 
-        
         Application {
             window: window,
             event_loop: event_loop,
@@ -334,13 +345,20 @@ impl Application {
                                 if state.transform.get_hoverability(widget) != true {
                                     continue;
                                 }
+
+                                
     
-                                let border_width = state
+                                let border_width = match state
                                     .style
                                     .border_width
                                     .get(widget)
                                     .cloned()
-                                    .unwrap_or_default();
+                                    .unwrap_or_default() 
+                                {
+                                    Length::Pixels(val) => val,
+                                    //Length::Percentage(val) => parent_width * val,
+                                    _ => 0.0,
+                                };
     
                                 let posx = state.transform.get_posx(widget) - (border_width / 2.0);
                                 let posy = state.transform.get_posy(widget) - (border_width / 2.0);
@@ -375,16 +393,16 @@ impl Application {
 
                                 // Useful for debugging
                             
-                                // println!(
-                                //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-                                //     hovered_widget,
-                                //     state.hierarchy.get_parent(hovered_widget),
-                                //     state.transform.get_posx(hovered_widget),
-                                //     state.transform.get_posy(hovered_widget),
-                                //     state.transform.get_width(hovered_widget),
-                                //     state.transform.get_height(hovered_widget),
-                                //     state.transform.get_z_order(hovered_widget),
-                                // );
+                                println!(
+                                    "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+                                    hovered_widget,
+                                    state.hierarchy.get_parent(hovered_widget),
+                                    state.transform.get_posx(hovered_widget),
+                                    state.transform.get_posy(hovered_widget),
+                                    state.transform.get_width(hovered_widget),
+                                    state.transform.get_height(hovered_widget),
+                                    state.transform.get_z_order(hovered_widget),
+                                );
 
                                 if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
                                     pseudo_classes.set_hover(true);

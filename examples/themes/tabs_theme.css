@@ -25,14 +25,15 @@ tab_bar>button:checked {
 }
 
 .item1 {
-    background-color: #383838;
+    background-color: #9b5959;
     height: 100%;
     width: 100%;
 }
 
 .item2 {
-    background-color: #383838;
+    background-color: #47995b;
     height: 100%;
+    width: 100%;
 }
 
 tab_container>.container {

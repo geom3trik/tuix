@@ -8,6 +8,12 @@ use crate::{PropSet, State};
 
 use crate::window::KeyboardInput;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum ButtonEvent {
+    ButtonPressed,
+    ButtonReleased,
+}
+
 pub struct Button {
     pub id: Entity,
 
@@ -107,6 +113,7 @@ impl EventHandler for Button {
                     MouseButton::Left => {
                         if entity == event.target {
                             state.focused = entity;
+                            state.insert_event(Event::new(ButtonEvent::ButtonPressed).target(entity));
                         }
                     }
 
@@ -121,6 +128,7 @@ impl EventHandler for Button {
                                 on_press.target = entity;
                                 on_press.propagation = Propagation::Down;
                                 state.insert_event(on_press);
+                                state.insert_event(Event::new(ButtonEvent::ButtonReleased).target(entity));
                             }
                         }
                     }

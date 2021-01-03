@@ -57,8 +57,11 @@ impl BuildHandler for ValueSlider {
             .set_flex_direction(state, FlexDirection::Row);
 
         self.slider = Slider::new().build(state, entity, |builder| builder.set_flex_grow(1.0));
-        self.value =
-            Textbox::new("0.5").build(state, entity, |builder| builder.set_flex_basis(50.0).set_margin_left(Length::Pixels(5.0)));
+        self.value = Textbox::new("0.5").build(state, entity, |builder| {
+            builder
+                .set_flex_basis(50.0)
+                .set_margin_left(Length::Pixels(5.0))
+        });
         self.label = Button::new().build(state, self.slider, |builder| {
             builder
                 .set_width(Length::Percentage(1.0))
@@ -115,7 +118,7 @@ impl EventHandler for ValueSlider {
                             );
 
                             state.insert_event(
-                                Event::new(SliderEvent::SetValue(self.slider, val))
+                                Event::new(SliderEvent::SetValue(val))
                                     .target(self.slider)
                                     .propagate(Propagation::Direct),
                             );

@@ -7,20 +7,8 @@ use crate::{Entity, Hierarchy, State, Window};
 use std::collections::{HashMap, VecDeque};
 
 use femtovg::{
-    renderer::OpenGl,
-    Align,
-    Baseline,
-    Canvas,
-    FillRule,
-    FontId,
-    ImageFlags,
-    ImageId,
-    LineCap,
-    LineJoin,
-    Paint,
-    Path,
-    Renderer,
-    Solidity,
+    renderer::OpenGl, Align, Baseline, Canvas, FillRule, FontId, ImageFlags, ImageId, LineCap,
+    LineJoin, Paint, Path, Renderer, Solidity,
 };
 
 use crate::style::{Justify, Length, Visibility};
@@ -39,14 +27,7 @@ pub trait EventHandler {
     }
 
     // Called when a redraw occurs
-    fn on_draw(
-        &mut self,
-        state: &mut State,
-        entity: Entity,
-        canvas: &mut Canvas<OpenGl>,
-    ) {
-
-
+    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
         // Skip window
         if entity == Entity::new(0, 0) {
             return;
@@ -69,9 +50,9 @@ pub trait EventHandler {
         //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
 
         // Skip widgets with no width or no height
-        if width == 0.0 || height == 0.0 {
-            return;
-        }
+        // if width == 0.0 || height == 0.0 {
+        //     return;
+        // }
 
         let padding_left = match state
             .style
@@ -93,8 +74,7 @@ pub trait EventHandler {
             _ => &0.0,
         };
 
-        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Length::Auto)
-        {
+        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Length::Auto) {
             Length::Pixels(val) => val,
             _ => &0.0,
         };
@@ -130,36 +110,39 @@ pub trait EventHandler {
             .cloned()
             .unwrap_or_default();
 
-        let border_radius = state
+        let shadow_color = state
             .style
-            .border_radius
+            .shadow_color
             .get(entity)
             .cloned()
             .unwrap_or_default();
 
-        let parent = state.hierarchy.get_parent(entity).expect("Failed to find parent somehow");
+        let parent = state
+            .hierarchy
+            .get_parent(entity)
+            .expect("Failed to find parent somehow");
 
         let parent_width = state.transform.get_width(parent);
 
-        let border_radius_top_left = match border_radius.top_left {
+        let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_top_right = match border_radius.top_right {
+        let border_radius_top_right = match state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default() {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_left = match border_radius.bottom_left {
+        let border_radius_bottom_left = match state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default() {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_right = match border_radius.bottom_right {
+        let border_radius_bottom_right = match state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default() {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
@@ -173,47 +156,101 @@ pub trait EventHandler {
         let mut border_color: femtovg::Color = border_color.into();
         border_color.set_alphaf(border_color.a * opacity);
 
-        let border_width = state
+        let mut shadow_color: femtovg::Color = shadow_color.into();
+        shadow_color.set_alphaf(shadow_color.a * opacity);
+
+        let border_width = match state
             .style
             .border_width
             .get(entity)
             .cloned()
-            .unwrap_or_default();
+            .unwrap_or_default() 
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
 
         //println!("Border Width: {}", border_width);
 
+        
+        
+
+        
+        
+        // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
+        let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
         canvas.save();
-        canvas.translate(posx + width / 2.0, posy + height / 2.0);
-        canvas.rotate(rotate.to_radians());
-        canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+        // canvas.translate(posx + width / 2.0, posy + height / 2.0);
+        // canvas.rotate(rotate.to_radians());
+        // canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+
+        let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
-        
+        canvas.translate(pt.0, pt.1);
+        canvas.scale(1.0, scaley.0);
+        canvas.translate(-pt.0, -pt.1);
+
+
+        // Apply Scissor
+        let clip_entity = state.transform.get_clip_widget(entity);
+
+        let clip_posx = state.transform.get_posx(clip_entity);
+        let clip_posy = state.transform.get_posy(clip_entity);
+        let clip_width = state.transform.get_width(clip_entity);
+        let clip_height = state.transform.get_height(clip_entity);
+
+        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+
 
         
+        let shadow_h_offset = state
+            .style
+            .shadow_h_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        // Draw shadow
+        // let mut path = Path::new();
+        // path.rounded_rect_varying(posx, posy, width, height, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
+        // let mut paint = Paint::color(background_color);
+        // canvas.fill_path(&mut path, paint);
+
+        // Draw rounded rect
         let mut path = Path::new();
-        path.rounded_rect_varying(posx, posy, width, height, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
+        path.rounded_rect_varying(
+            posx + (border_width / 2.0),
+            posy + (border_width / 2.0),
+            width - border_width,
+            height - border_width,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left,
+        );
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
+
+        // Draw border
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
+        //paint.set_anti_alias(false);
         canvas.stroke_path(&mut path, paint);
+        //println!("posx: {}", posx);
 
-        // canvas.translate(posx+0.5*width, posy+0.5*height);
-        // canvas.scale(0.5,0.5);
-        // canvas.translate(-posx-0.5*width, -posy-0.5*height);
-
+        // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
-           
             let font_id = match text.font.as_ref() {
                 "Sans" => state.fonts.regular.unwrap(),
                 "Icons" => state.fonts.icons.unwrap(),
                 _ => state.fonts.regular.unwrap(),
             };
 
-            let mut x = posx;
-            let mut y = posy;
+            let mut x = posx + (border_width / 2.0);
+            let mut y = posy + (border_width / 2.0);
 
             let text_string = text.text.to_owned();
 
@@ -263,8 +300,10 @@ pub trait EventHandler {
             let mut font_color: femtovg::Color = font_color.into();
             font_color.set_alphaf(font_color.a * opacity);
 
+            let font_size = state.style.font_size.get(entity).cloned().unwrap_or(16.0);
+
             let mut paint = Paint::color(font_color);
-            paint.set_font_size(text.font_size);
+            paint.set_font_size(font_size);
             paint.set_font(&[font_id]);
             paint.set_text_align(align);
             paint.set_text_baseline(baseline);
@@ -273,10 +312,8 @@ pub trait EventHandler {
             canvas.fill_text(x, y, &text_string, paint);
         }
 
-        canvas.restore();
+        //canvas.restore();
 
-
-        
         /*
         window.context.borrow_mut().frame(
             (
@@ -291,34 +328,34 @@ pub trait EventHandler {
                     if entity == Entity::new(0, 0) {
                         return;
                     }
-    
+
                     // Skip invisible widgets
                     if state.transform.get_visibility(entity) == Visibility::Invisible {
                         //println!("Entity: {} is invisible", entity);
                         return;
                     }
-    
+
                     if state.transform.get_opacity(entity) == 0.0 {
                         //println!("Entity: {} has 0 opacity", entity);
                         return;
                     }
-    
+
                     let posx = state.transform.get_posx(entity);
                     let posy = state.transform.get_posy(entity);
                     let width = state.transform.get_width(entity);
                     let height = state.transform.get_height(entity);
-    
+
                     //println!("DRAW: {} {} {} {} {}", entity, posx, posy, width, height);
-    
+
                     // Skip widgets with no width or no height
                     if width == 0.0 || height == 0.0 {
                         return;
                     }
-    
+
                     let parent = state.hierarchy.get_parent(entity).unwrap();
-    
+
                     let parent_width = state.transform.get_width(parent);
-    
+
                     // let clip_entity = state
                     //     .style
                     //     .clip_widget
@@ -327,16 +364,16 @@ pub trait EventHandler {
                     //     .unwrap_or_default();
 
                     let clip_entity = state.transform.get_clip_widget(entity);
-    
+
                     //let clip_entity = state.root;
-    
+
                     let clip_posx = state.transform.get_posx(clip_entity);
                     let clip_posy = state.transform.get_posy(clip_entity);
                     let clip_width = state.transform.get_width(clip_entity);
                     let clip_height = state.transform.get_height(clip_entity);
-    
+
                     //let mut path_opts: PathOptions = Default::default();
-    
+
                     let padding_left = match state
                         .style
                         .padding_left
@@ -346,7 +383,7 @@ pub trait EventHandler {
                         Length::Pixels(val) => val,
                         _ => &0.0,
                     };
-    
+
                     let padding_right = match state
                         .style
                         .padding_right
@@ -356,13 +393,13 @@ pub trait EventHandler {
                         Length::Pixels(val) => val,
                         _ => &0.0,
                     };
-    
+
                     let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Length::Auto)
                     {
                         Length::Pixels(val) => val,
                         _ => &0.0,
                     };
-    
+
                     let padding_bottom = match state
                         .style
                         .padding_bottom
@@ -372,18 +409,18 @@ pub trait EventHandler {
                         Length::Pixels(val) => val,
                         _ => &0.0,
                     };
-    
+
                     let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
-    
+
                     //let rotate = &10.0;
-    
+
                     let trans1 = Transform::new().translate(-posx - width / 2.0, -posy - height / 2.0);
                     let rotation = Transform::new().rotate((*rotate as f32).to_radians());
                     let trans2 = Transform::new().translate(posx + width / 2.0, posy + height / 2.0);
-    
+
                     let transform = trans1 * rotation * trans2;
                     //let rotation = Transform::new().translate(50.0, 0.0);
-    
+
                     let path_opts = PathOptions {
                         clip: Clip::Scissor(Scissor {
                             x: clip_posx,
@@ -391,76 +428,76 @@ pub trait EventHandler {
                             width: clip_width,
                             height: clip_height,
                             transform: None,
-    
+
                         }),
                         transform: Some(transform),
                         ..Default::default()
                     };
-    
+
                     let background_color = state
                         .style
                         .background_color
                         .get(entity)
                         .cloned()
                         .unwrap_or_default();
-    
+
                     let border_color = state
                         .style
                         .border_color
                         .get(entity)
                         .cloned()
                         .unwrap_or_default();
-    
+
                     let border_radius = state
                         .style
                         .border_radius
                         .get(entity)
                         .cloned()
                         .unwrap_or_default();
-    
+
                     let border_radius_top_left = match border_radius.top_left {
                         Length::Pixels(val) => val,
                         Length::Percentage(val) => parent_width * val,
                         _ => 0.0,
                     };
-    
+
                     let border_radius_top_right = match border_radius.top_right {
                         Length::Pixels(val) => val,
                         Length::Percentage(val) => parent_width * val,
                         _ => 0.0,
                     };
-    
+
                     let border_radius_bottom_left = match border_radius.bottom_left {
                         Length::Pixels(val) => val,
                         Length::Percentage(val) => parent_width * val,
                         _ => 0.0,
                     };
-    
+
                     let border_radius_bottom_right = match border_radius.bottom_right {
                         Length::Pixels(val) => val,
                         Length::Percentage(val) => parent_width * val,
                         _ => 0.0,
                     };
-    
+
                     let opacity = state.transform.get_opacity(entity);
-    
+
                     let mut background_color: nanovg::Color = background_color.into();
                     //let mut background_color: nvg::Color = background_color.into();
                     background_color.set_alpha(background_color.alpha() * opacity);
                     //background_color.a = background_color.a * opacity;
-    
+
                     let mut border_color: nanovg::Color = border_color.into();
                     //let mut border_color: nvg::Color = border_color.into();
                     border_color.set_alpha(border_color.alpha() * opacity);
                     //border_color.a = border_color.a * opacity;
-    
+
                     let border_width = state
                         .style
                         .border_width
                         .get(entity)
                         .cloned()
                         .unwrap_or_default();
-    
+
                     frame.path(
                         |path| {
                             path.rounded_rect_varying(
@@ -484,7 +521,7 @@ pub trait EventHandler {
                             // } else {
                                 path.fill(background_color, Default::default());
                             //}
-    
+
                             path.stroke(
                                 border_color,
                                 StrokeOptions {
@@ -495,24 +532,24 @@ pub trait EventHandler {
                         },
                         path_opts,
                     );
-    
+
                     if let Some(text) = state.style.text.get_mut(entity) {
                         let sans =
                             Font::find(frame.context(), "Roboto-Regular").expect("Failed to load font");
                         let icons = Font::find(frame.context(), "Icons").expect("Failed to load font");
-    
+
                         let font = match text.font.as_ref() {
                             "Sans" => sans,
                             "Icons" => icons,
                             _ => sans,
                         };
                         let mut align = Alignment::new();
-    
+
                         let mut x = posx;
                         let mut y = posy;
-    
+
                         let text_string = text.text.to_owned();
-    
+
                         let text_align = state
                             .style
                             .text_align
@@ -525,7 +562,7 @@ pub trait EventHandler {
                             .get(entity)
                             .cloned()
                             .unwrap_or_default();
-    
+
                         match text_justify {
                             Justify::Start => {
                                 align = align.left();
@@ -540,7 +577,7 @@ pub trait EventHandler {
                                 x += width - padding_right;
                             }
                         }
-    
+
                         match text_align {
                             crate::Align::Start => {
                                 align = align.top();
@@ -555,12 +592,12 @@ pub trait EventHandler {
                                 y += height - padding_bottom;
                             }
                         }
-    
+
                         //x += text.indent;
-    
+
                         let mut font_color: nanovg::Color = text.font_color.into();
                         font_color.set_alpha(font_color.alpha() * opacity);
-    
+
                         let text_options = TextOptions {
                             color: font_color,
                             size: text.font_size,
@@ -576,13 +613,13 @@ pub trait EventHandler {
                             //line_height: 1.0,
                             ..Default::default()
                         };
-    
+
                         frame.text(font, (x, y), &text_string, text_options);
                     }
                 });
-                
 
-                
+
+
 
                 //     context.begin_path();
                 //     context.reset_transform();

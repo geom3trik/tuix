@@ -27,7 +27,6 @@ pub use crate::window::WindowEvent;
 
 use femtovg::FontId;
 
-
 use std::collections::{HashMap, VecDeque};
 
 pub struct Fonts {
@@ -37,11 +36,11 @@ pub struct Fonts {
 }
 
 pub struct State {
-    entity_manager: EntityManager,  // Creates and destroys entities
-    pub hierarchy: Hierarchy,       // The widget tree
-    pub style: Style,               // The style properties for every widget
-    pub transform: Transform,       // Transform properties for all widgets
-    pub root: Entity,               
+    entity_manager: EntityManager, // Creates and destroys entities
+    pub hierarchy: Hierarchy,      // The widget tree
+    pub style: Style,              // The style properties for every widget
+    pub transform: Transform,      // Transform properties for all widgets
+    pub root: Entity,
     pub mouse: MouseState,
     pub modifiers: ModifiersState,
     pub hovered: Entity,
@@ -54,7 +53,7 @@ pub struct State {
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
-    //pub resource_manager: ResourceManager, //TODO
+                      //pub resource_manager: ResourceManager, //TODO
 }
 
 impl State {
@@ -82,13 +81,17 @@ impl State {
             root,
             mouse,
             modifiers,
-            hovered: Entity::new(0,0),
+            hovered: Entity::new(0, 0),
             active: Entity::null(),
             captured: Entity::null(),
-            focused: Entity::new(0,0),
+            focused: Entity::new(0, 0),
             event_handlers: HashMap::new(),
             event_queue: VecDeque::new(),
-            fonts: Fonts{regular: None, bold: None, icons: None},
+            fonts: Fonts {
+                regular: None,
+                bold: None,
+                icons: None,
+            },
             //resource_manager: ResourceManager::new(),
         }
     }
@@ -116,29 +119,43 @@ impl State {
         self.event_queue.push_back(event);
     }
 
+
+    pub fn id2entity(&self, id: &str) -> Option<Entity> {
+        self.style.ids.get_by_left(&id.to_string()).cloned()
+    }
+
     pub fn capture(&mut self, id: Entity) {
-        //println!("Capture: {}", id);
+        println!("Capture: {}", id);
         if id != Entity::null() {
-            self.insert_event(Event::new(WindowEvent::MouseCaptureEvent).target(id).propagate(Propagation::Direct));
+            self.insert_event(
+                Event::new(WindowEvent::MouseCaptureEvent)
+                    .target(id)
+                    .propagate(Propagation::Direct),
+            );
         }
-        
+
         if self.captured != Entity::null() {
-            self.insert_event(Event::new(WindowEvent::MouseCaptureOutEvent).target(self.captured).propagate(Propagation::Direct));
+            self.insert_event(
+                Event::new(WindowEvent::MouseCaptureOutEvent)
+                    .target(self.captured)
+                    .propagate(Propagation::Direct),
+            );
         }
-        
-        
+
         self.captured = id;
         self.active = id;
-
     }
 
     pub fn release(&mut self, id: Entity) {
         if self.captured == id {
-            self.insert_event(Event::new(WindowEvent::MouseCaptureOutEvent).target(self.captured).propagate(Propagation::Direct));
+            self.insert_event(
+                Event::new(WindowEvent::MouseCaptureOutEvent)
+                    .target(self.captured)
+                    .propagate(Propagation::Direct),
+            );
             self.captured = Entity::null();
             self.active = Entity::null();
         }
-        
     }
 
     pub fn add(&mut self, parent: Entity) -> Entity {
@@ -176,14 +193,9 @@ impl State {
     // }
 
     pub fn apply_animations(&mut self) -> bool {
-
-        self.style
-            .background_color
-            .animate(std::time::Instant::now());
-
-        self.style
-            .font_color
-            .animate(std::time::Instant::now());
+        self.style.background_color.animate(std::time::Instant::now());
+        self.style.font_color.animate(std::time::Instant::now());
+        self.style.border_color.animate(std::time::Instant::now());
 
         self.style.left.animate(std::time::Instant::now());
         self.style.right.animate(std::time::Instant::now());
@@ -194,13 +206,25 @@ impl State {
         self.style.opacity.animate(std::time::Instant::now());
         self.style.rotate.animate(std::time::Instant::now());
         self.style.flex_grow.animate(std::time::Instant::now());
+        self.style.flex_shrink.animate(std::time::Instant::now());
+        self.style.flex_basis.animate(std::time::Instant::now());
         self.style.margin_left.animate(std::time::Instant::now());
         self.style.margin_right.animate(std::time::Instant::now());
         self.style.margin_top.animate(std::time::Instant::now());
         self.style.margin_bottom.animate(std::time::Instant::now());
+        self.style.padding_left.animate(std::time::Instant::now());
+        self.style.padding_right.animate(std::time::Instant::now());
+        self.style.padding_top.animate(std::time::Instant::now());
+        self.style.padding_bottom.animate(std::time::Instant::now());
+        self.style.border_radius_top_left.animate(std::time::Instant::now());
+        self.style.border_radius_top_right.animate(std::time::Instant::now());
+        self.style.border_radius_bottom_left.animate(std::time::Instant::now());
+        self.style.border_radius_bottom_right.animate(std::time::Instant::now());
+        self.style.border_width.animate(std::time::Instant::now());
 
         self.style.background_color.has_animations()
-            ||self.style.font_color.has_animations()
+            || self.style.font_color.has_animations()
+            || self.style.border_color.has_animations()
             || self.style.left.has_animations()
             || self.style.right.has_animations()
             || self.style.top.has_animations()
@@ -210,10 +234,21 @@ impl State {
             || self.style.opacity.has_animations()
             || self.style.rotate.has_animations()
             || self.style.flex_grow.has_animations()
+            || self.style.flex_shrink.has_animations()
+            || self.style.flex_basis.has_animations()
             || self.style.margin_left.has_animations()
             || self.style.margin_right.has_animations()
             || self.style.margin_top.has_animations()
             || self.style.margin_bottom.has_animations()
+            || self.style.padding_left.has_animations()
+            || self.style.padding_right.has_animations()
+            || self.style.padding_top.has_animations()
+            || self.style.padding_bottom.has_animations()
+            || self.style.border_radius_top_left.has_animations()
+            || self.style.border_radius_top_right.has_animations()
+            || self.style.border_radius_bottom_left.has_animations()
+            || self.style.border_radius_bottom_right.has_animations()
+            || self.style.border_width.has_animations()
     }
 
     pub fn get_root(&self) -> Entity {

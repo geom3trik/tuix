@@ -1,41 +1,65 @@
 
-
-.load {
-    width: 200px;
-    height: 50px;
-    background-color: grey;
-}
-.view {
-    width: 200px;
-    height: 50px;
-    background-color: red;
-}
-
 .outer {
-    opacity: 1.0;
-    width: 300px;
-    height: 300px;
-    background-color: red;
-    /* border-width: 5;
-    border-color: blue; */
-}
+    /* left: 10px; */
+    /* top: 10px; */
+    width: 100px;
+    /* height: 100px; */
+    /* margin: 10px; */
+    /* padding: 10px; */
 
-.outer:hover button {
-    background-color: purple;
-    opacity: 0.0;
-    transition: opacity 2.0 0.0;
+    /* height: 300px; */
+    background-color: #912828;
+    border-width: 10px;
+    border-color: blue;
+    flex-direction: row;
+    /* justify-content: center; */
+    align-items: center;
 }
 
 .inner {
-    /* opacity: 1.0; */
-    flex-grow: 1.0;
+    width: 50px;
+    height: 50px;
+    /* flex-grow: 1.0; */
+    /* flex-shrink: 1.0; */
     background-color: green;
-    margin: 10px;
+    /* margin: 10px; */
+    /* padding: 10px; */
+    /* border-width: 10px; */
+    border-color: black;
+    flex-direction: row;
+    /* flex-grow: 1.0; */
+}
+
+.inner2 {
+    height: 100px;
+    flex-grow: 1.0;
+    width: 100px;
+    background-color: #37376d;
+    /* flex-grow: 1.0; */
+}
+
+hbox {
+    background-color: green;
+    height: 30px;
+}
+
+
+button {
+    height: 30px;
+    flex-grow: 1.0;
+    color: black;
+    background-color: white;
+} 
+
+label {
+    flex-grow: 1.0;
+    height: 30px;
+    color: black;
+    background-color: white;
 }
 
 .innerinner {
-    /* opacity: 1.0; */
     flex-grow: 1.0;
     background-color: yellow;
     margin: 10px;
-}
+} 

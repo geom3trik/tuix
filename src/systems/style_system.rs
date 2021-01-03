@@ -3,17 +3,16 @@ use crate::{Entity, Event, HierarchyTree, IntoParentIterator, State, WindowEvent
 use crate::hierarchy::*;
 use crate::state::animator::*;
 
+use std::hash::{Hash, Hasher};
+use std::collections::hash_map::DefaultHasher;
 
 pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
-
     for entity in hierarchy.into_iter() {
-
-        if entity == Entity::new(0,0) {
+        if entity == Entity::new(0, 0) {
             continue;
         }
 
         let parent = hierarchy.get_parent(entity).unwrap();
-
 
         if let Some(clip_widget) = state.style.clip_widget.get(entity) {
             state.transform.set_clip_widget(entity, *clip_widget);
@@ -21,13 +20,10 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
             let parent_clip_widget = state.transform.get_clip_widget(parent);
             state.transform.set_clip_widget(entity, parent_clip_widget);
         }
-
-        
     }
 }
 
 pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
-
     let mut draw_hierarchy: Vec<Entity> = hierarchy.into_iter().collect();
     draw_hierarchy.sort_by_cached_key(|entity| state.transform.get_z_order(*entity));
 
@@ -47,9 +43,10 @@ pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
         let display = state.style.display.get(widget).cloned().unwrap_or_default();
 
         if display == Display::None {
-            state.transform.set_visibility(widget, Visibility::Invisible);
+            state
+                .transform
+                .set_visibility(widget, Visibility::Invisible);
         }
-
 
         if let Some(parent) = widget.parent(hierarchy) {
             let parent_visibility = state.transform.get_visibility(parent);
@@ -65,11 +62,13 @@ pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
                     .set_visibility(widget, Visibility::Invisible);
             }
 
-            let parent_opacity = state.transform.get_opacity(parent);            
+            let parent_opacity = state.transform.get_opacity(parent);
 
             let opacity = state.style.opacity.get(widget).cloned().unwrap_or_default();
 
-            state.transform.set_opacity(widget, opacity.0 * parent_opacity);
+            state
+                .transform
+                .set_opacity(widget, opacity.0 * parent_opacity);
         }
     }
 }
@@ -80,7 +79,9 @@ fn check_match(state: &State, widget: Entity, selector: &Selector) -> bool {
     let mut widget_selector = Selector::new();
 
     // Get the widget id from state
-    widget_selector.id = state.style.ids.get(widget).cloned();
+    //widget_selector.id = state.style.ids.get(widget).cloned();
+    let mut s = DefaultHasher::new();
+    widget_selector.id = state.style.ids.get_by_right(&widget).map(|f| {f.hash(&mut s); s.finish()});
 
     // Get the widget element from state
     widget_selector.element = state.style.elements.get(widget).cloned();
@@ -101,12 +102,9 @@ fn check_match(state: &State, widget: Entity, selector: &Selector) -> bool {
     return selector.matches(&widget_selector);
 }
 
-
 pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
-
     // Loop through all entities
     for entity in hierarchy.into_iter() {
-
         if entity == Entity::new(0, 0) {
             continue;
         }
@@ -118,15 +116,10 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 
         // Loop through all of the style rules
         'rule_loop: for (index, selectors) in state.style.rule_selectors.iter().enumerate() {
-
-
-            
-
             let mut relation_entity = entity;
             // Loop through selectors (Should be from right to left)
             // All the selectors need to match for the rule to apply
             'selector_loop: for rule_selector in selectors.iter().rev() {
-
                 // Get the relation of the selector
                 match rule_selector.relation {
                     Relation::None => {
@@ -151,19 +144,16 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     Relation::Ancestor => {
-                        
                         // Walk up the hierarchy
                         // Check if each entity matches the selector
                         // If any of them match, move on to the next selector
                         // If none of them do, move on to the next rule
                         for ancestor in relation_entity.parent_iter(hierarchy) {
-
                             if ancestor == relation_entity {
                                 continue;
                             }
 
                             if check_match(state, ancestor, rule_selector) {
-
                                 relation_entity = ancestor;
 
                                 continue 'selector_loop;
@@ -197,7 +187,6 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 
         // Currently doesn't do anything - TODO
         state.style.overflow.link_rule(entity, &matched_rules);
-
 
         // Opacity
         if state.style.opacity.link_rule(entity, &matched_rules) {
@@ -300,11 +289,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
-        if state
-            .style
-            .padding_bottom
-            .link_rule(entity, &matched_rules)
-        {
+        if state.style.padding_bottom.link_rule(entity, &matched_rules) {
             state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
@@ -319,16 +304,24 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
-        if state.style.border_radius.link_rule(entity, &matched_rules) {
+        if state.style.border_radius_top_left.link_rule(entity, &matched_rules) {
+            state.insert_event(Event::new(WindowEvent::Redraw));
+        }
+
+        if state.style.border_radius_top_right.link_rule(entity, &matched_rules) {
+            state.insert_event(Event::new(WindowEvent::Redraw));
+        }
+
+        if state.style.border_radius_bottom_left.link_rule(entity, &matched_rules) {
+            state.insert_event(Event::new(WindowEvent::Redraw));
+        }
+
+        if state.style.border_radius_bottom_right.link_rule(entity, &matched_rules) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
         // Flex Container
-        if state
-            .style
-            .flex_direction
-            .link_rule(entity, &matched_rules)
-        {
+        if state.style.flex_direction.link_rule(entity, &matched_rules) {
             state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
@@ -396,8 +389,6 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
-
-
         if state
             .style
             .background_image
@@ -406,11 +397,12 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
-        if state
-        .style
-        .font_color
-        .link_rule(entity, &matched_rules)
-        {
+        // Font
+        if state.style.font_color.link_rule(entity, &matched_rules) {
+            state.insert_event(Event::new(WindowEvent::Redraw));
+        }
+
+        if state.style.font_size.link_rule(entity, &matched_rules) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
     }

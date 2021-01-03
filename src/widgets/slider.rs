@@ -12,7 +12,7 @@ use crate::widgets::Button;
 #[derive(Debug, Clone, PartialEq)]
 pub enum SliderEvent {
     ValueChanged(Entity, f32),
-    SetValue(Entity, f32),
+    SetValue(f32),
 }
 
 //impl Message for SliderEvent {}
@@ -64,8 +64,8 @@ impl EventHandler for Slider {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
-                SliderEvent::SetValue(id, val) => {
-                    if *id == entity {
+                SliderEvent::SetValue(val) => {
+                    if event.target == entity {
                         let mut val = *val;
 
                         if val <= 0.0 {
@@ -119,7 +119,7 @@ impl EventHandler for Slider {
                             self.front.set_width(state, Length::Percentage(self.value));
 
                             state.insert_event(
-                                Event::new(SliderEvent::SetValue(entity, self.value))
+                                Event::new(SliderEvent::SetValue(self.value))
                                     .target(entity),
                             );
 

@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-
 use crate::entity::Entity;
 use crate::mouse::*;
 

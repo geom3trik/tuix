@@ -188,7 +188,7 @@ fn parse_selectors<'i, 't>(
                 } else {
                     selector.asterisk = true;
                 }
-                
+
                 whitespace = false;
             }
 
@@ -355,10 +355,15 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "font-size" => Property::FontSize(parse_font_size(input)?),
 
             // Border
-            "border-width" => Property::BorderWidth(parse_length_or_percentage(input)?),
+            "border-width" => Property::BorderWidth(parse_length(input)?),
             "border-color" => Property::BorderColor(parse_color(input)?),
             // TODO - Support array for specifying each corner
             "border-radius" => Property::BorderRadius(parse_length(input)?),
+
+            "border-top-left-radius" => Property::BorderTopLeftRadius(parse_length(input)?),
+            "border-top-right-radius" => Property::BorderTopRightRadius(parse_length(input)?),
+            "border-bottom-left-radius" => Property::BorderBottomLeftRadius(parse_length(input)?),
+            "border-bottom-right-radius" => Property::BorderBottomRightRadius(parse_length(input)?),
 
             "opacity" => Property::Opacity(parse_length_or_percentage(input)?),
 
@@ -554,10 +559,10 @@ fn parse_transition2<'i, 't>(
                     match input.next()? {
                         Token::Number { value: x, .. } => {
                             println!("With delay: {}", x);
-        
+
                             transition.delay = *x;
                         }
-        
+
                         t => {
                             println!("Failed to find delay");
                             let basic_error = BasicParseError {
@@ -874,7 +879,6 @@ fn parse_align_items<'i, 't>(
             "center" => AlignItems::Center,
             "stretch" => AlignItems::Stretch,
             //"baseline" => AlignItems::Baseline, //TODO
-
             _ => {
                 return Err(
                     CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),

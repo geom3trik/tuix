@@ -57,13 +57,17 @@ pub use color::Color;
 pub mod trans;
 pub use trans::Scale;
 
+use bimap::BiMap;
+
 pub struct Style {
     pub style_rules: Vec<StyleRule>,
 
     //pub rules: Vec<usize>,
     pub rule_selectors: Vec<Vec<Selector>>,
 
-    pub ids: DenseStorage<u64>,
+    //pub ids: DenseStorage<u64>,
+
+    pub ids: BiMap<String, Entity>,
 
     pub elements: DenseStorage<u64>,
 
@@ -73,13 +77,13 @@ pub struct Style {
     //replace with custom bitmask storage for pseudoclasses
     //pub pseudo_classes: DenseStorage<HashSet<PseudoClass>>,
 
-    // 
+    //
     pub pseudo_classes: DenseStorage<PseudoClasses>,
 
     pub z_order: DenseStorage<i32>,
 
     // Transform
-    pub rotate: AnimatableStorage<f32>, // in degrees
+    pub rotate: AnimatableStorage<f32>,   // in degrees
     pub scaley: AnimatableStorage<Scale>, // TODO
 
     // General
@@ -115,54 +119,53 @@ pub struct Style {
     pub margin_bottom: AnimatableStorage<Length>,
 
     // Padding
-    pub padding_left: StyleStorage<Length>,
-    pub padding_right: StyleStorage<Length>,
-    pub padding_top: StyleStorage<Length>,
-    pub padding_bottom: StyleStorage<Length>,
+    pub padding_left: AnimatableStorage<Length>,
+    pub padding_right: AnimatableStorage<Length>,
+    pub padding_top: AnimatableStorage<Length>,
+    pub padding_bottom: AnimatableStorage<Length>,
 
     // Border
-    pub border_width: StyleStorage<f32>,
-    pub border_color: StyleStorage<Color>,
-    pub border_radius: StyleStorage<BorderRadius>,
+    pub border_width: AnimatableStorage<Length>,
+    pub border_color: AnimatableStorage<Color>,
+    pub border_radius_top_left: AnimatableStorage<Length>,
+    pub border_radius_top_right: AnimatableStorage<Length>,
+    pub border_radius_bottom_left: AnimatableStorage<Length>,
+    pub border_radius_bottom_right: AnimatableStorage<Length>,
 
     pub clip_widget: DenseStorage<Entity>,
 
     pub focus_order: DenseStorage<FocusOrder>,
 
+    // Flexbox
     pub align_self: StyleStorage<AlignSelf>,
     pub flex_grow: AnimatableStorage<f32>,
-    pub flex_shrink: StyleStorage<f32>,
-    pub flex_basis: StyleStorage<f32>,
+    pub flex_shrink: AnimatableStorage<f32>,
+    pub flex_basis: AnimatableStorage<f32>,
 
     //pub grid_item: DenseStorage<GridItem>,
 
     //pub justification: DenseStorage<Justification>,
     //pub alignment: DenseStorage<Alignment>,
-
-    //pub flex_container: DenseStorage<FlexContainer>,
     pub flex_direction: StyleStorage<FlexDirection>,
     pub justify_content: StyleStorage<JustifyContent>,
     pub align_items: StyleStorage<AlignItems>,
     pub align_content: StyleStorage<AlignContent>,
 
-    // pub area_container: DenseStorage<AreaContainer>,
-    //pub grid_container: DenseStorage<GridContainer>,
-
-    // Shape
-    //pub background: DenseStorage<Background>,
+    // Background
     pub background_color: AnimatableStorage<Color>,
     pub background_image: StyleStorage<String>,
 
-    pub box_shadow: DenseStorage<BoxShadow>, //TODO
-
-    // Layout Properties
-    //pub size_constraints: DenseStorage<SizeConstraints>,
-    //pub resize: CascadeStorage<Resize>,
+    // Box Shadow
+    pub shadow_h_offset: AnimatableStorage<Length>,
+    pub shadow_v_offset: AnimatableStorage<Length>,
+    pub shadow_blur: AnimatableStorage<Length>,
+    pub shadow_color: AnimatableStorage<Color>,
 
     //Text Properties
     pub text: DenseStorage<Text>,
 
     pub font_color: AnimatableStorage<Color>,
+    pub font_size: AnimatableStorage<f32>,
 
     pub text_align: StyleStorage<Align>,
     pub text_justify: StyleStorage<Justify>,
@@ -176,7 +179,8 @@ impl Style {
             //rules: Vec::new(),
             rule_selectors: Vec::new(),
 
-            ids: DenseStorage::new(),
+            //ids: DenseStorage::new(),
+            ids: BiMap::new(),
             elements: DenseStorage::new(),
             classes: DenseStorage::new(),
             pseudo_classes: DenseStorage::new(),
@@ -216,15 +220,18 @@ impl Style {
             margin_bottom: AnimatableStorage::new(),
 
             // Padding
-            padding_left: StyleStorage::new(),
-            padding_right: StyleStorage::new(),
-            padding_top: StyleStorage::new(),
-            padding_bottom: StyleStorage::new(),
+            padding_left: AnimatableStorage::new(),
+            padding_right: AnimatableStorage::new(),
+            padding_top: AnimatableStorage::new(),
+            padding_bottom: AnimatableStorage::new(),
 
             // Border
-            border_width: StyleStorage::new(),
-            border_color: StyleStorage::new(),
-            border_radius: StyleStorage::new(),
+            border_width: AnimatableStorage::new(),
+            border_color: AnimatableStorage::new(),
+            border_radius_top_left: AnimatableStorage::new(),
+            border_radius_top_right: AnimatableStorage::new(),
+            border_radius_bottom_left: AnimatableStorage::new(),
+            border_radius_bottom_right: AnimatableStorage::new(),
 
             // Flex Container
             flex_direction: StyleStorage::new(),
@@ -237,6 +244,7 @@ impl Style {
             text_justify: StyleStorage::new(),
 
             font_color: AnimatableStorage::new(),
+            font_size: AnimatableStorage::new(),
 
             overflow: StyleStorage::new(),
             scroll: DenseStorage::new(),
@@ -247,20 +255,22 @@ impl Style {
             visibility: StyleStorage::new(),
             clip_widget: DenseStorage::new(),
             focus_order: DenseStorage::new(),
-            box_shadow: DenseStorage::new(),
+
+            // Box Shadow
+            shadow_h_offset: AnimatableStorage::new(),
+            shadow_v_offset: AnimatableStorage::new(),
+            shadow_blur: AnimatableStorage::new(),
+            shadow_color: AnimatableStorage::new(),
 
             background_color: AnimatableStorage::new(),
             background_image: StyleStorage::new(),
 
             //justification: DenseStorage::new(),
             //alignment: DenseStorage::new(),
-
-            //flex_container: DenseStorage::new(),
-            //flex_item: DenseStorage::new(),
             align_self: StyleStorage::new(),
             flex_grow: AnimatableStorage::new(),
-            flex_shrink: StyleStorage::new(),
-            flex_basis: StyleStorage::new(),
+            flex_shrink: AnimatableStorage::new(),
+            flex_basis: AnimatableStorage::new(),
 
             //grid_container: DenseStorage::new(),
             //grid_item: DenseStorage::new(),
@@ -416,19 +426,36 @@ impl Style {
                     }
 
                     Property::BorderRadius(value) => {
-                        self.border_radius.insert_rule(
-                            rule_id,
-                            BorderRadius {
-                                top_left: value,
-                                top_right: value,
-                                bottom_left: value,
-                                bottom_right: value,
-                            },
-                        );
+                        self.border_radius_top_left.insert_rule(rule_id, value);
+                        self.border_radius_top_right.insert_rule(rule_id, value);
+                        self.border_radius_bottom_left.insert_rule(rule_id, value);
+                        self.border_radius_bottom_right.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderTopLeftRadius(value) => {
+                        self.border_radius_top_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderTopRightRadius(value) => {
+                        self.border_radius_top_right.insert_rule(rule_id, value);
+                    }
+
+
+                    Property::BorderBottomLeftRadius(value) => {
+                        self.border_radius_bottom_left.insert_rule(rule_id, value);
+                    }
+
+
+                    Property::BorderBottomRightRadius(value) => {
+                        self.border_radius_bottom_right.insert_rule(rule_id, value);
+                    }
+
+
+                    Property::FontSize(value) => {
+                        self.font_size.insert_rule(rule_id, value);
                     }
 
                     Property::FontColor(value) => {
-                        println!("Val: {:?}", value);
                         self.font_color.insert_rule(rule_id, value);
                     }
 
@@ -481,7 +508,9 @@ impl Style {
                                             .with_duration(std::time::Duration::from_secs_f32(
                                                 transition.duration,
                                             ))
-                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
                                             .with_keyframe((0.0, Default::default()))
                                             .with_keyframe((1.0, Default::default())),
                                     );
@@ -494,7 +523,9 @@ impl Style {
                                             .with_duration(std::time::Duration::from_secs_f32(
                                                 transition.duration,
                                             ))
-                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
                                             .with_keyframe((0.0, Default::default()))
                                             .with_keyframe((1.0, Default::default())),
                                     );
@@ -507,7 +538,9 @@ impl Style {
                                             .with_duration(std::time::Duration::from_secs_f32(
                                                 transition.duration,
                                             ))
-                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
                                             .with_keyframe((0.0, Default::default()))
                                             .with_keyframe((1.0, Default::default())),
                                     );
@@ -520,13 +553,14 @@ impl Style {
                                             .with_duration(std::time::Duration::from_secs_f32(
                                                 transition.duration,
                                             ))
-                                            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
                                             .with_keyframe((0.0, Default::default()))
                                             .with_keyframe((1.0, Default::default())),
                                     );
                                 }
 
-                                
                                 _ => {}
                             }
                         }
@@ -549,11 +583,6 @@ impl Style {
         self.visibility.insert(entity, Default::default());
         //self.clip_widget.insert(entity, Entity::new(0, 0));
         self.focus_order.insert(entity, Default::default());
-        self.box_shadow.insert(entity, Default::default());
-    }
-
-    pub fn set_margin(&mut self, entity: Entity, value: f32) {
-        // Check if there is already a rule with the same entity id
     }
 
     pub fn remove(&mut self, entity: Entity) {}
@@ -565,9 +594,11 @@ impl Style {
     }
 
     pub fn insert_id(&mut self, entity: Entity, id: &str) -> &mut Self {
-        let mut s = DefaultHasher::new();
-        id.hash(&mut s);
-        self.ids.insert(entity, s.finish());
+        // let mut s = DefaultHasher::new();
+        // id.hash(&mut s);
+        // self.ids.insert(entity, s.finish());
+
+        self.ids.insert(id.to_string(), entity);
 
         self
     }

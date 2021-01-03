@@ -1,11 +1,10 @@
 #![allow(dead_code)]
 
-
 use crate::{
     AnimationState, BuildHandler, Entity, Event, EventHandler, MouseButton, State, WindowEvent,
 };
 
-use crate::widgets::Button;
+use crate::widgets::{Button, Element};
 
 use crate::state::style::*;
 
@@ -64,24 +63,24 @@ impl Panel {
 impl BuildHandler for Panel {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.header = Button::new().build(state, entity, |builder| {
+        self.header = Element::new().build(state, entity, |builder| {
             builder
                 .set_flex_direction(FlexDirection::Row)
                 //.set_height(Length::Pixels(30.0))
                 .class("header")
         });
 
-        self.checkbox =
-            Button::with_label(ICON_DOWN_OPEN_BIG).build(state, self.header, |builder| {
-                builder
-                    .set_font("Icons".to_string())
-                    .set_text_justify(Justify::Center)
-                    .set_text_align(Align::Center)
-                    .set_width(Length::Pixels(20.0))
-                    .set_height(Length::Percentage(1.0))
-                    .set_hoverability(false)
-                    .class("arrow")
-            });
+        self.checkbox = Element::new().build(state, self.header, |builder| {
+            builder
+                .set_text(ICON_DOWN_OPEN_BIG)
+                .set_font("Icons".to_string())
+                .set_text_justify(Justify::Center)
+                .set_text_align(Align::Center)
+                .set_width(Length::Pixels(20.0))
+                .set_height(Length::Percentage(1.0))
+                .set_hoverability(false)
+                .class("arrow")
+        });
 
         // self.checkbox = Checkbox::new(true, ICON_DOWN_OPEN_BIG, ICON_RIGHT_OPEN_BIG).build(state, self.header, |builder| {
         //     builder
@@ -90,40 +89,36 @@ impl BuildHandler for Panel {
         //         .set_hoverability(false)
         // });
 
-        Button::new().build(state, self.header, |builder| {
+        Element::new().build(state, self.header, |builder| {
             builder
                 .set_text(&self.title)
                 .set_flex_grow(1.0)
                 .set_hoverability(false)
         });
 
-        self.container = Button::new().build(
-            state,
-            entity,
-            |builder| {
-                builder
-                    // .set_position(Position::Absolute)
-                    // .set_top(Length::Percentage(1.0))
-                    // .set_width(Length::Percentage(1.0))
-                    //.set_height(Length::Pixels(200.0))
-                    .class("container")
-            },    
-        );
+        self.container = Element::new().build(state, entity, |builder| {
+            builder
+                // .set_position(Position::Absolute)
+                // .set_top(Length::Percentage(1.0))
+                // .set_width(Length::Percentage(1.0))
+                //.set_height(Length::Pixels(200.0))
+                .class("container")
+        });
 
-        self.other_container = Button::new().build(
+        self.other_container = Element::new().build(
             state,
             self.container,
             |builder| builder, //.set_flex_grow(1.0).class("test")
         );
 
-        entity.set_checked(state, true);
+        //entity.set_checked(state, true);
 
         state.style.insert_element(entity, "panel");
 
         let container_expand_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(200.0)));
+            .with_keyframe((1.0, Length::Pixels(0.0)));
 
         self.expand_animation = state
             .style
@@ -133,7 +128,7 @@ impl BuildHandler for Panel {
         let container_collapse_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
             .with_delay(std::time::Duration::from_millis(150))
-            .with_keyframe((0.0, Length::Pixels(200.0)))
+            .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
         self.collapse_animation = state
@@ -189,16 +184,15 @@ impl EventHandler for Panel {
         //if event.target == self.header {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                
-                
                 WindowEvent::Relayout => {
                     // Exclude relayout orginating from animations
                     if event.origin != Entity::new(0, 0) {
-
                         if !state.style.height.is_animating(self.container) {
-                            let container_height = state.transform.get_height(self.container);
+                            //let container_height = state.transform.get_height(self.container);
+                            let container_height = state.transform.get_child_sum(self.container);
                             if container_height > 0.0 {
                                 self.container_height = container_height;
+                                println!("Do This");
 
                                 if let Some(animation) =
                                     state.style.height.get_animation_mut(self.expand_animation)
@@ -218,18 +212,14 @@ impl EventHandler for Panel {
 
                                 //println!("x: {}  y: {}  w: {}  h: {}", state.transform.get_posx(self.container), state.transform.get_posy(self.container), state.transform.get_width(self.container), state.transform.get_height(self.container));
                                 //println!("display: {:?}  visibility: {:?}  opacity: {:?}", state.style.display.get(self.container).cloned().unwrap_or_default(), state.transform.get_visibility(self.container), state.transform.get_opacity(self.container));
-                            }                            
+                            }
                         }
-
-
                     }
                 }
-                
-                
 
                 WindowEvent::MouseUp(button) => {
                     if event.target == self.header && state.mouse.left.pressed == self.header {
-                        if *button == MouseButton::Left { 
+                        if *button == MouseButton::Left {
                             if self.collapsed {
                                 //self.container.set_visibility(state, Visibility::Visible);
                                 //self.checkbox.set_text(state, ICON_DOWN_OPEN_BIG);
@@ -252,15 +242,17 @@ impl EventHandler for Panel {
                                     .style
                                     .rotate
                                     .play_animation(self.checkbox, self.arrow_expand_animation);
-                            
 
-                                //println!("{}", self.other_container);
+                                println!("{}", self.container_height);
 
                                 self.checkbox.set_rotate(state, 0.0);
-                                self.container.set_height(state, Length::Pixels(self.container_height));
+                                self.container
+                                    .set_height(state, Length::Pixels(self.container_height));
                                 self.other_container.set_opacity(state, 1.0);
 
-                                //self.container.set_display(state, Display::Flexbox);
+                                println!("Height: {}", self.container_height);
+
+                            //self.container.set_display(state, Display::Flexbox);
                             } else {
                                 //self.container.set_visibility(state, Visibility::Invisible);
                                 //self.checkbox.set_text(state, ICON_RIGHT_OPEN_BIG);
@@ -283,7 +275,6 @@ impl EventHandler for Panel {
                                     .style
                                     .rotate
                                     .play_animation(self.checkbox, self.arrow_collapse_animation);
-      
 
                                 self.checkbox.set_rotate(state, -90.0);
                                 self.container.set_height(state, Length::Pixels(0.0));

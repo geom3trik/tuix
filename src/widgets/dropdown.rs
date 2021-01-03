@@ -6,11 +6,13 @@ use crate::{AnimationState, BuildHandler, Event, EventHandler, Propagation, Wind
 use crate::{PropSet, State};
 
 use crate::state::style::*;
-use crate::widgets::{Button, Checkbox, CheckboxEvent, RadioList};
+use crate::widgets::{Button, Checkbox, CheckboxEvent, RadioList, Element, HBox, Label};
 
 use crate::state::hierarchy::HierarchyTree;
 
 const ICON_DOWN_OPEN: &str = "\u{e75c}";
+
+const ICON_DOWN_DIR: &str = "\u{25be}";
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DropdownEvent {
@@ -95,6 +97,7 @@ impl EventHandler for Item {
 pub struct Dropdown {
     container: Entity,
     header: Entity,
+    label: Entity,
     //options: Vec<(Entity, String, String)>,
     text: String,
 
@@ -106,9 +109,7 @@ pub struct Dropdown {
 
     collapse_animation: usize,
     fade_out_animation: usize,
-
     //container_height: f32,
-
 }
 
 impl Dropdown {
@@ -116,6 +117,7 @@ impl Dropdown {
         Dropdown {
             container: Entity::null(),
             header: Entity::null(),
+            label: Entity::null(),
             //options: Vec::new(),
             text: text.to_string(),
             open: false,
@@ -139,11 +141,24 @@ impl Dropdown {
 impl BuildHandler for Dropdown {
     type Ret = (Entity, Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.header = Button::with_label(&self.text).build(state, entity, |builder| {
+        self.header = HBox::new().build(state, entity, |builder| {
             builder
-                .set_width(Length::Percentage(1.0))
-                .set_height(Length::Percentage(1.0))
+                .set_flex_grow(1.0)
                 .class("header")
+        });
+
+        self.label = Label::new(&self.text).build(state, self.header, |builder| 
+            builder
+            //.set_background_color(Color::rgb(100,50,50))
+            .set_hoverability(false)
+            .set_flex_grow(1.0));
+
+        let icon = Element::new().build(state, self.header, |builder| {
+            builder
+                .set_hoverability(false)
+                //.set_background_color(Color::rgb(100,100,50))
+                .set_text(ICON_DOWN_DIR)
+                .set_width(Length::Pixels(20.0))
         });
 
         // self.container = Button::new().build(state, entity, |builder| {
@@ -167,6 +182,7 @@ impl BuildHandler for Dropdown {
             builder
                 .set_position(Position::Absolute)
                 .set_top(Length::Percentage(1.0))
+                //.set_flex_grow(1.0)
                 //.set_width(Length::Percentage(1.0))
                 //.set_height(Length::Pixels(0.0))
                 .set_opacity(0.0)
@@ -230,7 +246,7 @@ impl EventHandler for Dropdown {
                 DropdownEvent::SetText(text, proxy) => {
                     //println!("Set Text");
                     //Check here if it's an event from a child (TODO)
-                    self.header.set_text(state, proxy);
+                    self.label.set_text(state, proxy);
                     //self.container.set_visibility(state, Visibility::Invisible);
                     self.open = false;
                     //state.style.height.play_animation(self.container, self.collapse_animation);
@@ -275,31 +291,22 @@ impl EventHandler for Dropdown {
                 // }
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
-                        
                         if event.target == entity || event.target == self.header {
-
-                            
-
                             if state.hovered.is_child_of(&state.hierarchy, self.container) {
                                 state.insert_event(
-                                Event::new(WindowEvent::MouseDown(*button))
-                                    .target(state.hovered)
-                                    .propagate(Propagation::Direct),
+                                    Event::new(WindowEvent::MouseDown(*button))
+                                        .target(state.hovered)
+                                        .propagate(Propagation::Direct),
                                 );
                             }
-                            
-                            
-                            
+
                             return true;
-                            
                         }
-                        
                     }
                     _ => {}
                 },
 
                 WindowEvent::MouseCaptureOutEvent => {
-                    
                     self.open = false;
 
                     self.header.set_disabled(state, true);
@@ -315,9 +322,8 @@ impl EventHandler for Dropdown {
                 }
 
                 WindowEvent::MouseCaptureEvent => {
-
                     self.open = true;
-                    
+
                     self.header.set_enabled(state, true);
 
                     state
@@ -332,10 +338,8 @@ impl EventHandler for Dropdown {
                     self.container.set_z_order(state, 1);
                 }
 
-                
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-
                         if event.target == entity || event.target == self.header {
                             if state.mouse.left.pressed == state.hovered {
                                 if !self.open {
@@ -347,7 +351,8 @@ impl EventHandler for Dropdown {
                                 state.insert_event(
                                     Event::new(WindowEvent::MouseUp(*button))
                                         .target(state.hovered)
-                                        .propagate(Propagation::Direct));
+                                        .propagate(Propagation::Direct),
+                                );
 
                                 return true;
                             }
@@ -356,7 +361,6 @@ impl EventHandler for Dropdown {
 
                     _ => {}
                 },
-                
 
                 _ => {}
             }

@@ -3,12 +3,11 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, Checkbox, Dropdown, Panel, RadioBox, RadioList, ScrollContainer, Textbox, VectorEdit, Dimension, VectorEditEvent, NumEdit
+    Button, Checkbox, Dimension, Dropdown, NumEdit, Panel, RadioBox, RadioList, ScrollContainer,
+    Textbox, VectorEdit, VectorEditEvent,
 };
 
 static THEME: &'static str = include_str!("themes/treeview_theme.css");
-
-
 
 pub struct ResizableVBox {
     resizing: bool,
@@ -47,22 +46,25 @@ impl BuildHandler for ResizableVBox {
 
 impl EventHandler for ResizableVBox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        
         if let Some(color_edit_event) = event.is_type::<ColorEditEvent>() {
             match color_edit_event {
-                ColorEditEvent::ColorChanged(r,g,b,a) => {
+                ColorEditEvent::ColorChanged(r, g, b, a) => {
                     println!("Color Change!");
-                    entity.set_background_color(state, Color::rgba(*r,*g,*b,*a));
+                    entity.set_background_color(state, Color::rgba(*r, *g, *b, *a));
                 }
             }
         }
-        
+
         if let Some(window_event) = event.is_type::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {
-                        if state.mouse.left.pos_down.0 >= state.transform.get_posx(entity) + state.transform.get_width(entity) - 2.0
-                            && state.mouse.left.pos_down.0 <= state.transform.get_posx(entity) + state.transform.get_width(entity)
+                        if state.mouse.left.pos_down.0
+                            >= state.transform.get_posx(entity) + state.transform.get_width(entity)
+                                - 2.0
+                            && state.mouse.left.pos_down.0
+                                <= state.transform.get_posx(entity)
+                                    + state.transform.get_width(entity)
                         {
                             self.resizing = true;
                             self.previous_width = state.transform.get_width(entity);
@@ -76,7 +78,13 @@ impl EventHandler for ResizableVBox {
                         if self.resizing == true {
                             //state.release(entity);
                             self.resizing = false;
-                            state.insert_event(Event::new(WindowEvent::MouseMove(state.mouse.cursorx, state.mouse.cursory)).target(entity));
+                            state.insert_event(
+                                Event::new(WindowEvent::MouseMove(
+                                    state.mouse.cursorx,
+                                    state.mouse.cursory,
+                                ))
+                                .target(entity),
+                            );
                             //state.insert_event(Event::new(WindowEvent::SetCursor(CursorIcon::Arrow)));
                         }
                         //self.resizing = false;
@@ -89,43 +97,52 @@ impl EventHandler for ResizableVBox {
                     if !self.resizing {
                         state.insert_event(Event::new(WindowEvent::SetCursor(CursorIcon::Arrow)));
                     }
-                    
                 }
 
                 WindowEvent::MouseMove(x, y) => {
-                    
                     //println!("Received mouse move: {} {}", state.hovered, entity);
 
                     if self.resizing {
-                        let distx =  *x - state.mouse.left.pos_down.0;
+                        let distx = *x - state.mouse.left.pos_down.0;
                         entity.set_width(state, Length::Pixels(self.previous_width + distx));
                     } else {
-                        if *x > state.transform.get_posx(entity) + state.transform.get_width(entity) - 2.0
-                            && *x < state.transform.get_posx(entity) + state.transform.get_width(entity)
+                        if *x
+                            > state.transform.get_posx(entity) + state.transform.get_width(entity)
+                                - 2.0
+                            && *x
+                                < state.transform.get_posx(entity)
+                                    + state.transform.get_width(entity)
                         {
-                            println!("Resize cursor: {} {}", x, state.transform.get_posx(entity) + state.transform.get_width(entity));
+                            println!(
+                                "Resize cursor: {} {}",
+                                x,
+                                state.transform.get_posx(entity)
+                                    + state.transform.get_width(entity)
+                            );
 
                             //if self.hovering == false {
                             //    self.hovering = true;
-                                //println!("Change Cursor");
-                                state.insert_event(Event::new(WindowEvent::SetCursor(CursorIcon::EResize)));
-                                //state.capture(entity);
-                            //}
-                            
+                            //println!("Change Cursor");
+                            state.insert_event(Event::new(WindowEvent::SetCursor(
+                                CursorIcon::EResize,
+                            )));
+                        //state.capture(entity);
+                        //}
                         } else {
                             //if self.hovering == true {
                             //    self.hovering = false;
-                                //println!("Normal Cursor");
-                                state.insert_event(Event::new(WindowEvent::SetCursor(CursorIcon::Arrow)));
-                                //println!("Resizable box release");
-                                state.release(entity);
-                                //if state.hovered != entity {
-                                //    state.insert_event(Event::new(WindowEvent::MouseMove(*x, *y)).target(state.hovered));
-                                //}
+                            //println!("Normal Cursor");
+                            state.insert_event(Event::new(WindowEvent::SetCursor(
+                                CursorIcon::Arrow,
+                            )));
+                            //println!("Resizable box release");
+                            state.release(entity);
+                            //if state.hovered != entity {
+                            //    state.insert_event(Event::new(WindowEvent::MouseMove(*x, *y)).target(state.hovered));
+                            //}
                             //}
                         }
                     }
-                    
                 }
 
                 _ => {}
@@ -152,7 +169,7 @@ impl EventHandler for ResizableVBox {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ColorEditEvent {
-    ColorChanged(u8,u8,u8,u8),
+    ColorChanged(u8, u8, u8, u8),
 }
 
 pub struct ColorEdit {
@@ -180,16 +197,16 @@ impl ColorEdit {
 impl BuildHandler for ColorEdit {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         entity.set_flex_direction(state, FlexDirection::Row);
-        
+
         let test = Dropdown::new("RGB")
             .build(state, entity, |builder| {
                 builder
                     .set_flex_basis(40.0)
                     .set_text_justify(Justify::End)
                     .class("dim")
-            }).2;
+            })
+            .2;
 
         let one = Dimension::new("RGB").build(state, test, |builder| builder.class("item"));
         let two = Dimension::new("HSV").build(state, test, |builder| builder.class("item"));
@@ -199,12 +216,12 @@ impl BuildHandler for ColorEdit {
             .with_y(50u8)
             .with_z(50u8)
             .with_w(255u8)
-            .build(state, entity, |builder| 
+            .build(state, entity, |builder| {
                 builder
-                .set_flex_grow(1.0)
-                .set_margin_left(Length::Pixels(5.0))
-                .class("item")
-            );
+                    .set_flex_grow(1.0)
+                    .set_margin_left(Length::Pixels(5.0))
+                    .class("item")
+            });
 
         entity
     }
@@ -212,34 +229,39 @@ impl BuildHandler for ColorEdit {
 
 impl EventHandler for ColorEdit {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-
         if let Some(vectoredit_event) = event.is_type::<VectorEditEvent<u8>>() {
             match vectoredit_event {
                 VectorEditEvent::Dim1(val) => {
-                    println!("New Color: Grey {}",val);
-                    state.insert_event(Event::new(ColorEditEvent::ColorChanged(*val,*val,*val,*val)).target(entity));
+                    println!("New Color: Grey {}", val);
+                    state.insert_event(
+                        Event::new(ColorEditEvent::ColorChanged(*val, *val, *val, *val))
+                            .target(entity),
+                    );
                 }
 
-                VectorEditEvent::Dim2(r,g) => {
-                    println!("New Color: r {}, g {}",r,g);
-                    state.insert_event(Event::new(ColorEditEvent::ColorChanged(*r,*g,255,255)).target(entity));
-
+                VectorEditEvent::Dim2(r, g) => {
+                    println!("New Color: r {}, g {}", r, g);
+                    state.insert_event(
+                        Event::new(ColorEditEvent::ColorChanged(*r, *g, 255, 255)).target(entity),
+                    );
                 }
 
-                VectorEditEvent::Dim3(r,g,b) => {
-                    println!("New Color: r {}, g {}, b {}",r,g,b);
-                    state.insert_event(Event::new(ColorEditEvent::ColorChanged(*r,*g,*b,255)).target(entity));
+                VectorEditEvent::Dim3(r, g, b) => {
+                    println!("New Color: r {}, g {}, b {}", r, g, b);
+                    state.insert_event(
+                        Event::new(ColorEditEvent::ColorChanged(*r, *g, *b, 255)).target(entity),
+                    );
                 }
 
-                VectorEditEvent::Dim4(r,g,b,a) => {
-                    println!("New Color: r {}, g {}, b {}, a {}",r,g,b,a);
-                    state.insert_event(Event::new(ColorEditEvent::ColorChanged(*r,*g,*b,*a)).target(entity));
+                VectorEditEvent::Dim4(r, g, b, a) => {
+                    println!("New Color: r {}, g {}, b {}, a {}", r, g, b, a);
+                    state.insert_event(
+                        Event::new(ColorEditEvent::ColorChanged(*r, *g, *b, *a)).target(entity),
+                    );
                 }
 
-                _=> {}
+                _ => {}
             }
-
-            
         }
 
         if let Some(vectoredit_event) = event.is_type::<VectorEditEvent<f32>>() {
@@ -250,7 +272,6 @@ impl EventHandler for ColorEdit {
     }
 }
 
-
 fn main() {
     //let event_loop = EventLoop::new();
     //Create the glutin window
@@ -258,56 +279,49 @@ fn main() {
 
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
-
         state.insert_style(THEME);
 
-        let rvbox = ResizableVBox::new().build(state, window, |builder| 
+        let rvbox = ResizableVBox::new().build(state, window, |builder| {
             builder
                 .set_width(Length::Pixels(300.0))
                 .set_height(Length::Percentage(1.0))
-                .set_background_color(Color::rgb(100,50,50))
-        );
-    
-    
+                .set_background_color(Color::rgb(100, 50, 50))
+        });
+
         let panel1 = Panel::new("ROOT").build(state, rvbox, |builder| builder);
-    
+
         let panel2 = Panel::new("Level 1").build(state, panel1, |builder| builder);
         let panel3 = Panel::new("Level 1").build(state, panel1, |builder| builder);
         let panel = Panel::new("Level 1").build(state, panel1, |builder| builder);
-    
-        let row = HBox::new().build(state, panel, |builder| {
-            builder
-        });
-    
+
+        let row = HBox::new().build(state, panel, |builder| builder);
+
         Label::new("Colour").build(state, row, |builder| builder.class("label"));
         let color_edit = ColorEdit::new().build(state, row, |builder| builder.set_flex_grow(1.0));
-    
-        let row = HBox::new().build(state, panel, |builder| {
-            builder
-        });
-    
+
+        let row = HBox::new().build(state, panel, |builder| builder);
+
         Label::new("Translate").build(state, row, |builder| builder.class("label"));
-        LengthBox::new().build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
-    
-        let row = HBox::new().build(state, panel, |builder| {
-            builder
+        LengthBox::new().build(state, row, |builder| {
+            builder.set_flex_grow(1.0).class("item")
         });
-    
+
+        let row = HBox::new().build(state, panel, |builder| builder);
+
         Label::new("Translate").build(state, row, |builder| builder.class("label"));
-        ValueSlider::new("test").build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
-        
-    
-        let row = HBox::new().build(state, panel, |builder| {
-            builder
+        ValueSlider::new("test").build(state, row, |builder| {
+            builder.set_flex_grow(1.0).class("item")
         });
-    
+
+        let row = HBox::new().build(state, panel, |builder| builder);
+
         Label::new("Translate").build(state, row, |builder| builder.class("label"));
-        NumEdit::new(100.0,1.0).build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
+        NumEdit::new(100.0, 1.0).build(state, row, |builder| {
+            builder.set_flex_grow(1.0).class("item")
+        });
 
         win_desc.with_title("Panels").with_inner_size(800, 600)
     });
 
     app.run();
-
-
 }

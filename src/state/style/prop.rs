@@ -11,6 +11,13 @@ pub trait PropSet {
 
     fn get_parent(self, state: &mut State) -> Option<Entity>;
 
+    fn is_enabled(self, state: &mut State) -> bool;
+    fn is_disabled(self, state: &mut State) -> bool;
+    fn is_checked(self, state: &mut State) -> bool;
+    fn is_over(self, state: &mut State) -> bool;
+    fn is_active(self, state: &mut State) -> bool;
+    fn is_focused(self, state: &mut State) -> bool;
+
     // Pseudoclass
     fn set_enabled(self, state: &mut State, value: bool) -> Self;
     fn set_disabled(self, state: &mut State, value: bool) -> Self;
@@ -93,7 +100,7 @@ pub trait PropSet {
     fn set_background_color(self, state: &mut State, value: Color) -> Self;
 
     // Border
-    fn set_border_width(self, state: &mut State, value: f32) -> Self;
+    fn set_border_width(self, state: &mut State, value: Length) -> Self;
     fn set_border_color(self, state: &mut State, value: Color) -> Self;
 
     // Border Radius
@@ -130,6 +137,49 @@ pub trait PropSet {
 impl PropSet for Entity {
     fn get_parent(self, state: &mut State) -> Option<Entity> {
         self.parent(&state.hierarchy)
+    }
+
+    fn is_enabled(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_enabled()
+        } else {
+            false
+        }
+    }
+    fn is_disabled(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_disabled()
+        } else {
+            false
+        }
+    }
+    fn is_checked(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_checked()
+        } else {
+            false
+        }
+    }
+    fn is_over(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_over()
+        } else {
+            false
+        }
+    }
+    fn is_active(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_active()
+        } else {
+            false
+        }
+    }
+    fn is_focused(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_focus()
+        } else {
+            false
+        }
     }
 
     // PseudoClass
@@ -169,7 +219,7 @@ impl PropSet for Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
             pseudo_classes.set_over(value);
         }
-        
+
         state.insert_event(Event::new(WindowEvent::Restyle));
 
         self
@@ -179,7 +229,7 @@ impl PropSet for Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
             pseudo_classes.set_active(value);
         }
-        
+
         state.insert_event(Event::new(WindowEvent::Restyle));
 
         self
@@ -604,17 +654,8 @@ impl PropSet for Entity {
     }
 
     fn set_font_size(self, state: &mut State, value: f32) -> Self {
-        if let Some(data) = state.style.text.get_mut(self) {
-            data.font_size = value;
-        } else {
-            state.style.text.insert(
-                self,
-                Text {
-                    font_size: value,
-                    ..Default::default()
-                },
-            );
-        }
+
+        state.style.font_size.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -661,7 +702,7 @@ impl PropSet for Entity {
     }
 
     // Border
-    fn set_border_width(self, state: &mut State, value: f32) -> Self {
+    fn set_border_width(self, state: &mut State, value: Length) -> Self {
         state.style.border_width.insert(self, value);
 
         state.insert_event(
@@ -684,15 +725,10 @@ impl PropSet for Entity {
 
     // Border Radius
     fn set_border_radius(self, state: &mut State, value: Length) -> Self {
-        state.style.border_radius.insert(
-            self,
-            BorderRadius {
-                top_left: value,
-                top_right: value,
-                bottom_left: value,
-                bottom_right: value,
-            },
-        );
+        state.style.border_radius_top_left.insert(self, value);
+        state.style.border_radius_top_right.insert(self, value);
+        state.style.border_radius_bottom_left.insert(self, value);
+        state.style.border_radius_bottom_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -700,9 +736,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_top_left(self, state: &mut State, value: Length) -> Self {
-        if let Some(data) = state.style.border_radius.get_mut(self) {
-            data.top_left = value;
-        }
+        state.style.border_radius_top_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -710,9 +744,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_top_right(self, state: &mut State, value: Length) -> Self {
-        if let Some(data) = state.style.border_radius.get_mut(self) {
-            data.top_right = value;
-        }
+        state.style.border_radius_top_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -720,9 +752,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_bottom_left(self, state: &mut State, value: Length) -> Self {
-        if let Some(data) = state.style.border_radius.get_mut(self) {
-            data.bottom_left = value;
-        }
+        state.style.border_radius_bottom_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -730,9 +760,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_bottom_right(self, state: &mut State, value: Length) -> Self {
-        if let Some(data) = state.style.border_radius.get_mut(self) {
-            data.bottom_right = value;
-        }
+        state.style.border_radius_bottom_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 

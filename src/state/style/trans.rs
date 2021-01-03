@@ -4,6 +4,12 @@ use crate::state::animator::Interpolator;
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Scale(pub f32);
 
+impl Scale {
+    pub fn new(scale: f32) -> Self {
+        Scale(scale)
+    }
+}
+
 impl Default for Scale {
     fn default() -> Self {
         Scale(1.0)

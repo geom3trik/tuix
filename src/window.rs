@@ -4,16 +4,12 @@ use glutin::event_loop::EventLoop;
 use glutin::window::WindowBuilder;
 use glutin::ContextBuilder;
 
-use femtovg::{
-    renderer::OpenGl,
-    Canvas,
-    Color,
-};
+use femtovg::{renderer::OpenGl, Canvas, Color};
 
 use crate::entity::Entity;
 
 use crate::state::mouse::*;
-use crate::{apply_clipping, apply_styles, apply_visibility, layout_fun, State, apply_z_ordering};
+use crate::{apply_clipping, apply_styles, apply_visibility, apply_z_ordering, layout_fun, State};
 
 //use crate::state::style::*;
 
@@ -22,9 +18,7 @@ use crate::events::{Event, EventHandler};
 //use nanovg::Font;
 
 #[derive(Debug)]
-pub enum SomeError {
-
-}
+pub enum SomeError {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct KeyboardInput {
@@ -122,8 +116,6 @@ impl WindowDescription {
     }
 }
 
-
-
 pub struct Window {
     pub handle: glutin::WindowedContext<glutin::PossiblyCurrent>,
     pub canvas: Canvas<OpenGl>,
@@ -158,7 +150,8 @@ impl Window {
 
         gl::load_with(|ptr| handle.context().get_proc_address(ptr) as *const _);
 
-        let renderer = OpenGl::new(|s| handle.context().get_proc_address(s) as *const _).expect("Cannot create renderer");
+        let renderer = OpenGl::new(|s| handle.context().get_proc_address(s) as *const _)
+            .expect("Cannot create renderer");
         let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
 
         let dpi_factor = handle.window().scale_factor();
@@ -167,15 +160,19 @@ impl Window {
         println!("width: {} height: {}", size.width, size.height);
 
         canvas.set_size(size.width as u32, size.height as u32, dpi_factor as f32);
-        canvas.clear_rect(0, 0, size.width as u32, size.height as u32, Color::rgbf(0.3, 0.3, 0.32));
+        canvas.clear_rect(
+            0,
+            0,
+            size.width as u32,
+            size.height as u32,
+            Color::rgb(255, 80, 80),
+        );
 
         let height = size.height as f32;
         let width = size.width as f32;
 
-        Window { handle, canvas}
+        Window { handle, canvas }
     }
-
-
 }
 
 #[derive(Clone)]
@@ -195,7 +192,6 @@ impl EventHandler for WindowWidget {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-
                 WindowEvent::WindowClose => {
                     println!("Window Close Event");
                 }

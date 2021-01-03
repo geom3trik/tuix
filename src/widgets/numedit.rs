@@ -63,10 +63,12 @@ impl NumEdit {
 impl BuildHandler for NumEdit {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_display(state, Display::Flexbox).set_flex_direction(state, FlexDirection::Row);
+        entity
+            .set_display(state, Display::Flexbox)
+            .set_flex_direction(state, FlexDirection::Row);
 
-        self.textbox =
-            Textbox::new(&self.value.to_string()).build(state, entity, |builder| builder.set_flex_grow(1.0));
+        self.textbox = Textbox::new(&self.value.to_string())
+            .build(state, entity, |builder| builder.set_flex_grow(1.0));
         //.set_background_color(state, nanovg::Color::from_rgb(200, 255, 200));
 
         let arrow_container = Button::new().build(state, entity, |builder| {

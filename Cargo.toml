@@ -16,3 +16,4 @@ glutin = "0.26"
 cssparser = "0.27.2"
 femtovg = {git = "https://github.com/femtovg/femtovg"}
 image = "0.23.12"
+bimap = "0.5.3"

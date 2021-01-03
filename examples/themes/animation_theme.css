@@ -1,10 +1,35 @@
 button 
 {
-    width: 100px;
-    height: 50px;
-    opacity: 1.0;
-    margin-bottom: 0px;
+    width: 300px;
+    height: 30px;
+    background-color: #606060;
+    padding-left: 10px;
 }
+
+button:hover
+{
+    background-color: #707070;
+}
+
+button:checked
+{
+    background-color: #707090;
+}
+
+.element {
+    width: 50px;
+    height: 50px;
+    background-color: #643232;
+    border-color: black;
+}
+
+.subelement {
+    width: 25px;
+    height: 25px;
+    background-color: #386432;
+}
+
+/*
 
 .first 
 {
@@ -29,4 +54,4 @@ button
     width: 25px;
     height: 25px;
     background-color: #00ff00;
-}
+} */

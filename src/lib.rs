@@ -5,7 +5,7 @@ pub mod application;
 pub mod window;
 
 pub use application::Application;
-pub use window::{KeyboardInput, Window, WindowEvent, CursorIcon};
+pub use window::{CursorIcon, KeyboardInput, Window, WindowEvent};
 
 pub mod events;
 pub use events::*;

@@ -108,24 +108,20 @@ impl Calculator {
 impl BuildHandler for Calculator {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        let container = Button::new().build(state, entity, |builder| {
-            builder.class("container")
-        });
+        let container = Button::new().build(state, entity, |builder| builder.class("container"));
 
         // Change to label that can be copied but not edited at some point
-        self.display =
-            Button::new().build(state, container, |builder| builder.set_text("0").class("display"));
+        self.display = Button::new().build(state, container, |builder| {
+            builder.set_text("0").class("display")
+        });
 
-        
         // Currently using flexbox to create the layout but would be good to use grid when working
 
         let row1 = Button::new().build(state, container, |builder| builder.class("row"));
 
         self.clear = Button::new()
             .on_press(Event::new(CalculatorEvent::Operator('C')))
-            .build(state, row1, |builder| {
-                builder.set_text("AC").class("digit")
-            });
+            .build(state, row1, |builder| builder.set_text("AC").class("digit"));
 
         self.plus_minus = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('¬')))
@@ -223,9 +219,7 @@ impl BuildHandler for Calculator {
             });
 
         // Fifth Row
-        let row5 = Button::new().build(state, container, |builder| {
-            builder.class("last_row")
-        });
+        let row5 = Button::new().build(state, container, |builder| builder.class("last_row"));
 
         // Digit Zero
         self.zero = Button::new()
@@ -237,9 +231,7 @@ impl BuildHandler for Calculator {
         // Decimal Point
         self.decimal_point = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('.')))
-            .build(state, row5, |builder| {
-                builder.set_text(".").class("digit")
-            });
+            .build(state, row5, |builder| builder.set_text(".").class("digit"));
 
         // Equals
         self.equals = Button::new()
@@ -279,21 +271,13 @@ impl BuildHandler for Calculator {
             .set_focus_order(state, self.decimal_point, self.eight);
         self.decimal_point
             .set_focus_order(state, self.display, self.nine);
-        
+
         entity
     }
-
-
 }
 
 impl EventHandler for Calculator {
-
-    fn on_event(
-        &mut self,
-        state: &mut State,
-        entity: Entity,
-        event: &mut Event,
-    ) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(calculator_event) = event.message.downcast::<CalculatorEvent>() {
             match calculator_event {
                 CalculatorEvent::Digit(num) => {
@@ -455,14 +439,12 @@ impl EventHandler for Calculator {
                                     if state.modifiers.shift {
                                         state.active = self.percent;
                                         state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('%'))
-                                                .target(entity),
+                                            Event::new(CalculatorEvent::Digit('%')).target(entity),
                                         );
                                     } else {
                                         state.active = self.five;
                                         state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('5'))
-                                                .target(entity),
+                                            Event::new(CalculatorEvent::Digit('5')).target(entity),
                                         );
                                     }
                                 }
@@ -491,8 +473,7 @@ impl EventHandler for Calculator {
                                     } else {
                                         state.active = self.eight;
                                         state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('8'))
-                                                .target(entity),
+                                            Event::new(CalculatorEvent::Digit('8')).target(entity),
                                         );
                                     }
                                 }
@@ -507,32 +488,28 @@ impl EventHandler for Calculator {
                                 VirtualKeyCode::Asterisk => {
                                     state.active = self.multiply;
                                     state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('*'))
-                                            .target(entity),
+                                        Event::new(CalculatorEvent::Operator('*')).target(entity),
                                     );
                                 }
 
                                 VirtualKeyCode::Minus => {
                                     state.active = self.subtract;
                                     state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('-'))
-                                            .target(entity),
+                                        Event::new(CalculatorEvent::Operator('-')).target(entity),
                                     );
                                 }
 
                                 VirtualKeyCode::Plus => {
                                     state.active = self.add;
                                     state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('+'))
-                                            .target(entity),
+                                        Event::new(CalculatorEvent::Operator('+')).target(entity),
                                     );
                                 }
 
                                 VirtualKeyCode::Slash => {
                                     state.active = self.divide;
                                     state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('/'))
-                                            .target(entity),
+                                        Event::new(CalculatorEvent::Operator('/')).target(entity),
                                     );
                                 }
 
@@ -562,18 +539,14 @@ impl EventHandler for Calculator {
                                 VirtualKeyCode::Return => {
                                     state.active = self.equals;
                                     state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('='))
-                                            .target(entity),
+                                        Event::new(CalculatorEvent::Operator('=')).target(entity),
                                     );
                                 }
 
                                 _ => {}
                             }
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Restyle).target(state.root),
-                            );
-
+                            state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
                         }
 
                         None => {}
@@ -582,9 +555,7 @@ impl EventHandler for Calculator {
 
                 WindowEvent::KeyUp(_) => {
                     state.active = Entity::null();
-                    state.insert_event(
-                        Event::new(WindowEvent::Restyle).target(state.root),
-                    );
+                    state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
                 }
 
                 _ => {}
@@ -600,13 +571,10 @@ pub fn main() {
     let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
     let mut app = Application::new(|win_desc, state, window| {
-        
         state.style.parse_theme(LIGHT_THEME);
 
-        Calculator::default().build(state, window, |builder| {
-            builder.class("calculator")
-        });
-        
+        Calculator::default().build(state, window, |builder| builder.class("calculator"));
+
         win_desc
             .with_title("Calculator")
             .with_inner_size(300, 400)

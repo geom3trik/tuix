@@ -97,6 +97,36 @@ impl PseudoClasses {
             self.0 &= !(1 << 6);
         }
     }
+
+    pub fn get_hover(&mut self) -> bool {
+        (self.0 & 1) != 0
+    }
+
+    pub fn get_over(&mut self) -> bool {
+        (self.0 & (1 << 1)) >> 1 != 0
+    }
+
+    pub fn get_active(&mut self) -> bool {
+        (self.0 & (1 << 2)) >> 2 != 0
+    }
+
+    pub fn get_focus(&mut self) -> bool {
+        (self.0 & (1 << 3)) >> 3 != 0
+    }
+
+    pub fn get_enabled(&mut self) -> bool {
+        (self.0 & (1 << 4)) >> 4 != 0
+    }
+
+    pub fn get_disabled(&mut self) -> bool {
+        (self.0 & (1 << 5)) >> 5 != 0
+    }
+
+    pub fn get_checked(&mut self) -> bool {
+        (self.0 & (1 << 6)) >> 6 != 0
+    }
+
+
 }
 
 #[derive(Clone, Debug)]
@@ -105,8 +135,6 @@ pub enum Relation {
     Ancestor,
     Parent,
 }
-
-
 
 #[derive(Clone, Debug)]
 pub struct Selector {
@@ -162,7 +190,6 @@ impl Selector {
     }
 
     pub fn matches(&self, entity_selector: &Selector) -> bool {
-
         // Universal selector always matches
         if self.asterisk {
             return true;
@@ -190,7 +217,9 @@ impl Selector {
 
         //println!("Selector: {:?}  Widget: {:?}  Combined: 0b{:08b}", self.pseudo_classes, other.pseudo_classes, (self.pseudo_classes.0 & other.pseudo_classes.0));
 
-        if self.pseudo_classes.0 != 0 && (self.pseudo_classes.0 & entity_selector.pseudo_classes.0) == 0 {
+        if self.pseudo_classes.0 != 0
+            && (self.pseudo_classes.0 & entity_selector.pseudo_classes.0) == 0
+        {
             return false;
         }
 
