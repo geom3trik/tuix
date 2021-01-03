@@ -1,4 +1,4 @@
-[Join the Discord channel](https://discord.gg/mcAPGRPN)
+[Join the Discord channel](https://discord.gg/aNkTPsRm2w)
 
 # tuix
 Tuix is a cross-platform GUI toolkit written in Rust.
