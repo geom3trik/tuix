@@ -96,7 +96,7 @@ fn main() {
     let mut app = Application::new(|win_desc, state, window| {
         state.style.parse_theme(THEME);
 
-        let menu1 = Menu::new("File", MenuPosition::Down).build(state, window, |builder| {
+        let menu1 = Menu::new("Menu", MenuPosition::Down).build(state, window, |builder| {
             builder
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
@@ -107,9 +107,9 @@ fn main() {
 
         // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
 
-        Button::with_label("New").build(state, menu1, |builder| builder.class("item"));
-        Button::with_label("Open").build(state, menu1, |builder| builder.class("item"));
-        Button::with_label("Quit")
+        Button::with_label("Item 1").build(state, menu1, |builder| builder.class("item"));
+        Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
+        Button::with_label("Item 3")
             .on_press(Event::new(WindowEvent::WindowClose))
             .build(state, menu1, |builder| builder.class("item"));
 
@@ -117,29 +117,29 @@ fn main() {
         Button::new().build(state, spacer, |builder| builder.class("spacer1"));
         Button::new().build(state, spacer, |builder| builder.class("spacer2"));
 
-        let menu2 = Menu::new("Edit", MenuPosition::Right).build(state, menu1, |builder| {
+        let menu2 = Menu::new("Submenu", MenuPosition::Right).build(state, menu1, |builder| {
             builder.class("item").class("submenu")
         });
 
-        Button::with_label("Open").build(state, menu1, |builder| builder.class("item"));
+        Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
 
         // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
 
-        Button::with_label("Cut").build(state, menu2, |builder| builder.class("item"));
-        Button::with_label("Copy").build(state, menu2, |builder| builder.class("item"));
-        Button::with_label("Paste")
+        Button::with_label("SubItem 1").build(state, menu2, |builder| builder.class("item"));
+        Button::with_label("SubItem 2").build(state, menu2, |builder| builder.class("item"));
+        Button::with_label("SubItem 3")
             .on_press(Event::new(WindowEvent::WindowClose))
             .build(state, menu2, |builder| builder.class("item"));
 
         Button::new().build(state, menu1, |builder| builder.class("spacer2"));
 
-        let menu3 = Menu::new("Edit", MenuPosition::Right).build(state, menu2, |builder| {
+        let menu3 = Menu::new("SubSubMenu", MenuPosition::Right).build(state, menu2, |builder| {
             builder.class("item").class("submenu")
         });
 
-        Button::with_label("Cut").build(state, menu3, |builder| builder.class("item"));
-        Button::with_label("Copy").build(state, menu3, |builder| builder.class("item"));
-        Button::with_label("Paste")
+        Button::with_label("SubSubItem 1").build(state, menu3, |builder| builder.class("item"));
+        Button::with_label("SubSubItem 2").build(state, menu3, |builder| builder.class("item"));
+        Button::with_label("SubSubItem 3")
             .on_press(Event::new(WindowEvent::WindowClose))
             .build(state, menu3, |builder| builder.class("item"));
 
