@@ -75,7 +75,8 @@ Tuix can be thought of as 5 seperate processes which happen in order:
 - Building
 - Layout
 - Styling
-- Rendering
+- Events
+- Drawing
 
 ## Building
 Building is the process of creating the widgets in the application. This can be done before the application loop begins, or in response to an event.
