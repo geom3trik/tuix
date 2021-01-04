@@ -11,12 +11,14 @@ use crate::events::*;
 use crate::state::style::*;
 use crate::{PropSet, State, WindowEvent};
 
+use crate::state::mouse::MouseButton;
+
 use crate::layout::{Align, Justify};
 
-use crate::widgets::{Button, Textbox, TextboxEvent};
+use crate::widgets::{Element, Button, Textbox, TextboxEvent};
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum NumEditEvent {
+pub enum SpinnerEvent {
     Increase,
     Decrease,
     SetValue(f32),
@@ -26,7 +28,7 @@ pub enum NumEditEvent {
 //impl Message for NumEditEvent {}
 
 #[derive(Clone)]
-pub struct NumEdit {
+pub struct Spinner {
     pub value: f32,
     pub textbox: Entity,
     pub increment: Entity,
@@ -35,12 +37,12 @@ pub struct NumEdit {
     pub inc_value: f32,
 }
 
-impl NumEdit {
+impl Spinner {
     pub fn new(val: f32, inc_value: f32) -> Self {
         // entity.set_text(state, "Test".to_string())
         //     .set_background(state, nanovg::Color::from_rgb(100, 50, 50));
 
-        NumEdit {
+        Spinner {
             value: val,
             inc_value: inc_value,
             textbox: Entity::null(),
@@ -60,7 +62,7 @@ impl NumEdit {
     // }
 }
 
-impl BuildHandler for NumEdit {
+impl BuildHandler for Spinner {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -69,14 +71,14 @@ impl BuildHandler for NumEdit {
 
         self.textbox = Textbox::new(&self.value.to_string())
             .build(state, entity, |builder| builder.set_flex_grow(1.0));
-        //.set_background_color(state, nanovg::Color::from_rgb(200, 255, 200));
 
-        let arrow_container = Button::new().build(state, entity, |builder| {
-            builder.set_flex_basis(19.0).set_flex_grow(0.0)
+
+        let arrow_container = Element::new().build(state, entity, |builder| {
+            builder.set_width(Length::Pixels(19.0)).set_flex_grow(0.0).class("arrow_container")
         });
 
-        self.increment = Button::new()
-            .on_press(Event::new(NumEditEvent::Increase))
+        self.increment = Element::new()
+            //.on_press(Event::new(SpinnerEvent::Increase))
             .build(state, arrow_container, |builder| {
                 builder
                     .set_font("Icons".to_string())
@@ -87,8 +89,8 @@ impl BuildHandler for NumEdit {
                     .class("increment")
             });
 
-        self.decrement = Button::new()
-            .on_press(Event::new(NumEditEvent::Decrease))
+        self.decrement = Element::new()
+            //.on_press(Event::new(SpinnerEvent::Decrease))
             .build(state, arrow_container, |builder| {
                 builder
                     .set_font("Icons".to_string())
@@ -99,17 +101,18 @@ impl BuildHandler for NumEdit {
                     .class("decrement")
             });
 
-        state.style.insert_element(entity, "numedit");
+        state.style.insert_element(entity, "spinner");
 
         entity
     }
 }
 
-impl EventHandler for NumEdit {
+impl EventHandler for Spinner {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        if let Some(numedit_event) = event.message.downcast::<NumEditEvent>() {
+        /*
+        if let Some(numedit_event) = event.message.downcast::<SpinnerEvent>() {
             match numedit_event {
-                NumEditEvent::Increase => {
+                SpinnerEvent::Increase => {
                     if event.target == self.increment {
                         self.value += self.inc_value;
 
@@ -126,7 +129,7 @@ impl EventHandler for NumEdit {
                         self.textbox.set_text(state, &val_str);
 
                         state.insert_event(
-                            Event::new(NumEditEvent::ValueChanged(self.value)).target(entity),
+                            Event::new(SpinnerEvent::ValueChanged(self.value)).target(entity),
                         );
 
                         state.insert_event(
@@ -135,24 +138,16 @@ impl EventHandler for NumEdit {
                     }
                 }
 
-                NumEditEvent::Decrease => {
+                SpinnerEvent::Decrease => {
                     if event.target == self.decrement {
                         self.value -= self.inc_value;
-
-                        // if self.value >= 1.0 {
-                        //     self.value = 1.0;
-                        // }
-
-                        // if self.value <= 0.0 {
-                        //     self.value = 0.0;
-                        // }
 
                         let val_str = format!("{:.*}", 5, &self.value.to_string());
 
                         self.textbox.set_text(state, &val_str);
 
                         state.insert_event(
-                            Event::new(NumEditEvent::ValueChanged(self.value)).target(entity),
+                            Event::new(SpinnerEvent::ValueChanged(self.value)).target(entity),
                         );
 
                         state.insert_event(
@@ -164,6 +159,43 @@ impl EventHandler for NumEdit {
                 _ => {}
             }
         }
+        */
+
+        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+            match window_event {
+                WindowEvent::MouseDown(button) => {
+                    if *button == MouseButton::Left {
+                    
+                        if event.target == self.increment {
+                            self.value += self.inc_value;
+
+                            let val_str = format!("{:.*}", 5, &self.value.to_string());
+
+                            self.textbox.set_text(state, &val_str);
+
+                            state.insert_event(
+                                Event::new(SpinnerEvent::ValueChanged(self.value)).target(entity),
+                            );
+                        }
+
+                        if event.target == self.decrement {
+                            self.value -= self.inc_value;
+
+                            let val_str = format!("{:.*}", 5, &self.value.to_string());
+
+                            self.textbox.set_text(state, &val_str);
+
+                            state.insert_event(
+                                Event::new(SpinnerEvent::ValueChanged(self.value)).target(entity),
+                            );
+                        }
+                    }
+                }
+
+                _=> {}
+            }
+        }
+        
 
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
@@ -188,7 +220,7 @@ impl EventHandler for NumEdit {
                             self.value = val;
 
                             state.insert_event(
-                                Event::new(NumEditEvent::ValueChanged(val)).target(entity),
+                                Event::new(SpinnerEvent::ValueChanged(val)).target(entity),
                             );
                         } else {
                             state.insert_event(

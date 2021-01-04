@@ -35,17 +35,17 @@ pub struct FreqValue(pub f32);
 impl std::fmt::Display for FreqValue {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         if self.0.abs() < 10.0 {
-            write!(f, "{:.2}", self.0)
+            write!(f, "{:.2} Hz", self.0)
         } else if self.0.abs() >= 10.0 && self.0.abs() < 100.0 {
-            write!(f, "{:.1}", self.0)
+            write!(f, "{:.1} Hz", self.0)
         } else if self.0.abs() >= 100.0 && self.0.abs() < 1000.0 {
-            write!(f, "{:.0}", self.0)
+            write!(f, "{:.0} Hz", self.0)
         } else if self.0.abs() >= 1000.0 && self.0.abs() < 10000.0 {
-            write!(f, "{:.2}", self.0/1000.0)
+            write!(f, "{:.2} kHz", self.0/1000.0)
         } else if self.0.abs() >= 10000.0 && self.0.abs() < 100000.0 {
-            write!(f, "{:.1}", self.0/1000.0)
+            write!(f, "{:.1} kHz", self.0/1000.0)
         } else {
-            write!(f, "{}", self.0)
+            write!(f, "{} Hz", self.0)
         }
     }
 }
@@ -143,7 +143,7 @@ impl EventHandler for ValueKnob {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
-                SliderEvent::ValueChanged(_, val) => {
+                SliderEvent::ValueChanged(val) => {
                     //println!("Slider Value Changed: {} {}", self.label, val);
                     if event.target == self.slider {
                         let val_str = format!("{:3}!", val);

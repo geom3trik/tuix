@@ -24,7 +24,7 @@ const frequencies: [f32; 27] = [1.477121, 1.60206, 1.69897, 1.778151, 1.845098, 
 fn main() {
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
-        state.style.parse_theme(THEME);
+        state.insert_theme(THEME);
         // let checkbox = Checkbox::new(false).build(state, root, |builder| builder.class("widget"));
         //let switch = Switch::new(false).build(state, root, |builder| builder);
 

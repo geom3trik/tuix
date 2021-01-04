@@ -33,8 +33,8 @@ pub use menu::*;
 pub mod scroll_container;
 pub use scroll_container::*;
 
-pub mod numedit;
-pub use numedit::*;
+pub mod spinner;
+pub use spinner::*;
 
 pub mod value_slider;
 pub use value_slider::ValueSlider;

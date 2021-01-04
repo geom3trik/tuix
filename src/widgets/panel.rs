@@ -192,7 +192,6 @@ impl EventHandler for Panel {
                             let container_height = state.transform.get_child_sum(self.container);
                             if container_height > 0.0 {
                                 self.container_height = container_height;
-                                println!("Do This");
 
                                 if let Some(animation) =
                                     state.style.height.get_animation_mut(self.expand_animation)

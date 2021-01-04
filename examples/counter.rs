@@ -83,7 +83,7 @@ impl EventHandler for Counter {
 fn main() {
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
-        state.style.parse_theme(THEME);
+        state.insert_theme(THEME);
 
         Counter::new()
             // Set local state

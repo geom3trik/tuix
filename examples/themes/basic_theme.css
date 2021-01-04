@@ -15,11 +15,15 @@
   }
     
   .three {
-    background-color: green;
+    background-color: #59b159;
     height: 150px;
     width: 100%;
     display: flex;
     flex-direction: row;
+  }
+
+  .one>.two>.three {
+    background-color: red;
   }
   
   .four {

@@ -899,7 +899,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                             };
 
                             if let Some(flex_basis) = state.style.flex_basis.get(child) {
-                                new_width = *flex_basis;
+                                new_width = *flex_basis + child_padding_left + child_padding_right + 2.0 * child_border_width;
                             }
 
                             let parent_free_space = parent_width
@@ -1114,7 +1114,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                             };
 
                             if let Some(flex_basis) = state.style.flex_basis.get(child) {
-                                new_height = *flex_basis;
+                                new_height = *flex_basis + child_padding_top + child_padding_bottom + 2.0 * child_border_width;
                             }
 
                             let parent_free_space = parent_height

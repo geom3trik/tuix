@@ -15,7 +15,7 @@ static THEME: &'static str = include_str!("themes/widget_theme.css");
 fn main() {
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
-        state.style.parse_theme(THEME);
+        state.insert_theme(THEME);
 
         let piano_roll = PianoRoll::new().build(state, window, |builder| 
             builder

@@ -82,7 +82,7 @@ impl EventHandler for ValueSlider {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
-                SliderEvent::ValueChanged(_, val) => {
+                SliderEvent::ValueChanged(val) => {
                     if event.target == self.slider {
                         let val_str = format!("{:.*}", 5, &val.to_string());
                         state.insert_event(

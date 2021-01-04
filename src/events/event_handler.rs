@@ -49,10 +49,7 @@ pub trait EventHandler {
 
         //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
 
-        // Skip widgets with no width or no height
-        // if width == 0.0 || height == 0.0 {
-        //     return;
-        // }
+
 
         let padding_left = match state
             .style
@@ -88,6 +85,8 @@ pub trait EventHandler {
             Length::Pixels(val) => val,
             _ => &0.0,
         };
+
+
 
         let background_color = state
             .style
@@ -174,7 +173,10 @@ pub trait EventHandler {
         //println!("Border Width: {}", border_width);
 
         
-        
+        // Skip widgets with no width or no height
+        if width + 2.0* border_width + padding_left + padding_right == 0.0 || height + 2.0 * border_width + padding_top + padding_bottom == 0.0 {
+            return;
+        }
 
         
         
@@ -183,15 +185,15 @@ pub trait EventHandler {
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
         canvas.save();
-        // canvas.translate(posx + width / 2.0, posy + height / 2.0);
-        // canvas.rotate(rotate.to_radians());
-        // canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+        canvas.translate(posx + width / 2.0, posy + height / 2.0);
+        canvas.rotate(rotate.to_radians());
+        canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
-        let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
+        //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
-        canvas.translate(pt.0, pt.1);
-        canvas.scale(1.0, scaley.0);
-        canvas.translate(-pt.0, -pt.1);
+        // canvas.translate(pt.0, pt.1);
+        // canvas.scale(1.0, scaley.0);
+        // canvas.translate(-pt.0, -pt.1);
 
 
         // Apply Scissor
@@ -312,7 +314,7 @@ pub trait EventHandler {
             canvas.fill_text(x, y, &text_string, paint);
         }
 
-        //canvas.restore();
+        canvas.restore();
 
         /*
         window.context.borrow_mut().frame(

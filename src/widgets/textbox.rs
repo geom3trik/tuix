@@ -503,10 +503,9 @@ impl EventHandler for Textbox {
         let width = state.transform.get_width(entity);
         let height = state.transform.get_height(entity);
 
-        // Skip widgets with no width or no height
-        if width == 0.0 || height == 0.0 {
-            return;
-        }
+        //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
+
+
 
         let padding_left = match state
             .style
@@ -543,12 +542,21 @@ impl EventHandler for Textbox {
             _ => &0.0,
         };
 
+
+
         let background_color = state
             .style
             .background_color
             .get(entity)
             .cloned()
             .unwrap_or_default();
+
+        let font_color = state
+            .style
+            .font_color
+            .get(entity)
+            .cloned()
+            .unwrap_or(crate::Color::rgb(255, 255, 255));
 
         let border_color = state
             .style
@@ -557,9 +565,9 @@ impl EventHandler for Textbox {
             .cloned()
             .unwrap_or_default();
 
-        let font_color = state
+        let shadow_color = state
             .style
-            .font_color
+            .shadow_color
             .get(entity)
             .cloned()
             .unwrap_or_default();
@@ -603,8 +611,8 @@ impl EventHandler for Textbox {
         let mut border_color: femtovg::Color = border_color.into();
         border_color.set_alphaf(border_color.a * opacity);
 
-        let mut font_color: femtovg::Color = font_color.into();
-        font_color.set_alphaf(font_color.a * opacity);
+        let mut shadow_color: femtovg::Color = shadow_color.into();
+        shadow_color.set_alphaf(shadow_color.a * opacity);
 
         let border_width = match state
             .style
@@ -618,10 +626,62 @@ impl EventHandler for Textbox {
             _ => 0.0,
         };
 
+        //println!("Border Width: {}", border_width);
+
+        
+        // Skip widgets with no width or no height
+        if width + 2.0* border_width + padding_left + padding_right == 0.0 || height + 2.0 * border_width + padding_top + padding_bottom == 0.0 {
+            return;
+        }
+
+        
+        
+        // Apply transformations
+        let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
+        let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
+
+        canvas.save();
+        // canvas.translate(posx + width / 2.0, posy + height / 2.0);
+        // canvas.rotate(rotate.to_radians());
+        // canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+
+        let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
+        //canvas.translate(posx + width / 2.0, posy + width / 2.0);
+        canvas.translate(pt.0, pt.1);
+        canvas.scale(1.0, scaley.0);
+        canvas.translate(-pt.0, -pt.1);
+
+
+        // Apply Scissor
+        let clip_entity = state.transform.get_clip_widget(entity);
+
+        let clip_posx = state.transform.get_posx(clip_entity);
+        let clip_posy = state.transform.get_posy(clip_entity);
+        let clip_width = state.transform.get_width(clip_entity);
+        let clip_height = state.transform.get_height(clip_entity);
+
+        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+
+
+        
+        let shadow_h_offset = state
+            .style
+            .shadow_h_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        // Draw shadow
+        // let mut path = Path::new();
+        // path.rounded_rect_varying(posx, posy, width, height, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
+        // let mut paint = Paint::color(background_color);
+        // canvas.fill_path(&mut path, paint);
+
+        // Draw rounded rect
         let mut path = Path::new();
         path.rounded_rect_varying(
-            posx + border_width / 2.0,
-            posy + border_width / 2.0,
+            posx + (border_width / 2.0),
+            posy + (border_width / 2.0),
             width - border_width,
             height - border_width,
             border_radius_top_left,
@@ -629,11 +689,19 @@ impl EventHandler for Textbox {
             border_radius_bottom_right,
             border_radius_bottom_left,
         );
-        let mut paint = Paint::color(border_color);
-        paint.set_line_width(border_width * 2.0);
-        canvas.stroke_path(&mut path, paint);
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
+
+        // Draw border
+        let mut paint = Paint::color(border_color);
+        paint.set_line_width(border_width);
+        //paint.set_anti_alias(false);
+        canvas.stroke_path(&mut path, paint);
+        //println!("posx: {}", posx);
+
+        let mut font_color: femtovg::Color = font_color.into();
+        font_color.set_alphaf(font_color.a * opacity);
+
 
         if let Some(text) = state.style.text.get_mut(entity) {
             let font_id = match text.font.as_ref() {
@@ -805,17 +873,17 @@ impl EventHandler for Textbox {
                     let select_width = (caretx - selectx).abs();
                     if selectx > caretx {
                         let mut path = Path::new();
-                        path.rect(caretx, y - 0.25 * height, select_width, height * 0.5);
+                        path.rect(caretx, y - 1.2 * res.height()/2.0, select_width, 1.3*res.height());
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     } else if caretx > selectx {
                         let mut path = Path::new();
-                        path.rect(selectx, y - 0.25 * height, select_width, height * 0.5);
+                        path.rect(selectx, y - 1.2 * res.height()/2.0, select_width, 1.3*res.height());
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     }
 
                     let mut path = Path::new();
-                    path.rect(caretx, y - 0.25 * height, 1.0, height * 0.5);
-                    canvas.fill_path(&mut path, Paint::color(Color::rgba(255, 192, 0, 255)));
+                    path.rect(caretx - 1.0, y - 1.2*res.height()/2.0, 2.0, 1.3*res.height());
+                    canvas.fill_path(&mut path, Paint::color(Color::rgba(247, 76, 0, 255)));
 
                     // let mut path = Path::new();
                     // path.rect(endx, y - 0.25 * height, 1.0, height * 0.5);

@@ -7,15 +7,17 @@ use crate::{PropSet, State};
 
 use crate::state::style::*;
 
-use crate::widgets::Button;
+use crate::widgets::{Element, Button};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SliderEvent {
-    ValueChanged(Entity, f32),
+    ValueChanged(f32),
     SetValue(f32),
 }
 
-//impl Message for SliderEvent {}
+
+
+
 
 #[derive(Clone)]
 pub struct Slider {
@@ -50,7 +52,7 @@ impl BuildHandler for Slider {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
 
-        self.front = Button::new().build(state, entity, |builder| {
+        self.front = Element::new().build(state, entity, |builder| {
             builder.set_width(Length::Percentage(0.5)).class("front")
         });
 
@@ -129,7 +131,7 @@ impl EventHandler for Slider {
                             // );
 
                             state.insert_event(
-                                Event::new(SliderEvent::ValueChanged(entity, self.value))
+                                Event::new(SliderEvent::ValueChanged(self.value))
                                     .target(entity),
                             );
                         }
@@ -178,7 +180,7 @@ impl EventHandler for Slider {
                         self.front.set_width(state, Length::Percentage(self.value));
 
                         state.insert_event(
-                            Event::new(SliderEvent::ValueChanged(entity, self.value))
+                            Event::new(SliderEvent::ValueChanged(self.value))
                                 .target(entity),
                         );
 
@@ -203,7 +205,7 @@ impl EventHandler for Slider {
                         self.front.set_width(state, Length::Percentage(self.value));
 
                         state.insert_event(
-                            Event::new(SliderEvent::ValueChanged(entity, self.value))
+                            Event::new(SliderEvent::ValueChanged(self.value))
                                 .target(entity),
                         );
 
@@ -221,126 +223,133 @@ impl EventHandler for Slider {
     }
 }
 
-// #![allow(dead_code)]
+pub struct Slider2 {
+    thumb: Entity,
+    active: Entity,
+    sliding: bool,
+}
 
-// use crate::component::storage::Storage;
-// use crate::component::style::text::*;
-// use crate::entity::Entity;
-// use crate::events::*;
-// use crate::mouse::*;
-// use crate::widget::Widget;
-// use crate::State;
+impl Slider2 {
+    pub fn new() -> Self {
+        Slider2 {
+            thumb: Entity::null(),
+            active: Entity::null(),
+            sliding: false,
+        }
+    }
+}
 
-// pub struct Slider {
-//     front: Entity,
-//     pub back: Entity,
-//     textbox: Entity,
+impl BuildHandler for Slider2 {
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        
+        entity
+            .set_left(state, Length::Pixels(10.0))
+            .set_width(state, Length::Pixels(100.0))
+            .set_height(state, Length::Pixels(4.0));
+            //.set_align_items(state, AlignItems::Center)
+            //.set_background_color(state, Color::rgb(200, 80, 80));
 
-//     pressed_x: f32,
-//     sliding: bool,
+        self.active = Element::new().build(state, entity, |builder| 
+            builder
+                .set_width(Length::Percentage(0.0))
+                .set_height(Length::Percentage(1.0))
+                //.set_background_color(Color::rgb(60, 60, 200))
+                .set_hoverability(false)
+                .class("active")
+        );
+        
+        self.thumb = Element::new().build(state, entity, |builder| 
+            builder
+                .set_position(Position::Absolute)
+                .set_left(Length::Pixels(-10.0))
+                .set_top(Length::Pixels(-8.0))
+                .set_width(Length::Pixels(20.0))
+                .set_height(Length::Pixels(20.0))
+                .class("thumb")
+                //.set_background_color(Color::rgb(80, 80, 200))
+        );
 
-//     value: f32,
-//     temp: f32,
-// }
+        state.style.insert_element(entity, "slider2");
+        
+        entity
+    }
 
-// impl Slider {
-//     pub fn new(state: &mut State, widget_list: &mut WidgetList, parent: Entity) -> Self {
-//         let back = state.add(parent);
-//         let front = state.add(back);
+}
 
-//         back.set_width(state, 100.0)
-//             .set_height(state, 30.0)
-//             .set_background_color(state, nanovg::Color::from_rgb(46, 46, 46));
-//         front
-//             .set_width(state, 50.0)
-//             .set_height(state, 1.0)
-//             .set_background_color(state, nanovg::Color::from_rgb(73, 73, 73));
+impl EventHandler for Slider2 {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+            match window_event {
+                WindowEvent::MouseDown(button) => {
+                    if *button == MouseButton::Left && event.target == entity || event.target == self.thumb {
+                        self.sliding = true;
+                        state.capture(entity);
+                
 
-//         let textbox = state.add(back);
+                        let dx = (state.mouse.left.pos_down.0 - state.transform.get_posx(entity))
+                        / state.transform.get_width(entity);
 
-//         textbox
-//             .set_width(state, 1.0)
-//             .set_height(state, 1.0)
-//             .set_background_color(state, nanovg::Color::from_rgba(0, 0, 0, 0))
-//             .set_text_horizontal_align(state, HorizontalAlign::Center)
-//             .set_text(state, "0.5".to_string());
+                        let mut v = dx;
 
-//         Slider {
-//             front: front,
-//             back: back,
+                        if v <= 0.0 {
+                            v = 0.0;
+                        }
+                        if v >= 1.0 {
+                            v = 1.0;
+                        }
+                        
+                        self.active.set_width(state, Length::Percentage(v));
+                        self.thumb.set_left(state, Length::Pixels(state.transform.get_width(entity)*v - state.transform.get_width(self.thumb)/2.0));
+                    
+                        state.insert_event(
+                            Event::new(SliderEvent::ValueChanged(v))
+                                .target(entity),
+                        );
 
-//             textbox: textbox,
+                    }
+                }
 
-//             pressed_x: 0.0,
-//             sliding: false,
+                WindowEvent::MouseUp(button) => {
+                    if *button == MouseButton::Left {
+                        self.sliding = false;
+                        state.release(entity);
+                        println!("Release");
+                    }
+                }
 
-//             value: 0.5,
-//             temp: 0.5,
-//         }
-//     }
+                WindowEvent::MouseMove(x,_) => {
+                    if self.sliding {
 
-//     pub fn get_entity(&self) -> Entity {
-//         self.back
-//     }
-// }
+                        let dx = (*x - state.transform.get_posx(entity))
+                            / state.transform.get_width(entity);
 
-// impl EventHandler for Slider {
-//     fn handle_event(
-//         &mut self,
-//         state: &mut State,
-//         event: &WidgetEvent,
-//         event_handlers: &mut Vec<Box<EventHandler>>,
-//         event_queue: &mut EventQueue,
-//     ) {
-//         match event {
-//             WidgetEvent::MouseButton(button, action, mods) => match button {
-//                 MouseButton::Left => match action {
-//                     MouseButtonState::Pressed => {
-//                         if state.hovered == self.front
-//                             || state.hovered == self.back
-//                             || state.hovered == self.textbox
-//                         {
-//                             println!("Slider Pressed");
-//                             self.sliding = true;
-//                             self.pressed_x = state.mouse.cursorx;
-//                         }
-//                     }
+                        let mut v = dx;
 
-//                     MouseButtonState::Released => {
-//                         self.sliding = false;
-//                         self.temp = self.value;
-//                     }
-//                 },
+                        if v <= 0.0 {
+                            v = 0.0;
+                        }
+                        if v >= 1.0 {
+                            v = 1.0;
+                        }
 
-//                 _ => {}
-//             },
+                        self.active.set_width(state, Length::Percentage(v));
+                        self.thumb.set_left(state, Length::Pixels(state.transform.get_width(entity)*v - state.transform.get_width(self.thumb)/2.0));
+                    
+                    
+                        state.insert_event(
+                            Event::new(SliderEvent::ValueChanged(v))
+                                .target(entity),
+                        );
+                    
+                    }
 
-//             WidgetEvent::MouseMotion(x, y) => {
-//                 if self.sliding {
-//                     let dx = self.pressed_x - x;
-//                     let mut v = self.temp - dx * 0.01;
+                }
 
-//                     if v <= 0.0 {
-//                         v = 0.0;
-//                     }
-//                     if v >= 1.0 {
-//                         v = 1.0;
-//                     }
+                _=> {}
+            }
+        }
 
-//                     self.value = v;
-
-//                     let back_width = state.transform.get_width(self.back);
-
-//                     self.front.set_width(state, self.value);
-//                     self.textbox.set_text(state, v.to_string());
-//                 }
-//             }
-
-//             _ => {}
-//         }
-//     }
-
-//     fn get_entity(&self) -> Entity {
-//         self.back
-//     }
-// }
+        false
+    }
+}

@@ -3,7 +3,7 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, Checkbox, Dimension, Dropdown, NumEdit, Panel, RadioBox, RadioList, ResizableVBox,
+    Button, Checkbox, Dimension, Dropdown, Spinner, Panel, RadioBox, RadioList, ResizableVBox,
     ScrollContainer, Textbox, VectorEdit, VectorEditEvent,
 };
 
@@ -109,7 +109,7 @@ impl EventHandler for ColorEdit {
 fn main() {
     // Create the app
     let mut app = Application::new(|window, state, root| {
-        state.style.parse_theme(THEME);
+        state.insert_theme(THEME);
 
         let rvbox = ResizableVBox::new().build(state, root, |builder| {
             builder
@@ -144,7 +144,7 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
 
         Label::new("Number").build(state, row, |builder| builder.class("label"));
-        NumEdit::new(100.0, 1.0).build(state, row, |builder| {
+        Spinner::new(100.0, 1.0).build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("item")
         });
 

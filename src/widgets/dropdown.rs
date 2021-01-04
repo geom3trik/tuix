@@ -20,7 +20,7 @@ pub enum DropdownEvent {
 }
 
 pub struct Item {
-    checkbox: Entity,
+    //checkbox: Entity,
     text: String,
     proxy: String,
     pressed: bool,
@@ -29,7 +29,7 @@ pub struct Item {
 impl Item {
     pub fn new(txt: &str, proxy: &str) -> Self {
         Item {
-            checkbox: Entity::null(),
+            //checkbox: Entity::null(),
             text: txt.to_string(),
             proxy: proxy.to_string(),
             pressed: false,
@@ -40,13 +40,12 @@ impl Item {
 impl BuildHandler for Item {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row);
+        entity.set_flex_grow(state, 1.0).set_text(state, &self.text).class(state, "item");
 
-        self.checkbox =
-            Checkbox::new(false).build(state, entity, |builder| builder.set_hoverability(false));
-        Button::with_label(&self.text).build(state, entity, |builder| {
-            builder.set_flex_grow(1.0).set_hoverability(false)
-        });
+        //self.checkbox = Checkbox::new(false).build(state, entity, |builder| builder.set_hoverability(false));
+        // Element::new().build(state, entity, |builder| {
+        //     builder.set_text(&self.text).set_flex_grow(1.0).set_hoverability(false)
+        // });
 
         entity
     }
@@ -69,11 +68,11 @@ impl EventHandler for Item {
                         if self.pressed {
                             self.pressed = false;
                             //self.checkbox.set_checked(state, true);
-                            state.insert_event(
-                                Event::new(CheckboxEvent::Switch)
-                                    .target(self.checkbox)
-                                    .propagate(Propagation::Direct),
-                            );
+                            // state.insert_event(
+                            //     Event::new(CheckboxEvent::Switch)
+                            //         .target(self.checkbox)
+                            //         .propagate(Propagation::Direct),
+                            // );
                             state.insert_event(
                                 Event::new(DropdownEvent::SetText(
                                     self.text.clone(),
@@ -141,56 +140,58 @@ impl Dropdown {
 impl BuildHandler for Dropdown {
     type Ret = (Entity, Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.header = HBox::new().build(state, entity, |builder| {
+        self.header = Element::new().build(state, entity, |builder| {
             builder
+                //.set_background_color(Color::rgb(100,100,50))
+                .set_flex_direction(FlexDirection::Row)
                 .set_flex_grow(1.0)
                 .class("header")
         });
 
         self.label = Label::new(&self.text).build(state, self.header, |builder| 
             builder
-            //.set_background_color(Color::rgb(100,50,50))
+            // .set_background_color(Color::rgb(100,50,50))
             .set_hoverability(false)
             .set_flex_grow(1.0));
 
         let icon = Element::new().build(state, self.header, |builder| {
             builder
                 .set_hoverability(false)
-                //.set_background_color(Color::rgb(100,100,50))
+                //.set_background_color(Color::rgb(100,100,100))
                 .set_text(ICON_DOWN_DIR)
                 .set_width(Length::Pixels(20.0))
+                .class("icon")
         });
 
-        // self.container = Button::new().build(state, entity, |builder| {
-        //     builder
-        //         .set_position(Position::Absolute)
-        //         .set_top(Length::Percentage(1.0))
-        //         //.set_width(Length::Percentage(1.0))
-        //         //.set_height(Length::Pixels(0.0))
-        //         .set_opacity(0.0)
-        //         .set_z_order(1)
-        //         .set_clip_widget(Entity::new(0,0))
-        //         //.set_background_color(Color::rgb(100, 50, 50))
-        //         .class("container")
-        // });
-
-        //self.container.set_visibility(state, Visibility::Invisible);
-
-        //self.other_container = Button::new().build(state, self.container, |builder| builder.set_flex_grow(1.0).set_opacity(0.0).class("other"));
-
-        self.container = RadioList::new("").build(state, entity, |builder| {
+        self.container = Element::new().build(state, entity, |builder| {
             builder
                 .set_position(Position::Absolute)
                 .set_top(Length::Percentage(1.0))
-                //.set_flex_grow(1.0)
                 //.set_width(Length::Percentage(1.0))
                 //.set_height(Length::Pixels(0.0))
                 .set_opacity(0.0)
                 .set_z_order(1)
-                .set_clip_widget(Entity::new(0, 0))
+                .set_clip_widget(Entity::new(0,0))
+                //.set_visibility(Visibility::Invisible)
                 //.set_background_color(Color::rgb(100, 50, 50))
                 .class("container")
         });
+
+        //self.other_container = Button::new().build(state, self.container, |builder| builder.set_flex_grow(1.0).set_opacity(0.0).class("other"));
+
+        // self.container = RadioList::new("").build(state, entity, |builder| {
+        //     builder
+        //         .set_position(Position::Absolute)
+        //         .set_top(Length::Percentage(1.0))
+        //         //.set_flex_grow(1.0)
+        //         //.set_width(Length::Percentage(1.0))
+        //         //.set_height(Length::Pixels(0.0))
+        //         .set_opacity(0.0)
+        //         .set_z_order(1)
+        //         .set_clip_widget(Entity::new(0, 0))
+        //         //.set_background_color(Color::rgb(100, 50, 50))
+        //         .class("container")
+        // });
 
         // for (id, name, proxy) in self.options.iter_mut() {
         //     *id = Item::new(name, proxy).build(state, self.other_container, |builder| builder.set_flex_direction(FlexDirection::Row).class("item").class("other"));
@@ -233,6 +234,8 @@ impl BuildHandler for Dropdown {
             .style
             .opacity
             .insert_animation(container_fade_out_animation);
+
+        // (entity, self.header, self.container)
 
         (entity, self.header, self.container)
     }

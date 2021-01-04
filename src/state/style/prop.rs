@@ -9,6 +9,8 @@ use crate::state::hierarchy::*;
 pub trait PropSet {
     //fn get_first_child(self, hierarchy: &Hierarchy) -> Option<Entity>;
 
+    fn class(self, state: &mut State, class_name: &str) -> Self;
+
     fn get_parent(self, state: &mut State) -> Option<Entity>;
 
     fn is_enabled(self, state: &mut State) -> bool;
@@ -135,6 +137,15 @@ pub trait PropSet {
 }
 
 impl PropSet for Entity {
+
+    fn class(self, state: &mut State, class_name: &str) -> Self
+    {
+        state.style.insert_class(self, class_name);
+
+        self
+    }
+
+
     fn get_parent(self, state: &mut State) -> Option<Entity> {
         self.parent(&state.hierarchy)
     }

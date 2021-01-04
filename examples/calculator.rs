@@ -571,7 +571,7 @@ pub fn main() {
     let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
     let mut app = Application::new(|win_desc, state, window| {
-        state.style.parse_theme(LIGHT_THEME);
+        state.insert_theme(LIGHT_THEME);
 
         Calculator::default().build(state, window, |builder| builder.class("calculator"));
 

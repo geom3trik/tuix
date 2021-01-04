@@ -160,7 +160,7 @@ impl EventHandler for ControlKnob {
                             //println!("val: {}", normalised);
 
                             state.insert_event(
-                                Event::new(SliderEvent::ValueChanged(entity, self.value))
+                                Event::new(SliderEvent::ValueChanged(self.value))
                                     .target(entity),
                             );
 

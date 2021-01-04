@@ -4,11 +4,13 @@ extern crate tuix;
 
 use tuix::*;
 
-static THEME: &'static str = include_str!("themes/light_theme.css");
+use tuix::style::themes::DEFAULT_THEME;
+
+// static THEME: &'static str = include_str!("themes/light_theme.css");
 
 fn main() {
     Application::new(|win_desc, state, window| {
-        state.style.parse_theme(THEME);
+        state.insert_theme(DEFAULT_THEME);
 
         // Menu bar
         let menu_bar = Element::new().build(state, window, |builder| {
@@ -23,7 +25,7 @@ fn main() {
             builder
                 .set_width(Length::Pixels(300.0))
                 .set_height(Length::Percentage(1.0))
-                .set_background_color(Color::rgb(100, 50, 50))
+                .set_background_color(Color::rgb(60, 60, 60))
         });
 
         // //
@@ -33,13 +35,38 @@ fn main() {
         Label::new("Button").build(state, row, |builder| builder);
         Button::with_label("Press Me").build(state, row, |builder| builder);
 
-        // let row = HBox::new().build(state, panel, |builder| builder);
-        // Label::new("Checkbox").build(state, row, |builder| builder);
-        // Checkbox::new(false).build(state, row, |builder| builder);
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Checkbox").build(state, row, |builder| builder);
+        Checkbox::new(false).build(state, row, |builder| builder);
 
-        // let row = HBox::new().build(state, panel, |builder| builder);
-        // Label::new("Checkbox").build(state, row, |builder| builder);
-        // Switch::new(false).build(state, row, |builder| builder);
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Switch").build(state, row, |builder| builder);
+        Switch::new(false).build(state, row, |builder| builder);
+
+        let panel = Panel::new("Input").build(state, rvbox, |builder| builder);
+
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Textbox").build(state, row, |builder| builder);
+        Textbox::new("Some Text").build(state, row, |builder| builder);
+
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Spinner").build(state, row, |builder| builder);
+        Spinner::new(100.0, 1.0).build(state, row, |builder| builder);
+
+        let panel = Panel::new("Lists").build(state, rvbox, |builder| builder);
+
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Dropdown").build(state, row, |builder| builder);
+        let dropdown = Dropdown::new("Dropdown").build(state, row, |builder| builder).2;
+        Item::new("Item 1","Item 1").build(state, dropdown, |builder| builder);
+        Item::new("Item 2","Item 2").build(state, dropdown, |builder| builder);
+        Item::new("Item 3","Item 3").build(state, dropdown, |builder| builder);
+
+        let panel = Panel::new("Sliders").build(state, rvbox, |builder| builder);
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Slider").build(state, row, |builder| builder);
+        Slider2::new().build(state, row, |builder| builder);
+
 
         // Tabs
         // let (tab_bar, tab_container) = TabContainer::new().build(state, window, |builder| builder);
