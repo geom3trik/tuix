@@ -9,49 +9,90 @@ pub enum LinkType {
 }
 
 #[derive(Copy, Clone)]
-pub struct DataIndex {
-    pub data_index: usize,
-    pub animation_index: usize,
-}
+pub struct Index(usize);
 
-impl DataIndex {
-    pub fn new(data_index: usize, animation_index: usize) -> Self {
-        DataIndex {
-            data_index,
-            animation_index,
-        }
+impl Index {
+    pub fn new(val: usize) -> Self {
+        let mask = std::usize::MAX / 4;
+        Index(val & mask)
     }
 
-    pub fn from_index(data_index: usize) -> Self {
-        DataIndex {
-            data_index,
-            animation_index: std::usize::MAX,
+    pub fn inherited(mut self, val: bool) -> Self {
+        let mask = !(std::usize::MAX / 2);
+        // Set first bit to 1 to indicate that the value is inhertied
+        if val {
+            self.0 = self.0 | mask;
         }
+
+        self
+    }
+
+    pub fn inline(mut self, val: bool) -> Self {
+        let mask = !(std::usize::MAX / 2) >> 1;
+        if val {
+            self.0 = self.0 | mask;
+        }
+
+        self
+    }
+
+    pub fn set_inherited(&mut self, val: bool) -> &mut Self {
+        let mask = !(std::usize::MAX / 2);
+        // Set first bit to 1 to indicate that the value is inhertied
+        if val {
+            self.0 = self.0 | mask;
+        }
+
+        self
+    }
+    // Second bit set to 1 to indicate that the value is inline
+    pub fn set_inline(&mut self, val: bool) -> &mut Self {
+        let mask = !(std::usize::MAX / 2) >> 1;
+
+        if val {
+            self.0 = self.0 | mask;
+        }
+
+        self
+    }
+
+    pub fn set_value(&mut self, val: usize) -> &mut Self {
+        let mask = !(std::usize::MAX / 2) | !(std::usize::MAX / 2) >> 1;
+        let flags = self.0 & mask;
+        self.0 = val | flags;
+
+        self
     }
 
     pub fn index(&self) -> usize {
-        self.data_index
+        let mask = std::usize::MAX / 4;
+        return self.0 & mask;
     }
-    pub fn anim_index(&self) -> usize {
-        self.animation_index
+
+    pub fn is_inherited(&self) -> bool {
+        let mask = !(std::usize::MAX / 2);
+        return (self.0 & mask).rotate_left(1) != 0;
+    }
+
+    pub fn is_inline(&self) -> bool {
+        let mask = !(std::usize::MAX / 2) >> 1;
+        return (self.0 & mask).rotate_left(2) != 0;
     }
 }
 
-impl Default for DataIndex {
+impl Default for Index {
     fn default() -> Self {
-        DataIndex {
-            data_index: std::usize::MAX,
-            animation_index: std::usize::MAX,
-        }
+        Index(std::usize::MAX & (std::usize::MAX / 2).rotate_right(1))
     }
 }
 
 pub struct StyleStorage<T> {
     // Mapping from entity to data
-    pub entity_indices: Vec<DataIndex>,
+    pub entity_indices: Vec<Index>,
     // Mapping from rule to data
     pub rule_indices: Vec<usize>,
     pub data: Vec<T>,
+    pub inline_data: Vec<T>,
 }
 
 impl<T> StyleStorage<T>
@@ -63,30 +104,32 @@ where
             entity_indices: Vec::new(),
             rule_indices: Vec::new(),
             data: Vec::new(),
+            inline_data: Vec::new(),
         }
     }
 
-    //Use std::usize::MAX to represent inline style
+    //Insert inline style
     pub fn insert(&mut self, entity: Entity, value: T) {
         if entity.index() >= self.entity_indices.len() {
-            //println!("Insert New: {:?} - Data {:?}", entity, value);
+
             self.entity_indices
                 .resize(entity.index() + 1, Default::default());
-            self.entity_indices[entity.index()].data_index = self.data.len();
-            self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
-            self.data.push(value);
+            self.entity_indices[entity.index()] = Index::new(self.inline_data.len()).inline(true);
+            //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
+            self.inline_data.push(value);
         } else {
-            let data_index = self.entity_indices[entity.index()].data_index;
+            let data_index = self.entity_indices[entity.index()].index();
 
-            if data_index >= self.data.len() {
-                self.entity_indices[entity.index()].data_index = self.data.len();
+            if data_index >= self.inline_data.len() {
+                self.entity_indices[entity.index()] = Index::new(self.inline_data.len()).inline(true);
 
-                self.data.push(value);
+                self.inline_data.push(value);
             } else {
-                self.data[data_index] = value;
+                self.entity_indices[entity.index()]
+                    .set_inherited(false)
+                    .set_inline(true);
+                self.inline_data[data_index] = value;
             }
-
-            self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
         }
     }
 
@@ -118,11 +161,11 @@ where
         // Link the entity to the same data as the rule
 
         // Check if the entity is already linked to the rule
-        if self.entity_indices[entity.index()].data_index == rule_data_index {
+        if self.entity_indices[entity.index()].index() == rule_data_index {
             return LinkType::AlreadyLinked;
         }
 
-        self.entity_indices[entity.index()].data_index = rule_data_index;
+        self.entity_indices[entity.index()] = Index::new(rule_data_index);
 
         LinkType::NewLink
     }
@@ -132,14 +175,14 @@ where
             return;
         }
 
-        self.entity_indices[entity.index()] = DataIndex::default();
+        self.entity_indices[entity.index()] = Index::default();
     }
 
     // Returns true if
     pub fn link_rule(&mut self, entity: Entity, rule_list: &Vec<usize>) -> bool {
         // Check if the entity already has an inline style. If so then rules don't affect it.
         if entity.index() < self.entity_indices.len() {
-            if self.entity_indices[entity.index()].anim_index() == std::usize::MAX - 1 {
+            if self.entity_indices[entity.index()].is_inline() {
                 return false;
             }
         }
@@ -189,13 +232,22 @@ where
             return None;
         }
 
-        let data_index = self.entity_indices[entity.index()].index();
+        let data_index = self.entity_indices[entity.index()];
 
-        if data_index >= self.data.len() {
-            return None;
+        if data_index.is_inline() {
+            if data_index.index() >= self.inline_data.len() {
+                return None;
+            }
+
+            Some(&self.inline_data[data_index.index()])
+
+        } else {
+            if data_index.index() >= self.data.len() {
+                return None;
+            }
+
+            Some(&self.data[data_index.index()])            
         }
-
-        Some(&self.data[data_index])
     }
 
     pub fn get_mut(&mut self, entity: Entity) -> Option<&mut T> {
@@ -203,13 +255,22 @@ where
             return None;
         }
 
-        let data_index = self.entity_indices[entity.index()].index();
+        let data_index = self.entity_indices[entity.index()];
 
-        if data_index >= self.data.len() {
-            return None;
+        if data_index.is_inline() {
+            if data_index.index() >= self.inline_data.len() {
+                return None;
+            }
+
+            Some(&mut self.inline_data[data_index.index()])
+
+        } else {
+            if data_index.index() >= self.data.len() {
+                return None;
+            }
+
+            Some(&mut self.data[data_index.index()])            
         }
-
-        Some(&mut self.data[data_index])
     }
 
     pub fn get_rule_mut(&mut self, rule: usize) -> Option<&mut T> {
@@ -255,4 +316,22 @@ where
 
         true
     }
+
+        // Removes css styles but leaves inline styles and animations
+        pub fn remove_styles(&mut self) {
+
+            // Remove rules
+            self.rule_indices.clear();
+            // Remove rule data
+            self.data.clear();
+            
+            // Unlink non-inline entities from the rules
+            for entity in self.entity_indices.iter_mut() {
+                if !entity.is_inline() {
+                    *entity = Index::default();
+                }
+            }
+        
+        }
+
 }

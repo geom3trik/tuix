@@ -55,7 +55,7 @@ impl BuildHandler for ScrollContainerH {
         entity.set_flex_direction(state, FlexDirection::Column).set_width(state, Length::Percentage(1.0)).set_height(state, Length::Percentage(1.0));
 
         self.container = Button::new().build(state, entity, |builder| {
-            builder.set_left(Length::Percentage(0.0)).set_align_self(AlignSelf::FlexStart).class("container")
+            builder.set_left(Length::Percentage(0.0)).set_align_self(AlignSelf::FlexStart).class("container").set_hoverability(false)
         });
 
         state.style.clip_widget.insert(self.container, entity);
@@ -184,8 +184,9 @@ impl EventHandler for ScrollContainerH {
                     }
                 }
 
+                /*
                 WindowEvent::MouseScroll(_, y) => {
-                    println!("Mouse Scroll Event");
+                    //println!("Mouse Scroll Event");
                     // Forward mouse scroll event to the scrollbar
                     // state.insert_event(
                     //     Event::new(WindowEvent::MouseScroll(*x, *y))
@@ -272,8 +273,9 @@ impl EventHandler for ScrollContainerH {
                     //}
 
                     // Capture the event to stop it triggering twice
-                    return true;
+                    //return true;
                 }
+                */
 
                 WindowEvent::WindowResize(_, _) => {
                     // let scroll = state
@@ -569,8 +571,9 @@ impl EventHandler for ScrollContainer {
                     }
                 }
 
+                /*
                 WindowEvent::MouseScroll(_, y) => {
-                    println!("Mouse Scroll Event");
+                    //println!("Mouse Scroll Event");
                     // Forward mouse scroll event to the scrollbar
                     // state.insert_event(
                     //     Event::new(WindowEvent::MouseScroll(*x, *y))
@@ -580,7 +583,7 @@ impl EventHandler for ScrollContainer {
 
                     //if event.target == entity {
 
-                    println!("Height: {}", state.transform.get_height(entity));
+                    //println!("Height: {}", state.transform.get_height(entity));
 
                     let overflow = state.transform.get_height(entity)
                         - state.transform.get_height(self.vertical_scroll);
@@ -661,8 +664,9 @@ impl EventHandler for ScrollContainer {
                     //}
 
                     // Capture the event to stop it triggering twice
-                    return true;
+                    //return true;
                 }
+                */
 
                 WindowEvent::WindowResize(_, _) => {
                     // let scroll = state

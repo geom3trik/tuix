@@ -10,15 +10,27 @@ pub struct Image {
 }
 
 pub struct ResourceManager {
-    pub images: HashMap<String, Image>,
+    //pub images: HashMap<String, Image>,
+    pub stylesheets: Vec<String>,   // Stylesheets refer to a fiel path
+    pub themes: Vec<String>,    // Themes are the string content stylesheets
 }
 
 impl ResourceManager {
     pub fn new() -> Self {
         ResourceManager {
-            images: HashMap::new(),
+            //images: HashMap::new(),
+            stylesheets: Vec::new(),
+            themes: Vec::new(),
         }
     }
+
+    // pub fn add_stylesheet(&mut self, path: String) -> Result<(), std::io::Error> {
+        
+    //     let style_string = std::fs::read_to_string(path.clone())?;
+    //     self.stylesheets.push(path);
+
+    //     Ok(())
+    // }
 
     // pub fn load_image(&mut self, name: &str, path: &str) {
     //     let img = image::open(path).expect(&format!("failed to load image: {}", path));

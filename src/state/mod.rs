@@ -53,7 +53,7 @@ pub struct State {
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
-                      //pub resource_manager: ResourceManager, //TODO
+    pub resource_manager: ResourceManager, //TODO
 }
 
 impl State {
@@ -92,7 +92,7 @@ impl State {
                 bold: None,
                 icons: None,
             },
-            //resource_manager: ResourceManager::new(),
+            resource_manager: ResourceManager::new(),
         }
     }
 
@@ -105,10 +105,96 @@ impl State {
         Builder::new(self, entity)
     }
 
-    // This should return an error type
-    pub fn insert_style(&mut self, stylesheet: &str) {
+    
+    pub fn insert_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {
+
+        let style_string = std::fs::read_to_string(path.clone())?;
+        self.resource_manager.stylesheets.push(path.to_owned());
+
         // Parse the theme stylesheet
-        self.style.parse_theme(stylesheet);
+        self.style.parse_theme(&style_string);
+        // self.resource_manager.themes.push(style_string);
+
+        Ok(())
+    }
+
+    pub fn insert_theme(&mut self, theme: &str) {
+        self.resource_manager.themes.push(theme.to_owned());
+        self.style.parse_theme(theme);
+    }
+
+    // Removes all style data and then reloads the stylesheets
+    // TODO change the error type to allow for parsing errors 
+    pub fn reload_styles(&mut self) -> Result<(), std::io::Error> {
+
+        if self.resource_manager.themes.is_empty() && self.resource_manager.stylesheets.is_empty() {
+            return Ok(())
+        }
+
+        // Remove all non-inline style data
+        self.style.background_color.remove_styles();
+        self.style.font_color.remove_styles();
+        
+        // Position
+        self.style.left.remove_styles();
+        self.style.right.remove_styles();
+        self.style.top.remove_styles();
+        self.style.bottom.remove_styles();
+        // Size
+        self.style.width.remove_styles();
+        self.style.height.remove_styles();
+        // Margins
+        self.style.margin_left.remove_styles();
+        self.style.margin_right.remove_styles();
+        self.style.margin_top.remove_styles();
+        self.style.margin_bottom.remove_styles();
+        // Padding
+        self.style.padding_left.remove_styles();
+        self.style.padding_right.remove_styles();
+        self.style.padding_top.remove_styles();
+        self.style.padding_bottom.remove_styles();
+        // Border
+        self.style.border_width.remove_styles();
+        self.style.border_color.remove_styles();
+        // Border Radius
+        self.style.border_radius_top_left.remove_styles();
+        self.style.border_radius_top_right.remove_styles();
+        self.style.border_radius_bottom_left.remove_styles();
+        self.style.border_radius_bottom_right.remove_styles();
+        // Flexbox
+        self.style.flex_grow.remove_styles();
+        self.style.flex_shrink.remove_styles();
+        self.style.flex_basis.remove_styles();
+        self.style.align_self.remove_styles();
+        self.style.align_content.remove_styles();
+        // Flex Container
+        self.style.align_items.remove_styles();
+        self.style.justify_content.remove_styles();
+        self.style.flex_direction.remove_styles();
+        // Display
+        self.style.display.remove_styles();
+        self.style.visibility.remove_styles();
+        self.style.opacity.remove_styles();
+        // Text Alignment
+        self.style.text_align.remove_styles();
+        self.style.text_justify.remove_styles();
+
+        // Reload the stored themes
+        for theme in self.resource_manager.themes.iter() {
+            self.style.parse_theme(theme);
+        }
+
+        // Reload the stored stylesheets
+        for stylesheet in self.resource_manager.stylesheets.iter() {
+            let theme = std::fs::read_to_string(stylesheet)?;
+            self.style.parse_theme(&theme);
+        }
+
+        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::null()));
+        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::null()));
+
+        Ok(())
     }
 
     pub fn insert_event(&mut self, mut event: Event) {
@@ -124,6 +210,7 @@ impl State {
         self.style.ids.get_by_left(&id.to_string()).cloned()
     }
 
+    // This should probably be moved to state.mouse
     pub fn capture(&mut self, id: Entity) {
         println!("Capture: {}", id);
         if id != Entity::null() {
@@ -146,6 +233,7 @@ impl State {
         self.active = id;
     }
 
+    // This should probably be moved to state.mouse
     pub fn release(&mut self, id: Entity) {
         if self.captured == id {
             self.insert_event(

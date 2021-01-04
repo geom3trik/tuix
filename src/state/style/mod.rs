@@ -13,6 +13,8 @@ use crate::state::storage::style_storage::StyleStorage;
 
 use crate::state::animator::AnimationState;
 
+pub mod themes;
+
 pub mod theme;
 
 pub mod prop;
@@ -60,7 +62,7 @@ pub use trans::Scale;
 use bimap::BiMap;
 
 pub struct Style {
-    pub style_rules: Vec<StyleRule>,
+    //pub style_rules: Vec<StyleRule>,
 
     //pub rules: Vec<usize>,
     pub rule_selectors: Vec<Vec<Selector>>,
@@ -107,6 +109,7 @@ pub struct Style {
     pub height: AnimatableStorage<Length>,
 
     // Size Constraints
+    // TODO - Make these animatable
     pub max_width: StyleStorage<Length>,
     pub max_height: StyleStorage<Length>,
     pub min_width: StyleStorage<Length>,
@@ -127,6 +130,8 @@ pub struct Style {
     // Border
     pub border_width: AnimatableStorage<Length>,
     pub border_color: AnimatableStorage<Color>,
+
+    // Border Radius
     pub border_radius_top_left: AnimatableStorage<Length>,
     pub border_radius_top_right: AnimatableStorage<Length>,
     pub border_radius_bottom_left: AnimatableStorage<Length>,
@@ -174,7 +179,7 @@ pub struct Style {
 impl Style {
     pub fn new() -> Self {
         Style {
-            style_rules: Vec::new(),
+            //style_rules: Vec::new(),
 
             //rules: Vec::new(),
             rule_selectors: Vec::new(),
@@ -587,11 +592,11 @@ impl Style {
 
     pub fn remove(&mut self, entity: Entity) {}
 
-    pub fn insert_style_rule(&mut self, style_rule: StyleRule) -> &mut Self {
-        self.style_rules.push(style_rule);
+    // pub fn insert_style_rule(&mut self, style_rule: StyleRule) -> &mut Self {
+    //     self.style_rules.push(style_rule);
 
-        self
-    }
+    //     self
+    // }
 
     pub fn insert_id(&mut self, entity: Entity, id: &str) -> &mut Self {
         // let mut s = DefaultHasher::new();

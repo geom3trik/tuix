@@ -99,7 +99,7 @@ impl BuildHandler for Animations {
             builder
                 //.set_flex_grow(1.0)
                 //.set_flex_shrink(0.0)
-                .set_background_color(Color::rgb(50,50,50))
+                .set_background_color(Color::rgb(50,100,50))
         );
 
         let container = Element::new().build(state, hbox, |builder|

@@ -1,33 +1,57 @@
 
-.outer {
-    /* left: 10px; */
-    /* top: 10px; */
-    width: 100px;
-    /* height: 100px; */
-    /* margin: 10px; */
-    /* padding: 10px; */
+.one {
+    width: 300px;
+    height: 200px;
+    background-color: red;
+    display: flex;
+    flex-direction: row;
+    border-color: black;
+    border-width: 10px;
+  }
+  
+  .two {
+    background-color: blue;
+    flex-grow: 1.0;
+  }
+    
+  .three {
+    background-color: green;
+    height: 150px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .four {
+    background-color: yellow;
+    flex-grow: 1.0;
+    height: 100px;
+  }
+  
+  .five {
+    position: absolute;
+    width: 500px;
+    height: 50px;
+    background-color: #00ffff;
+  }
 
-    /* height: 300px; */
+
+/* .outer {
+
+    width: 100px;
     background-color: #912828;
     border-width: 10px;
     border-color: blue;
     flex-direction: row;
-    /* justify-content: center; */
     align-items: center;
 }
 
 .inner {
     width: 50px;
     height: 50px;
-    /* flex-grow: 1.0; */
-    /* flex-shrink: 1.0; */
     background-color: green;
-    /* margin: 10px; */
-    /* padding: 10px; */
-    /* border-width: 10px; */
     border-color: black;
     flex-direction: row;
-    /* flex-grow: 1.0; */
 }
 
 .inner2 {
@@ -35,7 +59,6 @@
     flex-grow: 1.0;
     width: 100px;
     background-color: #37376d;
-    /* flex-grow: 1.0; */
 }
 
 hbox {
@@ -62,4 +85,4 @@ label {
     flex-grow: 1.0;
     background-color: yellow;
     margin: 10px;
-} 
+}  */

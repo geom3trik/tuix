@@ -210,6 +210,11 @@ impl Application {
                             if let Some(virtual_keycode) = input.virtual_keycode {
 
 
+                                if virtual_keycode == VirtualKeyCode::F5 && s == MouseButtonState::Pressed {
+                                    println!("Reload Styles");
+                                    state.reload_styles().unwrap();
+                                }
+
                                 if virtual_keycode == VirtualKeyCode::Tab && s == MouseButtonState::Pressed {
 
                                     let next_focus = state.style.focus_order.get(state.focused).cloned().unwrap_or_default().next;
