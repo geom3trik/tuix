@@ -120,7 +120,12 @@ impl State {
 
     pub fn insert_theme(&mut self, theme: &str) {
         self.resource_manager.themes.push(theme.to_owned());
-        self.style.parse_theme(theme);
+
+
+
+        // println!("{}", overall_theme);
+        self.reload_styles();
+        // self.style.parse_theme(&overall_theme);
     }
 
     // Removes all style data and then reloads the stylesheets
@@ -179,16 +184,22 @@ impl State {
         self.style.text_align.remove_styles();
         self.style.text_justify.remove_styles();
 
+        let mut overall_theme = String::new();
+
         // Reload the stored themes
         for theme in self.resource_manager.themes.iter() {
-            self.style.parse_theme(theme);
+            //self.style.parse_theme(theme);
+            overall_theme += theme;
         }
 
         // Reload the stored stylesheets
         for stylesheet in self.resource_manager.stylesheets.iter() {
             let theme = std::fs::read_to_string(stylesheet)?;
-            self.style.parse_theme(&theme);
+            overall_theme += &theme;
+            
         }
+
+        self.style.parse_theme(&overall_theme);
 
         self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::null()));
         self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));

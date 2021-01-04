@@ -8,7 +8,7 @@ use tuix::events::BuildHandler;
 use tuix::style::themes::DEFAULT_THEME;
 
 fn main() {
-    let mut app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|win_desc, state, window| {
 
         state.insert_theme(DEFAULT_THEME);
 
