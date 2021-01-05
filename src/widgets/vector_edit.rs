@@ -16,6 +16,8 @@ pub enum VectorEditEvent<T> {
     Dim4(T, T, T, T),
 }
 
+unsafe impl<T> Send for VectorEditEvent<T>{}
+
 pub struct Dimension {
     text: String,
     pressed: bool,

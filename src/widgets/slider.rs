@@ -227,6 +227,10 @@ pub struct Slider2 {
     thumb: Entity,
     active: Entity,
     sliding: bool,
+
+    min: f32,
+    max: f32,
+    div: f32,
 }
 
 impl Slider2 {
@@ -235,7 +239,26 @@ impl Slider2 {
             thumb: Entity::null(),
             active: Entity::null(),
             sliding: false,
+
+            min: 0.0,
+            max: 1.0,
+            div: 0.0,
         }
+    }
+
+    pub fn with_min(mut self, val: f32) -> Self {
+        self.min = val;
+        self
+    }
+    
+    pub fn with_max(mut self, val: f32) -> Self {
+        self.max = val;
+        self
+    }
+
+    pub fn with_divisions(mut self, val: f32) -> Self {
+        self.div = val;
+        self
     }
 }
 
@@ -244,7 +267,6 @@ impl BuildHandler for Slider2 {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         
         entity
-            .set_left(state, Length::Pixels(10.0))
             .set_width(state, Length::Pixels(100.0))
             .set_height(state, Length::Pixels(4.0));
             //.set_align_items(state, AlignItems::Center)
@@ -262,7 +284,6 @@ impl BuildHandler for Slider2 {
         self.thumb = Element::new().build(state, entity, |builder| 
             builder
                 .set_position(Position::Absolute)
-                .set_left(Length::Pixels(-10.0))
                 .set_top(Length::Pixels(-8.0))
                 .set_width(Length::Pixels(20.0))
                 .set_height(Length::Pixels(20.0))
@@ -285,27 +306,33 @@ impl EventHandler for Slider2 {
                     if *button == MouseButton::Left && event.target == entity || event.target == self.thumb {
                         self.sliding = true;
                         state.capture(entity);
-                
 
-                        let dx = (state.mouse.left.pos_down.0 - state.transform.get_posx(entity))
-                        / state.transform.get_width(entity);
-
-                        let mut v = dx;
-
-                        if v <= 0.0 {
-                            v = 0.0;
-                        }
-                        if v >= 1.0 {
-                            v = 1.0;
-                        }
                         
-                        self.active.set_width(state, Length::Percentage(v));
-                        self.thumb.set_left(state, Length::Pixels(state.transform.get_width(entity)*v - state.transform.get_width(self.thumb)/2.0));
-                    
+                        let width = state.transform.get_width(entity);
+                        let thumb_width = state.transform.get_width(self.thumb);
+
+                        let mut dx = (state.mouse.left.pos_down.0 - state.transform.get_posx(entity));
+
+                        if dx <= thumb_width/2.0 {
+                            dx = thumb_width/2.0;
+                        }
+                        if dx >= width - thumb_width/2.0 {
+                            dx = width - thumb_width/2.0;
+                        }
+
+                        let nx = (dx - thumb_width/2.0) / (width - thumb_width);
+
+                        let v = self.min + nx * (self.max - self.min);
+
+
+                        self.active.set_width(state, Length::Percentage(nx));
+                        self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
+                        
                         state.insert_event(
                             Event::new(SliderEvent::ValueChanged(v))
                                 .target(entity),
                         );
+                        
 
                     }
                 }
@@ -314,27 +341,34 @@ impl EventHandler for Slider2 {
                     if *button == MouseButton::Left {
                         self.sliding = false;
                         state.release(entity);
-                        println!("Release");
                     }
                 }
 
                 WindowEvent::MouseMove(x,_) => {
                     if self.sliding {
 
-                        let dx = (*x - state.transform.get_posx(entity))
-                            / state.transform.get_width(entity);
+                        let width = state.transform.get_width(entity);
+                        let thumb_width = state.transform.get_width(self.thumb);
 
-                        let mut v = dx;
+                        let mut dx = *x - state.transform.get_posx(entity);
 
-                        if v <= 0.0 {
-                            v = 0.0;
+
+                        if dx <= thumb_width/2.0 {
+                            dx = thumb_width/2.0;
                         }
-                        if v >= 1.0 {
-                            v = 1.0;
+                        if dx >= width - thumb_width/2.0 {
+                            dx = width - thumb_width/2.0;
                         }
 
-                        self.active.set_width(state, Length::Percentage(v));
-                        self.thumb.set_left(state, Length::Pixels(state.transform.get_width(entity)*v - state.transform.get_width(self.thumb)/2.0));
+                        let nx = (dx - thumb_width/2.0) / (width - thumb_width);
+
+                        
+                        let v = self.min + nx * (self.max - self.min);
+
+                        
+
+                        self.active.set_width(state, Length::Percentage(nx));
+                        self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
                     
                     
                         state.insert_event(

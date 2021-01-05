@@ -178,7 +178,8 @@ dropdown>.container>.item:hover {
 }
 
 slider2 {
-    width: 100px;
+    /* width: 100px; */
+    flex-grow: 1.0;
     height: 4px;
     border-radius: 2px;
     background-color: #646464;
