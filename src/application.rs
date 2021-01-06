@@ -294,8 +294,9 @@ impl Application {
                             
                         }
     
-                        glutin::event::WindowEvent::Resized(logical_size) => {
-                            let physical_size = logical_size;
+                        glutin::event::WindowEvent::Resized(physical_size) => {
+
+                            window.handle.resize(physical_size);
 
                             state.style.width.insert(state.root, Length::Pixels(physical_size.width as f32));
                             state.style.height.insert(state.root, Length::Pixels(physical_size.height as f32));
