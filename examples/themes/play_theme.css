@@ -1,0 +1,34 @@
+
+
+hbox {
+    padding: 10px;
+    flex-grow: 1.0;
+    justify-content: center;
+    background-color: white;
+    align-items: center;
+}
+
+button {
+    width: 100px;
+    height: 30px;
+    background-color: #6db44e;
+    color: white;
+    text-justify: center;
+    margin: 5px;
+    border-radius: 14.5px;
+}
+
+label {
+    color: black;
+    width: 100px;
+    height: 30px;
+}
+
+textbox {
+    color: black;
+    width: 50px;
+    height: 30px;
+    border-width: 2px;
+    border-color: black;
+    text-justify: center;
+}

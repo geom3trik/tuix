@@ -186,12 +186,20 @@ impl EventManager {
         window
             .canvas
             .set_size(size.width as u32, size.height as u32, dpi_factor as f32);
+
+        
+        let background_color: femtovg::Color = state.style.background_color.get(state.root).cloned().unwrap_or_default().into();
+
+        let bg_color = state.style.background_color.get(state.root).cloned();
+
+        println!("Test: {:?}", state.style.background_color.inline_data);
+
         window.canvas.clear_rect(
             0,
             0,
             size.width as u32,
             size.height as u32,
-            Color::rgb(80, 80, 80),
+            background_color,
         );
 
         window.canvas.reset();

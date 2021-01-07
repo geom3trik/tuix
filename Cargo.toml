@@ -9,11 +9,23 @@ keywords = ["ui", "gui", "gpu", "graphics", "css"]
 repository = "https://github.com/geom3trik/tuix"
 edition = "2018"
 
+[workspace]
+members = [
+    "glutin",
+    "baseview",
+    "core",
+    "examples/hello_gui",
+]
+
+[features]
+default = ["glutin"]
+glutin = ["tuix_glutin"]
+baseview = ["tuix_baseview"]
 
 [dependencies]
-gl = "0.14.0"
-glutin = "0.26"
-cssparser = "0.27.2"
-femtovg = {git = "https://github.com/femtovg/femtovg"}
-image = "0.23.12"
-bimap = "0.5.3"
+tuix_core = {version = "0.1.0", path = "core"}
+tuix_glutin = {version = "0.1.0", path = "glutin", optional = true }
+tuix_baseview = {version = "0.1.0", path = "baseview", optional = true }
+
+
+

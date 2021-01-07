@@ -1,0 +1,12 @@
+[package]
+name = "tuix_glutin"
+version = "0.1.0"
+authors = ["George Atkinson"]
+edition = "2018"
+license = "MIT/Apache-2.0"
+repository = "https://github.com/geom3trik/tuix"
+
+[dependencies]
+gl = "0.14.0"
+glutin = "0.26.0"
+tuix_core = { path = "../core" }

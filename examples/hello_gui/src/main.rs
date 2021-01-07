@@ -1,4 +1,3 @@
-extern crate tuix;
 
 use tuix::widgets::Button;
 use tuix::Application;

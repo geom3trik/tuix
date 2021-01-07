@@ -90,15 +90,17 @@ switch:checked {
 
 spinner {
     height: 30px;
-    width: 100px;
+    flex-grow: 1.0;
 }
 
 spinner .increment {
     color: #ff5e1a;
+    text-justify: center;
 }
 
 spinner .decrement {
     color: #ff5e1a;
+    text-justify: center;
 }
 
 spinner>textbox {
@@ -125,7 +127,7 @@ spinner>.arrow_container {
 }
 
 textbox {
-    width: 98px;
+    flex-grow: 1.0;
     height: 28px;
     color: black;
     border-width: 1px;
@@ -135,7 +137,7 @@ textbox {
 }
 
 dropdown {
-    width: 98px;
+    flex-grow: 1.0;
     height: 28px;
     color: black;
     border-width: 1px;

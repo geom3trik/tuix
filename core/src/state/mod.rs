@@ -70,8 +70,13 @@ impl State {
             .expect("Failed to create root");
 
         transform.add(root);
+        style.add(root);
 
         style.clip_widget.set(root, root);
+
+        style.background_color.insert(root, Color::rgb(80, 80, 80));
+
+        //println!("AAA: {:?}", style.background_color.inline_data);
 
         State {
             entity_manager,

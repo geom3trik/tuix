@@ -12,6 +12,8 @@ fn main() {
     Application::new(|win_desc, state, window| {
         state.insert_theme(DEFAULT_THEME);
 
+
+
         // Menu bar
         let menu_bar = Element::new().build(state, window, |builder| {
             builder.class("menu_bar").set_height(Length::Pixels(40.0))

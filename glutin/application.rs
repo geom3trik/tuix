@@ -3,22 +3,22 @@
 use glutin::event_loop::{ControlFlow, EventLoop};
 pub use glutin::*;
 
-use crate::window::{KeyboardInput, Window, WindowDescription, WindowEvent, WindowWidget};
+use tuix_core::window::{KeyboardInput, Window, WindowDescription, WindowEvent, WindowWidget};
 
-use crate::{Entity, State};
-use crate::{Length, Visibility};
+use tuix_core::{Entity, State};
+use tuix_core::{Length, Visibility, Color};
 
-use crate::state::mouse::{MouseButton, MouseButtonState};
+use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 
-use crate::events::{Event, EventManager, Propagation};
+use tuix_core::events::{Event, EventManager, Propagation};
 
-use crate::state::hierarchy::IntoHierarchyIterator;
+use tuix_core::state::hierarchy::IntoHierarchyIterator;
 
-use crate::state::Fonts;
+use tuix_core::state::Fonts;
 
-use crate::VirtualKeyCode;
+use tuix_core::VirtualKeyCode;
 
-use crate::state::style::prop::*;
+use tuix_core::state::style::prop::*;
 
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
