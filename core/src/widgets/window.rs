@@ -24,7 +24,7 @@ impl EventHandler for WindowWidget {
                 }
 
                 WindowEvent::Restyle => {
-                    println!("Restyle");
+                    //println!("Restyle");
                     apply_styles2(state, &state.hierarchy.clone(), event.origin);
                     //apply_visibility(state, &state.hierarchy.clone());
                 }

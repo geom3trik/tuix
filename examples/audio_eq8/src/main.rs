@@ -140,7 +140,7 @@ impl BuildHandler for EQ8 {
         let eq_channel7 = EQChannel::new(7).build(state, row, |builder| builder);
         let eq_channel8 = EQChannel::new(8).build(state, row, |builder| builder);
         let channel_output = ChannelOutput::new().build(state, row, |builder| builder);
-        Slider2::new().build(state, row, |builder| builder);
+        //Slider2::new().build(state, row, |builder| builder);
 
         
 
