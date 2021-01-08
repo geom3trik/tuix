@@ -5,4 +5,4 @@ edition = "2018"
 publish = false
 
 [dependencies]
-tuix = {path = "../..", features = ["default"]}
+tuix = {path = "../..", features = ["glutin"]}

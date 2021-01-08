@@ -143,7 +143,6 @@ impl EventHandler for ControlKnob {
 
                             let new_val = if self.is_log {
                                 let t = self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised;
-                                println!("norma: {}, t: {}", normalised, t);
                                 10.0f32.powf((self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised))
                                 
                             } else {
@@ -171,30 +170,30 @@ impl EventHandler for ControlKnob {
                     }
                 }
 
-                WindowEvent::KeyDown(input) => {
-                    if let Some(virtual_keycode) = input {
-                        if *virtual_keycode == crate::VirtualKeyCode::LShift {
-                            if !self.shift_pressed {
-                                self.shift_pressed = true;
-                            }
-
-                            self.mouse_down_posy = state.mouse.cursory;
-                            self.temp = self.value;
+                WindowEvent::KeyDown(keycode, _) => {
+                   
+                    if *keycode == keyboard_types::Code::ShiftLeft {
+                        if !self.shift_pressed {
+                            self.shift_pressed = true;
                         }
+
+                        self.mouse_down_posy = state.mouse.cursory;
+                        self.temp = self.value;
                     }
+                    
                 }
 
-                WindowEvent::KeyUp(input) => {
-                    if let Some(virtual_keycode) = input {
-                        if *virtual_keycode == crate::VirtualKeyCode::LShift {
-                            if self.shift_pressed {
-                                self.shift_pressed = false;
-                            }
-
-                            self.mouse_down_posy = state.mouse.cursory;
-                            self.temp = self.value;
+                WindowEvent::KeyUp(keycode, _) => {
+                    
+                    if *keycode == keyboard_types::Code::ShiftLeft {
+                        if self.shift_pressed {
+                            self.shift_pressed = false;
                         }
+
+                        self.mouse_down_posy = state.mouse.cursory;
+                        self.temp = self.value;
                     }
+                    
                 }
 
                 _ => {}

@@ -548,23 +548,19 @@ fn parse_transition2<'i, 't>(
 
     Ok(match input.next()? {
         Token::Ident(s) => {
-            println!("Transition: {}", s);
             transition.property = s.to_string();
 
             match input.next()? {
                 Token::Number { value: x, .. } => {
-                    println!("With duration: {}", x);
                     transition.duration = *x;
 
                     match input.next()? {
                         Token::Number { value: x, .. } => {
-                            println!("With delay: {}", x);
 
                             transition.delay = *x;
                         }
 
                         t => {
-                            println!("Failed to find delay");
                             let basic_error = BasicParseError {
                                 kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
                                 location: SourceLocation { line: 0, column: 0 },

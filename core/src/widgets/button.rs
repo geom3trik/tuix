@@ -6,7 +6,6 @@ use crate::mouse::*;
 use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
 use crate::{PropSet, State};
 
-use crate::window::KeyboardInput;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ButtonEvent {
@@ -18,7 +17,6 @@ pub struct Button {
     pub id: Entity,
 
     on_press: Option<Event>,
-    shortcut: Option<KeyboardInput>,
     text: Option<String>,
 }
 
@@ -27,7 +25,6 @@ impl Default for Button {
         Button {
             id: Entity::default(),
             on_press: None,
-            shortcut: None,
             text: None,
         }
     }
@@ -38,7 +35,6 @@ impl Button {
         Button {
             id: Entity::default(),
             on_press: None,
-            shortcut: None,
             text: None,
         }
     }
@@ -47,7 +43,6 @@ impl Button {
         Button {
             id: Entity::default(),
             on_press: None,
-            shortcut: None,
             text: Some(text.to_string()),
         }
     }
@@ -59,12 +54,6 @@ impl Button {
 
     pub fn temp_on_press(&mut self, message: Event) -> &mut Self {
         self.on_press = Some(message);
-
-        self
-    }
-
-    pub fn with_keyboard_shortcut(mut self, key_input: KeyboardInput) -> Self {
-        self.shortcut = Some(key_input);
 
         self
     }
@@ -123,7 +112,6 @@ impl EventHandler for Button {
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
                         if entity == event.target && entity == state.focused {
-                            println!("Trigger Button Event");
                             if let Some(mut on_press) = self.on_press.clone() {
                                 on_press.target = entity;
                                 on_press.propagation = Propagation::Down;

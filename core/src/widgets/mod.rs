@@ -66,6 +66,9 @@ pub use vector_edit::*;
 pub mod levels;
 pub use levels::*;
 
+pub mod window;
+pub use window::WindowWidget;
+
 pub use crate::entity::Entity;
 pub use crate::events::{BuildHandler, EventHandler};
 pub use crate::state::State;

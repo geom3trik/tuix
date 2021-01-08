@@ -81,7 +81,6 @@ impl EventHandler for LengthBox {
 
                     if text == "px" {
                         self.value.set_text(state, &self.pixels.to_string());
-                        println!("Change to pixels");
                         self.length_type = Length::Pixels(0.0);
                     }
 

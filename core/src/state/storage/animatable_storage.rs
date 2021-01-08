@@ -329,7 +329,6 @@ where
                     state.t = 1.0;
                     state.active = false;
                 } else {
-                    //println!("Should be persistent");
                     state.t = 1.0;
                 }
             } else if state.t <= 0.0 {

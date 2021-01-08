@@ -1,6 +1,6 @@
 use crate::{
     BuildHandler, Builder, CursorIcon, Entity, Event, EventHandler, Hierarchy, HierarchyTree,
-    IntoHierarchyIterator, IntoParentIterator, State, WidgetEvent, Window, WindowEvent,
+    IntoHierarchyIterator, IntoParentIterator, State, WidgetEvent, WindowEvent,
 };
 use std::collections::{HashMap, VecDeque};
 
@@ -34,17 +34,13 @@ impl EventManager {
     //     self.event_queue.push_back(event);
     // }
 
-    pub fn flush_events(&mut self, state: &mut State, window: &mut Window) -> bool {
-        //println!("FLUSH");
+    pub fn flush_events(&mut self, state: &mut State) -> bool {
 
+        //println!("FLUSH");
         let mut needs_redraw = false;
 
         // Copy the hierarchy from state
         let hierarchy = state.hierarchy.clone();
-
-        //let mut draw_hierarchy: Vec<Entity> = state.hierarchy.into_iter().collect();
-
-        //draw_hierarchy.sort_by_cached_key(|entity| state.transform.get_z_order(*entity));
 
         // Clear the event queue in the event manager
         self.event_queue.clear();
@@ -54,9 +50,9 @@ impl EventManager {
 
         // Move events from state into event manager
         let event_queue = state.event_queue.clone();
-        //self.event_queue.append(&mut state.event_queue);
-        self.event_queue = event_queue.into_iter().collect::<Vec<Event>>();
 
+        // Sort the events by order
+        self.event_queue = event_queue.into_iter().collect::<Vec<Event>>();
         self.event_queue.sort_by_cached_key(|event| event.order);
 
         // Clear the event queue in state
@@ -65,13 +61,14 @@ impl EventManager {
         // Loop over the events in the event manager queue
         'events: for event in self.event_queue.iter_mut() {
             //println!("Event: {:?}", event);
-            // If a redraw is needed then set the flag to return true
+            
             if let Some(window_event) = event.message.downcast::<WindowEvent>() {
                 match window_event {
                     WindowEvent::Redraw => {
                         needs_redraw = true;
                     }
 
+                    /*
                     WindowEvent::SetCursor(cursor_icon) => match cursor_icon {
                         CursorIcon::Arrow => {
                             window
@@ -94,10 +91,12 @@ impl EventManager {
                                 .set_cursor_icon(glutin::window::CursorIcon::EResize);
                         }
                     },
+                    */
 
                     _ => {}
                 }
             }
+            
 
             let target = event.target;
 
@@ -177,32 +176,31 @@ impl EventManager {
         return needs_redraw;
     }
 
-    pub fn draw(&mut self, state: &mut State, hierarchy: &Hierarchy, window: &mut Window) {
-        let dpi_factor = window.handle.window().scale_factor();
-        let size = window.handle.window().inner_size();
+    pub fn draw(&mut self, state: &mut State, hierarchy: &Hierarchy, canvas: &mut Canvas<OpenGl>) {
+        //let dpi_factor = window.handle.window().scale_factor();
+        //let size = window.handle.window().inner_size();
 
-        //println!("Width: {}  Height: {}", size.width, size.height);
+        let width = state.transform.get_width(state.root);
+        let height = state.transform.get_height(state.root);
+        // TODO: Move this to the window widget
+        let dpi_factor = 1.0;
 
-        window
-            .canvas
-            .set_size(size.width as u32, size.height as u32, dpi_factor as f32);
+        canvas.set_size(width as u32, height as u32, dpi_factor as f32);
 
         
         let background_color: femtovg::Color = state.style.background_color.get(state.root).cloned().unwrap_or_default().into();
 
         let bg_color = state.style.background_color.get(state.root).cloned();
 
-        println!("Test: {:?}", state.style.background_color.inline_data);
-
-        window.canvas.clear_rect(
+        canvas.clear_rect(
             0,
             0,
-            size.width as u32,
-            size.height as u32,
+            width as u32,
+            height as u32,
             background_color,
         );
 
-        window.canvas.reset();
+        canvas.reset();
 
         let hierarchy = state.hierarchy.clone();
 
@@ -211,15 +209,10 @@ impl EventManager {
 
         for widget in draw_hierarchy.into_iter() {
             if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
-                event_handler.on_draw(state, widget, &mut window.canvas);
+                event_handler.on_draw(state, widget, canvas);
             }
         }
 
-        window.canvas.flush();
-
-        window
-            .handle
-            .swap_buffers()
-            .expect("Failed to swap buffers");
+        canvas.flush();
     }
 }

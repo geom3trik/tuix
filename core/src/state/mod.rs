@@ -23,7 +23,7 @@ pub mod resource;
 pub use resource::*;
 
 pub use crate::events::{Builder, Event, EventHandler, Propagation};
-pub use crate::window::WindowEvent;
+pub use crate::window_event::WindowEvent;
 
 use femtovg::FontId;
 
@@ -76,8 +76,6 @@ impl State {
 
         style.background_color.insert(root, Color::rgb(80, 80, 80));
 
-        //println!("AAA: {:?}", style.background_color.inline_data);
-
         State {
             entity_manager,
             hierarchy,
@@ -126,9 +124,6 @@ impl State {
     pub fn insert_theme(&mut self, theme: &str) {
         self.resource_manager.themes.push(theme.to_owned());
 
-
-
-        // println!("{}", overall_theme);
         self.reload_styles();
         // self.style.parse_theme(&overall_theme);
     }
@@ -228,7 +223,6 @@ impl State {
 
     // This should probably be moved to state.mouse
     pub fn capture(&mut self, id: Entity) {
-        println!("Capture: {}", id);
         if id != Entity::null() {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureEvent)

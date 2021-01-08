@@ -215,7 +215,6 @@ where
             self.rule_indices[rule] = self.data.len();
             self.data.push(value);
         } else {
-            println!("Is this ever used?");
             let data_index = self.rule_indices[rule] as usize;
             if data_index >= self.data.len() {
                 self.rule_indices[rule] = self.data.len();

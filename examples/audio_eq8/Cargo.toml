@@ -1,0 +1,9 @@
+[package]
+name = "audio_eq8"
+version = "0.1.0"
+edition = "2018"
+publish = false
+
+[dependencies]
+tuix = {path = "../..", features = ["glutin"]}
+femtovg = {git = "https://github.com/femtovg/femtovg"}

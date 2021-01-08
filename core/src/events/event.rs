@@ -48,7 +48,6 @@ where
 // an implementation of clone for boxed messages
 impl Clone for Box<Message> {
     fn clone(&self) -> Box<Message> {
-        //println!("Clone Box");
         self.clone_message()
     }
 }
@@ -112,7 +111,7 @@ pub struct Event {
 
 impl PartialEq for Event {
     fn eq(&self, other: &Event) -> bool {
-        self.message.equals_a(&*other.message)
+        self.message.equals_a(&*other.message) && self.origin == other.origin
     }
 }
 

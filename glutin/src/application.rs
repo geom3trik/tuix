@@ -1,9 +1,11 @@
 #![allow(deprecated)]
 
 use glutin::event_loop::{ControlFlow, EventLoop};
-pub use glutin::*;
+use glutin::dpi::*;
 
-use tuix_core::window::{KeyboardInput, Window, WindowDescription, WindowEvent, WindowWidget};
+use crate::keyboard::{scan_to_code, vk_to_key};
+
+use crate::window::Window;
 
 use tuix_core::{Entity, State};
 use tuix_core::{Length, Visibility, Color};
@@ -19,6 +21,10 @@ use tuix_core::state::Fonts;
 use tuix_core::VirtualKeyCode;
 
 use tuix_core::state::style::prop::*;
+
+use tuix_core::{WindowEvent, WindowDescription, WindowWidget};
+
+use tuix_core::systems::{apply_clipping, apply_z_ordering, apply_styles, layout_fun, apply_visibility};
 
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
@@ -46,9 +52,9 @@ impl Application {
 
         let mut window = Window::new(&event_loop, &window_description);
 
-        let regular_font = include_bytes!("../resources/Roboto-Regular.ttf");
-        let bold_font = include_bytes!("../resources/Roboto-Bold.ttf");
-        let icon_font = include_bytes!("../resources/entypo.ttf");
+        let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
+        let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
+        let icon_font = include_bytes!("../../resources/entypo.ttf");
 
         let fonts = Fonts {
             regular: Some(
@@ -75,20 +81,20 @@ impl Application {
 
         state.style.width.insert(
             state.root,
-            Length::Pixels(window_description.inner_size.to_physical(1.0).width),
+            Length::Pixels(window_description.inner_size.width as f32),
         );
         state.style.height.insert(
             state.root,
-            Length::Pixels(window_description.inner_size.to_physical(1.0).height),
+            Length::Pixels(window_description.inner_size.height as f32),
         );
 
         state.transform.set_width(
             state.get_root(),
-            window_description.inner_size.to_physical(1.0).width,
+            window_description.inner_size.width as f32,
         );
         state.transform.set_height(
             state.get_root(),
-            window_description.inner_size.to_physical(1.0).height,
+            window_description.inner_size.height as f32,
         );
         state.transform.set_opacity(state.get_root(), 1.0);
 
@@ -126,8 +132,10 @@ impl Application {
         let mut should_redraw = false;
         let hierarchy = state.hierarchy.clone();
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+        //state.insert_event(Event::new(WindowEvent::Restyle));
+        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+
+        let mut first_time = true;
 
         self.event_loop.run(move |event, _, control_flow|{
         
@@ -142,19 +150,51 @@ impl Application {
                 GEvent::MainEventsCleared => {
                     if state.apply_animations() {
                         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(Entity::new(0, 0)));
-                        state.insert_event(Event::new(WindowEvent::Redraw));
+                        //state.insert_event(Event::new(WindowEvent::Redraw));
+                        window.handle.window().request_redraw();
+                    }
+
+
+                    let mut needs_redraw = false;
+
+                    if first_time {
+                        apply_styles(&mut state, &hierarchy);
+                        first_time = false;
                     }
 
                     while !state.event_queue.is_empty() {
-                        if event_manager.flush_events(&mut state, &mut window) {
-                            window.handle.window().request_redraw();
+                        if event_manager.flush_events(&mut state) {
+                            needs_redraw = true;
                         }
                     }
+
+                    if needs_redraw {
+                        window.handle.window().request_redraw();
+                    }
+
+                    // event_manager.flush_events(&mut state);
+
+                    
+                    // apply_z_ordering(&mut state, &hierarchy);
+                    // apply_visibility(&mut state, &hierarchy);
+                    // apply_clipping(&mut state, &hierarchy);
+                    // layout_fun(&mut state, &hierarchy);
+
+                    // event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
+                    // window
+                    //     .handle
+                    //     .swap_buffers()
+                    //     .expect("Failed to swap buffers");
                 }
 
                 // REDRAW
                 GEvent::RedrawRequested(_) => {
-                    event_manager.draw(&mut state, &hierarchy, &mut window);
+                    event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
+                    // Swap buffers
+                    window
+                    .handle
+                    .swap_buffers()
+                    .expect("Failed to swap buffers");
                 }
 
                 GEvent::WindowEvent { event, window_id: _ } => {
@@ -206,6 +246,9 @@ impl Application {
                                 glutin::event::ElementState::Pressed => MouseButtonState::Pressed,
                                 glutin::event::ElementState::Released => MouseButtonState::Released,
                             };
+
+                            let code = scan_to_code(input.scancode);
+                            let key = vk_to_key(input.virtual_keycode.unwrap_or(VirtualKeyCode::NoConvert));
 
                             if let Some(virtual_keycode) = input.virtual_keycode {
 
@@ -259,13 +302,13 @@ impl Application {
                                 MouseButtonState::Pressed => {
                                     if state.focused != Entity::null() {
                                         state.insert_event(
-                                            Event::new(WindowEvent::KeyDown(input.virtual_keycode))
+                                            Event::new(WindowEvent::KeyDown(code, key))
                                             .target(state.focused)
                                             .propagate(Propagation::DownUp),
                                         );
                                     } else {
                                         state.insert_event(
-                                            Event::new(WindowEvent::KeyDown(input.virtual_keycode))
+                                            Event::new(WindowEvent::KeyDown(code, key))
                                             .target(state.hovered)
                                             .propagate(Propagation::DownUp),
                                         );
@@ -275,13 +318,13 @@ impl Application {
                                 MouseButtonState::Released => {
                                     if state.focused != Entity::null() {
                                         state.insert_event(
-                                            Event::new(WindowEvent::KeyUp(input.virtual_keycode))
+                                            Event::new(WindowEvent::KeyUp(code, key))
                                             .target(state.focused)
                                             .propagate(Propagation::DownUp),
                                         );
                                     } else {
                                         state.insert_event(
-                                            Event::new(WindowEvent::KeyUp(input.virtual_keycode))
+                                            Event::new(WindowEvent::KeyUp(code, key))
                                             .target(state.hovered)
                                             .propagate(Propagation::DownUp),
                                         );
@@ -399,16 +442,16 @@ impl Application {
 
                                 // Useful for debugging
                             
-                                println!(
-                                    "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-                                    hovered_widget,
-                                    state.hierarchy.get_parent(hovered_widget),
-                                    state.transform.get_posx(hovered_widget),
-                                    state.transform.get_posy(hovered_widget),
-                                    state.transform.get_width(hovered_widget),
-                                    state.transform.get_height(hovered_widget),
-                                    state.transform.get_z_order(hovered_widget),
-                                );
+                                // println!(
+                                //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+                                //     hovered_widget,
+                                //     state.hierarchy.get_parent(hovered_widget),
+                                //     state.transform.get_posx(hovered_widget),
+                                //     state.transform.get_posy(hovered_widget),
+                                //     state.transform.get_width(hovered_widget),
+                                //     state.transform.get_height(hovered_widget),
+                                //     state.transform.get_z_order(hovered_widget),
+                                // );
 
                                 if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
                                     pseudo_classes.set_hover(true);

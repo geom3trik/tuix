@@ -2,7 +2,7 @@ use crate::events::{Event, EventManager, Message};
 
 use crate::build_handler::Builder;
 
-use crate::{Entity, Hierarchy, State, Window};
+use crate::{Entity, Hierarchy, State};
 
 use std::collections::{HashMap, VecDeque};
 
@@ -46,10 +46,6 @@ pub trait EventHandler: Send {
         let posy = state.transform.get_posy(entity);
         let width = state.transform.get_width(entity);
         let height = state.transform.get_height(entity);
-
-        //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
-
-
 
         let padding_left = match state
             .style
@@ -169,9 +165,6 @@ pub trait EventHandler: Send {
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
-
-        //println!("Border Width: {}", border_width);
-
         
         // Skip widgets with no width or no height
         if width + 2.0* border_width + padding_left + padding_right == 0.0 || height + 2.0 * border_width + padding_top + padding_bottom == 0.0 {
@@ -239,9 +232,8 @@ pub trait EventHandler: Send {
         // Draw border
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
-        //paint.set_anti_alias(false);
         canvas.stroke_path(&mut path, paint);
-        //println!("posx: {}", posx);
+
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {

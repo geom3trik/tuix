@@ -15,6 +15,7 @@ members = [
     "baseview",
     "core",
     "examples/hello_gui",
+    "examples/audio_eq8",
 ]
 
 [features]

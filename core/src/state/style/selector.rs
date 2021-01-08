@@ -196,26 +196,16 @@ impl Selector {
         }
 
         if self.id.is_some() && self.id != entity_selector.id {
-            //println!("id doesn't match");
             return false;
         }
 
         if self.element.is_some() && self.element != entity_selector.element {
-            //println!("element doesn't match");
             return false;
         }
 
         if !self.classes.is_subset(&entity_selector.classes) {
-            //println!("classes doesn't match");
             return false;
         }
-
-        // if !self.pseudo_classes.is_subset(&other.pseudo_classes) {
-        //     //println!("classes doesn't match");
-        //     return false;
-        // }
-
-        //println!("Selector: {:?}  Widget: {:?}  Combined: 0b{:08b}", self.pseudo_classes, other.pseudo_classes, (self.pseudo_classes.0 & other.pseudo_classes.0));
 
         if self.pseudo_classes.0 != 0
             && (self.pseudo_classes.0 & entity_selector.pseudo_classes.0) == 0
@@ -227,30 +217,13 @@ impl Selector {
             return false;
         }
 
-        // if !other.classes.is_subset(&self.classes) {
-        //     //println!("classes doesn't match");
-        //     return false;
-        // }
-
-        // if !other.pseudo_classes.is_subset(&self.pseudo_classes) {
-        //     //println!("pseudoclasses doesn't match");
-        //     return false;
-        // }
-
         true
     }
 
-    // pub fn specificity(&self) -> usize {
-    //     (if self.id.is_some() { 1000 } else { 0 })
-    //         + (self.classes.len() * 100)
-    //         + (self.pseudo_classes.len() * 100)
-    //         + (if self.element.is_some() { 1 } else { 0 })
-    // }
 
     pub fn specificity(&self) -> Specificity {
         Specificity([
             if self.id.is_some() { 1 } else { 0 },
-            //(self.classes.len() + self.pseudo_classes.len()) as u8,
             (self.classes.len() + self.pseudo_classes.0.count_ones() as usize) as u8,
             if self.element.is_some() { 1 } else { 0 },
         ])
@@ -267,11 +240,6 @@ impl Selector {
         self.classes.insert(class.to_string());
         self
     }
-
-    // pub fn pseudo_class(mut self, pseudo_class: PseudoClass) -> Self {
-    //     self.pseudo_classes.insert(pseudo_class);
-    //     self
-    // }
 
     pub fn replace_class(&mut self, old: &str, new: &str) -> &mut Self {
         self.classes.remove(old);

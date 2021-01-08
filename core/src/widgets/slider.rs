@@ -82,9 +82,9 @@ impl EventHandler for Slider {
 
                         self.front.set_width(state, Length::Percentage(self.value));
 
-                        state.insert_event(
-                            Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        );
+                        // state.insert_event(
+                        //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
+                        // );
                     }
                 }
 
@@ -147,9 +147,9 @@ impl EventHandler for Slider {
                         self.sliding = false;
                         //state.captured = Entity::null();
                         state.release(entity);
-                        state.insert_event(
-                            Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        );
+                        // state.insert_event(
+                        //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
+                        // );
                     }
 
                     _ => {}
@@ -184,9 +184,9 @@ impl EventHandler for Slider {
                                 .target(entity),
                         );
 
-                        state.insert_event(
-                            Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        );
+                        // state.insert_event(
+                        //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
+                        // );
                         //self.textbox.set_text(state, v.to_string());
                     }
                 }
@@ -209,9 +209,9 @@ impl EventHandler for Slider {
                                 .target(entity),
                         );
 
-                        state.insert_event(
-                            Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        );
+                        // state.insert_event(
+                        //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
+                        // );
                     }
                 }
 

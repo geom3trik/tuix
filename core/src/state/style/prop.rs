@@ -200,7 +200,7 @@ impl PropSet for Entity {
             pseudo_classes.set_disabled(!value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
 
         self
     }
@@ -211,7 +211,7 @@ impl PropSet for Entity {
             pseudo_classes.set_enabled(!value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
 
         self
     }
@@ -221,7 +221,7 @@ impl PropSet for Entity {
             pseudo_classes.set_checked(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
 
         self
     }
@@ -231,7 +231,7 @@ impl PropSet for Entity {
             pseudo_classes.set_over(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
 
         self
     }
@@ -241,7 +241,7 @@ impl PropSet for Entity {
             pseudo_classes.set_active(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
 
         self
     }
@@ -251,7 +251,7 @@ impl PropSet for Entity {
             pseudo_classes.set_hover(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
 
         self
     }
@@ -261,7 +261,7 @@ impl PropSet for Entity {
             pseudo_classes.set_focus(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
 
         self
     }
