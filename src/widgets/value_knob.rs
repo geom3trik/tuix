@@ -159,7 +159,7 @@ impl EventHandler for ValueKnob {
 
                 SliderEvent::SetValue(val) => {
                     if event.target == entity {
-                        println!("Received set value: {}", val);
+                        //println!("Received set value: {}", val);
                         let freq_val: FreqValue = (*val).into();
                         //println!("val_str: {} {}", self.label, val_str);
                         state.insert_event(

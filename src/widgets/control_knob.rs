@@ -99,9 +99,9 @@ impl EventHandler for ControlKnob {
                         if event.target == entity {
                             self.value = ((*val).min(self.max_value)).max(self.min_value);
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
-                            );
+                            // state.insert_event(
+                            //     Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
+                            // );
                         }
                     }
                 }
@@ -143,7 +143,7 @@ impl EventHandler for ControlKnob {
 
                             let new_val = if self.is_log {
                                 let t = self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised;
-                                println!("norma: {}, t: {}", normalised, t);
+                                //println!("norma: {}, t: {}", normalised, t);
                                 10.0f32.powf((self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised))
                                 
                             } else {
@@ -164,9 +164,9 @@ impl EventHandler for ControlKnob {
                                     .target(entity),
                             );
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
-                            );
+                            // state.insert_event(
+                            //     Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
+                            // );
                         }
                     }
                 }

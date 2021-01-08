@@ -754,7 +754,7 @@ impl EventHandler for ControlPoint {
                         self.frequency = 10.0f32.powf(f);
                         self.gain = g;
 
-                        println!("ID: {}", state.id2entity("channel1_freq_knob").unwrap());
+                        //println!("ID: {}", state.id2entity("channel1_freq_knob").unwrap());
 
                         state.insert_event(Event::new(SliderEvent::SetValue(self.frequency)).target(state.id2entity("channel1_freq_knob").unwrap()));
                         //state.insert_event(Event::new(FilterEvent::GainChange(1,self.gain)));
