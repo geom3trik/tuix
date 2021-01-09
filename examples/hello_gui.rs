@@ -5,6 +5,8 @@ use tuix::Application;
 
 use tuix::events::BuildHandler;
 
+use tuix::PropSet;
+
 use tuix::style::themes::DEFAULT_THEME;
 
 fn main() {

@@ -1,8 +1,8 @@
-extern crate tuix;
+
 
 use tuix::*;
 
-static THEME: &'static str = include_str!("themes/widget_theme.css");
+static THEME: &'static str = include_str!("themes/audio_eq8.css");
 
 const ICON_FLOPPY: &str = "\u{1f4be}";
 const ICON_PLUS: &str = "\u{2b}";
@@ -112,7 +112,7 @@ impl BuildHandler for EQ8 {
         Button::with_label("Graph")
             .on_press(Event::new(TabEvent::SwitchTab(0)))
             .build(state, tab_bar, |builder| builder.set_checked(true));
-        //let graph_view = Element::new().build(state, tab_container, |builder| builder.class("item1"));
+        
         let graph = FreqGraph::new().build(state, tab_container, |builder| builder);
 
         let control_point1 = ControlPoint::new("1").build(state, graph, |builder| builder);
@@ -141,6 +141,7 @@ impl BuildHandler for EQ8 {
         let eq_channel7 = EQChannel::new(7).build(state, row, |builder| builder);
         let eq_channel8 = EQChannel::new(8).build(state, row, |builder| builder);
         let channel_output = ChannelOutput::new().build(state, row, |builder| builder);
+        //Slider2::new().build(state, row, |builder| builder);
 
         
 
@@ -656,6 +657,7 @@ impl EventHandler for ControlPoint {
                 // Current thinking is a GeometryChanged event that is passed directly to the widget changing size
                 // And then optionally propagated to the children
 
+                /*
                 WindowEvent::Relayout => {
                     // Prevents infinite recursion (except when there are multiple control points)
                     if event.origin != entity {
@@ -677,6 +679,7 @@ impl EventHandler for ControlPoint {
                     }
 
                 }
+                */
 
                 WindowEvent::MouseDown(button) => {
                     if event.target == entity && *button == MouseButton::Left {
@@ -754,11 +757,13 @@ impl EventHandler for ControlPoint {
                         self.frequency = 10.0f32.powf(f);
                         self.gain = g;
 
+                        entity.set_left(state, Length::Pixels(new_left));
+                        entity.set_top(state, Length::Pixels(new_top));
+
                         state.insert_event(Event::new(SliderEvent::SetValue(self.frequency)).target(state.id2entity("channel1_freq_knob").unwrap()));
                         //state.insert_event(Event::new(FilterEvent::GainChange(1,self.gain)));
 
-                        entity.set_left(state, Length::Pixels(new_left));
-                        entity.set_top(state, Length::Pixels(new_top));
+                        
 
                         //println!("dx: {} dy: {}", dx, dy);
                     }

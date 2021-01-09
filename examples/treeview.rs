@@ -49,7 +49,6 @@ impl EventHandler for ResizableVBox {
         if let Some(color_edit_event) = event.is_type::<ColorEditEvent>() {
             match color_edit_event {
                 ColorEditEvent::ColorChanged(r, g, b, a) => {
-                    println!("Color Change!");
                     entity.set_background_color(state, Color::rgba(*r, *g, *b, *a));
                 }
             }
@@ -113,12 +112,6 @@ impl EventHandler for ResizableVBox {
                                 < state.transform.get_posx(entity)
                                     + state.transform.get_width(entity)
                         {
-                            println!(
-                                "Resize cursor: {} {}",
-                                x,
-                                state.transform.get_posx(entity)
-                                    + state.transform.get_width(entity)
-                            );
 
                             //if self.hovering == false {
                             //    self.hovering = true;
@@ -232,7 +225,6 @@ impl EventHandler for ColorEdit {
         if let Some(vectoredit_event) = event.is_type::<VectorEditEvent<u8>>() {
             match vectoredit_event {
                 VectorEditEvent::Dim1(val) => {
-                    println!("New Color: Grey {}", val);
                     state.insert_event(
                         Event::new(ColorEditEvent::ColorChanged(*val, *val, *val, *val))
                             .target(entity),
@@ -240,21 +232,18 @@ impl EventHandler for ColorEdit {
                 }
 
                 VectorEditEvent::Dim2(r, g) => {
-                    println!("New Color: r {}, g {}", r, g);
                     state.insert_event(
                         Event::new(ColorEditEvent::ColorChanged(*r, *g, 255, 255)).target(entity),
                     );
                 }
 
                 VectorEditEvent::Dim3(r, g, b) => {
-                    println!("New Color: r {}, g {}, b {}", r, g, b);
                     state.insert_event(
                         Event::new(ColorEditEvent::ColorChanged(*r, *g, *b, 255)).target(entity),
                     );
                 }
 
                 VectorEditEvent::Dim4(r, g, b, a) => {
-                    println!("New Color: r {}, g {}, b {}, a {}", r, g, b, a);
                     state.insert_event(
                         Event::new(ColorEditEvent::ColorChanged(*r, *g, *b, *a)).target(entity),
                     );
@@ -262,10 +251,6 @@ impl EventHandler for ColorEdit {
 
                 _ => {}
             }
-        }
-
-        if let Some(vectoredit_event) = event.is_type::<VectorEditEvent<f32>>() {
-            println!("Wrong type!");
         }
 
         return false;

@@ -1,4 +1,3 @@
-extern crate image;
 extern crate tuix;
 
 use image::GenericImageView;
@@ -389,13 +388,12 @@ impl EventHandler for Calculator {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::KeyDown(input) => {
-                    println!("KeyInput: {:?}", input);
+                WindowEvent::KeyDown(code, key) => {
 
-                    match input {
+                    match key {
                         Some(virtual_keycode) => {
-                            match virtual_keycode {
-                                VirtualKeyCode::Escape => {
+                            match key {
+                                Key::Escape => {
                                     state.active = self.clear;
                                     self.clear_all(state);
                                 }
@@ -553,7 +551,7 @@ impl EventHandler for Calculator {
                     }
                 }
 
-                WindowEvent::KeyUp(_) => {
+                WindowEvent::KeyUp(_,_) => {
                     state.active = Entity::null();
                     state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
                 }

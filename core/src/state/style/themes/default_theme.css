@@ -1,0 +1,198 @@
+.menu_bar {
+    background-color: #646464;
+}
+
+
+button {
+    height: 30px;
+    width: 100px;
+    color: white;
+    background-color: #ff5e1a;
+    border-radius: 3px;
+    text-justify: center;
+}
+
+button:hover {
+    background-color: #ff7033;
+}
+
+panel hbox {
+    height: 30px;
+    padding: 10px;
+    align-items: center;
+}
+
+panel>.container {
+    background-color: #ffffff;
+}
+
+panel>.header {
+    background-color: #ff5e1a;
+    height: 30px;
+    flex-grow: 1.0;
+}
+
+panel hbox>label {
+    height: 30px;
+    width: 100px;
+    color: black;
+    padding-left: 5px;
+}
+
+checkbox {
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 3px;
+    transition: background-color 0.1 0.0;
+}
+
+checkbox:checked {
+    background-color: #ff5e1a;
+    border-color: #ff5e1a;
+    color: white;
+    transition: background-color 0.1 0.0;
+}
+
+switch {
+    width: 36px;
+    height: 20px;
+    background-color: #646464;
+    flex-direction: row;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 2.5px;
+    padding-right: 2.5px;
+    transition: background-color 0.1 0.0;
+    border-radius: 11px;
+}
+
+switch>.front {
+    left: 0px;
+    width: 20px;
+    background-color: white;
+    transition: left 0.1 0.0;
+    border-radius: 9;
+}
+
+
+switch:checked>.front {
+    left: 16.5px;
+    transition: left 0.1 0.0;
+}
+
+switch:checked {
+    background-color: #ff5e1a;
+    transition: background-color 0.1 0.0;
+}
+
+spinner {
+    height: 30px;
+    flex-grow: 1.0;
+}
+
+spinner .increment {
+    color: #ff5e1a;
+    text-justify: center;
+}
+
+spinner .decrement {
+    color: #ff5e1a;
+    text-justify: center;
+}
+
+spinner>textbox {
+    color: black;
+    border-width: 1px;
+    border-color: black;
+    border-top-left-radius: 3;
+    border-bottom-left-radius: 3;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin: 0px;
+    margin-right: -1;
+    text-align: center;
+    text-justify: center;
+    height: 28px;
+    width: 78px;
+}
+
+spinner>.arrow_container {
+    border-width: 1px;
+    border-color: black;
+    border-top-right-radius: 3;
+    border-bottom-right-radius: 3;
+}
+
+textbox {
+    flex-grow: 1.0;
+    height: 28px;
+    color: black;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 3;
+    text-justify: center;
+}
+
+dropdown {
+    flex-grow: 1.0;
+    height: 28px;
+    color: black;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 3;
+    text-justify: center;
+}
+
+dropdown label {
+    color: black;
+    text-justify: center;
+}
+
+dropdown .icon {
+    text-justify: center;
+    color: #ff5e1a;
+}
+
+dropdown>.container {
+    background-color: white;
+    border-color: black;
+    border-width: 1px;
+}
+
+dropdown>.container>.item {
+    height: 30px;
+    width: 100px;
+    color: black;
+    padding-left: 10px;
+    background-color: white;
+    transition: background-color 0.1 0.0;
+}
+
+dropdown>.container>.item:hover {
+    height: 30px;
+    width: 100px;
+    color: white;
+    background-color: #ff5e1a;
+    transition: background-color 0.1 0.0;
+}
+
+slider2 {
+    /* width: 100px; */
+    flex-grow: 1.0;
+    height: 4px;
+    border-radius: 2px;
+    background-color: #646464;
+}
+
+slider2>.active {
+    background-color: #f74c00;
+}
+
+slider2>.thumb {
+    background-color:#ff5e1a;
+    border-radius: 9.5px;
+}
+

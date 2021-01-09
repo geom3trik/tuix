@@ -22,6 +22,10 @@ You can run any of the examples with:
 ```
 cargo run --example example_name
 ```
+To run any example with the `baseview` backend:
+```
+cargo run --example example_name --no-default-features --features "baseview"
+```
 
 ### Hello GUI
 Since it's probably best to learn by example, here is the "hello world" of GUI applications:

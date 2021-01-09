@@ -1,29 +1,9 @@
-pub mod state;
-pub use state::*;
 
-pub mod application;
-pub mod window;
 
-pub use application::Application;
-pub use window::{CursorIcon, KeyboardInput, Window, WindowEvent};
+#[cfg(all(not(feature="baseview"), feature="glutin"))]
+pub use tuix_glutin::application::Application;
 
-pub mod events;
-pub use events::*;
+#[cfg(all(not(feature="glutin"), feature="baseview"))]
+pub use tuix_baseview::Application;
 
-pub use entity::{Entity, EntityManager};
-
-pub mod widgets;
-pub use crate::widgets::*;
-
-pub mod systems;
-pub use crate::systems::*;
-
-pub use glutin::event::VirtualKeyCode;
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+pub use tuix_core::*;
