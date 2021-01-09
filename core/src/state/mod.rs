@@ -29,6 +29,8 @@ use femtovg::FontId;
 
 use std::collections::{HashMap, VecDeque};
 
+use fnv::FnvHashMap;
+
 pub struct Fonts {
     pub regular: Option<FontId>,
     pub bold: Option<FontId>,
@@ -48,7 +50,7 @@ pub struct State {
     pub captured: Entity,
     pub focused: Entity,
 
-    pub event_handlers: HashMap<Entity, Box<dyn EventHandler>>,
+    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
     pub event_queue: VecDeque<Event>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
@@ -88,7 +90,7 @@ impl State {
             active: Entity::null(),
             captured: Entity::null(),
             focused: Entity::new(0, 0),
-            event_handlers: HashMap::new(),
+            event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             fonts: Fonts {
                 regular: None,

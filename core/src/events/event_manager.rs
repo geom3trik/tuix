@@ -11,8 +11,10 @@ use femtovg::{
     LineCap, LineJoin, Paint, Path, Renderer, Solidity,
 };
 
+use fnv::FnvHashMap;
+
 pub struct EventManager {
-    pub event_handlers: HashMap<Entity, Box<EventHandler>>,
+    pub event_handlers: FnvHashMap<Entity, Box<EventHandler>>,
     pub event_queue: Vec<Event>,
     needs_redraw: bool,
     total_frames: usize,
@@ -22,7 +24,7 @@ pub struct EventManager {
 impl EventManager {
     pub fn new() -> Self {
         EventManager {
-            event_handlers: HashMap::new(),
+            event_handlers: FnvHashMap::default(),
             event_queue: Vec::new(),
             needs_redraw: false,
             total_frames: 0,

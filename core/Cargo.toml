@@ -15,3 +15,4 @@ femtovg = {git = "https://github.com/femtovg/femtovg"}
 image = "0.23.12"
 bimap = "0.5.3"
 keyboard-types = "0.5.0"
+fnv = "1.0.7"

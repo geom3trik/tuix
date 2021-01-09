@@ -7,8 +7,6 @@ use crate::{BuildHandler, Justify, Length, PropSet, State, Visibility, WindowEve
 
 use glutin::event::VirtualKeyCode;
 
-use std::collections::HashMap;
-
 use femtovg::{
     renderer::OpenGl, Align, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId,
     LineCap, LineJoin, Paint, Path, Renderer, Solidity,
