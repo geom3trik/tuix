@@ -11,7 +11,7 @@ edition = "2018"
 gl = "0.14.0"
 glutin = "0.26"
 cssparser = "0.27.2"
-femtovg = {git = "https://github.com/femtovg/femtovg"}
+femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master" }
 image = "0.23.12"
 bimap = "0.5.3"
 keyboard-types = "0.5.0"

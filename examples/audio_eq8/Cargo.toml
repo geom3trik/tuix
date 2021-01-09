@@ -5,5 +5,5 @@ edition = "2018"
 publish = false
 
 [dependencies]
-tuix = {path = "../..", features = ["glutin"]}
-femtovg = {git = "https://github.com/femtovg/femtovg"}
+tuix = { path = "../..", features = ["glutin"] }
+femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master" }
