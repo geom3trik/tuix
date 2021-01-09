@@ -1,7 +1,8 @@
 
+
 use tuix::*;
 
-static THEME: &'static str = include_str!("theme.css");
+static THEME: &'static str = include_str!("themes/audio_eq8.css");
 
 const ICON_FLOPPY: &str = "\u{1f4be}";
 const ICON_PLUS: &str = "\u{2b}";

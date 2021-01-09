@@ -1,7 +1,7 @@
 [package]
 name = "tuix_baseview"
 version = "0.1.0"
-authors = ["George Atkinson"]
+authors = ["George Atkinson <geomyles@yahoo.co.uk>", "Billy Messenger <BillyDM@protonmail.com>"]
 edition = "2018"
 license = "MIT/Apache-2.0"
 repository = "https://github.com/geom3trik/tuix"
@@ -10,4 +10,9 @@ repository = "https://github.com/geom3trik/tuix"
 
 [dependencies]
 gl = "0.14.0"
+raw-gl-context = "0.1"
 tuix_core = { path = "../core" }
+baseview = { git = "https://github.com/RustAudio/baseview.git", branch = "master" }
+keyboard-types = { version = "0.5", default-features = false }
+raw-window-handle = "0.3"
+femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master", default-features = false }

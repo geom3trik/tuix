@@ -14,8 +14,6 @@ members = [
     "glutin",
     "baseview",
     "core",
-    "examples/hello_gui",
-    "examples/audio_eq8",
 ]
 
 [features]
@@ -24,9 +22,9 @@ glutin = ["tuix_glutin"]
 baseview = ["tuix_baseview"]
 
 [dependencies]
-tuix_core = {version = "0.1.0", path = "core"}
-tuix_glutin = {version = "0.1.0", path = "glutin", optional = true }
-tuix_baseview = {version = "0.1.0", path = "baseview", optional = true }
+tuix_core = { version = "0.1.0", path = "core" }
+tuix_glutin = { version = "0.1.0", path = "glutin", optional = true }
+tuix_baseview = { version = "0.1.0", path = "baseview", optional = true }
 
-
-
+[dev-dependencies]
+femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master", default-features = false }
