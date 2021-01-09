@@ -118,14 +118,14 @@ impl ApplicationRunner {
         state
             .style
             .height
-            .insert(state.root, Length::Pixels(logical_size.width as f32));
+            .insert(state.root, Length::Pixels(logical_size.height as f32));
 
         state
             .transform
             .set_width(state.get_root(), physical_size.width as f32);
         state
             .transform
-            .set_height(state.get_root(), physical_size.width as f32);
+            .set_height(state.get_root(), physical_size.height as f32);
         state.transform.set_opacity(state.get_root(), 1.0);
 
         WindowWidget::new().build_window(&mut state);
