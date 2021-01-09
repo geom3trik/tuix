@@ -1,6 +1,6 @@
 use crate::{State, EventHandler, Entity, Event, WindowEvent};
 
-use crate::systems::{apply_clipping, apply_z_ordering, apply_styles, layout_fun, apply_visibility, apply_styles2, apply_layout};
+use crate::systems::{apply_clipping, apply_z_ordering, apply_styles, apply_visibility, apply_styles2, apply_layout};
 
 #[derive(Clone)]
 pub struct WindowWidget {}

@@ -24,7 +24,7 @@ use tuix_core::state::style::prop::*;
 
 use tuix_core::{WindowEvent, WindowDescription, WindowWidget};
 
-use tuix_core::systems::{apply_clipping, apply_z_ordering, apply_styles, layout_fun, apply_visibility};
+use tuix_core::systems::{apply_clipping, apply_z_ordering, apply_styles, apply_visibility};
 
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
