@@ -3,7 +3,7 @@
 use glutin::event_loop::{ControlFlow, EventLoop};
 use glutin::dpi::*;
 
-use crate::keyboard::{scan_to_code, vk_to_key};
+use crate::{keyboard::{scan_to_code, vk_to_key}, window};
 
 use crate::window::Window;
 
@@ -148,14 +148,13 @@ impl Application {
                 }
 
                 GEvent::MainEventsCleared => {
+                    let mut needs_redraw = false;
+
                     if state.apply_animations() {
                         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(Entity::new(0, 0)));
                         //state.insert_event(Event::new(WindowEvent::Redraw));
-                        window.handle.window().request_redraw();
+                        needs_redraw = true;
                     }
-
-
-                    let mut needs_redraw = false;
 
                     if first_time {
                         apply_styles(&mut state, &hierarchy);
