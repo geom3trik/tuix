@@ -1,5 +1,4 @@
 mod application;
-mod event_manager;
 mod window;
 
 pub use application::Application;

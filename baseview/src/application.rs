@@ -1,4 +1,4 @@
-use crate::event_manager::EventManager;
+//use crate::event_manager::EventManager;
 use crate::Renderer;
 use crate::window::TuixWindow;
 use baseview::WindowScalePolicy;
@@ -11,7 +11,7 @@ use tuix_core::state::Fonts;
 use tuix_core::window::WindowWidget;
 use tuix_core::{
     Entity, State, WindowDescription, WindowEvent, Hierarchy,
-    PropSet, Length, Visibility, Size,
+    PropSet, Length, Visibility, Size, EventManager
 };
 
 pub struct Application<F>
