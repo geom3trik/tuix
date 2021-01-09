@@ -170,7 +170,8 @@ impl ApplicationRunner {
                     .target(Entity::null())
                     .origin(Entity::new(0, 0)),
             );
-            self.state.insert_event(Event::new(WindowEvent::Redraw));
+            //self.state.insert_event(Event::new(WindowEvent::Redraw));
+            self.should_redraw = true;
         }
 
         while !self.state.event_queue.is_empty() {
@@ -180,11 +181,14 @@ impl ApplicationRunner {
         }
     }
 
-    pub fn render(&mut self) {
+    pub fn render(&mut self) -> bool {
         if self.should_redraw {
             self.event_manager
                 .draw(&mut self.state, &self.hierarchy, &mut self.canvas);
             self.should_redraw = false;
+            true
+        } else {
+            false
         }
     }
 
@@ -305,18 +309,19 @@ impl ApplicationRunner {
                             pseudo_classes.set_hover(false);
                         }
 
-                        self.state.insert_event(
-                            Event::new(WindowEvent::MouseOver).target(hovered_widget),
-                        );
-                        self.state.insert_event(
-                            Event::new(WindowEvent::MouseOut).target(self.state.hovered),
-                        );
+                        self.state.insert_event(Event::new(WindowEvent::MouseOver).target(hovered_widget));
+                        self.state.insert_event(Event::new(WindowEvent::MouseOut).target(self.state.hovered));
 
+                        self.state
+                            .insert_event(Event::new(WindowEvent::Restyle).origin(hovered_widget));
+                        self.state
+                            .insert_event(Event::new(WindowEvent::Restyle).origin(self.state.hovered));
+                        
                         self.state.hovered = hovered_widget;
                         self.state.active = Entity::null();
 
-                        self.state.insert_event(Event::new(WindowEvent::Restyle));
-                        self.state.insert_event(Event::new(WindowEvent::Redraw));
+                        self.state
+                            .insert_event(Event::new(WindowEvent::Redraw));
                     }
 
                     if self.state.captured != Entity::null() {
@@ -561,7 +566,7 @@ impl ApplicationRunner {
                     }
 
                     self.state
-                        .insert_event(Event::new(WindowEvent::Restyle).target(self.state.root));
+                        .insert_event(Event::new(WindowEvent::Restyle).target(self.state.root).origin(self.state.root));
                 }
 
                 match s {
@@ -611,7 +616,7 @@ impl ApplicationRunner {
             baseview::Event::Window(event) => match event {
                 baseview::WindowEvent::Focused => {
                     self.state
-                        .insert_event(Event::new(WindowEvent::Restyle).target(self.state.root));
+                        .insert_event(Event::new(WindowEvent::Restyle).target(self.state.root).origin(self.state.root));
                 }
                 baseview::WindowEvent::Resized(window_info) => {
                     self.scale_factor = match self.scale_policy {
@@ -629,11 +634,6 @@ impl ApplicationRunner {
                         window_info.physical_size().height,
                     );
 
-                    self.canvas.reset_transform();
-                    self.canvas.set_size(physical_size.0, physical_size.1, 1.0);
-                    self.canvas
-                        .scale(self.scale_factor as f32, self.scale_factor as f32);
-
                     self.state
                         .style
                         .width
@@ -650,7 +650,7 @@ impl ApplicationRunner {
                         .transform
                         .set_height(self.state.root, physical_size.1 as f32);
 
-                    self.state.insert_event(Event::new(WindowEvent::Restyle));
+                    self.state.insert_event(Event::new(WindowEvent::Restyle).origin(self.state.root));
                     self.state
                         .insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
                     self.state.insert_event(Event::new(WindowEvent::Redraw));

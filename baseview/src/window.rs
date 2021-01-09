@@ -121,9 +121,10 @@ impl WindowHandler for TuixWindow {
 
         self.context.make_current();
 
-        self.application.render();
-
-        self.context.swap_buffers();
+        if self.application.render() {
+            self.context.swap_buffers();
+        }
+        
         self.context.make_not_current();
     }
 
@@ -138,8 +139,11 @@ impl WindowHandler for TuixWindow {
 }
 
 fn load_renderer(window: &Window) -> (Renderer, raw_gl_context::GlContext) {
+    let mut config = raw_gl_context::GlConfig::default();
+    config.vsync = true;
+
     let context =
-        raw_gl_context::GlContext::create(window, raw_gl_context::GlConfig::default()).unwrap();
+        raw_gl_context::GlContext::create(window, config).unwrap();
 
     context.make_current();
 

@@ -19,6 +19,10 @@ pub struct EventManager {
     needs_redraw: bool,
     total_frames: usize,
     pub start_time: std::time::Instant,
+
+    prev_width: f32,
+    prev_height: f32,
+    prev_dpi_factor: f64,
 }
 
 impl EventManager {
@@ -29,6 +33,10 @@ impl EventManager {
             needs_redraw: false,
             total_frames: 0,
             start_time: std::time::Instant::now(),
+
+            prev_width: 0.0,
+            prev_height: 0.0,
+            prev_dpi_factor: 1.0,
         }
     }
 
@@ -187,12 +195,11 @@ impl EventManager {
         // TODO: Move this to the window widget
         let dpi_factor = 1.0;
 
-        canvas.set_size(width as u32, height as u32, dpi_factor as f32);
-
+        if (self.prev_width != width || self.prev_height != height || self.prev_dpi_factor != dpi_factor) {
+            canvas.set_size(width as u32, height as u32, dpi_factor as f32);
+        }
         
         let background_color: femtovg::Color = state.style.background_color.get(state.root).cloned().unwrap_or_default().into();
-
-        let bg_color = state.style.background_color.get(state.root).cloned();
 
         canvas.clear_rect(
             0,
