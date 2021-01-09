@@ -225,7 +225,7 @@ impl Application {
                         ////////////////////
                         glutin::event::WindowEvent::Focused(_) => {
                             state.insert_event(
-                                Event::new(WindowEvent::Restyle).target(state.root),
+                                Event::new(WindowEvent::Restyle).target(state.root).origin(state.root),
                             );
                         }
     
@@ -254,7 +254,6 @@ impl Application {
 
 
                                 if virtual_keycode == VirtualKeyCode::F5 && s == MouseButtonState::Pressed {
-                                    println!("Reload Styles");
                                     state.reload_styles().unwrap();
                                 }
 
@@ -291,7 +290,7 @@ impl Application {
                                     }
 
                                     state.insert_event(
-                                        Event::new(WindowEvent::Restyle).target(state.root),
+                                        Event::new(WindowEvent::Restyle).target(state.root).origin(state.root),
                                     );
 
                                     
@@ -352,7 +351,7 @@ impl Application {
                                 .set_height(state.root, physical_size.height as f32);
 
     
-                            state.insert_event(Event::new(WindowEvent::Restyle));
+                            state.insert_event(Event::new(WindowEvent::Restyle).origin(state.root));
                             state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
                             state.insert_event(Event::new(WindowEvent::Redraw));
     
@@ -464,11 +463,15 @@ impl Application {
                                 state.insert_event(Event::new(WindowEvent::MouseOver).target(hovered_widget));
                                 state.insert_event(Event::new(WindowEvent::MouseOut).target(state.hovered));
     
+                                state
+                                    .insert_event(Event::new(WindowEvent::Restyle).origin(hovered_widget));
+                                state
+                                    .insert_event(Event::new(WindowEvent::Restyle).origin(state.hovered));
+                                
                                 state.hovered = hovered_widget;
                                 state.active = Entity::null();
     
-                                state
-                                    .insert_event(Event::new(WindowEvent::Restyle));
+                                
                                 state
                                     .insert_event(Event::new(WindowEvent::Redraw));
                             }

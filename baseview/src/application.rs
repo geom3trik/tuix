@@ -282,16 +282,16 @@ impl ApplicationRunner {
                     if hovered_widget != self.state.hovered {
                         // Useful for debugging
 
-                        println!(
-                            "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-                            hovered_widget,
-                            self.state.hierarchy.get_parent(hovered_widget),
-                            self.state.transform.get_posx(hovered_widget),
-                            self.state.transform.get_posy(hovered_widget),
-                            self.state.transform.get_width(hovered_widget),
-                            self.state.transform.get_height(hovered_widget),
-                            self.state.transform.get_z_order(hovered_widget),
-                        );
+                        // println!(
+                        //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+                        //     hovered_widget,
+                        //     self.state.hierarchy.get_parent(hovered_widget),
+                        //     self.state.transform.get_posx(hovered_widget),
+                        //     self.state.transform.get_posy(hovered_widget),
+                        //     self.state.transform.get_width(hovered_widget),
+                        //     self.state.transform.get_height(hovered_widget),
+                        //     self.state.transform.get_z_order(hovered_widget),
+                        // );
 
                         if let Some(pseudo_classes) =
                             self.state.style.pseudo_classes.get_mut(hovered_widget)
@@ -511,7 +511,6 @@ impl ApplicationRunner {
                 }
 
                 if event.code == Code::F5 && s == MouseButtonState::Pressed {
-                    println!("Reload Styles");
                     self.state.reload_styles().unwrap();
                 }
 

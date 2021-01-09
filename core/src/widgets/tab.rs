@@ -80,7 +80,6 @@ impl EventHandler for TabBar {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
                 TabEvent::SwitchTab(tab_index) => {
-                    println!("Switch Tab");
                     if let Some(tab) = state.hierarchy.get_child(entity, *tab_index) {
                         for c in entity.child_iter(&state.hierarchy.clone()) {
                             //state.style.checked.set(c, false);

@@ -705,7 +705,6 @@ impl EventHandler for ScrollContainer {
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
                         self.moving = false;
-                        println!("Scroll release");
                         state.release(entity);
                     }
 

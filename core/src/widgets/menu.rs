@@ -130,7 +130,6 @@ impl EventHandler for Menu {
             match menu_event {
                 MenuEvent::Open(_id) => {
                     if event.target == entity {
-                        println!("Open Menu");
                         state.capture(entity);
                         entity.set_checked(state, true);
                         self.open = true;
@@ -140,7 +139,6 @@ impl EventHandler for Menu {
                 }
 
                 MenuEvent::Close(id) => {
-                    println!("Close Menu");
                     if *id == entity {
                         if entity.parent(&state.hierarchy).unwrap() == state.root {
                             state.release(entity);
@@ -155,7 +153,6 @@ impl EventHandler for Menu {
                 }
 
                 MenuEvent::CloseAll(_entity) => {
-                    println!("close menu: {:?}", entity);
                     if let Some(_visibility) = state.style.visibility.get(self.container) {
                         //self.container.set_visibility(state, Visibility::Invisible);
                     }
@@ -179,7 +176,6 @@ impl EventHandler for Menu {
             match window_event {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
-                        println!("Mouse down on menu: {} {}", state.hovered, entity);
                         if state.hovered == entity {
                             if self.open {
                                 state.insert_event(
@@ -239,7 +235,6 @@ impl EventHandler for Menu {
                                     }
                                 }
 
-                                println!("CLOSE ALL");
                                 state.insert_event(
                                     Event::new(MenuEvent::CloseAll(entity)).target(entity),
                                 );
@@ -290,7 +285,6 @@ impl EventHandler for Menu {
 
                 WindowEvent::MouseOver => {
                     if event.origin == Entity::null() {
-                        println!("Capture mouse over event");
                         state.insert_event(
                             Event::new(WindowEvent::MouseOver)
                                 .origin(event.target)
@@ -302,7 +296,6 @@ impl EventHandler for Menu {
                     }
 
                     if event.origin == entity {
-                        println!("Mouse over - open menu: {}", entity);
                         if self.open_on_hover {
                             state.insert_event(
                                 Event::new(MenuEvent::Open(entity))
@@ -313,10 +306,6 @@ impl EventHandler for Menu {
                             return true;
                         }
                     } else if event.origin.is_descendant_of(&state.hierarchy, entity) {
-                        println!(
-                            "Mouse over descendant - do nothing: {}  {:?}",
-                            entity, event
-                        );
 
                         //if event.target != self.container {
                         // state.insert_event(
@@ -339,7 +328,6 @@ impl EventHandler for Menu {
 
                     //Do nothing
                     } else {
-                        println!("Mouse over - close: {}", entity);
                         state.insert_event(
                             Event::new(MenuEvent::Close(entity))
                                 .target(entity)

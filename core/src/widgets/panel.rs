@@ -242,14 +242,10 @@ impl EventHandler for Panel {
                                     .rotate
                                     .play_animation(self.checkbox, self.arrow_expand_animation);
 
-                                println!("{}", self.container_height);
-
                                 self.checkbox.set_rotate(state, 0.0);
                                 self.container
                                     .set_height(state, Length::Pixels(self.container_height));
                                 self.other_container.set_opacity(state, 1.0);
-
-                                println!("Height: {}", self.container_height);
 
                             //self.container.set_display(state, Display::Flexbox);
                             } else {

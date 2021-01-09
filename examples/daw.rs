@@ -185,8 +185,6 @@ impl EventHandler for MidiGrid {
                 WindowEvent::MouseScroll(x,y) => {
                 
                     if state.modifiers.ctrl {
-
-                        println!("y: {}", y);
                         
                         let width = state.transform.get_width(entity);
                         let posx = state.transform.get_posx(entity);
@@ -202,14 +200,11 @@ impl EventHandler for MidiGrid {
                         }
 
                         let new_width = 2000.0 * zoom_levels[self.zoom_index];
-                        println!("New Width: {}", new_width);
 
                         // Distance between centre and mouse position 
                         let distx = state.mouse.cursorx - posx;
 
                         let new_posx = distx * (zoom_levels[self.zoom_index] - 1.0);
-
-                        println!("distx: {} {}", distx, new_posx);
 
                         entity.set_width(state, Length::Pixels(new_width));
                         //entity.set_left(state, Length::Pixels(-new_posx));

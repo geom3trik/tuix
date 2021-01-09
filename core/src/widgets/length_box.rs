@@ -95,10 +95,8 @@ impl EventHandler for LengthBox {
         if let Some(textbox_event) = event.is_type::<TextboxEvent>() {
             match textbox_event {
                 TextboxEvent::ValueChanged(value) => {
-                    println!("{:?}", self.length_type);
                     match self.length_type {
                         Length::Pixels(_) => {
-                            println!("Set pixels to: {}", value);
                             self.pixels = value.parse::<f32>().unwrap();
                         }
 

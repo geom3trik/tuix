@@ -390,7 +390,6 @@ impl EventHandler for Calculator {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::KeyDown(input) => {
-                    println!("KeyInput: {:?}", input);
 
                     match input {
                         Some(virtual_keycode) => {

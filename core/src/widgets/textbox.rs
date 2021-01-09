@@ -436,7 +436,6 @@ impl EventHandler for Textbox {
                 */
                 WindowEvent::CharInput(input) => {
                     if *input as u8 != 8 && *input as u8 != 13 {
-                        println!("{}", *input as u8);
                         if self.edit {
                             let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;

@@ -192,8 +192,6 @@ where
                 .set_margin_left(Length::Pixels(5.0))
         });
 
-        println!("X: {}", self.x);
-
         self.dims = Dropdown::new("4")
             .build(state, entity, |builder| {
                 builder
@@ -261,7 +259,6 @@ where
             match dropdown_event {
                 DropdownEvent::SetText(text, _) => match text.as_ref() {
                     "1" => {
-                        println!("ONE");
 
                         if state.transform.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
@@ -299,7 +296,6 @@ where
                     }
 
                     "2" => {
-                        println!("TWO");
                         if state.transform.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
@@ -336,7 +332,6 @@ where
                     }
 
                     "3" => {
-                        println!("THREE");
 
                         if state.transform.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
@@ -375,7 +370,6 @@ where
                     }
 
                     "4" => {
-                        println!("FOUR");
 
                         if state.transform.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
@@ -426,7 +420,6 @@ where
             match textbox_event {
                 TextboxEvent::ValueChanged(text) => {
                     if let Ok(val) = text.clone().parse::<T>() {
-                        //println!("VALUE CHANGED");
                         if target == self.x {
                             self.xval = val;
                         }

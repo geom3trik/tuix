@@ -87,8 +87,6 @@ impl<'i> cssparser::AtRuleParser<'i> for RuleParser {
         input: &mut Parser<'i, 't>,
     ) -> Result<AtRuleType<Self::PreludeNoBlock, Self::PreludeBlock>, ParseError<'i, Self::Error>>
     {
-        println!("Parse At Rule: {}", name);
-
         match &*name {
             "keyframes" => {
                 while let Ok(t) = input.next() {
