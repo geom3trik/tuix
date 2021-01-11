@@ -12,6 +12,8 @@ use femtovg::{
     LineCap, LineJoin, Paint, Path, Renderer, Solidity,
 };
 
+use crate::Key;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum TextboxEvent {
     SetValue(String),
@@ -195,8 +197,10 @@ impl EventHandler for Textbox {
                     self.hitx = -1.0;
                 }
 
-                WindowEvent::KeyDown(keycode, _) => {
-                    if *keycode == keyboard_types::Code::ArrowLeft {
+                WindowEvent::KeyDown(code, key) => {
+                    println!("Code: {:?} Key: {:?}", code, key);
+                    if *key == Some(Key::ArrowLeft) {
+                        
                         if self.edit {
                             self.hitx = -1.0;
                             if self.cursor_pos > 0 {
@@ -214,7 +218,7 @@ impl EventHandler for Textbox {
                         }
                     }
 
-                    if *keycode == keyboard_types::Code::ArrowRight {
+                    if *key == Some(Key::ArrowRight) {
                         if self.edit {
                             self.hitx = -1.0;
                             if self.cursor_pos < text_data.text.len() as u32 {
@@ -231,7 +235,7 @@ impl EventHandler for Textbox {
                             state.insert_event(Event::new(WindowEvent::Redraw));
                         }
                     }
-                    if *keycode == keyboard_types::Code::Backspace {
+                    if *key == Some(Key::Backspace) {
                         if self.edit {
                             let start =
                                 std::cmp::min(self.select_pos, self.cursor_pos) as usize;
@@ -260,7 +264,7 @@ impl EventHandler for Textbox {
                             state.insert_event(Event::new(WindowEvent::Redraw));
                         }
                     }
-                    if *keycode == keyboard_types::Code::Enter {
+                    if *key == Some(Key::Enter) {
                         if self.edit {
                             //text_data.buffer = text_data.text.clone();
                             state.insert_event(
@@ -280,7 +284,7 @@ impl EventHandler for Textbox {
                             state.insert_event(Event::new(WindowEvent::Redraw));
                         }
                     }
-                    if *keycode == keyboard_types::Code::Escape {
+                    if *key == Some(Key::Escape) {
                         if self.edit {
                             self.text = self.buffer.clone();
                             self.edit = false;
@@ -296,144 +300,6 @@ impl EventHandler for Textbox {
                 
                 }
 
-                /*
-                WindowEvent::KeyInput(input) => {
-                    if let Some(virtual_keycode) = input.virtual_keycode {
-                        if virtual_keycode == VirtualKeyCode::Left {
-                            match input.state {
-                                MouseButtonState::Pressed => {
-                                    if self.edit {
-                                        self.hitx = -1.0;
-                                        if self.cursor_pos > 0 {
-                                            self.cursor_pos -= 1;
-                                        }
-                                        if !state.modifiers.shift {
-                                            self.select_pos = self.cursor_pos;
-                                        }
-
-                                        state.insert_event(
-                                            Event::new(WindowEvent::Restyle)
-                                                .target(Entity::new(0, 0)),
-                                        );
-
-                                        state.insert_event(Event::new(WindowEvent::Redraw));
-                                    }
-                                }
-
-                                _ => {}
-                            }
-                        }
-                        if virtual_keycode == VirtualKeyCode::Right {
-                            match input.state {
-                                MouseButtonState::Pressed => {
-                                    if self.edit {
-                                        self.hitx = -1.0;
-                                        if self.cursor_pos < text_data.text.len() as u32 {
-                                            self.cursor_pos += 1;
-                                        }
-                                        if !state.modifiers.shift {
-                                            self.select_pos = self.cursor_pos;
-                                        }
-
-                                        state.insert_event(
-                                            Event::new(WindowEvent::Restyle)
-                                                .target(Entity::new(0, 0)),
-                                        );
-
-                                        state.insert_event(Event::new(WindowEvent::Redraw));
-                                    }
-                                }
-
-                                _ => {}
-                            }
-                        }
-                        if virtual_keycode == VirtualKeyCode::Back {
-                            match input.state {
-                                MouseButtonState::Pressed => {
-                                    if self.edit {
-                                        let start = std::cmp::min(self.select_pos, self.cursor_pos)
-                                            as usize;
-                                        let end = std::cmp::max(self.select_pos, self.cursor_pos)
-                                            as usize;
-                                        //let start = text_data.select_pos as usize;
-                                        //let end = text_data.cursor_pos as usize;
-                                        if start == end && self.cursor_pos > 0 {
-                                            if let Some(txt) = state.style.text.get_mut(entity) {
-                                                txt.text.remove((self.cursor_pos - 1) as usize);
-                                            }
-
-                                            self.cursor_pos -= 1;
-                                            self.select_pos -= 1;
-                                        } else {
-                                            if let Some(txt) = state.style.text.get_mut(entity) {
-                                                txt.text.replace_range(start..end, "");
-                                            }
-                                            self.cursor_pos = start as u32;
-                                            self.select_pos = start as u32;
-                                        }
-
-                                        state.insert_event(
-                                            Event::new(WindowEvent::Restyle)
-                                                .target(Entity::new(0, 0)),
-                                        );
-
-                                        state.insert_event(Event::new(WindowEvent::Redraw));
-                                    }
-                                }
-                                _ => {}
-                            }
-                        }
-                        if virtual_keycode == VirtualKeyCode::Return {
-                            match input.state {
-                                MouseButtonState::Pressed => {
-                                    if self.edit {
-                                        //text_data.buffer = text_data.text.clone();
-                                        state.insert_event(
-                                            Event::new(TextboxEvent::ValueChanged(
-                                                text_data.text.clone(),
-                                            ))
-                                            .target(entity),
-                                        );
-
-                                        self.edit = false;
-                                        entity.set_active(state, false);
-                                        state.focused = Entity::new(0, 0);
-                                        state.captured = Entity::null();
-
-                                        state.insert_event(
-                                            Event::new(WindowEvent::Restyle)
-                                                .target(Entity::new(0, 0)),
-                                        );
-
-                                        state.insert_event(Event::new(WindowEvent::Redraw));
-                                    }
-                                }
-                                _ => {}
-                            }
-                        }
-                        if virtual_keycode == VirtualKeyCode::Escape {
-                            match input.state {
-                                MouseButtonState::Pressed => {
-                                    if self.edit {
-                                        self.text = self.buffer.clone();
-                                        self.edit = false;
-                                        entity.set_active(state, false);
-
-                                        state.insert_event(
-                                            Event::new(WindowEvent::Restyle)
-                                                .target(Entity::new(0, 0)),
-                                        );
-
-                                        state.insert_event(Event::new(WindowEvent::Redraw));
-                                    }
-                                }
-
-                                _ => {}
-                            }
-                        }
-                    }
-                }
-                */
                 WindowEvent::CharInput(input) => {
                     if *input as u8 != 8 && *input as u8 != 13 {
                         if self.edit {
@@ -461,7 +327,7 @@ impl EventHandler for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
-                            //state.insert_event(Event::new(WindowEvent::Redraw));
+                            state.insert_event(Event::new(WindowEvent::Redraw));
                         }
                     }
                 }
@@ -626,7 +492,7 @@ impl EventHandler for Textbox {
 
         
         // Skip widgets with no width or no height
-        if width + 2.0* border_width + padding_left + padding_right == 0.0 || height + 2.0 * border_width + padding_top + padding_bottom == 0.0 {
+        if width + 2.0 * border_width + padding_left + padding_right == 0.0 || height + 2.0 * border_width + padding_top + padding_bottom == 0.0 {
             return;
         }
 

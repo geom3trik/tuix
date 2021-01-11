@@ -18,13 +18,13 @@ use tuix_core::state::hierarchy::IntoHierarchyIterator;
 
 use tuix_core::state::Fonts;
 
-use tuix_core::VirtualKeyCode;
-
 use tuix_core::state::style::prop::*;
 
 use tuix_core::{WindowEvent, WindowDescription, WindowWidget};
 
 use tuix_core::systems::{apply_clipping, apply_z_ordering, apply_styles, apply_visibility};
+
+use glutin::event::VirtualKeyCode;
 
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
@@ -129,48 +129,78 @@ impl Application {
         let mut window = self.window;
         let mut should_quit = false;
 
-        let mut should_redraw = false;
         let hierarchy = state.hierarchy.clone();
 
         //state.insert_event(Event::new(WindowEvent::Restyle));
         //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
 
+        let event_loop_proxy = self.event_loop.create_proxy();
+
         let mut first_time = true;
 
         self.event_loop.run(move |event, _, control_flow|{
-        
+            
+            *control_flow = ControlFlow::Wait;
 
             match event {
                 GEvent::LoopDestroyed => return,
 
                 GEvent::UserEvent(_) => {
-
+                    
+                    window.handle.window().request_redraw();
+                    
+                    //println!("User Event");
+                    // if state.apply_animations() {
+                    //     *control_flow = ControlFlow::Poll;
+                    //     state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(Entity::new(0, 0)));
+                    //     //state.insert_event(Event::new(WindowEvent::Redraw));
+                    //     event_loop_proxy.send_event(());
+                    //     window.handle.window().request_redraw();
+                    // } else {
+                    //     *control_flow = ControlFlow::Wait;
+                    // }
                 }
 
                 GEvent::MainEventsCleared => {
-                    if state.apply_animations() {
-                        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(Entity::new(0, 0)));
-                        //state.insert_event(Event::new(WindowEvent::Redraw));
-                        window.handle.window().request_redraw();
-                    }
-
+                    //println!("Main Events Cleared: {}", counter);
+                    //counter += 1;
 
                     let mut needs_redraw = false;
-
-                    if first_time {
-                        apply_styles(&mut state, &hierarchy);
-                        first_time = false;
-                    }
-
                     while !state.event_queue.is_empty() {
                         if event_manager.flush_events(&mut state) {
                             needs_redraw = true;
                         }
                     }
 
+                    if state.apply_animations() {
+                        //println!("Animate");
+                        *control_flow = ControlFlow::Poll;
+                        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(Entity::new(0, 0)));
+                        //state.insert_event(Event::new(WindowEvent::Redraw));
+                        event_loop_proxy.send_event(());
+                        window.handle.window().request_redraw();
+                    } else {
+                        //println!("Wait");
+                        *control_flow = ControlFlow::Wait;
+                    }
+
+
+                    
+
+                    if first_time {
+                        apply_styles(&mut state, &hierarchy);
+                        first_time = false;
+                    }
+
+                    
+
                     if needs_redraw {
                         window.handle.window().request_redraw();
                     }
+
+
+
+                    //
 
                     // event_manager.flush_events(&mut state);
 

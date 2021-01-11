@@ -295,6 +295,8 @@ where
             self.entity_indices[entity.index()].animation_id = self.active_animations.len();
             self.active_animations.push(animation);
         }
+
+
     }
 
     pub fn animate(&mut self, current_time: std::time::Instant) {
@@ -423,6 +425,7 @@ where
         let rule_animation_id = self.rule_indices[rule].animation_id;
 
         // Check if the entity is already animating with a transition
+        
         let animation_index = self.entity_indices[entity.index()].animation_id;
         if animation_index < self.active_animations.len() {
             // Check here is the active animation belongs to the transition of the currently linked data
@@ -468,6 +471,7 @@ where
                 self.play_animation(entity, rule_animation_id);
             }
         }
+        
 
         // Link the entity to the same data as the rule
         self.entity_indices[entity.index()].data_index = Index::new(rule_data_index);

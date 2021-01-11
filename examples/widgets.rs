@@ -8,6 +8,11 @@ use tuix::style::themes::DEFAULT_THEME;
 
 // static THEME: &'static str = include_str!("themes/light_theme.css");
 
+#[derive(Debug, Clone, PartialEq)]
+enum TestEvent {
+    SomethingChanged(f32),
+}
+
 fn main() {
     Application::new(|win_desc, state, window| {
         state.insert_theme(DEFAULT_THEME);
@@ -66,9 +71,18 @@ fn main() {
 
         let panel = Panel::new("Sliders").build(state, rvbox, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Value").build(state, row, |builder| builder);
+        let textbox = Textbox::new("0.0").build(state, row, |builder| builder);
+        let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Slider").build(state, row, |builder| builder);
-        Slider2::new().build(state, row, |builder| builder);
+        let slider = Slider2::new(move |value| Event::new(TextboxEvent::SetValue(value.to_string())).target(textbox)).build(state, row, |builder| builder);
 
+
+        let panel = Panel::new("Radio List").build(state, rvbox, |builder| builder);
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Radio List").build(state, row, |builder| builder);
+        RadioList::new("group1").build(state, row, |builder| builder);
+        RadioBox::new("group1").build(state, row, |builder| builder);
 
         // Tabs
         // let (tab_bar, tab_container) = TabContainer::new().build(state, window, |builder| builder);

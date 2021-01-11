@@ -82,4 +82,6 @@ pub enum Property {
     FontColor(Color),
 
     Transition(Vec<Transition>),
+
+    ZIndex(i32),
 }

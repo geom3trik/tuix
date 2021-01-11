@@ -390,165 +390,162 @@ impl EventHandler for Calculator {
             match window_event {
                 WindowEvent::KeyDown(code, key) => {
 
-                    match key {
-                        Some(virtual_keycode) => {
-                            match key {
-                                Key::Escape => {
-                                    state.active = self.clear;
-                                    self.clear_all(state);
-                                }
 
-                                VirtualKeyCode::Key0 | VirtualKeyCode::Numpad0 => {
-                                    state.active = self.zero;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Digit('0')).target(entity),
-                                    );
-                                }
+                    match code {
 
-                                VirtualKeyCode::Key1 | VirtualKeyCode::Numpad1 => {
-                                    state.active = self.one;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Digit('1')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Key2 | VirtualKeyCode::Numpad2 => {
-                                    state.active = self.two;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Digit('2')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Key3 | VirtualKeyCode::Numpad3 => {
-                                    state.active = self.three;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Digit('3')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Key4 | VirtualKeyCode::Numpad4 => {
-                                    state.active = self.four;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Digit('4')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Key5 | VirtualKeyCode::Numpad5 => {
-                                    if state.modifiers.shift {
-                                        state.active = self.percent;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('%')).target(entity),
-                                        );
-                                    } else {
-                                        state.active = self.five;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('5')).target(entity),
-                                        );
-                                    }
-                                }
-
-                                VirtualKeyCode::Key6 | VirtualKeyCode::Numpad6 => {
-                                    state.active = self.six;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Digit('6')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Key7 | VirtualKeyCode::Numpad7 => {
-                                    state.active = self.seven;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Digit('7')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Key8 | VirtualKeyCode::Numpad8 => {
-                                    if state.modifiers.shift {
-                                        state.active = self.multiply;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Operator('*'))
-                                                .target(entity),
-                                        );
-                                    } else {
-                                        state.active = self.eight;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Digit('8')).target(entity),
-                                        );
-                                    }
-                                }
-
-                                VirtualKeyCode::Key9 | VirtualKeyCode::Numpad9 => {
-                                    state.active = self.nine;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Digit('9')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Asterisk => {
-                                    state.active = self.multiply;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('*')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Minus => {
-                                    state.active = self.subtract;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('-')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Plus => {
-                                    state.active = self.add;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('+')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Slash => {
-                                    state.active = self.divide;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('/')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Period => {
-                                    state.active = self.decimal_point;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Digit('.')).target(entity),
-                                    );
-                                }
-
-                                VirtualKeyCode::Equals => {
-                                    if state.modifiers.shift {
-                                        state.active = self.add;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Operator('+'))
-                                                .target(entity),
-                                        );
-                                    } else {
-                                        state.active = self.equals;
-                                        state.insert_event(
-                                            Event::new(CalculatorEvent::Operator('='))
-                                                .target(entity),
-                                        );
-                                    }
-                                }
-
-                                VirtualKeyCode::Return => {
-                                    state.active = self.equals;
-                                    state.insert_event(
-                                        Event::new(CalculatorEvent::Operator('=')).target(entity),
-                                    );
-                                }
-
-                                _ => {}
-                            }
-
-                            state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
+                        Code::Digit0 => {
+                            state.active = self.zero;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Digit('0')).target(entity),
+                            );
                         }
 
-                        None => {}
+                        Code::Digit1 => {
+                            state.active = self.one;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Digit('1')).target(entity),
+                            );
+                        }
+
+                        Code::Digit2 => {
+                            state.active = self.two;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Digit('2')).target(entity),
+                            );
+                        }
+
+                        Code::Digit3 => {
+                            state.active = self.three;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Digit('3')).target(entity),
+                            );
+                        }
+
+                        Code::Digit4 => {
+                            state.active = self.four;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Digit('4')).target(entity),
+                            );
+                        }
+
+                        Code::Digit5 => {
+                            if state.modifiers.shift {
+                                state.active = self.percent;
+                                state.insert_event(
+                                    Event::new(CalculatorEvent::Digit('%')).target(entity),
+                                );
+                            } else {
+                                state.active = self.five;
+                                state.insert_event(
+                                    Event::new(CalculatorEvent::Digit('5')).target(entity),
+                                );
+                            }
+                        }
+
+                        Code::Digit6 => {
+                            state.active = self.six;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Digit('6')).target(entity),
+                            );
+                        }
+
+                        Code::Digit7 => {
+                            state.active = self.seven;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Digit('7')).target(entity),
+                            );
+                        }
+
+                        Code::Digit8 => {
+                            if state.modifiers.shift {
+                                state.active = self.multiply;
+                                state.insert_event(
+                                    Event::new(CalculatorEvent::Operator('*'))
+                                        .target(entity),
+                                );
+                            } else {
+                                state.active = self.eight;
+                                state.insert_event(
+                                    Event::new(CalculatorEvent::Digit('8')).target(entity),
+                                );
+                            }
+                        }
+
+                        Code::Digit9 => {
+                            state.active = self.nine;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Digit('9')).target(entity),
+                            );
+                        }
+
+                        Code::Escape => {
+                            state.active = self.clear;
+                            self.clear_all(state);
+                        }
+
+                        Code::NumpadMultiply => {
+                            state.active = self.multiply;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Operator('*')).target(entity),
+                            );
+                        }
+
+                        Code::NumpadSubtract => {
+                            state.active = self.subtract;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Operator('-')).target(entity),
+                            );
+                        }
+
+                        Code::NumpadAdd => {
+                            state.active = self.add;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Operator('+')).target(entity),
+                            );
+                        }
+
+                        Code::NumpadDivide => {
+                            state.active = self.divide;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Operator('/')).target(entity),
+                            );
+                        }
+
+                        Code::NumpadDecimal => {
+                            state.active = self.decimal_point;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Digit('.')).target(entity),
+                            );
+                        }
+
+                        Code::Equal => {
+                            if state.modifiers.shift {
+                                state.active = self.add;
+                                state.insert_event(
+                                    Event::new(CalculatorEvent::Operator('+'))
+                                        .target(entity),
+                                );
+                            } else {
+                                state.active = self.equals;
+                                state.insert_event(
+                                    Event::new(CalculatorEvent::Operator('='))
+                                        .target(entity),
+                                );
+                            }
+                        }
+
+                        Code::NumpadEnter | Code::Enter => {
+                            state.active = self.equals;
+                            state.insert_event(
+                                Event::new(CalculatorEvent::Operator('=')).target(entity),
+                            );
+                        }
+
+                        _ => {}
                     }
+
+                    state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
+                        
                 }
 
                 WindowEvent::KeyUp(_,_) => {

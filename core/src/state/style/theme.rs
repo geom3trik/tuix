@@ -390,6 +390,8 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
                 Property::Transition(input.parse_comma_separated(|F| parse_transition2(F))?)
             }
 
+            "z-index" => Property::ZIndex(parse_z_index(input)?),
+
             _ => {
                 let basic_error = BasicParseError {
                     kind: BasicParseErrorKind::UnexpectedToken(input.next()?.to_owned()),
@@ -490,6 +492,21 @@ fn parse_length_or_percentage<'i, 't>(
         Token::Percentage { unit_value: x, .. } => *x as f32,
 
         Token::Dimension { value: x, .. } => *x as f32,
+        t => {
+            let basic_error = BasicParseError {
+                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
+                location: SourceLocation { line: 0, column: 0 },
+            };
+            return Err(basic_error.into());
+        }
+    })
+}
+
+fn parse_z_index<'i, 't>(
+    input: &mut Parser<'i, 't>,
+) -> Result<i32, ParseError<'i, CustomParseError>> {
+    Ok(match input.next()? {
+        Token::Number { value: x, .. } => *x as i32,
         t => {
             let basic_error = BasicParseError {
                 kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),

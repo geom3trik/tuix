@@ -2788,14 +2788,14 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 should_continue = true;
             }
 
-            if !should_continue {
-                if let Some(ns) = hierarchy.get_next_sibling(parent) {
-                    next_sibling = ns;
-                    hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
-                }
-            } else {
-                should_continue = false;
-            }
+            // if !should_continue {
+            //     if let Some(ns) = hierarchy.get_next_sibling(parent) {
+            //         next_sibling = ns;
+            //         hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
+            //     }
+            // } else {
+            //     should_continue = false;
+            // }
 
 
         }

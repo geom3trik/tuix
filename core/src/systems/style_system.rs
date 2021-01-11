@@ -185,6 +185,11 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
+        if state.style.z_order.link_rule(entity, &matched_rules) {
+            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+            state.insert_event(Event::new(WindowEvent::Redraw));
+        }
+
         // Currently doesn't do anything - TODO
         state.style.overflow.link_rule(entity, &matched_rules);
 
@@ -409,6 +414,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 }
 
 
+/*
 pub fn apply_styles2(state: &mut State, hierarchy: &Hierarchy, mut style_entity: Entity) {
 
 
@@ -723,3 +729,4 @@ pub fn apply_styles2(state: &mut State, hierarchy: &Hierarchy, mut style_entity:
 
     
 }
+*/

@@ -2,7 +2,7 @@ extern crate tuix;
 
 use tuix::*;
 
-static THEME: &'static str = include_str!("themes/widget_theme.css");
+static THEME: &'static str = include_str!("themes/eq8_theme.css");
 
 const ICON_FLOPPY: &str = "\u{1f4be}";
 const ICON_PLUS: &str = "\u{2b}";
@@ -25,44 +25,6 @@ fn main() {
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
         state.insert_theme(THEME);
-        // let checkbox = Checkbox::new(false).build(state, root, |builder| builder.class("widget"));
-        //let switch = Switch::new(false).build(state, root, |builder| builder);
-
-        //let dropdown = Dropdown::new()
-
-        // let knob = ControlKnob::new().build(state, root, |builder|
-        //     builder
-        //         .set_width(Length::Pixels(50.0))
-        //         .set_height(Length::Pixels(50.0))
-        // );
-
-        // let knob = ValueKnob::new("Dial", 0.0, 0.0, 1.0).build(state, root, |builder|
-        //     builder
-        //         .set_width(Length::Pixels(50.0))
-        //         .set_height(Length::Pixels(75.0))
-        // );
-
-        // let gain_input = Textbox::new("0.0").build(state, window, |builder| { 
-        //     builder
-        //         .set_width(Length::Pixels(40.0))
-        //         .set_height(Length::Pixels(20.0))
-        // });
-
-        // let audio_level = AudioLevelBar::new().build(state, window, |builder| {
-        //     builder
-        //         .set_height(Length::Pixels(200.0))
-        //         .set_width(Length::Pixels(10.0))
-        // });
-
-        // let row = HBox::new().build(state, window, |builder| builder);
-        // let eq_channel1 = EQChannel::new(1).build(state, row, |builder| builder);
-        // let eq_channel2 = EQChannel::new(2).build(state, row, |builder| builder);
-        // let eq_channel3 = EQChannel::new(3).build(state, row, |builder| builder);
-        // let eq_channel4 = EQChannel::new(4).build(state, row, |builder| builder);
-        // let eq_channel5 = EQChannel::new(5).build(state, row, |builder| builder);
-        // let eq_channel6 = EQChannel::new(6).build(state, row, |builder| builder);
-        // let eq_channel7 = EQChannel::new(7).build(state, row, |builder| builder);
-        // let eq_channel8 = EQChannel::new(8).build(state, row, |builder| builder);
 
         let eq8 = EQ8::new().build(state, window, |builder| builder.set_flex_grow(1.0));
 
@@ -655,7 +617,7 @@ impl EventHandler for ControlPoint {
                 // Need a better way to figure out if a parent has been resized
                 // Current thinking is a GeometryChanged event that is passed directly to the widget changing size
                 // And then optionally propagated to the children
-
+                /*
                 WindowEvent::Relayout => {
                     // Prevents infinite recursion (except when there are multiple control points)
                     if event.origin != entity {
@@ -677,6 +639,7 @@ impl EventHandler for ControlPoint {
                     }
 
                 }
+                */
 
                 WindowEvent::MouseDown(button) => {
                     if event.target == entity && *button == MouseButton::Left {
