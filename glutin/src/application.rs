@@ -3,7 +3,7 @@
 use glutin::event_loop::{ControlFlow, EventLoop};
 use glutin::dpi::*;
 
-use crate::keyboard::{scan_to_code, vk_to_key};
+use crate::{keyboard::{scan_to_code, vk_to_key}, window};
 
 use crate::window::Window;
 
