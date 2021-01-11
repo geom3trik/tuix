@@ -8,7 +8,7 @@ use crate::widgets::{Button, Dropdown, DropdownEvent, Item, Textbox, TextboxEven
 use crate::AnimationState;
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum VectorEditEvent<T: Send> {
+pub enum VectorEditEvent<T> {
     ValueChanged(T, T, T, T),
     Dim1(T),
     Dim2(T, T),
@@ -81,7 +81,7 @@ impl EventHandler for Dimension {
     }
 }
 
-pub struct VectorEdit<T: Send> {
+pub struct VectorEdit<T> {
     x: Entity,
     y: Entity,
     z: Entity,
@@ -110,7 +110,6 @@ where
         + Copy
         + PartialEq
         + std::str::FromStr
-        + Send
 {
     pub fn new() -> Self {
         VectorEdit {
@@ -168,7 +167,6 @@ where
         + Copy
         + PartialEq
         + std::str::FromStr
-        + Send,
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
@@ -250,7 +248,6 @@ where
         + Copy
         + PartialEq
         + std::str::FromStr
-        + Send
 {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         let target = event.target;

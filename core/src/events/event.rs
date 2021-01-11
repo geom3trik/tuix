@@ -22,7 +22,7 @@ pub enum Cancellable {
 }
 
 // A message is a wrapper around an Any but with the added ability to Clone the message
-pub trait Message: Any + MessageClone + Debug + Send {
+pub trait Message: Any + MessageClone + Debug {
     // An &Any can be cast to a reference to a concrete type.
     fn as_any(&self) -> &dyn Any;
 
@@ -38,7 +38,7 @@ pub trait MessageClone {
 // Implements MessageClone for any type that Implements Message and Clone
 impl<T> MessageClone for T
 where
-    T: 'static + Message + Clone + Send,
+    T: 'static + Message + Clone,
 {
     fn clone_message(&self) -> Box<Message> {
         Box::new(self.clone())
@@ -79,7 +79,7 @@ impl dyn Message {
 }
 
 // Implements message for any static type that implements PartialEq, Debug and Clone
-impl<S: 'static + PartialEq + std::fmt::Debug + Clone + Send> Message for S {
+impl<S: 'static + PartialEq + std::fmt::Debug + Clone> Message for S {
     fn as_any(&self) -> &dyn Any {
         self
     }

@@ -17,7 +17,7 @@ use tuix_core::{
 pub struct Application<F>
 where
     F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
-    F: 'static + Send
+    F: 'static
 {
     app: F,
 }
@@ -25,7 +25,7 @@ where
 impl<F> Application<F>
 where
     F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
-    F: 'static + Send
+    F: 'static
 {
     pub fn new(app: F) -> Self {
         Self { app }
