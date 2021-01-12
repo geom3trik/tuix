@@ -1,5 +1,13 @@
 use crate::entity::Entity;
 
+pub enum HierarchyErrorKind {
+
+}
+
+pub struct HierarchyError {
+
+}
+
 #[derive(Clone)]
 pub struct Hierarchy {
     pub entities: Vec<Entity>,
@@ -20,6 +28,7 @@ impl Hierarchy {
         }
     }
 
+    // Return the size of the hierarchy in bytes
     pub fn bytes(&self) -> usize {
         return self.entities.len() * std::mem::size_of::<Entity>()
             + self.parent.len() * std::mem::size_of::<Option<Entity>>()
@@ -111,6 +120,7 @@ impl Hierarchy {
         false
     }
 
+    // Not decided yet how this should work
     pub fn remove_children(&mut self, _entity: Entity) {}
 
     pub fn has_children(&self, entity: Entity) -> bool {
@@ -118,6 +128,7 @@ impl Hierarchy {
     }
 
     pub fn remove(&mut self, entity: Entity) {
+        // Recursively remove all of the nodes below this one
         if let Some(child) = self.get_first_child(entity) {
             self.remove(child);
         }
@@ -137,6 +148,43 @@ impl Hierarchy {
         }
 
         self.parent[entity.index()] = None;
+    }
+
+    pub fn set_next_sibling(&mut self, entity: Entity, sibling: Entity) -> Result<(), HierarchyError> {
+        // Check is sibline exists in the hierarchy
+        if sibling.index() >= self.parent.len() {
+            return Err(HierarchyError{})
+        }
+
+        // Check if sibling has the same parent 
+        if let Some(parent) = self.get_parent(entity) {
+            if let Some(sibling_parent) = self.get_parent(entity) {
+                if parent != sibling_parent {
+                    return Err(HierarchyError{})
+                }
+            }
+        }
+
+        // Temporarily store the next_sibling of the desired sibling
+        let sibling_prev_sibling = self.get_prev_sibling(sibling).unwrap_or_default();
+        
+
+        // Temporarily store the prev_sibling of the entity
+        let entity_prev_sibling = self.get_prev_sibling(entity).unwrap_or_default();
+        let entity_next_sibling = self.get_next_sibling(entity).unwrap_or_default();
+
+
+        self.next_sibling[sibling_prev_sibling.index()] = Some(entity); //A
+        self.prev_sibling[sibling.index()] = Some(entity); //B
+
+        self.prev_sibling[entity.index()] = Some(sibling_prev_sibling); //D
+        self.next_sibling[entity.index()] = Some(sibling);//E
+
+        self.next_sibling[entity_prev_sibling.index()] = Some(entity_next_sibling); //C
+        self.prev_sibling[entity_next_sibling.index()] = Some(entity_prev_sibling); //F
+
+
+        Ok(())
     }
 
     pub fn set_parent(&mut self, entity: Entity, parent: Entity) {
