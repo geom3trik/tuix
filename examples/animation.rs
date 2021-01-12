@@ -119,8 +119,8 @@ impl BuildHandler for Animations {
         let background_color_animation_state = AnimationState::new()
             .with_duration(std::time::Duration::from_secs(2))
             .with_keyframe((0.0, Color::rgb(100,50,50)))
-            .with_keyframe((1.0, Color::rgb(50,50,100)))
-            .set_persistent(true);
+            .with_keyframe((1.0, Color::rgb(50,50,100)));
+            //.set_persistent(true);
 
         self.background_color_animation = state.style.background_color.insert_animation(background_color_animation_state);
 
@@ -130,8 +130,8 @@ impl BuildHandler for Animations {
         let position_animation_state = AnimationState::new()
             .with_duration(std::time::Duration::from_secs(2))
             .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(100.0)))
-            .set_persistent(true);
+            .with_keyframe((1.0, Length::Pixels(100.0)));
+            //.set_persistent(true);
 
         // Add the same animation to two different properties (need to clone)
         self.position_left_animation = state.style.left.insert_animation(position_animation_state.clone());

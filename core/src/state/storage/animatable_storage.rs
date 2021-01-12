@@ -344,6 +344,7 @@ where
     }
 
     pub fn remove_innactive_animations(&mut self) {
+
         // Create a list of finished animations
         let inactive: Vec<AnimationState<T>> = self
             .active_animations
@@ -559,7 +560,6 @@ where
         let animation_index = self.entity_indices[entity.index()].animation_id;
 
         if animation_index < self.active_animations.len() {
-            
             return self.active_animations[animation_index].get_output();
         }
 
