@@ -147,8 +147,6 @@ fn load_renderer(window: &Window) -> (Renderer, raw_gl_context::GlContext) {
 
     context.make_current();
 
-    gl::load_with(|s| context.get_proc_address(s) as _);
-
     let renderer = femtovg::renderer::OpenGl::new(|s| context.get_proc_address(s) as *const _)
         .expect("Cannot create renderer");
 
