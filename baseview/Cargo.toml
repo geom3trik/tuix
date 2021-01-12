@@ -9,7 +9,6 @@ repository = "https://github.com/geom3trik/tuix"
 
 
 [dependencies]
-gl = "0.14.0"
 raw-gl-context = "0.1"
 tuix_core = { path = "../core" }
 baseview = { git = "https://github.com/RustAudio/baseview.git", branch = "master" }
