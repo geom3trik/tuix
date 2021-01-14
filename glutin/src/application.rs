@@ -36,7 +36,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new<F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription>(
+    pub fn new<F: FnOnce(WindowDescription, &mut State, Entity) -> WindowDescription>(
         mut app: F,
     ) -> Self {
         let event_loop = EventLoop::new();
@@ -107,6 +107,9 @@ impl Application {
             state: state,
         }
     }
+
+
+    
 
     pub fn get_window(&self) -> Entity {
         self.state.root

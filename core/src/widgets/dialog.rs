@@ -13,3 +13,19 @@ use crate::widgets::{Element, Button};
 pub struct Dialogue {
     
 }
+
+impl Dialogue {
+    pub fn new() -> Self {
+        Dialogue {
+
+        }
+    }
+}
+
+impl BuildHandler for Dialogue {
+
+}
+
+impl EventHandler for Dialogue {
+    
+}
