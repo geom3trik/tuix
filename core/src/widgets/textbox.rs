@@ -198,7 +198,7 @@ impl EventHandler for Textbox {
                 }
 
                 WindowEvent::KeyDown(code, key) => {
-                    println!("Code: {:?} Key: {:?}", code, key);
+                    //println!("Code: {:?} Key: {:?}", code, key);
                     if *key == Some(Key::ArrowLeft) {
                         
                         if self.edit {
