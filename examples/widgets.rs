@@ -48,7 +48,7 @@ fn main() {
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Switch").build(state, row, |builder| builder);
-        Switch::new(false).build(state, row, |builder| builder);
+        let switch = Switch::new(false).build(state, row, |builder| builder);
 
         let panel = Panel::new("Input").build(state, rvbox, |builder| builder);
 
@@ -58,7 +58,12 @@ fn main() {
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Spinner").build(state, row, |builder| builder);
-        Spinner::new(100).with_increment(1).with_decrement(1).build(state, row, |builder| builder);
+        Spinner::new(100)
+            .with_min(95)
+            .with_max(105)
+            .on_min(Event::new(CheckboxEvent::Uncheck).target(switch))
+            .on_max(Event::new(CheckboxEvent::Check).target(switch))
+            .build(state, row, |builder| builder);
 
         let panel = Panel::new("Lists").build(state, rvbox, |builder| builder);
 

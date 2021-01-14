@@ -45,8 +45,12 @@ pub struct Spinner<T> {
     on_increment: Option<Box<dyn Fn(T) -> Event>>,
     // Triggered when the spinner is decremented
     on_decrement: Option<Box<dyn Fn(T) -> Event>>,
-    // Triggered when the value is changed via text input
+    // Triggered when the value is changed
     on_change: Option<Box<dyn Fn(T) -> Event>>,
+    // Triggered when the spinner value reaches max
+    on_max: Option<Event>,
+    // Triggered when the spinner value reaches min
+    on_min: Option<Event>,
 
 }
 
@@ -84,6 +88,8 @@ where
             on_increment: None,
             on_decrement: None,
             on_change: None,
+            on_max: None,
+            on_min: None,
         }
     }
 
@@ -94,6 +100,49 @@ where
 
     pub fn with_decrement(mut self, decrement_value: T) -> Self {
         self.decrement_value = decrement_value;
+        self
+    }
+
+    pub fn with_min(mut self, min_value: T) -> Self {
+        self.min = min_value;
+        self
+    }
+
+    pub fn with_max(mut self, max_value: T) -> Self {
+        self.max = max_value;
+        self
+    }
+
+    pub fn on_increment<F>(mut self, message: F) -> Self 
+    where F: 'static + Fn(T) -> Event
+    {
+        self.on_increment = Some(Box::new(message));
+        self
+    }
+
+    pub fn on_decrement<F>(mut self, message: F) -> Self 
+    where F: 'static + Fn(T) -> Event
+    {
+        self.on_decrement = Some(Box::new(message));
+        self
+    }
+
+    pub fn on_change<F>(mut self, message: F) -> Self 
+    where F: 'static + Fn(T) -> Event
+    {
+        self.on_change = Some(Box::new(message));
+        self
+    }
+
+    pub fn on_max(mut self, event: Event) -> Self 
+    {
+        self.on_max = Some(event);
+        self
+    }
+
+    pub fn on_min(mut self, event: Event) -> Self 
+    {
+        self.on_min = Some(event);
         self
     }
 }
@@ -241,6 +290,30 @@ where
                         if event.target == self.increment {
                             self.value += self.increment_value;
 
+                            if self.value <= self.min {
+                                self.value = self.min;
+                                if let Some(mut on_min) = self.on_min.clone() {
+                                    if !on_min.target {
+                                        on_min.target = entity;
+                                    }
+    
+                                    on_min.origin = entity;
+                                    state.insert_event(on_min);
+                                }
+                            }
+
+                            if self.value >= self.max {
+                                self.value = self.max;
+                                if let Some(mut on_max) = self.on_max.clone() {
+                                    if !on_max.target {
+                                        on_max.target = entity;
+                                    }
+    
+                                    on_max.origin = entity;
+                                    state.insert_event(on_max);
+                                }
+                            }
+
                             let val_str = format!("{:.*}", 5, &self.value.to_string());
 
                             self.textbox.set_text(state, &val_str);
@@ -257,10 +330,36 @@ where
                                 event.origin = entity;
                                 state.insert_event(event);
                             }
+
+                            return true;
                         }
 
                         if event.target == self.decrement {
                             self.value -= self.decrement_value;
+
+                            if self.value <= self.min {
+                                self.value = self.min;
+                                if let Some(mut on_min) = self.on_min.clone() {
+                                    if !on_min.target {
+                                        on_min.target = entity;
+                                    }
+    
+                                    on_min.origin = entity;
+                                    state.insert_event(on_min);
+                                }
+                            }
+
+                            if self.value >= self.max {
+                                self.value = self.max;
+                                if let Some(mut on_max) = self.on_max.clone() {
+                                    if !on_max.target {
+                                        on_max.target = entity;
+                                    }
+    
+                                    on_max.origin = entity;
+                                    state.insert_event(on_max);
+                                }
+                            }
 
                             let val_str = format!("{:.*}", 5, &self.value.to_string());
 
@@ -275,6 +374,8 @@ where
                                 event.origin = entity;
                                 state.insert_event(event);
                             }
+
+                            return true;
                         }
                     }
                 }
