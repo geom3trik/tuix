@@ -40,7 +40,7 @@ impl EventHandler for WindowWidget {
                 }
 
                 WindowEvent::Redraw => {
-                    println!("Redraw Window");
+
                 }
 
                 _ => {}
