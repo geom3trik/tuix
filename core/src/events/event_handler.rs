@@ -1,4 +1,4 @@
-use crate::events::{Event, EventManager, Message};
+use crate::{events::{Event, EventManager, Message}, state};
 
 use crate::build_handler::Builder;
 
@@ -20,7 +20,7 @@ pub enum WidgetEvent {
     MouseLeave(Entity),
 }
 
-pub trait EventHandler: Send {
+pub trait EventHandler {
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         false
@@ -118,6 +118,7 @@ pub trait EventHandler: Send {
             .expect("Failed to find parent somehow");
 
         let parent_width = state.transform.get_width(parent);
+        let parent_height = state.transform.get_height(parent);
 
         let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
             Length::Pixels(val) => val,
@@ -201,18 +202,60 @@ pub trait EventHandler: Send {
 
 
         
-        let shadow_h_offset = state
+        let shadow_h_offset = match state
             .style
             .shadow_h_offset
             .get(entity)
             .cloned()
+            .unwrap_or_default() {
+                Length::Pixels(val) => val,
+                Length::Percentage(val) => parent_width * val,
+                _=> 0.0
+            };
+
+        let shadow_v_offset = match state
+            .style
+            .shadow_v_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default() {
+                Length::Pixels(val) => val,
+                Length::Percentage(val) => parent_height * val,
+                _=> 0.0
+            };
+
+        let shadow_blur = match state.style.shadow_blur.get(entity).cloned().unwrap_or_default() {
+            Length::Pixels(val) => val,
+                Length::Percentage(val) => parent_height * val,
+                _=> 0.0
+        };
+
+        let shadow_color = state
+            .style
+            .shadow_color
+            .get(entity)
+            .cloned()
             .unwrap_or_default();
 
-        // Draw shadow
-        // let mut path = Path::new();
-        // path.rounded_rect_varying(posx, posy, width, height, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
-        // let mut paint = Paint::color(background_color);
-        // canvas.fill_path(&mut path, paint);
+        let mut shadow_color: femtovg::Color = shadow_color.into();
+        shadow_color.set_alphaf(shadow_color.a * opacity);
+
+        
+
+        // Draw shadow (TODO)
+        let mut path = Path::new();
+        path.rounded_rect_varying(
+            posx + (border_width / 2.0) + shadow_h_offset,
+            posy + (border_width / 2.0) + shadow_h_offset,
+            width - border_width,
+            height - border_width,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left,
+        );
+        let mut paint = Paint::color(shadow_color);
+        canvas.fill_path(&mut path, paint);
 
         // Draw rounded rect
         let mut path = Path::new();

@@ -95,7 +95,7 @@ impl BuildHandler for Menu {
         //state.style.checked.set(entity, false);
         entity.set_checked(state, false);
 
-        state.style.z_order.set(self.container, 1);
+        self.container.set_z_order(state, 1);
 
         //self.container.set_visibility(state, Visibility::Invisible);
 

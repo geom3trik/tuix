@@ -1405,7 +1405,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 
 
 pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
-    
+
     // Reset
     for entity in hierarchy.entities.iter() {
         state.transform.set_child_sum(*entity, 0.0);
@@ -1437,6 +1437,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         }
 
         let parent = hierarchy.get_parent(*entity).unwrap();
+
+
+        
 
         let parent_width = state.transform.get_width(parent);
         let parent_height = state.transform.get_height(parent);
@@ -2788,14 +2791,14 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 should_continue = true;
             }
 
-            if !should_continue {
-                if let Some(ns) = hierarchy.get_next_sibling(parent) {
-                    next_sibling = ns;
-                    hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
-                }
-            } else {
-                should_continue = false;
-            }
+            // if !should_continue {
+            //     if let Some(ns) = hierarchy.get_next_sibling(parent) {
+            //         next_sibling = ns;
+            //         hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
+            //     }
+            // } else {
+            //     should_continue = false;
+            // }
 
 
         }

@@ -150,7 +150,7 @@ impl BuildHandler for Dropdown {
 
         self.label = Label::new(&self.text).build(state, self.header, |builder| 
             builder
-            // .set_background_color(Color::rgb(100,50,50))
+            //.set_background_color(Color::rgb(100,50,50))
             .set_hoverability(false)
             .set_flex_grow(1.0));
 
@@ -160,6 +160,7 @@ impl BuildHandler for Dropdown {
                 //.set_background_color(Color::rgb(100,100,100))
                 .set_text(ICON_DOWN_DIR)
                 .set_width(Length::Pixels(20.0))
+                .set_text_justify(Justify::Center)
                 .class("icon")
         });
 
@@ -273,25 +274,7 @@ impl EventHandler for Dropdown {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                // WindowEvent::Relayout => {
-                //     // Exclude relayout orginating from animations
-                //     if event.origin != Entity::new(0, 0) {
-                //         let container_height = state.transform.get_height(self.other_container);
-                //         if container_height > 0.0 {
-                //             self.container_height = container_height;
 
-                //             //println!("Container Height: {}", self.container_height);
-
-                //             if let Some(animation) = state.style.height.get_animation_mut(self.expand_animation) {
-                //                 animation.keyframes.last_mut().unwrap().1 = Length::Pixels(self.container_height);
-                //             }
-
-                //             if let Some(animation) = state.style.height.get_animation_mut(self.collapse_animation) {
-                //                 animation.keyframes.first_mut().unwrap().1 = Length::Pixels(self.container_height);
-                //             }
-                //         }
-                //     }
-                // }
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if event.target == entity || event.target == self.header {
@@ -318,9 +301,7 @@ impl EventHandler for Dropdown {
                         .style
                         .opacity
                         .play_animation(self.container, self.fade_out_animation);
-                    //state.style.opacity.play_animation(self.other_container, self.fade_out_animation);
 
-                    //self.container.set_height(state, Length::Pixels(0.0));
                     self.container.set_opacity(state, 0.0);
                 }
 
@@ -333,9 +314,7 @@ impl EventHandler for Dropdown {
                         .style
                         .opacity
                         .play_animation(self.container, self.fade_in_animation);
-                    //state.style.opacity.play_animation(self.other_container, self.fade_in_animation);
 
-                    //self.container.set_height(state, Length::Pixels(self.container_height));
                     self.container.set_opacity(state, 1.0);
                     // Shouldn't need to do this but it's required for some reason. TODO: Investigate
                     self.container.set_z_order(state, 1);

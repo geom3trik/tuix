@@ -9,6 +9,7 @@ use crate::{PropSet, State};
 use crate::state::style::*;
 
 use crate::widgets::Element;
+use crate::widgets::checkbox::CheckboxEvent;
 
 #[derive(Clone)]
 pub struct Switch {
@@ -58,25 +59,12 @@ impl EventHandler for Switch {
                     MouseButton::Left => {
                         if entity == event.target || self.front == event.target {
                             if self.checked {
-                                //self.front.set_justification(state, Justification::Start);
-                                //self.front.set_left(state, Length::Percentage(0.0));
                                 self.checked = false;
                                 entity.set_checked(state, false);
                             } else {
-                                //self.front.set_justification(state, Justification::End);
-                                //self.front.set_left(state, Length::Percentage(0.5));
                                 self.checked = true;
                                 entity.set_checked(state, true);
                             }
-
-                            // state.insert_event(
-                            //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                            // );
-
-                            // if let Some(mut on_press) = self.on_press.clone() {
-                            //     on_press.target = entity;
-                            //     state.insert_event(on_press);
-                            // }
 
                             return true;
                         }
@@ -86,6 +74,30 @@ impl EventHandler for Switch {
                 },
 
                 _ => {}
+            }
+        }
+
+        if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
+            match checkbox_event {
+                CheckboxEvent::Check => {
+                    self.checked = true;
+                    entity.set_checked(state, true);
+                }
+
+                CheckboxEvent::Uncheck => {
+                    self.checked = false;
+                    entity.set_checked(state, false);
+                }
+
+                CheckboxEvent::Switch => {
+                    if self.checked {
+                        self.checked = false;
+                        entity.set_checked(state, false);
+                    } else {
+                        self.checked = true;
+                        entity.set_checked(state, true);
+                    }
+                }
             }
         }
 

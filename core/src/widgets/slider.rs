@@ -9,6 +9,8 @@ use crate::state::style::*;
 
 use crate::widgets::{Element, Button};
 
+use crate::event::Message;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum SliderEvent {
     ValueChanged(f32),
@@ -19,10 +21,9 @@ pub enum SliderEvent {
 
 
 
-#[derive(Clone)]
 pub struct Slider {
     front: Entity,
-    on_press: Option<Event>,
+    on_change: Option<Box<dyn Fn(f32) -> Event>>,
     value: f32,
     temp: f32,
     sliding: bool,
@@ -33,7 +34,7 @@ impl Slider {
     pub fn new() -> Self {
         Slider {
             front: Entity::null(),
-            on_press: None,
+            on_change: None,
             value: 0.5,
             temp: 0.5,
             sliding: false,
@@ -41,8 +42,10 @@ impl Slider {
         }
     }
 
-    pub fn on_press(mut self, message: Event) -> Self {
-        self.on_press = Some(message);
+    pub fn on_change<F>(mut self, message: F) -> Self 
+    where F: 'static + Fn(f32) -> Event
+    {
+        self.on_change = Some(Box::new(message));
         self
     }
 }
@@ -227,24 +230,36 @@ pub struct Slider2 {
     thumb: Entity,
     active: Entity,
     sliding: bool,
+    on_change: Box<dyn Fn(f32) -> Event>,
 
     min: f32,
     max: f32,
     div: f32,
 }
 
-impl Slider2 {
-    pub fn new() -> Self {
+impl Slider2
+{
+    pub fn new<F>(on_change: F) -> Self 
+    where F: 'static + Fn(f32) -> Event
+    {
         Slider2 {
             thumb: Entity::null(),
             active: Entity::null(),
             sliding: false,
+            on_change: Box::new(on_change),
 
             min: 0.0,
             max: 1.0,
             div: 0.0,
         }
     }
+
+    // pub fn on_change<F>(mut self, message: F) -> Self 
+    // where F: 'static + Fn(f32) -> M + Send
+    // {
+    //     self.on_change = Some(Box::new(message));
+    //     self
+    // }
 
     pub fn with_min(mut self, val: f32) -> Self {
         self.min = val;
@@ -360,6 +375,13 @@ impl EventHandler for Slider2 {
                             dx = width - thumb_width/2.0;
                         }
 
+                        // if dx <= 0.0 {
+                        //     dx = 0.0;
+                        // } if dx >= width - thumb_width {
+                        //     dx = width - thumb_width;
+                        // }
+
+                        // let nx = (dx - thumb_width/2.0) / (width - thumb_width);
                         let nx = (dx - thumb_width/2.0) / (width - thumb_width);
 
                         
@@ -368,13 +390,19 @@ impl EventHandler for Slider2 {
                         
 
                         self.active.set_width(state, Length::Percentage(nx));
-                        self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
+                        //self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
+                        self.thumb.set_left(state, Length::Percentage((dx - thumb_width/2.0)/width));
+
+                        let mut event = (self.on_change)(v);
+                        event.origin = entity;
+
+                        state.insert_event(event);
                     
                     
-                        state.insert_event(
-                            Event::new(SliderEvent::ValueChanged(v))
-                                .target(entity),
-                        );
+                        // state.insert_event(
+                        //     Event::new(SliderEvent::ValueChanged(v))
+                        //         .target(entity),
+                        // );
                     
                     }
 

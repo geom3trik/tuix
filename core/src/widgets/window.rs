@@ -1,9 +1,11 @@
 use crate::{State, EventHandler, Entity, Event, WindowEvent};
 
-use crate::systems::{apply_clipping, apply_z_ordering, apply_styles, apply_visibility, apply_styles2, apply_layout};
+use crate::systems::{apply_clipping, apply_z_ordering, apply_styles, apply_visibility, apply_layout};
 
 #[derive(Clone)]
-pub struct WindowWidget {}
+pub struct WindowWidget {
+    
+}
 
 impl WindowWidget {
     pub fn new() -> Self {
@@ -25,8 +27,8 @@ impl EventHandler for WindowWidget {
 
                 WindowEvent::Restyle => {
                     //println!("Restyle");
-                    apply_styles2(state, &state.hierarchy.clone(), event.origin);
-                    //apply_styles(state, &state.hierarchy.clone());
+                    //apply_styles2(state, &state.hierarchy.clone(), event.origin);
+                    apply_styles(state, &state.hierarchy.clone());
                     //apply_visibility(state, &state.hierarchy.clone());
                 }
 
@@ -34,8 +36,11 @@ impl EventHandler for WindowWidget {
                     apply_z_ordering(state, &state.hierarchy.clone());
                     apply_visibility(state, &state.hierarchy.clone());
                     apply_clipping(state, &state.hierarchy.clone());
-                    //layout_fun(state, &state.hierarchy.clone());
                     apply_layout(state, &state.hierarchy.clone());
+                }
+
+                WindowEvent::Redraw => {
+
                 }
 
                 _ => {}

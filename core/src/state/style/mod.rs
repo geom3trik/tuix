@@ -82,7 +82,7 @@ pub struct Style {
     //
     pub pseudo_classes: DenseStorage<PseudoClasses>,
 
-    pub z_order: DenseStorage<i32>,
+    pub z_order: StyleStorage<i32>,
 
     // Transform
     pub rotate: AnimatableStorage<f32>,   // in degrees
@@ -195,7 +195,7 @@ impl Style {
             //over: DenseStorage::new(),
             opacity: AnimatableStorage::new(),
 
-            z_order: DenseStorage::new(),
+            z_order: StyleStorage::new(),
 
             // Transform
             rotate: AnimatableStorage::new(),
@@ -501,6 +501,10 @@ impl Style {
 
                     Property::FlexBasis(value) => {
                         self.flex_basis.insert_rule(rule_id, value);
+                    }
+
+                    Property::ZIndex(value) => {
+                        self.z_order.insert_rule(rule_id, value);
                     }
 
                     Property::Transition(transitions) => {

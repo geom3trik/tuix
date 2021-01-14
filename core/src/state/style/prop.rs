@@ -201,6 +201,7 @@ impl PropSet for Entity {
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
 
         self
     }
@@ -212,6 +213,7 @@ impl PropSet for Entity {
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
 
         self
     }
@@ -222,6 +224,7 @@ impl PropSet for Entity {
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
 
         self
     }
@@ -232,6 +235,7 @@ impl PropSet for Entity {
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
 
         self
     }
@@ -242,6 +246,7 @@ impl PropSet for Entity {
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
 
         self
     }
@@ -252,6 +257,7 @@ impl PropSet for Entity {
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
 
         self
     }
@@ -262,6 +268,7 @@ impl PropSet for Entity {
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
 
         self
     }
@@ -925,7 +932,7 @@ impl PropSet for Entity {
     }
 
     fn set_z_order(self, state: &mut State, value: i32) -> Self {
-        state.style.z_order.set(self, value);
+        state.style.z_order.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)

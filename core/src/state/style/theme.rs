@@ -382,13 +382,12 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
 
             "overflow" => Property::Overflow(parse_overflow(input)?),
 
-            "transition" => {
-                //let mut transition = Transition::new();
-                //Property::Transition(parse_transition(input, transition)?)
-                //let test = ;
-                //println!("Transitions: {:?}", test);
-                Property::Transition(input.parse_comma_separated(|F| parse_transition2(F))?)
-            }
+            "box-shadow" => Property::BoxShadow(parse_box_shadow(input)?),
+
+            "transition" => Property::Transition(input.parse_comma_separated(|F| parse_transition2(F))?),
+            
+
+            "z-index" => Property::ZIndex(parse_z_index(input)?),
 
             _ => {
                 let basic_error = BasicParseError {
@@ -500,6 +499,21 @@ fn parse_length_or_percentage<'i, 't>(
     })
 }
 
+fn parse_z_index<'i, 't>(
+    input: &mut Parser<'i, 't>,
+) -> Result<i32, ParseError<'i, CustomParseError>> {
+    Ok(match input.next()? {
+        Token::Number { value: x, .. } => *x as i32,
+        t => {
+            let basic_error = BasicParseError {
+                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
+                location: SourceLocation { line: 0, column: 0 },
+            };
+            return Err(basic_error.into());
+        }
+    })
+}
+
 //TODO
 // fn parse_transition<'i, 't>(
 //     input: &mut Parser<'i, 't>,
@@ -538,6 +552,29 @@ fn parse_length_or_percentage<'i, 't>(
 //         }
 //     })
 // }
+
+
+//TODO
+fn parse_box_shadow<'i, 't>(input: &mut Parser<'i,'t>) -> Result<BoxShadow, ParseError<'i, CustomParseError>> {
+    let mut box_shadow = BoxShadow::default();
+
+    Ok(match input.next()? {
+
+        Token::Number { value: x, ..} => {
+            box_shadow.horizontal_offset = Length::Pixels(*x);
+        
+            box_shadow
+        }
+        t => {
+            let basic_error = BasicParseError {
+                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
+                location: SourceLocation { line: 0, column: 0 },
+            };
+            return Err(basic_error.into());
+        }
+
+    })
+}
 
 fn parse_transition2<'i, 't>(
     input: &mut Parser<'i, 't>,
