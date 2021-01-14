@@ -81,6 +81,8 @@ pub enum Property {
     FontSize(f32),
     FontColor(Color),
 
+    BoxShadow(BoxShadow),
+
     Transition(Vec<Transition>),
 
     ZIndex(i32),
