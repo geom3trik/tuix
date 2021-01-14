@@ -69,15 +69,21 @@ You can run this example with: ```cargo run --example hello_gui```
 Tuix can be thought of as 5 seperate processes which happen in order:
 
 - Building
+- Events
 - Styling
 - Layout
-- Events
 - Drawing
 
 ## Building
 Building is the process of creating the widgets in the application. This can be done before the application loop begins, or in response to an event. The `hello_gui` example shown above demonstrates how to create and then build a button widget. The `build()` function takes three parameters: a mutable reference to `State`, the `Entity` id of the parent widget, and a closure which provides a builder which can be used to set inline style properties on the button. 
 
 More information about building widgets can be found on the [Building Widgets](https://github.com/geom3trik/tuix/wiki/Building-Widgets) wiki page.
+
+## Event Handling
+Tuix uses an event queue to pass custom messages between widgets.
+
+[Events](https://github.com/geom3trik/tuix/wiki/Events)
+
 
 ## Styling
 Tuix uses a modified subset of CSS properties to perform styling of widgets. The `hello_gui` example uses the `DEFAULT_THEME` provided within the tuix crate. The `custom_styling` example shows how to style the button with a custom theme provided by a stylesheet in a css file, as well as inline styling using setter functions on the builder.
@@ -188,12 +194,6 @@ fn main() {
 ```
 
 More information about how widgets are psoitioned can be found on the [Layout Widgets](https://github.com/geom3trik/tuix/wiki/Layout-Widgets) wiki page.
-
-
-## Event Handling
-Tuix uses an event queue to pass custom messages between widgets.
-
-[Events](https://github.com/geom3trik/tuix/wiki/Events)
 
 ## Drawing
 After styling, the widgets are drawn to the window. The visual look of the widgets is determined by the style propeties set on them, but it's also possible to override this with a custom drawing function for your own custom widgets.
