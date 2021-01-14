@@ -20,7 +20,7 @@ pub enum WidgetEvent {
     MouseLeave(Entity),
 }
 
-pub trait EventHandler: Send {
+pub trait EventHandler {
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         false

@@ -14,7 +14,7 @@ pub trait BuildHandler: EventHandler {
     fn build<F>(mut self, state: &mut State, parent: Entity, mut builder: F) -> Self::Ret
     where
         F: FnMut(Builder) -> Builder,
-        Self: std::marker::Sized + 'static + Send,
+        Self: std::marker::Sized + 'static,
     {
         let id = state.add(parent);
 
@@ -38,7 +38,7 @@ impl<'a> Builder<'a> {
 
     pub fn build<T>(mut self, event_handler: T) -> Entity
     where
-        T: EventHandler + 'static + Send,
+        T: EventHandler + 'static,
     {
         self.state
             .event_handlers

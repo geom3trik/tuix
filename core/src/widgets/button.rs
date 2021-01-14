@@ -92,7 +92,9 @@ impl EventHandler for Button {
                     MouseButton::Left => {
                         if entity == event.target && entity == state.focused {
                             if let Some(mut on_press) = self.on_press.clone() {
+                                println!("Get here: {}", on_press.target);
                                 if on_press.target == Entity::null() {
+                                    print!("Do This");
                                     on_press.target = entity;
                                 }
                                 

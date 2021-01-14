@@ -67,6 +67,13 @@ impl Hash for Entity {
     }
 }
 
+impl std::ops::Not for Entity {
+    type Output = bool;
+    fn not(self) -> Self::Output {
+        self == Entity::null()
+    }
+}
+
 // impl ToString for Entity {
 //     fn to_string(&self) -> String {
 //         self.id.to_string()

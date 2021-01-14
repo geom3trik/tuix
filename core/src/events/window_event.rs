@@ -12,7 +12,6 @@ pub enum CursorIcon {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum WindowEvent {
-    Test,
     WindowClose,
     WindowResize(f32, f32),
     MouseDown(MouseButton),
@@ -27,6 +26,7 @@ pub enum WindowEvent {
     SetCursor(CursorIcon),
     MouseCaptureEvent,
     MouseCaptureOutEvent,
+    GeometryChanged,
     Redraw,
     Restyle,
     Relayout,

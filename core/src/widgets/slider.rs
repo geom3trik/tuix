@@ -23,7 +23,7 @@ pub enum SliderEvent {
 
 pub struct Slider {
     front: Entity,
-    on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
+    on_change: Option<Box<dyn Fn(f32) -> Event>>,
     value: f32,
     temp: f32,
     sliding: bool,
@@ -43,7 +43,7 @@ impl Slider {
     }
 
     pub fn on_change<F>(mut self, message: F) -> Self 
-    where F: 'static + Fn(f32) -> Event + Send
+    where F: 'static + Fn(f32) -> Event
     {
         self.on_change = Some(Box::new(message));
         self
@@ -230,8 +230,7 @@ pub struct Slider2 {
     thumb: Entity,
     active: Entity,
     sliding: bool,
-    on_change: Box<dyn Fn(f32) -> Event + Send>,
-    //on_change: Option<Box<dyn Fn(f32) -> M + Send>>,
+    on_change: Box<dyn Fn(f32) -> Event>,
 
     min: f32,
     max: f32,
@@ -241,7 +240,7 @@ pub struct Slider2 {
 impl Slider2
 {
     pub fn new<F>(on_change: F) -> Self 
-    where F: 'static + Fn(f32) -> Event + Send
+    where F: 'static + Fn(f32) -> Event
     {
         Slider2 {
             thumb: Entity::null(),
@@ -376,6 +375,13 @@ impl EventHandler for Slider2 {
                             dx = width - thumb_width/2.0;
                         }
 
+                        // if dx <= 0.0 {
+                        //     dx = 0.0;
+                        // } if dx >= width - thumb_width {
+                        //     dx = width - thumb_width;
+                        // }
+
+                        // let nx = (dx - thumb_width/2.0) / (width - thumb_width);
                         let nx = (dx - thumb_width/2.0) / (width - thumb_width);
 
                         
@@ -384,7 +390,8 @@ impl EventHandler for Slider2 {
                         
 
                         self.active.set_width(state, Length::Percentage(nx));
-                        self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
+                        //self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
+                        self.thumb.set_left(state, Length::Percentage((dx - thumb_width/2.0)/width));
 
                         let mut event = (self.on_change)(v);
                         event.origin = entity;

@@ -58,7 +58,7 @@ fn main() {
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Spinner").build(state, row, |builder| builder);
-        Spinner::new(100.0, 1.0).build(state, row, |builder| builder);
+        Spinner::new(100).with_increment(1).with_decrement(1).build(state, row, |builder| builder);
 
         let panel = Panel::new("Lists").build(state, rvbox, |builder| builder);
 
