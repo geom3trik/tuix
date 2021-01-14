@@ -5,14 +5,20 @@ Tuix is a cross-platform GUI toolkit written in Rust.
 
 The driving principle behind tuix is to be a self-contained, small-as-possible, but still fast, toolkit for creating graphical user interfaces in Rust. 
 
+(TODO: Add screenshots)
+
 ## Features
 
  - Cross-platform
- - 2D GPU based drawing using opengl (powered by femtovg)
+ - GPU based drawing using opengl (powered by [femtovg](https://github.com/femtovg/femtovg))
  - Flexbox-based layout system
  - CSS-like styling
  - Animatable style properties
  - Built-in composable widgets
+ 
+ ## Including tuix
+ 
+ Add tuix to your project by adding `tuix = {git = https://github.com/geom3trik/tuix", branch = "main"}` to your projects Cargo.toml under dependencies. 
 
 ## Getting Started
 
