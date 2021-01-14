@@ -17,7 +17,7 @@ use crate::layout::{Align, Justify};
 
 use crate::widgets::{Element, Textbox, TextboxEvent};
 
-use num::Num;
+use num::{Num, One, Bounded};
 
 // #[derive(Debug, Clone, PartialEq)]
 // pub enum SpinnerEvent {
@@ -38,6 +38,9 @@ pub struct Spinner<T> {
     pub increment_value: T,
     pub decrement_value: T,
 
+    min: T,
+    max: T,
+
     // Triggered when the spinner is incremented
     on_increment: Option<Box<dyn Fn(T) -> Event>>,
     // Triggered when the spinner is decremented
@@ -57,6 +60,8 @@ where
         + PartialEq
         + std::str::FromStr
         + Num
+        + One
+        + Bounded
         + std::ops::AddAssign
         + std::ops::SubAssign
 {
@@ -66,8 +71,12 @@ where
 
         Spinner {
             value: initial_value,
-            increment_value: Default::default(),
-            decrement_value: Default::default(),
+            increment_value: T::one(),
+            decrement_value: T::one(),
+
+            min: T::min_value(),
+            max: T::max_value(),
+
             textbox: Entity::null(),
             increment: Entity::null(),
             decrement: Entity::null(),
@@ -99,11 +108,22 @@ where
         + PartialEq
         + std::str::FromStr
         + Num
+        + One
         + std::ops::AddAssign
         + std::ops::SubAssign
+        + std::cmp::PartialOrd
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+
+        if self.value <= self.min {
+            self.value = self.min;
+        }
+
+        if self.value >= self.max {
+            self.value = self.max;
+        }
+
         entity
             .set_display(state, Display::Flexbox)
             .set_flex_direction(state, FlexDirection::Row);
@@ -158,6 +178,7 @@ where
         + Num
         + std::ops::AddAssign
         + std::ops::SubAssign
+        + std::cmp::PartialOrd
 {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         /*
