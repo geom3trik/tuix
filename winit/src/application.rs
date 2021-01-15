@@ -9,12 +9,14 @@ use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 use tuix_core::events::{Event, EventManager, Propagation};
 use tuix_core::state::hierarchy::IntoHierarchyIterator;
 use tuix_core::state::Fonts;
-use tuix_core::VirtualKeyCode;
+
 use tuix_core::state::style::prop::*;
 use tuix_core::{WindowEvent, WindowDescription, WindowWidget};
 use tuix_core::systems::{apply_clipping, apply_z_ordering, apply_styles, apply_visibility};
 
 type WEvent<'a, T> = winit::event::Event<'a, T>;
+
+use winit::event::VirtualKeyCode;
 
 pub struct Application {
     pub window: Window,
