@@ -23,7 +23,6 @@ pub enum TextboxEvent {
 
 //impl Message for TextboxEvent {}
 
-#[derive(Clone)]
 pub struct Textbox {
     entity: Entity,
     text: String,
@@ -38,6 +37,11 @@ pub struct Textbox {
     edit: bool,
     hitx: f32,
     dragx: f32,
+
+    // Events
+    on_change: Option<Box<dyn Fn(&str) -> Event>>,
+    on_submit: Option<Box<dyn Fn(&str) -> Event>>,
+
 }
 
 impl Textbox {
@@ -61,6 +65,9 @@ impl Textbox {
             edit: false,
             hitx: -1.0,
             dragx: -1.0,
+
+            on_change: None,
+            on_submit: None,
         }
     }
 
@@ -68,6 +75,14 @@ impl Textbox {
     pub fn with_units(mut self, uints: &str) -> Self {
 
         self.units = uints.to_string();
+
+        self
+    }
+
+    pub fn on_change<F>(mut self, on_change: F) -> Self
+    where F: 'static + Fn(&str) -> Event
+    {
+        self.on_change = Some(Box::new(on_change));
 
         self
     }
@@ -261,6 +276,20 @@ impl EventHandler for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
+                            if let Some(txt) = state.style.text.get(entity) {
+                                if let Some(on_change) = &self.on_change {
+                                    let mut event = (on_change)(&txt.text);
+
+                                    if !event.target {
+                                        event.target = entity;
+                                    }
+
+                                    event.origin = entity;
+        
+                                    state.insert_event(event);
+                                }                                
+                            }
+
                             state.insert_event(Event::new(WindowEvent::Redraw));
                         }
                     }
@@ -322,6 +351,23 @@ impl EventHandler for Textbox {
                                 self.cursor_pos = (start + 1) as u32;
                                 self.select_pos = (start + 1) as u32;
                             }
+
+                            if let Some(txt) = state.style.text.get(entity) {
+                                if let Some(on_change) = &self.on_change {
+                                    let mut event = (on_change)(&txt.text);
+
+                                    if !event.target {
+                                        event.target = entity;
+                                    }
+
+                                    event.origin = entity;
+        
+                                    state.insert_event(event);
+                                }                                
+                            }
+
+
+                            
 
                             // state.insert_event(
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),

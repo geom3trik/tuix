@@ -270,7 +270,7 @@ pub trait EventHandler {
             posy + (border_width / 2.0) + shadow_v_offset, 
             width - border_width, 
             height - border_width, 
-            0.0, 
+            border_radius_top_left, 
             shadow_blur, 
             shadow_color, 
             femtovg::Color::rgba(0,0,0,0)

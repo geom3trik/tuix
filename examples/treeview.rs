@@ -276,6 +276,9 @@ fn main() {
         let panel1 = Panel::new("ROOT").build(state, rvbox, |builder| builder);
 
         let panel2 = Panel::new("Level 1").build(state, panel1, |builder| builder);
+        Label::new("Colour").build(state, panel2, |builder| builder.class("label"));
+
+
         let panel3 = Panel::new("Level 1").build(state, panel1, |builder| builder);
         let panel = Panel::new("Level 1").build(state, panel1, |builder| builder);
 
@@ -301,7 +304,7 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
 
         Label::new("Translate").build(state, row, |builder| builder.class("label"));
-        Spinner::new(100.0, 1.0).build(state, row, |builder| {
+        Spinner::new(100.0).build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("item")
         });
 

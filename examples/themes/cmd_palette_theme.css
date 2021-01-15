@@ -1,0 +1,50 @@
+
+
+command_palette {
+    margin: 10px;
+    background-color: #252525;
+    border-radius: 3px;
+    flex-grow: 1.0;
+}
+
+command_palette>.search {
+    height: 30px;
+    color: #808080;
+    /* border-color: #ff8800;
+    border-width: 3px; */
+    background-color: #3c3c3c;
+    margin: 10px;
+    border-radius: 3px;
+    padding-left: 10px;
+}
+
+command {
+    height: 30px;
+}
+
+command>.search {
+    color: white;
+    flex-grow: 1.0;
+    padding-left: 15px;
+}
+
+command>.shortcut {
+    color: white;
+    width: 20%;
+    text-justify: right;
+    padding-right: 15px;
+}
+
+command:checked {
+    background-color: #033556;
+}
+
+.command {
+    height: 30px;
+    color: white;
+    padding-left: 15px;
+}
+
+.command:checked {
+    background-color: #033556;
+}

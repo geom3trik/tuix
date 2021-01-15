@@ -39,6 +39,10 @@ impl Application {
     pub fn new<F: FnOnce(WindowDescription, &mut State, Entity) -> WindowDescription>(
         mut app: F,
     ) -> Self {
+
+
+
+
         let event_loop = EventLoop::new();
         let mut state = State::new();
 
@@ -123,6 +127,7 @@ impl Application {
         &mut self.event_manager
     }
 
+
     pub fn run(self) {
         let mut pos: (f32, f32) = (0.0, 0.0);
 
@@ -133,6 +138,9 @@ impl Application {
         let mut should_quit = false;
 
         let hierarchy = state.hierarchy.clone();
+
+        
+        let mut counter = 0;
 
         //state.insert_event(Event::new(WindowEvent::Restyle));
         //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
