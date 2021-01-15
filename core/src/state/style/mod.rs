@@ -110,10 +110,10 @@ pub struct Style {
 
     // Size Constraints
     // TODO - Make these animatable
-    pub max_width: StyleStorage<Length>,
-    pub max_height: StyleStorage<Length>,
-    pub min_width: StyleStorage<Length>,
-    pub min_height: StyleStorage<Length>,
+    pub max_width: AnimatableStorage<Length>,
+    pub max_height: AnimatableStorage<Length>,
+    pub min_width: AnimatableStorage<Length>,
+    pub min_height: AnimatableStorage<Length>,
 
     // Margin
     pub margin_left: AnimatableStorage<Length>,
@@ -213,10 +213,10 @@ impl Style {
             height: AnimatableStorage::new(),
 
             // Size Constraints
-            max_width: StyleStorage::new(),
-            max_height: StyleStorage::new(),
-            min_width: StyleStorage::new(),
-            min_height: StyleStorage::new(),
+            max_width: AnimatableStorage::new(),
+            max_height: AnimatableStorage::new(),
+            min_width: AnimatableStorage::new(),
+            min_height: AnimatableStorage::new(),
 
             // Margin
             margin_left: AnimatableStorage::new(),

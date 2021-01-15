@@ -1,7 +1,9 @@
-use crate::{Entity, State};
+use crate::{Entity, Propagation, State};
 
 use crate::hierarchy::*;
 use crate::style::*;
+
+use crate::{Event, WindowEvent};
 
 use crate::flexbox::AlignItems;
 
@@ -1880,7 +1882,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         
     }
 
-    let mut hierarchy_down_iterator = state.root.into_iter(hierarchy);
+    let root = state.root;
+
+    let mut hierarchy_down_iterator = root.into_iter(hierarchy);
     //let mut hierarchy_down_iterator = hierarchy.into_iter();
 
     let mut should_continue = false;
@@ -2791,14 +2795,15 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 should_continue = true;
             }
 
-            // if !should_continue {
-            //     if let Some(ns) = hierarchy.get_next_sibling(parent) {
-            //         next_sibling = ns;
-            //         hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
-            //     }
-            // } else {
-            //     should_continue = false;
-            // }
+            if !should_continue {
+                // if let Some(ns) = hierarchy.get_next_sibling(parent) {
+                //     next_sibling = ns;
+                //     hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
+                // }
+            } else {
+                state.insert_event(Event::new(WindowEvent::GeometryChanged).target(child).propagate(Propagation::Direct));
+                should_continue = false;
+            }
 
 
         }

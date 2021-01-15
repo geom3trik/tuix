@@ -301,7 +301,7 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
 
         Label::new("Translate").build(state, row, |builder| builder.class("label"));
-        Spinner::new(100.0, 1.0).build(state, row, |builder| {
+        Spinner::new(100.0).build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("item")
         });
 
