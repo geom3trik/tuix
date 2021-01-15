@@ -244,9 +244,15 @@ pub trait EventHandler {
 
         // Draw shadow (TODO)
         let mut path = Path::new();
+        path.rect(
+            posx + (border_width / 2.0) - shadow_blur + shadow_h_offset,
+            posy + (border_width / 2.0) - shadow_blur + shadow_v_offset,
+            width - border_width + 2.0 * shadow_blur,
+            height - border_width + 2.0 * shadow_blur,
+        );
         path.rounded_rect_varying(
-            posx + (border_width / 2.0) + shadow_h_offset,
-            posy + (border_width / 2.0) + shadow_v_offset,
+            posx + (border_width / 2.0),
+            posy + (border_width / 2.0),
             width - border_width,
             height - border_width,
             border_radius_top_left,
@@ -254,37 +260,38 @@ pub trait EventHandler {
             border_radius_bottom_right,
             border_radius_bottom_left,
         );
+        path.solidity(Solidity::Hole);
         //let mut paint = Paint::color(shadow_color);
 
         
 
         let mut paint = Paint::box_gradient(
-            posx + (border_width / 2.0)  + shadow_h_offset, 
-            posy + (border_width / 2.0)  + shadow_v_offset, 
+            posx + (border_width / 2.0) + shadow_h_offset, 
+            posy + (border_width / 2.0) + shadow_v_offset, 
             width - border_width, 
             height - border_width, 
             0.0, 
-            20.0, 
-            femtovg::Color::rgba(0,0,0,255), 
+            shadow_blur, 
+            shadow_color, 
             femtovg::Color::rgba(0,0,0,0)
         );
         
         canvas.fill_path(&mut path, paint);
 
-        // // Draw rounded rect
-        // let mut path = Path::new();
-        // path.rounded_rect_varying(
-        //     posx + (border_width / 2.0),
-        //     posy + (border_width / 2.0),
-        //     width - border_width,
-        //     height - border_width,
-        //     border_radius_top_left,
-        //     border_radius_top_right,
-        //     border_radius_bottom_right,
-        //     border_radius_bottom_left,
-        // );
-        // let mut paint = Paint::color(background_color);
-        // canvas.fill_path(&mut path, paint);
+        // Draw rounded rect
+        let mut path = Path::new();
+        path.rounded_rect_varying(
+            posx + (border_width / 2.0),
+            posy + (border_width / 2.0),
+            width - border_width,
+            height - border_width,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left,
+        );
+        let mut paint = Paint::color(background_color);
+        canvas.fill_path(&mut path, paint);
 
         
 

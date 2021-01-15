@@ -168,6 +168,12 @@ impl<'a> Builder<'a> {
         self
     }
 
+    pub fn set_box_shadow_blur(mut self, val: Length) -> Self {
+        self.state.style.shadow_blur.insert(self.entity, val);
+
+        self
+    }
+
     // Positioning
 
     pub fn set_position(mut self, val: Position) -> Self {
