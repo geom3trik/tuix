@@ -147,14 +147,14 @@ impl EventHandler for Textbox {
                             state.focused = entity;
                             //state.captured = entity;
                             state.capture(entity);
-                            self.edit = true;
+                            //self.edit = true;
                             entity.set_active(state, true);
                         }
                         if self.edit == true {
                             self.hitx = state.mouse.cursorx;
                             self.dragx = state.mouse.cursorx;
                         }
-                        //self.edit = true;
+                        self.edit = true;
 
                         
 
@@ -198,7 +198,7 @@ impl EventHandler for Textbox {
                 }
 
                 WindowEvent::KeyDown(code, key) => {
-                    println!("Code: {:?} Key: {:?}", code, key);
+                    //println!("Code: {:?} Key: {:?}", code, key);
                     if *key == Some(Key::ArrowLeft) {
                         
                         if self.edit {
@@ -628,17 +628,25 @@ impl EventHandler for Textbox {
             paint.set_text_align(align);
             paint.set_text_baseline(baseline);
 
+            let font_metrics = canvas.measure_font(paint).expect("Failed to read font metrics");
+
             if let Ok(res) = canvas.fill_text(x, y, &text_string, paint) {
                 let text_width = res.width();
-                let mut glyph_positions = res.glyphs.iter().peekable();
+                //let mut glyph_positions = res.glyphs.iter().peekable();
 
-                let mut caretx = posx + padding_left;
+                let mut caretx = x;
 
                 let mut selectx = caretx;
 
                 if self.edit {
-                    let startx = x - text_width / 2.0;
-                    let endx = x + text_width / 2.0;
+                    let startx = if let Some(first_glyph) = res.glyphs.first() {
+                        first_glyph.x
+                    } else {
+                        posx + padding_right
+                    };
+                    //let startx = x - text_width / 2.0;
+                    let endx = startx + text_width;
+                    
                     if self.hitx != -1.0 {
 
                         //let endx = res.glyphs.last().unwrap().x + res.glyphs.last().unwrap().w;
@@ -722,11 +730,11 @@ impl EventHandler for Textbox {
                             n += 1;
                         }
 
-                        if self.cursor_pos as usize == text.text.len() {
+                        if self.cursor_pos as usize == text.text.len() && text.text.len() != 0 {
                             caretx = endx;
                         }
 
-                        if self.select_pos as usize == text.text.len() {
+                        if self.select_pos as usize == text.text.len() && text.text.len() != 0 {
                             selectx = endx;
                         }
                     }
@@ -735,16 +743,18 @@ impl EventHandler for Textbox {
                     let select_width = (caretx - selectx).abs();
                     if selectx > caretx {
                         let mut path = Path::new();
-                        path.rect(caretx, y - 1.2 * res.height()/2.0, select_width, 1.3*res.height());
+                        path.rect(caretx, y - font_metrics.height()/2.0, select_width, font_metrics.height());
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     } else if caretx > selectx {
                         let mut path = Path::new();
-                        path.rect(selectx, y - 1.2 * res.height()/2.0, select_width, 1.3*res.height());
+                        path.rect(selectx, y - font_metrics.height()/2.0, select_width, font_metrics.height());
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     }
 
+                    
+
                     let mut path = Path::new();
-                    path.rect(caretx - 1.0, y - 1.2*res.height()/2.0, 2.0, 1.3*res.height());
+                    path.rect(caretx.floor() , y - font_metrics.height()/2.0, 1.0, font_metrics.height());
                     canvas.fill_path(&mut path, Paint::color(Color::rgba(247, 76, 0, 255)));
 
                     // let mut path = Path::new();

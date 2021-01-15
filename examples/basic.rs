@@ -12,7 +12,16 @@ fn main() {
             Err(e) => println!("Error loading stylesheet: {}", e)
         }
 
-        let one = Element::new().build(state, window, |builder| builder.class("one"));
+        window.set_background_color(state, Color::rgb(255,255,255));
+
+        let one = Element::new().build(state, window, |builder| 
+            builder
+                .class("one")
+                .set_box_shadow_h_offset(Length::Pixels(2.5))
+                .set_box_shadow_v_offset(Length::Pixels(2.5))
+                .set_box_shadow_blur(Length::Pixels(10.0))
+                .set_box_shadow_color(Color::rgba(0,0,0,128))
+        );
         //let two = Element::new().build(state, one, |builder| builder.class("two"));
         //let three = Element::new().build(state, two, |builder| builder.class("three"));
         // let four = Element::new().build(state, three, |builder| builder.class("four"));

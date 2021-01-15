@@ -148,6 +148,32 @@ impl<'a> Builder<'a> {
         self
     }
 
+    // Box Shadow
+    pub fn set_box_shadow_h_offset(mut self, val: Length) -> Self {
+        self.state.style.shadow_h_offset.insert(self.entity, val);
+
+        self
+    }
+
+
+    pub fn set_box_shadow_v_offset(mut self, val: Length) -> Self {
+        self.state.style.shadow_v_offset.insert(self.entity, val);
+
+        self
+    }
+
+    pub fn set_box_shadow_color(mut self, val: Color) -> Self {
+        self.state.style.shadow_color.insert(self.entity, val);
+
+        self
+    }
+
+    pub fn set_box_shadow_blur(mut self, val: Length) -> Self {
+        self.state.style.shadow_blur.insert(self.entity, val);
+
+        self
+    }
+
     // Positioning
 
     pub fn set_position(mut self, val: Position) -> Self {
