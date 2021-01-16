@@ -10,6 +10,7 @@ repository = "https://github.com/geom3trik/tuix"
 
 [dependencies]
 glutin = "0.26.0"
-femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master", default-features = false }
+femtovg = { git = "https://github.com/geom3trik/femtovg", branch = "master", default-features = false }
+# femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master", default-features = false }
 keyboard-types = { version = "0.5", default-features = false }
 tuix_core = { path = "../core" }

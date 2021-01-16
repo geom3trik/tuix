@@ -482,16 +482,16 @@ impl Application {
 
                                 // Useful for debugging
                             
-                                println!(
-                                    "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-                                    hovered_widget,
-                                    state.hierarchy.get_parent(hovered_widget),
-                                    state.transform.get_posx(hovered_widget),
-                                    state.transform.get_posy(hovered_widget),
-                                    state.transform.get_width(hovered_widget),
-                                    state.transform.get_height(hovered_widget),
-                                    state.transform.get_z_order(hovered_widget),
-                                );
+                                // println!(
+                                //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+                                //     hovered_widget,
+                                //     state.hierarchy.get_parent(hovered_widget),
+                                //     state.transform.get_posx(hovered_widget),
+                                //     state.transform.get_posy(hovered_widget),
+                                //     state.transform.get_width(hovered_widget),
+                                //     state.transform.get_height(hovered_widget),
+                                //     state.transform.get_z_order(hovered_widget),
+                                // );
 
                                 if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
                                     pseudo_classes.set_hover(true);
