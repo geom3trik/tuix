@@ -106,6 +106,8 @@ impl EventHandler for ScrollContainerH {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
+
+                /*
                 WindowEvent::Relayout => {
                     // // To prevent recursive loop when layout event is triggered inside here
                     if event.origin != entity
@@ -183,7 +185,7 @@ impl EventHandler for ScrollContainerH {
                         //return true;
                     }
                 }
-
+                */
                 /*
                 WindowEvent::MouseScroll(_, y) => {
                     //println!("Mouse Scroll Event");
