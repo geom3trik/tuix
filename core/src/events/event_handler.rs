@@ -250,17 +250,17 @@ pub trait EventHandler {
             width - border_width + 2.0 * shadow_blur,
             height - border_width + 2.0 * shadow_blur,
         );
-        path.rounded_rect_varying(
-            posx + (border_width / 2.0),
-            posy + (border_width / 2.0),
-            width - border_width,
-            height - border_width,
-            border_radius_top_left,
-            border_radius_top_right,
-            border_radius_bottom_right,
-            border_radius_bottom_left,
-        );
-        path.solidity(Solidity::Hole);
+        // path.rounded_rect_varying(
+        //     posx + (border_width / 2.0),
+        //     posy + (border_width / 2.0),
+        //     width - border_width,
+        //     height - border_width,
+        //     border_radius_top_left,
+        //     border_radius_top_right,
+        //     border_radius_bottom_right,
+        //     border_radius_bottom_left,
+        // );
+        // path.solidity(Solidity::Hole);
         //let mut paint = Paint::color(shadow_color);
 
         
@@ -295,10 +295,10 @@ pub trait EventHandler {
 
         
 
-        // // Draw border
-        // let mut paint = Paint::color(border_color);
-        // paint.set_line_width(border_width);
-        // canvas.stroke_path(&mut path, paint);
+        // Draw border
+        let mut paint = Paint::color(border_color);
+        paint.set_line_width(border_width);
+        canvas.stroke_path(&mut path, paint);
 
 
         // Draw text

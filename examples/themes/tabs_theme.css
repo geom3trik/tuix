@@ -1,9 +1,8 @@
 
 
 tab_container {
-    background-color: red;
     width: 300px;
-    height: 500px;
+    flex-grow: 1.0;
 }
 
 tab_bar {
@@ -12,7 +11,6 @@ tab_bar {
 
 tab_bar>button {
     background-color: #2e2e2e;
-    /* background-color: red; */
     margin-right: 1px;
     margin-bottom: 1px;
     flex-basis: 80px;
@@ -25,24 +23,24 @@ tab_bar>button:checked {
 }
 
 .item1 {
-    background-color: #9b5959;
-    height: 100%;
-    width: 100%;
+    flex-grow: 1.0;
+    align-items: center;
 }
 
 .item2 {
-    background-color: #47995b;
-    height: 100%;
-    width: 100%;
+    flex-grow: 1.0;
+    align-items: center;
 }
 
 tab_container>.container {
-    background-color: #555555;
+    background-color: #383838;
     height: 100%;
 }
 
 .test {
-    width: 100px;
+    width: 200px;
     height: 30px;
-    background-color: green;
+    background-color: #646464;
+    border-radius: 3px;
+    text-justify: center;
 }

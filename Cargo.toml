@@ -11,6 +11,7 @@ edition = "2018"
 
 [workspace]
 members = [
+    "winit",
     "glutin",
     "baseview",
     "core",
@@ -18,11 +19,13 @@ members = [
 
 [features]
 default = ["glutin"]
+winit = ["tuix_winit"]
 glutin = ["tuix_glutin"]
 baseview = ["tuix_baseview"]
 
 [dependencies]
 tuix_core = { version = "0.1.0", path = "core" }
+tuix_winit = { version = "0.1.0", path = "winit", optional = true }
 tuix_glutin = { version = "0.1.0", path = "glutin", optional = true }
 tuix_baseview = { version = "0.1.0", path = "baseview", optional = true }
 

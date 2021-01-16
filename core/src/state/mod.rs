@@ -321,6 +321,10 @@ impl State {
         self.style.border_radius_bottom_left.animate(std::time::Instant::now());
         self.style.border_radius_bottom_right.animate(std::time::Instant::now());
         self.style.border_width.animate(std::time::Instant::now());
+        self.style.min_width.animate(std::time::Instant::now());
+        self.style.max_width.animate(std::time::Instant::now());
+        self.style.min_height.animate(std::time::Instant::now());
+        self.style.max_height.animate(std::time::Instant::now());
 
         self.style.background_color.has_animations()
             || self.style.font_color.has_animations()
@@ -349,6 +353,10 @@ impl State {
             || self.style.border_radius_bottom_left.has_animations()
             || self.style.border_radius_bottom_right.has_animations()
             || self.style.border_width.has_animations()
+            || self.style.min_width.has_animations()
+            || self.style.max_width.has_animations()
+            || self.style.min_height.has_animations()
+            || self.style.max_height.has_animations()
     }
 
     pub fn get_root(&self) -> Entity {

@@ -184,9 +184,43 @@ impl EventHandler for Panel {
         //if event.target == self.header {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
+                /*
                 WindowEvent::Relayout => {
                     // Exclude relayout orginating from animations
                     if event.origin != Entity::new(0, 0) {
+                        if !state.style.height.is_animating(self.container) {
+                            //let container_height = state.transform.get_height(self.container);
+                            let container_height = state.transform.get_child_sum(self.container);
+                            if container_height > 0.0 {
+                                self.container_height = container_height;
+
+                                if let Some(animation) =
+                                    state.style.height.get_animation_mut(self.expand_animation)
+                                {
+                                    animation.keyframes.last_mut().unwrap().1 =
+                                        Length::Pixels(self.container_height);
+                                }
+
+                                if let Some(animation) = state
+                                    .style
+                                    .height
+                                    .get_animation_mut(self.collapse_animation)
+                                {
+                                    animation.keyframes.first_mut().unwrap().1 =
+                                        Length::Pixels(self.container_height);
+                                }
+
+                                //println!("x: {}  y: {}  w: {}  h: {}", state.transform.get_posx(self.container), state.transform.get_posy(self.container), state.transform.get_width(self.container), state.transform.get_height(self.container));
+                                //println!("display: {:?}  visibility: {:?}  opacity: {:?}", state.style.display.get(self.container).cloned().unwrap_or_default(), state.transform.get_visibility(self.container), state.transform.get_opacity(self.container));
+                            }
+                        }
+                    }
+                }
+                */
+
+
+                WindowEvent::GeometryChanged => {
+                    if event.target == entity {
                         if !state.style.height.is_animating(self.container) {
                             //let container_height = state.transform.get_height(self.container);
                             let container_height = state.transform.get_child_sum(self.container);
@@ -243,8 +277,10 @@ impl EventHandler for Panel {
                                     .play_animation(self.checkbox, self.arrow_expand_animation);
 
                                 self.checkbox.set_rotate(state, 0.0);
+                                //self.container
+                                //    .set_height(state, Length::Pixels(self.container_height));
                                 self.container
-                                    .set_height(state, Length::Pixels(self.container_height));
+                                    .set_height(state, Length::Auto);
                                 self.other_container.set_opacity(state, 1.0);
 
                             //self.container.set_display(state, Display::Flexbox);
