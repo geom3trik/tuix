@@ -18,7 +18,7 @@ The driving principle behind tuix is to be a self-contained, small-as-possible, 
  
  ## Including tuix
  
- Add tuix to your project by adding `tuix = {git = https://github.com/geom3trik/tuix", branch = "main"}` to your projects Cargo.toml under dependencies. 
+ Add tuix to your project by adding `tuix = {git = "https://github.com/geom3trik/tuix", branch = "main"}` to your projects Cargo.toml under dependencies. 
 
 ## Getting Started
 
