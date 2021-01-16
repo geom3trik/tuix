@@ -9,6 +9,7 @@ pub struct Image {
     pub data: Vec<u32>,
 }
 
+#[derive(Clone)]
 pub struct ResourceManager {
     //pub images: HashMap<String, Image>,
     pub stylesheets: Vec<String>,   // Stylesheets refer to a fiel path

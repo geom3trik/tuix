@@ -23,7 +23,7 @@ pub enum SliderEvent {
 
 pub struct Slider {
     front: Entity,
-    on_change: Option<Box<dyn Fn(f32) -> Event>>,
+    on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
     value: f32,
     temp: f32,
     sliding: bool,
@@ -43,7 +43,7 @@ impl Slider {
     }
 
     pub fn on_change<F>(mut self, message: F) -> Self 
-    where F: 'static + Fn(f32) -> Event
+    where F: 'static + Send + Fn(f32) -> Event
     {
         self.on_change = Some(Box::new(message));
         self
@@ -230,7 +230,7 @@ pub struct Slider2 {
     thumb: Entity,
     active: Entity,
     sliding: bool,
-    on_change: Box<dyn Fn(f32) -> Event>,
+    on_change: Box<dyn Fn(f32) -> Event  + Send>,
 
     min: f32,
     max: f32,
@@ -240,7 +240,7 @@ pub struct Slider2 {
 impl Slider2
 {
     pub fn new<F>(on_change: F) -> Self 
-    where F: 'static + Fn(f32) -> Event
+    where F: 'static + Fn(f32) -> Event + Send
     {
         Slider2 {
             thumb: Entity::null(),

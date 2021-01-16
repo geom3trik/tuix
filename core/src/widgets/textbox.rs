@@ -39,8 +39,8 @@ pub struct Textbox {
     dragx: f32,
 
     // Events
-    on_change: Option<Box<dyn Fn(&str) -> Event>>,
-    on_submit: Option<Box<dyn Fn(&str) -> Event>>,
+    on_change: Option<Box<dyn Fn(&str) -> Event + Send>>,
+    on_submit: Option<Box<dyn Fn(&str) -> Event + Send>>,
 
 }
 
@@ -80,7 +80,7 @@ impl Textbox {
     }
 
     pub fn on_change<F>(mut self, on_change: F) -> Self
-    where F: 'static + Fn(&str) -> Event
+    where F: 'static + Fn(&str) -> Event + Send
     {
         self.on_change = Some(Box::new(on_change));
 

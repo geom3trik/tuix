@@ -48,6 +48,7 @@ pub struct Overflow {
     pub overflow: f32,
 }
 
+#[derive(Clone)]
 pub struct Transform {
     pub position: Vec<Pos>,
     pub size: Vec<Pos>,

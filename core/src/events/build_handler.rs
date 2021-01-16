@@ -6,6 +6,9 @@ use crate::state::style::flexbox::{AlignContent, AlignItems, AlignSelf};
 
 use crate::style::*;
 
+use std::rc::Rc;
+use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
 pub trait BuildHandler: EventHandler {
     type Ret;
 
@@ -38,11 +41,11 @@ impl<'a> Builder<'a> {
 
     pub fn build<T>(mut self, event_handler: T) -> Entity
     where
-        T: EventHandler + 'static,
+        T: EventHandler + 'static + Sized + Send,
     {
         self.state
             .event_handlers
-            .insert(self.entity, Box::new(event_handler));
+            .insert(self.entity, Arc::new(Mutex::new(event_handler)));
 
         self.entity
     }

@@ -12,9 +12,11 @@ use femtovg::{
 };
 
 use fnv::FnvHashMap;
+use std::sync::{Arc, Mutex};
+use std::borrow::BorrowMut;
 
 pub struct EventManager {
-    pub event_handlers: FnvHashMap<Entity, Box<EventHandler>>,
+    pub event_handlers: FnvHashMap<Entity, Arc<Mutex<EventHandler>>>,
     pub event_queue: Vec<Event>,
     needs_redraw: bool,
     total_frames: usize,
@@ -114,7 +116,7 @@ impl EventManager {
             if event.target == Entity::null() {
                 for entity in hierarchy.into_iter() {
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        if event_handler.on_event(state, entity, event) {
+                        if event_handler.lock().unwrap().on_event(state, entity, event) {
                             break;
                         }
                     }
@@ -133,7 +135,7 @@ impl EventManager {
 
                     // Send event to all entities before the target
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        if event_handler.on_event(state, entity, event) {
+                        if event_handler.lock().unwrap().on_event(state, entity, event) {
                             continue 'events;
                         }
                     }
@@ -142,7 +144,7 @@ impl EventManager {
 
             // Send event to target
             if let Some(event_handler) = self.event_handlers.get_mut(&event.target) {
-                if event_handler.on_event(state, event.target, event) {
+                if event_handler.lock().unwrap().on_event(state, event.target, event) {
                     continue 'events;
                 }
             }
@@ -158,7 +160,7 @@ impl EventManager {
 
                     // Send event to all entities before the target
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        if event_handler.on_event(state, entity, event) {
+                        if event_handler.lock().unwrap().on_event(state, entity, event) {
                             continue 'events;
                         }
                     }
@@ -175,7 +177,7 @@ impl EventManager {
                     }
 
                     if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
-                        if event_handler.on_event(state, widget, event) {
+                        if event_handler.lock().unwrap().on_event(state, widget, event) {
                             continue 'events;
                         }
                     }
@@ -218,7 +220,7 @@ impl EventManager {
 
         for widget in draw_hierarchy.into_iter() {
             if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
-                event_handler.on_draw(state, widget, canvas);
+                event_handler.lock().unwrap().on_draw(state, widget, canvas);
             }
         }
 
