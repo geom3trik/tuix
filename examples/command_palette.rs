@@ -36,6 +36,7 @@ pub enum SearchboxEvent {
 
 pub struct CommandPalette {
     search_box: Entity,
+    scroll_container: Entity,
     current_selection: Entity,
     matcher: SkimMatcherV2,
     commands: Vec<(String, String, i64)>,
@@ -64,6 +65,7 @@ impl CommandPalette {
 
         Self {
             search_box: Entity::null(),
+            scroll_container: Entity::null(),
             current_selection: Entity::null(),
             matcher: Default::default(),
             commands,
@@ -82,24 +84,26 @@ impl BuildHandler for CommandPalette {
             .on_change(move |val| Event::new(SearchboxEvent::Changed(val.to_string())).target(entity))
             .build(state, entity, |builder| builder.class("search"));
 
-        self.current_selection = self.search_box;
+        //self.current_selection = self.search_box;
 
-        SearchLabel::new("Toggle Full Screen Mode").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Toggle Second Window").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Toggle Session/Arrangement View").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Toggle Device/Clip View").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Detail View").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Toggle Hot-Swap Mode").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Toggle Drum Rack/last-selected Pad").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Info View").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Video Window").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Browser").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Overview").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show In/Out").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Sends").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Mixer").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Open the Preferences").build(state, entity, |builder| builder.class("command"));
-        SearchLabel::new("Close Window/Dialog").build(state, entity, |builder| builder.class("command"));
+        self.scroll_container = ScrollContainer::new().build(state, entity, |builder| builder);
+
+        self.current_selection = SearchLabel::new("Toggle Full Screen Mode").build(state, self.scroll_container, |builder| builder.class("command").set_checked(true));
+        SearchLabel::new("Toggle Second Window").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Toggle Session/Arrangement View").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Toggle Device/Clip View").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Hide/Show Detail View").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Toggle Hot-Swap Mode").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Toggle Drum Rack/last-selected Pad").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Hide/Show Info View").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Hide/Show Video Window").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Hide/Show Browser").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Hide/Show Overview").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Hide/Show In/Out").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Hide/Show Sends").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Hide/Show Mixer").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Open the Preferences").build(state, self.scroll_container, |builder| builder.class("command"));
+        SearchLabel::new("Close Window/Dialog").build(state, self.scroll_container, |builder| builder.class("command"));
 
         // Command::new("Command 1","Shortcut").build(state, entity, |builder| builder);
         // Command::new("Command 2","Shortcut").build(state, entity, |builder| builder);        
@@ -146,13 +150,24 @@ impl EventHandler for CommandPalette {
 
                         let (_, indices) = matcher.fuzzy_indices(&cmd.0, val).unwrap_or((0, vec![]));
 
-                        if let Some(command_widget) = state.hierarchy.get_child(entity, index + 1) {
-                            if score > 0 {
+                        if let Some(command_widget) = state.hierarchy.get_child(self.scroll_container, index + 1) {
+                            
+                            if val.is_empty() {
                                 command_widget.set_text(state, &cmd.0);
-                                state.insert_event(Event::new(SearchLabelEvent::Highlight(indices)));
+                                command_widget.set_display(state, Display::Flexbox);
+                                state.insert_event(Event::new(SearchLabelEvent::Highlight(vec![])));
                             } else {
-                                command_widget.set_text(state, "");
+                                if score > 0 {
+                                    command_widget.set_text(state, &cmd.0);
+                                    command_widget.set_display(state, Display::Flexbox);
+                                    state.insert_event(Event::new(SearchLabelEvent::Highlight(indices)));
+                                } else {
+                                    command_widget.set_text(state, "");
+                                    command_widget.set_display(state, Display::None);
+                                }
                             }
+                            
+                            
                             
                         }
                         
@@ -172,9 +187,12 @@ impl EventHandler for CommandPalette {
                 WindowEvent::KeyDown(code, key) => {
                     if *key == Some(Key::ArrowDown) {
                         if let Some(next_item) = state.hierarchy.get_next_sibling(self.current_selection) {
-                            self.current_selection.set_checked(state, false);
-                            self.current_selection = next_item;
-                            self.current_selection.set_checked(state, true);
+                            if state.transform.get_visibility(next_item) != Visibility::Invisible {
+                                self.current_selection.set_checked(state, false);
+                                self.current_selection = next_item;
+                                self.current_selection.set_checked(state, true);                                
+                            }
+
                             return true;
                         }
                     }
@@ -249,7 +267,7 @@ pub struct SearchLabel {
 impl SearchLabel {
     pub fn new(text: &str) -> Self {
         Self {
-            text: Default::default(),
+            text: text.to_string(),
             indices: Default::default(),
         }
     }
@@ -285,6 +303,10 @@ impl EventHandler for SearchLabel {
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
 
+        // Skip invisible widgets
+        if state.transform.get_visibility(entity) == Visibility::Invisible {
+            return;
+        }
 
         let posx = state.transform.get_posx(entity);
         let posy = state.transform.get_posy(entity);
@@ -411,6 +433,20 @@ impl EventHandler for SearchLabel {
         let mut shadow_color: femtovg::Color = shadow_color.into();
         shadow_color.set_alphaf(shadow_color.a * opacity);
 
+        canvas.save();
+
+        // Apply Scissor
+        let clip_entity = state.transform.get_clip_widget(entity);
+
+        let clip_posx = state.transform.get_posx(clip_entity);
+        let clip_posy = state.transform.get_posy(clip_entity);
+        let clip_width = state.transform.get_width(clip_entity);
+        let clip_height = state.transform.get_height(clip_entity);
+
+
+
+        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+
         // Draw rounded rect
         let mut path = Path::new();
         path.rounded_rect_varying(
@@ -525,5 +561,6 @@ impl EventHandler for SearchLabel {
             //canvas.fill_text(x, y, &text_string, paint);
         }
 
+        canvas.restore();
     }
 }

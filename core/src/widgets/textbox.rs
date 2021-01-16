@@ -164,6 +164,7 @@ impl EventHandler for Textbox {
                             state.capture(entity);
                             //self.edit = true;
                             entity.set_active(state, true);
+                            entity.set_focus(state, true);
                         }
                         if self.edit == true {
                             self.hitx = state.mouse.cursorx;
@@ -181,6 +182,7 @@ impl EventHandler for Textbox {
                     } else {
                         self.edit = false;
                         entity.set_active(state, false);
+                        entity.set_focus(state, false);
 
                         state.insert_event(
                             Event::new(TextboxEvent::ValueChanged(text_data.text.clone()))

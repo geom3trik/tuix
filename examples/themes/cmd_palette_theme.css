@@ -1,5 +1,38 @@
 
 
+scroll_container {
+    flex-grow: 1.0;
+    /* background-color: red; */
+    /* background-color: #262626; */
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+scroll_container>.container {
+    position: absolute;
+    align-self: flex-start;
+    flex-grow: 1.0;
+    flex-shrink: 0.0;
+    width: 100%;
+    /* background-color: green; */
+}
+
+scroll_container>.scrollbar {
+    background-color: #464646;
+}
+
+scroll_container>.scrollbar:enabled {
+    width: 10px;
+    transition: width 0.1 0.0;
+}
+
+scroll_container>.scrollbar:disabled {
+    width: 0px;
+    transition: width 0.1 0.0;
+}
+
+
+
 command_palette {
     margin: 10px;
     background-color: #252525;
@@ -16,6 +49,14 @@ command_palette>.search {
     margin: 10px;
     border-radius: 3px;
     padding-left: 10px;
+    border-width: 1px;
+    border-color: #3c3c3c;
+}
+
+command_palette>.search:focus {
+    border-width: 1px;
+    border-color: #007fd4;
+    color: white;
 }
 
 command {
@@ -27,6 +68,7 @@ command>.search {
     flex-grow: 1.0;
     padding-left: 15px;
 }
+
 
 command>.shortcut {
     color: white;
@@ -43,6 +85,11 @@ command:checked {
     height: 30px;
     color: white;
     padding-left: 15px;
+    /* background-color: #365603; */
+}
+
+.command:hover {
+    background-color: #2a2d2e;
 }
 
 .command:checked {

@@ -197,8 +197,9 @@ pub trait EventHandler {
         let clip_posy = state.transform.get_posy(clip_entity);
         let clip_width = state.transform.get_width(clip_entity);
         let clip_height = state.transform.get_height(clip_entity);
-
+        
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+        //canvas.scissor(0.0, 0.0, 100.0, 100.0);
 
 
         
