@@ -438,7 +438,7 @@ impl BuildHandler for ScrollContainer {
             builder
                 //.set_position(Position::Absolute)
                 .set_top(Length::Percentage(0.0))
-                .set_width(Length::Pixels(10.0))
+                // .set_width(Length::Pixels(10.0))
                 .set_height(Length::Percentage(0.0))
                 .set_align_self(AlignSelf::FlexStart)
                 //.set_background_color(Color::rgb(70, 200, 70))
@@ -455,6 +455,7 @@ impl BuildHandler for ScrollContainer {
         state.style.clip_widget.insert(self.container, entity);
 
         self.vertical_scroll.set_disabled(state, true);
+        self.vertical_scroll.set_enabled(state, false);
 
         // self.vertical_scroll =
         //     Scrollbar::new(self.container, Direction::Vertical).build(state, entity, |builder| {
@@ -571,7 +572,7 @@ impl EventHandler for ScrollContainer {
                     }
                 }
 
-                /*
+                
                 WindowEvent::MouseScroll(_, y) => {
                     //println!("Mouse Scroll Event");
                     // Forward mouse scroll event to the scrollbar
@@ -600,7 +601,8 @@ impl EventHandler for ScrollContainer {
                         - (state.transform.get_height(entity)
                             / state.transform.get_height(self.container));
 
-                    self.scrolly += (40.0 * *y) / (state.transform.get_height(entity) * overflow);
+                    // TODO - Need a way to configure this
+                    self.scrolly += (30.0 * *y) / (state.transform.get_height(entity) * overflow);
 
                     if self.scrolly < 0.0 {
                         self.scrolly = 0.0;
@@ -657,16 +659,10 @@ impl EventHandler for ScrollContainer {
                     state.style.top.play_animation(self.container, self.vertical_container_animation);
                     */
 
-                    //println!("A: {:?}  B: {:?}", current_container_top, self.scrolly * overflow);
-
-                    //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-                    //state.insert_event(Event::new(WindowEvent::Redraw));
-                    //}
-
                     // Capture the event to stop it triggering twice
-                    //return true;
+                    return true;
                 }
-                */
+                
 
                 WindowEvent::WindowResize(_, _) => {
                     // let scroll = state
