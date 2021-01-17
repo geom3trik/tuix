@@ -184,6 +184,7 @@ impl Default for DataIndex {
     }
 }
 
+#[derive(Clone)]
 pub struct AnimatableStorage<T: Interpolator> {
     // Mapping from entity index to data and animations
     pub entity_indices: Vec<DataIndex>,

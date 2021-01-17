@@ -80,6 +80,7 @@ impl std::ops::Not for Entity {
 //     }
 // }
 
+#[derive(Clone)]
 pub struct EntityManager {
     generations: Vec<u16>,
     free_indices: VecDeque<u16>,

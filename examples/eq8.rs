@@ -35,6 +35,11 @@ fn main() {
     app.run();
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum EqChannelEvent {
+    Enabled,
+    Disabled,
+}
 
 pub struct EQ8 {
     channel1: (Entity, Entity),
@@ -166,7 +171,12 @@ impl BuildHandler for EQChannel {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
-        self.active_switch = Checkbox::new(true).with_icon_checked(&self.channel_number.to_string()).with_icon_unchecked(&self.channel_number.to_string()).build(state, entity, |builder| builder);
+        self.active_switch = Checkbox::new(true)
+            .on_checked(Event::new(EqChannelEvent::Enabled).target(entity))
+            .on_unchecked(Event::new(EqChannelEvent::Disabled).target(entity))
+            .with_icon_checked(&self.channel_number.to_string())
+            .with_icon_unchecked(&self.channel_number.to_string())
+            .build(state, entity, |builder| builder);
         self.response_dropdown = Dropdown::new("").build(state, entity, |builder| builder.set_margin_bottom(Length::Pixels(20.0))).2;
         self.frequency_knob = ValueKnob::new("Freq", 30.0, 30.0, 20000.0).with_log_scale().build(state, entity, |builder| builder.id("channel1_freq_knob"));
         self.gain_knob = ValueKnob::new("Gain", 0.0, -12.0, 12.0).build(state, entity, |builder| builder);
@@ -182,14 +192,14 @@ impl EventHandler for EQChannel {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         
 
-        if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
+        if let Some(eqchannel_event) = event.message.downcast::<EqChannelEvent>() {
             if event.target == self.active_switch {
-                match checkbox_event {
-                    CheckboxEvent::Checked => {
+                match eqchannel_event {
+                    EqChannelEvent::Enabled => {
                         entity.set_disabled(state, false);
                     }
 
-                    CheckboxEvent::Unchecked => {
+                    EqChannelEvent::Disabled => {
                         entity.set_disabled(state, true);
                     }
 

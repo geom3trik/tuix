@@ -127,13 +127,13 @@ impl BuildHandler for PianoRoll {
                 //.set_clip_widget(self.midi_grid_scroll_container)
         );
 
-        // let midi_note = MidiNote::new().build(state, midi_grid, |builder|
-        //     builder
-        //         .set_top(Length::Pixels(0.0))
-        //         .set_width(Length::Pixels(40.0))
-        //         .set_height(Length::Pixels(24.0))
-        //         .set_background_color(Color::rgb(255,20,20))
-        // );
+        // // let midi_note = MidiNote::new().build(state, midi_grid, |builder|
+        // //     builder
+        // //         .set_top(Length::Pixels(0.0))
+        // //         .set_width(Length::Pixels(40.0))
+        // //         .set_height(Length::Pixels(24.0))
+        // //         .set_background_color(Color::rgb(255,20,20))
+        // // );
         
         entity
     }
@@ -220,6 +220,7 @@ impl EventHandler for MidiGrid {
         false
     }
 
+    
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
         // Skip window
         if entity == Entity::new(0, 0) {
@@ -378,6 +379,7 @@ impl EventHandler for MidiGrid {
 
 
     }
+    
 }
 
 pub struct MidiNote {

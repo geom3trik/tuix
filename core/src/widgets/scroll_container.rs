@@ -106,6 +106,8 @@ impl EventHandler for ScrollContainerH {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
+
+                /*
                 WindowEvent::Relayout => {
                     // // To prevent recursive loop when layout event is triggered inside here
                     if event.origin != entity
@@ -183,7 +185,7 @@ impl EventHandler for ScrollContainerH {
                         //return true;
                     }
                 }
-
+                */
                 /*
                 WindowEvent::MouseScroll(_, y) => {
                     //println!("Mouse Scroll Event");
@@ -428,11 +430,19 @@ impl ScrollContainer {
 impl BuildHandler for ScrollContainer {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row).set_width(state, Length::Percentage(1.0)).set_height(state, Length::Percentage(1.0));
+        entity.set_flex_direction(state, FlexDirection::Row);
 
 
 
         //println!("Container: {}", self.container);
+
+
+
+        self.container = Button::new().build(state, entity, |builder| {
+            builder.set_top(Length::Percentage(0.0)).set_align_self(AlignSelf::FlexStart).class("container")
+        });
+
+        state.style.clip_widget.insert(self.container, entity);
 
         self.vertical_scroll = Element::new().build(state, entity, |builder| {
             builder
@@ -447,12 +457,6 @@ impl BuildHandler for ScrollContainer {
 
             //
         });
-
-        self.container = Button::new().build(state, entity, |builder| {
-            builder.set_top(Length::Percentage(0.0)).set_align_self(AlignSelf::FlexStart).class("container")
-        });
-
-        state.style.clip_widget.insert(self.container, entity);
 
         self.vertical_scroll.set_disabled(state, true);
         self.vertical_scroll.set_enabled(state, false);

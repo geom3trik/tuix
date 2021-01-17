@@ -61,6 +61,7 @@ pub use trans::Scale;
 
 use bimap::BiMap;
 
+#[derive(Clone)]
 pub struct Style {
     //pub style_rules: Vec<StyleRule>,
 

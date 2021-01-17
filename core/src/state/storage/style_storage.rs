@@ -86,6 +86,7 @@ impl Default for Index {
     }
 }
 
+#[derive(Clone)]
 pub struct StyleStorage<T> {
     // Mapping from entity to data
     pub entity_indices: Vec<Index>,

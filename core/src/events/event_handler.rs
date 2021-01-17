@@ -20,7 +20,7 @@ pub enum WidgetEvent {
     MouseLeave(Entity),
 }
 
-pub trait EventHandler {
+pub trait EventHandler: Send {
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         false
@@ -197,8 +197,9 @@ pub trait EventHandler {
         let clip_posy = state.transform.get_posy(clip_entity);
         let clip_width = state.transform.get_width(clip_entity);
         let clip_height = state.transform.get_height(clip_entity);
-
+        
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+        //canvas.scissor(0.0, 0.0, 100.0, 100.0);
 
 
         
@@ -270,7 +271,7 @@ pub trait EventHandler {
             posy + (border_width / 2.0) + shadow_v_offset, 
             width - border_width, 
             height - border_width, 
-            0.0, 
+            border_radius_top_left, 
             shadow_blur, 
             shadow_color, 
             femtovg::Color::rgba(0,0,0,0)
