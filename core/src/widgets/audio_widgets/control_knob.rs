@@ -15,6 +15,8 @@ use femtovg::{
     LineJoin, Paint, Path, Renderer, Solidity,
 };
 
+use std::sync::{Arc, Mutex};
+
 pub struct ControlKnob {
     sliding: bool, // Could replace this with a bool in state, maybe in mouse
     value: f32,
@@ -27,10 +29,12 @@ pub struct ControlKnob {
     slider: Entity,
     tick: Entity,
 
-    min_value: f32,
-    max_value: f32,
+    min: f32,
+    max: f32,
 
-    is_log: bool,
+    pub is_log: bool,
+
+    pub on_change: Option<Arc<Mutex<dyn Fn(f32) -> Event + Send>>>,
 }
 
 impl ControlKnob {
@@ -47,10 +51,12 @@ impl ControlKnob {
             slider: Entity::null(),
             tick: Entity::null(),
 
-            min_value: min,
-            max_value: max,
+            min,
+            max,
 
             is_log: false,
+
+            on_change: None,
         }
     }
 
@@ -58,6 +64,14 @@ impl ControlKnob {
 
         self.is_log = true;
 
+        self
+    }
+
+    pub fn on_change<F>(mut self, message: F) -> Self 
+    where F: Fn(f32) -> Event,
+    F: 'static + Send
+    {
+        self.on_change = Some(Arc::new(Mutex::new(message)));
         self
     }
 }
@@ -97,7 +111,7 @@ impl EventHandler for ControlKnob {
                 SliderEvent::SetValue(val) => {
                     if event.target == entity {
                         if event.target == entity {
-                            self.value = ((*val).min(self.max_value)).max(self.min_value);
+                            self.value = ((*val).min(self.max)).max(self.min);
 
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
@@ -142,11 +156,11 @@ impl EventHandler for ControlKnob {
                             };
 
                             let new_val = if self.is_log {
-                                let t = self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised;
-                                10.0f32.powf((self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised))
+                                let t = self.temp.log10() + (self.max.log10() - self.min.log10()) * normalised;
+                                10.0f32.powf((self.temp.log10() + (self.max.log10() - self.min.log10()) * normalised))
                                 
                             } else {
-                                self.temp + (self.max_value - self.min_value) * normalised
+                                self.temp + (self.max - self.min) * normalised
                             };
 
                             
@@ -154,9 +168,20 @@ impl EventHandler for ControlKnob {
 
                             
 
-                            self.value = (new_val.min(self.max_value)).max(self.min_value);
+                            self.value = (new_val.min(self.max)).max(self.min);
 
                             //println!("val: {}", normalised);
+
+                            if let Some(on_change) = &self.on_change {
+                                let mut event = (on_change.lock().unwrap())(self.value);
+                                if !event.target {
+                                    event.target = entity;
+                                }
+
+                                
+                                event.origin = entity;
+                                state.insert_event(event);
+                            }
 
                             state.insert_event(
                                 Event::new(SliderEvent::ValueChanged(self.value))
@@ -263,10 +288,10 @@ impl EventHandler for ControlKnob {
         let end = PI / 4.0;
 
         let (min, max, value) = if self.is_log {
-            (self.min_value.log10(), self.max_value.log10(), self.value.log10())
+            (self.min.log10(), self.max.log10(), self.value.log10())
             //(self.min_value, self.max_value, self.value)
         } else {
-            (self.min_value, self.max_value, self.value)
+            (self.min, self.max, self.value)
         };
 
 

@@ -317,11 +317,10 @@ channel_output hbox {
 dropdown>.container>.item {
     height: 25px;
     width: 80px;
-    background-color: red;
 }
 
 dropdown>.container {
-    background-color: blue;
+    background-color: #353535;
 }
 
 

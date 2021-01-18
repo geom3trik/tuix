@@ -80,7 +80,13 @@ impl Hierarchy {
     }
 
     pub fn get_parent(&self, entity: Entity) -> Option<Entity> {
-        return self.parent[entity.index()];
+        if entity.index() >= self.parent.len() {
+            None
+        } else {
+            self.parent[entity.index()]
+        }
+
+        
     }
 
     pub fn get_first_child(&self, entity: Entity) -> Option<Entity> {

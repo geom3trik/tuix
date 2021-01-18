@@ -6,6 +6,9 @@ use crate::widgets::{Button, ControlKnob, Label, SliderEvent, Textbox, TextboxEv
 
 use crate::state::style::*;
 
+use std::rc::Rc;
+use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
 // const VALUE_SLIDER_STYLE: &str = r#"
 
 //     slider
@@ -56,37 +59,60 @@ impl From<f32> for FreqValue {
     }
 }
 
-#[derive(Clone)]
 pub struct ValueKnob {
     pub label: String,
-    pub slider: Entity,
-    pub value: Entity,
+    pub knob: Entity,
+    pub textbox: Entity,
 
     init: f32,
-    min_value: f32,
-    max_value: f32,
+    min: f32,
+    max: f32,
 
     is_log: bool,
+
+    pub on_change: Option<Arc<Mutex<dyn Fn(f32) -> Event + Send>>>,
 }
 
 impl ValueKnob {
     pub fn new(label: &str, init: f32, min: f32, max: f32) -> Self {
         ValueKnob {
             label: label.to_string(),
-            slider: Entity::null(),
-            value: Entity::null(),
+            knob: Entity::null(),
+            textbox: Entity::null(),
 
             init,
-            min_value: min,
-            max_value: max,
+            min,
+            max,
 
             is_log: false,
+
+            on_change: None,
         }
     }
 
     pub fn with_log_scale(mut self) -> Self {
         self.is_log = true;
 
+        self
+    }
+
+    pub fn with_minium(mut self, min: f32) -> Self {
+        self.min = min;
+
+        self
+    }
+
+    pub fn with_maximum(mut self, min: f32) -> Self {
+        self.min = min;
+
+        self
+    }
+
+    pub fn on_change<F>(mut self, message: F) -> Self 
+    where F: Fn(f32) -> Event,
+    F: 'static + Send
+    {
+        self.on_change = Some(Arc::new(Mutex::new(message)));
         self
     }
 }
@@ -100,32 +126,29 @@ impl BuildHandler for ValueKnob {
                 .set_height(Length::Pixels(25.0))
                 .set_text_justify(Justify::Center)
         });
-        if self.is_log {
-            self.slider = ControlKnob::new(self.init, self.min_value, self.max_value).with_log_scale().build(
-                state,
-                entity,
-                |builder| {
-                    builder
-                        .set_width(Length::Pixels(50.0))
-                        .set_height(Length::Pixels(50.0))
-                },
-            );
-        } else {
-            self.slider = ControlKnob::new(self.init, self.min_value, self.max_value).build(
-                state,
-                entity,
-                |builder| {
-                    builder
-                        .set_width(Length::Pixels(50.0))
-                        .set_height(Length::Pixels(50.0))
-                },
-            );
-        }
+
+
+
+        let mut knob = ControlKnob::new(self.init, self.min, self.max);
+
+        knob.on_change = self.on_change.clone();
+        knob.is_log = self.is_log;
+
+        self.knob = knob.build(
+            state,
+            entity,
+            |builder| {
+                builder
+                    .set_width(Length::Pixels(50.0))
+                    .set_height(Length::Pixels(50.0))
+            },
+        );
+
         
 
         //let val_str = format!("{:3}!", self.init);
         let freq_val: FreqValue = self.init.into(); 
-        self.value = Textbox::new(&freq_val.to_string()).build(state, entity, |builder| {
+        self.textbox = Textbox::new(&freq_val.to_string()).build(state, entity, |builder| {
             builder
                 .set_height(Length::Pixels(25.0))
                 .set_margin_left(Length::Pixels(2.5))
@@ -135,7 +158,7 @@ impl BuildHandler for ValueKnob {
 
         state.style.insert_element(entity, "value_knob");
 
-        self.slider
+        self.knob
     }
 }
 
@@ -145,13 +168,13 @@ impl EventHandler for ValueKnob {
             match slider_event {
                 SliderEvent::ValueChanged(val) => {
                     //println!("Slider Value Changed: {} {}", self.label, val);
-                    if event.target == self.slider {
+                    if event.target == self.knob {
                         let val_str = format!("{:3}!", val);
                         let freq_val: FreqValue = (*val).into();
                         //println!("val_str: {} {}", self.label, val_str);
                         state.insert_event(
                             Event::new(TextboxEvent::SetValue(freq_val.to_string()))
-                                .target(self.value)
+                                .target(self.textbox)
                                 .propagate(Propagation::Direct),
                         );
                     }
@@ -163,13 +186,13 @@ impl EventHandler for ValueKnob {
                         //println!("val_str: {} {}", self.label, val_str);
                         state.insert_event(
                             Event::new(TextboxEvent::SetValue(freq_val.to_string()))
-                                .target(self.value)
+                                .target(self.textbox)
                                 .propagate(Propagation::Direct),
                         );
 
                         state.insert_event(
                             Event::new(SliderEvent::SetValue(*val))
-                                .target(self.slider)
+                                .target(self.knob)
                                 .propagate(Propagation::Direct),
                         );
 

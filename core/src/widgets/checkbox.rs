@@ -189,18 +189,6 @@ impl EventHandler for Checkbox {
                     MouseButton::Left => {
                         if entity == event.target {
                             if self.checked {
-                                if let Some(mut on_checked) = self.on_checked.clone() {
-
-                                    if on_checked.target == Entity::null() {
-                                        on_checked.target = entity;
-                                    }
-
-                                    on_checked.origin = entity;
-
-                                    state.insert_event(on_checked);
-                                }
-                                
-                            } else {
                                 if let Some(mut on_unchecked) = self.on_unchecked.clone() {
 
                                     if on_unchecked.target == Entity::null() {
@@ -210,6 +198,18 @@ impl EventHandler for Checkbox {
                                     on_unchecked.origin = entity;
 
                                     state.insert_event(on_unchecked);
+                                }
+                            } else {
+                                
+                                if let Some(mut on_checked) = self.on_checked.clone() {
+
+                                    if on_checked.target == Entity::null() {
+                                        on_checked.target = entity;
+                                    }
+
+                                    on_checked.origin = entity;
+
+                                    state.insert_event(on_checked);
                                 }
                             }
 

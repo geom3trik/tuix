@@ -1,4 +1,4 @@
-// Super simple todo example
+// Super simple todo example (TODO)
 
 use tuix::*;
 
