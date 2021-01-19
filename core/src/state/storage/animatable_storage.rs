@@ -226,24 +226,32 @@ where
             // Set the data index to the data position
             self.entity_indices[entity.index()].data_index =
                 Index::new(self.inline_data.len()).inherited(false).inline(true);
+
             // Add the data
             self.inline_data.push(value);
         } else {
             let data_index = self.entity_indices[entity.index()].data_index;
 
-            if data_index.index() >= self.inline_data.len() {
+            if data_index.is_inline() {
+                if data_index.index() >= self.inline_data.len() {
+                    self.entity_indices[entity.index()].data_index =
+                        Index::new(self.inline_data.len()).inherited(false).inline(true);
+                    self.inline_data.push(value);
+                } else {
+                    self.entity_indices[entity.index()]
+                        .data_index
+                        .set_inherited(false)
+                        .set_inline(true);
+                    self.inline_data[data_index.index()] = value;
+                    
+                }                
+            } else {
                 self.entity_indices[entity.index()].data_index =
                     Index::new(self.inline_data.len()).inherited(false).inline(true);
-                //self.entity_indices[entity.index()].animation_index = AnimationIndex::default();
                 self.inline_data.push(value);
-            } else {
-                self.entity_indices[entity.index()]
-                    .data_index
-                    .set_inherited(false)
-                    .set_inline(true);
-                //self.entity_indices[entity.index()].animation_index = AnimationIndex::default();
-                self.inline_data[data_index.index()] = value;
             }
+
+
 
             //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
         }
@@ -463,7 +471,12 @@ where
                     .unwrap_or_default();
                 let end = self.data.get(rule_data_index).cloned().unwrap_or_default();
 
-                *transition.keyframes.first_mut().unwrap() = (0.0, start);
+                if let Some(start) = self.data.get(current_data_index) {
+                    *transition.keyframes.first_mut().unwrap() = (0.0, start.clone());
+                } else {
+                    *transition.keyframes.first_mut().unwrap() = (0.0, end.clone());
+                }
+                
                 *transition.keyframes.last_mut().unwrap() = (1.0, end);
 
                 transition.from_rule = self.entity_indices[entity.index()].data_index.index();
@@ -517,6 +530,16 @@ where
                     return false;
                 }
 
+                LinkType::NoRule => {
+                    self.unlink(entity);
+                    return true;
+                }
+
+                // LinkType::NoData => {
+                //     self.unlink(entity);
+                //     return true;
+                // }
+
                 _ => {}
             }
         }
@@ -548,6 +571,11 @@ where
 
     // Links a rule to a transition animation
     pub fn insert_transition(&mut self, rule: usize, animation_state: AnimationState<T>) {
+        if rule >= self.rule_indices.len() {
+            self.rule_indices.resize(rule + 1, Default::default());
+            self.rule_indices[rule].data_index = Index::new(self.data.len());
+            self.data.push(Default::default());
+        } 
         self.rule_indices[rule].animation_id = self.animations.len();
         self.animations.push(animation_state);
     }

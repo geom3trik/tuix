@@ -2691,18 +2691,20 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match width {
-                        Length::Auto => {}
+                        Length::Auto => {},
                         Length::Pixels(val) => new_width = val,
                         Length::Initial(val) => new_width = val,
                         Length::Percentage(val) => new_width = val * parent_width,
                     }
 
                     match height {
-                        Length::Auto => {}
+                        Length::Auto => {},
                         Length::Pixels(val) => new_height = val,
                         Length::Initial(val) => new_height = val,
                         Length::Percentage(val) => new_height = val * parent_height,
                     }
+
+                    
 
                     //state.transform.set_width(child, new_width);
                     //state.transform.set_height(child, new_height);
@@ -2772,7 +2774,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 
             }
 
-
+            
 
             if state.transform.get_posx(child) != new_posx {
                 state.transform.set_posx(child, new_posx);

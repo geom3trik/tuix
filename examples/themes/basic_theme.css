@@ -1,94 +1,13 @@
 
 .one {
-    left:100px;
-    top: 100px;
-    width: 200px;
-    height: 200px;
-    background-color: red;
-    display: flex;
-    flex-direction: row;
-    border-color: black;
-    /* border-width: 10px; */
-  }
+  width: 200px;
+  height: 200px;
+  /* background-color: red; */
+  transition: background-color 0.5 0.0;
+}
+
+.one:hover {
+
+  background-color: red;
   
-  .two {
-    background-color: blue;
-    flex-grow: 1.0;
-  }
-    
-  .three {
-    background-color: #59b159;
-    height: 150px;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
-
-  .one>.two>.three {
-    background-color: red;
-  }
-  
-  .four {
-    background-color: yellow;
-    flex-grow: 1.0;
-    height: 100px;
-  }
-  
-  .five {
-    position: absolute;
-    width: 500px;
-    height: 50px;
-    background-color: #00ffff;
-  }
-
-
-/* .outer {
-
-    width: 100px;
-    background-color: #912828;
-    border-width: 10px;
-    border-color: blue;
-    flex-direction: row;
-    align-items: center;
 }
-
-.inner {
-    width: 50px;
-    height: 50px;
-    background-color: green;
-    border-color: black;
-    flex-direction: row;
-}
-
-.inner2 {
-    height: 100px;
-    flex-grow: 1.0;
-    width: 100px;
-    background-color: #37376d;
-}
-
-hbox {
-    background-color: green;
-    height: 30px;
-}
-
-
-button {
-    height: 30px;
-    flex-grow: 1.0;
-    color: black;
-    background-color: white;
-} 
-
-label {
-    flex-grow: 1.0;
-    height: 30px;
-    color: black;
-    background-color: white;
-}
-
-.innerinner {
-    flex-grow: 1.0;
-    background-color: yellow;
-    margin: 10px;
-}  */
