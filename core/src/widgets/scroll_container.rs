@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use glutin::window::Window;
+
 use crate::entity::Entity;
 use crate::events::{BuildHandler, Event, EventHandler};
 use crate::state::style::*;
@@ -390,7 +392,35 @@ impl EventHandler for ScrollContainerH {
 ///
 
 
+struct Container {
 
+}
+
+impl Container {
+    pub fn new() -> Self {
+        Container {
+
+        }
+    }
+}
+
+impl BuildHandler for Container {
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        entity
+    }
+}
+
+impl EventHandler for Container {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+        
+        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+
+        }
+         
+        false
+    }
+}
 
 
 pub struct ScrollContainer {
@@ -438,7 +468,7 @@ impl BuildHandler for ScrollContainer {
 
 
 
-        self.container = Button::new().build(state, entity, |builder| {
+        self.container = Element::new().build(state, entity, |builder| {
             builder.set_top(Length::Percentage(0.0)).set_align_self(AlignSelf::FlexStart).class("container")
         });
 
@@ -498,12 +528,10 @@ impl EventHandler for ScrollContainer {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::Relayout => {
-                    // // To prevent recursive loop when layout event is triggered inside here
-                    if event.origin != entity
-                        && event.origin != self.container
-                        && event.origin != self.vertical_scroll
-                    {
+                
+                WindowEvent::GeometryChanged => {
+                    
+                    if event.target == self.container || event.target == entity {
                         let mut scrollh = state.transform.get_height(entity)
                             / state.transform.get_height(self.container);
 
@@ -516,9 +544,6 @@ impl EventHandler for ScrollContainer {
                             self.vertical_scroll.set_enabled(state, true);
                         }
 
-                        // BUG: fast scrolling causes smaller scroll because the animation hasn't finished when this function is called again
-                        // One way to fix this might be to check whether the value is currently being animated before setting here
-                        // Possibly not the best solution but it works
                         if !state.style.top.is_animating(self.vertical_scroll) {
                             let dist = state.transform.get_posy(self.vertical_scroll)
                                 - state.transform.get_posy(entity);
@@ -539,9 +564,6 @@ impl EventHandler for ScrollContainer {
                             self.scrolly = 1.0;
                         }
 
-                        // self.vertical_scroll
-                        //     .set_height(state, Length::Percentage(scrollh));
-
                         // Setting it this way avoid calling Restyle automatically
                         state
                             .style
@@ -555,24 +577,17 @@ impl EventHandler for ScrollContainer {
                             - (state.transform.get_height(entity)
                                 / state.transform.get_height(self.container));
 
-                        // self.container
-                        //     .set_top(state, Length::Percentage(self.scrolly * overflow));
                         state
                             .style
                             .top
                             .insert(self.container, Length::Percentage(self.scrolly * overflow));
 
-                        // self.vertical_scroll
-                        //     .set_top(state, Length::Percentage(self.scrolly * overflow2));
                         state.style.top.insert(
                             self.vertical_scroll,
                             Length::Percentage(self.scrolly * overflow2),
                         );
 
-                        // Relayout and Redraw wont get called automatically so need to manually trigger them
                         state.insert_event(Event::new(WindowEvent::Relayout).origin(entity));
-                        //state.insert_event(Event::new(WindowEvent::Redraw));
-                        //return true;
                     }
                 }
 

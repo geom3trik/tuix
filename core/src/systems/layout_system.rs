@@ -2803,7 +2803,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 //     hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
                 // }
             } else {
-                state.insert_event(Event::new(WindowEvent::GeometryChanged).target(child).propagate(Propagation::Direct));
+                state.insert_event(Event::new(WindowEvent::GeometryChanged).target(child).propagate(Propagation::Down));
                 should_continue = false;
             }
 
