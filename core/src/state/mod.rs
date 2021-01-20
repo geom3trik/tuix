@@ -31,10 +31,6 @@ use std::collections::{HashMap, VecDeque};
 
 use fnv::FnvHashMap;
 
-use std::sync::{Arc, Mutex};
-
-use std::cell::RefCell;
-
 #[derive(Clone)]
 pub struct Fonts {
     pub regular: Option<FontId>,
@@ -42,7 +38,6 @@ pub struct Fonts {
     pub icons: Option<FontId>,
 }
 
-#[derive(Clone)]
 pub struct State {
     entity_manager: EntityManager, // Creates and destroys entities
     pub hierarchy: Hierarchy,      // The widget tree
@@ -56,7 +51,7 @@ pub struct State {
     pub captured: Entity,
     pub focused: Entity,
 
-    pub event_handlers: FnvHashMap<Entity, Arc<Mutex<EventHandler>>>,
+    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
     pub event_queue: VecDeque<Event>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
@@ -111,7 +106,7 @@ impl State {
     where
         T: EventHandler + 'static + Send,
     {
-        self.event_handlers.insert(entity, Arc::new(Mutex::new(event_handler)));
+        self.event_handlers.insert(entity, Box::new(event_handler));
 
         Builder::new(self, entity)
     }

@@ -5,7 +5,7 @@ use std::any::{Any, TypeId};
 use std::fmt::Debug;
 
 // Determines how the event propagates through the hierarchy
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Propagation {
     Down,
     Up,
@@ -55,6 +55,7 @@ impl Clone for Box<Message> {
 //impl<T> Message for T where T: 'static + Any + Clone {}
 
 impl dyn Message {
+    // Check if a message is a certain type
     pub fn is<T: Message>(&self) -> bool {
         // Get TypeId of the type this function is instantiated with
         let t = TypeId::of::<T>();
@@ -66,6 +67,7 @@ impl dyn Message {
         t == concrete
     }
 
+    // Casts a message to the specified type if the message is of that type
     pub fn downcast<T>(&mut self) -> Option<&mut T>
     where
         T: Message,
@@ -104,11 +106,13 @@ pub struct Event {
     pub cancellable: bool,
     // Whether the event is unique (only the latest copy can exist in a queue at a time)
     pub unique: bool,
+    // Specifies an order index which is used to sort the event queue
     pub order: i32,
-    // The event type
+    // The event message
     pub message: Box<dyn Message>,
 }
 
+// Allows events to be compared for equality 
 impl PartialEq for Event {
     fn eq(&self, other: &Event) -> bool {
         self.message.equals_a(&*other.message) && self.origin == other.origin && self.target == other.target
@@ -132,54 +136,29 @@ impl Event {
         }
     }
 
-    pub fn is_type<T>(&mut self) -> Option<&mut T>
-    where
-        T: Message,
-    {
-        self.message.downcast::<T>()
-    }
-
+    // Sets the target of the event
     pub fn target(mut self, entity: Entity) -> Self {
         self.target = entity;
         self
     }
 
+    // Sets the origin of the event
     pub fn origin(mut self, entity: Entity) -> Self {
         self.origin = entity;
         self
     }
 
+    // Specifies that the event is unique 
+    // (only one of this event type should exist in the event queue at once)
     pub fn unique(mut self) -> Self {
         self.unique = true;
         self
     }
 
+    // Sets the propagation of the event
     pub fn propagate(mut self, propagation: Propagation) -> Self {
         self.propagation = propagation;
 
         self
-    }
-
-    pub fn get_propagate_up(&self) -> bool {
-        match self.propagation {
-            Propagation::Up => true,
-            Propagation::DownUp => true,
-            _ => false,
-        }
-    }
-
-    pub fn get_propagate_down(&self) -> bool {
-        match self.propagation {
-            Propagation::Down => true,
-            Propagation::DownUp => true,
-            _ => false,
-        }
-    }
-
-    pub fn get_propagate_fall(&self) -> bool {
-        match self.propagation {
-            Propagation::Fall => true,
-            _ => false,
-        }
     }
 }

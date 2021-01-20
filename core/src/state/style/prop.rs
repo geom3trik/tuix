@@ -1,10 +1,12 @@
-use crate::entity::Entity;
+use crate::{BuildHandler, Builder, EventHandler, entity::Entity};
 use crate::state::style::*;
 use crate::State;
 
 use crate::{Event, WindowEvent};
 
 use crate::state::hierarchy::*;
+
+use crate::AsAny;
 
 pub trait PropSet {
     //fn get_first_child(self, hierarchy: &Hierarchy) -> Option<Entity>;
@@ -134,9 +136,34 @@ pub trait PropSet {
     fn set_next_focus(self, state: &mut State, value: Entity) -> Self;
     fn set_prev_focus(self, state: &mut State, value: Entity) -> Self;
     fn set_focus_order(self, state: &mut State, next: Entity, prev: Entity) -> Self;
+
+    fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
+
+    fn testy<B: EventHandler + 'static, F: FnMut(&mut Box<dyn EventHandler>)>(self, state: &mut State, mutator: F) -> Self;
+
 }
 
 impl PropSet for Entity {
+    
+    fn testy<B: EventHandler + 'static, F: FnMut(&mut Box<dyn EventHandler>)>(self, state: &mut State, mut mutator: F) -> Self
+    where Self: std::marker::Sized + 'static,
+    {
+        let t = state.event_handlers.get_mut(&self).unwrap();
+
+        let t1: &B = t.as_any().downcast_ref::<B>().expect("Failed to cast");
+
+        (mutator)(t);
+
+        self
+    }
+
+    fn mutate<F>(self, state: &mut State, mut builder: F) -> Self 
+    where F: FnMut(Builder) -> Builder,
+    {
+        builder(Builder::new(state, self));
+
+        self
+    }
 
     fn class(self, state: &mut State, class_name: &str) -> Self
     {

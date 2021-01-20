@@ -77,7 +77,7 @@ impl BuildHandler for ResizableVBox {
 
 impl EventHandler for ResizableVBox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        if let Some(window_event) = event.is_type::<WindowEvent>() {
+        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {

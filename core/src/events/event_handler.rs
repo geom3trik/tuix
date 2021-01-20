@@ -13,12 +13,6 @@ use femtovg::{
 
 use crate::style::{Justify, Length, Visibility};
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum WidgetEvent {
-    AddChild(Entity, Entity),
-    MouseEnter(Entity),
-    MouseLeave(Entity),
-}
 
 pub trait EventHandler: Send {
     // Called when events are flushed
@@ -756,5 +750,21 @@ pub trait EventHandler: Send {
             },
         );
         */
+    }
+
+
+
+}
+
+use std::any::{Any, TypeId};
+
+pub trait AsAny {
+    fn as_any(&self) -> &dyn Any;
+}
+
+impl<T: 'static> AsAny for T {
+    fn as_any(&self) -> &dyn Any
+    {
+        self
     }
 }

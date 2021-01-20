@@ -511,6 +511,7 @@ impl Style {
                     Property::Transition(transitions) => {
                         for transition in transitions {
                             match transition.property.as_ref() {
+
                                 "background-color" => {
                                     self.background_color.insert_transition(
                                         rule_id,
@@ -528,6 +529,51 @@ impl Style {
 
                                 "left" => {
                                     self.left.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "top" => {
+                                    self.top.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "right" => {
+                                    self.right.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "bottom" => {
+                                    self.bottom.insert_transition(
                                         rule_id,
                                         AnimationState::new()
                                             .with_duration(std::time::Duration::from_secs_f32(
@@ -618,6 +664,66 @@ impl Style {
 
                                 "margin-right" => {
                                     self.margin_right.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-left" => {
+                                    self.padding_left.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-right" => {
+                                    self.padding_right.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-top" => {
+                                    self.padding_top.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-bottom" => {
+                                    self.padding_bottom.insert_transition(
                                         rule_id,
                                         AnimationState::new()
                                             .with_duration(std::time::Duration::from_secs_f32(

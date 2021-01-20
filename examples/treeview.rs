@@ -46,7 +46,7 @@ impl BuildHandler for ResizableVBox {
 
 impl EventHandler for ResizableVBox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        if let Some(color_edit_event) = event.is_type::<ColorEditEvent>() {
+        if let Some(color_edit_event) = event.message.downcast::<ColorEditEvent>() {
             match color_edit_event {
                 ColorEditEvent::ColorChanged(r, g, b, a) => {
                     entity.set_background_color(state, Color::rgba(*r, *g, *b, *a));
@@ -54,7 +54,7 @@ impl EventHandler for ResizableVBox {
             }
         }
 
-        if let Some(window_event) = event.is_type::<WindowEvent>() {
+        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {
@@ -222,7 +222,7 @@ impl BuildHandler for ColorEdit {
 
 impl EventHandler for ColorEdit {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        if let Some(vectoredit_event) = event.is_type::<VectorEditEvent<u8>>() {
+        if let Some(vectoredit_event) = event.message.downcast::<VectorEditEvent<u8>>() {
             match vectoredit_event {
                 VectorEditEvent::Dim1(val) => {
                     state.insert_event(

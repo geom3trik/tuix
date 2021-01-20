@@ -252,7 +252,7 @@ where
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         let target = event.target;
 
-        if let Some(dropdown_event) = event.is_type::<DropdownEvent>() {
+        if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             match dropdown_event {
                 DropdownEvent::SetText(text, _) => match text.as_ref() {
                     "1" => {
@@ -413,7 +413,7 @@ where
             }
         }
 
-        if let Some(textbox_event) = event.is_type::<TextboxEvent>() {
+        if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
                 TextboxEvent::ValueChanged(text) => {
                     if let Ok(val) = text.clone().parse::<T>() {

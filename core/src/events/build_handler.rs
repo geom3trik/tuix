@@ -9,11 +9,14 @@ use crate::style::*;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::sync::{Arc, Mutex};
+
+// Inherited by all widgets
 pub trait BuildHandler: EventHandler {
     type Ret;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret;
 
+    // Adds the widget into state and returns Ret - usually an entity id
     fn build<F>(mut self, state: &mut State, parent: Entity, mut builder: F) -> Self::Ret
     where
         F: FnMut(Builder) -> Builder,
@@ -29,6 +32,7 @@ pub trait BuildHandler: EventHandler {
     }
 }
 
+// Contains an entity id and a mutable reference to state and can be used to set properties
 pub struct Builder<'a> {
     pub entity: Entity,
     pub state: &'a mut State,
@@ -45,7 +49,7 @@ impl<'a> Builder<'a> {
     {
         self.state
             .event_handlers
-            .insert(self.entity, Arc::new(Mutex::new(event_handler)));
+            .insert(self.entity, Box::new(event_handler));
 
         self.entity
     }

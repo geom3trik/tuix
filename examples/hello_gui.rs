@@ -7,6 +7,8 @@ use tuix::events::BuildHandler;
 
 use tuix::PropSet;
 
+use tuix::Length;
+
 use tuix::style::themes::DEFAULT_THEME;
 
 fn main() {
@@ -14,9 +16,19 @@ fn main() {
 
         state.insert_theme(DEFAULT_THEME);
 
-        Button::new().build(state, window, |builder| {
+        let my_button = Button::with_label("Hello GUI!").build(state, window, |builder| {
             builder.set_text("Button")
         });
+
+        my_button.mutate(state, |ctx| 
+            ctx
+                .set_width(Length::Pixels(100.0))
+                .set_height(Length::Pixels(100.0))
+        );
+
+        my_button.testy::<Button>(state, |widget| 
+            println!("{:?}", widget.text) 
+        );
 
         win_desc.with_title("Hello GUI")
     });

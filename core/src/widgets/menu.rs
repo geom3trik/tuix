@@ -3,7 +3,7 @@
 use crate::entity::Entity;
 use crate::mouse::*;
 use crate::{
-    BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WidgetEvent, WindowEvent,
+    BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WindowEvent,
 };
 use crate::{PropSet, State};
 
@@ -357,60 +357,6 @@ impl EventHandler for Menu {
                     //         .target(entity)
                     //         .propagate(Propagation::Direct),
                     // );
-                }
-
-                _ => {}
-            }
-        }
-
-        if let Some(wentityget_event) = event.message.downcast::<WidgetEvent>() {
-            match wentityget_event {
-                WidgetEvent::MouseEnter(id) => {
-                    if *id == entity {
-                        // state.insert_event(
-                        //     Event::new(MenuEvent::Open(entity))
-                        //         .target(entity)
-                        //         .propagate(Propagation::None),
-                        // );
-
-                        // if let Some(visibility) = state.style.visibility.get(self.container) {
-                        //     match visibility {
-                        //         Visibility::Invisible => {
-                        //             state.insert_event(
-                        //                 Event::new(MenuEvent::Open(entity)).target(entity).propagate(false),
-                        //             );
-                        //         }
-
-                        //         Visibility::Visible => {
-                        //             state.insert_event(
-                        //                 Event::new(MenuEvent::Close(entity)).target(entity).propagate(false),
-                        //             );
-                        //         }
-                        //     }
-                        // }
-
-                        state.insert_event(Event::new(WindowEvent::Restyle));
-                    }
-                }
-
-                WidgetEvent::MouseLeave(id) => {
-                    if *id == entity {
-                        // for child in self.container.child_iter(&state.hierarchy) {
-                        //     if child == state.hovered {
-                        //         // Forward the mouse down event to the option that's hovered
-                        //         //state.insert_event(Event::new(WindowEvent::MouseDown(*button, *mods)).target(state.hovered).propagate(false));
-                        //         //state.insert_event(Event::new(StyleEvent::Restyle));
-                        //         //state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity));
-                        //         //state.captured = Entity::null();
-
-                        //         return false;
-                        //     }
-                        // }
-
-                        //state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity).propagate(false));
-                    }
-
-                    state.insert_event(Event::new(WindowEvent::Restyle));
                 }
 
                 _ => {}

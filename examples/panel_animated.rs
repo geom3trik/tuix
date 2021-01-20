@@ -71,7 +71,7 @@ impl BuildHandler for ColorEdit {
 
 impl EventHandler for ColorEdit {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        if let Some(vectoredit_event) = event.is_type::<VectorEditEvent<u8>>() {
+        if let Some(vectoredit_event) = event.message.downcast::<VectorEditEvent<u8>>() {
             match vectoredit_event {
                 VectorEditEvent::Dim1(val) => {
                     state.insert_event(

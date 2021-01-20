@@ -40,7 +40,7 @@ impl EventHandler for RadioList {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         let origin = event.origin;
 
-        if let Some(radio_event) = event.is_type::<RadioEvent>() {
+        if let Some(radio_event) = event.message.downcast::<RadioEvent>() {
             match radio_event {
                 RadioEvent::Activate(radio, group) => {
                     if origin != entity {
@@ -135,7 +135,7 @@ impl EventHandler for RadioBox {
             }
         }
 
-        if let Some(radio_event) = event.is_type::<RadioEvent>() {
+        if let Some(radio_event) = event.message.downcast::<RadioEvent>() {
             match radio_event {
                 RadioEvent::Activate(radio, group) => {
                     if *radio != entity && group == &self.group_name {
