@@ -11,7 +11,7 @@ pub struct Button {
 
     on_press: Option<Event>,
     on_release: Option<Event>,
-    text: Option<String>,
+    pub text: Option<String>,
 }
 
 impl Button {

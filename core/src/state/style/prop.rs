@@ -6,8 +6,6 @@ use crate::{Event, WindowEvent};
 
 use crate::state::hierarchy::*;
 
-use crate::AsAny;
-
 pub trait PropSet {
     //fn get_first_child(self, hierarchy: &Hierarchy) -> Option<Entity>;
 
@@ -139,22 +137,36 @@ pub trait PropSet {
 
     fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
 
-    fn testy<B: EventHandler + 'static, F: FnMut(&mut Box<dyn EventHandler>)>(self, state: &mut State, mutator: F) -> Self;
+    fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
+    
+    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(self, state: &mut State, mutator: F) -> Self;
 
 }
 
 impl PropSet for Entity {
     
-    fn testy<B: EventHandler + 'static, F: FnMut(&mut Box<dyn EventHandler>)>(self, state: &mut State, mut mutator: F) -> Self
+    fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>
     where Self: std::marker::Sized + 'static,
     {
         let t = state.event_handlers.get_mut(&self).unwrap();
 
-        let t1: &B = t.as_any().downcast_ref::<B>().expect("Failed to cast");
+        let t1 = t.downcast::<B>();
 
-        (mutator)(t);
+        t1
+
+    }
+
+    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(self, state: &mut State, mut mutator: F) -> Self
+    where Self: std::marker::Sized + 'static,
+    {
+        let t = state.event_handlers.get_mut(&self).unwrap();
+
+        let t1 = t.downcast::<B>().expect("Failed to cast");
+
+        mutator(t1);
 
         self
+
     }
 
     fn mutate<F>(self, state: &mut State, mut builder: F) -> Self 

@@ -13,8 +13,10 @@ use femtovg::{
 
 use crate::style::{Justify, Length, Visibility};
 
+use std::any::{Any, TypeId};
 
-pub trait EventHandler: Send {
+
+pub trait EventHandler: Any + Send {
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         false
@@ -756,15 +758,67 @@ pub trait EventHandler: Send {
 
 }
 
-use std::any::{Any, TypeId};
+impl dyn EventHandler {
+    // Check if a message is a certain type
+    pub fn is<T: EventHandler + 'static>(&self) -> bool {
+        // Get TypeId of the type this function is instantiated with
+        let t = TypeId::of::<T>();
 
-pub trait AsAny {
-    fn as_any(&self) -> &dyn Any;
-}
+        // Get TypeId of the type in the trait object
+        let concrete = self.type_id();
 
-impl<T: 'static> AsAny for T {
-    fn as_any(&self) -> &dyn Any
+        // Compare both TypeIds on equality
+        t == concrete
+    }
+
+    // Casts a message to the specified type if the message is of that type
+    pub fn downcast<T>(&mut self) -> Option<&mut T>
+    where
+        T: EventHandler + 'static,
     {
-        self
+        if self.is::<T>() {
+            unsafe { Some(&mut *(self as *mut dyn EventHandler as *mut T)) }
+        } else {
+            None
+        }
     }
 }
+
+
+
+// pub trait AsAny: Any {
+//     fn as_any(&self) -> &dyn Any;
+// }
+
+// impl dyn AsAny {
+//     // Check if a message is a certain type
+//     pub fn is<T: AsAny>(&self) -> bool {
+//         // Get TypeId of the type this function is instantiated with
+//         let t = TypeId::of::<T>();
+
+//         // Get TypeId of the type in the trait object
+//         let concrete = self.type_id();
+
+//         // Compare both TypeIds on equality
+//         t == concrete
+//     }
+
+//     // Casts a message to the specified type if the message is of that type
+//     pub fn downcast<T>(&mut self) -> Option<&mut T>
+//     where
+//         T: AsAny,
+//     {
+//         if self.is::<T>() {
+//             unsafe { Some(&mut *(self as *mut dyn AsAny as *mut T)) }
+//         } else {
+//             None
+//         }
+//     }
+// }
+
+// impl<T: 'static> AsAny for T {
+//     fn as_any(&self) -> &dyn Any
+//     {
+//         self
+//     }
+// }

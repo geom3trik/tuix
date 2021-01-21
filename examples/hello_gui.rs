@@ -26,9 +26,11 @@ fn main() {
                 .set_height(Length::Pixels(100.0))
         );
 
-        my_button.testy::<Button>(state, |widget| 
-            println!("{:?}", widget.text) 
-        );
+        if let Some(button) = my_button.testy::<Button>(state) {
+            println!("{:?}", button.text) 
+        }
+
+        //my_button.testy2::<Button,_>(state, |button| println!("{:?}", button.text));
 
         win_desc.with_title("Hello GUI")
     });
