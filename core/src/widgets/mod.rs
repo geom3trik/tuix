@@ -60,6 +60,9 @@ pub use vector_edit::*;
 pub mod window;
 pub use window::WindowWidget;
 
+pub mod checklist;
+pub use checklist::*;
+
 // Audio Widgets
 pub mod audio_widgets;
 pub use audio_widgets::*;

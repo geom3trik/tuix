@@ -6,6 +6,12 @@ use crate::mouse::*;
 use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
 use crate::{PropSet, State};
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum ButtonEvent {
+    OnPress,
+    OnRelease,
+}
+
 pub struct Button {
     pub id: Entity,
 
@@ -72,15 +78,17 @@ impl EventHandler for Button {
                         if entity == event.target {
                             state.focused = entity;
                             
-                            if let Some(mut on_release) = self.on_release.clone() {
-                                if on_release.target == Entity::null() {
-                                    on_release.target = entity;
+                            if let Some(mut on_press) = self.on_press.clone() {
+                                if on_press.target == Entity::null() {
+                                    on_press.target = entity;
                                 }
                                 
-                                on_release.origin = entity;
-                                on_release.propagation = Propagation::Down;
-                                state.insert_event(on_release);
+                                on_press.origin = entity;
+                                on_press.propagation = Propagation::Down;
+                                state.insert_event(on_press);
                             }
+
+                            state.insert_event(Event::new(ButtonEvent::OnPress).target(entity).origin(entity));
                             
                         }
                     }
@@ -91,15 +99,17 @@ impl EventHandler for Button {
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
                         if entity == event.target && entity == state.focused {
-                            if let Some(mut on_press) = self.on_press.clone() {
-                                if on_press.target == Entity::null() {
-                                    on_press.target = entity;
+                            if let Some(mut on_release) = self.on_release.clone() {
+                                if on_release.target == Entity::null() {
+                                    on_release.target = entity;
                                 }
                                 
-                                on_press.origin = entity;
-                                on_press.propagation = Propagation::Down;
-                                state.insert_event(on_press);
+                                on_release.origin = entity;
+                                on_release.propagation = Propagation::Down;
+                                state.insert_event(on_release);
                             }
+
+                            state.insert_event(Event::new(ButtonEvent::OnRelease).target(entity).origin(entity));
                         }
                     }
 
