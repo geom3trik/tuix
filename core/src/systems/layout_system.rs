@@ -24,7 +24,6 @@ pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
     }
 }
 
-
 /* Depreciated
 pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
     // Reset
@@ -39,7 +38,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
     // Walk up the tree //
     //////////////////////
     for entity in hierarchy.entities.iter().rev() {
-        
+
         // Stop before the window
         if *entity == Entity::new(0, 0) {
             break;
@@ -210,7 +209,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             .border_width
             .get(*entity)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
@@ -222,7 +221,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             .border_width
             .get(parent)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
@@ -514,7 +513,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
             .border_width
             .get(parent)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
@@ -654,7 +653,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                 .border_width
                 .get(child)
                 .cloned()
-                .unwrap_or_default() 
+                .unwrap_or_default()
             {
                 Length::Pixels(val) => val,
                 Length::Percentage(val) => parent_width * val,
@@ -1182,9 +1181,9 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                                 _ => {}
                             }
 
-                            
+
                             new_posy = parent_posy + new_posy + child_margin_top;
-                            
+
                             // state
                             //     .transform
                             //     .set_posy(child, parent_posy + new_posy + child_margin_top);
@@ -1379,12 +1378,12 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
                     //state.transform.set_posy(child, new_posy);
                 }
 
-                
+
             }
 
 
 
-            
+
             state.transform.set_posx(child, new_posx);
             state.transform.set_posy(child, new_posy);
             state.transform.set_width(child, new_width);
@@ -1402,12 +1401,7 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 }
 */
 
-
-
-
-
 pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
-
     // Reset
     for entity in hierarchy.entities.iter() {
         state.transform.set_child_sum(*entity, 0.0);
@@ -1439,9 +1433,6 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         }
 
         let parent = hierarchy.get_parent(*entity).unwrap();
-
-
-        
 
         let parent_width = state.transform.get_width(parent);
         let parent_height = state.transform.get_height(parent);
@@ -1595,7 +1586,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             .border_width
             .get(*entity)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
@@ -1607,7 +1598,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             .border_width
             .get(parent)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
@@ -1879,7 +1870,6 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 state.transform.get_child_shrink_sum(parent) + flex_shrink,
             );
         }
-        
     }
 
     let root = state.root;
@@ -1904,7 +1894,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             .border_width
             .get(parent)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
@@ -2005,7 +1995,6 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             .cloned()
             .unwrap_or_default();
 
-
         match justify_content {
             JustifyContent::FlexStart => {}
             JustifyContent::FlexEnd => current_pos = free_space,
@@ -2044,7 +2033,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 .border_width
                 .get(child)
                 .cloned()
-                .unwrap_or_default() 
+                .unwrap_or_default()
             {
                 Length::Pixels(val) => val,
                 Length::Percentage(val) => parent_width * val,
@@ -2287,7 +2276,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             };
 
                             if let Some(flex_basis) = state.style.flex_basis.get(child) {
-                                new_width = *flex_basis + child_padding_left + child_padding_right + 2.0 * child_border_width;
+                                new_width = *flex_basis
+                                    + child_padding_left
+                                    + child_padding_right
+                                    + 2.0 * child_border_width;
                             }
 
                             let parent_free_space = parent_width
@@ -2296,7 +2288,6 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                 - parent_border_width
                                 - parent_border_width
                                 - state.transform.get_child_sum(parent);
-
 
                             if parent_free_space >= 0.0 {
                                 new_width += flex_grow_fraction * parent_free_space;
@@ -2433,7 +2424,6 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                 _ => {}
                             }
 
-
                             new_posy = parent_posy + new_posy + child_margin_top;
 
                             // state.transform.set_posy(
@@ -2473,7 +2463,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             };
 
                             if let Some(flex_basis) = state.style.flex_basis.get(child) {
-                                new_height = *flex_basis + child_padding_top + child_padding_bottom + 2.0 * child_border_width;
+                                new_height = *flex_basis
+                                    + child_padding_top
+                                    + child_padding_bottom
+                                    + 2.0 * child_border_width;
                             }
 
                             let parent_free_space = parent_height
@@ -2572,9 +2565,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                 _ => {}
                             }
 
-                            
                             new_posy = parent_posy + new_posy + child_margin_top;
-                            
+
                             // state
                             //     .transform
                             //     .set_posy(child, parent_posy + new_posy + child_margin_top);
@@ -2691,20 +2683,18 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match width {
-                        Length::Auto => {},
+                        Length::Auto => {}
                         Length::Pixels(val) => new_width = val,
                         Length::Initial(val) => new_width = val,
                         Length::Percentage(val) => new_width = val * parent_width,
                     }
 
                     match height {
-                        Length::Auto => {},
+                        Length::Auto => {}
                         Length::Pixels(val) => new_height = val,
                         Length::Initial(val) => new_height = val,
                         Length::Percentage(val) => new_height = val * parent_height,
                     }
-
-                    
 
                     //state.transform.set_width(child, new_width);
                     //state.transform.set_height(child, new_height);
@@ -2770,17 +2760,12 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     //state.transform.set_posx(child, new_posx);
                     //state.transform.set_posy(child, new_posy);
                 }
-
-                
             }
-
-            
 
             if state.transform.get_posx(child) != new_posx {
                 state.transform.set_posx(child, new_posx);
                 should_continue = true;
             }
-            
 
             if state.transform.get_posy(child) != new_posy {
                 state.transform.set_posy(child, new_posy);
@@ -2803,20 +2788,15 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 //     hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
                 // }
             } else {
-                state.insert_event(Event::new(WindowEvent::GeometryChanged).target(child).propagate(Propagation::Down));
+                state.insert_event(
+                    Event::new(WindowEvent::GeometryChanged)
+                        .target(child)
+                        .propagate(Propagation::Down),
+                );
                 should_continue = false;
             }
-
-
         }
-
-
-
 
         // Set the transform properties
     }
-    
-
-
 }
-

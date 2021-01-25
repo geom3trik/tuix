@@ -1,11 +1,11 @@
-use crate::{State, EventHandler, Entity, Event, WindowEvent};
+use crate::{Entity, Event, EventHandler, State, WindowEvent};
 
-use crate::systems::{apply_clipping, apply_z_ordering, apply_styles, apply_visibility, apply_layout};
+use crate::systems::{
+    apply_clipping, apply_layout, apply_styles, apply_visibility, apply_z_ordering,
+};
 
 #[derive(Clone)]
-pub struct WindowWidget {
-    
-}
+pub struct WindowWidget {}
 
 impl WindowWidget {
     pub fn new() -> Self {
@@ -39,9 +39,7 @@ impl EventHandler for WindowWidget {
                     apply_layout(state, &state.hierarchy.clone());
                 }
 
-                WindowEvent::Redraw => {
-
-                }
+                WindowEvent::Redraw => {}
 
                 _ => {}
             }

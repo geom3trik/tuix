@@ -1,12 +1,8 @@
 use crate::entity::Entity;
 
-pub enum HierarchyErrorKind {
+pub enum HierarchyErrorKind {}
 
-}
-
-pub struct HierarchyError {
-
-}
+pub struct HierarchyError {}
 
 #[derive(Clone)]
 pub struct Hierarchy {
@@ -85,8 +81,6 @@ impl Hierarchy {
         } else {
             self.parent[entity.index()]
         }
-
-        
     }
 
     pub fn get_first_child(&self, entity: Entity) -> Option<Entity> {
@@ -139,11 +133,9 @@ impl Hierarchy {
         //     self.remove(child);
         // }
 
-        if let Some((index, _)) = self.entities.iter().enumerate().find(|(_,&e)| e == entity) {
+        if let Some((index, _)) = self.entities.iter().enumerate().find(|(_, &e)| e == entity) {
             self.entities.remove(index);
         }
-
-        
 
         if let Some(parent) = self.get_parent(entity) {
             if self.is_first_child(entity) {
@@ -165,16 +157,16 @@ impl Hierarchy {
     }
 
     // Makes the entity the first child of its parent
-    pub fn set_first_child(&mut self, entity: Entity) -> Result<(), HierarchyError>  {
+    pub fn set_first_child(&mut self, entity: Entity) -> Result<(), HierarchyError> {
         // Check is sibline exists in the hierarchy
         if entity.index() >= self.parent.len() {
-            return Err(HierarchyError{})
+            return Err(HierarchyError {});
         }
 
         // Check if the parent is in the hierarchy
         if let Some(parent) = self.get_parent(entity) {
             if parent.index() >= self.parent.len() {
-                return Err(HierarchyError{})
+                return Err(HierarchyError {});
             }
         }
 
@@ -189,7 +181,7 @@ impl Hierarchy {
         if let Some(eps) = entity_prev_sibling {
             self.next_sibling[eps.index()] = entity_next_sibling; //C
         }
-        
+
         if let Some(ens) = entity_next_sibling {
             self.prev_sibling[ens.index()] = entity_prev_sibling; //F
         }
@@ -201,30 +193,33 @@ impl Hierarchy {
         self.next_sibling[entity.index()] = previous_first_child;
 
         self.first_child[parent.index()] = Some(entity);
-        
+
         Ok(())
     }
 
-    pub fn set_next_sibling(&mut self, entity: Entity, sibling: Entity) -> Result<(), HierarchyError> {
-
+    pub fn set_next_sibling(
+        &mut self,
+        entity: Entity,
+        sibling: Entity,
+    ) -> Result<(), HierarchyError> {
         if self.next_sibling[entity.index()] == Some(sibling) {
-            return Err(HierarchyError{})
+            return Err(HierarchyError {});
         }
 
         // Check is sibline exists in the hierarchy
         if sibling.index() >= self.parent.len() {
-            return Err(HierarchyError{})
+            return Err(HierarchyError {});
         }
 
-        // Check if sibling has the same parent 
+        // Check if sibling has the same parent
         if let Some(parent) = self.get_parent(entity) {
             if let Some(sibling_parent) = self.get_parent(entity) {
                 if parent != sibling_parent {
-                    return Err(HierarchyError{})
+                    return Err(HierarchyError {});
                 }
             }
         } else {
-            return Err(HierarchyError{})
+            return Err(HierarchyError {});
         }
 
         // Safe to unwrap because we already checked if it has a parent
@@ -233,8 +228,6 @@ impl Hierarchy {
         // Temporarily store the prev_sibling of the desired sibling
         let sibling_prev_sibling = self.get_prev_sibling(sibling);
         let sibling_next_sibling = self.get_next_sibling(sibling);
-
-
 
         // println!("sibling_prev_sibling: {:?}", sibling_prev_sibling);
         // println!("entity_prev_sibling: {:?}", entity_prev_sibling);
@@ -248,7 +241,7 @@ impl Hierarchy {
         } else {
             self.first_child[parent.index()] = sibling_next_sibling;
         }
-        
+
         if let Some(sns) = sibling_next_sibling {
             self.prev_sibling[sns.index()] = sibling_prev_sibling; // F
         }
@@ -259,7 +252,6 @@ impl Hierarchy {
 
         if let Some(ens) = entity_next_sibling {
             self.prev_sibling[ens.index()] = Some(sibling); //B
-            
         }
 
         self.next_sibling[sibling.index()] = entity_next_sibling; //E
@@ -269,26 +261,29 @@ impl Hierarchy {
         Ok(())
     }
 
-    pub fn set_prev_sibling(&mut self, entity: Entity, sibling: Entity) -> Result<(), HierarchyError> {
-        
+    pub fn set_prev_sibling(
+        &mut self,
+        entity: Entity,
+        sibling: Entity,
+    ) -> Result<(), HierarchyError> {
         if self.prev_sibling[entity.index()] == Some(sibling) {
-            return Err(HierarchyError{})
-        }
-        
-        // Check is sibline exists in the hierarchy
-        if sibling.index() >= self.parent.len() {
-            return Err(HierarchyError{})
+            return Err(HierarchyError {});
         }
 
-        // Check if sibling has the same parent 
+        // Check is sibline exists in the hierarchy
+        if sibling.index() >= self.parent.len() {
+            return Err(HierarchyError {});
+        }
+
+        // Check if sibling has the same parent
         if let Some(parent) = self.get_parent(entity) {
             if let Some(sibling_parent) = self.get_parent(entity) {
                 if parent != sibling_parent {
-                    return Err(HierarchyError{})
+                    return Err(HierarchyError {});
                 }
             }
         } else {
-            return Err(HierarchyError{})
+            return Err(HierarchyError {});
         }
 
         // Safe to unwrap because we already checked if it has a parent
@@ -298,9 +293,6 @@ impl Hierarchy {
         let sibling_prev_sibling = self.get_prev_sibling(sibling);
         let sibling_next_sibling = self.get_next_sibling(sibling);
 
-
-
-
         // Remove sibling
         if let Some(sps) = sibling_prev_sibling {
             self.next_sibling[sps.index()] = sibling_next_sibling; // C
@@ -308,35 +300,28 @@ impl Hierarchy {
             self.first_child[parent.index()] = sibling_next_sibling;
         }
 
-
         if let Some(sns) = sibling_next_sibling {
             self.prev_sibling[sns.index()] = sibling_prev_sibling; // F
         }
 
         // Temporarily store the prev_sibling of the entity
         let entity_prev_sibling = self.get_prev_sibling(entity);
-        let entity_next_sibling = self.get_next_sibling(entity);        
+        let entity_next_sibling = self.get_next_sibling(entity);
 
         if let Some(eps) = entity_prev_sibling {
             self.next_sibling[eps.index()] = Some(sibling); // A
-            
         } else {
             self.first_child[parent.index()] = Some(sibling);
         }
 
         self.next_sibling[sibling.index()] = Some(entity); //E
-        
+
         self.prev_sibling[sibling.index()] = entity_prev_sibling; // D
 
         self.prev_sibling[entity.index()] = Some(sibling); // B
 
-
-
-
         Ok(())
     }
-
-
 
     pub fn set_parent(&mut self, entity: Entity, parent: Entity) {
         if let Some(old_parent) = self.get_parent(entity) {

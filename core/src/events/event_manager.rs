@@ -1,4 +1,7 @@
-use crate::{BuildHandler, Builder, CursorIcon, Entity, Event, EventHandler, Hierarchy, HierarchyTree, IntoHierarchyIterator, IntoParentIterator, Propagation, State, WindowEvent};
+use crate::{
+    BuildHandler, Builder, CursorIcon, Entity, Event, EventHandler, Hierarchy, HierarchyTree,
+    IntoHierarchyIterator, IntoParentIterator, Propagation, State, WindowEvent,
+};
 use std::collections::{HashMap, VecDeque};
 
 use std::time::{Duration, Instant};
@@ -13,7 +16,7 @@ use fnv::FnvHashMap;
 pub struct EventManager {
     // List of event handlers
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
-    // Queue of events to be processed 
+    // Queue of events to be processed
     pub event_queue: Vec<Event>,
 
     prev_width: f32,
@@ -27,7 +30,6 @@ impl EventManager {
             event_handlers: FnvHashMap::default(),
             event_queue: Vec::new(),
 
-
             prev_width: 0.0,
             prev_height: 0.0,
             prev_dpi_factor: 1.0,
@@ -39,7 +41,6 @@ impl EventManager {
     // }
 
     pub fn flush_events(&mut self, state: &mut State) -> bool {
-
         //println!("FLUSH");
         let mut needs_redraw = false;
 
@@ -65,7 +66,7 @@ impl EventManager {
         // Loop over the events in the event manager queue
         'events: for event in self.event_queue.iter_mut() {
             //println!("Event: {:?}", event);
-            
+
             if let Some(window_event) = event.message.downcast::<WindowEvent>() {
                 match window_event {
                     WindowEvent::Redraw => {
@@ -96,11 +97,9 @@ impl EventManager {
                         }
                     },
                     */
-
                     _ => {}
                 }
             }
-            
 
             let target = event.target;
 
@@ -190,26 +189,28 @@ impl EventManager {
         let dpi_factor = 1.0;
 
         // Set the canvas size
-        if (self.prev_width != width || self.prev_height != height || self.prev_dpi_factor != dpi_factor) {
+        if (self.prev_width != width
+            || self.prev_height != height
+            || self.prev_dpi_factor != dpi_factor)
+        {
             canvas.set_size(width as u32, height as u32, dpi_factor as f32);
         }
-        
+
         // Get the desired window background color
-        let background_color: femtovg::Color = state.style.background_color.get(state.root).cloned().unwrap_or_default().into();
+        let background_color: femtovg::Color = state
+            .style
+            .background_color
+            .get(state.root)
+            .cloned()
+            .unwrap_or_default()
+            .into();
 
         // Clear the canvas
-        canvas.clear_rect(
-            0,
-            0,
-            width as u32,
-            height as u32,
-            background_color,
-        );
+        canvas.clear_rect(0, 0, width as u32, height as u32, background_color);
 
         // Reset any canvas transforms
         canvas.reset();
 
-        
         // Sort the hierarchy by z order
         let mut draw_hierarchy: Vec<Entity> = hierarchy.into_iter().collect();
         draw_hierarchy.sort_by_cached_key(|entity| state.transform.get_z_order(*entity));

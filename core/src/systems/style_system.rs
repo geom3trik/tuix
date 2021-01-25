@@ -3,8 +3,8 @@ use crate::{Entity, Event, HierarchyTree, IntoParentIterator, State, WindowEvent
 use crate::hierarchy::*;
 use crate::state::animator::*;
 
-use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 
 pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
     for entity in hierarchy.into_iter() {
@@ -81,7 +81,10 @@ fn check_match(state: &State, widget: Entity, selector: &Selector) -> bool {
     // Get the widget id from state
     //widget_selector.id = state.style.ids.get(widget).cloned();
     let mut s = DefaultHasher::new();
-    widget_selector.id = state.style.ids.get_by_right(&widget).map(|f| {f.hash(&mut s); s.finish()});
+    widget_selector.id = state.style.ids.get_by_right(&widget).map(|f| {
+        f.hash(&mut s);
+        s.finish()
+    });
 
     // Get the widget element from state
     widget_selector.element = state.style.elements.get(widget).cloned();
@@ -309,19 +312,35 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
-        if state.style.border_radius_top_left.link_rule(entity, &matched_rules) {
+        if state
+            .style
+            .border_radius_top_left
+            .link_rule(entity, &matched_rules)
+        {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
-        if state.style.border_radius_top_right.link_rule(entity, &matched_rules) {
+        if state
+            .style
+            .border_radius_top_right
+            .link_rule(entity, &matched_rules)
+        {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
-        if state.style.border_radius_bottom_left.link_rule(entity, &matched_rules) {
+        if state
+            .style
+            .border_radius_bottom_left
+            .link_rule(entity, &matched_rules)
+        {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
-        if state.style.border_radius_bottom_right.link_rule(entity, &matched_rules) {
+        if state
+            .style
+            .border_radius_bottom_right
+            .link_rule(entity, &matched_rules)
+        {
             state.insert_event(Event::new(WindowEvent::Redraw));
         }
 
@@ -412,7 +431,6 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
         }
     }
 }
-
 
 /*
 pub fn apply_styles2(state: &mut State, hierarchy: &Hierarchy, mut style_entity: Entity) {
@@ -727,6 +745,6 @@ pub fn apply_styles2(state: &mut State, hierarchy: &Hierarchy, mut style_entity:
     }
 
 
-    
+
 }
 */

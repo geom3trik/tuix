@@ -125,8 +125,6 @@ impl PseudoClasses {
     pub fn get_checked(&mut self) -> bool {
         (self.0 & (1 << 6)) >> 6 != 0
     }
-
-
 }
 
 #[derive(Clone, Debug)]
@@ -219,7 +217,6 @@ impl Selector {
 
         true
     }
-
 
     pub fn specificity(&self) -> Specificity {
         Specificity([

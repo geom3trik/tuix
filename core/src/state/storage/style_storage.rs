@@ -112,7 +112,6 @@ where
     //Insert inline style
     pub fn insert(&mut self, entity: Entity, value: T) {
         if entity.index() >= self.entity_indices.len() {
-
             self.entity_indices
                 .resize(entity.index() + 1, Default::default());
             self.entity_indices[entity.index()] = Index::new(self.inline_data.len()).inline(true);
@@ -122,7 +121,8 @@ where
             let data_index = self.entity_indices[entity.index()].index();
 
             if data_index >= self.inline_data.len() {
-                self.entity_indices[entity.index()] = Index::new(self.inline_data.len()).inline(true);
+                self.entity_indices[entity.index()] =
+                    Index::new(self.inline_data.len()).inline(true);
 
                 self.inline_data.push(value);
             } else {
@@ -240,13 +240,12 @@ where
             }
 
             Some(&self.inline_data[data_index.index()])
-
         } else {
             if data_index.index() >= self.data.len() {
                 return None;
             }
 
-            Some(&self.data[data_index.index()])            
+            Some(&self.data[data_index.index()])
         }
     }
 
@@ -263,13 +262,12 @@ where
             }
 
             Some(&mut self.inline_data[data_index.index()])
-
         } else {
             if data_index.index() >= self.data.len() {
                 return None;
             }
 
-            Some(&mut self.data[data_index.index()])            
+            Some(&mut self.data[data_index.index()])
         }
     }
 
@@ -317,21 +315,18 @@ where
         true
     }
 
-        // Removes css styles but leaves inline styles and animations
-        pub fn remove_styles(&mut self) {
+    // Removes css styles but leaves inline styles and animations
+    pub fn remove_styles(&mut self) {
+        // Remove rules
+        self.rule_indices.clear();
+        // Remove rule data
+        self.data.clear();
 
-            // Remove rules
-            self.rule_indices.clear();
-            // Remove rule data
-            self.data.clear();
-            
-            // Unlink non-inline entities from the rules
-            for entity in self.entity_indices.iter_mut() {
-                if !entity.is_inline() {
-                    *entity = Index::default();
-                }
+        // Unlink non-inline entities from the rules
+        for entity in self.entity_indices.iter_mut() {
+            if !entity.is_inline() {
+                *entity = Index::default();
             }
-        
         }
-
+    }
 }

@@ -16,7 +16,6 @@ const ICON_FLOPPY_DISK: &str = "\u{1f4be}";
 
 const ICON_DOWN_OPEN_MINI: &str = "\u{e760}";
 
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CheckboxEvent {
     // Events received by the checkbox
@@ -24,7 +23,6 @@ pub enum CheckboxEvent {
     Uncheck,
     Switch,
 }
-
 
 #[derive(Clone)]
 pub struct Checkbox {
@@ -73,14 +71,14 @@ impl Checkbox {
             if let Some(icon_unchecked) = &self.icon_unchecked {
                 entity.set_text(state, &icon_unchecked);
             }
-            
+
             entity.set_checked(state, false);
         } else {
             self.checked = true;
             if let Some(icon_checked) = &self.icon_checked {
                 entity.set_text(state, &icon_checked);
             }
-            
+
             entity.set_checked(state, true);
         }
     }
@@ -104,22 +102,18 @@ impl BuildHandler for Checkbox {
             .set_text_justify(state, Justify::Center)
             .set_text_align(state, Align::Center);
 
-        
-
         if self.checked {
             entity.set_checked(state, true);
 
             if let Some(icon_checked) = &self.icon_checked {
                 entity.set_text(state, &icon_checked);
             }
-
         } else {
             entity.set_checked(state, false);
 
             if let Some(icon_unchecked) = &self.icon_unchecked {
                 entity.set_text(state, &icon_unchecked);
             }
-
         }
 
         state.style.insert_element(entity, "checkbox");
@@ -152,7 +146,7 @@ impl EventHandler for Checkbox {
                         if let Some(icon_checked) = &self.icon_checked {
                             entity.set_text(state, &icon_checked);
                         }
-                        
+
                         entity.set_checked(state, true);
                     }
                 }
@@ -190,7 +184,6 @@ impl EventHandler for Checkbox {
                         if entity == event.target {
                             if self.checked {
                                 if let Some(mut on_unchecked) = self.on_unchecked.clone() {
-
                                     if on_unchecked.target == Entity::null() {
                                         on_unchecked.target = entity;
                                     }
@@ -200,9 +193,7 @@ impl EventHandler for Checkbox {
                                     state.insert_event(on_unchecked);
                                 }
                             } else {
-                                
                                 if let Some(mut on_checked) = self.on_checked.clone() {
-
                                     if on_checked.target == Entity::null() {
                                         on_checked.target = entity;
                                     }

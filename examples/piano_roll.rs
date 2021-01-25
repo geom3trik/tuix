@@ -1,14 +1,11 @@
-
-
 extern crate tuix;
 
 use tuix::*;
 
 use femtovg::{
-    renderer::OpenGl, Baseline, Canvas, FillRule, FontId, ImageFlags, ImageId, LineCap,
-    LineJoin, Paint, Path, Renderer, Solidity,
+    renderer::OpenGl, Baseline, Canvas, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
+    Paint, Path, Renderer, Solidity,
 };
-
 
 static THEME: &'static str = include_str!("themes/widget_theme.css");
 
@@ -17,22 +14,20 @@ fn main() {
     let mut app = Application::new(|win_desc, state, window| {
         state.insert_theme(THEME);
 
-        let piano_roll = PianoRoll::new().build(state, window, |builder| 
+        let piano_roll = PianoRoll::new().build(state, window, |builder| {
             builder
                 //.set_flex_grow(1.0)
                 //.set_flex_shrink(1.0)
                 .set_width(Length::Percentage(1.0))
                 .set_height(Length::Percentage(1.0))
-                .set_background_color(Color::rgb(100,50,50))
-        );
-
+                .set_background_color(Color::rgb(100, 50, 50))
+        });
 
         win_desc.with_title("basic").with_inner_size(800, 600)
     });
 
     app.run();
 }
-
 
 pub struct PianoRoll {
     midi_grid_scroll_container: Entity,
@@ -49,82 +44,80 @@ impl PianoRoll {
 impl BuildHandler for PianoRoll {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         let header = HBox::new().build(state, entity, |builder| builder.class("header"));
-
-
-        
 
         let body = VBox::new().build(state, entity, |builder| builder.class("body"));
 
-        
-        
-        let container = HBox::new().build(state, body, |builder| 
+        let container = HBox::new().build(state, body, |builder| {
             builder
                 //.set_width(Length::Pixels(600.0))
                 //.set_height(Length::Pixels(1200.0))
-                .set_background_color(Color::rgb(100,100,50))
+                .set_background_color(Color::rgb(100, 100, 50))
                 .set_flex_grow(1.0)
                 .set_flex_shrink(1.0)
-        );
-        let left = Element::new().build(state, container, |builder| builder.set_background_color(Color::rgb(200,200,255)));
-        let scroll = ScrollContainer::new().build(state, left, |builder| builder.set_width(Length::Pixels(210.0)).set_flex_grow(0.0));
+        });
+        let left = Element::new().build(state, container, |builder| {
+            builder.set_background_color(Color::rgb(200, 200, 255))
+        });
+        let scroll = ScrollContainer::new().build(state, left, |builder| {
+            builder.set_width(Length::Pixels(210.0)).set_flex_grow(0.0)
+        });
 
-        let keys_container = VBox::new().build(state, scroll, |builder| 
+        let keys_container = VBox::new().build(state, scroll, |builder| {
             builder
-            .set_width(Length::Pixels(200.0))
-            .set_height(Length::Pixels(1200.0))
-            //.set_flex_grow(1.0)
-            .set_background_color(Color::rgb(80,80,80))
-        );
+                .set_width(Length::Pixels(200.0))
+                .set_height(Length::Pixels(1200.0))
+                //.set_flex_grow(1.0)
+                .set_background_color(Color::rgb(80, 80, 80))
+        });
 
         for j in 0..4 {
             for i in 0..12 {
                 if i == 1 || i == 3 || i == 5 || i == 8 || i == 10 {
-                    Element::new().build(state, keys_container, |builder| 
+                    Element::new().build(state, keys_container, |builder| {
                         builder
                             .set_flex_grow(1.0)
                             .set_margin_bottom(Length::Pixels(1.0))
-                            .set_background_color(Color::rgb(0,0,0))
-                    );
+                            .set_background_color(Color::rgb(0, 0, 0))
+                    });
                 } else {
-                    Element::new().build(state, keys_container, |builder| 
+                    Element::new().build(state, keys_container, |builder| {
                         builder
                             .set_flex_grow(1.0)
                             .set_margin_bottom(Length::Pixels(1.0))
-                            .set_background_color(Color::rgb(255,255,255))
-                    );
+                            .set_background_color(Color::rgb(255, 255, 255))
+                    });
                 }
-            }            
+            }
         }
 
-        
-
-        // let scroll2 = ScrollContainerH::new().build(state, container, |builder| 
+        // let scroll2 = ScrollContainerH::new().build(state, container, |builder|
         //     builder
         //         // .set_width(Length::Pixels(200.0))
         //         // .set_height(Length::Pixels(200.0))
-        
+
         // );
 
-        
-        let right = Element::new().build(state, container, |builder| 
-            builder
-            .set_flex_grow(1.0)
-            // .set_flex_shrink(1.0)
-            .set_background_color(Color::rgb(200,200,200))
-        );
-
-        self.midi_grid_scroll_container = ScrollContainerH::new().build(state, right, |builder| builder);
-
-
-        let midi_grid = MidiGrid::new().build(state, self.midi_grid_scroll_container, |builder|
+        let right = Element::new().build(state, container, |builder| {
             builder
                 .set_flex_grow(1.0)
-                .set_width(Length::Pixels(2000.0))
-                .set_height(Length::Pixels(2000.0))
-                .set_background_color(Color::rgb(80,80,80))
-                //.set_clip_widget(self.midi_grid_scroll_container)
+                // .set_flex_shrink(1.0)
+                .set_background_color(Color::rgb(200, 200, 200))
+        });
+
+        self.midi_grid_scroll_container =
+            ScrollContainerH::new().build(state, right, |builder| builder);
+
+        let midi_grid = MidiGrid::new().build(
+            state,
+            self.midi_grid_scroll_container,
+            |builder| {
+                builder
+                    .set_flex_grow(1.0)
+                    .set_width(Length::Pixels(2000.0))
+                    .set_height(Length::Pixels(2000.0))
+                    .set_background_color(Color::rgb(80, 80, 80))
+            }, //.set_clip_widget(self.midi_grid_scroll_container)
         );
 
         // // let midi_note = MidiNote::new().build(state, midi_grid, |builder|
@@ -134,19 +127,19 @@ impl BuildHandler for PianoRoll {
         // //         .set_height(Length::Pixels(24.0))
         // //         .set_background_color(Color::rgb(255,20,20))
         // // );
-        
+
         entity
     }
 }
 
 impl EventHandler for PianoRoll {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-
         if let Some(scroll_event) = event.message.downcast::<ScrollEvent>() {
             match scroll_event {
                 ScrollEvent::ScrollV(val) => {
                     // Currently a hacky way to do it that doesn't currently generalise
-                    self.midi_grid_scroll_container.set_top(state, Length::Percentage(*val));
+                    self.midi_grid_scroll_container
+                        .set_top(state, Length::Percentage(*val));
                 }
             }
         }
@@ -163,9 +156,7 @@ pub struct MidiGrid {
 
 impl MidiGrid {
     pub fn new() -> Self {
-        MidiGrid {
-            zoom_index: 5,
-        }
+        MidiGrid { zoom_index: 5 }
     }
 }
 
@@ -177,15 +168,11 @@ impl BuildHandler for MidiGrid {
 }
 
 impl EventHandler for MidiGrid {
-
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::MouseScroll(x,y) => {
-                
+                WindowEvent::MouseScroll(x, y) => {
                     if state.modifiers.ctrl {
-                        
                         let width = state.transform.get_width(entity);
                         let posx = state.transform.get_posx(entity);
 
@@ -201,7 +188,7 @@ impl EventHandler for MidiGrid {
 
                         let new_width = 2000.0 * zoom_levels[self.zoom_index];
 
-                        // Distance between centre and mouse position 
+                        // Distance between centre and mouse position
                         let distx = state.mouse.cursorx - posx;
 
                         let new_posx = distx * (zoom_levels[self.zoom_index] - 1.0);
@@ -209,18 +196,16 @@ impl EventHandler for MidiGrid {
                         entity.set_width(state, Length::Pixels(new_width));
                         //entity.set_left(state, Length::Pixels(-new_posx));
                         //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(entity));
-
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
-        
+
         false
     }
 
-    
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
         // Skip window
         if entity == Entity::new(0, 0) {
@@ -242,11 +227,11 @@ impl EventHandler for MidiGrid {
         let height = state.transform.get_height(entity);
 
         let background_color = state
-        .style
-        .background_color
-        .get(entity)
-        .cloned()
-        .unwrap_or_default();
+            .style
+            .background_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
 
         let font_color = state
             .style
@@ -276,25 +261,49 @@ impl EventHandler for MidiGrid {
 
         let parent_width = state.transform.get_width(parent);
 
-        let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_left = match state
+            .style
+            .border_radius_top_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_top_right = match state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_right = match state
+            .style
+            .border_radius_top_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_left = match state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_left = match state
+            .style
+            .border_radius_bottom_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_right = match state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_right = match state
+            .style
+            .border_radius_bottom_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
@@ -316,7 +325,7 @@ impl EventHandler for MidiGrid {
             .border_width
             .get(entity)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
@@ -361,25 +370,21 @@ impl EventHandler for MidiGrid {
             if i % 2 == 0 {
                 let mut path = Path::new();
                 path.rect(posx, posy + (i as f32) * 25.0, width, 24.0);
-                let mut paint = Paint::color(femtovg::Color::rgb(70,70,70));
+                let mut paint = Paint::color(femtovg::Color::rgb(70, 70, 70));
                 paint.set_line_width(1.0);
                 canvas.fill_path(&mut path, paint);
             }
         }
 
-
         for i in 0..50 {
             let mut path = Path::new();
-            path.move_to(posx + (i as f32)*horizontal_spacing, posy);
-            path.line_to(posx + (i as f32)*horizontal_spacing, posy + height);
-            let mut paint = Paint::color(femtovg::Color::rgb(100,100,100));
+            path.move_to(posx + (i as f32) * horizontal_spacing, posy);
+            path.line_to(posx + (i as f32) * horizontal_spacing, posy + height);
+            let mut paint = Paint::color(femtovg::Color::rgb(100, 100, 100));
             paint.set_line_width(1.0);
             canvas.stroke_path(&mut path, paint);
         }
-
-
     }
-    
 }
 
 pub struct MidiNote {
@@ -409,19 +414,21 @@ impl BuildHandler for MidiNote {
 
 impl EventHandler for MidiNote {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if event.target == entity && *button == MouseButton::Left {
-                        if state.mouse.left.pos_down.0 > state.transform.get_posx(entity) 
-                            && state.mouse.left.pos_down.0 < state.transform.get_posx(entity) + 5.0 
+                        if state.mouse.left.pos_down.0 > state.transform.get_posx(entity)
+                            && state.mouse.left.pos_down.0 < state.transform.get_posx(entity) + 5.0
                         {
                             self.resizing_left = true;
                             state.capture(entity);
-
-                        } else if state.mouse.left.pos_down.0 > state.transform.get_posx(entity) + state.transform.get_width(entity) - 5.0
-                            && state.mouse.left.pos_down.0 < state.transform.get_posx(entity) + state.transform.get_width(entity) 
+                        } else if state.mouse.left.pos_down.0
+                            > state.transform.get_posx(entity) + state.transform.get_width(entity)
+                                - 5.0
+                            && state.mouse.left.pos_down.0
+                                < state.transform.get_posx(entity)
+                                    + state.transform.get_width(entity)
                         {
                             self.resizing_right = true;
                             state.capture(entity);
@@ -430,12 +437,8 @@ impl EventHandler for MidiNote {
                             self.mouse_down_x = state.mouse.left.pos_down.0;
                             state.capture(entity);
                         }
-                        
-                      
-                        
                     }
                 }
-
 
                 WindowEvent::MouseUp(button) => {
                     if event.target == entity && *button == MouseButton::Left {
@@ -446,7 +449,7 @@ impl EventHandler for MidiNote {
                     }
                 }
 
-                WindowEvent::MouseMove(x,y) => {
+                WindowEvent::MouseMove(x, y) => {
                     let dx = *x - self.mouse_down_x;
 
                     let parent = state.hierarchy.get_parent(entity).unwrap();
@@ -476,9 +479,16 @@ impl EventHandler for MidiNote {
                     }
 
                     if self.resizing_right {
-                        if *x > state.transform.get_posx(entity) + state.transform.get_width(entity) + 20.0 {
+                        if *x
+                            > state.transform.get_posx(entity)
+                                + state.transform.get_width(entity)
+                                + 20.0
+                        {
                             entity.set_width(state, Length::Pixels(width + 40.0));
-                        } else if *x < state.transform.get_posx(entity) + state.transform.get_width(entity) - 20.0 {
+                        } else if *x
+                            < state.transform.get_posx(entity) + state.transform.get_width(entity)
+                                - 20.0
+                        {
                             entity.set_width(state, Length::Pixels(width - 40.0));
                         }
                     }
@@ -494,10 +504,10 @@ impl EventHandler for MidiNote {
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
-        
+
         false
     }
 }

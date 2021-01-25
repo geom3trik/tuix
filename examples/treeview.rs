@@ -3,7 +3,7 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, Checkbox, Dimension, Dropdown, Spinner, Panel, RadioBox, RadioList, ScrollContainer,
+    Button, Checkbox, Dimension, Dropdown, Panel, RadioBox, RadioList, ScrollContainer, Spinner,
     Textbox, VectorEdit, VectorEditEvent,
 };
 
@@ -112,7 +112,6 @@ impl EventHandler for ResizableVBox {
                                 < state.transform.get_posx(entity)
                                     + state.transform.get_width(entity)
                         {
-
                             //if self.hovering == false {
                             //    self.hovering = true;
                             //println!("Change Cursor");
@@ -282,8 +281,10 @@ fn main() {
         let one_two = Label::new("Level 2").build(state, one, |builder| builder.class("level2"));
 
         let one_three = Panel::new("Level 2").build(state, one, |builder| builder.class("level2"));
-        let one_three_one = Label::new("Level 3").build(state, one_three, |builder| builder.class("level3"));
-        let one_three_two = Label::new("Level 3").build(state, one_three, |builder| builder.class("level3"));
+        let one_three_one =
+            Label::new("Level 3").build(state, one_three, |builder| builder.class("level3"));
+        let one_three_two =
+            Label::new("Level 3").build(state, one_three, |builder| builder.class("level3"));
         let one_four = Label::new("Level 2").build(state, one, |builder| builder.class("level2"));
 
         let two = Panel::new("Level 1").build(state, root, |builder| builder.class("level1"));
@@ -293,11 +294,14 @@ fn main() {
         let two_four = Label::new("Level 2").build(state, two, |builder| builder.class("level2"));
 
         let three = Panel::new("Level 1").build(state, root, |builder| builder.class("level1"));
-        let three_one = Panel::new("Level 2").build(state, three, |builder| builder.class("level2"));
-        let three_one_one = Panel::new("Level 3").build(state, three_one, |builder| builder.class("level3"));
-        let three_one_one_one = Label::new("Level 4").build(state, three_one_one, |builder| builder.class("level4"));
-        let three_one_one_two = Label::new("Level 4").build(state, three_one_one, |builder| builder.class("level4"));
-
+        let three_one =
+            Panel::new("Level 2").build(state, three, |builder| builder.class("level2"));
+        let three_one_one =
+            Panel::new("Level 3").build(state, three_one, |builder| builder.class("level3"));
+        let three_one_one_one =
+            Label::new("Level 4").build(state, three_one_one, |builder| builder.class("level4"));
+        let three_one_one_two =
+            Label::new("Level 4").build(state, three_one_one, |builder| builder.class("level4"));
 
         win_desc.with_title("Panels").with_inner_size(800, 600)
     });

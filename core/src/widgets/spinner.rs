@@ -17,7 +17,7 @@ use crate::layout::{Align, Justify};
 
 use crate::widgets::{Element, Textbox, TextboxEvent};
 
-use num::{Num, One, Bounded};
+use num::{Bounded, Num, One};
 
 // #[derive(Debug, Clone, PartialEq)]
 // pub enum SpinnerEvent {
@@ -51,10 +51,9 @@ pub struct Spinner<T> {
     on_max: Option<Event>,
     // Triggered when the spinner value reaches min
     on_min: Option<Event>,
-
 }
 
-impl<T> Spinner<T> 
+impl<T> Spinner<T>
 where
     T: 'static
         + Default
@@ -68,7 +67,7 @@ where
         + Bounded
         + std::ops::AddAssign
         + std::ops::SubAssign
-        + Send
+        + Send,
 {
     pub fn new(initial_value: T) -> Self {
         // entity.set_text(state, "Test".to_string())
@@ -114,44 +113,45 @@ where
         self
     }
 
-    pub fn on_increment<F>(mut self, message: F) -> Self 
-    where F: Fn(T) -> Event,
-    F: 'static + Send
+    pub fn on_increment<F>(mut self, message: F) -> Self
+    where
+        F: Fn(T) -> Event,
+        F: 'static + Send,
     {
         self.on_increment = Some(Box::new(message));
         self
     }
 
-    pub fn on_decrement<F>(mut self, message: F) -> Self 
-    where F: Fn(T) -> Event,
-    F: 'static + Send
+    pub fn on_decrement<F>(mut self, message: F) -> Self
+    where
+        F: Fn(T) -> Event,
+        F: 'static + Send,
     {
         self.on_decrement = Some(Box::new(message));
         self
     }
 
-    pub fn on_change<F>(mut self, message: F) -> Self 
-    where F: Fn(T) -> Event,
-    F: 'static + Send
+    pub fn on_change<F>(mut self, message: F) -> Self
+    where
+        F: Fn(T) -> Event,
+        F: 'static + Send,
     {
         self.on_change = Some(Box::new(message));
         self
     }
 
-    pub fn on_max(mut self, event: Event) -> Self 
-    {
+    pub fn on_max(mut self, event: Event) -> Self {
         self.on_max = Some(event);
         self
     }
 
-    pub fn on_min(mut self, event: Event) -> Self 
-    {
+    pub fn on_min(mut self, event: Event) -> Self {
         self.on_min = Some(event);
         self
     }
 }
 
-impl<T> BuildHandler for Spinner<T> 
+impl<T> BuildHandler for Spinner<T>
 where
     T: 'static
         + Default
@@ -165,11 +165,10 @@ where
         + std::ops::AddAssign
         + std::ops::SubAssign
         + std::cmp::PartialOrd
-        + Send
+        + Send,
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         if self.value <= self.min {
             self.value = self.min;
         }
@@ -185,9 +184,11 @@ where
         self.textbox = Textbox::new(&self.value.to_string())
             .build(state, entity, |builder| builder.set_flex_grow(1.0));
 
-
         let arrow_container = Element::new().build(state, entity, |builder| {
-            builder.set_width(Length::Pixels(19.0)).set_flex_grow(0.0).class("arrow_container")
+            builder
+                .set_width(Length::Pixels(19.0))
+                .set_flex_grow(0.0)
+                .class("arrow_container")
         });
 
         self.increment = Element::new()
@@ -220,7 +221,7 @@ where
     }
 }
 
-impl<T> EventHandler for Spinner<T> 
+impl<T> EventHandler for Spinner<T>
 where
     T: 'static
         + Default
@@ -233,7 +234,7 @@ where
         + std::ops::AddAssign
         + std::ops::SubAssign
         + std::cmp::PartialOrd
-        + Send
+        + Send,
 {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         /*
@@ -292,7 +293,6 @@ where
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {
-                    
                         if event.target == self.increment {
                             self.value += self.increment_value;
 
@@ -302,7 +302,7 @@ where
                                     if !on_min.target {
                                         on_min.target = entity;
                                     }
-    
+
                                     on_min.origin = entity;
                                     state.insert_event(on_min);
                                 }
@@ -314,7 +314,7 @@ where
                                     if !on_max.target {
                                         on_max.target = entity;
                                     }
-    
+
                                     on_max.origin = entity;
                                     state.insert_event(on_max);
                                 }
@@ -323,9 +323,6 @@ where
                             let val_str = format!("{:.*}", 5, &self.value.to_string());
 
                             self.textbox.set_text(state, &val_str);
-
-
-                            
 
                             if let Some(on_increment) = &self.on_increment {
                                 let mut event = (on_increment)(self.value);
@@ -349,7 +346,7 @@ where
                                     if !on_min.target {
                                         on_min.target = entity;
                                     }
-    
+
                                     on_min.origin = entity;
                                     state.insert_event(on_min);
                                 }
@@ -361,7 +358,7 @@ where
                                     if !on_max.target {
                                         on_max.target = entity;
                                     }
-    
+
                                     on_max.origin = entity;
                                     state.insert_event(on_max);
                                 }
@@ -386,10 +383,9 @@ where
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
-        
 
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
@@ -422,7 +418,6 @@ where
                                 event.origin = entity;
                                 state.insert_event(event);
                             }
-
                         } else {
                             state.insert_event(
                                 Event::new(TextboxEvent::ResetValue)

@@ -217,8 +217,6 @@ impl EventHandler for Panel {
                     }
                 }
                 */
-
-
                 WindowEvent::GeometryChanged => {
                     if event.target == entity {
                         if !state.style.height.is_animating(self.container) {
@@ -279,8 +277,7 @@ impl EventHandler for Panel {
                                 self.checkbox.set_rotate(state, 0.0);
                                 //self.container
                                 //    .set_height(state, Length::Pixels(self.container_height));
-                                self.container
-                                    .set_height(state, Length::Auto);
+                                self.container.set_height(state, Length::Auto);
                                 self.other_container.set_opacity(state, 1.0);
 
                             //self.container.set_display(state, Display::Flexbox);

@@ -1,6 +1,6 @@
-use crate::{BuildHandler, Builder, EventHandler, entity::Entity};
 use crate::state::style::*;
 use crate::State;
+use crate::{entity::Entity, BuildHandler, Builder, EventHandler};
 
 use crate::{Event, WindowEvent};
 
@@ -138,26 +138,33 @@ pub trait PropSet {
     fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
 
     fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
-    
-    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(self, state: &mut State, mutator: F) -> Self;
 
+    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
+        self,
+        state: &mut State,
+        mutator: F,
+    ) -> Self;
 }
 
 impl PropSet for Entity {
-    
     fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>
-    where Self: std::marker::Sized + 'static,
+    where
+        Self: std::marker::Sized + 'static,
     {
         let t = state.event_handlers.get_mut(&self).unwrap();
 
         let t1 = t.downcast::<B>();
 
         t1
-
     }
 
-    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(self, state: &mut State, mut mutator: F) -> Self
-    where Self: std::marker::Sized + 'static,
+    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
+        self,
+        state: &mut State,
+        mut mutator: F,
+    ) -> Self
+    where
+        Self: std::marker::Sized + 'static,
     {
         let t = state.event_handlers.get_mut(&self).unwrap();
 
@@ -166,24 +173,22 @@ impl PropSet for Entity {
         mutator(t1);
 
         self
-
     }
 
-    fn mutate<F>(self, state: &mut State, mut builder: F) -> Self 
-    where F: FnMut(Builder) -> Builder,
+    fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
+    where
+        F: FnMut(Builder) -> Builder,
     {
         builder(Builder::new(state, self));
 
         self
     }
 
-    fn class(self, state: &mut State, class_name: &str) -> Self
-    {
+    fn class(self, state: &mut State, class_name: &str) -> Self {
         state.style.insert_class(self, class_name);
 
         self
     }
-
 
     fn get_parent(self, state: &mut State) -> Option<Entity> {
         self.parent(&state.hierarchy)
@@ -711,7 +716,6 @@ impl PropSet for Entity {
     }
 
     fn set_font_size(self, state: &mut State, value: f32) -> Self {
-
         state.style.font_size.insert(self, value);
 
         state.insert_event(

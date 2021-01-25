@@ -1,7 +1,7 @@
 use crate::{application::ApplicationRunner, Renderer};
 use baseview::{Event, Window, WindowHandler, WindowOpenOptions, WindowScalePolicy};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use tuix_core::{WindowDescription, Entity, State};
+use tuix_core::{Entity, State, WindowDescription};
 
 /// Handles an tuix_baseview application
 pub(crate) struct TuixWindow {
@@ -41,7 +41,10 @@ impl TuixWindow {
 
         let window_settings = WindowOpenOptions {
             title: win_desc.title.clone(),
-            size: baseview::Size::new(win_desc.inner_size.width as f64, win_desc.inner_size.height as f64),
+            size: baseview::Size::new(
+                win_desc.inner_size.width as f64,
+                win_desc.inner_size.height as f64,
+            ),
             scale: WindowScalePolicy::SystemScaleFactor,
         };
 
@@ -72,7 +75,10 @@ impl TuixWindow {
 
         let window_settings = WindowOpenOptions {
             title: win_desc.title.clone(),
-            size: baseview::Size::new(win_desc.inner_size.width as f64, win_desc.inner_size.height as f64),
+            size: baseview::Size::new(
+                win_desc.inner_size.width as f64,
+                win_desc.inner_size.height as f64,
+            ),
             scale: WindowScalePolicy::SystemScaleFactor,
         };
 
@@ -102,7 +108,10 @@ impl TuixWindow {
 
         let window_settings = WindowOpenOptions {
             title: win_desc.title.clone(),
-            size: baseview::Size::new(win_desc.inner_size.width as f64, win_desc.inner_size.height as f64),
+            size: baseview::Size::new(
+                win_desc.inner_size.width as f64,
+                win_desc.inner_size.height as f64,
+            ),
             scale: WindowScalePolicy::SystemScaleFactor,
         };
 
@@ -124,7 +133,7 @@ impl WindowHandler for TuixWindow {
         if self.application.render() {
             self.context.swap_buffers();
         }
-        
+
         self.context.make_not_current();
     }
 
@@ -142,8 +151,7 @@ fn load_renderer(window: &Window) -> (Renderer, raw_gl_context::GlContext) {
     let mut config = raw_gl_context::GlConfig::default();
     config.vsync = true;
 
-    let context =
-        raw_gl_context::GlContext::create(window, config).unwrap();
+    let context = raw_gl_context::GlContext::create(window, config).unwrap();
 
     context.make_current();
 

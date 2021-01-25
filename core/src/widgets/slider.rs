@@ -7,7 +7,7 @@ use crate::{PropSet, State};
 
 use crate::state::style::*;
 
-use crate::widgets::{Element, Button};
+use crate::widgets::{Button, Element};
 
 use crate::event::Message;
 
@@ -16,10 +16,6 @@ pub enum SliderEvent {
     ValueChanged(f32),
     SetValue(f32),
 }
-
-
-
-
 
 pub struct Slider {
     front: Entity,
@@ -42,8 +38,9 @@ impl Slider {
         }
     }
 
-    pub fn on_change<F>(mut self, message: F) -> Self 
-    where F: 'static + Send + Fn(f32) -> Event
+    pub fn on_change<F>(mut self, message: F) -> Self
+    where
+        F: 'static + Send + Fn(f32) -> Event,
     {
         self.on_change = Some(Box::new(message));
         self
@@ -124,8 +121,7 @@ impl EventHandler for Slider {
                             self.front.set_width(state, Length::Percentage(self.value));
 
                             state.insert_event(
-                                Event::new(SliderEvent::SetValue(self.value))
-                                    .target(entity),
+                                Event::new(SliderEvent::SetValue(self.value)).target(entity),
                             );
 
                             // state.insert_event(
@@ -134,8 +130,7 @@ impl EventHandler for Slider {
                             // );
 
                             state.insert_event(
-                                Event::new(SliderEvent::ValueChanged(self.value))
-                                    .target(entity),
+                                Event::new(SliderEvent::ValueChanged(self.value)).target(entity),
                             );
                         }
                     }
@@ -183,8 +178,7 @@ impl EventHandler for Slider {
                         self.front.set_width(state, Length::Percentage(self.value));
 
                         state.insert_event(
-                            Event::new(SliderEvent::ValueChanged(self.value))
-                                .target(entity),
+                            Event::new(SliderEvent::ValueChanged(self.value)).target(entity),
                         );
 
                         // state.insert_event(
@@ -208,8 +202,7 @@ impl EventHandler for Slider {
                         self.front.set_width(state, Length::Percentage(self.value));
 
                         state.insert_event(
-                            Event::new(SliderEvent::ValueChanged(self.value))
-                                .target(entity),
+                            Event::new(SliderEvent::ValueChanged(self.value)).target(entity),
                         );
 
                         // state.insert_event(
@@ -230,17 +223,17 @@ pub struct Slider2 {
     thumb: Entity,
     active: Entity,
     sliding: bool,
-    on_change: Box<dyn Fn(f32) -> Event  + Send>,
+    on_change: Box<dyn Fn(f32) -> Event + Send>,
 
     min: f32,
     max: f32,
     div: f32,
 }
 
-impl Slider2
-{
-    pub fn new<F>(on_change: F) -> Self 
-    where F: 'static + Fn(f32) -> Event + Send
+impl Slider2 {
+    pub fn new<F>(on_change: F) -> Self
+    where
+        F: 'static + Fn(f32) -> Event + Send,
     {
         Slider2 {
             thumb: Entity::null(),
@@ -254,7 +247,7 @@ impl Slider2
         }
     }
 
-    // pub fn on_change<F>(mut self, message: F) -> Self 
+    // pub fn on_change<F>(mut self, message: F) -> Self
     // where F: 'static + Fn(f32) -> M + Send
     // {
     //     self.on_change = Some(Box::new(message));
@@ -265,7 +258,7 @@ impl Slider2
         self.min = val;
         self
     }
-    
+
     pub fn with_max(mut self, val: f32) -> Self {
         self.max = val;
         self
@@ -280,37 +273,38 @@ impl Slider2
 impl BuildHandler for Slider2 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        
         entity
             .set_width(state, Length::Pixels(100.0))
             .set_height(state, Length::Pixels(4.0));
-            //.set_align_items(state, AlignItems::Center)
-            //.set_background_color(state, Color::rgb(200, 80, 80));
+        //.set_align_items(state, AlignItems::Center)
+        //.set_background_color(state, Color::rgb(200, 80, 80));
 
-        self.active = Element::new().build(state, entity, |builder| 
+        self.active = Element::new().build(state, entity, |builder| {
             builder
                 .set_width(Length::Percentage(0.0))
                 .set_height(Length::Percentage(1.0))
                 //.set_background_color(Color::rgb(60, 60, 200))
                 .set_hoverability(false)
                 .class("active")
-        );
-        
-        self.thumb = Element::new().build(state, entity, |builder| 
-            builder
-                .set_position(Position::Absolute)
-                .set_top(Length::Pixels(-8.0))
-                .set_width(Length::Pixels(20.0))
-                .set_height(Length::Pixels(20.0))
-                .class("thumb")
-                //.set_background_color(Color::rgb(80, 80, 200))
+        });
+
+        self.thumb = Element::new().build(
+            state,
+            entity,
+            |builder| {
+                builder
+                    .set_position(Position::Absolute)
+                    .set_top(Length::Pixels(-8.0))
+                    .set_width(Length::Pixels(20.0))
+                    .set_height(Length::Pixels(20.0))
+                    .class("thumb")
+            }, //.set_background_color(Color::rgb(80, 80, 200))
         );
 
         state.style.insert_element(entity, "slider2");
-        
+
         entity
     }
-
 }
 
 impl EventHandler for Slider2 {
@@ -318,37 +312,34 @@ impl EventHandler for Slider2 {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
-                    if *button == MouseButton::Left && event.target == entity || event.target == self.thumb {
+                    if *button == MouseButton::Left && event.target == entity
+                        || event.target == self.thumb
+                    {
                         self.sliding = true;
                         state.capture(entity);
 
-                        
                         let width = state.transform.get_width(entity);
                         let thumb_width = state.transform.get_width(self.thumb);
 
-                        let mut dx = (state.mouse.left.pos_down.0 - state.transform.get_posx(entity));
+                        let mut dx =
+                            (state.mouse.left.pos_down.0 - state.transform.get_posx(entity));
 
-                        if dx <= thumb_width/2.0 {
-                            dx = thumb_width/2.0;
+                        if dx <= thumb_width / 2.0 {
+                            dx = thumb_width / 2.0;
                         }
-                        if dx >= width - thumb_width/2.0 {
-                            dx = width - thumb_width/2.0;
+                        if dx >= width - thumb_width / 2.0 {
+                            dx = width - thumb_width / 2.0;
                         }
 
-                        let nx = (dx - thumb_width/2.0) / (width - thumb_width);
+                        let nx = (dx - thumb_width / 2.0) / (width - thumb_width);
 
                         let v = self.min + nx * (self.max - self.min);
 
-
                         self.active.set_width(state, Length::Percentage(nx));
-                        self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
-                        
-                        state.insert_event(
-                            Event::new(SliderEvent::ValueChanged(v))
-                                .target(entity),
-                        );
-                        
+                        self.thumb
+                            .set_left(state, Length::Pixels(dx - thumb_width / 2.0));
 
+                        state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));
                     }
                 }
 
@@ -359,20 +350,18 @@ impl EventHandler for Slider2 {
                     }
                 }
 
-                WindowEvent::MouseMove(x,_) => {
+                WindowEvent::MouseMove(x, _) => {
                     if self.sliding {
-
                         let width = state.transform.get_width(entity);
                         let thumb_width = state.transform.get_width(self.thumb);
 
                         let mut dx = *x - state.transform.get_posx(entity);
 
-
-                        if dx <= thumb_width/2.0 {
-                            dx = thumb_width/2.0;
+                        if dx <= thumb_width / 2.0 {
+                            dx = thumb_width / 2.0;
                         }
-                        if dx >= width - thumb_width/2.0 {
-                            dx = width - thumb_width/2.0;
+                        if dx >= width - thumb_width / 2.0 {
+                            dx = width - thumb_width / 2.0;
                         }
 
                         // if dx <= 0.0 {
@@ -382,33 +371,28 @@ impl EventHandler for Slider2 {
                         // }
 
                         // let nx = (dx - thumb_width/2.0) / (width - thumb_width);
-                        let nx = (dx - thumb_width/2.0) / (width - thumb_width);
+                        let nx = (dx - thumb_width / 2.0) / (width - thumb_width);
 
-                        
                         let v = self.min + nx * (self.max - self.min);
-
-                        
 
                         self.active.set_width(state, Length::Percentage(nx));
                         //self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
-                        self.thumb.set_left(state, Length::Percentage((dx - thumb_width/2.0)/width));
+                        self.thumb
+                            .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
 
                         let mut event = (self.on_change)(v);
                         event.origin = entity;
 
                         state.insert_event(event);
-                    
-                    
+
                         // state.insert_event(
                         //     Event::new(SliderEvent::ValueChanged(v))
                         //         .target(entity),
                         // );
-                    
                     }
-
                 }
 
-                _=> {}
+                _ => {}
             }
         }
 

@@ -41,7 +41,6 @@ pub struct Textbox {
     // Events
     on_change: Option<Box<dyn Fn(&str) -> Event + Send>>,
     on_submit: Option<Box<dyn Fn(&str) -> Event + Send>>,
-
 }
 
 impl Textbox {
@@ -71,16 +70,15 @@ impl Textbox {
         }
     }
 
-    
     pub fn with_units(mut self, uints: &str) -> Self {
-
         self.units = uints.to_string();
 
         self
     }
 
     pub fn on_change<F>(mut self, on_change: F) -> Self
-    where F: 'static + Fn(&str) -> Event + Send
+    where
+        F: 'static + Fn(&str) -> Event + Send,
     {
         self.on_change = Some(Box::new(on_change));
 
@@ -102,7 +100,6 @@ impl BuildHandler for Textbox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &(self.text.to_owned() + &self.units));
-
 
         self.entity = entity;
 
@@ -172,8 +169,6 @@ impl EventHandler for Textbox {
                         }
                         self.edit = true;
 
-                        
-
                         // state.insert_event(
                         //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                         // );
@@ -217,7 +212,6 @@ impl EventHandler for Textbox {
                 WindowEvent::KeyDown(code, key) => {
                     //println!("Code: {:?} Key: {:?}", code, key);
                     if *key == Some(Key::ArrowLeft) {
-                        
                         if self.edit {
                             self.hitx = -1.0;
                             if self.cursor_pos > 0 {
@@ -254,8 +248,7 @@ impl EventHandler for Textbox {
                     }
                     if *key == Some(Key::Backspace) {
                         if self.edit {
-                            let start =
-                                std::cmp::min(self.select_pos, self.cursor_pos) as usize;
+                            let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
                             //let start = text_data.select_pos as usize;
                             //let end = text_data.cursor_pos as usize;
@@ -287,9 +280,9 @@ impl EventHandler for Textbox {
                                     }
 
                                     event.origin = entity;
-        
+
                                     state.insert_event(event);
-                                }                                
+                                }
                             }
 
                             state.insert_event(Event::new(WindowEvent::Redraw));
@@ -328,7 +321,6 @@ impl EventHandler for Textbox {
                             state.insert_event(Event::new(WindowEvent::Redraw));
                         }
                     }
-                
                 }
 
                 WindowEvent::CharInput(input) => {
@@ -363,13 +355,10 @@ impl EventHandler for Textbox {
                                     }
 
                                     event.origin = entity;
-        
+
                                     state.insert_event(event);
-                                }                                
+                                }
                             }
-
-
-                            
 
                             // state.insert_event(
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
@@ -415,8 +404,6 @@ impl EventHandler for Textbox {
 
         //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
 
-
-
         let padding_left = match state
             .style
             .padding_left
@@ -451,8 +438,6 @@ impl EventHandler for Textbox {
             Length::Pixels(val) => val,
             _ => &0.0,
         };
-
-
 
         let background_color = state
             .style
@@ -489,25 +474,49 @@ impl EventHandler for Textbox {
 
         let parent_width = state.transform.get_width(parent);
 
-        let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_left = match state
+            .style
+            .border_radius_top_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_top_right = match state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_right = match state
+            .style
+            .border_radius_top_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_left = match state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_left = match state
+            .style
+            .border_radius_bottom_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_right = match state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_right = match state
+            .style
+            .border_radius_bottom_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
@@ -529,7 +538,7 @@ impl EventHandler for Textbox {
             .border_width
             .get(entity)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
@@ -538,14 +547,13 @@ impl EventHandler for Textbox {
 
         //println!("Border Width: {}", border_width);
 
-        
         // Skip widgets with no width or no height
-        if width + 2.0 * border_width + padding_left + padding_right == 0.0 || height + 2.0 * border_width + padding_top + padding_bottom == 0.0 {
+        if width + 2.0 * border_width + padding_left + padding_right == 0.0
+            || height + 2.0 * border_width + padding_top + padding_bottom == 0.0
+        {
             return;
         }
 
-        
-        
         // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
@@ -555,12 +563,14 @@ impl EventHandler for Textbox {
         // canvas.rotate(rotate.to_radians());
         // canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
-        let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
+        let pt = canvas
+            .transform()
+            .inversed()
+            .transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
         canvas.translate(pt.0, pt.1);
         canvas.scale(1.0, scaley.0);
         canvas.translate(-pt.0, -pt.1);
-
 
         // Apply Scissor
         let clip_entity = state.transform.get_clip_widget(entity);
@@ -572,8 +582,6 @@ impl EventHandler for Textbox {
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
 
-
-        
         let shadow_h_offset = state
             .style
             .shadow_h_offset
@@ -611,7 +619,6 @@ impl EventHandler for Textbox {
 
         let mut font_color: femtovg::Color = font_color.into();
         font_color.set_alphaf(font_color.a * opacity);
-
 
         if let Some(text) = state.style.text.get_mut(entity) {
             let font_id = match text.font.as_ref() {
@@ -676,7 +683,9 @@ impl EventHandler for Textbox {
             paint.set_text_align(align);
             paint.set_text_baseline(baseline);
 
-            let font_metrics = canvas.measure_font(paint).expect("Failed to read font metrics");
+            let font_metrics = canvas
+                .measure_font(paint)
+                .expect("Failed to read font metrics");
 
             if let Ok(res) = canvas.fill_text(x, y, &text_string, paint) {
                 let text_width = res.width();
@@ -694,9 +703,8 @@ impl EventHandler for Textbox {
                     };
                     //let startx = x - text_width / 2.0;
                     let endx = startx + text_width;
-                    
-                    if self.hitx != -1.0 {
 
+                    if self.hitx != -1.0 {
                         //let endx = res.glyphs.last().unwrap().x + res.glyphs.last().unwrap().w;
 
                         selectx = if self.hitx < startx + text_width / 2.0 {
@@ -743,8 +751,6 @@ impl EventHandler for Textbox {
                             //     self.cursor_pos = n;
                             // }
 
-
-
                             if self.hitx >= px && self.hitx < gx {
                                 selectx = left_edge;
 
@@ -766,7 +772,6 @@ impl EventHandler for Textbox {
                         //let mut start_x = 0.0;
 
                         for glyph in res.glyphs.iter() {
-
                             if n == self.cursor_pos {
                                 caretx = glyph.x;
                             }
@@ -791,18 +796,31 @@ impl EventHandler for Textbox {
                     let select_width = (caretx - selectx).abs();
                     if selectx > caretx {
                         let mut path = Path::new();
-                        path.rect(caretx, y - font_metrics.height()/2.0, select_width, font_metrics.height());
+                        path.rect(
+                            caretx,
+                            y - font_metrics.height() / 2.0,
+                            select_width,
+                            font_metrics.height(),
+                        );
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     } else if caretx > selectx {
                         let mut path = Path::new();
-                        path.rect(selectx, y - font_metrics.height()/2.0, select_width, font_metrics.height());
+                        path.rect(
+                            selectx,
+                            y - font_metrics.height() / 2.0,
+                            select_width,
+                            font_metrics.height(),
+                        );
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     }
 
-                    
-
                     let mut path = Path::new();
-                    path.rect(caretx.floor() , y - font_metrics.height()/2.0, 1.0, font_metrics.height());
+                    path.rect(
+                        caretx.floor(),
+                        y - font_metrics.height() / 2.0,
+                        1.0,
+                        font_metrics.height(),
+                    );
                     canvas.fill_path(&mut path, Paint::color(Color::rgba(247, 76, 0, 255)));
 
                     // let mut path = Path::new();

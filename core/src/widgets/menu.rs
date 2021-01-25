@@ -2,9 +2,7 @@
 
 use crate::entity::Entity;
 use crate::mouse::*;
-use crate::{
-    BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WindowEvent,
-};
+use crate::{BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WindowEvent};
 use crate::{PropSet, State};
 
 use crate::state::style::*;
@@ -306,7 +304,6 @@ impl EventHandler for Menu {
                             return true;
                         }
                     } else if event.origin.is_descendant_of(&state.hierarchy, entity) {
-
                         //if event.target != self.container {
                         // state.insert_event(
                         //     Event::new(WindowEvent::MouseOver)

@@ -1,4 +1,7 @@
-use crate::{events::{Event, EventManager, Message}, state};
+use crate::{
+    events::{Event, EventManager, Message},
+    state,
+};
 
 use crate::build_handler::Builder;
 
@@ -14,7 +17,6 @@ use femtovg::{
 use crate::style::{Justify, Length, Visibility};
 
 use std::any::{Any, TypeId};
-
 
 pub trait EventHandler: Any + Send {
     // Called when events are flushed
@@ -78,8 +80,6 @@ pub trait EventHandler: Any + Send {
             _ => &0.0,
         };
 
-
-
         let background_color = state
             .style
             .background_color
@@ -116,25 +116,49 @@ pub trait EventHandler: Any + Send {
         let parent_width = state.transform.get_width(parent);
         let parent_height = state.transform.get_height(parent);
 
-        let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_left = match state
+            .style
+            .border_radius_top_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_top_right = match state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_right = match state
+            .style
+            .border_radius_top_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_left = match state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_left = match state
+            .style
+            .border_radius_bottom_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_right = match state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_right = match state
+            .style
+            .border_radius_bottom_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
@@ -156,20 +180,20 @@ pub trait EventHandler: Any + Send {
             .border_width
             .get(entity)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
-        
+
         // Skip widgets with no width or no height
-        if width + 2.0* border_width + padding_left + padding_right == 0.0 || height + 2.0 * border_width + padding_top + padding_bottom == 0.0 {
+        if width + 2.0 * border_width + padding_left + padding_right == 0.0
+            || height + 2.0 * border_width + padding_top + padding_bottom == 0.0
+        {
             return;
         }
 
-        
-        
         // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
@@ -185,7 +209,6 @@ pub trait EventHandler: Any + Send {
         // canvas.scale(1.0, scaley.0);
         // canvas.translate(-pt.0, -pt.1);
 
-
         // Apply Scissor
         let clip_entity = state.transform.get_clip_widget(entity);
 
@@ -193,38 +216,44 @@ pub trait EventHandler: Any + Send {
         let clip_posy = state.transform.get_posy(clip_entity);
         let clip_width = state.transform.get_width(clip_entity);
         let clip_height = state.transform.get_height(clip_entity);
-        
+
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
         //canvas.scissor(0.0, 0.0, 100.0, 100.0);
 
-
-        
         let shadow_h_offset = match state
             .style
             .shadow_h_offset
             .get(entity)
             .cloned()
-            .unwrap_or_default() {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => parent_width * val,
-                _=> 0.0
-            };
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
 
         let shadow_v_offset = match state
             .style
             .shadow_v_offset
             .get(entity)
             .cloned()
-            .unwrap_or_default() {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => parent_height * val,
-                _=> 0.0
-            };
-
-        let shadow_blur = match state.style.shadow_blur.get(entity).cloned().unwrap_or_default() {
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
-                Length::Percentage(val) => parent_height * val,
-                _=> 0.0
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let shadow_blur = match state
+            .style
+            .shadow_blur
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
         };
 
         let shadow_color = state
@@ -236,8 +265,6 @@ pub trait EventHandler: Any + Send {
 
         let mut shadow_color: femtovg::Color = shadow_color.into();
         shadow_color.set_alphaf(shadow_color.a * opacity);
-
-        
 
         // Draw shadow (TODO)
         let mut path = Path::new();
@@ -260,19 +287,17 @@ pub trait EventHandler: Any + Send {
         // path.solidity(Solidity::Hole);
         //let mut paint = Paint::color(shadow_color);
 
-        
-
         let mut paint = Paint::box_gradient(
-            posx + (border_width / 2.0) + shadow_h_offset, 
-            posy + (border_width / 2.0) + shadow_v_offset, 
-            width - border_width, 
-            height - border_width, 
-            border_radius_top_left, 
-            shadow_blur, 
-            shadow_color, 
-            femtovg::Color::rgba(0,0,0,0)
+            posx + (border_width / 2.0) + shadow_h_offset,
+            posy + (border_width / 2.0) + shadow_v_offset,
+            width - border_width,
+            height - border_width,
+            border_radius_top_left,
+            shadow_blur,
+            shadow_color,
+            femtovg::Color::rgba(0, 0, 0, 0),
         );
-        
+
         canvas.fill_path(&mut path, paint);
 
         // Draw rounded rect
@@ -290,13 +315,10 @@ pub trait EventHandler: Any + Send {
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
 
-        
-
         // Draw border
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
-
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
@@ -753,9 +775,6 @@ pub trait EventHandler: Any + Send {
         );
         */
     }
-
-
-
 }
 
 impl dyn EventHandler {
@@ -783,8 +802,6 @@ impl dyn EventHandler {
         }
     }
 }
-
-
 
 // pub trait AsAny: Any {
 //     fn as_any(&self) -> &dyn Any;

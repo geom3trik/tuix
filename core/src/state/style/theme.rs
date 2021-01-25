@@ -384,8 +384,9 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
 
             "box-shadow" => Property::BoxShadow(parse_box_shadow(input)?),
 
-            "transition" => Property::Transition(input.parse_comma_separated(|F| parse_transition2(F))?),
-            
+            "transition" => {
+                Property::Transition(input.parse_comma_separated(|F| parse_transition2(F))?)
+            }
 
             "z-index" => Property::ZIndex(parse_z_index(input)?),
 
@@ -553,16 +554,16 @@ fn parse_z_index<'i, 't>(
 //     })
 // }
 
-
 //TODO
-fn parse_box_shadow<'i, 't>(input: &mut Parser<'i,'t>) -> Result<BoxShadow, ParseError<'i, CustomParseError>> {
+fn parse_box_shadow<'i, 't>(
+    input: &mut Parser<'i, 't>,
+) -> Result<BoxShadow, ParseError<'i, CustomParseError>> {
     let mut box_shadow = BoxShadow::default();
 
     Ok(match input.next()? {
-
-        Token::Number { value: x, ..} => {
+        Token::Number { value: x, .. } => {
             box_shadow.horizontal_offset = Length::Pixels(*x);
-        
+
             box_shadow
         }
         t => {
@@ -572,7 +573,6 @@ fn parse_box_shadow<'i, 't>(input: &mut Parser<'i,'t>) -> Result<BoxShadow, Pars
             };
             return Err(basic_error.into());
         }
-
     })
 }
 
@@ -591,7 +591,6 @@ fn parse_transition2<'i, 't>(
 
                     match input.next()? {
                         Token::Number { value: x, .. } => {
-
                             transition.delay = *x;
                         }
 

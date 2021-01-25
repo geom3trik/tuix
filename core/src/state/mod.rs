@@ -22,6 +22,9 @@ pub use mouse::*;
 pub mod resource;
 pub use resource::*;
 
+pub mod handle;
+pub use handle::*;
+
 pub use crate::events::{Builder, Event, EventHandler, Propagation};
 pub use crate::window_event::WindowEvent;
 
@@ -31,11 +34,17 @@ use std::collections::{HashMap, VecDeque};
 
 use fnv::FnvHashMap;
 
+use flume::{bounded, Receiver, Sender};
+
 #[derive(Clone)]
 pub struct Fonts {
     pub regular: Option<FontId>,
     pub bold: Option<FontId>,
     pub icons: Option<FontId>,
+}
+
+pub enum Command {
+    SetProperty(Entity, Property),
 }
 
 pub struct State {
@@ -57,6 +66,9 @@ pub struct State {
     pub fonts: Fonts, //TODO - Replace with resource manager
 
     pub resource_manager: ResourceManager, //TODO
+
+    pub(crate) command_sender: Sender<Command>,
+    pub(crate) command_receiver: Receiver<Command>,
 }
 
 impl State {
@@ -79,6 +91,8 @@ impl State {
 
         style.background_color.insert(root, Color::rgb(80, 80, 80));
 
+        let (command_sender, command_receiver) = flume::unbounded();
+
         State {
             entity_manager,
             hierarchy,
@@ -99,6 +113,9 @@ impl State {
                 icons: None,
             },
             resource_manager: ResourceManager::new(),
+
+            command_sender,
+            command_receiver,
         }
     }
 
@@ -111,9 +128,25 @@ impl State {
         Builder::new(self, entity)
     }
 
-    
-    pub fn insert_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {
+    pub fn process_commands(&mut self) {
+        for command in self.command_receiver.drain() {
+            match command {
+                Command::SetProperty(entity, property) => match property {
+                    Property::Width(value) => {
+                        self.style.width.insert(entity, value);
+                    }
 
+                    Property::Height(value) => {
+                        self.style.height.insert(entity, value);
+                    }
+
+                    _ => {}
+                },
+            }
+        }
+    }
+
+    pub fn insert_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {
         let style_string = std::fs::read_to_string(path.clone())?;
         self.resource_manager.stylesheets.push(path.to_owned());
 
@@ -132,17 +165,16 @@ impl State {
     }
 
     // Removes all style data and then reloads the stylesheets
-    // TODO change the error type to allow for parsing errors 
+    // TODO change the error type to allow for parsing errors
     pub fn reload_styles(&mut self) -> Result<(), std::io::Error> {
-
         if self.resource_manager.themes.is_empty() && self.resource_manager.stylesheets.is_empty() {
-            return Ok(())
+            return Ok(());
         }
 
         // Remove all non-inline style data
         self.style.background_color.remove_styles();
         self.style.font_color.remove_styles();
-        
+
         // Position
         self.style.left.remove_styles();
         self.style.right.remove_styles();
@@ -199,7 +231,6 @@ impl State {
         for stylesheet in self.resource_manager.stylesheets.iter() {
             let theme = std::fs::read_to_string(stylesheet)?;
             overall_theme += &theme;
-            
         }
 
         self.style.parse_theme(&overall_theme);
@@ -218,7 +249,6 @@ impl State {
 
         self.event_queue.push_back(event);
     }
-
 
     pub fn id2entity(&self, id: &str) -> Option<Entity> {
         self.style.ids.get_by_left(&id.to_string()).cloned()
@@ -294,7 +324,9 @@ impl State {
     // }
 
     pub fn apply_animations(&mut self) -> bool {
-        self.style.background_color.animate(std::time::Instant::now());
+        self.style
+            .background_color
+            .animate(std::time::Instant::now());
         self.style.font_color.animate(std::time::Instant::now());
         self.style.border_color.animate(std::time::Instant::now());
 
@@ -317,10 +349,18 @@ impl State {
         self.style.padding_right.animate(std::time::Instant::now());
         self.style.padding_top.animate(std::time::Instant::now());
         self.style.padding_bottom.animate(std::time::Instant::now());
-        self.style.border_radius_top_left.animate(std::time::Instant::now());
-        self.style.border_radius_top_right.animate(std::time::Instant::now());
-        self.style.border_radius_bottom_left.animate(std::time::Instant::now());
-        self.style.border_radius_bottom_right.animate(std::time::Instant::now());
+        self.style
+            .border_radius_top_left
+            .animate(std::time::Instant::now());
+        self.style
+            .border_radius_top_right
+            .animate(std::time::Instant::now());
+        self.style
+            .border_radius_bottom_left
+            .animate(std::time::Instant::now());
+        self.style
+            .border_radius_bottom_right
+            .animate(std::time::Instant::now());
         self.style.border_width.animate(std::time::Instant::now());
         self.style.min_width.animate(std::time::Instant::now());
         self.style.max_width.animate(std::time::Instant::now());

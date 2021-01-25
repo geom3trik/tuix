@@ -94,19 +94,17 @@ impl EventHandler for LengthBox {
 
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
-                TextboxEvent::ValueChanged(value) => {
-                    match self.length_type {
-                        Length::Pixels(_) => {
-                            self.pixels = value.parse::<f32>().unwrap();
-                        }
-
-                        Length::Percentage(_) => {
-                            self.percentage = value.parse::<f32>().unwrap();
-                        }
-
-                        _ => {}
+                TextboxEvent::ValueChanged(value) => match self.length_type {
+                    Length::Pixels(_) => {
+                        self.pixels = value.parse::<f32>().unwrap();
                     }
-                }
+
+                    Length::Percentage(_) => {
+                        self.percentage = value.parse::<f32>().unwrap();
+                    }
+
+                    _ => {}
+                },
 
                 _ => {}
             }

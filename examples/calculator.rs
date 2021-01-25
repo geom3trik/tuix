@@ -389,10 +389,7 @@ impl EventHandler for Calculator {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::KeyDown(code, key) => {
-
-
                     match code {
-
                         Code::Digit0 => {
                             state.active = self.zero;
                             state.insert_event(
@@ -460,8 +457,7 @@ impl EventHandler for Calculator {
                             if state.modifiers.shift {
                                 state.active = self.multiply;
                                 state.insert_event(
-                                    Event::new(CalculatorEvent::Operator('*'))
-                                        .target(entity),
+                                    Event::new(CalculatorEvent::Operator('*')).target(entity),
                                 );
                             } else {
                                 state.active = self.eight;
@@ -522,14 +518,12 @@ impl EventHandler for Calculator {
                             if state.modifiers.shift {
                                 state.active = self.add;
                                 state.insert_event(
-                                    Event::new(CalculatorEvent::Operator('+'))
-                                        .target(entity),
+                                    Event::new(CalculatorEvent::Operator('+')).target(entity),
                                 );
                             } else {
                                 state.active = self.equals;
                                 state.insert_event(
-                                    Event::new(CalculatorEvent::Operator('='))
-                                        .target(entity),
+                                    Event::new(CalculatorEvent::Operator('=')).target(entity),
                                 );
                             }
                         }
@@ -545,10 +539,9 @@ impl EventHandler for Calculator {
                     }
 
                     state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
-                        
                 }
 
-                WindowEvent::KeyUp(_,_) => {
+                WindowEvent::KeyUp(_, _) => {
                     state.active = Entity::null();
                     state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
                 }

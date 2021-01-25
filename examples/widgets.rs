@@ -17,8 +17,6 @@ fn main() {
     Application::new(|win_desc, state, window| {
         state.insert_theme(DEFAULT_THEME);
 
-
-
         // Menu bar
         let menu_bar = Element::new().build(state, window, |builder| {
             builder.class("menu_bar").set_height(Length::Pixels(40.0))
@@ -69,10 +67,12 @@ fn main() {
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Dropdown").build(state, row, |builder| builder);
-        let dropdown = Dropdown::new("Dropdown").build(state, row, |builder| builder).2;
-        Item::new("Item 1","Item 1").build(state, dropdown, |builder| builder);
-        Item::new("Item 2","Item 2").build(state, dropdown, |builder| builder);
-        Item::new("Item 3","Item 3").build(state, dropdown, |builder| builder);
+        let dropdown = Dropdown::new("Dropdown")
+            .build(state, row, |builder| builder)
+            .2;
+        Item::new("Item 1", "Item 1").build(state, dropdown, |builder| builder);
+        Item::new("Item 2", "Item 2").build(state, dropdown, |builder| builder);
+        Item::new("Item 3", "Item 3").build(state, dropdown, |builder| builder);
 
         let panel = Panel::new("Sliders").build(state, rvbox, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);
@@ -80,8 +80,10 @@ fn main() {
         let textbox = Textbox::new("0.0").build(state, row, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Slider").build(state, row, |builder| builder);
-        let slider = Slider2::new(move |value| Event::new(TextboxEvent::SetValue(value.to_string())).target(textbox)).build(state, row, |builder| builder);
-
+        let slider = Slider2::new(move |value| {
+            Event::new(TextboxEvent::SetValue(value.to_string())).target(textbox)
+        })
+        .build(state, row, |builder| builder);
 
         let panel = Panel::new("Radio List").build(state, rvbox, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);

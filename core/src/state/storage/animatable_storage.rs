@@ -224,8 +224,9 @@ where
             self.entity_indices
                 .resize(entity.index() + 1, Default::default());
             // Set the data index to the data position
-            self.entity_indices[entity.index()].data_index =
-                Index::new(self.inline_data.len()).inherited(false).inline(true);
+            self.entity_indices[entity.index()].data_index = Index::new(self.inline_data.len())
+                .inherited(false)
+                .inline(true);
 
             // Add the data
             self.inline_data.push(value);
@@ -235,7 +236,9 @@ where
             if data_index.is_inline() {
                 if data_index.index() >= self.inline_data.len() {
                     self.entity_indices[entity.index()].data_index =
-                        Index::new(self.inline_data.len()).inherited(false).inline(true);
+                        Index::new(self.inline_data.len())
+                            .inherited(false)
+                            .inline(true);
                     self.inline_data.push(value);
                 } else {
                     self.entity_indices[entity.index()]
@@ -243,15 +246,13 @@ where
                         .set_inherited(false)
                         .set_inline(true);
                     self.inline_data[data_index.index()] = value;
-                    
-                }                
+                }
             } else {
-                self.entity_indices[entity.index()].data_index =
-                    Index::new(self.inline_data.len()).inherited(false).inline(true);
+                self.entity_indices[entity.index()].data_index = Index::new(self.inline_data.len())
+                    .inherited(false)
+                    .inline(true);
                 self.inline_data.push(value);
             }
-
-
 
             //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
         }
@@ -304,8 +305,6 @@ where
             self.entity_indices[entity.index()].animation_id = self.active_animations.len();
             self.active_animations.push(animation);
         }
-
-
     }
 
     pub fn animate(&mut self, current_time: std::time::Instant) {
@@ -353,7 +352,6 @@ where
     }
 
     pub fn remove_innactive_animations(&mut self) {
-
         // Create a list of finished animations
         let inactive: Vec<AnimationState<T>> = self
             .active_animations
@@ -364,7 +362,8 @@ where
 
         // Remove inactive animation states from active animations list
         // Retains persistent animations
-        self.active_animations.retain(|e| e.t0 < 1.0 || e.persistent);
+        self.active_animations
+            .retain(|e| e.t0 < 1.0 || e.persistent);
 
         for state in inactive.into_iter() {
             for entity in state.entities.iter() {
@@ -435,7 +434,7 @@ where
         let rule_animation_id = self.rule_indices[rule].animation_id;
 
         // Check if the entity is already animating with a transition
-        
+
         let animation_index = self.entity_indices[entity.index()].animation_id;
         if animation_index < self.active_animations.len() {
             // Check here is the active animation belongs to the transition of the currently linked data
@@ -476,7 +475,7 @@ where
                 } else {
                     *transition.keyframes.first_mut().unwrap() = (0.0, end.clone());
                 }
-                
+
                 *transition.keyframes.last_mut().unwrap() = (1.0, end);
 
                 transition.from_rule = self.entity_indices[entity.index()].data_index.index();
@@ -486,7 +485,6 @@ where
                 self.play_animation(entity, rule_animation_id);
             }
         }
-        
 
         // Link the entity to the same data as the rule
         self.entity_indices[entity.index()].data_index = Index::new(rule_data_index);
@@ -539,7 +537,6 @@ where
                 //     self.unlink(entity);
                 //     return true;
                 // }
-
                 _ => {}
             }
         }
@@ -575,7 +572,7 @@ where
             self.rule_indices.resize(rule + 1, Default::default());
             self.rule_indices[rule].data_index = Index::new(self.data.len());
             self.data.push(Default::default());
-        } 
+        }
         self.rule_indices[rule].animation_id = self.animations.len();
         self.animations.push(animation_state);
     }
@@ -600,16 +597,13 @@ where
             }
 
             Some(&self.inline_data[data_index.index()])
-
         } else {
             if data_index.index() >= self.data.len() {
                 return None;
             }
 
-            Some(&self.data[data_index.index()])            
+            Some(&self.data[data_index.index()])
         }
-
-
     }
 
     // Returns true if the entity is linked to a currently active animation
@@ -682,23 +676,21 @@ where
     // // Removes data at data_index
     // pub remove_data(&mut self, data_index: usize) {
     //     // Unlink any entities from the data
-    //     // Remove any 
+    //     // Remove any
     // }
 
     // Removes css styles but leaves inline styles and animations
     pub fn remove_styles(&mut self) {
-
         // Remove rules
         self.rule_indices.clear();
         // Remove rule data
         self.data.clear();
-        
+
         // Unlink non-inline entities from the rules
         for entity in self.entity_indices.iter_mut() {
             if !entity.index().is_inline() {
                 entity.data_index = Index::default();
             }
         }
-    
     }
 }

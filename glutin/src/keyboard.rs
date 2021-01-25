@@ -1,5 +1,3 @@
-
-
 use glutin::event::VirtualKeyCode;
 use keyboard_types::{Code, Key};
 

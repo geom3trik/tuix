@@ -196,7 +196,6 @@ where
     }
 
     pub fn set_persistent(mut self, flag: bool) -> Self {
-
         self.persistent = flag;
 
         self

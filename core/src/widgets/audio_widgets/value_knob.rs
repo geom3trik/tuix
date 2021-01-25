@@ -6,8 +6,8 @@ use crate::widgets::{Button, ControlKnob, Label, SliderEvent, Textbox, TextboxEv
 
 use crate::state::style::*;
 
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 // const VALUE_SLIDER_STYLE: &str = r#"
 
@@ -44,9 +44,9 @@ impl std::fmt::Display for FreqValue {
         } else if self.0.abs() >= 100.0 && self.0.abs() < 1000.0 {
             write!(f, "{:.0}", self.0)
         } else if self.0.abs() >= 1000.0 && self.0.abs() < 10000.0 {
-            write!(f, "{:.2}", self.0/1000.0)
+            write!(f, "{:.2}", self.0 / 1000.0)
         } else if self.0.abs() >= 10000.0 && self.0.abs() < 100000.0 {
-            write!(f, "{:.1}", self.0/1000.0)
+            write!(f, "{:.1}", self.0 / 1000.0)
         } else {
             write!(f, "{}", self.0)
         }
@@ -108,9 +108,10 @@ impl ValueKnob {
         self
     }
 
-    pub fn on_change<F>(mut self, message: F) -> Self 
-    where F: Fn(f32) -> Event,
-    F: 'static + Send
+    pub fn on_change<F>(mut self, message: F) -> Self
+    where
+        F: Fn(f32) -> Event,
+        F: 'static + Send,
     {
         self.on_change = Some(Arc::new(Mutex::new(message)));
         self
@@ -120,34 +121,25 @@ impl ValueKnob {
 impl BuildHandler for ValueKnob {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         let label = Label::new(&self.label).build(state, entity, |builder| {
             builder
                 .set_height(Length::Pixels(25.0))
                 .set_text_justify(Justify::Center)
         });
 
-
-
         let mut knob = ControlKnob::new(self.init, self.min, self.max);
 
         knob.on_change = self.on_change.clone();
         knob.is_log = self.is_log;
 
-        self.knob = knob.build(
-            state,
-            entity,
-            |builder| {
-                builder
-                    .set_width(Length::Pixels(50.0))
-                    .set_height(Length::Pixels(50.0))
-            },
-        );
-
-        
+        self.knob = knob.build(state, entity, |builder| {
+            builder
+                .set_width(Length::Pixels(50.0))
+                .set_height(Length::Pixels(50.0))
+        });
 
         //let val_str = format!("{:3}!", self.init);
-        let freq_val: FreqValue = self.init.into(); 
+        let freq_val: FreqValue = self.init.into();
         self.textbox = Textbox::new(&freq_val.to_string()).build(state, entity, |builder| {
             builder
                 .set_height(Length::Pixels(25.0))
@@ -195,7 +187,6 @@ impl EventHandler for ValueKnob {
                                 .target(self.knob)
                                 .propagate(Propagation::Direct),
                         );
-
                     }
                 }
 

@@ -6,7 +6,7 @@ use crate::{AnimationState, BuildHandler, Event, EventHandler, Propagation, Wind
 use crate::{PropSet, State};
 
 use crate::state::style::*;
-use crate::widgets::{Button, Checkbox, CheckboxEvent, RadioList, Element, HBox, Label};
+use crate::widgets::{Button, Checkbox, CheckboxEvent, Element, HBox, Label, RadioList};
 
 use crate::state::hierarchy::HierarchyTree;
 
@@ -40,7 +40,10 @@ impl Item {
 impl BuildHandler for Item {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_grow(state, 1.0).set_text(state, &self.text).class(state, "item");
+        entity
+            .set_flex_grow(state, 1.0)
+            .set_text(state, &self.text)
+            .class(state, "item");
 
         //self.checkbox = Checkbox::new(false).build(state, entity, |builder| builder.set_hoverability(false));
         // Element::new().build(state, entity, |builder| {
@@ -148,11 +151,12 @@ impl BuildHandler for Dropdown {
                 .class("header")
         });
 
-        self.label = Label::new(&self.text).build(state, self.header, |builder| 
+        self.label = Label::new(&self.text).build(state, self.header, |builder| {
             builder
-            //.set_background_color(Color::rgb(100,50,50))
-            .set_hoverability(false)
-            .set_flex_grow(1.0));
+                //.set_background_color(Color::rgb(100,50,50))
+                .set_hoverability(false)
+                .set_flex_grow(1.0)
+        });
 
         let icon = Element::new().build(state, self.header, |builder| {
             builder
@@ -172,7 +176,7 @@ impl BuildHandler for Dropdown {
                 //.set_height(Length::Pixels(0.0))
                 .set_opacity(0.0)
                 .set_z_order(1)
-                .set_clip_widget(Entity::new(0,0))
+                .set_clip_widget(Entity::new(0, 0))
                 //.set_visibility(Visibility::Invisible)
                 //.set_background_color(Color::rgb(100, 50, 50))
                 .class("container")
@@ -274,7 +278,6 @@ impl EventHandler for Dropdown {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if event.target == entity || event.target == self.header {

@@ -112,10 +112,12 @@ pub struct Event {
     pub message: Box<dyn Message>,
 }
 
-// Allows events to be compared for equality 
+// Allows events to be compared for equality
 impl PartialEq for Event {
     fn eq(&self, other: &Event) -> bool {
-        self.message.equals_a(&*other.message) && self.origin == other.origin && self.target == other.target
+        self.message.equals_a(&*other.message)
+            && self.origin == other.origin
+            && self.target == other.target
     }
 }
 
@@ -148,7 +150,7 @@ impl Event {
         self
     }
 
-    // Specifies that the event is unique 
+    // Specifies that the event is unique
     // (only one of this event type should exist in the event queue at once)
     pub fn unique(mut self) -> Self {
         self.unique = true;

@@ -107,7 +107,7 @@ where
         + std::fmt::Display
         + Copy
         + PartialEq
-        + std::str::FromStr
+        + std::str::FromStr,
 {
     pub fn new() -> Self {
         VectorEdit {
@@ -165,7 +165,7 @@ where
         + Copy
         + PartialEq
         + std::str::FromStr
-        + Send
+        + Send,
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
@@ -247,7 +247,7 @@ where
         + Copy
         + PartialEq
         + std::str::FromStr
-        + Send
+        + Send,
 {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         let target = event.target;
@@ -256,7 +256,6 @@ where
             match dropdown_event {
                 DropdownEvent::SetText(text, _) => match text.as_ref() {
                     "1" => {
-
                         if state.transform.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
@@ -329,7 +328,6 @@ where
                     }
 
                     "3" => {
-
                         if state.transform.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
@@ -367,7 +365,6 @@ where
                     }
 
                     "4" => {
-
                         if state.transform.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }

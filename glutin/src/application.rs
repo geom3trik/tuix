@@ -1,14 +1,17 @@
 #![allow(deprecated)]
 
-use glutin::event_loop::{ControlFlow, EventLoop};
 use glutin::dpi::*;
+use glutin::event_loop::{ControlFlow, EventLoop};
 
-use crate::{keyboard::{scan_to_code, vk_to_key}, window};
+use crate::{
+    keyboard::{scan_to_code, vk_to_key},
+    window,
+};
 
 use crate::window::Window;
 
+use tuix_core::{Color, Length, Visibility};
 use tuix_core::{Entity, State};
-use tuix_core::{Length, Visibility, Color};
 
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 
@@ -20,9 +23,9 @@ use tuix_core::state::Fonts;
 
 use tuix_core::state::style::prop::*;
 
-use tuix_core::{WindowEvent, WindowDescription, WindowWidget};
+use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
-use tuix_core::systems::{apply_clipping, apply_z_ordering, apply_styles, apply_visibility};
+use tuix_core::systems::{apply_clipping, apply_styles, apply_visibility, apply_z_ordering};
 
 use glutin::event::VirtualKeyCode;
 
@@ -39,10 +42,6 @@ impl Application {
     pub fn new<F: FnOnce(WindowDescription, &mut State, Entity) -> WindowDescription>(
         mut app: F,
     ) -> Self {
-
-
-
-
         let event_loop = EventLoop::new();
         let mut state = State::new();
 
@@ -92,10 +91,9 @@ impl Application {
             Length::Pixels(window_description.inner_size.height as f32),
         );
 
-        state.transform.set_width(
-            state.get_root(),
-            window_description.inner_size.width as f32,
-        );
+        state
+            .transform
+            .set_width(state.get_root(), window_description.inner_size.width as f32);
         state.transform.set_height(
             state.get_root(),
             window_description.inner_size.height as f32,
@@ -112,9 +110,6 @@ impl Application {
         }
     }
 
-
-    
-
     pub fn get_window(&self) -> Entity {
         self.state.root
     }
@@ -127,7 +122,6 @@ impl Application {
         &mut self.event_manager
     }
 
-
     pub fn run(self) {
         let mut pos: (f32, f32) = (0.0, 0.0);
 
@@ -139,7 +133,6 @@ impl Application {
 
         let hierarchy = state.hierarchy.clone();
 
-        
         let mut counter = 0;
 
         //state.insert_event(Event::new(WindowEvent::Restyle));
@@ -149,17 +142,17 @@ impl Application {
 
         let mut first_time = true;
 
-        self.event_loop.run(move |event, _, control_flow|{
-            
+        state.process_commands();
+
+        self.event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
 
             match event {
                 GEvent::LoopDestroyed => return,
 
                 GEvent::UserEvent(_) => {
-                    
                     window.handle.window().request_redraw();
-                    
+
                     //println!("User Event");
                     // if state.apply_animations() {
                     //     *control_flow = ControlFlow::Poll;
@@ -186,7 +179,11 @@ impl Application {
                     if state.apply_animations() {
                         //println!("Animate");
                         *control_flow = ControlFlow::Poll;
-                        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(Entity::new(0, 0)));
+                        state.insert_event(
+                            Event::new(WindowEvent::Relayout)
+                                .target(Entity::null())
+                                .origin(Entity::new(0, 0)),
+                        );
                         //state.insert_event(Event::new(WindowEvent::Redraw));
                         event_loop_proxy.send_event(());
                         window.handle.window().request_redraw();
@@ -195,27 +192,19 @@ impl Application {
                         *control_flow = ControlFlow::Wait;
                     }
 
-
-                    
-
                     if first_time {
                         apply_styles(&mut state, &hierarchy);
                         first_time = false;
                     }
 
-                    
-
                     if needs_redraw {
                         window.handle.window().request_redraw();
                     }
-
-
 
                     //
 
                     // event_manager.flush_events(&mut state);
 
-                    
                     // apply_z_ordering(&mut state, &hierarchy);
                     // apply_visibility(&mut state, &hierarchy);
                     // apply_clipping(&mut state, &hierarchy);
@@ -233,21 +222,22 @@ impl Application {
                     event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
                     // Swap buffers
                     window
-                    .handle
-                    .swap_buffers()
-                    .expect("Failed to swap buffers");
+                        .handle
+                        .swap_buffers()
+                        .expect("Failed to swap buffers");
                 }
 
-                GEvent::WindowEvent { event, window_id: _ } => {
-
+                GEvent::WindowEvent {
+                    event,
+                    window_id: _,
+                } => {
                     match event {
                         //////////////////
                         // Close Window //
                         //////////////////
                         glutin::event::WindowEvent::CloseRequested => {
-                            state
-                                .insert_event(Event::new(WindowEvent::WindowClose));
-                                should_quit = true;
+                            state.insert_event(Event::new(WindowEvent::WindowClose));
+                            should_quit = true;
                         }
 
                         //TODO
@@ -266,10 +256,12 @@ impl Application {
                         ////////////////////
                         glutin::event::WindowEvent::Focused(_) => {
                             state.insert_event(
-                                Event::new(WindowEvent::Restyle).target(state.root).origin(state.root),
+                                Event::new(WindowEvent::Restyle)
+                                    .target(state.root)
+                                    .origin(state.root),
                             );
                         }
-    
+
                         ////////////////////
                         // Focused Window //
                         ////////////////////
@@ -281,27 +273,45 @@ impl Application {
                             );
                         }
 
-                        glutin::event::WindowEvent::KeyboardInput { device_id: _, input, is_synthetic: _ } => {
-                    
+                        glutin::event::WindowEvent::KeyboardInput {
+                            device_id: _,
+                            input,
+                            is_synthetic: _,
+                        } => {
                             let s = match input.state {
                                 glutin::event::ElementState::Pressed => MouseButtonState::Pressed,
                                 glutin::event::ElementState::Released => MouseButtonState::Released,
                             };
 
                             let code = scan_to_code(input.scancode);
-                            let key = vk_to_key(input.virtual_keycode.unwrap_or(VirtualKeyCode::NoConvert));
+                            let key = vk_to_key(
+                                input.virtual_keycode.unwrap_or(VirtualKeyCode::NoConvert),
+                            );
 
                             if let Some(virtual_keycode) = input.virtual_keycode {
-
-
-                                if virtual_keycode == VirtualKeyCode::F5 && s == MouseButtonState::Pressed {
+                                if virtual_keycode == VirtualKeyCode::F5
+                                    && s == MouseButtonState::Pressed
+                                {
                                     state.reload_styles().unwrap();
                                 }
 
-                                if virtual_keycode == VirtualKeyCode::Tab && s == MouseButtonState::Pressed {
-
-                                    let next_focus = state.style.focus_order.get(state.focused).cloned().unwrap_or_default().next;
-                                    let prev_focus = state.style.focus_order.get(state.focused).cloned().unwrap_or_default().prev;
+                                if virtual_keycode == VirtualKeyCode::Tab
+                                    && s == MouseButtonState::Pressed
+                                {
+                                    let next_focus = state
+                                        .style
+                                        .focus_order
+                                        .get(state.focused)
+                                        .cloned()
+                                        .unwrap_or_default()
+                                        .next;
+                                    let prev_focus = state
+                                        .style
+                                        .focus_order
+                                        .get(state.focused)
+                                        .cloned()
+                                        .unwrap_or_default()
+                                        .prev;
 
                                     if state.modifiers.shift {
                                         if prev_focus != Entity::null() {
@@ -322,19 +332,20 @@ impl Application {
                                             state.focused.set_focus(&mut state, true);
                                         } else {
                                             state.focused.set_focus(&mut state, false);
-                                            state.focused = match state.focused.into_iter(&hierarchy).next() {
-                                                Some(val) => val,
-                                                None => state.root,
-                                            };
+                                            state.focused =
+                                                match state.focused.into_iter(&hierarchy).next() {
+                                                    Some(val) => val,
+                                                    None => state.root,
+                                                };
                                             state.focused.set_focus(&mut state, true);
                                         }
                                     }
 
                                     state.insert_event(
-                                        Event::new(WindowEvent::Restyle).target(state.root).origin(state.root),
+                                        Event::new(WindowEvent::Restyle)
+                                            .target(state.root)
+                                            .origin(state.root),
                                     );
-
-                                    
                                 }
                             }
 
@@ -343,14 +354,14 @@ impl Application {
                                     if state.focused != Entity::null() {
                                         state.insert_event(
                                             Event::new(WindowEvent::KeyDown(code, key))
-                                            .target(state.focused)
-                                            .propagate(Propagation::DownUp),
+                                                .target(state.focused)
+                                                .propagate(Propagation::DownUp),
                                         );
                                     } else {
                                         state.insert_event(
                                             Event::new(WindowEvent::KeyDown(code, key))
-                                            .target(state.hovered)
-                                            .propagate(Propagation::DownUp),
+                                                .target(state.hovered)
+                                                .propagate(Propagation::DownUp),
                                         );
                                     }
                                 }
@@ -359,31 +370,32 @@ impl Application {
                                     if state.focused != Entity::null() {
                                         state.insert_event(
                                             Event::new(WindowEvent::KeyUp(code, key))
-                                            .target(state.focused)
-                                            .propagate(Propagation::DownUp),
+                                                .target(state.focused)
+                                                .propagate(Propagation::DownUp),
                                         );
                                     } else {
                                         state.insert_event(
                                             Event::new(WindowEvent::KeyUp(code, key))
-                                            .target(state.hovered)
-                                            .propagate(Propagation::DownUp),
+                                                .target(state.hovered)
+                                                .propagate(Propagation::DownUp),
                                         );
                                     }
                                 }
                             }
-
-
-                            
-                            
                         }
-    
-                        glutin::event::WindowEvent::Resized(physical_size) => {
 
+                        glutin::event::WindowEvent::Resized(physical_size) => {
                             window.handle.resize(physical_size);
 
-                            state.style.width.insert(state.root, Length::Pixels(physical_size.width as f32));
-                            state.style.height.insert(state.root, Length::Pixels(physical_size.height as f32));
-    
+                            state
+                                .style
+                                .width
+                                .insert(state.root, Length::Pixels(physical_size.width as f32));
+                            state
+                                .style
+                                .height
+                                .insert(state.root, Length::Pixels(physical_size.height as f32));
+
                             state
                                 .transform
                                 .set_width(state.root, physical_size.width as f32);
@@ -391,13 +403,13 @@ impl Application {
                                 .transform
                                 .set_height(state.root, physical_size.height as f32);
 
-    
                             state.insert_event(Event::new(WindowEvent::Restyle).origin(state.root));
-                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+                            state.insert_event(
+                                Event::new(WindowEvent::Relayout).target(Entity::null()),
+                            );
                             state.insert_event(Event::new(WindowEvent::Redraw));
-    
                         }
-    
+
                         glutin::event::WindowEvent::CursorMoved {
                             device_id: _,
                             position,
@@ -405,50 +417,48 @@ impl Application {
                         } => {
                             let cursorx = (position.x) as f32;
                             let cursory = (position.y) as f32;
-    
+
                             state.mouse.cursorx = cursorx as f32;
                             state.mouse.cursory = cursory as f32;
-    
+
                             let mut hovered_widget = Entity::new(0, 0);
-    
+
                             // This only really needs to be computed when the hierarchy changes
                             // Can be optimised
-                            let mut draw_hierarchy: Vec<Entity> = state.hierarchy.into_iter().collect();
-    
-                            draw_hierarchy.sort_by_cached_key(|entity| state.transform.get_z_order(*entity));
-    
-    
+                            let mut draw_hierarchy: Vec<Entity> =
+                                state.hierarchy.into_iter().collect();
+
+                            draw_hierarchy
+                                .sort_by_cached_key(|entity| state.transform.get_z_order(*entity));
+
                             for widget in draw_hierarchy.into_iter() {
                                 // Skip invisible widgets
-                                if state.transform.get_visibility(widget) == Visibility::Invisible
-                                {
+                                if state.transform.get_visibility(widget) == Visibility::Invisible {
                                     continue;
                                 }
-                                
-                                // This shouldn't be here but there's a bug if it isn't 
+
+                                // This shouldn't be here but there's a bug if it isn't
                                 if state.transform.get_opacity(widget) == 0.0 {
                                     continue;
                                 }
-                                
+
                                 // Skip non-hoverable widgets
                                 if state.transform.get_hoverability(widget) != true {
                                     continue;
                                 }
 
-                                
-    
                                 let border_width = match state
                                     .style
                                     .border_width
                                     .get(widget)
                                     .cloned()
-                                    .unwrap_or_default() 
+                                    .unwrap_or_default()
                                 {
                                     Length::Pixels(val) => val,
                                     //Length::Percentage(val) => parent_width * val,
                                     _ => 0.0,
                                 };
-    
+
                                 let posx = state.transform.get_posx(widget) - (border_width / 2.0);
                                 let posy = state.transform.get_posy(widget) - (border_width / 2.0);
                                 let width = state.transform.get_width(widget) + (border_width);
@@ -456,32 +466,38 @@ impl Application {
 
                                 let clip_widget = state.transform.get_clip_widget(widget);
 
-
                                 let clip_posx = state.transform.get_posx(clip_widget);
                                 let clip_posy = state.transform.get_posy(clip_widget);
                                 let clip_width = state.transform.get_width(clip_widget);
                                 let clip_height = state.transform.get_height(clip_widget);
-    
-                                if cursorx >= posx && cursorx >= clip_posx
-                                    && cursorx < (posx + width) && cursorx < (clip_posx + clip_width)
-                                    && cursory >= posy && cursory >= clip_posy
-                                    && cursory < (posy + height) && cursory < (clip_posy + clip_height)
+
+                                if cursorx >= posx
+                                    && cursorx >= clip_posx
+                                    && cursorx < (posx + width)
+                                    && cursorx < (clip_posx + clip_width)
+                                    && cursory >= posy
+                                    && cursory >= clip_posy
+                                    && cursory < (posy + height)
+                                    && cursory < (clip_posy + clip_height)
                                 {
                                     hovered_widget = widget;
-                                    if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
+                                    if let Some(pseudo_classes) =
+                                        state.style.pseudo_classes.get_mut(hovered_widget)
+                                    {
                                         pseudo_classes.set_over(true);
                                     }
                                 } else {
-                                    if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
+                                    if let Some(pseudo_classes) =
+                                        state.style.pseudo_classes.get_mut(hovered_widget)
+                                    {
                                         pseudo_classes.set_over(false);
                                     }
                                 }
                             }
-    
-                            if hovered_widget != state.hovered {
 
+                            if hovered_widget != state.hovered {
                                 // Useful for debugging
-                            
+
                                 // println!(
                                 //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
                                 //     hovered_widget,
@@ -493,30 +509,38 @@ impl Application {
                                 //     state.transform.get_z_order(hovered_widget),
                                 // );
 
-                                if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
+                                if let Some(pseudo_classes) =
+                                    state.style.pseudo_classes.get_mut(hovered_widget)
+                                {
                                     pseudo_classes.set_hover(true);
                                 }
 
-                                if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(state.hovered) {
+                                if let Some(pseudo_classes) =
+                                    state.style.pseudo_classes.get_mut(state.hovered)
+                                {
                                     pseudo_classes.set_hover(false);
                                 }
-    
-                                state.insert_event(Event::new(WindowEvent::MouseOver).target(hovered_widget));
-                                state.insert_event(Event::new(WindowEvent::MouseOut).target(state.hovered));
-    
-                                state
-                                    .insert_event(Event::new(WindowEvent::Restyle).origin(hovered_widget));
-                                state
-                                    .insert_event(Event::new(WindowEvent::Restyle).origin(state.hovered));
-                                
+
+                                state.insert_event(
+                                    Event::new(WindowEvent::MouseOver).target(hovered_widget),
+                                );
+                                state.insert_event(
+                                    Event::new(WindowEvent::MouseOut).target(state.hovered),
+                                );
+
+                                state.insert_event(
+                                    Event::new(WindowEvent::Restyle).origin(hovered_widget),
+                                );
+                                state.insert_event(
+                                    Event::new(WindowEvent::Restyle).origin(state.hovered),
+                                );
+
                                 state.hovered = hovered_widget;
                                 state.active = Entity::null();
-    
-                                
-                                state
-                                    .insert_event(Event::new(WindowEvent::Redraw));
+
+                                state.insert_event(Event::new(WindowEvent::Redraw));
                             }
-    
+
                             if state.captured != Entity::null() {
                                 state.insert_event(
                                     Event::new(WindowEvent::MouseMove(cursorx, cursory))
@@ -529,9 +553,8 @@ impl Application {
                                         .target(state.hovered),
                                 );
                             }
-    
-                            pos = (cursorx, cursory);
 
+                            pos = (cursorx, cursory);
                         }
 
                         glutin::event::WindowEvent::MouseInput {
@@ -544,40 +567,39 @@ impl Application {
                                 glutin::event::ElementState::Pressed => MouseButtonState::Pressed,
                                 glutin::event::ElementState::Released => MouseButtonState::Released,
                             };
-    
+
                             let b = match button {
                                 glutin::event::MouseButton::Left => MouseButton::Left,
                                 glutin::event::MouseButton::Right => MouseButton::Right,
                                 glutin::event::MouseButton::Middle => MouseButton::Middle,
                                 glutin::event::MouseButton::Other(id) => MouseButton::Other(id),
                             };
-    
+
                             match b {
                                 MouseButton::Left => {
                                     state.mouse.left.state = s;
                                 }
-    
+
                                 MouseButton::Right => {
                                     state.mouse.right.state = s;
                                 }
-    
+
                                 MouseButton::Middle => {
                                     state.mouse.middle.state = s;
                                 }
-    
+
                                 _ => {}
                             }
-    
+
                             match s {
                                 MouseButtonState::Pressed => {
-
                                     if state.hovered != Entity::null()
                                         && state.active != state.hovered
                                     {
                                         state.active = state.hovered;
                                         state.insert_event(Event::new(WindowEvent::Restyle));
                                     }
-    
+
                                     if state.captured != Entity::null() {
                                         state.insert_event(
                                             Event::new(WindowEvent::MouseDown(b))
@@ -593,30 +615,31 @@ impl Application {
 
                                     match b {
                                         MouseButton::Left => {
-                                            state.mouse.left.pos_down = (state.mouse.cursorx, state.mouse.cursory);
+                                            state.mouse.left.pos_down =
+                                                (state.mouse.cursorx, state.mouse.cursory);
                                             state.mouse.left.pressed = state.hovered;
                                         }
 
                                         MouseButton::Middle => {
-                                            state.mouse.middle.pos_down = (state.mouse.cursorx, state.mouse.cursory);
+                                            state.mouse.middle.pos_down =
+                                                (state.mouse.cursorx, state.mouse.cursory);
                                             state.mouse.left.pressed = state.hovered;
                                         }
-                                        
+
                                         MouseButton::Right => {
-                                            state.mouse.right.pos_down = (state.mouse.cursorx, state.mouse.cursory);
+                                            state.mouse.right.pos_down =
+                                                (state.mouse.cursorx, state.mouse.cursory);
                                             state.mouse.left.pressed = state.hovered;
-                                        } 
-                                        
+                                        }
+
                                         _ => {}
                                     }
                                 }
-    
-                                MouseButtonState::Released => {
 
-                            
+                                MouseButtonState::Released => {
                                     state.active = Entity::null();
                                     state.insert_event(Event::new(WindowEvent::Restyle));
-    
+
                                     if state.captured != Entity::null() {
                                         state.insert_event(
                                             Event::new(WindowEvent::MouseUp(b))
@@ -632,17 +655,20 @@ impl Application {
 
                                     match b {
                                         MouseButton::Left => {
-                                            state.mouse.left.pos_up = (state.mouse.cursorx, state.mouse.cursory);
+                                            state.mouse.left.pos_up =
+                                                (state.mouse.cursorx, state.mouse.cursory);
                                             state.mouse.left.released = state.hovered;
                                         }
-                                        
+
                                         MouseButton::Middle => {
-                                            state.mouse.middle.pos_up = (state.mouse.cursorx, state.mouse.cursory);
+                                            state.mouse.middle.pos_up =
+                                                (state.mouse.cursorx, state.mouse.cursory);
                                             state.mouse.left.released = state.hovered;
-                                        } 
-                                          
+                                        }
+
                                         MouseButton::Right => {
-                                            state.mouse.right.pos_up = (state.mouse.cursorx, state.mouse.cursory);
+                                            state.mouse.right.pos_up =
+                                                (state.mouse.cursorx, state.mouse.cursory);
                                             state.mouse.left.released = state.hovered;
                                         }
 
@@ -651,7 +677,7 @@ impl Application {
                                 }
                             }
                         }
-    
+
                         glutin::event::WindowEvent::MouseWheel {
                             device_id: _,
                             delta,
@@ -665,20 +691,23 @@ impl Application {
 
                             if state.captured != Entity::null() {
                                 state.insert_event(
-                                    Event::new(WindowEvent::MouseScroll(x, y)).target(state.captured).propagate(Propagation::Direct)
+                                    Event::new(WindowEvent::MouseScroll(x, y))
+                                        .target(state.captured)
+                                        .propagate(Propagation::Direct),
                                 );
                             } else {
                                 state.insert_event(
-                                    Event::new(WindowEvent::MouseScroll(x, y)).target(state.hovered)
+                                    Event::new(WindowEvent::MouseScroll(x, y))
+                                        .target(state.hovered),
                                 );
                             }
                         }
-    
+
                         _ => {}
                     };
                 }
 
-                _=> {}
+                _ => {}
             }
 
             if should_quit {

@@ -13,16 +13,11 @@ use femtovg::{
     LineJoin, Paint, Path, Renderer, Solidity,
 };
 
-
-pub struct Grid {
-
-}
+pub struct Grid {}
 
 impl Grid {
     pub fn new() -> Self {
-        Grid {
-
-        }
+        Grid {}
     }
 }
 
@@ -39,8 +34,7 @@ impl EventHandler for Grid {
     }
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
-        
-        
+
         // Draw background
 
         // Draw vertical lines

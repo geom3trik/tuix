@@ -7,13 +7,16 @@ static THEME: &'static str = include_str!("themes/eq8_theme.css");
 const ICON_FLOPPY: &str = "\u{1f4be}";
 const ICON_PLUS: &str = "\u{2b}";
 
-const frequencies: [f32; 27] = [1.477121, 1.60206, 1.69897, 1.778151, 1.845098, 1.90309, 1.954243, 2.0, 2.30103, 2.477121, 2.60206, 2.69897, 2.778151, 2.845098, 2.90309, 2.954243, 3.0, 3.30103, 3.477121, 3.60206, 3.69897, 3.778151, 3.845098, 3.90309, 3.954243, 4.0, 4.30103];
-
+const frequencies: [f32; 27] = [
+    1.477121, 1.60206, 1.69897, 1.778151, 1.845098, 1.90309, 1.954243, 2.0, 2.30103, 2.477121,
+    2.60206, 2.69897, 2.778151, 2.845098, 2.90309, 2.954243, 3.0, 3.30103, 3.477121, 3.60206,
+    3.69897, 3.778151, 3.845098, 3.90309, 3.954243, 4.0, 4.30103,
+];
 
 // TODO's
 
 //  - Figure out how events should be propagated without lots of forwarding
-//    I like the name lookup idea but the question is how to give entities names when they inaccessible 
+//    I like the name lookup idea but the question is how to give entities names when they inaccessible
 //  - Add the ability for children to be notified of parent size change
 //  - Add units to a textbox. Possibly should be a new widget?
 //  - Figure out how to plot filter responses
@@ -27,7 +30,6 @@ fn main() {
         state.insert_theme(THEME);
 
         let eq8 = EQ8::new().build(state, window, |builder| builder.set_flex_grow(1.0));
-
 
         win_desc.with_title("Eq8").with_inner_size(800, 600)
     });
@@ -90,23 +92,33 @@ impl EQ8 {
 impl BuildHandler for EQ8 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         //Header
         let header = HBox::new().build(state, entity, |builder| builder.class("header"));
-            //Enabled Checkbox
-            let enabled = Checkbox::new(true).build(state, header, |builder| builder.class("enable"));
-            let label = Label::new("EQ EIGHT").build(state, header, |builder| builder);
-            let preset_dropdown = Dropdown::new("Preset 1").build(state, header, |builder| builder).2;
+        //Enabled Checkbox
+        let enabled = Checkbox::new(true).build(state, header, |builder| builder.class("enable"));
+        let label = Label::new("EQ EIGHT").build(state, header, |builder| builder);
+        let preset_dropdown = Dropdown::new("Preset 1")
+            .build(state, header, |builder| builder)
+            .2;
 
-            // Example Presets
-            let first = Dimension::new("Preset 1").build(state, preset_dropdown, |builder| builder.class("item"));
-            let second = Dimension::new("Preset 2").build(state, preset_dropdown, |builder| builder.class("item"));
-            let third = Dimension::new("Preset 3").build(state, preset_dropdown, |builder| builder.class("item"));
+        // Example Presets
+        let first = Dimension::new("Preset 1")
+            .build(state, preset_dropdown, |builder| builder.class("item"));
+        let second = Dimension::new("Preset 2")
+            .build(state, preset_dropdown, |builder| builder.class("item"));
+        let third = Dimension::new("Preset 3")
+            .build(state, preset_dropdown, |builder| builder.class("item"));
 
-            let enabled = Checkbox::new(true).with_icon_checked(ICON_FLOPPY).build(state, header, |builder| builder.class("save_preset"));
-            let enabled = Checkbox::new(true).with_icon_checked(ICON_PLUS).build(state, header, |builder| builder.class("save_preset"));
-        
-            // Body
+        let enabled =
+            Checkbox::new(true)
+                .with_icon_checked(ICON_FLOPPY)
+                .build(state, header, |builder| builder.class("save_preset"));
+        let enabled =
+            Checkbox::new(true)
+                .with_icon_checked(ICON_PLUS)
+                .build(state, header, |builder| builder.class("save_preset"));
+
+        // Body
         let body = VBox::new().build(state, entity, |builder| builder.class("body"));
         let (tab_bar, tab_container) = TabContainer::new().build(state, body, |builder| builder);
 
@@ -118,7 +130,7 @@ impl BuildHandler for EQ8 {
 
         self.control_point1 = ControlPoint::new("1").build(state, graph, |builder| builder);
         self.control_point2 = ControlPoint::new("2").build(state, graph, |builder| builder);
-        self.control_point3= ControlPoint::new("3").build(state, graph, |builder| builder);
+        self.control_point3 = ControlPoint::new("3").build(state, graph, |builder| builder);
         self.control_point4 = ControlPoint::new("4").build(state, graph, |builder| builder);
         self.control_point5 = ControlPoint::new("5").build(state, graph, |builder| builder);
         self.control_point6 = ControlPoint::new("6").build(state, graph, |builder| builder);
@@ -126,10 +138,13 @@ impl BuildHandler for EQ8 {
         self.control_point8 = ControlPoint::new("8").build(state, graph, |builder| builder);
 
         Button::with_label("Control")
-         .on_press(Event::new(TabEvent::SwitchTab(1)))
-         .build(state, tab_bar, |builder| builder);
+            .on_press(Event::new(TabEvent::SwitchTab(1)))
+            .build(state, tab_bar, |builder| builder);
         let control_view = Button::new().build(state, tab_container, |builder| {
-             builder.class("item2").set_display(Display::None).set_flex_direction(FlexDirection::Row)
+            builder
+                .class("item2")
+                .set_display(Display::None)
+                .set_flex_direction(FlexDirection::Row)
         });
 
         //let row = HBox::new().build(state, control_view, |builder| builder.set_flex_grow(1.0));
@@ -143,10 +158,7 @@ impl BuildHandler for EQ8 {
         self.channel8 = EQChannel::new(8).build(state, control_view, |builder| builder);
         let channel_output = ChannelOutput::new().build(state, control_view, |builder| builder);
 
-        
-
         // Button::with_label("Second Button").build(state, second, |builder| builder.class("test"));
-
 
         state.style.insert_element(entity, "eqeight");
 
@@ -156,10 +168,8 @@ impl BuildHandler for EQ8 {
 
 impl EventHandler for EQ8 {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-
                 // WindowEvent::GeometryChanged => {
                 //     // Prevents infinite recursion (except when there are multiple control points)
                 //     if event.origin != entity {
@@ -177,35 +187,41 @@ impl EventHandler for EQ8 {
                 //         let new_top = 40.0 + (-self.gain + 12.0) * ((parent_height - 80.0)/24.0);
 
                 //         entity.set_left(state, Length::Pixels(new_left - width/2.0));
-                //         entity.set_top(state, Length::Pixels(new_top - height/2.0));                        
+                //         entity.set_top(state, Length::Pixels(new_top - height/2.0));
                 //     }
 
                 // }
-
-                _=> {}
+                _ => {}
             }
         }
 
         if let Some(filter_event) = event.message.downcast::<FilterEvent>() {
             match filter_event {
                 FilterEvent::FreqChange(channel, freq) => {
-                    state.insert_event(Event::new(FilterEvent::FreqChange(*channel, *freq)).target(entity).propagate(Propagation::Fall));
+                    state.insert_event(
+                        Event::new(FilterEvent::FreqChange(*channel, *freq))
+                            .target(entity)
+                            .propagate(Propagation::Fall),
+                    );
                     return true;
                 }
 
                 FilterEvent::GainChange(channel, gain) => {
-                    state.insert_event(Event::new(FilterEvent::GainChange(*channel, *gain)).target(entity).propagate(Propagation::Fall));
+                    state.insert_event(
+                        Event::new(FilterEvent::GainChange(*channel, *gain))
+                            .target(entity)
+                            .propagate(Propagation::Fall),
+                    );
                     return true;
                 }
 
-                _=> {}
+                _ => {}
             }
         }
 
         false
     }
 }
-
 
 pub struct EQChannel {
     active_switch: Entity,
@@ -234,7 +250,6 @@ impl EQChannel {
 impl BuildHandler for EQChannel {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         println!("E: {}", entity);
 
         self.active_switch = Checkbox::new(true)
@@ -243,25 +258,29 @@ impl BuildHandler for EQChannel {
             .with_icon_checked(&self.channel_number.to_string())
             .with_icon_unchecked(&self.channel_number.to_string())
             .build(state, entity, |builder| builder);
-        self.response_dropdown = Dropdown::new("").build(state, entity, |builder| builder.set_margin_bottom(Length::Pixels(20.0))).2;
-        
+        self.response_dropdown = Dropdown::new("")
+            .build(state, entity, |builder| {
+                builder.set_margin_bottom(Length::Pixels(20.0))
+            })
+            .2;
+
         self.frequency_knob = ValueKnob::new("Freq", 30.0, 30.0, 20000.0)
             .on_change(move |val| Event::new(EqChannelEvent::FreqChanged(val)).target(entity))
             .with_log_scale()
             .build(state, entity, |builder| builder.id("channel1_freq_knob"));
-        self.gain_knob = ValueKnob::new("Gain", 0.0, -12.0, 12.0).build(state, entity, |builder| builder);
+        self.gain_knob =
+            ValueKnob::new("Gain", 0.0, -12.0, 12.0).build(state, entity, |builder| builder);
         self.q_knob = ValueKnob::new("Q", 0.7, 0.0, 5.0).build(state, entity, |builder| builder);
 
         state.style.insert_element(entity, "eqchannel");
 
-        entity  
+        entity
     }
 }
 
 impl EventHandler for EQChannel {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(eqchannel_event) = event.message.downcast::<EqChannelEvent>() {
-            
             match eqchannel_event {
                 EqChannelEvent::Enabled => {
                     if event.target == entity {
@@ -269,10 +288,8 @@ impl EventHandler for EQChannel {
                         self.response_dropdown.set_disabled(state, false);
                         self.frequency_knob.set_disabled(state, false);
                         self.gain_knob.set_disabled(state, false);
-                        self.q_knob.set_disabled(state, false);                            
+                        self.q_knob.set_disabled(state, false);
                     }
-
-                    
                 }
 
                 EqChannelEvent::Disabled => {
@@ -281,9 +298,8 @@ impl EventHandler for EQChannel {
                         self.response_dropdown.set_disabled(state, true);
                         self.frequency_knob.set_disabled(state, true);
                         self.gain_knob.set_disabled(state, true);
-                        self.q_knob.set_disabled(state, true);                            
+                        self.q_knob.set_disabled(state, true);
                     }
-
                 }
 
                 EqChannelEvent::FreqChanged(val) => {
@@ -292,10 +308,8 @@ impl EventHandler for EQChannel {
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
-    
-            
         }
 
         false
@@ -356,8 +370,6 @@ impl EventHandler for EQChannel {
             _ => &0.0,
         };
 
-
-
         let background_color = state
             .style
             .background_color
@@ -394,25 +406,49 @@ impl EventHandler for EQChannel {
         let parent_width = state.transform.get_width(parent);
         let parent_height = state.transform.get_height(parent);
 
-        let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_left = match state
+            .style
+            .border_radius_top_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_top_right = match state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_right = match state
+            .style
+            .border_radius_top_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_left = match state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_left = match state
+            .style
+            .border_radius_bottom_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_right = match state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_right = match state
+            .style
+            .border_radius_bottom_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
@@ -434,20 +470,20 @@ impl EventHandler for EQChannel {
             .border_width
             .get(entity)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
-        
+
         // Skip widgets with no width or no height
-        if width + 2.0* border_width + padding_left + padding_right == 0.0 || height + 2.0 * border_width + padding_top + padding_bottom == 0.0 {
+        if width + 2.0 * border_width + padding_left + padding_right == 0.0
+            || height + 2.0 * border_width + padding_top + padding_bottom == 0.0
+        {
             return;
         }
 
-        
-        
         // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
@@ -463,7 +499,6 @@ impl EventHandler for EQChannel {
         // canvas.scale(1.0, scaley.0);
         // canvas.translate(-pt.0, -pt.1);
 
-
         // Apply Scissor
         let clip_entity = state.transform.get_clip_widget(entity);
 
@@ -471,38 +506,44 @@ impl EventHandler for EQChannel {
         let clip_posy = state.transform.get_posy(clip_entity);
         let clip_width = state.transform.get_width(clip_entity);
         let clip_height = state.transform.get_height(clip_entity);
-        
+
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
         //canvas.scissor(0.0, 0.0, 100.0, 100.0);
 
-
-        
         let shadow_h_offset = match state
             .style
             .shadow_h_offset
             .get(entity)
             .cloned()
-            .unwrap_or_default() {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => parent_width * val,
-                _=> 0.0
-            };
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
 
         let shadow_v_offset = match state
             .style
             .shadow_v_offset
             .get(entity)
             .cloned()
-            .unwrap_or_default() {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => parent_height * val,
-                _=> 0.0
-            };
-
-        let shadow_blur = match state.style.shadow_blur.get(entity).cloned().unwrap_or_default() {
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
-                Length::Percentage(val) => parent_height * val,
-                _=> 0.0
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let shadow_blur = match state
+            .style
+            .shadow_blur
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
         };
 
         let shadow_color = state
@@ -514,8 +555,6 @@ impl EventHandler for EQChannel {
 
         let mut shadow_color: Color = shadow_color.into();
         shadow_color.set_alphaf(shadow_color.a * opacity);
-
-        
 
         // Draw shadow (TODO)
         let mut path = Path::new();
@@ -538,19 +577,17 @@ impl EventHandler for EQChannel {
         // path.solidity(Solidity::Hole);
         //let mut paint = Paint::color(shadow_color);
 
-        
-
         let mut paint = Paint::box_gradient(
-            posx + (border_width / 2.0) + shadow_h_offset, 
-            posy + (border_width / 2.0) + shadow_v_offset, 
-            width - border_width, 
-            height - border_width, 
-            border_radius_top_left, 
-            shadow_blur, 
-            shadow_color, 
-            Color::rgba(0,0,0,0)
+            posx + (border_width / 2.0) + shadow_h_offset,
+            posy + (border_width / 2.0) + shadow_v_offset,
+            width - border_width,
+            height - border_width,
+            border_radius_top_left,
+            shadow_blur,
+            shadow_color,
+            Color::rgba(0, 0, 0, 0),
         );
-        
+
         canvas.fill_path(&mut path, paint);
 
         // Draw rounded rect
@@ -568,13 +605,10 @@ impl EventHandler for EQChannel {
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
 
-        
-
         // Draw border
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
-
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
@@ -1033,22 +1067,17 @@ impl EventHandler for EQChannel {
     }
 }
 
-pub struct FreqGraph {
-
-}
+pub struct FreqGraph {}
 
 impl FreqGraph {
     pub fn new() -> Self {
-        FreqGraph {
-
-        }
+        FreqGraph {}
     }
 }
 
 impl BuildHandler for FreqGraph {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         let min = 1.477121;
         let max = 3.3013;
 
@@ -1126,25 +1155,49 @@ impl EventHandler for FreqGraph {
 
         let parent_width = state.transform.get_width(parent);
 
-        let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_left = match state
+            .style
+            .border_radius_top_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_top_right = match state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_right = match state
+            .style
+            .border_radius_top_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_left = match state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_left = match state
+            .style
+            .border_radius_bottom_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_right = match state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_right = match state
+            .style
+            .border_radius_bottom_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
@@ -1161,7 +1214,13 @@ impl EventHandler for FreqGraph {
         let mut shadow_color: femtovg::Color = shadow_color.into();
         shadow_color.set_alphaf(shadow_color.a * opacity);
 
-        let border_width = match state.style.border_width.get(entity).cloned().unwrap_or_default() {
+        let border_width = match state
+            .style
+            .border_width
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
@@ -1169,11 +1228,6 @@ impl EventHandler for FreqGraph {
 
         //println!("Border Width: {}", border_width);
 
-        
-        
-
-        
-        
         // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
@@ -1183,12 +1237,14 @@ impl EventHandler for FreqGraph {
         // canvas.rotate(rotate.to_radians());
         // canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
-        let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
+        let pt = canvas
+            .transform()
+            .inversed()
+            .transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
         canvas.translate(pt.0, pt.1);
         canvas.scale(1.0, scaley.0);
         canvas.translate(-pt.0, -pt.1);
-
 
         // Apply Scissor
         let clip_entity = state.transform.get_clip_widget(entity);
@@ -1200,8 +1256,6 @@ impl EventHandler for FreqGraph {
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
 
-
-        
         let shadow_h_offset = state
             .style
             .shadow_h_offset
@@ -1239,12 +1293,11 @@ impl EventHandler for FreqGraph {
 
         // Draw Vertical Lines
         // Convert value to pixel position
-        // 30 - 
+        // 30 -
 
         let min = 1.477121;
         let max = 4.3013;
         let range = max - min;
-
 
         for f in &frequencies {
             let t = (f - min) * (width - 80.0) / range;
@@ -1264,7 +1317,6 @@ impl EventHandler for FreqGraph {
             let mut paint = Paint::color(Color::rgb(80, 80, 80));
             paint.set_line_width(1.0);
             canvas.stroke_path(&mut path, paint);
-
         }
 
         // 30 Hz Label
@@ -1273,7 +1325,7 @@ impl EventHandler for FreqGraph {
         path.rect(posx + 30.0, posy + height - 27.0, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
@@ -1285,7 +1337,7 @@ impl EventHandler for FreqGraph {
         path.rect(posx + 30.0 + t, posy + height - 27.0, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
@@ -1297,7 +1349,7 @@ impl EventHandler for FreqGraph {
         path.rect(posx + 30.0 + t, posy + height - 27.0, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
@@ -1309,7 +1361,7 @@ impl EventHandler for FreqGraph {
         path.rect(posx + 30.0 + t, posy + height - 27.0, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
@@ -1321,7 +1373,7 @@ impl EventHandler for FreqGraph {
         path.rect(posx + 30.0 + t, posy + height - 27.0, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
@@ -1333,7 +1385,7 @@ impl EventHandler for FreqGraph {
         path.rect(posx, posy + height - 47.0, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
@@ -1345,7 +1397,7 @@ impl EventHandler for FreqGraph {
         path.rect(posx, posy + height - 47.0 - t, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
@@ -1357,7 +1409,7 @@ impl EventHandler for FreqGraph {
         path.rect(posx, posy + height - 47.0 - t, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
@@ -1369,7 +1421,7 @@ impl EventHandler for FreqGraph {
         path.rect(posx, posy + height - 47.0 - t, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
@@ -1381,12 +1433,11 @@ impl EventHandler for FreqGraph {
         path.rect(posx, posy + height - 47.0 - t, 40.0, 14.0);
         let mut paint = Paint::color(Color::rgb(32, 32, 32));
         canvas.fill_path(&mut path, paint);
-        let mut label_paint = Paint::color(Color::rgb(80,80,80));
+        let mut label_paint = Paint::color(Color::rgb(80, 80, 80));
         label_paint.set_text_align(femtovg::Align::Center);
         label_paint.set_text_baseline(Baseline::Middle);
         label_paint.set_font_size(12.0);
         canvas.fill_text(posx + 20.0, posy + height - 40.0 - t, "12 dB", label_paint);
-
     }
 }
 
@@ -1398,7 +1449,6 @@ pub enum FilterEvent {
     Disabled(u32),
     Enabled(u32),
 }
-
 
 pub struct ControlPoint {
     moving: bool,
@@ -1427,7 +1477,6 @@ impl ControlPoint {
 impl BuildHandler for ControlPoint {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         entity.set_text(state, &self.label);
 
         state.style.insert_element(entity, "control_point");
@@ -1437,17 +1486,13 @@ impl BuildHandler for ControlPoint {
 }
 
 impl EventHandler for ControlPoint {
-    
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-
                 // Currently this gets stuck in a recursion because other control points trigger a relayout event
                 // Need a better way to figure out if a parent has been resized
                 // Current thinking is a GeometryChanged event that is passed directly to the widget changing size
                 // And then optionally propagated to the children
-                
                 WindowEvent::Relayout => {
                     // Prevents infinite recursion (except when there are multiple control points)
                     if event.origin != entity && !state.hierarchy.is_sibling(event.origin, entity) {
@@ -1461,15 +1506,14 @@ impl EventHandler for ControlPoint {
                         let max = 4.3013;
                         let range = max - min;
 
-                        let new_left = 40.0 + (self.frequency.log10() - min) * ((parent_width - 80.0)/range);
-                        let new_top = 40.0 + (-self.gain + 12.0) * ((parent_height - 80.0)/24.0);
+                        let new_left =
+                            40.0 + (self.frequency.log10() - min) * ((parent_width - 80.0) / range);
+                        let new_top = 40.0 + (-self.gain + 12.0) * ((parent_height - 80.0) / 24.0);
 
-                        entity.set_left(state, Length::Pixels(new_left - width/2.0));
-                        entity.set_top(state, Length::Pixels(new_top - height/2.0));                        
+                        entity.set_left(state, Length::Pixels(new_left - width / 2.0));
+                        entity.set_top(state, Length::Pixels(new_top - height / 2.0));
                     }
-
                 }
-                
 
                 WindowEvent::MouseDown(button) => {
                     if event.target == entity && *button == MouseButton::Left {
@@ -1489,7 +1533,6 @@ impl EventHandler for ControlPoint {
 
                 WindowEvent::MouseMove(x, y) => {
                     if self.moving {
-
                         let parent = state.hierarchy.get_parent(entity).unwrap();
 
                         let parent_posx = state.transform.get_posx(parent);
@@ -1511,14 +1554,12 @@ impl EventHandler for ControlPoint {
                         let max = 4.3013;
                         let range = max - min;
 
-
-
-    
-
                         let mut new_left = dx - ddx;
                         let mut new_top = dy - ddy;
 
-                        let mut f = (((new_left + (width/2.0) - 40.0)*range)/(parent_width - 80.0)) + min;
+                        let mut f = (((new_left + (width / 2.0) - 40.0) * range)
+                            / (parent_width - 80.0))
+                            + min;
 
                         if f <= min {
                             new_left = 40.0 - width / 2.0;
@@ -1530,10 +1571,12 @@ impl EventHandler for ControlPoint {
                             f = max;
                         }
 
-                        let mut g = -((((new_top + height/2.0) - 40.0)*24.0 / (parent_height - 80.0)) - 12.0);
+                        let mut g = -((((new_top + height / 2.0) - 40.0) * 24.0
+                            / (parent_height - 80.0))
+                            - 12.0);
 
                         if g <= -12.0 {
-                            new_top = parent_height - 40.0 - height/2.0;
+                            new_top = parent_height - 40.0 - height / 2.0;
                             g = -12.0;
                         }
 
@@ -1547,7 +1590,10 @@ impl EventHandler for ControlPoint {
                         self.frequency = 10.0f32.powf(f);
                         self.gain = g;
 
-                        state.insert_event(Event::new(SliderEvent::SetValue(self.frequency)).target(state.id2entity("channel1_freq_knob").unwrap()));
+                        state.insert_event(
+                            Event::new(SliderEvent::SetValue(self.frequency))
+                                .target(state.id2entity("channel1_freq_knob").unwrap()),
+                        );
                         //state.insert_event(Event::new(FilterEvent::GainChange(1,self.gain)));
 
                         entity.set_left(state, Length::Pixels(new_left));
@@ -1557,31 +1603,25 @@ impl EventHandler for ControlPoint {
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
 
         false
     }
-    
 }
 
-pub struct ChannelOutput {
-
-}
+pub struct ChannelOutput {}
 
 impl ChannelOutput {
     pub fn new() -> Self {
-        ChannelOutput {
-
-        }
+        ChannelOutput {}
     }
 }
 
 impl BuildHandler for ChannelOutput {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         let channels = HBox::new().build(state, entity, |builder| builder);
 
         let audio_level = AudioLevelBar::new().build(state, channels, |builder| {
@@ -1595,7 +1635,7 @@ impl BuildHandler for ChannelOutput {
                 .set_height(Length::Pixels(180.0))
                 .set_width(Length::Pixels(10.0))
         });
-        
+
         ValueKnob::new("Gain", 0.0, -12.0, 12.0).build(state, entity, |builder| builder);
         ValueKnob::new("Mix", 1.0, 0.0, 1.0).build(state, entity, |builder| builder);
 
@@ -1605,6 +1645,4 @@ impl BuildHandler for ChannelOutput {
     }
 }
 
-impl EventHandler for ChannelOutput {
-
-}
+impl EventHandler for ChannelOutput {}

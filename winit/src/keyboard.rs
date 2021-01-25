@@ -1,5 +1,5 @@
-use winit::event::VirtualKeyCode;
 use keyboard_types::{Code, Key};
+use winit::event::VirtualKeyCode;
 
 pub fn scan_to_code(scan_code: u32) -> Code {
     use Code::*;

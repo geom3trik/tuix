@@ -48,11 +48,10 @@ impl Button {
 impl BuildHandler for Button {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        
         if let Some(text) = &self.text {
             entity.set_text(state, text);
         }
-        
+
         state.style.insert_element(entity, "button");
 
         entity
@@ -60,28 +59,23 @@ impl BuildHandler for Button {
 }
 
 impl EventHandler for Button {
-
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                
-
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if entity == event.target {
                             state.focused = entity;
-                            
+
                             if let Some(mut on_release) = self.on_release.clone() {
                                 if on_release.target == Entity::null() {
                                     on_release.target = entity;
                                 }
-                                
+
                                 on_release.origin = entity;
                                 on_release.propagation = Propagation::Down;
                                 state.insert_event(on_release);
                             }
-                            
                         }
                     }
 
@@ -95,7 +89,7 @@ impl EventHandler for Button {
                                 if on_press.target == Entity::null() {
                                     on_press.target = entity;
                                 }
-                                
+
                                 on_press.origin = entity;
                                 on_press.propagation = Propagation::Down;
                                 state.insert_event(on_press);

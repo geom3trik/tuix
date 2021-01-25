@@ -8,8 +8,8 @@ use crate::{PropSet, State};
 
 use crate::state::style::*;
 
-use crate::widgets::Element;
 use crate::widgets::checkbox::CheckboxEvent;
+use crate::widgets::Element;
 
 #[derive(Clone)]
 pub struct Switch {

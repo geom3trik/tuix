@@ -16,7 +16,6 @@ pub enum ScrollEvent {
     ScrollV(f32),
 }
 
-
 pub struct ScrollContainerH {
     container: Entity,
     horizontal_scroll: Entity,
@@ -54,14 +53,20 @@ impl ScrollContainerH {
 impl BuildHandler for ScrollContainerH {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Column).set_width(state, Length::Percentage(1.0)).set_height(state, Length::Percentage(1.0));
+        entity
+            .set_flex_direction(state, FlexDirection::Column)
+            .set_width(state, Length::Percentage(1.0))
+            .set_height(state, Length::Percentage(1.0));
 
         self.container = Button::new().build(state, entity, |builder| {
-            builder.set_left(Length::Percentage(0.0)).set_align_self(AlignSelf::FlexStart).class("container").set_hoverability(false)
+            builder
+                .set_left(Length::Percentage(0.0))
+                .set_align_self(AlignSelf::FlexStart)
+                .class("container")
+                .set_hoverability(false)
         });
 
         state.style.clip_widget.insert(self.container, entity);
-
 
         self.horizontal_scroll = Element::new().build(state, entity, |builder| {
             builder
@@ -104,11 +109,9 @@ impl BuildHandler for ScrollContainerH {
 }
 
 impl EventHandler for ScrollContainerH {
-    
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-
                 /*
                 WindowEvent::Relayout => {
                     // // To prevent recursive loop when layout event is triggered inside here
@@ -280,7 +283,6 @@ impl EventHandler for ScrollContainerH {
                     //return true;
                 }
                 */
-
                 WindowEvent::WindowResize(_, _) => {
                     // let scroll = state
                     //     .style
@@ -386,21 +388,15 @@ impl EventHandler for ScrollContainerH {
         }
         false
     }
-    
 }
 
 ///
 
-
-struct Container {
-
-}
+struct Container {}
 
 impl Container {
     pub fn new() -> Self {
-        Container {
-
-        }
+        Container {}
     }
 }
 
@@ -413,15 +409,11 @@ impl BuildHandler for Container {
 
 impl EventHandler for Container {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        
-        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+        if let Some(window_event) = event.message.downcast::<WindowEvent>() {}
 
-        }
-         
         false
     }
 }
-
 
 pub struct ScrollContainer {
     container: Entity,
@@ -462,14 +454,13 @@ impl BuildHandler for ScrollContainer {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
 
-
-
         //println!("Container: {}", self.container);
 
-
-
         self.container = Element::new().build(state, entity, |builder| {
-            builder.set_top(Length::Percentage(0.0)).set_align_self(AlignSelf::FlexStart).class("container")
+            builder
+                .set_top(Length::Percentage(0.0))
+                .set_align_self(AlignSelf::FlexStart)
+                .class("container")
         });
 
         state.style.clip_widget.insert(self.container, entity);
@@ -524,13 +515,10 @@ impl BuildHandler for ScrollContainer {
 }
 
 impl EventHandler for ScrollContainer {
-    
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                
                 WindowEvent::GeometryChanged => {
-                    
                     if event.target == self.container || event.target == entity {
                         let mut scrollh = state.transform.get_height(entity)
                             / state.transform.get_height(self.container);
@@ -591,7 +579,6 @@ impl EventHandler for ScrollContainer {
                     }
                 }
 
-                
                 WindowEvent::MouseScroll(_, y) => {
                     //println!("Mouse Scroll Event");
                     // Forward mouse scroll event to the scrollbar
@@ -656,7 +643,9 @@ impl EventHandler for ScrollContainer {
                     self.vertical_scroll
                         .set_top(state, Length::Percentage(self.scrolly * overflow2));
 
-                    state.insert_event(Event::new(ScrollEvent::ScrollV(self.scrolly * overflow)).target(entity));
+                    state.insert_event(
+                        Event::new(ScrollEvent::ScrollV(self.scrolly * overflow)).target(entity),
+                    );
 
                     /*
                     if let Some(animation) = state.style.top.get_animation_mut(self.vertical_scroll_animation) {
@@ -681,7 +670,6 @@ impl EventHandler for ScrollContainer {
                     // Capture the event to stop it triggering twice
                     return true;
                 }
-                
 
                 WindowEvent::WindowResize(_, _) => {
                     // let scroll = state
@@ -775,7 +763,10 @@ impl EventHandler for ScrollContainer {
                         self.vertical_scroll
                             .set_top(state, Length::Percentage(self.scrolly * overflow2));
 
-                        state.insert_event(Event::new(ScrollEvent::ScrollV(self.scrolly * overflow)).target(entity));
+                        state.insert_event(
+                            Event::new(ScrollEvent::ScrollV(self.scrolly * overflow))
+                                .target(entity),
+                        );
 
                         state.insert_event(Event::new(WindowEvent::Restyle));
                         state
@@ -790,12 +781,9 @@ impl EventHandler for ScrollContainer {
         }
         false
     }
-    
-    
 }
 
-// 
-
+//
 
 pub struct ScrollContainerHV {
     container: Entity,
@@ -808,7 +796,6 @@ pub struct ScrollContainerHV {
     pressedy: f32,
     moving: bool,
     position: f32,
-
     //vertical_scroll_animation: usize,
     //vertical_container_animation: usize,
 }
@@ -826,7 +813,6 @@ impl ScrollContainerHV {
             pressedy: 0.0,
             moving: false,
             position: 0.0,
-
             //vertical_scroll_animation: std::usize::MAX,
             //vertical_container_animation: std::usize::MAX,
         }
@@ -836,19 +822,24 @@ impl ScrollContainerHV {
 impl BuildHandler for ScrollContainerHV {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row).set_flex_grow(state, 1.0).set_flex_shrink(state, 1.0);
+        entity
+            .set_flex_direction(state, FlexDirection::Row)
+            .set_flex_grow(state, 1.0)
+            .set_flex_shrink(state, 1.0);
 
-
-        let hbox = HBox::new().build(state, entity, |builder| 
+        let hbox = HBox::new().build(state, entity, |builder| {
             builder.set_flex_grow(1.0).set_flex_shrink(1.0)
-        );
+        });
 
-        let vbox = VBox::new().build(state, hbox, |builder| 
+        let vbox = VBox::new().build(state, hbox, |builder| {
             builder.set_flex_grow(1.0).set_flex_shrink(1.0)
-        );
+        });
 
         self.container = Button::new().build(state, vbox, |builder| {
-            builder.set_top(Length::Percentage(0.0)).set_align_self(AlignSelf::FlexStart).class("container")
+            builder
+                .set_top(Length::Percentage(0.0))
+                .set_align_self(AlignSelf::FlexStart)
+                .class("container")
         });
 
         state.style.clip_widget.insert(self.container, entity);
@@ -862,9 +853,9 @@ impl BuildHandler for ScrollContainerHV {
                 .set_width(Length::Pixels(10.0))
                 .set_height(Length::Percentage(1.0))
                 .set_align_self(AlignSelf::FlexStart)
-                //.set_background_color(Color::rgb(70, 200, 70))
-                //.set_right(Length::Pixels(0.0))
-                //.class("scrollbar")
+            //.set_background_color(Color::rgb(70, 200, 70))
+            //.set_right(Length::Pixels(0.0))
+            //.class("scrollbar")
 
             //
         });
@@ -876,9 +867,9 @@ impl BuildHandler for ScrollContainerHV {
                 .set_height(Length::Pixels(10.0))
                 .set_width(Length::Percentage(1.0))
                 .set_align_self(AlignSelf::FlexStart)
-                //.set_background_color(Color::rgb(20, 70, 200))
-                //.set_right(Length::Pixels(0.0))
-                //.class("scrollbar")
+            //.set_background_color(Color::rgb(20, 70, 200))
+            //.set_right(Length::Pixels(0.0))
+            //.class("scrollbar")
 
             //
         });
@@ -900,7 +891,6 @@ impl BuildHandler for ScrollContainerHV {
 }
 
 impl EventHandler for ScrollContainerHV {
-    
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
@@ -922,7 +912,6 @@ impl EventHandler for ScrollContainerHV {
                             self.vertical_scroll.set_enabled(state, true);
                         }
 
-
                         let mut scrollh = state.transform.get_width(entity)
                             / state.transform.get_width(self.container);
 
@@ -934,8 +923,6 @@ impl EventHandler for ScrollContainerHV {
                         if scrollh < 1.0 {
                             self.horizontal_scroll.set_enabled(state, true);
                         }
-
-
 
                         // BUG: fast scrolling causes smaller scroll because the animation hasn't finished when this function is called again
                         // One way to fix this might be to check whether the value is currently being animated before setting here
@@ -973,19 +960,15 @@ impl EventHandler for ScrollContainerHV {
                             - (state.transform.get_height(entity)
                                 / state.transform.get_height(self.container));
 
-    
                         state
                             .style
                             .top
                             .insert(self.container, Length::Percentage(self.scrolly * overflow));
 
-      
                         state.style.top.insert(
                             self.vertical_scroll,
                             Length::Percentage(self.scrolly * overflow2),
                         );
-
-
 
                         if self.scrollx.is_nan() {
                             self.scrollx = 0.0;
@@ -1012,20 +995,15 @@ impl EventHandler for ScrollContainerHV {
                             - (state.transform.get_width(entity)
                                 / state.transform.get_width(self.container));
 
-    
                         state
                             .style
                             .left
                             .insert(self.container, Length::Percentage(self.scrollx * overflow));
 
-      
                         state.style.top.insert(
                             self.vertical_scroll,
                             Length::Percentage(self.scrolly * overflow2),
                         );
-
-
-
 
                         // Relayout and Redraw wont get called automatically so need to manually trigger them
                         state.insert_event(Event::new(WindowEvent::Relayout).origin(entity));
@@ -1128,7 +1106,6 @@ impl EventHandler for ScrollContainerHV {
                     return true;
                 }
                 */
-
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if state.hovered == self.vertical_scroll {
@@ -1162,8 +1139,6 @@ impl EventHandler for ScrollContainerHV {
                             self.position = self.scrollx;
                             state.capture(entity);
                         }
-
-
                     }
                     _ => {}
                 },
@@ -1295,6 +1270,4 @@ impl EventHandler for ScrollContainerHV {
         }
         false
     }
-    
-    
 }
