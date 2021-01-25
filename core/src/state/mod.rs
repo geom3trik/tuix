@@ -25,7 +25,8 @@ pub use resource::*;
 pub mod handle;
 pub use handle::*;
 
-pub use crate::events::{Builder, Event, EventHandler, Propagation};
+use crate::Message;
+pub use crate::events::{Event, EventHandler, Propagation};
 pub use crate::window_event::WindowEvent;
 
 use femtovg::FontId;
@@ -34,7 +35,8 @@ use std::collections::{HashMap, VecDeque};
 
 use fnv::FnvHashMap;
 
-use flume::{bounded, Receiver, Sender};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct Fonts {
@@ -43,14 +45,43 @@ pub struct Fonts {
     pub icons: Option<FontId>,
 }
 
-pub enum Command {
-    SetProperty(Entity, Property),
+// pub struct State {
+
+//     pub shared_state: Rc<RefCell<SharedState>>,
+// }
+
+// impl State {
+//     pub fn insert_event(&mut self, mut event: Event) {
+//         if event.unique {
+//             self.shared_state
+//                 .borrow_mut()
+//                 .event_queue
+//                 .retain(|e| e != &event);
+//         }
+
+//         self.shared_state.borrow_mut().event_queue.push_back(event);
+//     }
+
+//     pub fn insert_theme(&mut self, theme: &str) {
+//         self.shared_state
+//             .borrow_mut()
+//             .resource_manager
+//             .themes
+//             .push(theme.to_owned());
+
+//         self.shared_state.borrow_mut().reload_styles();
+//         // self.style.parse_theme(&overall_theme);
+//     }
+// }
+
+pub struct Meta {
+    pub target: Entity,
 }
 
 pub struct State {
     entity_manager: EntityManager, // Creates and destroys entities
     pub hierarchy: Hierarchy,      // The widget tree
-    pub style: Style,              // The style properties for every widget
+    pub style: Rc<RefCell<Style>>, // The style properties for every widget
     pub transform: Transform,      // Transform properties for all widgets
     pub root: Entity,
     pub mouse: MouseState,
@@ -61,21 +92,20 @@ pub struct State {
     pub focused: Entity,
 
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub handlers:
+        FnvHashMap<Entity, Vec<Box<dyn FnMut(&mut State, &Handle, &mut Event) -> bool + 'static>>>,
     pub event_queue: VecDeque<Event>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
     pub resource_manager: ResourceManager, //TODO
-
-    pub(crate) command_sender: Sender<Command>,
-    pub(crate) command_receiver: Receiver<Command>,
 }
 
 impl State {
     pub fn new() -> Self {
         let mut entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
-        let mut style = Style::new();
+        let mut style = Rc::new(RefCell::new(Style::new()));
         let mut transform = Transform::new();
         let mouse = MouseState::default();
         let modifiers = ModifiersState::default();
@@ -85,15 +115,16 @@ impl State {
             .expect("Failed to create root");
 
         transform.add(root);
-        style.add(root);
+        style.borrow_mut().add(root);
 
-        style.clip_widget.set(root, root);
+        style.borrow_mut().clip_widget.set(root, root);
 
-        style.background_color.insert(root, Color::rgb(80, 80, 80));
+        style
+            .borrow_mut()
+            .background_color
+            .insert(root, Color::rgb(80, 80, 80));
 
-        let (command_sender, command_receiver) = flume::unbounded();
-
-        State {
+        Self {
             entity_manager,
             hierarchy,
             style,
@@ -106,6 +137,7 @@ impl State {
             captured: Entity::null(),
             focused: Entity::new(0, 0),
             event_handlers: FnvHashMap::default(),
+            handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             fonts: Fonts {
                 regular: None,
@@ -113,36 +145,33 @@ impl State {
                 icons: None,
             },
             resource_manager: ResourceManager::new(),
-
-            command_sender,
-            command_receiver,
         }
     }
 
-    pub fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a>
+    pub fn build<T>(&mut self, entity: Entity, event_handler: T)
     where
         T: EventHandler + 'static + Send,
     {
         self.event_handlers.insert(entity, Box::new(event_handler));
-
-        Builder::new(self, entity)
     }
 
-    pub fn process_commands(&mut self) {
-        for command in self.command_receiver.drain() {
-            match command {
-                Command::SetProperty(entity, property) => match property {
-                    Property::Width(value) => {
-                        self.style.width.insert(entity, value);
-                    }
-
-                    Property::Height(value) => {
-                        self.style.height.insert(entity, value);
-                    }
-
-                    _ => {}
-                },
+    pub fn insert_event_handler<E: Message, F: FnMut(&mut State, &Handle, &Meta, &mut E) -> bool + 'static>(&mut self, entity: Entity, mut handler: F) {
+        self.add_erased_handler(entity, Box::new(move |state, handle, event| {
+            if let Some(e) = event.message.downcast::<E>() {
+                (handler)(state, handle, &Meta{target: event.target}, e)
+            } else {
+                false
             }
+        }));
+    }
+
+    fn add_erased_handler(&mut self, entity: Entity, handler: Box<dyn FnMut(&mut State, &Handle, &mut Event) -> bool + 'static>) {
+        if let Some(handlers) = self.handlers.get_mut(&entity) {
+            handlers.push(handler);
+        } else {
+            let mut handlers = Vec::new();
+            handlers.push(handler);
+            self.handlers.insert(entity, handlers);
         }
     }
 
@@ -151,7 +180,7 @@ impl State {
         self.resource_manager.stylesheets.push(path.to_owned());
 
         // Parse the theme stylesheet
-        self.style.parse_theme(&style_string);
+        self.style.borrow_mut().parse_theme(&style_string);
         // self.resource_manager.themes.push(style_string);
 
         Ok(())
@@ -172,52 +201,64 @@ impl State {
         }
 
         // Remove all non-inline style data
-        self.style.background_color.remove_styles();
-        self.style.font_color.remove_styles();
+        self.style.borrow_mut().background_color.remove_styles();
+        self.style.borrow_mut().font_color.remove_styles();
 
         // Position
-        self.style.left.remove_styles();
-        self.style.right.remove_styles();
-        self.style.top.remove_styles();
-        self.style.bottom.remove_styles();
+        self.style.borrow_mut().left.remove_styles();
+        self.style.borrow_mut().right.remove_styles();
+        self.style.borrow_mut().top.remove_styles();
+        self.style.borrow_mut().bottom.remove_styles();
         // Size
-        self.style.width.remove_styles();
-        self.style.height.remove_styles();
+        self.style.borrow_mut().width.remove_styles();
+        self.style.borrow_mut().height.remove_styles();
         // Margins
-        self.style.margin_left.remove_styles();
-        self.style.margin_right.remove_styles();
-        self.style.margin_top.remove_styles();
-        self.style.margin_bottom.remove_styles();
+        self.style.borrow_mut().margin_left.remove_styles();
+        self.style.borrow_mut().margin_right.remove_styles();
+        self.style.borrow_mut().margin_top.remove_styles();
+        self.style.borrow_mut().margin_bottom.remove_styles();
         // Padding
-        self.style.padding_left.remove_styles();
-        self.style.padding_right.remove_styles();
-        self.style.padding_top.remove_styles();
-        self.style.padding_bottom.remove_styles();
+        self.style.borrow_mut().padding_left.remove_styles();
+        self.style.borrow_mut().padding_right.remove_styles();
+        self.style.borrow_mut().padding_top.remove_styles();
+        self.style.borrow_mut().padding_bottom.remove_styles();
         // Border
-        self.style.border_width.remove_styles();
-        self.style.border_color.remove_styles();
+        self.style.borrow_mut().border_width.remove_styles();
+        self.style.borrow_mut().border_color.remove_styles();
         // Border Radius
-        self.style.border_radius_top_left.remove_styles();
-        self.style.border_radius_top_right.remove_styles();
-        self.style.border_radius_bottom_left.remove_styles();
-        self.style.border_radius_bottom_right.remove_styles();
+        self.style
+            .borrow_mut()
+            .border_radius_top_left
+            .remove_styles();
+        self.style
+            .borrow_mut()
+            .border_radius_top_right
+            .remove_styles();
+        self.style
+            .borrow_mut()
+            .border_radius_bottom_left
+            .remove_styles();
+        self.style
+            .borrow_mut()
+            .border_radius_bottom_right
+            .remove_styles();
         // Flexbox
-        self.style.flex_grow.remove_styles();
-        self.style.flex_shrink.remove_styles();
-        self.style.flex_basis.remove_styles();
-        self.style.align_self.remove_styles();
-        self.style.align_content.remove_styles();
+        self.style.borrow_mut().flex_grow.remove_styles();
+        self.style.borrow_mut().flex_shrink.remove_styles();
+        self.style.borrow_mut().flex_basis.remove_styles();
+        self.style.borrow_mut().align_self.remove_styles();
+        self.style.borrow_mut().align_content.remove_styles();
         // Flex Container
-        self.style.align_items.remove_styles();
-        self.style.justify_content.remove_styles();
-        self.style.flex_direction.remove_styles();
+        self.style.borrow_mut().align_items.remove_styles();
+        self.style.borrow_mut().justify_content.remove_styles();
+        self.style.borrow_mut().flex_direction.remove_styles();
         // Display
-        self.style.display.remove_styles();
-        self.style.visibility.remove_styles();
-        self.style.opacity.remove_styles();
+        self.style.borrow_mut().display.remove_styles();
+        self.style.borrow_mut().visibility.remove_styles();
+        self.style.borrow_mut().opacity.remove_styles();
         // Text Alignment
-        self.style.text_align.remove_styles();
-        self.style.text_justify.remove_styles();
+        self.style.borrow_mut().text_align.remove_styles();
+        self.style.borrow_mut().text_justify.remove_styles();
 
         let mut overall_theme = String::new();
 
@@ -233,7 +274,7 @@ impl State {
             overall_theme += &theme;
         }
 
-        self.style.parse_theme(&overall_theme);
+        self.style.borrow_mut().parse_theme(&overall_theme);
 
         self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::null()));
         self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
@@ -251,7 +292,11 @@ impl State {
     }
 
     pub fn id2entity(&self, id: &str) -> Option<Entity> {
-        self.style.ids.get_by_left(&id.to_string()).cloned()
+        self.style
+            .borrow_mut()
+            .ids
+            .get_by_left(&id.to_string())
+            .cloned()
     }
 
     // This should probably be moved to state.mouse
@@ -297,7 +342,7 @@ impl State {
         self.hierarchy.add(entity, Some(parent));
 
         self.transform.add(entity);
-        self.style.add(entity);
+        self.style.borrow_mut().add(entity);
 
         entity
     }
@@ -325,79 +370,170 @@ impl State {
 
     pub fn apply_animations(&mut self) -> bool {
         self.style
+            .borrow_mut()
             .background_color
             .animate(std::time::Instant::now());
-        self.style.font_color.animate(std::time::Instant::now());
-        self.style.border_color.animate(std::time::Instant::now());
-
-        self.style.left.animate(std::time::Instant::now());
-        self.style.right.animate(std::time::Instant::now());
-        self.style.top.animate(std::time::Instant::now());
-        self.style.bottom.animate(std::time::Instant::now());
-        self.style.width.animate(std::time::Instant::now());
-        self.style.height.animate(std::time::Instant::now());
-        self.style.opacity.animate(std::time::Instant::now());
-        self.style.rotate.animate(std::time::Instant::now());
-        self.style.flex_grow.animate(std::time::Instant::now());
-        self.style.flex_shrink.animate(std::time::Instant::now());
-        self.style.flex_basis.animate(std::time::Instant::now());
-        self.style.margin_left.animate(std::time::Instant::now());
-        self.style.margin_right.animate(std::time::Instant::now());
-        self.style.margin_top.animate(std::time::Instant::now());
-        self.style.margin_bottom.animate(std::time::Instant::now());
-        self.style.padding_left.animate(std::time::Instant::now());
-        self.style.padding_right.animate(std::time::Instant::now());
-        self.style.padding_top.animate(std::time::Instant::now());
-        self.style.padding_bottom.animate(std::time::Instant::now());
         self.style
+            .borrow_mut()
+            .font_color
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .border_color
+            .animate(std::time::Instant::now());
+
+        self.style
+            .borrow_mut()
+            .left
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .right
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .top
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .bottom
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .width
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .height
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .opacity
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .rotate
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .flex_grow
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .flex_shrink
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .flex_basis
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .margin_left
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .margin_right
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .margin_top
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .margin_bottom
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .padding_left
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .padding_right
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .padding_top
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .padding_bottom
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
             .border_radius_top_left
             .animate(std::time::Instant::now());
         self.style
+            .borrow_mut()
             .border_radius_top_right
             .animate(std::time::Instant::now());
         self.style
+            .borrow_mut()
             .border_radius_bottom_left
             .animate(std::time::Instant::now());
         self.style
+            .borrow_mut()
             .border_radius_bottom_right
             .animate(std::time::Instant::now());
-        self.style.border_width.animate(std::time::Instant::now());
-        self.style.min_width.animate(std::time::Instant::now());
-        self.style.max_width.animate(std::time::Instant::now());
-        self.style.min_height.animate(std::time::Instant::now());
-        self.style.max_height.animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .border_width
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .min_width
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .max_width
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .min_height
+            .animate(std::time::Instant::now());
+        self.style
+            .borrow_mut()
+            .max_height
+            .animate(std::time::Instant::now());
 
-        self.style.background_color.has_animations()
-            || self.style.font_color.has_animations()
-            || self.style.border_color.has_animations()
-            || self.style.left.has_animations()
-            || self.style.right.has_animations()
-            || self.style.top.has_animations()
-            || self.style.bottom.has_animations()
-            || self.style.width.has_animations()
-            || self.style.height.has_animations()
-            || self.style.opacity.has_animations()
-            || self.style.rotate.has_animations()
-            || self.style.flex_grow.has_animations()
-            || self.style.flex_shrink.has_animations()
-            || self.style.flex_basis.has_animations()
-            || self.style.margin_left.has_animations()
-            || self.style.margin_right.has_animations()
-            || self.style.margin_top.has_animations()
-            || self.style.margin_bottom.has_animations()
-            || self.style.padding_left.has_animations()
-            || self.style.padding_right.has_animations()
-            || self.style.padding_top.has_animations()
-            || self.style.padding_bottom.has_animations()
-            || self.style.border_radius_top_left.has_animations()
-            || self.style.border_radius_top_right.has_animations()
-            || self.style.border_radius_bottom_left.has_animations()
-            || self.style.border_radius_bottom_right.has_animations()
-            || self.style.border_width.has_animations()
-            || self.style.min_width.has_animations()
-            || self.style.max_width.has_animations()
-            || self.style.min_height.has_animations()
-            || self.style.max_height.has_animations()
+        self.style.borrow().background_color.has_animations()
+            || self.style.borrow().font_color.has_animations()
+            || self.style.borrow().border_color.has_animations()
+            || self.style.borrow().left.has_animations()
+            || self.style.borrow().right.has_animations()
+            || self.style.borrow().top.has_animations()
+            || self.style.borrow().bottom.has_animations()
+            || self.style.borrow().width.has_animations()
+            || self.style.borrow().height.has_animations()
+            || self.style.borrow().opacity.has_animations()
+            || self.style.borrow().rotate.has_animations()
+            || self.style.borrow().flex_grow.has_animations()
+            || self.style.borrow().flex_shrink.has_animations()
+            || self.style.borrow().flex_basis.has_animations()
+            || self.style.borrow().margin_left.has_animations()
+            || self.style.borrow().margin_right.has_animations()
+            || self.style.borrow().margin_top.has_animations()
+            || self.style.borrow().margin_bottom.has_animations()
+            || self.style.borrow().padding_left.has_animations()
+            || self.style.borrow().padding_right.has_animations()
+            || self.style.borrow().padding_top.has_animations()
+            || self.style.borrow().padding_bottom.has_animations()
+            || self.style.borrow().border_radius_top_left.has_animations()
+            || self.style.borrow().border_radius_top_right.has_animations()
+            || self
+                .style
+                .borrow()
+                .border_radius_bottom_left
+                .has_animations()
+            || self
+                .style
+                .borrow()
+                .border_radius_bottom_right
+                .has_animations()
+            || self.style.borrow().border_width.has_animations()
+            || self.style.borrow().min_width.has_animations()
+            || self.style.borrow().max_width.has_animations()
+            || self.style.borrow().min_height.has_animations()
+            || self.style.borrow().max_height.has_animations()
     }
 
     pub fn get_root(&self) -> Entity {

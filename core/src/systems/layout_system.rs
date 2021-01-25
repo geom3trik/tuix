@@ -8,6 +8,7 @@ use crate::{Event, WindowEvent};
 use crate::flexbox::AlignItems;
 
 pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
+    //let mut state = state.shared_state.borrow_mut();
     for entity in hierarchy.into_iter() {
         if entity == Entity::new(0, 0) {
             continue;
@@ -15,7 +16,7 @@ pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent = hierarchy.get_parent(entity).unwrap();
 
-        if let Some(z_order) = state.style.z_order.get(entity) {
+        if let Some(z_order) = state.style.borrow_mut().z_order.get(entity) {
             state.transform.set_z_order(entity, *z_order);
         } else {
             let parent_z_order = state.transform.get_z_order(parent);
@@ -1402,6 +1403,8 @@ pub fn layout_fun(state: &mut State, hierarchy: &Hierarchy) {
 */
 
 pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
+    //let mut state = state.shared_state.borrow_mut();
+
     // Reset
     for entity in hierarchy.entities.iter() {
         state.transform.set_child_sum(*entity, 0.0);
@@ -1424,6 +1427,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         // Skip non-displayed widgets
         let display = state
             .style
+            .borrow_mut()
             .display
             .get(*entity)
             .cloned()
@@ -1439,6 +1443,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_min_width = match state
             .style
+            .borrow_mut()
             .min_width
             .get(*entity)
             .cloned()
@@ -1451,6 +1456,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_max_width = match state
             .style
+            .borrow_mut()
             .max_width
             .get(*entity)
             .cloned()
@@ -1463,6 +1469,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_min_height = match state
             .style
+            .borrow_mut()
             .min_height
             .get(*entity)
             .cloned()
@@ -1475,6 +1482,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_max_height = match state
             .style
+            .borrow_mut()
             .max_height
             .get(*entity)
             .cloned()
@@ -1487,6 +1495,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_margin_left = match state
             .style
+            .borrow_mut()
             .margin_left
             .get(*entity)
             .cloned()
@@ -1499,6 +1508,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_margin_right = match state
             .style
+            .borrow_mut()
             .margin_right
             .get(*entity)
             .cloned()
@@ -1511,6 +1521,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_margin_top = match state
             .style
+            .borrow_mut()
             .margin_top
             .get(*entity)
             .cloned()
@@ -1523,6 +1534,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_margin_bottom = match state
             .style
+            .borrow_mut()
             .margin_bottom
             .get(*entity)
             .cloned()
@@ -1535,6 +1547,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_padding_left = match state
             .style
+            .borrow_mut()
             .padding_left
             .get(*entity)
             .cloned()
@@ -1547,6 +1560,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_padding_right = match state
             .style
+            .borrow_mut()
             .padding_right
             .get(*entity)
             .cloned()
@@ -1559,6 +1573,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_padding_top = match state
             .style
+            .borrow_mut()
             .padding_top
             .get(*entity)
             .cloned()
@@ -1571,6 +1586,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_padding_bottom = match state
             .style
+            .borrow_mut()
             .padding_bottom
             .get(*entity)
             .cloned()
@@ -1583,6 +1599,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let child_border_width = match state
             .style
+            .borrow_mut()
             .border_width
             .get(*entity)
             .cloned()
@@ -1595,6 +1612,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_border_width = match state
             .style
+            .borrow_mut()
             .border_width
             .get(parent)
             .cloned()
@@ -1607,6 +1625,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_padding_left = match state
             .style
+            .borrow_mut()
             .padding_left
             .get(parent)
             .cloned()
@@ -1619,6 +1638,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_padding_right = match state
             .style
+            .borrow_mut()
             .padding_right
             .get(parent)
             .cloned()
@@ -1631,6 +1651,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_padding_top = match state
             .style
+            .borrow_mut()
             .padding_top
             .get(parent)
             .cloned()
@@ -1643,6 +1664,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_padding_bottom = match state
             .style
+            .borrow_mut()
             .padding_bottom
             .get(parent)
             .cloned()
@@ -1655,22 +1677,36 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_flex_direction = state
             .style
+            .borrow_mut()
             .flex_direction
             .get(parent)
             .cloned()
             .unwrap_or_default();
         let child_flex_direction = state
             .style
+            .borrow_mut()
             .flex_direction
             .get(*entity)
             .cloned()
             .unwrap_or_default();
 
         // Get the desired width from the style
-        let width = state.style.width.get(*entity).cloned().unwrap_or_default();
+        let width = state
+            .style
+            .borrow_mut()
+            .width
+            .get(*entity)
+            .cloned()
+            .unwrap_or_default();
 
         // Get the desired height from the style
-        let height = state.style.height.get(*entity).cloned().unwrap_or_default();
+        let height = state
+            .style
+            .borrow_mut()
+            .height
+            .get(*entity)
+            .cloned()
+            .unwrap_or_default();
 
         let mut new_width;
         let mut new_height;
@@ -1711,7 +1747,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 };
 
                 // Flex basis overrides desired width
-                if let Some(flex_basis) = state.style.flex_basis.get(*entity) {
+                if let Some(flex_basis) = state.style.borrow_mut().flex_basis.get(*entity) {
                     new_width = *flex_basis;
                 }
 
@@ -1755,6 +1791,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                 let position = state
                     .style
+                    .borrow_mut()
                     .position
                     .get(*entity)
                     .cloned()
@@ -1766,7 +1803,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             parent,
                             state.transform.get_child_sum(parent) + new_width,
                         );
-                        //state.transform.set_child_max(parent, new_height);
+                        //state.shared_state.borrow_mut().transform.set_child_max(parent, new_height);
                         state.transform.set_child_max(
                             parent,
                             new_height.max(state.transform.get_child_max(parent)),
@@ -1793,7 +1830,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     _ => {}
                 };
 
-                if let Some(flex_basis) = state.style.flex_basis.get(*entity) {
+                if let Some(flex_basis) = state.style.borrow_mut().flex_basis.get(*entity) {
                     new_height = *flex_basis;
                 }
 
@@ -1834,6 +1871,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                 let position = state
                     .style
+                    .borrow_mut()
                     .position
                     .get(*entity)
                     .cloned()
@@ -1845,7 +1883,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             parent,
                             state.transform.get_child_sum(parent) + new_height,
                         );
-                        //state.transform.set_child_max(parent, new_width);
+                        //state.shared_state.borrow_mut().transform.set_child_max(parent, new_width);
                         state.transform.set_child_max(
                             parent,
                             new_width.max(state.transform.get_child_max(parent)),
@@ -1857,14 +1895,14 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             }
         }
 
-        if let Some(flex_grow) = state.style.flex_grow.get(*entity) {
+        if let Some(flex_grow) = state.style.borrow_mut().flex_grow.get(*entity) {
             state.transform.set_child_grow_sum(
                 parent,
                 state.transform.get_child_grow_sum(parent) + flex_grow,
             );
         }
 
-        if let Some(flex_shrink) = state.style.flex_shrink.get(*entity) {
+        if let Some(flex_shrink) = state.style.borrow_mut().flex_shrink.get(*entity) {
             state.transform.set_child_shrink_sum(
                 parent,
                 state.transform.get_child_shrink_sum(parent) + flex_shrink,
@@ -1891,6 +1929,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_border_width = match state
             .style
+            .borrow_mut()
             .border_width
             .get(parent)
             .cloned()
@@ -1903,6 +1942,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_padding_left = match state
             .style
+            .borrow_mut()
             .padding_left
             .get(parent)
             .cloned()
@@ -1915,6 +1955,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_padding_right = match state
             .style
+            .borrow_mut()
             .padding_right
             .get(parent)
             .cloned()
@@ -1927,6 +1968,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_padding_top = match state
             .style
+            .borrow_mut()
             .padding_top
             .get(parent)
             .cloned()
@@ -1939,6 +1981,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_padding_bottom = match state
             .style
+            .borrow_mut()
             .padding_bottom
             .get(parent)
             .cloned()
@@ -1962,6 +2005,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_flex_direction = state
             .style
+            .borrow_mut()
             .flex_direction
             .get(parent)
             .cloned()
@@ -1990,6 +2034,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let justify_content = state
             .style
+            .borrow_mut()
             .justify_content
             .get(parent)
             .cloned()
@@ -2015,21 +2060,52 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         for child in parent.child_iter(&hierarchy) {
             // Skip non-displayed widgets
-            let display = state.style.display.get(child).cloned().unwrap_or_default();
+            let display = state
+                .style
+                .borrow_mut()
+                .display
+                .get(child)
+                .cloned()
+                .unwrap_or_default();
 
             if display == Display::None {
                 continue;
             }
 
             // Get the desired width and height
-            let width = state.style.width.get(child).cloned().unwrap_or_default();
-            let height = state.style.height.get(child).cloned().unwrap_or_default();
+            let width = state
+                .style
+                .borrow_mut()
+                .width
+                .get(child)
+                .cloned()
+                .unwrap_or_default();
+            let height = state
+                .style
+                .borrow_mut()
+                .height
+                .get(child)
+                .cloned()
+                .unwrap_or_default();
 
-            let left = state.style.left.get(child).cloned().unwrap_or_default();
-            let top = state.style.top.get(child).cloned().unwrap_or_default();
+            let left = state
+                .style
+                .borrow_mut()
+                .left
+                .get(child)
+                .cloned()
+                .unwrap_or_default();
+            let top = state
+                .style
+                .borrow_mut()
+                .top
+                .get(child)
+                .cloned()
+                .unwrap_or_default();
 
             let child_border_width = match state
                 .style
+                .borrow_mut()
                 .border_width
                 .get(child)
                 .cloned()
@@ -2042,6 +2118,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_min_width = match state
                 .style
+                .borrow_mut()
                 .min_width
                 .get(child)
                 .cloned()
@@ -2053,6 +2130,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_max_width = match state
                 .style
+                .borrow_mut()
                 .max_width
                 .get(child)
                 .cloned()
@@ -2064,6 +2142,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_min_height = match state
                 .style
+                .borrow_mut()
                 .min_height
                 .get(child)
                 .cloned()
@@ -2075,6 +2154,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_max_height = match state
                 .style
+                .borrow_mut()
                 .max_height
                 .get(child)
                 .cloned()
@@ -2086,6 +2166,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_margin_left = match state
                 .style
+                .borrow_mut()
                 .margin_left
                 .get(child)
                 .cloned()
@@ -2098,6 +2179,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_margin_right = match state
                 .style
+                .borrow_mut()
                 .margin_right
                 .get(child)
                 .cloned()
@@ -2110,6 +2192,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_margin_top = match state
                 .style
+                .borrow_mut()
                 .margin_top
                 .get(child)
                 .cloned()
@@ -2122,6 +2205,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_margin_bottom = match state
                 .style
+                .borrow_mut()
                 .margin_bottom
                 .get(child)
                 .cloned()
@@ -2134,6 +2218,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_padding_left = match state
                 .style
+                .borrow_mut()
                 .padding_left
                 .get(child)
                 .cloned()
@@ -2146,6 +2231,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_padding_right = match state
                 .style
+                .borrow_mut()
                 .padding_right
                 .get(child)
                 .cloned()
@@ -2158,6 +2244,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_padding_top = match state
                 .style
+                .borrow_mut()
                 .padding_top
                 .get(child)
                 .cloned()
@@ -2170,6 +2257,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_padding_bottom = match state
                 .style
+                .borrow_mut()
                 .padding_bottom
                 .get(child)
                 .cloned()
@@ -2188,6 +2276,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let flex_direction = state
                 .style
+                .borrow_mut()
                 .flex_direction
                 .get(child)
                 .cloned()
@@ -2195,6 +2284,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_flex_grow = state
                 .style
+                .borrow_mut()
                 .flex_grow
                 .get(child)
                 .cloned()
@@ -2202,6 +2292,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let child_flex_shrink = state
                 .style
+                .borrow_mut()
                 .flex_shrink
                 .get(child)
                 .cloned()
@@ -2221,7 +2312,13 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             let flex_grow_fraction = child_flex_grow / child_grow_sum;
             let flex_shrink_fraction = child_flex_shrink / child_shrink_sum;
 
-            let position = state.style.position.get(child).cloned().unwrap_or_default();
+            let position = state
+                .style
+                .borrow_mut()
+                .position
+                .get(child)
+                .cloned()
+                .unwrap_or_default();
 
             match flex_direction {
                 FlexDirection::Row => {
@@ -2275,7 +2372,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                 _ => {}
                             };
 
-                            if let Some(flex_basis) = state.style.flex_basis.get(child) {
+                            if let Some(flex_basis) = state.style.borrow_mut().flex_basis.get(child)
+                            {
                                 new_width = *flex_basis
                                     + child_padding_left
                                     + child_padding_right
@@ -2297,12 +2395,14 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                             let align_items = state
                                 .style
+                                .borrow_mut()
                                 .align_items
                                 .get(parent)
                                 .cloned()
                                 .unwrap_or_default();
 
-                            if let Some(align_self) = state.style.align_self.get(child) {
+                            if let Some(align_self) = state.style.borrow_mut().align_self.get(child)
+                            {
                                 if *align_self == AlignSelf::Stretch {
                                     new_height = parent_height
                                         - parent_padding_top
@@ -2401,7 +2501,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             };
 
                             // align-self overrides align-items
-                            if let Some(align_self) = state.style.align_self.get(child) {
+                            if let Some(align_self) = state.style.borrow_mut().align_self.get(child)
+                            {
                                 match align_self {
                                     AlignSelf::FlexStart => new_posy = 0.0,
                                     AlignSelf::FlexEnd => new_posy = parent_height - new_height,
@@ -2426,7 +2527,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                             new_posy = parent_posy + new_posy + child_margin_top;
 
-                            // state.transform.set_posy(
+                            // state.shared_state.borrow_mut().transform.set_posy(
                             //     child,
                             //     parent_posy + new_posy + child_margin_top, // + (child_border_width / 2.0),
                             // );
@@ -2462,7 +2563,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                 _ => {}
                             };
 
-                            if let Some(flex_basis) = state.style.flex_basis.get(child) {
+                            if let Some(flex_basis) = state.style.borrow_mut().flex_basis.get(child)
+                            {
                                 new_height = *flex_basis
                                     + child_padding_top
                                     + child_padding_bottom
@@ -2484,12 +2586,14 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                             let align_items = state
                                 .style
+                                .borrow_mut()
                                 .align_items
                                 .get(parent)
                                 .cloned()
                                 .unwrap_or_default();
 
-                            if let Some(align_self) = state.style.align_self.get(child) {
+                            if let Some(align_self) = state.style.borrow_mut().align_self.get(child)
+                            {
                                 if *align_self == AlignSelf::Stretch {
                                     new_width = parent_width
                                         - parent_padding_left
@@ -2550,8 +2654,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                 new_height = child_max_height;
                             }
 
-                            //state.transform.set_width(child, new_width);
-                            //state.transform.set_height(child, new_height);
+                            //state.shared_state.borrow_mut().transform.set_width(child, new_width);
+                            //state.shared_state.borrow_mut().transform.set_height(child, new_height);
 
                             match top {
                                 Length::Pixels(val) => {
@@ -2567,11 +2671,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                             new_posy = parent_posy + new_posy + child_margin_top;
 
-                            // state
+                            // state.shared_state.borrow_mut()
                             //     .transform
                             //     .set_posy(child, parent_posy + new_posy + child_margin_top);
 
-                            //let align_items = state.style.align_items.get(parent).cloned().unwrap_or_default();
+                            //let align_items = state.shared_state.borrow_mut().style.align_items.get(parent).cloned().unwrap_or_default();
 
                             new_posx = match align_items {
                                 AlignItems::FlexStart => 0.0,
@@ -2597,7 +2701,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             };
 
                             // align-self overrides align-items
-                            if let Some(align_self) = state.style.align_self.get(child) {
+                            if let Some(align_self) = state.style.borrow_mut().align_self.get(child)
+                            {
                                 match align_self {
                                     AlignSelf::FlexStart => new_posx = 0.0,
                                     AlignSelf::FlexEnd => new_posx = parent_width - new_width,
@@ -2622,7 +2727,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                             new_posx = parent_posx + new_posx + child_margin_left;
 
-                            // state
+                            // state.shared_state.borrow_mut()
                             //     .transform
                             //     .set_posx(child, parent_posx + new_posx + child_margin_left);
 
@@ -2635,13 +2740,49 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 }
 
                 Position::Absolute => {
-                    let width = state.style.width.get(child).cloned().unwrap_or_default();
-                    let height = state.style.height.get(child).cloned().unwrap_or_default();
+                    let width = state
+                        .style
+                        .borrow_mut()
+                        .width
+                        .get(child)
+                        .cloned()
+                        .unwrap_or_default();
+                    let height = state
+                        .style
+                        .borrow_mut()
+                        .height
+                        .get(child)
+                        .cloned()
+                        .unwrap_or_default();
 
-                    let left = state.style.left.get(child).cloned().unwrap_or_default();
-                    let right = state.style.right.get(child).cloned().unwrap_or_default();
-                    let top = state.style.top.get(child).cloned().unwrap_or_default();
-                    let bottom = state.style.bottom.get(child).cloned().unwrap_or_default();
+                    let left = state
+                        .style
+                        .borrow_mut()
+                        .left
+                        .get(child)
+                        .cloned()
+                        .unwrap_or_default();
+                    let right = state
+                        .style
+                        .borrow_mut()
+                        .right
+                        .get(child)
+                        .cloned()
+                        .unwrap_or_default();
+                    let top = state
+                        .style
+                        .borrow_mut()
+                        .top
+                        .get(child)
+                        .cloned()
+                        .unwrap_or_default();
+                    let bottom = state
+                        .style
+                        .borrow_mut()
+                        .bottom
+                        .get(child)
+                        .cloned()
+                        .unwrap_or_default();
 
                     new_posx = parent_posx;
                     new_posy = parent_posy;
@@ -2696,8 +2837,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                         Length::Percentage(val) => new_height = val * parent_height,
                     }
 
-                    //state.transform.set_width(child, new_width);
-                    //state.transform.set_height(child, new_height);
+                    //state.shared_state.borrow_mut().transform.set_width(child, new_width);
+                    //state.shared_state.borrow_mut().transform.set_height(child, new_height);
 
                     match right {
                         Length::Pixels(val) => {
@@ -2757,8 +2898,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                         _ => {}
                     }
 
-                    //state.transform.set_posx(child, new_posx);
-                    //state.transform.set_posy(child, new_posy);
+                    //state.shared_state.borrow_mut().transform.set_posx(child, new_posx);
+                    //state.shared_state.borrow_mut().transform.set_posy(child, new_posy);
                 }
             }
 

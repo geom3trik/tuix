@@ -3,7 +3,7 @@
 use crate::entity::Entity;
 use crate::state::storage::dense_storage::DenseStorage;
 pub use crate::state::style::*;
-use crate::{PropSet, State};
+use crate::State;
 use std::time::{Duration, Instant};
 
 use crate::state::style::Color;

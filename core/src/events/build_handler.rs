@@ -16,57 +16,45 @@ use std::sync::{Arc, Mutex};
 pub trait BuildHandler: EventHandler {
     type Ret;
 
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret;
+    fn on_build(&mut self, state: &mut State, handle: Handle) -> Self::Ret;
 
-    // Adds the widget into state and returns Ret - usually an entity id
-    fn build<F>(mut self, state: &mut State, parent: Entity, mut builder: F) -> Self::Ret
-    where
-        F: FnMut(Builder) -> Builder,
-        Self: std::marker::Sized + 'static,
-    {
-        let id = state.add(parent);
+    // fn build2(mut self, state: &mut State, parent: Entity) -> Handle
+    // where
+    //     Self: std::marker::Sized + 'static,
+    // {
+    //     let id = state.shared_state.borrow_mut().add(parent);
+    //     let entity = self.on_build(state, id);
 
-        let entity = self.on_build(state, id);
+    //     let handle = Handle::new(id, state.shared_state.clone());
 
-        builder(Builder::new(state, id)).build(self);
+    //     state.shared_state.borrow_mut().event_handlers.insert(id, Box::new(self));
 
-        entity
-    }
+    //     handle
+    // }
 
-    fn build2(mut self, state: &mut State, parent: Entity) -> Handle
-    where
-        Self: std::marker::Sized + 'static,
-    {
-        let id = state.add(parent);
-        let entity = self.on_build(state, id);
-
-        let handle = Handle::new(id, state.command_sender.clone());
-
-        state.event_handlers.insert(id, Box::new(self));
-
-        handle
-    }
-
-    fn build3(mut self, state: &mut State, parent: &Handle) -> Handle
+    fn build(mut self, state: &mut State, parent: &Handle) -> Self::Ret
     where
         Self: std::marker::Sized + 'static,
     {
         let id = state.add(parent.entity);
-        let entity = self.on_build(state, id);
 
-        let handle = Handle::new(id, state.command_sender.clone());
+        let handle = Handle::new(id, state.style.clone());
+
+        let handles = self.on_build(state, handle);
 
         state.event_handlers.insert(id, Box::new(self));
 
-        handle
+        handles
     }
 }
 
 // Contains an entity id and a mutable reference to state and can be used to set properties
+/*
 pub struct Builder<'a> {
     pub entity: Entity,
     pub state: &'a mut State,
 }
+
 
 impl<'a> Builder<'a> {
     pub fn new(state: &'a mut State, entity: Entity) -> Self {
@@ -539,3 +527,4 @@ impl<'a> Builder<'a> {
         self
     }
 }
+*/

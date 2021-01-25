@@ -13,7 +13,8 @@ impl WindowWidget {
     }
 
     pub fn build_window(self, state: &mut State) {
-        state.build(state.root, self);
+        state.build(Entity::new(0, 0), self);
+        //state.shared_state.borrow_mut().event_handlers.insert(Entity::new(0,0), self);
     }
 }
 
@@ -26,17 +27,19 @@ impl EventHandler for WindowWidget {
                 }
 
                 WindowEvent::Restyle => {
+                    let hierarchy = state.hierarchy.clone();
                     //println!("Restyle");
                     //apply_styles2(state, &state.hierarchy.clone(), event.origin);
-                    apply_styles(state, &state.hierarchy.clone());
+                    apply_styles(state, &hierarchy);
                     //apply_visibility(state, &state.hierarchy.clone());
                 }
 
                 WindowEvent::Relayout => {
-                    apply_z_ordering(state, &state.hierarchy.clone());
-                    apply_visibility(state, &state.hierarchy.clone());
-                    apply_clipping(state, &state.hierarchy.clone());
-                    apply_layout(state, &state.hierarchy.clone());
+                    let hierarchy = state.hierarchy.clone();
+                    apply_z_ordering(state, &hierarchy);
+                    apply_visibility(state, &hierarchy);
+                    apply_clipping(state, &hierarchy);
+                    apply_layout(state, &hierarchy);
                 }
 
                 WindowEvent::Redraw => {}

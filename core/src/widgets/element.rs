@@ -1,4 +1,4 @@
-use crate::entity::Entity;
+use crate::state::Handle;
 
 use crate::{BuildHandler, EventHandler, State};
 
@@ -11,9 +11,9 @@ impl Element {
 }
 
 impl BuildHandler for Element {
-    type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
+    type Ret = Handle;
+    fn on_build(&mut self, state: &mut State, handle: Handle) -> Self::Ret {
+        handle
     }
 }
 

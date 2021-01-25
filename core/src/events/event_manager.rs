@@ -1,6 +1,6 @@
 use crate::{
-    BuildHandler, Builder, CursorIcon, Entity, Event, EventHandler, Hierarchy, HierarchyTree,
-    IntoHierarchyIterator, IntoParentIterator, Propagation, State, WindowEvent,
+    BuildHandler, CursorIcon, Entity, Event, EventHandler, Hierarchy, HierarchyTree,
+    IntoHierarchyIterator, IntoParentIterator, Propagation, State, WindowEvent, Handle
 };
 use std::collections::{HashMap, VecDeque};
 
@@ -16,6 +16,11 @@ use fnv::FnvHashMap;
 pub struct EventManager {
     // List of event handlers
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+
+
+    pub handlers:
+        FnvHashMap<Entity, Vec<Box<dyn FnMut(&mut State, &Handle, &mut Event) -> bool + 'static>>>,
+
     // Queue of events to be processed
     pub event_queue: Vec<Event>,
 
@@ -28,6 +33,7 @@ impl EventManager {
     pub fn new() -> Self {
         EventManager {
             event_handlers: FnvHashMap::default(),
+            handlers: FnvHashMap::default(),
             event_queue: Vec::new(),
 
             prev_width: 0.0,
@@ -52,6 +58,11 @@ impl EventManager {
 
         // Move event handlers from state to event manager
         self.event_handlers.extend(state.event_handlers.drain());
+
+
+        self.handlers.extend(state.handlers.drain());
+
+
 
         // Move events from state into event manager
         let event_queue = state.event_queue.clone();
@@ -111,6 +122,14 @@ impl EventManager {
                             break;
                         }
                     }
+
+                    if let Some(handlers) = self.handlers.get_mut(&entity) {
+                        for handler in handlers {
+                            if (handler)(state, &Handle::new(entity, state.style.clone()), event) {
+                                break;
+                            }
+                        }
+                    }
                 }
                 continue 'events;
             }
@@ -130,6 +149,14 @@ impl EventManager {
                             continue 'events;
                         }
                     }
+
+                    if let Some(handlers) = self.handlers.get_mut(&entity) {
+                        for handler in handlers {
+                            if (handler)(state, &Handle::new(entity, state.style.clone()), event) {
+                                continue 'events;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -137,6 +164,14 @@ impl EventManager {
             if let Some(event_handler) = self.event_handlers.get_mut(&event.target) {
                 if event_handler.on_event(state, event.target, event) {
                     continue 'events;
+                }
+            }
+
+            if let Some(handlers) = self.handlers.get_mut(&event.target) {
+                for handler in handlers {
+                    if (handler)(state, &Handle::new(event.target, state.style.clone()), event) {
+                        continue 'events;
+                    }
                 }
             }
 
@@ -155,6 +190,16 @@ impl EventManager {
                             continue 'events;
                         }
                     }
+
+                    if let Some(handlers) = self.handlers.get_mut(&entity) {
+                        for handler in handlers {
+                            if (handler)(state, &Handle::new(entity, state.style.clone()), event) {
+                                continue 'events;
+                            }
+                        }
+                    }
+
+                    
                 }
             }
 
@@ -180,6 +225,7 @@ impl EventManager {
     }
 
     pub fn draw(&mut self, state: &mut State, hierarchy: &Hierarchy, canvas: &mut Canvas<OpenGl>) {
+        //let shared_state = state.shared_state.borrow_mut();
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
 
@@ -199,6 +245,7 @@ impl EventManager {
         // Get the desired window background color
         let background_color: femtovg::Color = state
             .style
+            .borrow_mut()
             .background_color
             .get(state.root)
             .cloned()

@@ -1,6 +1,7 @@
+/*
 use crate::state::style::*;
 use crate::State;
-use crate::{entity::Entity, BuildHandler, Builder, EventHandler};
+use crate::{entity::Entity, BuildHandler, EventHandler};
 
 use crate::{Event, WindowEvent};
 
@@ -1054,3 +1055,4 @@ impl PropSet for Entity {
         self
     }
 }
+*/

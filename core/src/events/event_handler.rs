@@ -3,8 +3,6 @@ use crate::{
     state,
 };
 
-use crate::build_handler::Builder;
-
 use crate::{Entity, Hierarchy, State};
 
 use std::collections::{HashMap, VecDeque};
@@ -26,6 +24,8 @@ pub trait EventHandler: Any + Send {
 
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
+        // let mut state = state.shared_state.borrow_mut();
+
         // Skip window
         if entity == Entity::new(0, 0) {
             return;
@@ -47,41 +47,51 @@ pub trait EventHandler: Any + Send {
 
         let padding_left = match state
             .style
+            .borrow_mut()
             .padding_left
             .get(entity)
             .unwrap_or(&Length::Auto)
         {
-            Length::Pixels(val) => val,
-            _ => &0.0,
+            Length::Pixels(val) => *val,
+            _ => 0.0,
         };
 
         let padding_right = match state
             .style
+            .borrow_mut()
             .padding_right
             .get(entity)
             .unwrap_or(&Length::Auto)
         {
-            Length::Pixels(val) => val,
-            _ => &0.0,
+            Length::Pixels(val) => *val,
+            _ => 0.0,
         };
 
-        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Length::Auto) {
-            Length::Pixels(val) => val,
-            _ => &0.0,
+        let padding_top = match state
+            .style
+            .borrow_mut()
+            .padding_top
+            .get(entity)
+            .unwrap_or(&Length::Auto)
+        {
+            Length::Pixels(val) => *val,
+            _ => 0.0,
         };
 
         let padding_bottom = match state
             .style
+            .borrow_mut()
             .padding_bottom
             .get(entity)
             .unwrap_or(&Length::Auto)
         {
-            Length::Pixels(val) => val,
-            _ => &0.0,
+            Length::Pixels(val) => *val,
+            _ => 0.0,
         };
 
         let background_color = state
             .style
+            .borrow_mut()
             .background_color
             .get(entity)
             .cloned()
@@ -89,6 +99,7 @@ pub trait EventHandler: Any + Send {
 
         let font_color = state
             .style
+            .borrow_mut()
             .font_color
             .get(entity)
             .cloned()
@@ -96,6 +107,7 @@ pub trait EventHandler: Any + Send {
 
         let border_color = state
             .style
+            .borrow_mut()
             .border_color
             .get(entity)
             .cloned()
@@ -103,6 +115,7 @@ pub trait EventHandler: Any + Send {
 
         let shadow_color = state
             .style
+            .borrow_mut()
             .shadow_color
             .get(entity)
             .cloned()
@@ -118,6 +131,7 @@ pub trait EventHandler: Any + Send {
 
         let border_radius_top_left = match state
             .style
+            .borrow_mut()
             .border_radius_top_left
             .get(entity)
             .cloned()
@@ -130,6 +144,7 @@ pub trait EventHandler: Any + Send {
 
         let border_radius_top_right = match state
             .style
+            .borrow_mut()
             .border_radius_top_right
             .get(entity)
             .cloned()
@@ -142,6 +157,7 @@ pub trait EventHandler: Any + Send {
 
         let border_radius_bottom_left = match state
             .style
+            .borrow_mut()
             .border_radius_bottom_left
             .get(entity)
             .cloned()
@@ -154,6 +170,7 @@ pub trait EventHandler: Any + Send {
 
         let border_radius_bottom_right = match state
             .style
+            .borrow_mut()
             .border_radius_bottom_right
             .get(entity)
             .cloned()
@@ -177,6 +194,7 @@ pub trait EventHandler: Any + Send {
 
         let border_width = match state
             .style
+            .borrow_mut()
             .border_width
             .get(entity)
             .cloned()
@@ -195,8 +213,14 @@ pub trait EventHandler: Any + Send {
         }
 
         // Apply transformations
-        let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
-        let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
+        let rotate = *state.style.borrow_mut().rotate.get(entity).unwrap_or(&0.0);
+        let scaley = state
+            .style
+            .borrow_mut()
+            .scaley
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
 
         canvas.save();
         canvas.translate(posx + width / 2.0, posy + height / 2.0);
@@ -213,8 +237,11 @@ pub trait EventHandler: Any + Send {
         let clip_entity = state.transform.get_clip_widget(entity);
 
         let clip_posx = state.transform.get_posx(clip_entity);
+
         let clip_posy = state.transform.get_posy(clip_entity);
+
         let clip_width = state.transform.get_width(clip_entity);
+
         let clip_height = state.transform.get_height(clip_entity);
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
@@ -222,6 +249,7 @@ pub trait EventHandler: Any + Send {
 
         let shadow_h_offset = match state
             .style
+            .borrow_mut()
             .shadow_h_offset
             .get(entity)
             .cloned()
@@ -234,6 +262,7 @@ pub trait EventHandler: Any + Send {
 
         let shadow_v_offset = match state
             .style
+            .borrow_mut()
             .shadow_v_offset
             .get(entity)
             .cloned()
@@ -246,6 +275,7 @@ pub trait EventHandler: Any + Send {
 
         let shadow_blur = match state
             .style
+            .borrow_mut()
             .shadow_blur
             .get(entity)
             .cloned()
@@ -258,6 +288,7 @@ pub trait EventHandler: Any + Send {
 
         let shadow_color = state
             .style
+            .borrow_mut()
             .shadow_color
             .get(entity)
             .cloned()
@@ -320,8 +351,32 @@ pub trait EventHandler: Any + Send {
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
 
+        let text_align = state
+            .style
+            .borrow_mut()
+            .text_align
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let text_justify = state
+            .style
+            .borrow_mut()
+            .text_justify
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let font_size = state
+            .style
+            .borrow_mut()
+            .font_size
+            .get(entity)
+            .cloned()
+            .unwrap_or(16.0);
+
         // Draw text
-        if let Some(text) = state.style.text.get_mut(entity) {
+        if let Some(text) = state.style.borrow_mut().text.get_mut(entity) {
             let font_id = match text.font.as_ref() {
                 "Sans" => state.fonts.regular.unwrap(),
                 "Icons" => state.fonts.icons.unwrap(),
@@ -332,19 +387,6 @@ pub trait EventHandler: Any + Send {
             let mut y = posy + (border_width / 2.0);
 
             let text_string = text.text.to_owned();
-
-            let text_align = state
-                .style
-                .text_align
-                .get(entity)
-                .cloned()
-                .unwrap_or_default();
-            let text_justify = state
-                .style
-                .text_justify
-                .get(entity)
-                .cloned()
-                .unwrap_or_default();
 
             let align = match text_justify {
                 Justify::Start => {
@@ -379,8 +421,6 @@ pub trait EventHandler: Any + Send {
             let mut font_color: femtovg::Color = font_color.into();
             font_color.set_alphaf(font_color.a * opacity);
 
-            let font_size = state.style.font_size.get(entity).cloned().unwrap_or(16.0);
-
             let mut paint = Paint::color(font_color);
             paint.set_font_size(font_size);
             paint.set_font(&[font_id]);
@@ -396,33 +436,33 @@ pub trait EventHandler: Any + Send {
         /*
         window.context.borrow_mut().frame(
             (
-                state.transform.get_width(state.root),
-                state.transform.get_height(state.root),
+                state.shared_state.borrow_mut().transform.get_width(state.shared_state.borrow_mut().root),
+                state.shared_state.borrow_mut().transform.get_height(state.shared_state.borrow_mut().root),
             ),
             1.0 as f32,
             |mut frame| {
 
-                let zoom = Transform::new().scale(state.transform.get_zoom_scale(entity), state.transform.get_zoom_scale(entity));
+                let zoom = Transform::new().scale(state.shared_state.borrow_mut().transform.get_zoom_scale(entity), state.shared_state.borrow_mut().transform.get_zoom_scale(entity));
                 frame.transformed(Transform::new(), |frame| {
                     if entity == Entity::new(0, 0) {
                         return;
                     }
 
                     // Skip invisible widgets
-                    if state.transform.get_visibility(entity) == Visibility::Invisible {
+                    if state.shared_state.borrow_mut().transform.get_visibility(entity) == Visibility::Invisible {
                         //println!("Entity: {} is invisible", entity);
                         return;
                     }
 
-                    if state.transform.get_opacity(entity) == 0.0 {
+                    if state.shared_state.borrow_mut().transform.get_opacity(entity) == 0.0 {
                         //println!("Entity: {} has 0 opacity", entity);
                         return;
                     }
 
-                    let posx = state.transform.get_posx(entity);
-                    let posy = state.transform.get_posy(entity);
-                    let width = state.transform.get_width(entity);
-                    let height = state.transform.get_height(entity);
+                    let posx = state.shared_state.borrow_mut().transform.get_posx(entity);
+                    let posy = state.shared_state.borrow_mut().transform.get_posy(entity);
+                    let width = state.shared_state.borrow_mut().transform.get_width(entity);
+                    let height = state.shared_state.borrow_mut().transform.get_height(entity);
 
                     //println!("DRAW: {} {} {} {} {}", entity, posx, posy, width, height);
 

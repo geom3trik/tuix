@@ -1,5 +1,8 @@
 #![allow(deprecated)]
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use glutin::dpi::*;
 use glutin::event_loop::{ControlFlow, EventLoop};
 
@@ -11,7 +14,7 @@ use crate::{
 use crate::window::Window;
 
 use tuix_core::{Color, Length, Visibility};
-use tuix_core::{Entity, State};
+use tuix_core::{Entity, Handle, State};
 
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 
@@ -39,19 +42,21 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new<F: FnOnce(WindowDescription, &mut State, Entity) -> WindowDescription>(
+    pub fn new<F: FnOnce(WindowDescription, &mut State, Handle) -> WindowDescription>(
         mut app: F,
     ) -> Self {
         let event_loop = EventLoop::new();
+
         let mut state = State::new();
 
         let event_manager = EventManager::new();
 
-        let root = state.root;
-        state.hierarchy.add(state.root, None);
+        let root = Handle::new(Entity::new(0, 0), state.style.clone());
+        state.hierarchy.add(root.entity, None);
 
         //let window_description = win(WindowDescription::new());
         let window_description = app(WindowDescription::new(), &mut state, root);
+        let root = Entity::new(0, 0);
 
         let mut window = Window::new(&event_loop, &window_description);
 
@@ -82,23 +87,22 @@ impl Application {
 
         state.fonts = fonts;
 
-        state.style.width.insert(
-            state.root,
+        state.style.borrow_mut().width.insert(
+            root,
             Length::Pixels(window_description.inner_size.width as f32),
         );
-        state.style.height.insert(
-            state.root,
+        state.style.borrow_mut().height.insert(
+            root,
             Length::Pixels(window_description.inner_size.height as f32),
         );
 
         state
             .transform
-            .set_width(state.get_root(), window_description.inner_size.width as f32);
-        state.transform.set_height(
-            state.get_root(),
-            window_description.inner_size.height as f32,
-        );
-        state.transform.set_opacity(state.get_root(), 1.0);
+            .set_width(root, window_description.inner_size.width as f32);
+        state
+            .transform
+            .set_height(root, window_description.inner_size.height as f32);
+        state.transform.set_opacity(root, 1.0);
 
         WindowWidget::new().build_window(&mut state);
 
@@ -108,18 +112,6 @@ impl Application {
             event_manager: event_manager,
             state: state,
         }
-    }
-
-    pub fn get_window(&self) -> Entity {
-        self.state.root
-    }
-
-    pub fn get_state(&mut self) -> &mut State {
-        &mut self.state
-    }
-
-    pub fn get_event_manager(&mut self) -> &mut EventManager {
-        &mut self.event_manager
     }
 
     pub fn run(self) {
@@ -135,14 +127,14 @@ impl Application {
 
         let mut counter = 0;
 
+        let root = Entity::new(0, 0);
+
         //state.insert_event(Event::new(WindowEvent::Restyle));
         //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
 
         let event_loop_proxy = self.event_loop.create_proxy();
 
         let mut first_time = true;
-
-        state.process_commands();
 
         self.event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
@@ -256,9 +248,7 @@ impl Application {
                         ////////////////////
                         glutin::event::WindowEvent::Focused(_) => {
                             state.insert_event(
-                                Event::new(WindowEvent::Restyle)
-                                    .target(state.root)
-                                    .origin(state.root),
+                                Event::new(WindowEvent::Restyle).target(root).origin(root),
                             );
                         }
 
@@ -272,7 +262,7 @@ impl Application {
                                     .propagate(Propagation::Down),
                             );
                         }
-
+                        /*
                         glutin::event::WindowEvent::KeyboardInput {
                             device_id: _,
                             input,
@@ -298,14 +288,14 @@ impl Application {
                                 if virtual_keycode == VirtualKeyCode::Tab
                                     && s == MouseButtonState::Pressed
                                 {
-                                    let next_focus = state
+                                    let next_focus = state.shared_state.borrow_mut()
                                         .style
                                         .focus_order
                                         .get(state.focused)
                                         .cloned()
                                         .unwrap_or_default()
                                         .next;
-                                    let prev_focus = state
+                                    let prev_focus = state.shared_state.borrow_mut()
                                         .style
                                         .focus_order
                                         .get(state.focused)
@@ -329,7 +319,7 @@ impl Application {
                                         if next_focus != Entity::null() {
                                             state.focused.set_focus(&mut state, false);
                                             state.focused = next_focus;
-                                            state.focused.set_focus(&mut state, true);
+                                            state.focused.set_focus(&mut state.shared_state.borrow_mut(), true);
                                         } else {
                                             state.focused.set_focus(&mut state, false);
                                             state.focused =
@@ -384,26 +374,27 @@ impl Application {
                             }
                         }
 
+                        */
                         glutin::event::WindowEvent::Resized(physical_size) => {
                             window.handle.resize(physical_size);
 
                             state
                                 .style
+                                .borrow_mut()
                                 .width
-                                .insert(state.root, Length::Pixels(physical_size.width as f32));
+                                .insert(root, Length::Pixels(physical_size.width as f32));
                             state
                                 .style
+                                .borrow_mut()
                                 .height
-                                .insert(state.root, Length::Pixels(physical_size.height as f32));
+                                .insert(root, Length::Pixels(physical_size.height as f32));
 
+                            state.transform.set_width(root, physical_size.width as f32);
                             state
                                 .transform
-                                .set_width(state.root, physical_size.width as f32);
-                            state
-                                .transform
-                                .set_height(state.root, physical_size.height as f32);
+                                .set_height(root, physical_size.height as f32);
 
-                            state.insert_event(Event::new(WindowEvent::Restyle).origin(state.root));
+                            state.insert_event(Event::new(WindowEvent::Restyle).origin(root));
                             state.insert_event(
                                 Event::new(WindowEvent::Relayout).target(Entity::null()),
                             );
@@ -449,6 +440,7 @@ impl Application {
 
                                 let border_width = match state
                                     .style
+                                    .borrow_mut()
                                     .border_width
                                     .get(widget)
                                     .cloned()
@@ -481,14 +473,20 @@ impl Application {
                                     && cursory < (clip_posy + clip_height)
                                 {
                                     hovered_widget = widget;
-                                    if let Some(pseudo_classes) =
-                                        state.style.pseudo_classes.get_mut(hovered_widget)
+                                    if let Some(pseudo_classes) = state
+                                        .style
+                                        .borrow_mut()
+                                        .pseudo_classes
+                                        .get_mut(hovered_widget)
                                     {
                                         pseudo_classes.set_over(true);
                                     }
                                 } else {
-                                    if let Some(pseudo_classes) =
-                                        state.style.pseudo_classes.get_mut(hovered_widget)
+                                    if let Some(pseudo_classes) = state
+                                        .style
+                                        .borrow_mut()
+                                        .pseudo_classes
+                                        .get_mut(hovered_widget)
                                     {
                                         pseudo_classes.set_over(false);
                                     }
@@ -509,14 +507,20 @@ impl Application {
                                 //     state.transform.get_z_order(hovered_widget),
                                 // );
 
-                                if let Some(pseudo_classes) =
-                                    state.style.pseudo_classes.get_mut(hovered_widget)
+                                if let Some(pseudo_classes) = state
+                                    .style
+                                    .borrow_mut()
+                                    .pseudo_classes
+                                    .get_mut(hovered_widget)
                                 {
                                     pseudo_classes.set_hover(true);
                                 }
 
-                                if let Some(pseudo_classes) =
-                                    state.style.pseudo_classes.get_mut(state.hovered)
+                                if let Some(pseudo_classes) = state
+                                    .style
+                                    .borrow_mut()
+                                    .pseudo_classes
+                                    .get_mut(state.hovered)
                                 {
                                     pseudo_classes.set_hover(false);
                                 }

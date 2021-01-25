@@ -4,7 +4,7 @@ use crate::entity::Entity;
 use crate::mouse::*;
 
 use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
-use crate::{PropSet, State};
+use crate::{Handle, State};
 
 pub struct Button {
     pub id: Entity,
@@ -46,15 +46,16 @@ impl Button {
 }
 
 impl BuildHandler for Button {
-    type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    type Ret = Handle;
+    fn on_build(&mut self, state: &mut State, handle: Handle) -> Self::Ret {
+        println!("Do this: {:?}", self.text);
         if let Some(text) = &self.text {
-            entity.set_text(state, text);
+            handle.set_text(text);
         }
 
-        state.style.insert_element(entity, "button");
+        handle.set_element("button");
 
-        entity
+        handle
     }
 }
 
@@ -65,8 +66,6 @@ impl EventHandler for Button {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if entity == event.target {
-                            state.focused = entity;
-
                             if let Some(mut on_release) = self.on_release.clone() {
                                 if on_release.target == Entity::null() {
                                     on_release.target = entity;
@@ -84,7 +83,7 @@ impl EventHandler for Button {
 
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-                        if entity == event.target && entity == state.focused {
+                        if entity == event.target {
                             if let Some(mut on_press) = self.on_press.clone() {
                                 if on_press.target == Entity::null() {
                                     on_press.target = entity;
