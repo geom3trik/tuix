@@ -404,15 +404,15 @@ pub trait EventHandler: Any + Send {
             };
 
             let baseline = match text_align {
-                crate::Align::Start => {
+                crate::style::Align::Start => {
                     y += padding_top;
                     Baseline::Top
                 }
-                crate::Align::Center => {
+                crate::style::Align::Center => {
                     y += 0.5 * height;
                     Baseline::Middle
                 }
-                crate::Align::End => {
+                crate::style::Align::End => {
                     y += height - padding_bottom;
                     Baseline::Bottom
                 }

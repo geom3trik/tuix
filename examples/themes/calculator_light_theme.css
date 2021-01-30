@@ -14,7 +14,7 @@
 
 .display {
     text-justify: end;
-    font-size: 70.0;
+    font-size: 50.0;
     color: #FFFFFF;
     background-color: #363636;
     padding-right: 10px;
@@ -29,7 +29,7 @@
 
 button {
     text-justify: center;
-    font-size: 50.0;
+    font-size: 30.0;
     color: white;
 }
 

@@ -14,12 +14,15 @@ fn main() {
     let app = Application::new(|win_desc, state, window| {
         state.insert_stylesheet("examples/themes/cmd_palette_theme.css");
 
-        CommandPalette::new().build(state, window, |builder| {
-            builder
-                .set_box_shadow_blur(Length::Pixels(10.0))
-                .set_box_shadow_v_offset(Length::Pixels(5.0))
-                .set_box_shadow_color(Color::rgba(0, 0, 0, 128))
-        });
+
+        CommandPalette::new().build(state, &window);
+
+        // CommandPalette::new().build(state, window, |builder| {
+        //     builder
+        //         .set_box_shadow_blur(Length::Pixels(10.0))
+        //         .set_box_shadow_v_offset(Length::Pixels(5.0))
+        //         .set_box_shadow_color(Color::rgba(0, 0, 0, 128))
+        // });
 
         win_desc.with_title("Command Palette")
     });
@@ -107,7 +110,7 @@ impl CommandPalette {
 }
 
 impl BuildHandler for CommandPalette {
-    type Ret = Entity;
+    type Ret = Handle;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         state.focused = entity;
 

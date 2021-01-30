@@ -2,14 +2,6 @@
 
 use crate::widgets::*;
 
-// Default style for labels
-const label_style: &str = r#"
-    label {
-        width: 100px;
-        height: 30px;
-    }
-"#;
-
 pub struct Label {
     text: String,
 }
@@ -23,16 +15,14 @@ impl Label {
 }
 
 impl BuildHandler for Label {
-    type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_text(state, &self.text);
+    type Ret = Handle;
+    fn on_build(&mut self, state: &mut State, handle: Handle) -> Self::Ret {
+        //entity.set_text(state, &self.text);
 
-        entity.set_element(state, "label");
+        //entity.set_element(state, "label");
 
         //state.insert_style(label_style);
 
-        entity
+        handle.set_text(&self.text).set_element("label")
     }
 }
-
-impl EventHandler for Label {}

@@ -4,7 +4,64 @@ use crate::entity::Entity;
 use crate::mouse::*;
 
 use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
-use crate::{Handle, State};
+use crate::{Handle, State, DefaultDrawHandler, EventData};
+
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct ButtonState {
+    pub on_press: Option<Event>,
+    pub on_release: Option<Event>,
+}
+
+impl ButtonState {
+    pub fn on_press(mut self, event: Event) -> Self {
+        self.on_press = Some(event);
+        self
+    }
+
+    pub fn on_release(mut self, event: Event) -> Self {
+        self.on_release = Some(event);
+        self
+    }
+}
+
+fn button_handler(
+    button_state: &mut ButtonState,
+    state: &mut State,
+    handle: &Handle,
+    event_data: &EventData,
+    event: &mut WindowEvent,
+) -> bool {
+    match event {
+        WindowEvent::MouseDown(button) => {
+            if *button == MouseButton::Left && state.mouse.left.pressed == handle.entity {
+
+                state.capture(handle.entity);
+
+                if let Some(on_press) = button_state.on_press.clone() {
+                    state.insert_event(on_press);
+                }
+            }
+        }
+
+        WindowEvent::MouseUp(button) => {
+            if *button == MouseButton::Left && 
+                state.mouse.left.pressed == handle.entity &&
+                state.hovered == handle.entity      
+            {
+                
+                state.release(handle.entity);
+                
+                if let Some(on_release) = button_state.on_release.clone() {
+                    state.insert_event(on_release);
+                }
+            }
+        }
+
+        _ => {}
+    }
+
+    false
+}
 
 pub struct Button {
     pub id: Entity,
@@ -48,17 +105,27 @@ impl Button {
 impl BuildHandler for Button {
     type Ret = Handle;
     fn on_build(&mut self, state: &mut State, handle: Handle) -> Self::Ret {
-        println!("Do this: {:?}", self.text);
-        if let Some(text) = &self.text {
-            handle.set_text(text);
+
+
+        let mut button_state = ButtonState::default();
+
+        if let Some(on_press) = self.on_press.clone() {
+            button_state.on_press = Some(on_press);
         }
 
-        handle.set_element("button");
+        if let Some(on_release) = self.on_release.clone() {
+            button_state.on_release = Some(on_release);
+        }
 
-        handle
+        handle.set_text(if let Some(txt) = &self.text {txt} else {""})
+            .set_element("button")
+            .add_component(button_state)
+            .add_draw_hander(DefaultDrawHandler::default())
+            .add_event_handler(button_handler)
     }
 }
 
+/*
 impl EventHandler for Button {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
@@ -106,3 +173,4 @@ impl EventHandler for Button {
         false
     }
 }
+*/

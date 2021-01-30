@@ -12,7 +12,7 @@ fn main() {
             Err(e) => println!("Error loading stylesheet: {}", e),
         }
 
-        window.set_background_color(state, Color::rgb(255, 255, 255));
+        window.set_background_color(Color::rgb(255, 255, 255));
 
         let one = Element::new().build(state, window, |builder| {
             builder

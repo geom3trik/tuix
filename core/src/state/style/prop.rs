@@ -1,4 +1,4 @@
-/*
+
 use crate::state::style::*;
 use crate::State;
 use crate::{entity::Entity, BuildHandler, EventHandler};
@@ -136,57 +136,57 @@ pub trait PropSet {
     fn set_prev_focus(self, state: &mut State, value: Entity) -> Self;
     fn set_focus_order(self, state: &mut State, next: Entity, prev: Entity) -> Self;
 
-    fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
+    //fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
 
-    fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
+    //fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
 
-    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
-        self,
-        state: &mut State,
-        mutator: F,
-    ) -> Self;
+    // fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
+    //     self,
+    //     state: &mut State,
+    //     mutator: F,
+    // ) -> Self;
 }
 
 impl PropSet for Entity {
-    fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>
-    where
-        Self: std::marker::Sized + 'static,
-    {
-        let t = state.event_handlers.get_mut(&self).unwrap();
+    // fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>
+    // where
+    //     Self: std::marker::Sized + 'static,
+    // {
+    //     let t = state.event_handlers.get_mut(&self).unwrap();
 
-        let t1 = t.downcast::<B>();
+    //     let t1 = t.downcast::<B>();
 
-        t1
-    }
+    //     t1
+    // }
 
-    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
-        self,
-        state: &mut State,
-        mut mutator: F,
-    ) -> Self
-    where
-        Self: std::marker::Sized + 'static,
-    {
-        let t = state.event_handlers.get_mut(&self).unwrap();
+    // fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
+    //     self,
+    //     state: &mut State,
+    //     mut mutator: F,
+    // ) -> Self
+    // where
+    //     Self: std::marker::Sized + 'static,
+    // {
+    //     let t = state.event_handlers.get_mut(&self).unwrap();
 
-        let t1 = t.downcast::<B>().expect("Failed to cast");
+    //     let t1 = t.downcast::<B>().expect("Failed to cast");
 
-        mutator(t1);
+    //     mutator(t1);
 
-        self
-    }
+    //     self
+    // }
 
-    fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
-    where
-        F: FnMut(Builder) -> Builder,
-    {
-        builder(Builder::new(state, self));
+    // fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
+    // where
+    //     F: FnMut(Builder) -> Builder,
+    // {
+    //     builder(Builder::new(state, self));
 
-        self
-    }
+    //     self
+    // }
 
     fn class(self, state: &mut State, class_name: &str) -> Self {
-        state.style.insert_class(self, class_name);
+        state.style.borrow_mut().insert_class(self, class_name);
 
         self
     }
@@ -196,42 +196,42 @@ impl PropSet for Entity {
     }
 
     fn is_enabled(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.get_enabled()
         } else {
             false
         }
     }
     fn is_disabled(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.get_disabled()
         } else {
             false
         }
     }
     fn is_checked(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.get_checked()
         } else {
             false
         }
     }
     fn is_over(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.get_over()
         } else {
             false
         }
     }
     fn is_active(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.get_active()
         } else {
             false
         }
     }
     fn is_focused(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.get_focus()
         } else {
             false
@@ -240,7 +240,7 @@ impl PropSet for Entity {
 
     // PseudoClass
     fn set_enabled(self, state: &mut State, value: bool) -> Self {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.set_enabled(value);
             pseudo_classes.set_disabled(!value);
         }
@@ -252,7 +252,7 @@ impl PropSet for Entity {
     }
 
     fn set_disabled(self, state: &mut State, value: bool) -> Self {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.set_disabled(value);
             pseudo_classes.set_enabled(!value);
         }
@@ -264,7 +264,7 @@ impl PropSet for Entity {
     }
 
     fn set_checked(self, state: &mut State, value: bool) -> Self {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.set_checked(value);
         }
 
@@ -275,7 +275,7 @@ impl PropSet for Entity {
     }
 
     fn set_over(self, state: &mut State, value: bool) -> Self {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.set_over(value);
         }
 
@@ -286,7 +286,7 @@ impl PropSet for Entity {
     }
 
     fn set_active(self, state: &mut State, value: bool) -> Self {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.set_active(value);
         }
 
@@ -297,7 +297,7 @@ impl PropSet for Entity {
     }
 
     fn set_hover(self, state: &mut State, value: bool) -> Self {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.set_hover(value);
         }
 
@@ -308,7 +308,7 @@ impl PropSet for Entity {
     }
 
     fn set_focus(self, state: &mut State, value: bool) -> Self {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+        if let Some(pseudo_classes) = state.style.borrow_mut().pseudo_classes.get_mut(self) {
             pseudo_classes.set_focus(value);
         }
 
@@ -320,26 +320,26 @@ impl PropSet for Entity {
 
     // Style
     fn set_element(self, state: &mut State, value: &str) -> Self {
-        state.style.insert_element(self, value);
+        state.style.borrow_mut().insert_element(self, value);
 
         self
     }
 
     fn set_id(self, state: &mut State, value: &str) -> Self {
-        state.style.insert_id(self, value);
+        state.style.borrow_mut().insert_id(self, value);
 
         self
     }
 
     fn set_class(self, state: &mut State, value: &str) -> Self {
-        state.style.insert_class(self, value);
+        state.style.borrow_mut().insert_class(self, value);
 
         self
     }
 
     // Visibility
     fn set_visibility(self, state: &mut State, value: Visibility) -> Self {
-        state.style.visibility.insert(self, value);
+        state.style.borrow_mut().visibility.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -353,7 +353,7 @@ impl PropSet for Entity {
 
     // Overflow
     fn set_overflow(self, state: &mut State, value: Overflow) -> Self {
-        state.style.overflow.insert(self, value);
+        state.style.borrow_mut().overflow.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -367,7 +367,7 @@ impl PropSet for Entity {
 
     // Display
     fn set_display(self, state: &mut State, value: Display) -> Self {
-        state.style.display.insert(self, value);
+        state.style.borrow_mut().display.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -381,7 +381,7 @@ impl PropSet for Entity {
 
     //Opacity
     fn set_opacity(self, state: &mut State, value: f32) -> Self {
-        state.style.opacity.insert(self, Opacity(value));
+        state.style.borrow_mut().opacity.insert(self, Opacity(value));
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -395,7 +395,7 @@ impl PropSet for Entity {
 
     // Rotate
     fn set_rotate(self, state: &mut State, value: f32) -> Self {
-        state.style.rotate.insert(self, value);
+        state.style.borrow_mut().rotate.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -409,7 +409,7 @@ impl PropSet for Entity {
 
     // Flex Container
     fn set_flex_direction(self, state: &mut State, value: FlexDirection) -> Self {
-        state.style.flex_direction.insert(self, value);
+        state.style.borrow_mut().flex_direction.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -423,7 +423,7 @@ impl PropSet for Entity {
 
     //TODO
     // fn set_flex_wrap(self, state: &mut State, value: FlexDirection) -> Self {
-    //     if let Some(data) = state.style.grid_container.get_mut(self) {
+    //     if let Some(data) = state.style.borrow_mut().grid_container.get_mut(self) {
     //         data.flex_direction = value;
     //     }
 
@@ -431,7 +431,7 @@ impl PropSet for Entity {
     // }
 
     fn set_justify_content(self, state: &mut State, value: JustifyContent) -> Self {
-        state.style.justify_content.insert(self, value);
+        state.style.borrow_mut().justify_content.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -444,7 +444,7 @@ impl PropSet for Entity {
     }
 
     fn set_align_content(self, state: &mut State, value: AlignContent) -> Self {
-        state.style.align_content.insert(self, value);
+        state.style.borrow_mut().align_content.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -457,7 +457,7 @@ impl PropSet for Entity {
     }
 
     fn set_align_items(self, state: &mut State, value: AlignItems) -> Self {
-        state.style.align_items.insert(self, value);
+        state.style.borrow_mut().align_items.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -471,7 +471,7 @@ impl PropSet for Entity {
 
     // Flex Item
     fn set_flex_grow(self, state: &mut State, value: f32) -> Self {
-        state.style.flex_grow.insert(self, value);
+        state.style.borrow_mut().flex_grow.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -484,7 +484,7 @@ impl PropSet for Entity {
     }
 
     fn set_flex_shrink(self, state: &mut State, value: f32) -> Self {
-        state.style.flex_shrink.insert(self, value);
+        state.style.borrow_mut().flex_shrink.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -497,7 +497,7 @@ impl PropSet for Entity {
     }
 
     fn set_flex_basis(self, state: &mut State, value: f32) -> Self {
-        state.style.flex_basis.insert(self, value);
+        state.style.borrow_mut().flex_basis.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -510,7 +510,7 @@ impl PropSet for Entity {
     }
 
     fn set_align_self(self, state: &mut State, value: AlignSelf) -> Self {
-        state.style.align_self.insert(self, value);
+        state.style.borrow_mut().align_self.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -524,7 +524,7 @@ impl PropSet for Entity {
 
     // Positioning
     fn set_position(self, state: &mut State, value: Position) -> Self {
-        state.style.position.insert(self, value);
+        state.style.borrow_mut().position.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -537,7 +537,7 @@ impl PropSet for Entity {
     }
 
     fn set_left(self, state: &mut State, value: Length) -> Self {
-        state.style.left.insert(self, value);
+        state.style.borrow_mut().left.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -550,7 +550,7 @@ impl PropSet for Entity {
     }
 
     fn set_right(self, state: &mut State, value: Length) -> Self {
-        state.style.right.insert(self, value);
+        state.style.borrow_mut().right.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -563,7 +563,7 @@ impl PropSet for Entity {
     }
 
     fn set_top(self, state: &mut State, value: Length) -> Self {
-        state.style.top.insert(self, value);
+        state.style.borrow_mut().top.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -576,7 +576,7 @@ impl PropSet for Entity {
     }
 
     fn set_bottom(self, state: &mut State, value: Length) -> Self {
-        state.style.bottom.insert(self, value);
+        state.style.borrow_mut().bottom.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -590,7 +590,7 @@ impl PropSet for Entity {
 
     // Size
     fn set_width(self, state: &mut State, value: Length) -> Self {
-        state.style.width.insert(self, value);
+        state.style.borrow_mut().width.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -603,7 +603,7 @@ impl PropSet for Entity {
     }
 
     fn set_height(self, state: &mut State, value: Length) -> Self {
-        state.style.height.insert(self, value);
+        state.style.borrow_mut().height.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -617,7 +617,7 @@ impl PropSet for Entity {
 
     // Size Constraints
     fn set_min_width(self, state: &mut State, value: Length) -> Self {
-        state.style.min_width.insert(self, value);
+        state.style.borrow_mut().min_width.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -630,7 +630,7 @@ impl PropSet for Entity {
     }
 
     fn set_max_width(self, state: &mut State, value: Length) -> Self {
-        state.style.max_width.insert(self, value);
+        state.style.borrow_mut().max_width.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -643,7 +643,7 @@ impl PropSet for Entity {
     }
 
     fn set_min_height(self, state: &mut State, value: Length) -> Self {
-        state.style.min_height.insert(self, value);
+        state.style.borrow_mut().min_height.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -656,7 +656,7 @@ impl PropSet for Entity {
     }
 
     fn set_max_height(self, state: &mut State, value: Length) -> Self {
-        state.style.max_height.insert(self, value);
+        state.style.borrow_mut().max_height.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -670,10 +670,10 @@ impl PropSet for Entity {
 
     // Text
     fn set_text(self, state: &mut State, value: &str) -> Self {
-        if let Some(data) = state.style.text.get_mut(self) {
+        if let Some(data) = state.style.borrow_mut().text.get_mut(self) {
             data.text = value.to_string();
         } else {
-            state.style.text.insert(
+            state.style.borrow_mut().text.insert(
                 self,
                 Text {
                     text: value.to_string(),
@@ -694,10 +694,10 @@ impl PropSet for Entity {
 
     // Text Font
     fn set_font(self, state: &mut State, value: String) -> Self {
-        if let Some(data) = state.style.text.get_mut(self) {
+        if let Some(data) = state.style.borrow_mut().text.get_mut(self) {
             data.font = value;
         } else {
-            state.style.text.insert(
+            state.style.borrow_mut().text.insert(
                 self,
                 Text {
                     font: value,
@@ -717,7 +717,7 @@ impl PropSet for Entity {
     }
 
     fn set_font_size(self, state: &mut State, value: f32) -> Self {
-        state.style.font_size.insert(self, value);
+        state.style.borrow_mut().font_size.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -730,7 +730,7 @@ impl PropSet for Entity {
     }
 
     fn set_font_color(self, state: &mut State, value: Color) -> Self {
-        state.style.font_color.insert(self, value);
+        state.style.borrow_mut().font_color.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -739,7 +739,7 @@ impl PropSet for Entity {
 
     // Text Alignment
     fn set_text_justify(self, state: &mut State, value: Justify) -> Self {
-        state.style.text_justify.insert(self, value);
+        state.style.borrow_mut().text_justify.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -747,7 +747,7 @@ impl PropSet for Entity {
     }
 
     fn set_text_align(self, state: &mut State, value: Align) -> Self {
-        state.style.text_align.insert(self, value);
+        state.style.borrow_mut().text_align.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -756,7 +756,7 @@ impl PropSet for Entity {
 
     // Background
     fn set_background_color(self, state: &mut State, value: Color) -> Self {
-        state.style.background_color.insert(self, value);
+        state.style.borrow_mut().background_color.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -765,7 +765,7 @@ impl PropSet for Entity {
 
     // Border
     fn set_border_width(self, state: &mut State, value: Length) -> Self {
-        state.style.border_width.insert(self, value);
+        state.style.borrow_mut().border_width.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -778,7 +778,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_color(self, state: &mut State, value: Color) -> Self {
-        state.style.border_color.insert(self, value);
+        state.style.borrow_mut().border_color.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -787,10 +787,10 @@ impl PropSet for Entity {
 
     // Border Radius
     fn set_border_radius(self, state: &mut State, value: Length) -> Self {
-        state.style.border_radius_top_left.insert(self, value);
-        state.style.border_radius_top_right.insert(self, value);
-        state.style.border_radius_bottom_left.insert(self, value);
-        state.style.border_radius_bottom_right.insert(self, value);
+        state.style.borrow_mut().border_radius_top_left.insert(self, value);
+        state.style.borrow_mut().border_radius_top_right.insert(self, value);
+        state.style.borrow_mut().border_radius_bottom_left.insert(self, value);
+        state.style.borrow_mut().border_radius_bottom_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -798,7 +798,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_top_left(self, state: &mut State, value: Length) -> Self {
-        state.style.border_radius_top_left.insert(self, value);
+        state.style.borrow_mut().border_radius_top_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -806,7 +806,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_top_right(self, state: &mut State, value: Length) -> Self {
-        state.style.border_radius_top_right.insert(self, value);
+        state.style.borrow_mut().border_radius_top_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -814,7 +814,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_bottom_left(self, state: &mut State, value: Length) -> Self {
-        state.style.border_radius_bottom_left.insert(self, value);
+        state.style.borrow_mut().border_radius_bottom_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -822,7 +822,7 @@ impl PropSet for Entity {
     }
 
     fn set_border_radius_bottom_right(self, state: &mut State, value: Length) -> Self {
-        state.style.border_radius_bottom_right.insert(self, value);
+        state.style.borrow_mut().border_radius_bottom_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw));
 
@@ -831,10 +831,10 @@ impl PropSet for Entity {
 
     // Margin
     fn set_margin(self, state: &mut State, value: Length) -> Self {
-        state.style.margin_left.insert(self, value);
-        state.style.margin_right.insert(self, value);
-        state.style.margin_top.insert(self, value);
-        state.style.margin_bottom.insert(self, value);
+        state.style.borrow_mut().margin_left.insert(self, value);
+        state.style.borrow_mut().margin_right.insert(self, value);
+        state.style.borrow_mut().margin_top.insert(self, value);
+        state.style.borrow_mut().margin_bottom.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -847,7 +847,7 @@ impl PropSet for Entity {
     }
 
     fn set_margin_left(self, state: &mut State, value: Length) -> Self {
-        state.style.margin_left.insert(self, value);
+        state.style.borrow_mut().margin_left.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -859,7 +859,7 @@ impl PropSet for Entity {
         self
     }
     fn set_margin_right(self, state: &mut State, value: Length) -> Self {
-        state.style.margin_right.insert(self, value);
+        state.style.borrow_mut().margin_right.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -871,7 +871,7 @@ impl PropSet for Entity {
         self
     }
     fn set_margin_top(self, state: &mut State, value: Length) -> Self {
-        state.style.margin_top.insert(self, value);
+        state.style.borrow_mut().margin_top.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -883,7 +883,7 @@ impl PropSet for Entity {
         self
     }
     fn set_margin_bottom(self, state: &mut State, value: Length) -> Self {
-        state.style.margin_bottom.insert(self, value);
+        state.style.borrow_mut().margin_bottom.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -897,10 +897,10 @@ impl PropSet for Entity {
 
     // Padding
     fn set_padding(self, state: &mut State, value: Length) -> Self {
-        state.style.padding_left.insert(self, value);
-        state.style.padding_right.insert(self, value);
-        state.style.padding_top.insert(self, value);
-        state.style.padding_bottom.insert(self, value);
+        state.style.borrow_mut().padding_left.insert(self, value);
+        state.style.borrow_mut().padding_right.insert(self, value);
+        state.style.borrow_mut().padding_top.insert(self, value);
+        state.style.borrow_mut().padding_bottom.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -913,7 +913,7 @@ impl PropSet for Entity {
     }
 
     fn set_padding_left(self, state: &mut State, value: Length) -> Self {
-        state.style.padding_left.insert(self, value);
+        state.style.borrow_mut().padding_left.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -925,7 +925,7 @@ impl PropSet for Entity {
         self
     }
     fn set_padding_right(self, state: &mut State, value: Length) -> Self {
-        state.style.padding_right.insert(self, value);
+        state.style.borrow_mut().padding_right.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -937,7 +937,7 @@ impl PropSet for Entity {
         self
     }
     fn set_padding_top(self, state: &mut State, value: Length) -> Self {
-        state.style.padding_top.insert(self, value);
+        state.style.borrow_mut().padding_top.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -949,7 +949,7 @@ impl PropSet for Entity {
         self
     }
     fn set_padding_bottom(self, state: &mut State, value: Length) -> Self {
-        state.style.padding_bottom.insert(self, value);
+        state.style.borrow_mut().padding_bottom.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -963,7 +963,7 @@ impl PropSet for Entity {
 
     // Clipping
     fn set_clip_widget(self, state: &mut State, value: Entity) -> Self {
-        state.style.clip_widget.insert(self, value);
+        state.style.borrow_mut().clip_widget.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -976,7 +976,7 @@ impl PropSet for Entity {
     }
 
     fn set_z_order(self, state: &mut State, value: i32) -> Self {
-        state.style.z_order.insert(self, value);
+        state.style.borrow_mut().z_order.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
@@ -989,10 +989,10 @@ impl PropSet for Entity {
     }
 
     fn set_next_focus(self, state: &mut State, value: Entity) -> Self {
-        if let Some(data) = state.style.focus_order.get_mut(self) {
+        if let Some(data) = state.style.borrow_mut().focus_order.get_mut(self) {
             data.next = value;
         } else {
-            state.style.focus_order.insert(
+            state.style.borrow_mut().focus_order.insert(
                 self,
                 FocusOrder {
                     next: value,
@@ -1012,10 +1012,10 @@ impl PropSet for Entity {
     }
 
     fn set_prev_focus(self, state: &mut State, value: Entity) -> Self {
-        if let Some(data) = state.style.focus_order.get_mut(self) {
+        if let Some(data) = state.style.borrow_mut().focus_order.get_mut(self) {
             data.prev = value;
         } else {
-            state.style.focus_order.insert(
+            state.style.borrow_mut().focus_order.insert(
                 self,
                 FocusOrder {
                     prev: value,
@@ -1034,13 +1034,15 @@ impl PropSet for Entity {
         self
     }
 
+    // THIS WILL FAIL - FIX LATER
     fn set_focus_order(self, state: &mut State, next: Entity, prev: Entity) -> Self {
-        if let Some(data) = state.style.focus_order.get_mut(self) {
+        if let Some(data) = state.style.borrow_mut().focus_order.get_mut(self) {
             data.next = next;
             data.prev = prev;
         } else {
             state
                 .style
+                .borrow_mut()
                 .focus_order
                 .insert(self, FocusOrder { next, prev });
         }
@@ -1055,4 +1057,4 @@ impl PropSet for Entity {
         self
     }
 }
-*/
+

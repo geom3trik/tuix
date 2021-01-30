@@ -17,9 +17,6 @@ pub mod themes;
 
 pub mod theme;
 
-pub mod prop;
-//pub use prop::PropSet;
-
 pub mod flexbox;
 pub use flexbox::*;
 
@@ -41,9 +38,6 @@ pub use display::*;
 pub mod property;
 pub use property::*;
 
-// pub mod stylesheet;
-// pub use stylesheet::StyleSheet;
-
 pub mod selector;
 pub use selector::*;
 
@@ -59,43 +53,31 @@ pub use color::Color;
 pub mod trans;
 pub use trans::Scale;
 
+pub mod prop;
+pub use prop::*;
+
 use bimap::BiMap;
 
 #[derive(Clone)]
 pub struct Style {
-    //pub style_rules: Vec<StyleRule>,
-
-    //pub rules: Vec<usize>,
     pub rule_selectors: Vec<Vec<Selector>>,
 
-    //pub ids: DenseStorage<u64>,
+    // CSS Selectors
     pub ids: BiMap<String, Entity>,
-
     pub elements: DenseStorage<u64>,
-
-    //replace with combinator storage at some point
     pub classes: DenseStorage<HashSet<String>>,
 
-    //replace with custom bitmask storage for pseudoclasses
-    //pub pseudo_classes: DenseStorage<HashSet<PseudoClass>>,
-
-    //
+    // Pseudoclasses
     pub pseudo_classes: DenseStorage<PseudoClasses>,
 
-    pub z_order: StyleStorage<i32>,
-
-    // Transform
-    pub rotate: AnimatableStorage<f32>,   // in degrees
-    pub scaley: AnimatableStorage<Scale>, // TODO
-
-    // General
+    // Display, Visibility and Opacity
     pub display: StyleStorage<Display>,
     pub visibility: StyleStorage<Visibility>,
     pub opacity: AnimatableStorage<Opacity>,
 
-    pub overflow: StyleStorage<Overflow>, // TODO
-
-    pub scroll: DenseStorage<Scroll>,
+    // Transform TODO
+    pub rotate: AnimatableStorage<f32>,   // in degrees
+    pub scaley: AnimatableStorage<Scale>, // TODO
 
     // Positioning
     pub position: StyleStorage<Position>,
@@ -109,7 +91,6 @@ pub struct Style {
     pub height: AnimatableStorage<Length>,
 
     // Size Constraints
-    // TODO - Make these animatable
     pub max_width: AnimatableStorage<Length>,
     pub max_height: AnimatableStorage<Length>,
     pub min_width: AnimatableStorage<Length>,
@@ -137,23 +118,16 @@ pub struct Style {
     pub border_radius_bottom_left: AnimatableStorage<Length>,
     pub border_radius_bottom_right: AnimatableStorage<Length>,
 
-    pub clip_widget: DenseStorage<Entity>,
-
-    pub focus_order: DenseStorage<FocusOrder>,
-
-    // Flexbox
-    pub align_self: StyleStorage<AlignSelf>,
+    // Flexbox Container
     pub flex_grow: AnimatableStorage<f32>,
     pub flex_shrink: AnimatableStorage<f32>,
     pub flex_basis: AnimatableStorage<f32>,
-
-    //pub grid_item: DenseStorage<GridItem>,
-
-    //pub justification: DenseStorage<Justification>,
-    //pub alignment: DenseStorage<Alignment>,
     pub flex_direction: StyleStorage<FlexDirection>,
     pub justify_content: StyleStorage<JustifyContent>,
     pub align_items: StyleStorage<AlignItems>,
+
+    // Flexbox Item
+    pub align_self: StyleStorage<AlignSelf>,
     pub align_content: StyleStorage<AlignContent>,
 
     // Background
@@ -166,14 +140,22 @@ pub struct Style {
     pub shadow_blur: AnimatableStorage<Length>,
     pub shadow_color: AnimatableStorage<Color>,
 
-    //Text Properties
+    // Text
     pub text: DenseStorage<Text>,
 
+    // Font
     pub font_color: AnimatableStorage<Color>,
     pub font_size: AnimatableStorage<f32>,
 
+    // Text Positioning
     pub text_align: StyleStorage<Align>,
     pub text_justify: StyleStorage<Justify>,
+
+    pub z_order: StyleStorage<i32>,
+    pub overflow: StyleStorage<Overflow>, // TODO
+    pub scroll: DenseStorage<Scroll>,     // TODO
+    pub clip_widget: DenseStorage<Entity>,
+    pub focus_order: DenseStorage<FocusOrder>,
 }
 
 impl Style {
@@ -761,17 +743,17 @@ impl Style {
     pub fn set_property(&mut self, entity: Entity, propert: Property) {}
 
     // Add style data to an entity
-    pub fn add(&mut self, entity: Entity) {
+    pub(crate) fn add(&mut self, entity: Entity) {
         self.pseudo_classes.insert(entity, PseudoClasses::default());
 
         //self.z_order.insert(entity, 0);
 
-        self.overflow.insert(entity, Default::default());
-        self.scroll.insert(entity, Default::default());
+        //self.overflow.insert(entity, Default::default());
+        //self.scroll.insert(entity, Default::default());
 
-        self.visibility.insert(entity, Default::default());
+        //self.visibility.insert(entity, Default::default());
         //self.clip_widget.insert(entity, Entity::new(0, 0));
-        self.focus_order.insert(entity, Default::default());
+        //self.focus_order.insert(entity, Default::default());
     }
 
     pub fn remove(&mut self, entity: Entity) {}
@@ -782,7 +764,7 @@ impl Style {
     //     self
     // }
 
-    pub fn insert_id(&mut self, entity: Entity, id: &str) -> &mut Self {
+    pub(crate) fn insert_id(&mut self, entity: Entity, id: &str) -> &mut Self {
         // let mut s = DefaultHasher::new();
         // id.hash(&mut s);
         // self.ids.insert(entity, s.finish());
@@ -792,7 +774,7 @@ impl Style {
         self
     }
 
-    pub fn insert_element(&mut self, entity: Entity, element: &str) -> &mut Self {
+    pub(crate) fn insert_element(&mut self, entity: Entity, element: &str) -> &mut Self {
         let mut s = DefaultHasher::new();
         element.hash(&mut s);
         self.elements.insert(entity, s.finish());
@@ -800,7 +782,7 @@ impl Style {
         self
     }
 
-    pub fn insert_class(&mut self, entity: Entity, class: &str) -> &mut Self {
+    pub(crate) fn insert_class(&mut self, entity: Entity, class: &str) -> &mut Self {
         if let Some(class_list) = self.classes.get_mut(entity) {
             class_list.insert(class.to_string());
         } else {

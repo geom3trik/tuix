@@ -1,6 +1,6 @@
 use crate::{
-    BuildHandler, CursorIcon, Entity, Event, EventHandler, Hierarchy, HierarchyTree,
-    IntoHierarchyIterator, IntoParentIterator, Propagation, State, WindowEvent, Handle
+    BuildHandler, CursorIcon, DrawHandler, Entity, Event, EventHandler, Handle, Hierarchy,
+    HierarchyTree, IntoHierarchyIterator, IntoParentIterator, Propagation, State, WindowEvent,
 };
 use std::collections::{HashMap, VecDeque};
 
@@ -16,7 +16,7 @@ use fnv::FnvHashMap;
 pub struct EventManager {
     // List of event handlers
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
-
+    pub draw_handlers: FnvHashMap<Entity, Box<dyn DrawHandler>>,
 
     pub handlers:
         FnvHashMap<Entity, Vec<Box<dyn FnMut(&mut State, &Handle, &mut Event) -> bool + 'static>>>,
@@ -33,6 +33,7 @@ impl EventManager {
     pub fn new() -> Self {
         EventManager {
             event_handlers: FnvHashMap::default(),
+            draw_handlers: FnvHashMap::default(),
             handlers: FnvHashMap::default(),
             event_queue: Vec::new(),
 
@@ -58,11 +59,9 @@ impl EventManager {
 
         // Move event handlers from state to event manager
         self.event_handlers.extend(state.event_handlers.drain());
+        self.draw_handlers.extend(state.handlers.borrow_mut().draw_handlers.drain());
 
-
-        self.handlers.extend(state.handlers.drain());
-
-
+        self.handlers.extend(state.handlers.borrow_mut().event_handlers.drain());
 
         // Move events from state into event manager
         let event_queue = state.event_queue.clone();
@@ -125,7 +124,7 @@ impl EventManager {
 
                     if let Some(handlers) = self.handlers.get_mut(&entity) {
                         for handler in handlers {
-                            if (handler)(state, &Handle::new(entity, state.style.clone()), event) {
+                            if (handler)(state, &Handle::new(entity, state.style.clone(), state.handlers.clone()), event) {
                                 break;
                             }
                         }
@@ -152,7 +151,7 @@ impl EventManager {
 
                     if let Some(handlers) = self.handlers.get_mut(&entity) {
                         for handler in handlers {
-                            if (handler)(state, &Handle::new(entity, state.style.clone()), event) {
+                            if (handler)(state, &Handle::new(entity, state.style.clone(), state.handlers.clone()), event) {
                                 continue 'events;
                             }
                         }
@@ -169,7 +168,11 @@ impl EventManager {
 
             if let Some(handlers) = self.handlers.get_mut(&event.target) {
                 for handler in handlers {
-                    if (handler)(state, &Handle::new(event.target, state.style.clone()), event) {
+                    if (handler)(
+                        state,
+                        &Handle::new(event.target, state.style.clone(), state.handlers.clone()),
+                        event,
+                    ) {
                         continue 'events;
                     }
                 }
@@ -193,13 +196,11 @@ impl EventManager {
 
                     if let Some(handlers) = self.handlers.get_mut(&entity) {
                         for handler in handlers {
-                            if (handler)(state, &Handle::new(entity, state.style.clone()), event) {
+                            if (handler)(state, &Handle::new(entity, state.style.clone(), state.handlers.clone()), event) {
                                 continue 'events;
                             }
                         }
                     }
-
-                    
                 }
             }
 
@@ -266,6 +267,10 @@ impl EventManager {
         for widget in draw_hierarchy.into_iter() {
             if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
                 event_handler.on_draw(state, widget, canvas);
+            }
+
+            if let Some(draw_handler) = self.draw_handlers.get_mut(&widget) {
+                draw_handler.on_draw(state, widget, canvas);
             }
         }
 

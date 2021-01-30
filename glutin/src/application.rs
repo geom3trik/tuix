@@ -24,8 +24,6 @@ use tuix_core::state::hierarchy::IntoHierarchyIterator;
 
 use tuix_core::state::Fonts;
 
-use tuix_core::state::style::prop::*;
-
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
 use tuix_core::systems::{apply_clipping, apply_styles, apply_visibility, apply_z_ordering};
@@ -51,7 +49,7 @@ impl Application {
 
         let event_manager = EventManager::new();
 
-        let root = Handle::new(Entity::new(0, 0), state.style.clone());
+        let root = Handle::new(Entity::new(0, 0), state.style.clone(), state.handlers.clone());
         state.hierarchy.add(root.entity, None);
 
         //let window_description = win(WindowDescription::new());

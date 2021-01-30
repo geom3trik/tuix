@@ -25,8 +25,8 @@ pub use button::*;
 // pub mod dropdown;
 // pub use dropdown::*;
 
-// pub mod menu;
-// pub use menu::*;
+pub mod menu;
+pub use menu::*;
 
 // pub mod scroll_container;
 // pub use scroll_container::*;
@@ -43,11 +43,11 @@ pub use button::*;
 // pub mod panel;
 // pub use panel::*;
 
-// pub mod radio;
-// pub use radio::*;
+pub mod radio;
+pub use radio::*;
 
-// pub mod label;
-// pub use label::*;
+pub mod label;
+pub use label::*;
 
 // pub mod containers;
 // pub use containers::*;
@@ -62,5 +62,6 @@ pub use window::WindowWidget;
 // pub use audio_widgets::*;
 
 pub use crate::entity::Entity;
+pub use crate::state::handle::Handle;
 pub use crate::events::{BuildHandler, EventHandler};
 pub use crate::state::State;

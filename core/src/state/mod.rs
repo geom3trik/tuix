@@ -1,4 +1,5 @@
 pub mod entity;
+use bimap::btree::Iter;
 pub use entity::*;
 
 pub mod hierarchy;
@@ -25,18 +26,24 @@ pub use resource::*;
 pub mod handle;
 pub use handle::*;
 
-use crate::Message;
 pub use crate::events::{Event, EventHandler, Propagation};
 pub use crate::window_event::WindowEvent;
+use crate::Message;
 
-use femtovg::FontId;
-
-use std::collections::{HashMap, VecDeque};
+use std::{any::TypeId, collections::{HashMap, VecDeque}};
 
 use fnv::FnvHashMap;
 
+use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+//use hecs::{World,Query};
+
+use femtovg::{
+    renderer::OpenGl, Baseline, Canvas, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
+    Paint, Path, Renderer, Solidity,
+};
 
 #[derive(Clone)]
 pub struct Fonts {
@@ -45,37 +52,431 @@ pub struct Fonts {
     pub icons: Option<FontId>,
 }
 
-// pub struct State {
+pub trait DrawHandler {
+    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
+        // Skip window
+        if entity == Entity::new(0, 0) {
+            return;
+        }
 
-//     pub shared_state: Rc<RefCell<SharedState>>,
-// }
+        // Skip invisible widgets
+        if state.transform.get_visibility(entity) == Visibility::Invisible {
+            return;
+        }
 
-// impl State {
-//     pub fn insert_event(&mut self, mut event: Event) {
-//         if event.unique {
-//             self.shared_state
-//                 .borrow_mut()
-//                 .event_queue
-//                 .retain(|e| e != &event);
-//         }
+        if state.transform.get_opacity(entity) == 0.0 {
+            return;
+        }
 
-//         self.shared_state.borrow_mut().event_queue.push_back(event);
-//     }
+        let posx = state.transform.get_posx(entity);
+        let posy = state.transform.get_posy(entity);
+        let width = state.transform.get_width(entity);
+        let height = state.transform.get_height(entity);
 
-//     pub fn insert_theme(&mut self, theme: &str) {
-//         self.shared_state
-//             .borrow_mut()
-//             .resource_manager
-//             .themes
-//             .push(theme.to_owned());
+        let padding_left = match state
+            .style
+            .borrow_mut()
+            .padding_left
+            .get(entity)
+            .unwrap_or(&Length::Auto)
+        {
+            Length::Pixels(val) => *val,
+            _ => 0.0,
+        };
 
-//         self.shared_state.borrow_mut().reload_styles();
-//         // self.style.parse_theme(&overall_theme);
-//     }
-// }
+        let padding_right = match state
+            .style
+            .borrow_mut()
+            .padding_right
+            .get(entity)
+            .unwrap_or(&Length::Auto)
+        {
+            Length::Pixels(val) => *val,
+            _ => 0.0,
+        };
 
-pub struct Meta {
+        let padding_top = match state
+            .style
+            .borrow_mut()
+            .padding_top
+            .get(entity)
+            .unwrap_or(&Length::Auto)
+        {
+            Length::Pixels(val) => *val,
+            _ => 0.0,
+        };
+
+        let padding_bottom = match state
+            .style
+            .borrow_mut()
+            .padding_bottom
+            .get(entity)
+            .unwrap_or(&Length::Auto)
+        {
+            Length::Pixels(val) => *val,
+            _ => 0.0,
+        };
+
+        let background_color = state
+            .style
+            .borrow_mut()
+            .background_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let font_color = state
+            .style
+            .borrow_mut()
+            .font_color
+            .get(entity)
+            .cloned()
+            .unwrap_or(crate::Color::rgb(255, 255, 255));
+
+        let border_color = state
+            .style
+            .borrow_mut()
+            .border_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let shadow_color = state
+            .style
+            .borrow_mut()
+            .shadow_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let parent = state
+            .hierarchy
+            .get_parent(entity)
+            .expect("Failed to find parent somehow");
+
+        let parent_width = state.transform.get_width(parent);
+        let parent_height = state.transform.get_height(parent);
+
+        let border_radius_top_left = match state
+            .style
+            .borrow_mut()
+            .border_radius_top_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let border_radius_top_right = match state
+            .style
+            .borrow_mut()
+            .border_radius_top_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let border_radius_bottom_left = match state
+            .style
+            .borrow_mut()
+            .border_radius_bottom_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let border_radius_bottom_right = match state
+            .style
+            .borrow_mut()
+            .border_radius_bottom_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let opacity = state.transform.get_opacity(entity);
+
+        let mut background_color: femtovg::Color = background_color.into();
+        background_color.set_alphaf(background_color.a * opacity);
+
+        let mut border_color: femtovg::Color = border_color.into();
+        border_color.set_alphaf(border_color.a * opacity);
+
+        let mut shadow_color: femtovg::Color = shadow_color.into();
+        shadow_color.set_alphaf(shadow_color.a * opacity);
+
+        let border_width = match state
+            .style
+            .borrow_mut()
+            .border_width
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        // Skip widgets with no width or no height
+        if width + 2.0 * border_width + padding_left + padding_right == 0.0
+            || height + 2.0 * border_width + padding_top + padding_bottom == 0.0
+        {
+            return;
+        }
+
+        // Apply transformations
+        let rotate = *state.style.borrow_mut().rotate.get(entity).unwrap_or(&0.0);
+        let scaley = state
+            .style
+            .borrow_mut()
+            .scaley
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        canvas.save();
+        canvas.translate(posx + width / 2.0, posy + height / 2.0);
+        canvas.rotate(rotate.to_radians());
+        canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+
+        //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
+        //canvas.translate(posx + width / 2.0, posy + width / 2.0);
+        // canvas.translate(pt.0, pt.1);
+        // canvas.scale(1.0, scaley.0);
+        // canvas.translate(-pt.0, -pt.1);
+
+        // Apply Scissor
+        let clip_entity = state.transform.get_clip_widget(entity);
+
+        let clip_posx = state.transform.get_posx(clip_entity);
+
+        let clip_posy = state.transform.get_posy(clip_entity);
+
+        let clip_width = state.transform.get_width(clip_entity);
+
+        let clip_height = state.transform.get_height(clip_entity);
+
+        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+        //canvas.scissor(0.0, 0.0, 100.0, 100.0);
+
+        let shadow_h_offset = match state
+            .style
+            .borrow_mut()
+            .shadow_h_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let shadow_v_offset = match state
+            .style
+            .borrow_mut()
+            .shadow_v_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let shadow_blur = match state
+            .style
+            .borrow_mut()
+            .shadow_blur
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let shadow_color = state
+            .style
+            .borrow_mut()
+            .shadow_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let mut shadow_color: femtovg::Color = shadow_color.into();
+        shadow_color.set_alphaf(shadow_color.a * opacity);
+
+        // Draw shadow (TODO)
+        let mut path = Path::new();
+        path.rect(
+            posx + (border_width / 2.0) - shadow_blur + shadow_h_offset,
+            posy + (border_width / 2.0) - shadow_blur + shadow_v_offset,
+            width - border_width + 2.0 * shadow_blur,
+            height - border_width + 2.0 * shadow_blur,
+        );
+        // path.rounded_rect_varying(
+        //     posx + (border_width / 2.0),
+        //     posy + (border_width / 2.0),
+        //     width - border_width,
+        //     height - border_width,
+        //     border_radius_top_left,
+        //     border_radius_top_right,
+        //     border_radius_bottom_right,
+        //     border_radius_bottom_left,
+        // );
+        // path.solidity(Solidity::Hole);
+        //let mut paint = Paint::color(shadow_color);
+
+        let mut paint = Paint::box_gradient(
+            posx + (border_width / 2.0) + shadow_h_offset,
+            posy + (border_width / 2.0) + shadow_v_offset,
+            width - border_width,
+            height - border_width,
+            border_radius_top_left,
+            shadow_blur,
+            shadow_color,
+            femtovg::Color::rgba(0, 0, 0, 0),
+        );
+
+        canvas.fill_path(&mut path, paint);
+
+        // Draw rounded rect
+        let mut path = Path::new();
+        path.rounded_rect_varying(
+            posx + (border_width / 2.0),
+            posy + (border_width / 2.0),
+            width - border_width,
+            height - border_width,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left,
+        );
+        let mut paint = Paint::color(background_color);
+        canvas.fill_path(&mut path, paint);
+
+        // Draw border
+        let mut paint = Paint::color(border_color);
+        paint.set_line_width(border_width);
+        canvas.stroke_path(&mut path, paint);
+
+        let text_align = state
+            .style
+            .borrow_mut()
+            .text_align
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let text_justify = state
+            .style
+            .borrow_mut()
+            .text_justify
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let font_size = state
+            .style
+            .borrow_mut()
+            .font_size
+            .get(entity)
+            .cloned()
+            .unwrap_or(16.0);
+
+        // Draw text
+        if let Some(text) = state.style.borrow_mut().text.get_mut(entity) {
+            let font_id = match text.font.as_ref() {
+                "Sans" => state.fonts.regular.unwrap(),
+                "Icons" => state.fonts.icons.unwrap(),
+                _ => state.fonts.regular.unwrap(),
+            };
+
+            let mut x = posx + (border_width / 2.0);
+            let mut y = posy + (border_width / 2.0);
+
+            let text_string = text.text.to_owned();
+
+            let align = match text_justify {
+                Justify::Start => {
+                    x += padding_left;
+                    femtovg::Align::Left
+                }
+                Justify::Center => {
+                    x += 0.5 * width;
+                    femtovg::Align::Center
+                }
+                Justify::End => {
+                    x += width - padding_right;
+                    femtovg::Align::Right
+                }
+            };
+
+            let baseline = match text_align {
+                crate::style::Align::Start => {
+                    y += padding_top;
+                    Baseline::Top
+                }
+                crate::style::Align::Center => {
+                    y += 0.5 * height;
+                    Baseline::Middle
+                }
+                crate::style::Align::End => {
+                    y += height - padding_bottom;
+                    Baseline::Bottom
+                }
+            };
+
+            let mut font_color: femtovg::Color = font_color.into();
+            font_color.set_alphaf(font_color.a * opacity);
+
+            let mut paint = Paint::color(font_color);
+            paint.set_font_size(font_size);
+            paint.set_font(&[font_id]);
+            paint.set_text_align(align);
+            paint.set_text_baseline(baseline);
+            paint.set_anti_alias(false);
+
+            canvas.fill_text(x, y, &text_string, paint);
+        }
+
+        canvas.restore();
+    }
+}
+
+#[derive(Default)]
+pub struct DefaultDrawHandler {}
+
+impl DrawHandler for DefaultDrawHandler {}
+
+pub struct EventData {
     pub target: Entity,
+}
+
+#[derive(Default)]
+pub struct Handlers {
+    pub draw_handlers: FnvHashMap<Entity, Box<dyn DrawHandler>>,
+    pub event_handlers: FnvHashMap<Entity, Vec<Box<dyn FnMut(&mut State, &Handle, &mut Event) -> bool + 'static>>>,
+    pub components: FnvHashMap<(Entity, TypeId), Rc<dyn Any + 'static>>,
 }
 
 pub struct State {
@@ -92,13 +493,16 @@ pub struct State {
     pub focused: Entity,
 
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
-    pub handlers:
-        FnvHashMap<Entity, Vec<Box<dyn FnMut(&mut State, &Handle, &mut Event) -> bool + 'static>>>,
+    
+    pub handlers: Rc<RefCell<Handlers>>,
+
     pub event_queue: VecDeque<Event>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
     pub resource_manager: ResourceManager, //TODO
+
+    pub handles: Vec<Handle>,
 }
 
 impl State {
@@ -137,7 +541,11 @@ impl State {
             captured: Entity::null(),
             focused: Entity::new(0, 0),
             event_handlers: FnvHashMap::default(),
-            handlers: FnvHashMap::default(),
+            //draw_handlers: FnvHashMap::default(),
+            // event handlers
+            //handlers: FnvHashMap::default(),
+            handlers: Rc::new(RefCell::new(Handlers::default())),
+            //components: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             fonts: Fonts {
                 regular: None,
@@ -145,6 +553,7 @@ impl State {
                 icons: None,
             },
             resource_manager: ResourceManager::new(),
+            handles: Vec::new(),
         }
     }
 
@@ -155,24 +564,167 @@ impl State {
         self.event_handlers.insert(entity, Box::new(event_handler));
     }
 
-    pub fn insert_event_handler<E: Message, F: FnMut(&mut State, &Handle, &Meta, &mut E) -> bool + 'static>(&mut self, entity: Entity, mut handler: F) {
-        self.add_erased_handler(entity, Box::new(move |state, handle, event| {
-            if let Some(e) = event.message.downcast::<E>() {
-                (handler)(state, handle, &Meta{target: event.target}, e)
-            } else {
-                false
-            }
-        }));
+    pub fn insert_event_handler<E, F>(&mut self, entity: Entity, mut handler: F)
+    where
+        E: Message,
+        F: FnMut(&mut State, &Handle, &EventData, &mut E) -> bool + 'static,
+    {
+        self.add_erased_handler(
+            entity,
+            Box::new(move |state, handle, event| {
+                if let Some(e) = event.message.downcast::<E>() {
+                    (handler)(
+                        state,
+                        handle,
+                        &EventData {
+                            target: event.target,
+                        },
+                        e,
+                    )
+                } else {
+                    false
+                }
+            }),
+        );
     }
 
-    fn add_erased_handler(&mut self, entity: Entity, handler: Box<dyn FnMut(&mut State, &Handle, &mut Event) -> bool + 'static>) {
-        if let Some(handlers) = self.handlers.get_mut(&entity) {
+    // pub fn insert_event_handler2<C, E, F>(&mut self, entity: Entity, mut handler: F)
+    // where
+    //     C: Message,
+    //     E: Message,
+    //     F: FnMut(&mut C, &Handle, &Meta, &mut E) -> bool + 'static
+    // {
+    //     self.add_erased_handler(entity, Box::new(move |state, handle, event| {
+    //         if let Some(boxed_component) = state.components.get_mut(&(entity, TypeId::of::<C>())) {
+    //             if let Some(component) = boxed_component.downcast::<C>() {
+    //                 if let Some(e) = event.message.downcast::<E>() {
+    //                     (handler)(component, handle, &Meta{target: event.target}, e)
+    //                 } else {
+    //                     false
+    //                 }
+    //             } else {
+    //                 false
+    //             }
+    //         } else {
+    //             false
+    //         }
+
+    //     }));
+    // }
+
+    pub fn insert_event_handler3<C, E, F>(&mut self, entity: Entity, mut handler: F)
+    where
+        C: std::any::Any + 'static,
+        E: Message,
+        F: FnMut(&mut C, &mut State, &Handle, &EventData, &mut E) -> bool + 'static,
+    {
+        let rc_component: Rc<RefCell<C>> = self
+            .handlers
+            .borrow_mut()
+            .components
+            .get(&(entity, TypeId::of::<C>()))
+            .and_then(|rc| Rc::downcast(rc.clone()).ok())
+            .unwrap(); // !!!
+        self.add_erased_handler(
+            entity,
+            Box::new(move |state, handle, event| {
+                if let Some(e) = event.message.downcast::<E>() {
+                    (handler)(
+                        &mut *rc_component.borrow_mut(),
+                        state,
+                        handle,
+                        &EventData {
+                            target: event.target,
+                        },
+                        e,
+                    )
+                } else {
+                    false
+                }
+            }),
+        );
+    }
+
+    fn add_erased_handler(
+        &mut self,
+        entity: Entity,
+        handler: Box<dyn FnMut(&mut State, &Handle, &mut Event) -> bool + 'static>,
+    ) {
+        if let Some(handlers) = self.handlers.borrow_mut().event_handlers.get_mut(&entity) {
             handlers.push(handler);
-        } else {
-            let mut handlers = Vec::new();
-            handlers.push(handler);
-            self.handlers.insert(entity, handlers);
-        }
+            return;
+        } 
+        
+        let mut handlers = Vec::new();
+        handlers.push(handler);
+        self.handlers.borrow_mut().event_handlers.insert(entity, handlers);
+        
+    }
+
+    // pub fn add_component<C: hecs::Component>(&mut self, handle: &mut Handle, component: C) {
+    //     handle.hecs_entity = self.world.spawn((component,));
+
+    // }
+
+    pub fn add_component2<C: 'static + Any + Clone + PartialEq>(
+        &mut self,
+        handle: &Handle,
+        component: C,
+    ) {
+        self.handlers.borrow_mut().components.insert(
+            (handle.entity, component.type_id()),
+            Rc::new(RefCell::new(component)),
+        );
+    }
+
+    // pub fn insert_handler<E: Message, Q: hecs::Query, F: FnMut(&Handle, hecs::QueryItem<'_,Q>, &mut E) -> bool + 'static>(&mut self, handle: &Handle, mut handler: F) {
+    //     self.add_erased_handler(handle.entity, Box::new(move |state, handle, event|{
+
+    //         if let Some(e) = event.message.downcast::<E>() {
+    //             if let Ok(components) = state.world.query_one_mut::<Q>(handle.hecs_entity) {
+    //                 (handler)(handle, components, e)
+    //             } else {
+    //                 false
+    //             }
+
+    //         } else {
+    //             false
+    //         }
+    //     }));
+    // }
+
+    // fn add_erased_handler2(&mut self, entity: hecs::Entity, handler: Box<dyn FnMut(&mut hecs::World) -> bool + 'static>) {
+    //     println!("Do Something");
+    // }
+
+    // pub fn insert_handler2<Q: hecs::Query, F>(&mut self, mut handler: F, e: hecs::Entity)
+    // where F: FnMut(<<Q as hecs::Query>::Fetch as hecs::Fetch>::Item) -> bool + 'static {
+    //     self.add_erased_handler2(e, Box::new(move |world| {
+    //         if let Ok(components) = world.query_one_mut::<Q>(e) {
+    //             (handler)(components)
+    //         } else {
+    //             false
+    //         }
+    //     }));
+    // }
+
+    pub fn insert_draw_handler<D: DrawHandler + 'static>(
+        &mut self,
+        entity: Entity,
+        draw_handler: D,
+    ) {
+        self.handlers.borrow_mut().draw_handlers.insert(entity, Box::new(draw_handler));
+    }
+
+    pub fn add_widget(&mut self, parent: &Handle) -> Handle {
+        // Create an entity
+        let entity = self.add(parent.entity);
+
+        // Call the build handler?
+        //self.handles.push(Handle::new(entity, self.style.clone()));
+
+        //self.handles.last().unwrap()
+        Handle::new(entity, self.style.clone(), self.handlers.clone())
     }
 
     pub fn insert_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {

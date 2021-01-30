@@ -4,12 +4,85 @@ use crate::entity::Entity;
 use crate::mouse::*;
 
 use crate::{BuildHandler, Event, EventHandler, Propagation, Visibility, WindowEvent};
-use crate::{JustifyContent, Length, PropSet, State};
+use crate::{JustifyContent, Length, State, Handle, EventData, IntoChildIterator, PropSet, DefaultDrawHandler};
 
 use crate::widgets::Button;
 
 use crate::state::style::AlignItems;
 
+
+#[derive(Debug,Clone,PartialEq)]
+pub enum RadioEvent {
+    Checked(Entity),
+}
+
+pub fn radio_button_event_handler(    
+    state: &mut State,
+    handle: &Handle,
+    event_data: &EventData,
+    event: &mut WindowEvent,
+) -> bool {
+    match event {
+        WindowEvent::MouseDown(button) => {
+            if *button == MouseButton::Left && event_data.target == handle.entity {
+                state.insert_event(Event::new(RadioEvent::Checked(handle.entity)).target(handle.entity));
+            }
+        }
+
+        _=> {}
+    }
+
+    false
+}
+
+pub fn radio_list_event_handler(
+    state: &mut State,
+    handle: &Handle,
+    event_data: &EventData,
+    event: &mut RadioEvent,
+) -> bool {
+    match event {
+        RadioEvent::Checked(entity) => {
+
+            for child in handle.entity.child_iter(&state.hierarchy.clone()) {
+
+                child.set_checked(state, false);
+            }
+            
+            entity.set_checked(state, true);
+        }
+    }
+
+    false
+}
+
+pub struct RadioList {
+
+}
+
+impl RadioList {
+    pub fn new() -> Self {
+        Self {
+
+        }
+    }
+}
+
+impl BuildHandler for RadioList {
+    type Ret = Handle;
+    fn on_build(&mut self, state: &mut State, handle: Handle) -> Self::Ret {
+
+
+        handle
+            .set_element("radio_list")
+            .add_draw_hander(DefaultDrawHandler::default())
+            .add_event_handler2(radio_list_event_handler)
+    }
+}
+
+
+
+/*
 #[derive(Debug, Clone, PartialEq)]
 pub enum RadioEvent {
     Activate(Entity, String),
@@ -149,3 +222,4 @@ impl EventHandler for RadioBox {
         false
     }
 }
+*/

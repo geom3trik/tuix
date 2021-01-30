@@ -13,7 +13,7 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 // Inherited by all widgets
-pub trait BuildHandler: EventHandler {
+pub trait BuildHandler {
     type Ret;
 
     fn on_build(&mut self, state: &mut State, handle: Handle) -> Self::Ret;
@@ -36,13 +36,17 @@ pub trait BuildHandler: EventHandler {
     where
         Self: std::marker::Sized + 'static,
     {
-        let id = state.add(parent.entity);
+        //let id = state.add(parent.entity);
 
-        let handle = Handle::new(id, state.style.clone());
+        let handle = state.add_widget(parent);
+
+        //let handle = Handle::new(id, state.style.clone());
 
         let handles = self.on_build(state, handle);
 
-        state.event_handlers.insert(id, Box::new(self));
+        //state.handles.push(handle);
+
+        //state.event_handlers.insert(id, Box::new(self));
 
         handles
     }

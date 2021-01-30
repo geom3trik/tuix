@@ -15,22 +15,10 @@ pub enum CustomEvent {
     TestEvent,
 }
 
-fn custom_handler(state: &mut State, handle: &Handle, meta: &Meta, event: &mut CustomEvent) -> bool {
-    
+pub fn custom_event_handler(state: &mut State, handle: &Handle, event_data: &EventData, event: &mut CustomEvent) -> bool {
     match event {
         CustomEvent::TestEvent => {
-            println!("Test Event!");
-        }
-    }
-
-    false
-}
-
-fn another_handler(state: &mut State, handle: &Handle, meta: &Meta, event: &mut CustomEvent) -> bool {
-
-    match event {
-        CustomEvent::TestEvent => {
-            println!("Another Test Event!");
+            println!("Test!");
         }
     }
 
@@ -41,35 +29,62 @@ fn main() {
     let app = Application::new(|win_desc, state, window| {
         state.insert_theme(DEFAULT_THEME);
 
-        let test_button = Button::with_label("Hello Test").build(state, &window);
-        test_button.set_width(Length::Pixels(400.0));
-        test_button.set_height(Length::Pixels(400.0));
 
-        //let mut handlers: Vec<fn(&mut State, &Handle, &mut Event) -> bool> = Vec::new();
-        //handlers.push(custom_handler);
-        //handlers.push(another_handler);
-        //state.handlers.insert(test_button.entity, handlers);
+        // let mut test_button = Button::with_label("Hello GUI")
+        //     .build(state, &window)
+        //     .add_event_handler2(custom_event_handler);
 
-        state.insert_event_handler(test_button.entity, |state, handle, meta, event : &mut CustomEvent|{
-            match event {
-                CustomEvent::TestEvent => {
-                    println!("Test!");
-                }
-            }
+        let radio_list = RadioList::new().build(state, &window);
 
-            false
-        });
-        state.insert_event_handler(test_button.entity, another_handler);
+        let my_button = Button::with_label("A")
+            .build(state, &radio_list)
+            .add_event_handler2(radio_button_event_handler);
 
-        // let child_button = Button::with_label("Child").build(state, &test_button);
-        // child_button.set_width(Length::Pixels(300.0));
-        // test_button.set_height(Length::Pixels(300.0));
+        let my_button = Button::with_label("B")
+            .build(state, &radio_list)
+            .add_event_handler2(radio_button_event_handler);
 
-        let my_button = Button::with_label("Test")
-            .on_press(Event::new(CustomEvent::TestEvent).target(test_button.entity))
-            .build(state, &window)
-            .set_width(Length::Pixels(100.0))
-            .set_height(Length::Pixels(30.0));
+        let my_button = Button::with_label("C")
+            .build(state, &radio_list)
+            .add_event_handler2(radio_button_event_handler);
+
+
+
+        //.on_press(Event::new(CustomEvent::TestEvent).target(test_button.entity))
+
+
+
+        // let mut test_button = state
+        //     .add_widget(&window)
+        //     .set_width(Length::Pixels(200.0))
+        //     .set_height(Length::Pixels(200.0))
+        //     .set_text("Hello GUI")
+        //     .set_element("button")
+        //     .add_draw_hander(DefaultDrawHandler::default())
+        //     .add_event_handler2(|state, handle, meta, event: &mut CustomEvent| {
+        //         match event {
+        //             CustomEvent::TestEvent => {
+        //                 println!("Test!");
+        //             }
+        //         }
+
+        //         false
+        //     });
+
+        // let my_button = state
+        //     .add_widget(&window)
+        //     .set_text("Test")
+        //     .set_width(Length::Pixels(100.0))
+        //     .set_height(Length::Pixels(30.0))
+        //     .set_element("button")
+        //     .add_draw_hander(DefaultDrawHandler::default())
+        //     .add_component(ButtonState::default()
+        //         .on_press(Event::new(CustomEvent::TestEvent).target(test_button.entity))
+        //     )
+        //     .add_event_handler(button_handler);
+
+
+
 
         // let my_button = Button::with_label("Hello GUI!").build(state, window, |builder| {
         //     builder.set_text("Button")

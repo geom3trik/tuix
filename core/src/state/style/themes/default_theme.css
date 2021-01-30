@@ -16,6 +16,10 @@ button:hover {
     background-color: #ff7033;
 }
 
+button:checked {
+    background-color: #ff3333;
+}
+
 panel hbox {
     height: 30px;
     padding: 10px;
