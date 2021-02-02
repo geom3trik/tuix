@@ -1,4 +1,4 @@
-use crate::state::animator::{AnimationState, Interpolator};
+use crate::state::animation::{AnimationState, Interpolator};
 use crate::state::Entity;
 
 #[derive(Copy, Clone)]

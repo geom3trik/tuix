@@ -24,9 +24,9 @@ pub enum WindowEvent {
     MouseMove(f32, f32),
     // Emitted when the mouse scroll wheel is scrolled
     MouseScroll(f32, f32),
-    //
+    // Emitted when the mouse cursor enters the bounding box of an entity
     MouseOver,
-    //
+    // Emitted when the mouse cursor leaves the bounding box of an entity
     MouseOut,
     // Emitted when a character is typed
     CharInput(char),
@@ -42,7 +42,10 @@ pub enum WindowEvent {
     MouseCaptureOutEvent,
     // Emitted when an entity changes position or size (TODO: check if this includes margins + borders)
     GeometryChanged,
+    // Requests a redraw of the window contents
     Redraw,
+    // Request a restyle
     Restyle,
+    // Requests a relayout
     Relayout,
 }

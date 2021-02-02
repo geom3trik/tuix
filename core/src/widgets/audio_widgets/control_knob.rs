@@ -105,7 +105,7 @@ impl BuildHandler for ControlKnob {
 }
 
 impl EventHandler for ControlKnob {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
                 SliderEvent::SetValue(val) => {
@@ -216,16 +216,14 @@ impl EventHandler for ControlKnob {
                 _ => {}
             }
         }
-
-        return false;
     }
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        let opacity = state.transform.get_opacity(entity);
+        let opacity = state.data.get_opacity(entity);
 
         let mut knob_color: femtovg::Color = state
             .style
@@ -263,10 +261,10 @@ impl EventHandler for ControlKnob {
             .into();
         tick_color.set_alphaf(tick_color.a * opacity);
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         let cx = posx + 0.5 * width;
         let cy = posy + 0.5 * height;

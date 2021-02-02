@@ -88,8 +88,10 @@ fn main() {
         let panel = Panel::new("Radio List").build(state, rvbox, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Radio List").build(state, row, |builder| builder);
-        RadioList::new("group1").build(state, row, |builder| builder);
-        RadioBox::new("group1").build(state, row, |builder| builder);
+        let radio_list = RadioList::new().build(state, row, |builder| builder);
+        RadioButton::new().build(state, radio_list, |builder| builder);
+        RadioButton::new().build(state, radio_list, |builder| builder);
+        RadioButton::new().build(state, radio_list, |builder| builder);
 
         // Tabs
         // let (tab_bar, tab_container) = TabContainer::new().build(state, window, |builder| builder);

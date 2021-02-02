@@ -18,7 +18,7 @@ impl WindowWidget {
 }
 
 impl EventHandler for WindowWidget {
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::WindowClose => {
@@ -29,7 +29,7 @@ impl EventHandler for WindowWidget {
                     //println!("Restyle");
                     //apply_styles2(state, &state.hierarchy.clone(), event.origin);
                     apply_styles(state, &state.hierarchy.clone());
-                    //apply_visibility(state, &state.hierarchy.clone());
+                    apply_visibility(state, &state.hierarchy.clone());
                 }
 
                 WindowEvent::Relayout => {
@@ -44,7 +44,5 @@ impl EventHandler for WindowWidget {
                 _ => {}
             }
         }
-
-        false
     }
 }

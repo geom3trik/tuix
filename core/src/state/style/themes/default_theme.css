@@ -196,3 +196,29 @@ slider2>.thumb {
     border-radius: 9.5px;
 }
 
+radio {
+    border-color: black;
+    border-width: 1px;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+radio>.marker {
+    background-color: #ff5e1a;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+}
+
+radio>.marker {
+    visibility: hidden;
+    display: none;
+}
+
+radio:checked>.marker {
+    visibility: visible;
+    display: flex;
+}

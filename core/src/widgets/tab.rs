@@ -76,7 +76,7 @@ impl BuildHandler for TabBar {
 }
 
 impl EventHandler for TabBar {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
                 TabEvent::SwitchTab(tab_index) => {
@@ -95,8 +95,6 @@ impl EventHandler for TabBar {
                 }
             }
         }
-
-        false
     }
 }
 
@@ -179,7 +177,7 @@ impl EventHandler for TabContainer {
     //     self.container
     // }
 
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
                 TabEvent::SwitchTab(tab_index) => {
@@ -195,7 +193,5 @@ impl EventHandler for TabContainer {
                 }
             }
         }
-
-        false
     }
 }

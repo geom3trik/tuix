@@ -2,7 +2,7 @@
 
 use crate::entity::Entity;
 
-use crate::state::animator::Interpolator;
+use crate::state::animation::Interpolator;
 use crate::style::color::Color;
 
 use crate::style::Length;

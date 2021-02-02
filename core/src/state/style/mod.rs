@@ -11,7 +11,7 @@ use crate::state::storage::animatable_storage::AnimatableStorage;
 use crate::state::storage::dense_storage::DenseStorage;
 use crate::state::storage::style_storage::StyleStorage;
 
-use crate::state::animator::AnimationState;
+use crate::state::animation::AnimationState;
 
 pub mod themes;
 
@@ -22,9 +22,6 @@ pub use prop::PropSet;
 
 pub mod flexbox;
 pub use flexbox::*;
-
-// pub mod grid;
-// pub use grid::*;
 
 pub mod layout;
 pub use layout::*;
@@ -41,9 +38,6 @@ pub use display::*;
 pub mod property;
 pub use property::*;
 
-// pub mod stylesheet;
-// pub use stylesheet::StyleSheet;
-
 pub mod selector;
 pub use selector::*;
 
@@ -56,8 +50,8 @@ pub use rule::*;
 pub mod color;
 pub use color::Color;
 
-pub mod trans;
-pub use trans::Scale;
+pub mod transform;
+pub use transform::Scale;
 
 use bimap::BiMap;
 

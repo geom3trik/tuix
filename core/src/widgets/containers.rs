@@ -76,20 +76,20 @@ impl BuildHandler for ResizableVBox {
 }
 
 impl EventHandler for ResizableVBox {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {
                         if state.mouse.left.pos_down.0
-                            >= state.transform.get_posx(entity) + state.transform.get_width(entity)
+                            >= state.data.get_posx(entity) + state.data.get_width(entity)
                                 - 4.0
                             && state.mouse.left.pos_down.0
-                                <= state.transform.get_posx(entity)
-                                    + state.transform.get_width(entity)
+                                <= state.data.get_posx(entity)
+                                    + state.data.get_width(entity)
                         {
                             self.resizing = true;
-                            self.previous_width = state.transform.get_width(entity);
+                            self.previous_width = state.data.get_width(entity);
                             state.capture(entity);
                         }
                     }
@@ -124,11 +124,11 @@ impl EventHandler for ResizableVBox {
                         entity.set_width(state, Length::Pixels(self.previous_width + distx));
                     } else {
                         if *x
-                            > state.transform.get_posx(entity) + state.transform.get_width(entity)
+                            > state.data.get_posx(entity) + state.data.get_width(entity)
                                 - 4.0
                             && *x
-                                < state.transform.get_posx(entity)
-                                    + state.transform.get_width(entity)
+                                < state.data.get_posx(entity)
+                                    + state.data.get_width(entity)
                         {
                             state.insert_event(Event::new(WindowEvent::SetCursor(
                                 CursorIcon::EResize,
@@ -145,7 +145,5 @@ impl EventHandler for ResizableVBox {
                 _ => {}
             }
         }
-
-        false
     }
 }

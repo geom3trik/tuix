@@ -51,7 +51,7 @@ impl BuildHandler for Switch {
 }
 
 impl EventHandler for Switch {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             //println!("received window event: {:?}", window_event);
             match window_event {
@@ -66,7 +66,7 @@ impl EventHandler for Switch {
                                 entity.set_checked(state, true);
                             }
 
-                            return true;
+                            event.consume();
                         }
                     }
 
@@ -100,7 +100,5 @@ impl EventHandler for Switch {
                 }
             }
         }
-
-        false
     }
 }

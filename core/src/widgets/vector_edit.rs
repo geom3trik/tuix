@@ -43,7 +43,7 @@ impl BuildHandler for Dimension {
 }
 
 impl EventHandler for Dimension {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
@@ -74,8 +74,6 @@ impl EventHandler for Dimension {
                 _ => {}
             }
         }
-
-        false
     }
 }
 
@@ -249,28 +247,28 @@ where
         + std::str::FromStr
         + Send,
 {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         let target = event.target;
 
         if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             match dropdown_event {
                 DropdownEvent::SetText(text, _) => match text.as_ref() {
                     "1" => {
-                        if state.transform.get_width(self.x) == 0.0 {
+                        if state.data.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
 
-                        if state.transform.get_width(self.y) != 0.0 {
+                        if state.data.get_width(self.y) != 0.0 {
                             state.style.flex_grow.play_animation(self.y, self.hide);
                             state.style.margin_left.play_animation(self.y, self.shrink);
                         }
 
-                        if state.transform.get_width(self.z) != 0.0 {
+                        if state.data.get_width(self.z) != 0.0 {
                             state.style.flex_grow.play_animation(self.z, self.hide);
                             state.style.margin_left.play_animation(self.z, self.shrink);
                         }
 
-                        if state.transform.get_width(self.w) != 0.0 {
+                        if state.data.get_width(self.w) != 0.0 {
                             state.style.flex_grow.play_animation(self.w, self.hide);
                             state.style.margin_left.play_animation(self.w, self.shrink);
                         }
@@ -292,21 +290,21 @@ where
                     }
 
                     "2" => {
-                        if state.transform.get_width(self.x) == 0.0 {
+                        if state.data.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
 
-                        if state.transform.get_width(self.y) == 0.0 {
+                        if state.data.get_width(self.y) == 0.0 {
                             state.style.flex_grow.play_animation(self.y, self.reveal);
                             state.style.margin_left.play_animation(self.y, self.grow);
                         }
 
-                        if state.transform.get_width(self.z) != 0.0 {
+                        if state.data.get_width(self.z) != 0.0 {
                             state.style.flex_grow.play_animation(self.z, self.hide);
                             state.style.margin_left.play_animation(self.z, self.shrink);
                         }
 
-                        if state.transform.get_width(self.w) != 0.0 {
+                        if state.data.get_width(self.w) != 0.0 {
                             state.style.flex_grow.play_animation(self.w, self.hide);
                             state.style.margin_left.play_animation(self.w, self.shrink);
                         }
@@ -328,21 +326,21 @@ where
                     }
 
                     "3" => {
-                        if state.transform.get_width(self.x) == 0.0 {
+                        if state.data.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
 
-                        if state.transform.get_width(self.y) == 0.0 {
+                        if state.data.get_width(self.y) == 0.0 {
                             state.style.flex_grow.play_animation(self.y, self.reveal);
                             state.style.margin_left.play_animation(self.y, self.grow);
                         }
 
-                        if state.transform.get_width(self.z) == 0.0 {
+                        if state.data.get_width(self.z) == 0.0 {
                             state.style.flex_grow.play_animation(self.z, self.reveal);
                             state.style.margin_left.play_animation(self.z, self.grow);
                         }
 
-                        if state.transform.get_width(self.w) != 0.0 {
+                        if state.data.get_width(self.w) != 0.0 {
                             state.style.flex_grow.play_animation(self.w, self.hide);
                             state.style.margin_left.play_animation(self.w, self.shrink);
                         }
@@ -365,21 +363,21 @@ where
                     }
 
                     "4" => {
-                        if state.transform.get_width(self.x) == 0.0 {
+                        if state.data.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
 
-                        if state.transform.get_width(self.y) == 0.0 {
+                        if state.data.get_width(self.y) == 0.0 {
                             state.style.flex_grow.play_animation(self.y, self.reveal);
                             state.style.margin_left.play_animation(self.y, self.grow);
                         }
 
-                        if state.transform.get_width(self.z) == 0.0 {
+                        if state.data.get_width(self.z) == 0.0 {
                             state.style.flex_grow.play_animation(self.z, self.reveal);
                             state.style.margin_left.play_animation(self.z, self.grow);
                         }
 
-                        if state.transform.get_width(self.w) == 0.0 {
+                        if state.data.get_width(self.w) == 0.0 {
                             state.style.flex_grow.play_animation(self.w, self.reveal);
                             state.style.margin_left.play_animation(self.w, self.grow);
                         }
@@ -458,7 +456,5 @@ where
                 _ => {}
             }
         }
-
-        false
     }
 }

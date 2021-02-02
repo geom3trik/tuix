@@ -24,19 +24,11 @@ impl Hierarchy {
         }
     }
 
-    // Return the size of the hierarchy in bytes
-    pub fn bytes(&self) -> usize {
-        return self.entities.len() * std::mem::size_of::<Entity>()
-            + self.parent.len() * std::mem::size_of::<Option<Entity>>()
-            + self.first_child.len() * std::mem::size_of::<Option<Entity>>()
-            + self.next_sibling.len() * std::mem::size_of::<Option<Entity>>()
-            + self.prev_sibling.len() * std::mem::size_of::<Option<Entity>>();
-    }
-
     pub fn root(&self) -> Option<Entity> {
         return *self.parent.first().unwrap();
     }
 
+    /// Returns the last child of an entity
     pub fn get_last_child(&self, entity: Entity) -> Option<Entity> {
         //check if entity exists
 
@@ -50,6 +42,7 @@ impl Hierarchy {
         return r;
     }
 
+    /// Returns the nth child of an entity
     pub fn get_child(&self, entity: Entity, index: usize) -> Option<Entity> {
         let mut f = self.first_child[entity.index()];
         let mut i = 0;
@@ -64,6 +57,7 @@ impl Hierarchy {
         return f;
     }
 
+    /// Returns the number of children of an entity
     pub fn get_num_children(&self, entity: Entity) -> i32 {
         let mut f = self.first_child[entity.index()];
         let mut r = 0;
@@ -75,6 +69,7 @@ impl Hierarchy {
         return r;
     }
 
+    /// Returns the parent of an entity
     pub fn get_parent(&self, entity: Entity) -> Option<Entity> {
         if entity.index() >= self.parent.len() {
             None
@@ -83,18 +78,22 @@ impl Hierarchy {
         }
     }
 
+    /// Returns the first child of an entity 
     pub fn get_first_child(&self, entity: Entity) -> Option<Entity> {
         return self.first_child[entity.index()];
     }
 
+    /// Returns the next sibling of an entity
     pub fn get_next_sibling(&self, entity: Entity) -> Option<Entity> {
         return self.next_sibling[entity.index()];
     }
 
+    /// Returns the previous sibling of an entity
     pub fn get_prev_sibling(&self, entity: Entity) -> Option<Entity> {
         return self.prev_sibling[entity.index()];
     }
 
+    /// Returns true if the entity is the first child of its parent
     pub fn is_first_child(&self, entity: Entity) -> bool {
         if let Some(parent) = self.get_parent(entity) {
             if let Some(first_child) = self.get_first_child(parent) {
@@ -109,7 +108,7 @@ impl Hierarchy {
         false
     }
 
-    // Checks if entity1 is sibling of entity2
+    // Checks if entity1 is the sibling of entity2
     pub fn is_sibling(&self, entity1: Entity, entity2: Entity) -> bool {
         if let Some(parent1) = self.get_parent(entity1) {
             if let Some(parent2) = self.get_parent(entity2) {
@@ -123,6 +122,8 @@ impl Hierarchy {
     // Not decided yet how this should work
     pub fn remove_children(&mut self, _entity: Entity) {}
 
+
+    /// Returns true if the entity has children
     pub fn has_children(&self, entity: Entity) -> bool {
         self.first_child[entity.index()].is_some()
     }
@@ -246,8 +247,7 @@ impl Hierarchy {
             self.prev_sibling[sns.index()] = sibling_prev_sibling; // F
         }
 
-        // Temporarily store the prev_sibling of the entity
-        let entity_prev_sibling = self.get_prev_sibling(entity);
+        // Temporarily store the next_sibling of the entity
         let entity_next_sibling = self.get_next_sibling(entity);
 
         if let Some(ens) = entity_next_sibling {
@@ -306,7 +306,6 @@ impl Hierarchy {
 
         // Temporarily store the prev_sibling of the entity
         let entity_prev_sibling = self.get_prev_sibling(entity);
-        let entity_next_sibling = self.get_next_sibling(entity);
 
         if let Some(eps) = entity_prev_sibling {
             self.next_sibling[eps.index()] = Some(sibling); // A

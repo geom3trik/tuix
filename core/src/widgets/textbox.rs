@@ -110,7 +110,7 @@ impl BuildHandler for Textbox {
 }
 
 impl EventHandler for Textbox {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
                 TextboxEvent::SetValue(val) => {
@@ -372,8 +372,6 @@ impl EventHandler for Textbox {
                 _ => {}
             }
         }
-
-        false
     }
 
     fn on_draw(
@@ -389,18 +387,18 @@ impl EventHandler for Textbox {
         }
 
         // Skip invisible widgets
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        if state.transform.get_opacity(entity) == 0.0 {
+        if state.data.get_opacity(entity) == 0.0 {
             return;
         }
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
 
@@ -472,7 +470,7 @@ impl EventHandler for Textbox {
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 
-        let parent_width = state.transform.get_width(parent);
+        let parent_width = state.data.get_width(parent);
 
         let border_radius_top_left = match state
             .style
@@ -522,7 +520,7 @@ impl EventHandler for Textbox {
             _ => 0.0,
         };
 
-        let opacity = state.transform.get_opacity(entity);
+        let opacity = state.data.get_opacity(entity);
 
         let mut background_color: femtovg::Color = background_color.into();
         background_color.set_alphaf(background_color.a * opacity);
@@ -554,7 +552,7 @@ impl EventHandler for Textbox {
             return;
         }
 
-        // Apply transformations
+        // Apply dataations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
@@ -573,12 +571,12 @@ impl EventHandler for Textbox {
         canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let clip_entity = state.transform.get_clip_widget(entity);
+        let clip_entity = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.transform.get_posx(clip_entity);
-        let clip_posy = state.transform.get_posy(clip_entity);
-        let clip_width = state.transform.get_width(clip_entity);
-        let clip_height = state.transform.get_height(clip_entity);
+        let clip_posx = state.data.get_posx(clip_entity);
+        let clip_posy = state.data.get_posy(clip_entity);
+        let clip_width = state.data.get_width(clip_entity);
+        let clip_height = state.data.get_height(clip_entity);
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
 

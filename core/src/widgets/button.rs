@@ -59,22 +59,25 @@ impl BuildHandler for Button {
 }
 
 impl EventHandler for Button {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if entity == event.target {
-                            state.focused = entity;
+                            println!("Mouse Down on Button");
+                            //state.focused = entity;
 
-                            if let Some(mut on_release) = self.on_release.clone() {
-                                if on_release.target == Entity::null() {
-                                    on_release.target = entity;
+                            if let Some(mut on_press) = self.on_press.clone() {
+                                if on_press.target == Entity::null() {
+                                    on_press.target = entity;
                                 }
 
-                                on_release.origin = entity;
-                                on_release.propagation = Propagation::Down;
-                                state.insert_event(on_release);
+                                on_press.origin = entity;
+                                on_press.propagation = Propagation::Down;
+                                state.insert_event(on_press);
+
+                                
                             }
                         }
                     }
@@ -84,15 +87,18 @@ impl EventHandler for Button {
 
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-                        if entity == event.target && entity == state.focused {
-                            if let Some(mut on_press) = self.on_press.clone() {
-                                if on_press.target == Entity::null() {
-                                    on_press.target = entity;
+                        if entity == event.target && entity == state.hovered {
+
+                            if let Some(mut on_release) = self.on_release.clone() {
+                                if on_release.target == Entity::null() {
+                                    on_release.target = entity;
                                 }
 
-                                on_press.origin = entity;
-                                on_press.propagation = Propagation::Down;
-                                state.insert_event(on_press);
+                                on_release.origin = entity;
+                                on_release.propagation = Propagation::Down;
+                                state.insert_event(on_release);
+
+                                
                             }
                         }
                     }
@@ -103,7 +109,5 @@ impl EventHandler for Button {
                 _ => {}
             }
         }
-
-        false
     }
 }

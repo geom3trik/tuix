@@ -109,7 +109,7 @@ impl BuildHandler for ScrollContainerH {
 }
 
 impl EventHandler for ScrollContainerH {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 /*
@@ -119,8 +119,8 @@ impl EventHandler for ScrollContainerH {
                         && event.origin != self.container
                         && event.origin != self.horizontal_scroll
                     {
-                        let mut scrollh = state.transform.get_width(entity)
-                            / state.transform.get_width(self.container);
+                        let mut scrollh = state.data.get_width(entity)
+                            / state.data.get_width(self.container);
 
                         if scrollh >= 1.0 {
                             scrollh = 1.0;
@@ -135,10 +135,10 @@ impl EventHandler for ScrollContainerH {
                         // One way to fix this might be to check whether the value is currently being animated before setting here
                         // Possibly not the best solution but it works
                         if !state.style.left.is_animating(self.horizontal_scroll) {
-                            let dist = state.transform.get_posx(self.horizontal_scroll)
-                                - state.transform.get_posx(entity);
-                            let space = state.transform.get_width(entity)
-                                - (scrollh * state.transform.get_width(entity));
+                            let dist = state.data.get_posx(self.horizontal_scroll)
+                                - state.data.get_posx(entity);
+                            let space = state.data.get_width(entity)
+                                - (scrollh * state.data.get_width(entity));
                             self.scrollx = dist / space;
                         }
 
@@ -164,11 +164,11 @@ impl EventHandler for ScrollContainerH {
                             .insert(self.horizontal_scroll, Length::Percentage(scrollh));
 
                         let overflow = 1.0
-                            - (state.transform.get_width(self.container)
-                                / state.transform.get_width(entity));
+                            - (state.data.get_width(self.container)
+                                / state.data.get_width(entity));
                         let overflow2 = 1.0
-                            - (state.transform.get_width(entity)
-                                / state.transform.get_width(self.container));
+                            - (state.data.get_width(entity)
+                                / state.data.get_width(self.container));
 
                         // self.container
                         //     .set_top(state, Length::Percentage(self.scrolly * overflow));
@@ -203,8 +203,8 @@ impl EventHandler for ScrollContainerH {
 
                     //if event.target == entity {
 
-                    let overflow = state.transform.get_width(entity)
-                        - state.transform.get_width(self.horizontal_scroll);
+                    let overflow = state.data.get_width(entity)
+                        - state.data.get_width(self.horizontal_scroll);
 
                     if overflow == 0.0 {
                         return false;
@@ -212,13 +212,13 @@ impl EventHandler for ScrollContainerH {
 
                     // Need better names for these
                     let overflow = 1.0
-                        - (state.transform.get_width(self.container)
-                            / state.transform.get_width(entity));
+                        - (state.data.get_width(self.container)
+                            / state.data.get_width(entity));
                     let overflow2 = 1.0
-                        - (state.transform.get_width(entity)
-                            / state.transform.get_width(self.container));
+                        - (state.data.get_width(entity)
+                            / state.data.get_width(self.container));
 
-                    self.scrollx += (40.0 * *y) / (state.transform.get_width(entity) * overflow);
+                    self.scrollx += (40.0 * *y) / (state.data.get_width(entity) * overflow);
 
                     if self.scrollx < 0.0 {
                         self.scrollx = 0.0;
@@ -230,7 +230,7 @@ impl EventHandler for ScrollContainerH {
 
                     //println!("Scroll: {}", self.scrolly);
 
-                    // let mut scrollh = state.transform.get_height(entity) / state.transform.get_height(self.container);
+                    // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);
                     // if scrollh > 1.0 {
                     //     scrollh = 1.0;
                     // }
@@ -309,7 +309,7 @@ impl EventHandler for ScrollContainerH {
                             //     .get(self.entity)
                             //     .cloned()
                             //     .unwrap_or_default();
-                            //self.position = state.transform.get_posy(self.vertical_scroll);
+                            //self.position = state.data.get_posy(self.vertical_scroll);
                             self.position = self.scrollx;
                             state.capture(entity);
                         }
@@ -329,17 +329,17 @@ impl EventHandler for ScrollContainerH {
                 WindowEvent::MouseMove(x, y) => {
                     if self.moving {
                         let dist_x = *x - self.pressedx;
-                        let overflow = state.transform.get_width(entity)
-                            - state.transform.get_width(self.horizontal_scroll);
+                        let overflow = state.data.get_width(entity)
+                            - state.data.get_width(self.horizontal_scroll);
 
                         if overflow == 0.0 {
-                            return false;
+                            return;
                         }
 
                         let ratio = dist_x / overflow;
                         let r = self.position + ratio;
 
-                        // let mut scrollh = state.transform.get_height(entity) / state.transform.get_height(self.container);
+                        // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);
                         // if scrollh > 1.0 {
                         //     scrollh = 1.0;
                         // }
@@ -364,11 +364,11 @@ impl EventHandler for ScrollContainerH {
                         //    .set_top(state, Length::Pixels(self.position + dist_y));
 
                         let overflow = 1.0
-                            - (state.transform.get_width(self.container)
-                                / state.transform.get_width(entity));
+                            - (state.data.get_width(self.container)
+                                / state.data.get_width(entity));
                         let overflow2 = 1.0
-                            - (state.transform.get_width(entity)
-                                / state.transform.get_width(self.container));
+                            - (state.data.get_width(entity)
+                                / state.data.get_width(self.container));
 
                         self.container
                             .set_left(state, Length::Percentage(self.scrollx * overflow));
@@ -386,7 +386,6 @@ impl EventHandler for ScrollContainerH {
                 _ => {}
             }
         }
-        false
     }
 }
 
@@ -408,10 +407,8 @@ impl BuildHandler for Container {
 }
 
 impl EventHandler for Container {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {}
-
-        false
     }
 }
 
@@ -515,13 +512,13 @@ impl BuildHandler for ScrollContainer {
 }
 
 impl EventHandler for ScrollContainer {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::GeometryChanged => {
                     if event.target == self.container || event.target == entity {
-                        let mut scrollh = state.transform.get_height(entity)
-                            / state.transform.get_height(self.container);
+                        let mut scrollh = state.data.get_height(entity)
+                            / state.data.get_height(self.container);
 
                         if scrollh >= 1.0 {
                             scrollh = 1.0;
@@ -533,10 +530,10 @@ impl EventHandler for ScrollContainer {
                         }
 
                         if !state.style.top.is_animating(self.vertical_scroll) {
-                            let dist = state.transform.get_posy(self.vertical_scroll)
-                                - state.transform.get_posy(entity);
-                            let space = state.transform.get_height(entity)
-                                - (scrollh * state.transform.get_height(entity));
+                            let dist = state.data.get_posy(self.vertical_scroll)
+                                - state.data.get_posy(entity);
+                            let space = state.data.get_height(entity)
+                                - (scrollh * state.data.get_height(entity));
                             self.scrolly = dist / space;
                         }
 
@@ -559,11 +556,11 @@ impl EventHandler for ScrollContainer {
                             .insert(self.vertical_scroll, Length::Percentage(scrollh));
 
                         let overflow = 1.0
-                            - (state.transform.get_height(self.container)
-                                / state.transform.get_height(entity));
+                            - (state.data.get_height(self.container)
+                                / state.data.get_height(entity));
                         let overflow2 = 1.0
-                            - (state.transform.get_height(entity)
-                                / state.transform.get_height(self.container));
+                            - (state.data.get_height(entity)
+                                / state.data.get_height(self.container));
 
                         state
                             .style
@@ -590,25 +587,25 @@ impl EventHandler for ScrollContainer {
 
                     //if event.target == entity {
 
-                    //println!("Height: {}", state.transform.get_height(entity));
+                    //println!("Height: {}", state.data.get_height(entity));
 
-                    let overflow = state.transform.get_height(entity)
-                        - state.transform.get_height(self.vertical_scroll);
+                    let overflow = state.data.get_height(entity)
+                        - state.data.get_height(self.vertical_scroll);
 
                     if overflow == 0.0 {
-                        return false;
+                        return;
                     }
 
                     // Need better names for these
                     let overflow = 1.0
-                        - (state.transform.get_height(self.container)
-                            / state.transform.get_height(entity));
+                        - (state.data.get_height(self.container)
+                            / state.data.get_height(entity));
                     let overflow2 = 1.0
-                        - (state.transform.get_height(entity)
-                            / state.transform.get_height(self.container));
+                        - (state.data.get_height(entity)
+                            / state.data.get_height(self.container));
 
                     // TODO - Need a way to configure this
-                    self.scrolly += (30.0 * *y) / (state.transform.get_height(entity) * overflow);
+                    self.scrolly += (30.0 * *y) / (state.data.get_height(entity) * overflow);
 
                     if self.scrolly < 0.0 {
                         self.scrolly = 0.0;
@@ -620,7 +617,7 @@ impl EventHandler for ScrollContainer {
 
                     //println!("Scroll: {}", self.scrolly);
 
-                    // let mut scrollh = state.transform.get_height(entity) / state.transform.get_height(self.container);
+                    // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);
                     // if scrollh > 1.0 {
                     //     scrollh = 1.0;
                     // }
@@ -668,7 +665,7 @@ impl EventHandler for ScrollContainer {
                     */
 
                     // Capture the event to stop it triggering twice
-                    return true;
+                    event.consume();
                 }
 
                 WindowEvent::WindowResize(_, _) => {
@@ -697,7 +694,7 @@ impl EventHandler for ScrollContainer {
                             //     .get(self.entity)
                             //     .cloned()
                             //     .unwrap_or_default();
-                            //self.position = state.transform.get_posy(self.vertical_scroll);
+                            //self.position = state.data.get_posy(self.vertical_scroll);
                             self.position = self.scrolly;
                             state.capture(entity);
                         }
@@ -717,17 +714,17 @@ impl EventHandler for ScrollContainer {
                 WindowEvent::MouseMove(_, y) => {
                     if self.moving {
                         let dist_y = *y - self.pressedy;
-                        let overflow = state.transform.get_height(entity)
-                            - state.transform.get_height(self.vertical_scroll);
+                        let overflow = state.data.get_height(entity)
+                            - state.data.get_height(self.vertical_scroll);
 
                         if overflow == 0.0 {
-                            return false;
+                            return;
                         }
 
                         let ratio = dist_y / overflow;
                         let r = self.position + ratio;
 
-                        // let mut scrollh = state.transform.get_height(entity) / state.transform.get_height(self.container);
+                        // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);
                         // if scrollh > 1.0 {
                         //     scrollh = 1.0;
                         // }
@@ -752,11 +749,11 @@ impl EventHandler for ScrollContainer {
                         //    .set_top(state, Length::Pixels(self.position + dist_y));
 
                         let overflow = 1.0
-                            - (state.transform.get_height(self.container)
-                                / state.transform.get_height(entity));
+                            - (state.data.get_height(self.container)
+                                / state.data.get_height(entity));
                         let overflow2 = 1.0
-                            - (state.transform.get_height(entity)
-                                / state.transform.get_height(self.container));
+                            - (state.data.get_height(entity)
+                                / state.data.get_height(self.container));
 
                         self.container
                             .set_top(state, Length::Percentage(self.scrolly * overflow));
@@ -779,7 +776,6 @@ impl EventHandler for ScrollContainer {
                 _ => {}
             }
         }
-        false
     }
 }
 
@@ -891,7 +887,7 @@ impl BuildHandler for ScrollContainerHV {
 }
 
 impl EventHandler for ScrollContainerHV {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::Relayout => {
@@ -900,8 +896,8 @@ impl EventHandler for ScrollContainerHV {
                         && event.origin != self.container
                         && event.origin != self.vertical_scroll
                     {
-                        let mut scrollv = state.transform.get_height(entity)
-                            / state.transform.get_height(self.container);
+                        let mut scrollv = state.data.get_height(entity)
+                            / state.data.get_height(self.container);
 
                         if scrollv >= 1.0 {
                             scrollv = 1.0;
@@ -912,8 +908,8 @@ impl EventHandler for ScrollContainerHV {
                             self.vertical_scroll.set_enabled(state, true);
                         }
 
-                        let mut scrollh = state.transform.get_width(entity)
-                            / state.transform.get_width(self.container);
+                        let mut scrollh = state.data.get_width(entity)
+                            / state.data.get_width(self.container);
 
                         if scrollh >= 1.0 {
                             scrollh = 1.0;
@@ -928,10 +924,10 @@ impl EventHandler for ScrollContainerHV {
                         // One way to fix this might be to check whether the value is currently being animated before setting here
                         // Possibly not the best solution but it works
                         // if !state.style.top.is_animating(self.vertical_scroll) {
-                        //     let dist = state.transform.get_posy(self.vertical_scroll)
-                        //         - state.transform.get_posy(entity);
-                        //     let space = state.transform.get_height(entity)
-                        //         - (scrollh * state.transform.get_height(entity));
+                        //     let dist = state.data.get_posy(self.vertical_scroll)
+                        //         - state.data.get_posy(entity);
+                        //     let space = state.data.get_height(entity)
+                        //         - (scrollh * state.data.get_height(entity));
                         //     self.scrolly = dist / space;
                         // }
 
@@ -954,11 +950,11 @@ impl EventHandler for ScrollContainerHV {
                             .insert(self.vertical_scroll, Length::Percentage(scrollv));
 
                         let overflow = 1.0
-                            - (state.transform.get_height(self.container)
-                                / state.transform.get_height(entity));
+                            - (state.data.get_height(self.container)
+                                / state.data.get_height(entity));
                         let overflow2 = 1.0
-                            - (state.transform.get_height(entity)
-                                / state.transform.get_height(self.container));
+                            - (state.data.get_height(entity)
+                                / state.data.get_height(self.container));
 
                         state
                             .style
@@ -989,11 +985,11 @@ impl EventHandler for ScrollContainerHV {
                             .insert(self.vertical_scroll, Length::Percentage(scrollh));
 
                         let overflow = 1.0
-                            - (state.transform.get_width(self.container)
-                                / state.transform.get_width(entity));
+                            - (state.data.get_width(self.container)
+                                / state.data.get_width(entity));
                         let overflow2 = 1.0
-                            - (state.transform.get_width(entity)
-                                / state.transform.get_width(self.container));
+                            - (state.data.get_width(entity)
+                                / state.data.get_width(self.container));
 
                         state
                             .style
@@ -1024,10 +1020,10 @@ impl EventHandler for ScrollContainerHV {
 
                     //if event.target == entity {
 
-                    println!("Height: {}", state.transform.get_height(entity));
+                    println!("Height: {}", state.data.get_height(entity));
 
-                    let overflow = state.transform.get_height(entity)
-                        - state.transform.get_height(self.vertical_scroll);
+                    let overflow = state.data.get_height(entity)
+                        - state.data.get_height(self.vertical_scroll);
 
                     if overflow == 0.0 {
                         return false;
@@ -1035,13 +1031,13 @@ impl EventHandler for ScrollContainerHV {
 
                     // Need better names for these
                     let overflow = 1.0
-                        - (state.transform.get_height(self.container)
-                            / state.transform.get_height(entity));
+                        - (state.data.get_height(self.container)
+                            / state.data.get_height(entity));
                     let overflow2 = 1.0
-                        - (state.transform.get_height(entity)
-                            / state.transform.get_height(self.container));
+                        - (state.data.get_height(entity)
+                            / state.data.get_height(self.container));
 
-                    self.scrolly += (40.0 * *y) / (state.transform.get_height(entity) * overflow);
+                    self.scrolly += (40.0 * *y) / (state.data.get_height(entity) * overflow);
 
                     if self.scrolly < 0.0 {
                         self.scrolly = 0.0;
@@ -1053,7 +1049,7 @@ impl EventHandler for ScrollContainerHV {
 
                     //println!("Scroll: {}", self.scrolly);
 
-                    // let mut scrollh = state.transform.get_height(entity) / state.transform.get_height(self.container);
+                    // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);
                     // if scrollh > 1.0 {
                     //     scrollh = 1.0;
                     // }
@@ -1119,7 +1115,7 @@ impl EventHandler for ScrollContainerHV {
                             //     .get(self.entity)
                             //     .cloned()
                             //     .unwrap_or_default();
-                            //self.position = state.transform.get_posy(self.vertical_scroll);
+                            //self.position = state.data.get_posy(self.vertical_scroll);
                             self.position = self.scrolly;
                             state.capture(entity);
                         }
@@ -1135,7 +1131,7 @@ impl EventHandler for ScrollContainerHV {
                             //     .get(self.entity)
                             //     .cloned()
                             //     .unwrap_or_default();
-                            //self.position = state.transform.get_posy(self.vertical_scroll);
+                            //self.position = state.data.get_posy(self.vertical_scroll);
                             self.position = self.scrollx;
                             state.capture(entity);
                         }
@@ -1156,17 +1152,17 @@ impl EventHandler for ScrollContainerHV {
                 WindowEvent::MouseMove(x, y) => {
                     if self.moving && state.captured == self.vertical_scroll {
                         let dist_y = *y - self.pressedy;
-                        let overflow = state.transform.get_height(entity)
-                            - state.transform.get_height(self.vertical_scroll);
+                        let overflow = state.data.get_height(entity)
+                            - state.data.get_height(self.vertical_scroll);
 
                         if overflow == 0.0 {
-                            return false;
+                            return;
                         }
 
                         let ratio = dist_y / overflow;
                         let r = self.position + ratio;
 
-                        // let mut scrollh = state.transform.get_height(entity) / state.transform.get_height(self.container);
+                        // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);
                         // if scrollh > 1.0 {
                         //     scrollh = 1.0;
                         // }
@@ -1191,11 +1187,11 @@ impl EventHandler for ScrollContainerHV {
                         //    .set_top(state, Length::Pixels(self.position + dist_y));
 
                         let overflow = 1.0
-                            - (state.transform.get_height(self.container)
-                                / state.transform.get_height(entity));
+                            - (state.data.get_height(self.container)
+                                / state.data.get_height(entity));
                         let overflow2 = 1.0
-                            - (state.transform.get_height(entity)
-                                / state.transform.get_height(self.container));
+                            - (state.data.get_height(entity)
+                                / state.data.get_height(self.container));
 
                         self.container
                             .set_top(state, Length::Percentage(self.scrolly * overflow));
@@ -1211,17 +1207,17 @@ impl EventHandler for ScrollContainerHV {
 
                     if self.moving && state.captured == self.horizontal_scroll {
                         let dist_x = *x - self.pressedx;
-                        let overflow = state.transform.get_width(entity)
-                            - state.transform.get_width(self.vertical_scroll);
+                        let overflow = state.data.get_width(entity)
+                            - state.data.get_width(self.vertical_scroll);
 
                         if overflow == 0.0 {
-                            return false;
+                            return;
                         }
 
                         let ratio = dist_x / overflow;
                         let r = self.position + ratio;
 
-                        // let mut scrollh = state.transform.get_height(entity) / state.transform.get_height(self.container);
+                        // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);
                         // if scrollh > 1.0 {
                         //     scrollh = 1.0;
                         // }
@@ -1246,11 +1242,11 @@ impl EventHandler for ScrollContainerHV {
                         //    .set_top(state, Length::Pixels(self.position + dist_y));
 
                         let overflow = 1.0
-                            - (state.transform.get_width(self.container)
-                                / state.transform.get_width(entity));
+                            - (state.data.get_width(self.container)
+                                / state.data.get_width(entity));
                         let overflow2 = 1.0
-                            - (state.transform.get_width(entity)
-                                / state.transform.get_width(self.container));
+                            - (state.data.get_width(entity)
+                                / state.data.get_width(self.container));
 
                         self.container
                             .set_left(state, Length::Percentage(self.scrollx * overflow));
@@ -1268,6 +1264,5 @@ impl EventHandler for ScrollContainerHV {
                 _ => {}
             }
         }
-        false
     }
 }

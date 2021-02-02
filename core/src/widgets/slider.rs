@@ -63,7 +63,7 @@ impl BuildHandler for Slider {
 }
 
 impl EventHandler for Slider {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
                 SliderEvent::SetValue(val) => {
@@ -103,8 +103,8 @@ impl EventHandler for Slider {
                             state.capture(entity);
                             state.focused = entity;
 
-                            let dx = (self.pressed_x - state.transform.get_posx(entity))
-                                / state.transform.get_width(entity);
+                            let dx = (self.pressed_x - state.data.get_posx(entity))
+                                / state.data.get_width(entity);
 
                             let mut v = dx;
 
@@ -158,8 +158,8 @@ impl EventHandler for Slider {
                     //println!("Mouse Move");
                     if self.sliding {
                         //let dx = self.pressed_x - x;
-                        let dx = (*x - state.transform.get_posx(entity))
-                            / state.transform.get_width(entity);
+                        let dx = (*x - state.data.get_posx(entity))
+                            / state.data.get_width(entity);
                         //let mut v = self.temp - dx * 0.01;
                         let mut v = dx;
 
@@ -172,7 +172,7 @@ impl EventHandler for Slider {
 
                         self.value = (v * 1000.0).round() / 1000.0;
 
-                        //let back_width = state.transform.get_width(entity);
+                        //let back_width = state.data.get_width(entity);
 
                         //println!("{}", back_width);
                         self.front.set_width(state, Length::Percentage(self.value));
@@ -214,8 +214,6 @@ impl EventHandler for Slider {
                 _ => {}
             }
         }
-
-        false
     }
 }
 
@@ -308,7 +306,7 @@ impl BuildHandler for Slider2 {
 }
 
 impl EventHandler for Slider2 {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
@@ -318,11 +316,11 @@ impl EventHandler for Slider2 {
                         self.sliding = true;
                         state.capture(entity);
 
-                        let width = state.transform.get_width(entity);
-                        let thumb_width = state.transform.get_width(self.thumb);
+                        let width = state.data.get_width(entity);
+                        let thumb_width = state.data.get_width(self.thumb);
 
                         let mut dx =
-                            (state.mouse.left.pos_down.0 - state.transform.get_posx(entity));
+                            (state.mouse.left.pos_down.0 - state.data.get_posx(entity));
 
                         if dx <= thumb_width / 2.0 {
                             dx = thumb_width / 2.0;
@@ -352,10 +350,10 @@ impl EventHandler for Slider2 {
 
                 WindowEvent::MouseMove(x, _) => {
                     if self.sliding {
-                        let width = state.transform.get_width(entity);
-                        let thumb_width = state.transform.get_width(self.thumb);
+                        let width = state.data.get_width(entity);
+                        let thumb_width = state.data.get_width(self.thumb);
 
-                        let mut dx = *x - state.transform.get_posx(entity);
+                        let mut dx = *x - state.data.get_posx(entity);
 
                         if dx <= thumb_width / 2.0 {
                             dx = thumb_width / 2.0;
@@ -395,7 +393,5 @@ impl EventHandler for Slider2 {
                 _ => {}
             }
         }
-
-        false
     }
 }

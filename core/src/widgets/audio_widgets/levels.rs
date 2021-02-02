@@ -38,8 +38,8 @@ impl BuildHandler for AudioLevelBar {
 }
 
 impl EventHandler for AudioLevelBar {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        return false;
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
     }
 }
 

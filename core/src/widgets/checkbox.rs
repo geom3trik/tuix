@@ -123,7 +123,7 @@ impl BuildHandler for Checkbox {
 }
 
 impl EventHandler for Checkbox {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
             match checkbox_event {
                 CheckboxEvent::Switch => {
@@ -214,7 +214,5 @@ impl EventHandler for Checkbox {
                 _ => {}
             }
         }
-
-        false
     }
 }

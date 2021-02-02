@@ -6,8 +6,6 @@ use crate::state::style::flexbox::{AlignContent, AlignItems, AlignSelf};
 
 use crate::style::*;
 
-use crate::state::Handle;
-
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
@@ -31,34 +29,6 @@ pub trait BuildHandler: EventHandler {
         builder(Builder::new(state, id)).build(self);
 
         entity
-    }
-
-    fn build2(mut self, state: &mut State, parent: Entity) -> Handle
-    where
-        Self: std::marker::Sized + 'static,
-    {
-        let id = state.add(parent);
-        let entity = self.on_build(state, id);
-
-        let handle = Handle::new(id, state.command_sender.clone());
-
-        state.event_handlers.insert(id, Box::new(self));
-
-        handle
-    }
-
-    fn build3(mut self, state: &mut State, parent: &Handle) -> Handle
-    where
-        Self: std::marker::Sized + 'static,
-    {
-        let id = state.add(parent.entity);
-        let entity = self.on_build(state, id);
-
-        let handle = Handle::new(id, state.command_sender.clone());
-
-        state.event_handlers.insert(id, Box::new(self));
-
-        handle
     }
 }
 
@@ -111,7 +81,7 @@ impl<'a> Builder<'a> {
     }
 
     pub fn set_hoverability(mut self, val: bool) -> Self {
-        self.state.transform.set_hoverability(self.entity, val);
+        self.state.data.set_hoverability(self.entity, val);
 
         self
     }

@@ -107,7 +107,9 @@ impl EventManager {
             if event.target == Entity::null() {
                 for entity in hierarchy.into_iter() {
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        if event_handler.on_event(state, entity, event) {
+                        event_handler.on_event(state, entity, event);
+
+                        if event.consumed {
                             break;
                         }
                     }
@@ -117,33 +119,68 @@ impl EventManager {
 
             // Propagate down from root to target (not including target)
             if event.propagation == Propagation::Down || event.propagation == Propagation::DownUp {
-                // Walk down the hierarchy
-                for entity in hierarchy.into_iter() {
+
+
+                // Construct the list of widgets to walk down by going up from the target
+                let ancestors: Vec<Entity> = target.parent_iter(&hierarchy).collect::<Vec<Entity>>();
+                
+                
+
+                for entity in ancestors.iter().rev() {
+                    // Skip the window
+                    if *entity == Entity::new(0,0) {
+                        continue;
+                    }
+
                     // Stop before the target entity
-                    if entity == event.target {
+                    if *entity == event.target {
                         break;
                     }
 
-                    // Send event to all entities before the target
+                    //println!("Ancestor: {:?}", entity);
+
+                    // Send event to all ancestors before the target
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        if event_handler.on_event(state, entity, event) {
+                        event_handler.on_event(state, *entity, event);
+
+                        if event.consumed {
                             continue 'events;
                         }
                     }
                 }
+
+
+                //Walk down the hierarchy
+                // for entity in hierarchy.into_iter() {
+                //     // Stop before the target entity
+                //     if entity == event.target {
+                //         break;
+                //     }
+
+                //     // Send event to all entities before the target
+                //     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
+                //         if event_handler.on_event(state, entity, event) {
+                //             continue 'events;
+                //         }
+                //     }
+                // }
             }
 
             // Send event to target
             if let Some(event_handler) = self.event_handlers.get_mut(&event.target) {
-                if event_handler.on_event(state, event.target, event) {
+                event_handler.on_event(state, event.target, event);
+
+                if event.consumed {
                     continue 'events;
                 }
             }
 
             // Propagate up from target to root (not including target)
             if event.propagation == Propagation::Up || event.propagation == Propagation::DownUp {
+
                 // Walk up the hierarchy from parent to parent
                 for entity in target.parent_iter(&hierarchy) {
+
                     // Skip the target entity
                     if entity == event.target {
                         continue;
@@ -151,7 +188,9 @@ impl EventManager {
 
                     // Send event to all entities before the target
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        if event_handler.on_event(state, entity, event) {
+                        event_handler.on_event(state, entity, event);
+
+                        if event.consumed {
                             continue 'events;
                         }
                     }
@@ -168,7 +207,9 @@ impl EventManager {
                     }
 
                     if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
-                        if event_handler.on_event(state, widget, event) {
+                        event_handler.on_event(state, widget, event);
+                        
+                        if event.consumed {
                             continue 'events;
                         }
                     }
@@ -183,8 +224,8 @@ impl EventManager {
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
 
-        let width = state.transform.get_width(state.root);
-        let height = state.transform.get_height(state.root);
+        let width = state.data.get_width(state.root);
+        let height = state.data.get_height(state.root);
         // TODO: Move this to the window widget
         let dpi_factor = 1.0;
 
@@ -213,7 +254,7 @@ impl EventManager {
 
         // Sort the hierarchy by z order
         let mut draw_hierarchy: Vec<Entity> = hierarchy.into_iter().collect();
-        draw_hierarchy.sort_by_cached_key(|entity| state.transform.get_z_order(*entity));
+        draw_hierarchy.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
         // Call the on_draw() method for each widget
         for widget in draw_hierarchy.into_iter() {

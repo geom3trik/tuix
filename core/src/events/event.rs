@@ -102,8 +102,10 @@ pub struct Event {
     pub target: Entity,
     // How the event propagates through the tree.
     pub propagation: Propagation,
-    // Whether the event can be cancelled (consumed?)
-    pub cancellable: bool,
+    // Whether the event can be consumed
+    pub consumable: bool,
+    // Determines whether the event should continue to be propagated 
+    pub(crate) consumed: bool,
     // Whether the event is unique (only the latest copy can exist in a queue at a time)
     pub unique: bool,
     // Specifies an order index which is used to sort the event queue
@@ -128,10 +130,10 @@ impl Event {
     {
         Event {
             origin: Entity::null(),
-            //target: Entity::new(0, 0),
             target: Entity::null(),
             propagation: Propagation::DownUp,
-            cancellable: true,
+            consumable: true,
+            consumed: false,
             unique: true,
             order: 0,
             message: Box::new(message),
@@ -162,5 +164,10 @@ impl Event {
         self.propagation = propagation;
 
         self
+    }
+
+    /// Consume the event
+    pub fn consume(&mut self) {
+        self.consumed = true;
     }
 }

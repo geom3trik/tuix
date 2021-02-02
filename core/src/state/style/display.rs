@@ -1,4 +1,4 @@
-use crate::state::animator::Interpolator;
+use crate::state::animation::Interpolator;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Display {

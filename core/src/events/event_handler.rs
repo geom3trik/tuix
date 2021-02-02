@@ -10,7 +10,7 @@ use crate::{Entity, Hierarchy, State};
 use std::collections::{HashMap, VecDeque};
 
 use femtovg::{
-    renderer::OpenGl, Align, Baseline, Canvas, FillRule, FontId, ImageFlags, ImageId, LineCap,
+    renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap,
     LineJoin, Paint, Path, Renderer, Solidity,
 };
 
@@ -18,32 +18,34 @@ use crate::style::{Justify, Length, Visibility};
 
 use std::any::{Any, TypeId};
 
+pub type Canvas = femtovg::Canvas<OpenGl>;
+
 pub trait EventHandler: Any + Send {
     // Called when events are flushed
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        false
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
     }
 
     // Called when a redraw occurs
-    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
+    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
         // Skip window
         if entity == Entity::new(0, 0) {
             return;
         }
 
         // Skip invisible widgets
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        if state.transform.get_opacity(entity) == 0.0 {
+        if state.data.get_opacity(entity) == 0.0 {
             return;
         }
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         let padding_left = match state
             .style
@@ -113,8 +115,8 @@ pub trait EventHandler: Any + Send {
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 
-        let parent_width = state.transform.get_width(parent);
-        let parent_height = state.transform.get_height(parent);
+        let parent_width = state.data.get_width(parent);
+        let parent_height = state.data.get_height(parent);
 
         let border_radius_top_left = match state
             .style
@@ -164,7 +166,7 @@ pub trait EventHandler: Any + Send {
             _ => 0.0,
         };
 
-        let opacity = state.transform.get_opacity(entity);
+        let opacity = state.data.get_opacity(entity);
 
         let mut background_color: femtovg::Color = background_color.into();
         background_color.set_alphaf(background_color.a * opacity);
@@ -210,12 +212,12 @@ pub trait EventHandler: Any + Send {
         // canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let clip_entity = state.transform.get_clip_widget(entity);
+        let clip_entity = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.transform.get_posx(clip_entity);
-        let clip_posy = state.transform.get_posy(clip_entity);
-        let clip_width = state.transform.get_width(clip_entity);
-        let clip_height = state.transform.get_height(clip_entity);
+        let clip_posx = state.data.get_posx(clip_entity);
+        let clip_posy = state.data.get_posy(clip_entity);
+        let clip_width = state.data.get_width(clip_entity);
+        let clip_height = state.data.get_height(clip_entity);
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
         //canvas.scissor(0.0, 0.0, 100.0, 100.0);
@@ -300,18 +302,29 @@ pub trait EventHandler: Any + Send {
 
         canvas.fill_path(&mut path, paint);
 
-        // Draw rounded rect
+
         let mut path = Path::new();
-        path.rounded_rect_varying(
-            posx + (border_width / 2.0),
-            posy + (border_width / 2.0),
-            width - border_width,
-            height - border_width,
-            border_radius_top_left,
-            border_radius_top_right,
-            border_radius_bottom_right,
-            border_radius_bottom_left,
-        );
+
+        if border_radius_bottom_left == (width - 2.0*border_width)/2.0 &&
+            border_radius_bottom_right == (width - 2.0*border_width)/2.0 &&
+            border_radius_top_left == (width - 2.0*border_width)/2.0 &&
+            border_radius_top_right == (width - 2.0*border_width)/2.0 {
+                path.circle(posx + (border_width / 2.0) + (width - border_width)/2.0, posy + (border_width / 2.0) +  (height - border_width)/2.0, width/2.0);
+            } else {
+                // Draw rounded rect
+                path.rounded_rect_varying(
+                    posx + (border_width / 2.0),
+                    posy + (border_width / 2.0),
+                    width - border_width,
+                    height - border_width,
+                    border_radius_top_left,
+                    border_radius_top_right,
+                    border_radius_bottom_right,
+                    border_radius_bottom_left,
+                );
+            }
+
+
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
 

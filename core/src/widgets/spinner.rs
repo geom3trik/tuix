@@ -236,7 +236,7 @@ where
         + std::cmp::PartialOrd
         + Send,
 {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         /*
         if let Some(numedit_event) = event.message.downcast::<SpinnerEvent>() {
             match numedit_event {
@@ -334,7 +334,7 @@ where
                                 state.insert_event(event);
                             }
 
-                            return true;
+                            event.consume();
                         }
 
                         if event.target == self.decrement {
@@ -378,7 +378,7 @@ where
                                 state.insert_event(event);
                             }
 
-                            return true;
+                            event.consume();
                         }
                     }
                 }
@@ -431,7 +431,5 @@ where
                 _ => {}
             }
         }
-
-        false
     }
 }

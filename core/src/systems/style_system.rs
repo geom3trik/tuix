@@ -1,7 +1,7 @@
 use crate::{Entity, Event, HierarchyTree, IntoParentIterator, State, WindowEvent};
 
 use crate::hierarchy::*;
-use crate::state::animator::*;
+use crate::state::animation::*;
 
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -15,17 +15,17 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
         let parent = hierarchy.get_parent(entity).unwrap();
 
         if let Some(clip_widget) = state.style.clip_widget.get(entity) {
-            state.transform.set_clip_widget(entity, *clip_widget);
+            state.data.set_clip_widget(entity, *clip_widget);
         } else {
-            let parent_clip_widget = state.transform.get_clip_widget(parent);
-            state.transform.set_clip_widget(entity, parent_clip_widget);
+            let parent_clip_widget = state.data.get_clip_widget(parent);
+            state.data.set_clip_widget(entity, parent_clip_widget);
         }
     }
 }
 
 pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
     let mut draw_hierarchy: Vec<Entity> = hierarchy.into_iter().collect();
-    draw_hierarchy.sort_by_cached_key(|entity| state.transform.get_z_order(*entity));
+    draw_hierarchy.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
     for widget in draw_hierarchy.into_iter() {
         let visibility = state
@@ -34,40 +34,40 @@ pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
             .get(widget)
             .cloned()
             .unwrap_or_default();
-        state.transform.set_visibility(widget, visibility);
+        state.data.set_visibility(widget, visibility);
 
         let opacity = state.style.opacity.get(widget).cloned().unwrap_or_default();
 
-        state.transform.set_opacity(widget, opacity.0);
+        state.data.set_opacity(widget, opacity.0);
 
         let display = state.style.display.get(widget).cloned().unwrap_or_default();
 
         if display == Display::None {
             state
-                .transform
+                .data
                 .set_visibility(widget, Visibility::Invisible);
         }
 
         if let Some(parent) = widget.parent(hierarchy) {
-            let parent_visibility = state.transform.get_visibility(parent);
+            let parent_visibility = state.data.get_visibility(parent);
             if parent_visibility == Visibility::Invisible {
                 state
-                    .transform
+                    .data
                     .set_visibility(widget, Visibility::Invisible);
             }
             let parent_display = state.style.display.get(parent).cloned().unwrap_or_default();
             if parent_display == Display::None {
                 state
-                    .transform
+                    .data
                     .set_visibility(widget, Visibility::Invisible);
             }
 
-            let parent_opacity = state.transform.get_opacity(parent);
+            let parent_opacity = state.data.get_opacity(parent);
 
             let opacity = state.style.opacity.get(widget).cloned().unwrap_or_default();
 
             state
-                .transform
+                .data
                 .set_opacity(widget, opacity.0 * parent_opacity);
         }
     }

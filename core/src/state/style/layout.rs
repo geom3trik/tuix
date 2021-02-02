@@ -1,4 +1,4 @@
-use crate::animator::Interpolator;
+use crate::animation::Interpolator;
 use crate::entity::Entity;
 
 #[derive(Clone, Copy, PartialEq, Debug)]

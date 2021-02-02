@@ -5,7 +5,7 @@ use crate::style::color::Color;
 
 use crate::state::style::*;
 
-use crate::state::animator::Transition;
+use crate::state::animation::Transition;
 
 #[derive(Clone, Debug)]
 pub enum Property {
@@ -14,6 +14,7 @@ pub enum Property {
     Animation(String),
     AnimationDuration(std::time::Duration),
 
+    // General
     Display(Display),
     Visibility(Visibility),
     Overflow(Overflow),

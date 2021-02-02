@@ -29,8 +29,8 @@ impl BuildHandler for Grid {
 }
 
 impl EventHandler for Grid {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        false
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        
     }
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {

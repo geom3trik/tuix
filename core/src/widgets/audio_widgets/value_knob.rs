@@ -155,7 +155,7 @@ impl BuildHandler for ValueKnob {
 }
 
 impl EventHandler for ValueKnob {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
                 SliderEvent::ValueChanged(val) => {
@@ -229,7 +229,5 @@ impl EventHandler for ValueKnob {
             }
         }
         */
-
-        false
     }
 }

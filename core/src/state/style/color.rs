@@ -41,6 +41,24 @@ impl Color {
         ((self.data & 0xFF00_0000) >> 24) as u8
     }
 
+    pub fn red() -> Self {
+        Self {
+            data: 0xFF0000FF,
+        }
+    }
+
+    pub fn green() -> Self {
+        Self {
+            data: 0xFF00FF00,
+        }
+    }
+
+    pub fn blue() -> Self {
+        Self {
+            data: 0xFFFF0000,
+        }
+    }
+
     // Interpolate between two colors
     pub fn interpolate(start_color: Color, end_color: Color, scale: f64) -> Color {
         let r = Color::interp(start_color.r(), end_color.r(), scale);

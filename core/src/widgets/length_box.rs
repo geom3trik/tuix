@@ -65,7 +65,7 @@ impl BuildHandler for LengthBox {
 }
 
 impl EventHandler for LengthBox {
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             match dropdown_event {
                 DropdownEvent::SetText(text, proxy) => {
@@ -109,7 +109,5 @@ impl EventHandler for LengthBox {
                 _ => {}
             }
         }
-
-        false
     }
 }

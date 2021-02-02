@@ -123,7 +123,7 @@ impl EventHandler for Menu {
     //     }
     // }
 
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(menu_event) = event.message.downcast::<MenuEvent>() {
             match menu_event {
                 MenuEvent::Open(_id) => {
@@ -220,7 +220,7 @@ impl EventHandler for Menu {
                             // );
 
                             if event.target == entity {
-                                for entity in self.container.child_iter(&state.hierarchy) {
+                                for entity in self.container.child_iter(&state.hierarchy.clone()) {
                                     if entity == state.hovered {
                                         // Forward the mouse down event to the option that's hovered
                                         state.insert_event(
@@ -228,8 +228,6 @@ impl EventHandler for Menu {
                                                 .target(state.hovered)
                                                 .propagate(Propagation::Direct),
                                         );
-
-                                        return false;
                                     }
                                 }
 
@@ -246,7 +244,7 @@ impl EventHandler for Menu {
                 WindowEvent::MouseUp(button) => {
                     match button {
                         MouseButton::Left => {
-                            for entity in self.container.child_iter(&state.hierarchy) {
+                            for entity in self.container.child_iter(&state.hierarchy.clone()) {
                                 if entity == state.hovered {
                                     // Forward the mouse down event to the option that's hovered
                                     state.insert_event(
@@ -261,8 +259,6 @@ impl EventHandler for Menu {
                                     state.insert_event(
                                         Event::new(MenuEvent::CloseAll(entity)).target(entity),
                                     );
-
-                                    return false;
                                 }
                             }
 
@@ -289,8 +285,6 @@ impl EventHandler for Menu {
                                 .target(self.container)
                                 .propagate(Propagation::Fall),
                         );
-
-                        return true;
                     }
 
                     if event.origin == entity {
@@ -300,8 +294,6 @@ impl EventHandler for Menu {
                                     .target(entity)
                                     .propagate(Propagation::Fall),
                             );
-
-                            return true;
                         }
                     } else if event.origin.is_descendant_of(&state.hierarchy, entity) {
                         //if event.target != self.container {
@@ -330,8 +322,6 @@ impl EventHandler for Menu {
                                 .target(entity)
                                 .propagate(Propagation::Fall),
                         );
-
-                        return true;
                     }
 
                     //return true;
@@ -359,7 +349,5 @@ impl EventHandler for Menu {
                 _ => {}
             }
         }
-
-        false
     }
 }

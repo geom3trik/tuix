@@ -92,13 +92,13 @@ impl Application {
         );
 
         state
-            .transform
+            .data
             .set_width(state.get_root(), window_description.inner_size.width as f32);
-        state.transform.set_height(
+        state.data.set_height(
             state.get_root(),
             window_description.inner_size.height as f32,
         );
-        state.transform.set_opacity(state.get_root(), 1.0);
+        state.data.set_opacity(state.get_root(), 1.0);
 
         WindowWidget::new().build_window(&mut state);
 
@@ -141,8 +141,6 @@ impl Application {
         let event_loop_proxy = self.event_loop.create_proxy();
 
         let mut first_time = true;
-
-        state.process_commands();
 
         self.event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
@@ -397,10 +395,10 @@ impl Application {
                                 .insert(state.root, Length::Pixels(physical_size.height as f32));
 
                             state
-                                .transform
+                                .data
                                 .set_width(state.root, physical_size.width as f32);
                             state
-                                .transform
+                                .data
                                 .set_height(state.root, physical_size.height as f32);
 
                             state.insert_event(Event::new(WindowEvent::Restyle).origin(state.root));
@@ -429,21 +427,21 @@ impl Application {
                                 state.hierarchy.into_iter().collect();
 
                             draw_hierarchy
-                                .sort_by_cached_key(|entity| state.transform.get_z_order(*entity));
+                                .sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
                             for widget in draw_hierarchy.into_iter() {
                                 // Skip invisible widgets
-                                if state.transform.get_visibility(widget) == Visibility::Invisible {
+                                if state.data.get_visibility(widget) == Visibility::Invisible {
                                     continue;
                                 }
 
                                 // This shouldn't be here but there's a bug if it isn't
-                                if state.transform.get_opacity(widget) == 0.0 {
+                                if state.data.get_opacity(widget) == 0.0 {
                                     continue;
                                 }
 
                                 // Skip non-hoverable widgets
-                                if state.transform.get_hoverability(widget) != true {
+                                if state.data.get_hoverability(widget) != true {
                                     continue;
                                 }
 
@@ -459,17 +457,17 @@ impl Application {
                                     _ => 0.0,
                                 };
 
-                                let posx = state.transform.get_posx(widget) - (border_width / 2.0);
-                                let posy = state.transform.get_posy(widget) - (border_width / 2.0);
-                                let width = state.transform.get_width(widget) + (border_width);
-                                let height = state.transform.get_height(widget) + (border_width);
+                                let posx = state.data.get_posx(widget) - (border_width / 2.0);
+                                let posy = state.data.get_posy(widget) - (border_width / 2.0);
+                                let width = state.data.get_width(widget) + (border_width);
+                                let height = state.data.get_height(widget) + (border_width);
 
-                                let clip_widget = state.transform.get_clip_widget(widget);
+                                let clip_widget = state.data.get_clip_widget(widget);
 
-                                let clip_posx = state.transform.get_posx(clip_widget);
-                                let clip_posy = state.transform.get_posy(clip_widget);
-                                let clip_width = state.transform.get_width(clip_widget);
-                                let clip_height = state.transform.get_height(clip_widget);
+                                let clip_posx = state.data.get_posx(clip_widget);
+                                let clip_posy = state.data.get_posy(clip_widget);
+                                let clip_width = state.data.get_width(clip_widget);
+                                let clip_height = state.data.get_height(clip_widget);
 
                                 if cursorx >= posx
                                     && cursorx >= clip_posx
@@ -498,16 +496,16 @@ impl Application {
                             if hovered_widget != state.hovered {
                                 // Useful for debugging
 
-                                // println!(
-                                //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-                                //     hovered_widget,
-                                //     state.hierarchy.get_parent(hovered_widget),
-                                //     state.transform.get_posx(hovered_widget),
-                                //     state.transform.get_posy(hovered_widget),
-                                //     state.transform.get_width(hovered_widget),
-                                //     state.transform.get_height(hovered_widget),
-                                //     state.transform.get_z_order(hovered_widget),
-                                // );
+                                println!(
+                                    "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+                                    hovered_widget,
+                                    state.hierarchy.get_parent(hovered_widget),
+                                    state.data.get_posx(hovered_widget),
+                                    state.data.get_posy(hovered_widget),
+                                    state.data.get_width(hovered_widget),
+                                    state.data.get_height(hovered_widget),
+                                    state.data.get_z_order(hovered_widget),
+                                );
 
                                 if let Some(pseudo_classes) =
                                     state.style.pseudo_classes.get_mut(hovered_widget)
@@ -520,6 +518,19 @@ impl Application {
                                 {
                                     pseudo_classes.set_hover(false);
                                 }
+
+                                // if state.captured != Entity::null() {
+                                //     state.insert_event(
+                                //         Event::new(WindowEvent::MouseOver)
+                                //             .target(state.captured)
+                                //             .propagate(Propagation::Direct),
+                                //     );
+                                // } else if state.hovered != Entity::new(0, 0) {
+                                //     state.insert_event(
+                                //         Event::new(WindowEvent::MouseOver)
+                                //             .target(state.hovered),
+                                //     );
+                                // }
 
                                 state.insert_event(
                                     Event::new(WindowEvent::MouseOver).target(hovered_widget),

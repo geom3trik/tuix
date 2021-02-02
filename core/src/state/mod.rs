@@ -10,11 +10,11 @@ pub use storage::*;
 pub mod style;
 pub use style::*;
 
-pub mod transform;
-pub use transform::*;
+pub mod data;
+pub use data::*;
 
-pub mod animator;
-pub use animator::*;
+pub mod animation;
+pub use animation::*;
 
 pub mod mouse;
 pub use mouse::*;
@@ -22,19 +22,15 @@ pub use mouse::*;
 pub mod resource;
 pub use resource::*;
 
-pub mod handle;
-pub use handle::*;
 
 pub use crate::events::{Builder, Event, EventHandler, Propagation};
 pub use crate::window_event::WindowEvent;
 
 use femtovg::FontId;
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::{VecDeque};
 
 use fnv::FnvHashMap;
-
-use flume::{bounded, Receiver, Sender};
 
 #[derive(Clone)]
 pub struct Fonts {
@@ -51,7 +47,7 @@ pub struct State {
     entity_manager: EntityManager, // Creates and destroys entities
     pub hierarchy: Hierarchy,      // The widget tree
     pub style: Style,              // The style properties for every widget
-    pub transform: Transform,      // Transform properties for all widgets
+    pub data: Data,      // Computed data
     pub root: Entity,
     pub mouse: MouseState,
     pub modifiers: ModifiersState,
@@ -66,9 +62,6 @@ pub struct State {
     pub fonts: Fonts, //TODO - Replace with resource manager
 
     pub resource_manager: ResourceManager, //TODO
-
-    pub(crate) command_sender: Sender<Command>,
-    pub(crate) command_receiver: Receiver<Command>,
 }
 
 impl State {
@@ -76,7 +69,7 @@ impl State {
         let mut entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
         let mut style = Style::new();
-        let mut transform = Transform::new();
+        let mut data = Data::new();
         let mouse = MouseState::default();
         let modifiers = ModifiersState::default();
 
@@ -84,20 +77,18 @@ impl State {
             .create_entity()
             .expect("Failed to create root");
 
-        transform.add(root);
+        data.add(root);
         style.add(root);
 
         style.clip_widget.set(root, root);
 
         style.background_color.insert(root, Color::rgb(80, 80, 80));
 
-        let (command_sender, command_receiver) = flume::unbounded();
-
         State {
             entity_manager,
             hierarchy,
             style,
-            transform,
+            data,
             root,
             mouse,
             modifiers,
@@ -113,9 +104,6 @@ impl State {
                 icons: None,
             },
             resource_manager: ResourceManager::new(),
-
-            command_sender,
-            command_receiver,
         }
     }
 
@@ -126,24 +114,6 @@ impl State {
         self.event_handlers.insert(entity, Box::new(event_handler));
 
         Builder::new(self, entity)
-    }
-
-    pub fn process_commands(&mut self) {
-        for command in self.command_receiver.drain() {
-            match command {
-                Command::SetProperty(entity, property) => match property {
-                    Property::Width(value) => {
-                        self.style.width.insert(entity, value);
-                    }
-
-                    Property::Height(value) => {
-                        self.style.height.insert(entity, value);
-                    }
-
-                    _ => {}
-                },
-            }
-        }
     }
 
     pub fn insert_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {
@@ -256,7 +226,7 @@ impl State {
 
     // This should probably be moved to state.mouse
     pub fn capture(&mut self, id: Entity) {
-        if id != Entity::null() {
+        if id != Entity::null() && self.captured != id {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureEvent)
                     .target(id)
@@ -264,7 +234,7 @@ impl State {
             );
         }
 
-        if self.captured != Entity::null() {
+        if self.captured != Entity::null() && self.captured != id {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureOutEvent)
                     .target(self.captured)
@@ -296,7 +266,7 @@ impl State {
             .expect("Failed to create entity");
         self.hierarchy.add(entity, Some(parent));
 
-        self.transform.add(entity);
+        self.data.add(entity);
         self.style.add(entity);
 
         entity

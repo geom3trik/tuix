@@ -49,26 +49,27 @@ pub struct Overflow {
 }
 
 #[derive(Clone)]
-pub struct Transform {
+pub struct Data {
     pub position: Vec<Pos>,
     pub size: Vec<Pos>,
     pub visibility: Vec<Visibility>,
+    pub opacity: Vec<f32>,    
     pub hoverability: Vec<bool>,
     pub z_order: Vec<i32>,
     pub clip_widget: Vec<Entity>,
     // Holds the child_width_sum and then the free_width_space
-    pub child_sum: Vec<f32>, // Sum of child widths
-    pub child_max: Vec<f32>, // Max child width
-    pub child_pos: Vec<f32>,
-    pub child_grow_sum: Vec<f32>,
-    pub child_shrink_sum: Vec<f32>,
+    pub(crate) child_sum: Vec<f32>, // Sum of child widths
+    pub(crate) child_max: Vec<f32>, // Max child width
+    pub(crate) child_pos: Vec<f32>,
+    pub(crate) child_grow_sum: Vec<f32>,
+    pub(crate) child_shrink_sum: Vec<f32>,
 
-    pub opacity: Vec<f32>,
+
 }
 
-impl Transform {
-    pub fn new() -> Transform {
-        Transform {
+impl Data {
+    pub fn new() -> Self {
+        Self {
             position: Vec::new(),
             size: Vec::new(),
             visibility: Vec::new(),

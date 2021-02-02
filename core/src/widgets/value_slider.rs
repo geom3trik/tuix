@@ -6,29 +6,6 @@ use crate::widgets::{Button, Slider, SliderEvent, Textbox, TextboxEvent};
 
 use crate::state::style::*;
 
-// const VALUE_SLIDER_STYLE: &str = r#"
-
-//     slider
-//     {
-//         background-color: #2E2E2E;
-//     }
-
-//     slider > .front {
-//         background-color: #494949;
-//     }
-
-//     slider > .front:hover {
-//         background-color: #6D6D6D;
-//     }
-
-//     slider:active > .front {
-//         background-color: #6D6D6D;
-//     }
-
-//     slider:hover > .front {
-//         background-color: #6D6D6D;
-//     }
-// "#;
 
 #[derive(Clone)]
 pub struct ValueSlider {
@@ -79,7 +56,7 @@ impl BuildHandler for ValueSlider {
 }
 
 impl EventHandler for ValueSlider {
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
                 SliderEvent::ValueChanged(val) => {
@@ -135,7 +112,5 @@ impl EventHandler for ValueSlider {
                 _ => {}
             }
         }
-
-        false
     }
 }
