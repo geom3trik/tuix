@@ -98,6 +98,8 @@ impl EventHandler for Switch {
                         entity.set_checked(state, true);
                     }
                 }
+
+                _=> {}
             }
         }
     }

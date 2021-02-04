@@ -276,7 +276,7 @@ impl BuildHandler for Calculator {
 }
 
 impl EventHandler for Calculator {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(calculator_event) = event.message.downcast::<CalculatorEvent>() {
             match calculator_event {
                 CalculatorEvent::Digit(num) => {
@@ -549,8 +549,6 @@ impl EventHandler for Calculator {
                 _ => {}
             }
         }
-
-        false
     }
 }
 

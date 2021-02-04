@@ -157,6 +157,7 @@ dropdown .icon {
 }
 
 dropdown>.container {
+    top: 100%;
     background-color: white;
     border-color: black;
     border-width: 1px;

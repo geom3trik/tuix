@@ -2,7 +2,9 @@
 
 use crate::entity::Entity;
 use crate::mouse::*;
-use crate::{BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WindowEvent};
+use crate::{
+    BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WindowEvent,
+};
 use crate::{PropSet, State};
 
 use crate::state::style::*;
@@ -220,7 +222,7 @@ impl EventHandler for Menu {
                             // );
 
                             if event.target == entity {
-                                for entity in self.container.child_iter(&state.hierarchy.clone()) {
+                                for entity in self.container.child_iter(&state.hierarchy) {
                                     if entity == state.hovered {
                                         // Forward the mouse down event to the option that's hovered
                                         state.insert_event(
@@ -228,6 +230,8 @@ impl EventHandler for Menu {
                                                 .target(state.hovered)
                                                 .propagate(Propagation::Direct),
                                         );
+
+                                        return;
                                     }
                                 }
 
@@ -244,7 +248,7 @@ impl EventHandler for Menu {
                 WindowEvent::MouseUp(button) => {
                     match button {
                         MouseButton::Left => {
-                            for entity in self.container.child_iter(&state.hierarchy.clone()) {
+                            for entity in self.container.child_iter(&state.hierarchy) {
                                 if entity == state.hovered {
                                     // Forward the mouse down event to the option that's hovered
                                     state.insert_event(
@@ -259,6 +263,8 @@ impl EventHandler for Menu {
                                     state.insert_event(
                                         Event::new(MenuEvent::CloseAll(entity)).target(entity),
                                     );
+
+                                    return;
                                 }
                             }
 
@@ -285,6 +291,8 @@ impl EventHandler for Menu {
                                 .target(self.container)
                                 .propagate(Propagation::Fall),
                         );
+
+                        event.consume();
                     }
 
                     if event.origin == entity {
@@ -294,8 +302,11 @@ impl EventHandler for Menu {
                                     .target(entity)
                                     .propagate(Propagation::Fall),
                             );
+
+                            event.consume();
                         }
                     } else if event.origin.is_descendant_of(&state.hierarchy, entity) {
+
                         //if event.target != self.container {
                         // state.insert_event(
                         //     Event::new(WindowEvent::MouseOver)
@@ -322,6 +333,8 @@ impl EventHandler for Menu {
                                 .target(entity)
                                 .propagate(Propagation::Fall),
                         );
+
+                        event.consume();
                     }
 
                     //return true;

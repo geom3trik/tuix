@@ -238,7 +238,7 @@ impl BuildHandler for Animations {
 }
 
 impl EventHandler for Animations {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(animations_event) = event.message.downcast::<AnimationsEvent>() {
             match animations_event {
                 AnimationsEvent::Play => {
@@ -353,7 +353,5 @@ impl EventHandler for Animations {
                 _ => {}
             }
         }
-
-        false
     }
 }

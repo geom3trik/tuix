@@ -3,7 +3,7 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, Checkbox, Dimension, Dropdown, Panel, RadioBox, RadioList, ResizableVBox,
+    Button, Checkbox, Dimension, Dropdown, Panel, RadioButton, RadioList, ResizableVBox,
     ScrollContainer, Spinner, Textbox, VectorEdit, VectorEditEvent,
 };
 
@@ -70,7 +70,7 @@ impl BuildHandler for ColorEdit {
 }
 
 impl EventHandler for ColorEdit {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(vectoredit_event) = event.message.downcast::<VectorEditEvent<u8>>() {
             match vectoredit_event {
                 VectorEditEvent::Dim1(val) => {
@@ -101,8 +101,6 @@ impl EventHandler for ColorEdit {
                 _ => {}
             }
         }
-
-        return false;
     }
 }
 
@@ -118,9 +116,9 @@ fn main() {
                 .set_background_color(Color::rgb(100, 50, 50))
         });
 
-        let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
+        //let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
 
-        let panel = Panel::new("Background Colour").build(state, scroll, |builder| builder);
+        let panel = Panel::new("Background Colour").build(state, rvbox, |builder| builder);
 
         let row = HBox::new().build(state, panel, |builder| builder);
 
@@ -162,12 +160,12 @@ fn main() {
 
         Label::new("Radio").build(state, row, |builder| builder.class("label"));
         let radio_list =
-            RadioList::new("First").build(state, row, |builder| builder.set_flex_grow(1.0));
+            RadioList::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
         });
-        RadioBox::new("First").build(state, hbox, |builder| {
+        RadioButton::new().build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
         Label::new("Option 1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
@@ -175,7 +173,7 @@ fn main() {
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
         });
-        RadioBox::new("First").build(state, hbox, |builder| {
+        RadioButton::new().build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
         Label::new("Option 2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
@@ -183,12 +181,12 @@ fn main() {
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
         });
-        RadioBox::new("First").build(state, hbox, |builder| {
+        RadioButton::new().build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
         Label::new("Option 3").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
-        let panel = Panel::new("Control Knobs").build(state, scroll, |builder| builder);
+        let panel = Panel::new("Control Knobs").build(state, rvbox, |builder| builder);
 
         let row = HBox::new().build(state, panel, |builder| {
             builder.set_justify_content(JustifyContent::SpaceEvenly)
@@ -206,7 +204,7 @@ fn main() {
             builder.set_width(Length::Pixels(50.0))
         });
 
-        let panel = Panel::new("Control Knobs").build(state, scroll, |builder| builder);
+        let panel = Panel::new("Control Knobs").build(state, rvbox, |builder| builder);
 
         let row = HBox::new().build(state, panel, |builder| {
             builder.set_justify_content(JustifyContent::SpaceEvenly)

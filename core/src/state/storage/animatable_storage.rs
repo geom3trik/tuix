@@ -463,11 +463,11 @@ where
                 // Get the transition animation definition
                 let transition = self.animations.get_mut(rule_animation_id).unwrap();
                 let current_data_index = self.entity_indices[entity.index()].data_index.index();
-                let start = self
-                    .data
-                    .get(current_data_index)
-                    .cloned()
-                    .unwrap_or_default();
+                // let start = self
+                //     .data
+                //     .get(current_data_index)
+                //     .cloned()
+                //     .unwrap_or_default();
                 let end = self.data.get(rule_data_index).cloned().unwrap_or_default();
 
                 if let Some(start) = self.data.get(current_data_index) {
