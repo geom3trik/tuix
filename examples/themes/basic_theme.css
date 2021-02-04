@@ -11,3 +11,16 @@
   background-color: red;
   
 }
+
+.test {
+  flex-grow: 1.0;
+  height: 50px;
+  background-color: red;
+}
+
+.test2 {
+  flex-basis: 30px;
+  flex-grow: 2.0;
+  height: 50px;
+  background-color: green;
+}

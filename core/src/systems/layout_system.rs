@@ -635,6 +635,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             _ => {}
         }
 
+        // Used to calculate the positional proportion of the child
+        let mut proportion_numerator = 0.0f32;
+        let mut flex_length_sum= 0.0f32;
+
         for child in parent.child_iter(&hierarchy) {
             // Skip non-displayed widgets
             let display = state.style.display.get(child).cloned().unwrap_or_default();
@@ -843,6 +847,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             let flex_grow_fraction = child_flex_grow / child_grow_sum;
             let flex_shrink_fraction = child_flex_shrink / child_shrink_sum;
 
+            proportion_numerator += child_flex_grow;
+            let positional_proportion = proportion_numerator / child_grow_sum;
+
             let position = state.style.position.get(child).cloned().unwrap_or_default();
 
             match flex_direction {
@@ -912,7 +919,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                 - state.data.get_child_sum(parent);
 
                             if parent_free_space >= 0.0 {
-                                new_width += flex_grow_fraction * parent_free_space;
+                                let flex_width = (proportion_numerator * parent_free_space / child_grow_sum).round() - flex_length_sum;
+                                flex_length_sum += flex_width;
+                                //println!("Flex Width: {} {}", child, flex_width);
+                                //new_width += flex_grow_fraction * parent_free_space;
+                                new_width += flex_width;
                             } else {
                                 new_width += flex_shrink_fraction * parent_free_space;
                             }
@@ -1099,7 +1110,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                 - state.data.get_child_sum(parent);
 
                             if parent_free_space >= 0.0 {
-                                new_height += flex_grow_fraction * parent_free_space;
+                                let flex_height = (proportion_numerator * parent_free_space / child_grow_sum).round() - flex_length_sum;
+                                flex_length_sum += flex_height;
+                                //new_height += flex_grow_fraction * parent_free_space;
+                                new_height += flex_height;
                             } else {
                                 new_height += flex_shrink_fraction * parent_free_space;
                             }

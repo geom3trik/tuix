@@ -34,7 +34,7 @@ button {
 }
 
 button.row {
-    margin-bottom: 1px;
+    /* margin-bottom: 1px; */
     display: flex;
     flex-direction: row;
     flex-grow: 1.0;
@@ -47,7 +47,7 @@ button.last_row {
 }
 
 button.digit {
-    margin-right: 1px;
+    /* margin-right: 1px; */
     background-color: #adadad;
     flex-grow: 1.0;
 }
