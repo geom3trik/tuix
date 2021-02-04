@@ -195,7 +195,7 @@ where
             //.on_press(Event::new(SpinnerEvent::Increase))
             .build(state, arrow_container, |builder| {
                 builder
-                    .set_font("Icons".to_string())
+                    .set_font("Icons")
                     .set_text_justify(Justify::Center)
                     .set_text_align(Align::Center)
                     .set_text(ICON_UP_OPEN_MINI)
@@ -207,7 +207,7 @@ where
             //.on_press(Event::new(SpinnerEvent::Decrease))
             .build(state, arrow_container, |builder| {
                 builder
-                    .set_font("Icons".to_string())
+                    .set_font("Icons")
                     .set_text_justify(Justify::Center)
                     .set_text_align(Align::Center)
                     .set_text(ICON_DOWN_OPEN_MINI)

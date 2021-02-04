@@ -90,7 +90,7 @@ pub trait PropSet {
     fn set_text(self, state: &mut State, text: &str) -> Self;
 
     // Text Font
-    fn set_font(self, state: &mut State, font: String) -> Self;
+    fn set_font(self, state: &mut State, font: &str) -> Self;
     fn set_font_size(self, state: &mut State, size: f32) -> Self;
     fn set_font_color(self, state: &mut State, color: Color) -> Self;
 
@@ -692,14 +692,14 @@ impl PropSet for Entity {
     }
 
     // Text Font
-    fn set_font(self, state: &mut State, value: String) -> Self {
+    fn set_font(self, state: &mut State, value: &str) -> Self {
         if let Some(data) = state.style.text.get_mut(self) {
-            data.font = value;
+            data.font = value.to_string();
         } else {
             state.style.text.insert(
                 self,
                 Text {
-                    font: value,
+                    font: value.to_string(),
                     ..Default::default()
                 },
             );

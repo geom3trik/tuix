@@ -159,6 +159,7 @@ impl BuildHandler for Dropdown {
 
         let icon = Element::new().build(state, self.header, |builder| {
             builder
+                .set_font("Icons")
                 .set_hoverability(false)
                 //.set_background_color(Color::rgb(100,100,100))
                 .set_text(ICON_DOWN_DIR)

@@ -10,9 +10,11 @@ use crate::widgets::Element;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RadioEvent {
-    Activate(Entity),
+    Check,
+    Checked,
 }
 
+#[derive(Default)]
 pub struct RadioList {
     
 }
@@ -36,15 +38,22 @@ impl EventHandler for RadioList {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(radio_event) = event.message.downcast::<RadioEvent>() {
             match radio_event {
-                RadioEvent::Activate(radio) => {
-                    if event.target == entity && event.origin != entity {
+                RadioEvent::Checked => {
+                    //println!("Received Radio Event: {}", event.target);
+                    //if event.target == entity && event.origin != entity {
                         state.insert_event(
-                            Event::new(RadioEvent::Activate(*radio))
+                            Event::new(RadioEvent::Check)
                                 .target(entity)
-                                .origin(entity)
+                                .origin(event.target)
                                 .propagate(Propagation::Fall),
                         );
 
+                        event.consume();
+                    //}
+                }
+
+                RadioEvent::Check => {
+                    if event.target != entity {
                         event.consume();
                     }
                 }
@@ -53,20 +62,19 @@ impl EventHandler for RadioList {
     }
 }
 
-pub struct RadioButton {
+#[derive(Default)]
+pub struct Radio {
     marker: Entity,
     on_checked: Option<Event>,
     on_unchecked: Option<Event>,
-    checked: bool,
 }
 
-impl RadioButton {
+impl Radio {
     pub fn new() -> Self {
         Self {
             marker: Entity::null(),
             on_checked: None,
             on_unchecked: None,
-            checked: false,
         }
     }
 
@@ -81,7 +89,7 @@ impl RadioButton {
     }
 }
 
-impl BuildHandler for RadioButton {
+impl BuildHandler for Radio {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
@@ -95,7 +103,7 @@ impl BuildHandler for RadioButton {
     }
 }
 
-impl EventHandler for RadioButton {
+impl EventHandler for Radio {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(system_event) = event.message.downcast::<WindowEvent>() {
             match system_event {
@@ -103,8 +111,8 @@ impl EventHandler for RadioButton {
                     MouseButton::Left => {
                         if entity == event.target {
                             state.insert_event(
-                                Event::new(RadioEvent::Activate(entity))
-                                .target(entity.parent(&state.hierarchy).unwrap())
+                                Event::new(RadioEvent::Checked)
+                                .target(entity)
                                 .propagate(Propagation::Up),
                             );
                         }
@@ -119,47 +127,66 @@ impl EventHandler for RadioButton {
 
         if let Some(radio_event) = event.message.downcast::<RadioEvent>() {
             match radio_event {
-                RadioEvent::Activate(radio) => {
-                    if Some(event.target) == entity.parent(&state.hierarchy) {
-                        if *radio == entity{
-                            if !self.checked {
-                                entity.set_checked(state, true);
+                RadioEvent::Check => {
+                    if event.origin == entity {
+                        if !entity.is_checked(state) {
+                            entity.set_checked(state, true);
 
-                                if let Some(mut on_checked) = self.on_checked.clone() {
-                                    if on_checked.target == Entity::null() {
-                                        on_checked.target = entity;
-                                    }
-
-                                    on_checked.origin = entity;
-
-                                    state.insert_event(on_checked);
+                            if let Some(mut on_checked) = self.on_checked.clone() {
+                                if on_checked.target == Entity::null() {
+                                    on_checked.target = entity;
                                 }
-                                
-                                self.checked = true;
+
+                                on_checked.origin = entity;
+
+                                state.insert_event(on_checked);
                             }
+                        }
 
-                        } else {
-                            if self.checked {
-                                entity.set_checked(state, false);
+                    } else {
+                        if entity.is_checked(state) {
+                            entity.set_checked(state, false);
 
-                                if let Some(mut on_unchecked) = self.on_unchecked.clone() {
-                                    if on_unchecked.target == Entity::null() {
-                                        on_unchecked.target = entity;
-                                    }
-
-                                    on_unchecked.origin = entity;
-
-                                    state.insert_event(on_unchecked);
+                            if let Some(mut on_unchecked) = self.on_unchecked.clone() {
+                                if on_unchecked.target == Entity::null() {
+                                    on_unchecked.target = entity;
                                 }
 
-                                self.checked = false;
+                                on_unchecked.origin = entity;
+
+                                state.insert_event(on_unchecked);
                             }
                         }
                     }
-
-
                 }
+                _=> {}
             }
         }
+    }
+}
+
+#[derive(Default)]
+pub struct RadioButton {
+    radio: Radio,
+}
+
+impl RadioButton {
+    pub fn new() -> Self {
+        Self {
+            radio: Radio::new(),
+        }
+    }
+}
+
+impl BuildHandler for RadioButton {
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        entity.set_element(state, "radio_button")
+    }
+}
+
+impl EventHandler for RadioButton {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        self.radio.on_event(state, entity, event);
     }
 }

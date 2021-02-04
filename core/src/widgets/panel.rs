@@ -73,7 +73,7 @@ impl BuildHandler for Panel {
         self.checkbox = Element::new().build(state, self.header, |builder| {
             builder
                 .set_text(ICON_DOWN_OPEN_BIG)
-                .set_font("Icons".to_string())
+                .set_font("Icons")
                 .set_text_justify(Justify::Center)
                 .set_text_align(Align::Center)
                 .set_width(Length::Pixels(20.0))
@@ -102,13 +102,13 @@ impl BuildHandler for Panel {
                 // .set_top(Length::Percentage(1.0))
                 // .set_width(Length::Percentage(1.0))
                 //.set_height(Length::Pixels(200.0))
-                .class("container")
+                .class("container1")
         });
 
         self.other_container = Element::new().build(
             state,
             self.container,
-            |builder| builder, //.set_flex_grow(1.0).class("test")
+            |builder| builder.class("container2"), //.set_flex_grow(1.0).class("test")
         );
 
         //entity.set_checked(state, true);

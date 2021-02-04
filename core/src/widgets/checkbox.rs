@@ -93,7 +93,7 @@ impl BuildHandler for Checkbox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_font(state, "Icons".to_string())
+            .set_font(state, "Icons")
             .set_text_justify(state, Justify::Center)
             .set_text_align(state, Align::Center);
 

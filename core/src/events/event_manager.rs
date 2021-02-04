@@ -200,14 +200,15 @@ impl EventManager {
             // Propagate down from target to leaf
             if event.propagation == Propagation::Fall {
                 // Walk hierarchy from the target down the branch
-                for widget in target.into_iter(&hierarchy) {
+                for entity in target.into_iter(&hierarchy) {
                     // Skip the target entity
-                    if widget == event.target {
+                    if entity == event.target {
                         continue;
                     }
 
-                    if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
-                        event_handler.on_event(state, widget, event);
+                    if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
+                        
+                        event_handler.on_event(state, entity, event);
                         
                         if event.consumed {
                             continue 'events;

@@ -41,9 +41,21 @@ impl Color {
         ((self.data & 0xFF00_0000) >> 24) as u8
     }
 
+    pub fn black() -> Self {
+        Self {
+            data: 0xFF000000,
+        }
+    }
+
+    pub fn white() -> Self {
+        Self {
+            data: 0xFFFFFFFF,
+        }
+    }
+
     pub fn red() -> Self {
         Self {
-            data: 0xFF0000FF,
+            data: 0xFFFF0000,
         }
     }
 
@@ -55,7 +67,7 @@ impl Color {
 
     pub fn blue() -> Self {
         Self {
-            data: 0xFFFF0000,
+            data: 0xFF0000FF,
         }
     }
 

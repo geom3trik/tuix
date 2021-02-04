@@ -16,13 +16,13 @@ button:hover {
     background-color: #ff7033;
 }
 
-panel hbox {
-    height: 30px;
+panel>.container1>.container2>hbox {
+    /* height: 30px; */
     padding: 10px;
     align-items: center;
 }
 
-panel>.container {
+panel>.container1 {
     background-color: #ffffff;
 }
 
@@ -32,9 +32,9 @@ panel>.header {
     flex-grow: 1.0;
 }
 
-panel hbox>label {
+panel .container2>hbox>label {
     height: 30px;
-    width: 100px;
+    width: 120px;
     color: black;
     padding-left: 5px;
 }
@@ -74,7 +74,7 @@ switch>.front {
     width: 20px;
     background-color: white;
     transition: left 0.1 0.0;
-    border-radius: 9;
+    border-radius: 10;
 }
 
 
@@ -154,6 +154,7 @@ dropdown label {
 dropdown .icon {
     text-justify: center;
     color: #ff5e1a;
+    width: 20px;
 }
 
 dropdown>.container {
@@ -190,12 +191,17 @@ slider2 {
 
 slider2>.active {
     background-color: #f74c00;
+    border-radius: 2px;
 }
 
 slider2>.thumb {
     background-color:#ff5e1a;
     border-radius: 9.5px;
 }
+
+/* radio_list {
+    align-items: center;
+} */
 
 radio {
     border-color: black;
@@ -209,9 +215,9 @@ radio {
 
 radio>.marker {
     background-color: #ff5e1a;
-    width: 8px;
-    height: 8px;
-    border-radius: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
 }
 
 radio>.marker {
@@ -219,7 +225,38 @@ radio>.marker {
     display: none;
 }
 
+radio:checked {
+    border-color: #ff5e1a;
+}
+
 radio:checked>.marker {
     visibility: visible;
     display: flex;
+}
+
+radio_button {
+    background-color: #646464;
+    height: 30px;
+    color: white;
+    border-width: 0px;
+    border-radius: 0px;
+    flex-grow: 1.0;
+    text-justify: center;
+    margin-right: 1px;
+}
+
+radio_button:checked {
+    background-color: #ff5e1a;
+    color: white;
+}
+
+radio_button.first {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+radio_button.last {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    margin-right: 0px;
 }

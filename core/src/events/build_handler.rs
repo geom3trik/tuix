@@ -68,13 +68,13 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn element(mut self, element: &str) -> Self {
+    pub fn set_element(mut self, element: &str) -> Self {
         self.state.style.insert_element(self.entity, element);
 
         self
     }
 
-    pub fn id(mut self, id: &str) -> Self {
+    pub fn set_id(mut self, id: &str) -> Self {
         self.state.style.insert_id(self.entity, id);
 
         self
@@ -419,18 +419,23 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_font(mut self, value: String) -> Self {
+    pub fn set_font(mut self, value: &str) -> Self {
         if let Some(data) = self.state.style.text.get_mut(self.entity) {
-            data.font = value;
+            data.font = value.to_string();
         } else {
             self.state.style.text.insert(
                 self.entity,
                 Text {
-                    font: value,
+                    font: value.to_string(),
                     ..Default::default()
                 },
             );
         }
+
+        self
+    }
+    pub fn set_font_color(mut self, value: Color) -> Self {
+        self.state.style.font_color.insert(self.entity, value);
 
         self
     }
