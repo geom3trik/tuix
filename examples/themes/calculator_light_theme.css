@@ -14,7 +14,7 @@
 
 .display {
     text-justify: end;
-    font-size: 70.0;
+    font-size: 60.0;
     color: #FFFFFF;
     background-color: #363636;
     padding-right: 10px;
@@ -29,12 +29,12 @@
 
 button {
     text-justify: center;
-    font-size: 50.0;
+    font-size: 40.0;
     color: white;
 }
 
 button.row {
-    /* margin-bottom: 1px; */
+    margin-bottom: 1px;
     display: flex;
     flex-direction: row;
     flex-grow: 1.0;
@@ -47,7 +47,7 @@ button.last_row {
 }
 
 button.digit {
-    /* margin-right: 1px; */
+    margin-right: 1px;
     background-color: #adadad;
     flex-grow: 1.0;
 }

@@ -172,6 +172,40 @@ fn main() {
         RadioButton::new().build(state, radio_list, |builder| builder.set_text("C").class("last"));
         
 
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Radio List (V)").build(state, row, |builder| builder);
+        let radio_list = RadioList::new().build(state, row, |builder| 
+            builder
+                .set_height(Length::Pixels(80.0))
+                .set_justify_content(JustifyContent::SpaceEvenly)
+        );
+        
+        let item = HBox::new().build(state, radio_list, |builder| builder);
+            let first = Checkbox::new(true).on_checked(Event::new(WindowEvent::WindowClose).target(Entity::new(0,0))).build(state, item, |builder| builder);
+            Label::new("Option 1").build(state, item, |builder| 
+                builder
+                .set_font_color(Color::black())
+                .set_width(Length::Pixels(50.0))
+                .set_margin_left(Length::Pixels(5.0))
+            );
+        
+        let item = HBox::new().build(state, radio_list, |builder| builder);
+            Checkbox::new(false).build(state, item, |builder| builder);
+            Label::new("Option 2").build(state, item, |builder| 
+                builder
+                .set_font_color(Color::black())
+                .set_width(Length::Pixels(50.0))
+                .set_margin_left(Length::Pixels(5.0))
+            );
+
+        let item = HBox::new().build(state, radio_list, |builder| builder);
+            Checkbox::new(false).build(state, item, |builder| builder);
+            Label::new("Option 3").build(state, item, |builder| 
+                builder
+                .set_font_color(Color::black())
+                .set_width(Length::Pixels(50.0))
+                .set_margin_left(Length::Pixels(5.0))
+            );
         
 
         // Tabs

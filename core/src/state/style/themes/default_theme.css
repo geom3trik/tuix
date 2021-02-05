@@ -242,7 +242,7 @@ radio_button {
     border-radius: 0px;
     flex-grow: 1.0;
     text-justify: center;
-    /* margin-right: 1px; */
+    margin-right: 1px;
 }
 
 radio_button:checked {
@@ -258,5 +258,5 @@ radio_button.first {
 radio_button.last {
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
-    /* margin-right: 0px; */
+    margin-right: 0px;
 }
