@@ -52,6 +52,11 @@ button.digit {
     flex-grow: 1.0;
 }
 
+button.digit.zero {
+    flex-basis: 1px;
+    flex-grow: 2.0;
+}
+
 
 button.digit:focus {
     border-color:yellow;

@@ -224,7 +224,7 @@ impl BuildHandler for Calculator {
         self.zero = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('0')))
             .build(state, row5, |builder| {
-                builder.set_text("0").set_flex_grow(2.0).class("digit")
+                builder.set_text("0").class("digit").class("zero")
             });
 
         // Decimal Point

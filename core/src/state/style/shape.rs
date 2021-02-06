@@ -112,3 +112,43 @@ impl Default for FocusOrder {
         }
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct GradientStop {
+    // Position of the gradient stop
+    pub position: Length,
+    // Colour of the gradient stop
+    pub color: Color,
+}
+
+impl GradientStop {
+    pub fn new(position: Length, color: Color) -> Self {
+        Self {
+            position,
+            color,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct LinearGradient {
+    // Direction of the gradient
+    pub direction: f32,
+    // Stops of the gradient
+    pub stops: Vec<GradientStop>,
+}
+
+impl LinearGradient {
+    pub fn new(direction: f32) -> Self {
+        Self {
+            direction,
+            stops: Vec::new(),
+        }
+    }
+
+    pub fn add_stop(mut self, stop: GradientStop) -> Self {
+        self.stops.push(stop);
+
+        self
+    }
+}
