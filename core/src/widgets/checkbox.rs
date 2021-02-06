@@ -23,11 +23,11 @@ pub enum CheckboxEvent {
 pub struct Checkbox {
     checked: bool,
 
-    pub icon_unchecked: Option<String>,
-    pub icon_checked: Option<String>,
+    icon_unchecked: Option<String>,
+    icon_checked: Option<String>,
 
-    pub on_checked: Option<Event>,
-    pub on_unchecked: Option<Event>,
+    on_checked: Option<Event>,
+    on_unchecked: Option<Event>,
 }
 
 impl Checkbox {

@@ -107,12 +107,12 @@ impl Radio {
     }
 
     pub fn on_checked(mut self, event: Event) -> Self {
-        self.checkbox.on_checked = Some(event);
+        self.checkbox = self.checkbox.on_checked(event);
         self
     }
 
     pub fn on_unchecked(mut self, event: Event) -> Self {
-        self.checkbox.on_unchecked = Some(event);
+        self.checkbox = self.checkbox.on_unchecked(event);
         self
     }
 }
@@ -276,6 +276,18 @@ impl RadioButton {
         Self {
             radio: Radio::new(),
         }
+    }
+
+    pub fn on_checked(mut self, event: Event) -> Self {
+        self.radio = self.radio.on_checked(event);
+        
+        self
+    }
+
+    pub fn on_unchecked(mut self, event: Event) -> Self {
+        self.radio = self.radio.on_unchecked(event);
+
+        self
     }
 }
 
