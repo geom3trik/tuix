@@ -1,4 +1,4 @@
-use crate::{Entity, Propagation, State};
+use crate::{Entity, GeometryChanged, Propagation, State};
 
 use crate::hierarchy::*;
 use crate::style::*;
@@ -1398,24 +1398,30 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 }
             }
 
+            let mut geometry_changed = GeometryChanged::default();
+
             if state.data.get_posx(child) != new_posx {
                 state.data.set_posx(child, new_posx);
                 should_continue = true;
+                geometry_changed.posx = true;
             }
 
             if state.data.get_posy(child) != new_posy {
                 state.data.set_posy(child, new_posy);
                 should_continue = true;
+                geometry_changed.posy = true;
             }
 
             if state.data.get_width(child) != new_width {
                 state.data.set_width(child, new_width);
                 should_continue = true;
+                geometry_changed.width = true;
             }
 
             if state.data.get_height(child) != new_height {
                 state.data.set_height(child, new_height);
                 should_continue = true;
+                geometry_changed.height = true;
             }
 
             if !should_continue {
@@ -1425,7 +1431,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 // }
             } else {
                 state.insert_event(
-                    Event::new(WindowEvent::GeometryChanged)
+                    Event::new(WindowEvent::GeometryChanged(geometry_changed))
                         .target(child)
                         .propagate(Propagation::Down),
                 );

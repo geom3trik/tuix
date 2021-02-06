@@ -184,7 +184,7 @@ impl EventHandler for Panel {
         //if event.target == self.header {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::GeometryChanged => {
+                WindowEvent::GeometryChanged(geometry_changed) => {
                     if event.target == entity {
                         if !state.style.height.is_animating(self.container) {
                             //let container_height = state.data.get_height(self.container);

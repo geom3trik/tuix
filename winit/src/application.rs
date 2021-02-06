@@ -79,13 +79,13 @@ impl Application {
         );
 
         state
-            .transform
+            .data
             .set_width(state.get_root(), window_description.inner_size.width as f32);
-        state.transform.set_height(
+        state.data.set_height(
             state.get_root(),
             window_description.inner_size.height as f32,
         );
-        state.transform.set_opacity(state.get_root(), 1.0);
+        state.data.set_opacity(state.get_root(), 1.0);
 
         WindowWidget::new().build_window(&mut state);
 

@@ -59,9 +59,9 @@ impl BuildHandler for PianoRoll {
         let left = Element::new().build(state, container, |builder| {
             builder.set_background_color(Color::rgb(200, 200, 255))
         });
-        let scroll = ScrollContainer::new().build(state, left, |builder| {
-            builder.set_width(Length::Pixels(210.0)).set_flex_grow(0.0)
-        });
+
+
+        let scroll = ScrollContainer::new().build(state, left, |builder| builder.set_width(Length::Pixels(200.0)));
 
         let keys_container = VBox::new().build(state, scroll, |builder| {
             builder
@@ -95,7 +95,6 @@ impl BuildHandler for PianoRoll {
         //     builder
         //         // .set_width(Length::Pixels(200.0))
         //         // .set_height(Length::Pixels(200.0))
-
         // );
 
         let right = Element::new().build(state, container, |builder| {
@@ -106,7 +105,11 @@ impl BuildHandler for PianoRoll {
         });
 
         self.midi_grid_scroll_container =
-            ScrollContainerH::new().build(state, right, |builder| builder);
+            ScrollContainerH::new().build(state, right, |builder| {
+                builder
+                    .set_width(Length::Percentage(1.0))                
+                    .set_height(Length::Percentage(1.0))
+            });
 
         let midi_grid = MidiGrid::new().build(
             state,
@@ -115,25 +118,25 @@ impl BuildHandler for PianoRoll {
                 builder
                     .set_flex_grow(1.0)
                     .set_width(Length::Pixels(2000.0))
-                    .set_height(Length::Pixels(2000.0))
+                    .set_height(Length::Pixels(1200.0))
                     .set_background_color(Color::rgb(80, 80, 80))
             }, //.set_clip_widget(self.midi_grid_scroll_container)
         );
 
-        // // let midi_note = MidiNote::new().build(state, midi_grid, |builder|
-        // //     builder
-        // //         .set_top(Length::Pixels(0.0))
-        // //         .set_width(Length::Pixels(40.0))
-        // //         .set_height(Length::Pixels(24.0))
-        // //         .set_background_color(Color::rgb(255,20,20))
-        // // );
+        let midi_note = MidiNote::new().build(state, midi_grid, |builder|
+            builder
+                .set_top(Length::Pixels(0.0))
+                .set_width(Length::Pixels(40.0))
+                .set_height(Length::Pixels(24.0))
+                .set_background_color(Color::rgb(255,20,20))
+        );
 
         entity
     }
 }
 
 impl EventHandler for PianoRoll {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(scroll_event) = event.message.downcast::<ScrollEvent>() {
             match scroll_event {
                 ScrollEvent::ScrollV(val) => {
@@ -141,10 +144,10 @@ impl EventHandler for PianoRoll {
                     self.midi_grid_scroll_container
                         .set_top(state, Length::Percentage(*val));
                 }
+
+                _=> {}
             }
         }
-
-        false
     }
 }
 
@@ -168,13 +171,13 @@ impl BuildHandler for MidiGrid {
 }
 
 impl EventHandler for MidiGrid {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseScroll(x, y) => {
                     if state.modifiers.ctrl {
-                        let width = state.transform.get_width(entity);
-                        let posx = state.transform.get_posx(entity);
+                        let width = state.data.get_width(entity);
+                        let posx = state.data.get_posx(entity);
 
                         self.zoom_index = (self.zoom_index as f32 + *y) as usize;
 
@@ -202,8 +205,6 @@ impl EventHandler for MidiGrid {
                 _ => {}
             }
         }
-
-        false
     }
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
@@ -213,18 +214,18 @@ impl EventHandler for MidiGrid {
         }
 
         // Skip invisible widgets
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        if state.transform.get_opacity(entity) == 0.0 {
+        if state.data.get_opacity(entity) == 0.0 {
             return;
         }
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         let background_color = state
             .style
@@ -259,7 +260,7 @@ impl EventHandler for MidiGrid {
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 
-        let parent_width = state.transform.get_width(parent);
+        let parent_width = state.data.get_width(parent);
 
         let border_radius_top_left = match state
             .style
@@ -309,7 +310,7 @@ impl EventHandler for MidiGrid {
             _ => 0.0,
         };
 
-        let opacity = state.transform.get_opacity(entity);
+        let opacity = state.data.get_opacity(entity);
 
         let mut background_color: femtovg::Color = background_color.into();
         background_color.set_alphaf(background_color.a * opacity);
@@ -333,12 +334,12 @@ impl EventHandler for MidiGrid {
         };
 
         // Apply Scissor
-        let clip_entity = state.transform.get_clip_widget(entity);
+        let clip_entity = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.transform.get_posx(clip_entity);
-        let clip_posy = state.transform.get_posy(clip_entity);
-        let clip_width = state.transform.get_width(clip_entity);
-        let clip_height = state.transform.get_height(clip_entity);
+        let clip_posx = state.data.get_posx(clip_entity);
+        let clip_posy = state.data.get_posy(clip_entity);
+        let clip_width = state.data.get_width(clip_entity);
+        let clip_height = state.data.get_height(clip_entity);
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
 
@@ -363,8 +364,8 @@ impl EventHandler for MidiGrid {
         //paint.set_anti_alias(false);
         canvas.stroke_path(&mut path, paint);
 
-        let horizontal_spacing = state.transform.get_width(entity) / 50.0;
-        let vertical_spacing = state.transform.get_height(entity) / 50.0;
+        let horizontal_spacing = state.data.get_width(entity) / 50.0;
+        let vertical_spacing = state.data.get_height(entity) / 50.0;
 
         for i in 0..50 {
             if i % 2 == 0 {
@@ -413,22 +414,22 @@ impl BuildHandler for MidiNote {
 }
 
 impl EventHandler for MidiNote {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if event.target == entity && *button == MouseButton::Left {
-                        if state.mouse.left.pos_down.0 > state.transform.get_posx(entity)
-                            && state.mouse.left.pos_down.0 < state.transform.get_posx(entity) + 5.0
+                        if state.mouse.left.pos_down.0 > state.data.get_posx(entity)
+                            && state.mouse.left.pos_down.0 < state.data.get_posx(entity) + 5.0
                         {
                             self.resizing_left = true;
                             state.capture(entity);
                         } else if state.mouse.left.pos_down.0
-                            > state.transform.get_posx(entity) + state.transform.get_width(entity)
+                            > state.data.get_posx(entity) + state.data.get_width(entity)
                                 - 5.0
                             && state.mouse.left.pos_down.0
-                                < state.transform.get_posx(entity)
-                                    + state.transform.get_width(entity)
+                                < state.data.get_posx(entity)
+                                    + state.data.get_width(entity)
                         {
                             self.resizing_right = true;
                             state.capture(entity);
@@ -454,18 +455,18 @@ impl EventHandler for MidiNote {
 
                     let parent = state.hierarchy.get_parent(entity).unwrap();
 
-                    let parent_posy = state.transform.get_posy(parent);
-                    let parent_posx = state.transform.get_posx(parent);
+                    let parent_posy = state.data.get_posy(parent);
+                    let parent_posx = state.data.get_posx(parent);
 
-                    let posy = state.transform.get_posy(entity) - parent_posy;
-                    let posx = state.transform.get_posx(entity) - parent_posx;
-                    let height = state.transform.get_height(entity);
-                    let width = state.transform.get_width(entity);
+                    let posy = state.data.get_posy(entity) - parent_posy;
+                    let posx = state.data.get_posx(entity) - parent_posx;
+                    let height = state.data.get_height(entity);
+                    let width = state.data.get_width(entity);
 
                     if self.moving {
-                        if *y < state.transform.get_posy(entity) {
+                        if *y < state.data.get_posy(entity) {
                             entity.set_top(state, Length::Pixels(posy - height - 1.0));
-                        } else if *y > (state.transform.get_posy(entity) + height) {
+                        } else if *y > (state.data.get_posy(entity) + height) {
                             entity.set_top(state, Length::Pixels(posy + height + 1.0));
                         }
 
@@ -480,13 +481,13 @@ impl EventHandler for MidiNote {
 
                     if self.resizing_right {
                         if *x
-                            > state.transform.get_posx(entity)
-                                + state.transform.get_width(entity)
+                            > state.data.get_posx(entity)
+                                + state.data.get_width(entity)
                                 + 20.0
                         {
                             entity.set_width(state, Length::Pixels(width + 40.0));
                         } else if *x
-                            < state.transform.get_posx(entity) + state.transform.get_width(entity)
+                            < state.data.get_posx(entity) + state.data.get_width(entity)
                                 - 20.0
                         {
                             entity.set_width(state, Length::Pixels(width - 40.0));
@@ -494,10 +495,10 @@ impl EventHandler for MidiNote {
                     }
 
                     if self.resizing_left {
-                        if *x > state.transform.get_posx(entity) + 20.0 {
+                        if *x > state.data.get_posx(entity) + 20.0 {
                             entity.set_width(state, Length::Pixels(width - 40.0));
                             entity.set_left(state, Length::Pixels(posx + 40.0));
-                        } else if *x < state.transform.get_posx(entity) - 20.0 {
+                        } else if *x < state.data.get_posx(entity) - 20.0 {
                             entity.set_width(state, Length::Pixels(width + 40.0));
                             entity.set_left(state, Length::Pixels(posx - 40.0));
                         }
@@ -507,7 +508,5 @@ impl EventHandler for MidiNote {
                 _ => {}
             }
         }
-
-        false
     }
 }

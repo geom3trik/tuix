@@ -2,15 +2,17 @@
 scroll_container {
     /* width: 500px; */
     /* height: 100%; */
+    flex-grow: 1.0;
     background-color: #2e2e2e;
     flex-direction: row;
 }
 
 scroll_container>.container {
     /* position: absolute; */
-    align-self: flex-start;
+    /* align-self: flex-start; */
     /* width: 400.0; */
-    flex-grow: 1.0;
+    /* flex-grow: 1.0; */
+    left: 10px;
     background-color: #b42b2b;
 }
 
@@ -36,24 +38,28 @@ scroll_containerh {
     /* width: 100%;
     height: 100%; */
     background-color: #2e2e2e;
-    flex-direction: column;
+    /* flex-direction: column; */
 }
 
 scroll_containerh>.container {
     /* position: absolute; */
-    align-self: flex-start;
+    /* align-self: flex-start; */
     /* width: 95%; */
     /* height: 100%; */
-    flex-grow: 1.0;
-    flex-shrink: 1.0;
+    /* flex-grow: 1.0; */
+    /* flex-shrink: 1.0; */
+    top: 0px;
+    bottom: 10px;
     background-color: #b42b2b;
 }
 
 scroll_containerh>.scrollbar {
+    height: 10px;
+    bottom: 0px;
     background-color: #bf6640;
 }
 
-scroll_containerh>.scrollbar:enabled {
+/* scroll_containerh>.scrollbar:enabled {
     height: 10px;
     transition: width 0.1;
 }
@@ -61,7 +67,7 @@ scroll_containerh>.scrollbar:enabled {
 scroll_containerh>.scrollbar:disabled {
     height: 0px;
     transition: width 0.1;
-}
+} */
 
 
 
