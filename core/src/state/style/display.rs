@@ -3,14 +3,14 @@ use crate::state::animation::Interpolator;
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Display {
     None,
-    Normal,
+    //Normal,
     Flexbox,
-    Grid,
+    //Grid,
 }
 
 impl Default for Display {
     fn default() -> Self {
-        Display::Normal
+        Display::Flexbox
     }
 }
 

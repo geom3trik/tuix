@@ -121,12 +121,12 @@ impl ApplicationRunner {
             .insert(state.root, Length::Pixels(logical_size.height as f32));
 
         state
-            .transform
+            .data
             .set_width(state.get_root(), physical_size.width as f32);
         state
-            .transform
+            .data
             .set_height(state.get_root(), physical_size.height as f32);
-        state.transform.set_opacity(state.get_root(), 1.0);
+        state.data.set_opacity(state.get_root(), 1.0);
 
         WindowWidget::new().build_window(&mut state);
 
@@ -216,21 +216,21 @@ impl ApplicationRunner {
                         self.state.hierarchy.into_iter().collect();
 
                     draw_hierarchy
-                        .sort_by_cached_key(|entity| self.state.transform.get_z_order(*entity));
+                        .sort_by_cached_key(|entity| self.state.data.get_z_order(*entity));
 
                     for widget in draw_hierarchy.into_iter() {
                         // Skip invisible widgets
-                        if self.state.transform.get_visibility(widget) == Visibility::Invisible {
+                        if self.state.data.get_visibility(widget) == Visibility::Invisible {
                             continue;
                         }
 
                         // This shouldn't be here but there's a bug if it isn't
-                        if self.state.transform.get_opacity(widget) == 0.0 {
+                        if self.state.data.get_opacity(widget) == 0.0 {
                             continue;
                         }
 
                         // Skip non-hoverable widgets
-                        if self.state.transform.get_hoverability(widget) != true {
+                        if self.state.data.get_hoverability(widget) != true {
                             continue;
                         }
 
@@ -247,17 +247,17 @@ impl ApplicationRunner {
                             _ => 0.0,
                         };
 
-                        let posx = self.state.transform.get_posx(widget) - (border_width / 2.0);
-                        let posy = self.state.transform.get_posy(widget) - (border_width / 2.0);
-                        let width = self.state.transform.get_width(widget) + (border_width);
-                        let height = self.state.transform.get_height(widget) + (border_width);
+                        let posx = self.state.data.get_posx(widget) - (border_width / 2.0);
+                        let posy = self.state.data.get_posy(widget) - (border_width / 2.0);
+                        let width = self.state.data.get_width(widget) + (border_width);
+                        let height = self.state.data.get_height(widget) + (border_width);
 
-                        let clip_widget = self.state.transform.get_clip_widget(widget);
+                        let clip_widget = self.state.data.get_clip_widget(widget);
 
-                        let clip_posx = self.state.transform.get_posx(clip_widget);
-                        let clip_posy = self.state.transform.get_posy(clip_widget);
-                        let clip_width = self.state.transform.get_width(clip_widget);
-                        let clip_height = self.state.transform.get_height(clip_widget);
+                        let clip_posx = self.state.data.get_posx(clip_widget);
+                        let clip_posy = self.state.data.get_posy(clip_widget);
+                        let clip_width = self.state.data.get_width(clip_widget);
+                        let clip_height = self.state.data.get_height(clip_widget);
 
                         if cursorx >= posx
                             && cursorx >= clip_posx
@@ -660,10 +660,10 @@ impl ApplicationRunner {
                         .insert(self.state.root, Length::Pixels(logical_size.1 as f32));
 
                     self.state
-                        .transform
+                        .data
                         .set_width(self.state.root, physical_size.0 as f32);
                     self.state
-                        .transform
+                        .data
                         .set_height(self.state.root, physical_size.1 as f32);
 
                     self.state

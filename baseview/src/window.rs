@@ -125,7 +125,7 @@ impl TuixWindow {
 }
 
 impl WindowHandler for TuixWindow {
-    fn on_frame(&mut self) {
+    fn on_frame(&mut self, window: &mut Window) {
         self.application.on_frame_update();
 
         self.context.make_current();

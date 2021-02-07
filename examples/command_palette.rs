@@ -258,32 +258,64 @@ impl EventHandler for CommandPalette {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::KeyDown(code, key) => {
-                    if *key == Some(Key::ArrowDown) {
-                        if let Some(next_item) =
-                            state.hierarchy.get_next_sibling(self.current_selection)
-                        {
-                            if state.data.get_visibility(next_item) != Visibility::Invisible {
-                                self.current_selection.set_checked(state, false);
-                                self.current_selection = next_item;
-                                self.current_selection.set_checked(state, true);
-                            }
 
-                            event.consume();
-                        }
-                    }
+                    match key {
+                        Some(Key::ArrowDown) => {
+                            if let Some(next_item) =
+                                state.hierarchy.get_next_sibling(self.current_selection)
+                            {
+                                if state.data.get_visibility(next_item) != Visibility::Invisible {
+                                    self.current_selection.set_checked(state, false);
+                                    self.current_selection = next_item;
+                                    self.current_selection.set_checked(state, true);
+                                }
 
-                    if *key == Some(Key::ArrowUp) {
-                        if let Some(prev_item) =
-                            state.hierarchy.get_prev_sibling(self.current_selection)
-                        {
-                            if prev_item != self.search_box {
-                                self.current_selection.set_checked(state, false);
-                                self.current_selection = prev_item;
-                                self.current_selection.set_checked(state, true);
                                 event.consume();
                             }
                         }
+
+                        Some(Key::ArrowUp) => {
+                            if let Some(prev_item) =
+                                state.hierarchy.get_prev_sibling(self.current_selection)
+                            {
+                                if prev_item != self.search_box {
+                                    self.current_selection.set_checked(state, false);
+                                    self.current_selection = prev_item;
+                                    self.current_selection.set_checked(state, true);
+                                    event.consume();
+                                }
+                            }
+                        }
+
+                        _=> {}
                     }
+
+                    // if *key == Some(Key::ArrowDown) {
+                    //     if let Some(next_item) =
+                    //         state.hierarchy.get_next_sibling(self.current_selection)
+                    //     {
+                    //         if state.data.get_visibility(next_item) != Visibility::Invisible {
+                    //             self.current_selection.set_checked(state, false);
+                    //             self.current_selection = next_item;
+                    //             self.current_selection.set_checked(state, true);
+                    //         }
+
+                    //         event.consume();
+                    //     }
+                    // }
+
+                    // if *key == Some(Key::ArrowUp) {
+                    //     if let Some(prev_item) =
+                    //         state.hierarchy.get_prev_sibling(self.current_selection)
+                    //     {
+                    //         if prev_item != self.search_box {
+                    //             self.current_selection.set_checked(state, false);
+                    //             self.current_selection = prev_item;
+                    //             self.current_selection.set_checked(state, true);
+                    //             event.consume();
+                    //         }
+                    //     }
+                    // }
                 }
 
                 _ => {}
@@ -369,14 +401,14 @@ impl EventHandler for SearchLabel {
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
         // Skip invisible widgets
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         let padding_left = match state
             .style
@@ -446,8 +478,8 @@ impl EventHandler for SearchLabel {
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 
-        let parent_width = state.transform.get_width(parent);
-        let parent_height = state.transform.get_height(parent);
+        let parent_width = state.data.get_width(parent);
+        let parent_height = state.data.get_height(parent);
 
         let border_radius_top_left = match state
             .style
@@ -509,7 +541,7 @@ impl EventHandler for SearchLabel {
             _ => 0.0,
         };
 
-        let opacity = state.transform.get_opacity(entity);
+        let opacity = state.data.get_opacity(entity);
 
         let mut background_color: femtovg::Color = background_color.into();
         background_color.set_alphaf(background_color.a * opacity);
@@ -523,12 +555,12 @@ impl EventHandler for SearchLabel {
         canvas.save();
 
         // Apply Scissor
-        let clip_entity = state.transform.get_clip_widget(entity);
+        let clip_entity = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.transform.get_posx(clip_entity);
-        let clip_posy = state.transform.get_posy(clip_entity);
-        let clip_width = state.transform.get_width(clip_entity);
-        let clip_height = state.transform.get_height(clip_entity);
+        let clip_posx = state.data.get_posx(clip_entity);
+        let clip_posy = state.data.get_posy(clip_entity);
+        let clip_width = state.data.get_width(clip_entity);
+        let clip_height = state.data.get_height(clip_entity);
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
 

@@ -3,17 +3,21 @@ use std::collections::HashMap;
 // use byteorder::{ByteOrder, LittleEndian};
 // use image::GenericImageView;
 
+
 pub struct Image {
     pub width: usize,
     pub height: usize,
     pub data: Vec<u32>,
 }
 
-#[derive(Clone)]
+pub struct ResourceId(u32); 
+
+
 pub struct ResourceManager {
     //pub images: HashMap<String, Image>,
     pub stylesheets: Vec<String>, // Stylesheets refer to a fiel path
     pub themes: Vec<String>,      // Themes are the string content stylesheets
+    pub images: Vec<Image>,
 }
 
 impl ResourceManager {
@@ -22,8 +26,15 @@ impl ResourceManager {
             //images: HashMap::new(),
             stylesheets: Vec::new(),
             themes: Vec::new(),
+            images: Vec::new(),
         }
     }
+
+    // TODO
+    pub fn add_image(name: &str, path: &str) {
+        
+    }
+
 
     // pub fn add_stylesheet(&mut self, path: String) -> Result<(), std::io::Error> {
 
