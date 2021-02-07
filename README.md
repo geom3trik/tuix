@@ -146,7 +146,7 @@ It's worth spending a moment to discuss what's happening here. How does the coun
 
 Before we finish off this counter example by placing our new counter widget into an app, we need to set some style properties. We could use inline styles within our rust code to do this, but for better reusability we'll use CSS, which can be defined in its own file. You can find some example styling for this counter in the 'examples/themes' directory of tuix, under the name 'counter_theme.css'.
 
-Now that we've created our widget we need to put it into an app:1
+Now that we've created our widget we need to put it into an app:
 
 ```Rust
 static THEME: &'static str = include_str!("themes/counter_theme.css");
