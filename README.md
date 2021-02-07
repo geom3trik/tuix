@@ -5,7 +5,7 @@ Tuix is a cross-platform GUI toolkit written in Rust.
 
 The driving principle behind tuix is to be a self-contained, small-as-possible, but still fast, toolkit for creating graphical user interfaces in Rust. 
 
-![calculator](https://github.com/geom3trik/tuix/blob/main/calculator.png?raw=true)
+![calculator](https://github.com/geom3trik/tuix/blob/develop/calculator.png?raw=true)
 
 ## Features
 
@@ -168,7 +168,7 @@ fn main() {
 ```
 And we're done! 
 
-![counter](https://github.com/geom3trik/tuix/blob/main/counter.png?raw=true)
+![counter](https://github.com/geom3trik/tuix/blob/develop/counter.png?raw=true)
 
 You can find the full code for this example in the examples folder under the name 'counter.rs'. Run it with:
 ```Bash
