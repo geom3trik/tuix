@@ -205,7 +205,7 @@ impl BuildHandler for CommandPalette {
 }
 
 impl EventHandler for CommandPalette {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(searchbox_event) = event.message.downcast::<SearchboxEvent>() {
             match searchbox_event {
                 SearchboxEvent::Changed(val) => {
@@ -262,13 +262,13 @@ impl EventHandler for CommandPalette {
                         if let Some(next_item) =
                             state.hierarchy.get_next_sibling(self.current_selection)
                         {
-                            if state.transform.get_visibility(next_item) != Visibility::Invisible {
+                            if state.data.get_visibility(next_item) != Visibility::Invisible {
                                 self.current_selection.set_checked(state, false);
                                 self.current_selection = next_item;
                                 self.current_selection.set_checked(state, true);
                             }
 
-                            return true;
+                            event.consume();
                         }
                     }
 
@@ -280,7 +280,7 @@ impl EventHandler for CommandPalette {
                                 self.current_selection.set_checked(state, false);
                                 self.current_selection = prev_item;
                                 self.current_selection.set_checked(state, true);
-                                return true;
+                                event.consume();
                             }
                         }
                     }
@@ -289,8 +289,6 @@ impl EventHandler for CommandPalette {
                 _ => {}
             }
         }
-
-        false
     }
 }
 
@@ -324,9 +322,6 @@ impl BuildHandler for Command {
 }
 
 impl EventHandler for Command {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        false
-    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -360,7 +355,7 @@ impl BuildHandler for SearchLabel {
 }
 
 impl EventHandler for SearchLabel {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event){
         if let Some(search_label_event) = event.message.downcast::<SearchLabelEvent>() {
             match search_label_event {
                 SearchLabelEvent::Highlight(indices) => {
@@ -370,8 +365,6 @@ impl EventHandler for SearchLabel {
                 }
             }
         }
-
-        false
     }
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {

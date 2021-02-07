@@ -921,9 +921,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             if parent_free_space >= 0.0 {
                                 let flex_width = (proportion_numerator * parent_free_space / child_grow_sum).round() - flex_length_sum;
                                 flex_length_sum += flex_width;
-                                //println!("Flex Width: {} {}", child, flex_width);
-                                //new_width += flex_grow_fraction * parent_free_space;
                                 new_width += flex_width;
+                                //new_width += flex_grow_fraction * parent_free_space;
+                                
                             } else {
                                 new_width += flex_shrink_fraction * parent_free_space;
                             }
@@ -1112,8 +1112,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             if parent_free_space >= 0.0 {
                                 let flex_height = (proportion_numerator * parent_free_space / child_grow_sum).round() - flex_length_sum;
                                 flex_length_sum += flex_height;
-                                //new_height += flex_grow_fraction * parent_free_space;
                                 new_height += flex_height;
+                                //new_height += flex_grow_fraction * parent_free_space;
                             } else {
                                 new_height += flex_shrink_fraction * parent_free_space;
                             }
