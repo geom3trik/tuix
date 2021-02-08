@@ -231,7 +231,7 @@ pub struct Slider {
 impl Slider {
     pub fn new() -> Self
     {
-        Slider2 {
+        Self {
             thumb: Entity::null(),
             active: Entity::null(),
             sliding: false,
