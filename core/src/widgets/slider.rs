@@ -17,7 +17,7 @@ pub enum SliderEvent {
     SetValue(f32),
 }
 
-pub struct SliderOld {
+pub struct ProgressBar {
     front: Entity,
     on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
     value: f32,
@@ -26,7 +26,7 @@ pub struct SliderOld {
     pressed_x: f32,
 }
 
-impl SliderOld {
+impl ProgressBar {
     pub fn new() -> Self {
         Self {
             front: Entity::null(),
@@ -47,7 +47,7 @@ impl SliderOld {
     }
 }
 
-impl BuildHandler for SliderOld {
+impl BuildHandler for ProgressBar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
@@ -56,13 +56,13 @@ impl BuildHandler for SliderOld {
             builder.set_width(Length::Percentage(0.5)).class("front")
         });
 
-        state.style.insert_element(entity, "slider");
+        state.style.insert_element(entity, "progress_bar");
 
         entity
     }
 }
 
-impl EventHandler for SliderOld {
+impl EventHandler for ProgressBar {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
@@ -297,7 +297,7 @@ impl BuildHandler for Slider {
             }, //.set_background_color(Color::rgb(80, 80, 200))
         );
 
-        state.style.insert_element(entity, "slider2");
+        state.style.insert_element(entity, "slider");
 
         entity
     }
