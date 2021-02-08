@@ -223,6 +223,8 @@ pub struct Slider {
     sliding: bool,
     on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
 
+    value: f32,
+
     min: f32,
     max: f32,
     div: f32,
@@ -240,6 +242,7 @@ impl Slider {
             min: 0.0,
             max: 1.0,
             div: 0.0,
+            value: 0.0,
         }
     }
 
@@ -247,6 +250,12 @@ impl Slider {
     where F: 'static + Fn(f32) -> Event + Send
     {
         self.on_change = Some(Box::new(message));
+        self
+    }
+
+    pub fn with_initial_value(mut self, val: f32) -> Self {
+        self.value = val;
+
         self
     }
 
@@ -296,6 +305,10 @@ impl BuildHandler for Slider {
                     .class("thumb")
             }, //.set_background_color(Color::rgb(80, 80, 200))
         );
+        
+        // TEMP
+        self.thumb.set_left(state, Length::Pixels(80.0));
+        self.active.set_width(state, Length::Percentage(1.0));
 
         state.style.insert_element(entity, "slider");
 

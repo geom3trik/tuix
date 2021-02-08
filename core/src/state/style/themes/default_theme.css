@@ -181,20 +181,20 @@ dropdown>.container>.item:hover {
     transition: background-color 0.1 0.0;
 }
 
-slider2 {
-    /* width: 100px; */
-    flex-grow: 1.0;
+slider {
+    width: 100px;
+    /* flex-grow: 1.0; */
     height: 4px;
     border-radius: 2px;
     background-color: #646464;
 }
 
-slider2>.active {
+slider>.active {
     background-color: #f74c00;
     border-radius: 2px;
 }
 
-slider2>.thumb {
+slider>.thumb {
     background-color:#ff5e1a;
     border-radius: 9.5px;
 }
