@@ -80,10 +80,7 @@ fn main() {
         let textbox = Textbox::new("0.0").build(state, row, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Slider").build(state, row, |builder| builder);
-        let slider = Slider2::new(move |value| {
-            Event::new(TextboxEvent::SetValue(value.to_string())).target(textbox)
-        })
-        .build(state, row, |builder| builder);
+        let slider = Slider::new().build(state, row, |builder| builder);
 
         let panel = Panel::new("Radio List").build(state, rvbox, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);

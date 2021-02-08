@@ -17,7 +17,7 @@ pub enum SliderEvent {
     SetValue(f32),
 }
 
-pub struct Slider {
+pub struct SliderOld {
     front: Entity,
     on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
     value: f32,
@@ -26,9 +26,9 @@ pub struct Slider {
     pressed_x: f32,
 }
 
-impl Slider {
+impl SliderOld {
     pub fn new() -> Self {
-        Slider {
+        Self {
             front: Entity::null(),
             on_change: None,
             value: 0.5,
@@ -47,7 +47,7 @@ impl Slider {
     }
 }
 
-impl BuildHandler for Slider {
+impl BuildHandler for SliderOld {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
@@ -62,7 +62,7 @@ impl BuildHandler for Slider {
     }
 }
 
-impl EventHandler for Slider {
+impl EventHandler for SliderOld {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
@@ -217,27 +217,25 @@ impl EventHandler for Slider {
     }
 }
 
-pub struct Slider2 {
+pub struct Slider {
     thumb: Entity,
     active: Entity,
     sliding: bool,
-    on_change: Box<dyn Fn(f32) -> Event + Send>,
+    on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
 
     min: f32,
     max: f32,
     div: f32,
 }
 
-impl Slider2 {
-    pub fn new<F>(on_change: F) -> Self
-    where
-        F: 'static + Fn(f32) -> Event + Send,
+impl Slider {
+    pub fn new() -> Self
     {
         Slider2 {
             thumb: Entity::null(),
             active: Entity::null(),
             sliding: false,
-            on_change: Box::new(on_change),
+            on_change: None,
 
             min: 0.0,
             max: 1.0,
@@ -245,12 +243,12 @@ impl Slider2 {
         }
     }
 
-    // pub fn on_change<F>(mut self, message: F) -> Self
-    // where F: 'static + Fn(f32) -> M + Send
-    // {
-    //     self.on_change = Some(Box::new(message));
-    //     self
-    // }
+    pub fn on_change<F>(mut self, message: F) -> Self
+    where F: 'static + Fn(f32) -> Event + Send
+    {
+        self.on_change = Some(Box::new(message));
+        self
+    }
 
     pub fn with_min(mut self, val: f32) -> Self {
         self.min = val;
@@ -268,7 +266,7 @@ impl Slider2 {
     }
 }
 
-impl BuildHandler for Slider2 {
+impl BuildHandler for Slider {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -305,7 +303,7 @@ impl BuildHandler for Slider2 {
     }
 }
 
-impl EventHandler for Slider2 {
+impl EventHandler for Slider {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
@@ -377,11 +375,14 @@ impl EventHandler for Slider2 {
                         //self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
                         self.thumb
                             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
+                        
+                        if let Some(on_change) = &self.on_change {
+                            let mut event = (on_change)(v);
+                            event.origin = entity;
 
-                        let mut event = (self.on_change)(v);
-                        event.origin = entity;
+                            state.insert_event(event);                            
+                        }
 
-                        state.insert_event(event);
 
                         // state.insert_event(
                         //     Event::new(SliderEvent::ValueChanged(v))
