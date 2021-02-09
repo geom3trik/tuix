@@ -42,22 +42,37 @@ impl EventHandler for RadioList {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(radio_event) = event.message.downcast::<CheckboxEvent>() {
             match radio_event {
-                CheckboxEvent::Checked | CheckboxEvent::Unchecked => {
-                    //println!("Received Radio Event: {}", event.target);
-                    //if event.target == entity && event.origin != entity {
-                        state.insert_event(
-                            Event::new(CheckboxEvent::Uncheck)
-                                .target(entity)
-                                .origin(event.target)
-                                .propagate(Propagation::Fall),
-                        );
 
-                        state.insert_event(
-                            Event::new(CheckboxEvent::Check)
-                                .target(event.target)
-                                .origin(entity)
-                                .propagate(Propagation::Direct),
-                        );
+                CheckboxEvent::Unchecked => {
+                    if event.target != entity {
+                        event.consume();
+                    }
+                }
+
+                CheckboxEvent::Checked => {
+                    //println!("Received Radio Event: {}", event.target);
+                        if event.target != entity && event.origin != entity {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Unchecked)
+                                    .target(entity)
+                                    .origin(event.target)
+                                    .propagate(Propagation::Fall),
+                            );
+
+                            event.consume();
+                        }
+
+                        if event.target != entity && event.origin != entity {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Checked)
+                                    .target(event.target)
+                                    .origin(entity)
+                                    .propagate(Propagation::Direct),
+                            );
+
+                            event.consume();
+                        }
+                        
 
                         // state.insert_event(
                         //     Event::new(RadioEvent::Check)
@@ -66,21 +81,21 @@ impl EventHandler for RadioList {
                         //         .propagate(Propagation::Fall),
                         // );
 
-                        event.consume();
-                    //}
+                        
+                
                 }
 
-                CheckboxEvent::Check => {
-                    if event.target != entity {
-                        event.consume();
-                    }
-                }
+                // CheckboxEvent::Check => {
+                //     if event.target != entity {
+                //         event.consume();
+                //     }
+                // }
 
-                CheckboxEvent::Uncheck => {
-                    if event.target != entity {
-                        event.consume();
-                    }
-                }
+                // CheckboxEvent::Uncheck => {
+                //     if event.target != entity {
+                //         event.consume();
+                //     }
+                // }
 
                 _=> {}
             }

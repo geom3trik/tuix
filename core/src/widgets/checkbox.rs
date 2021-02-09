@@ -144,6 +144,7 @@ impl EventHandler for Checkbox {
                 }
 
                 CheckboxEvent::Checked => {
+                    println!("Checked");
                     //if event.target == entity {
                         self.checked = true;
                         if let Some(icon_checked) = &self.icon_checked {
@@ -166,6 +167,7 @@ impl EventHandler for Checkbox {
                 }
 
                 CheckboxEvent::Unchecked => {
+                    println!("Unchecked");
                     //if event.target == entity {
                         self.checked = false;
                         if let Some(icon_unchecked) = &self.icon_unchecked {
