@@ -127,7 +127,23 @@ impl EventHandler for Checkbox {
                     }
                 }
 
-                CheckboxEvent::Check | CheckboxEvent::Checked => {
+                CheckboxEvent::Check => {
+                    self.checked = true;
+                    entity.set_checked(state, true);
+                    if let Some(icon_checked) = &self.icon_checked {
+                        entity.set_text(state, &icon_checked);
+                    }
+                }
+
+                CheckboxEvent::Uncheck => {
+                    self.checked = false;
+                    entity.set_checked(state, false);
+                    if let Some(icon_unchecked) = &self.icon_unchecked {
+                        entity.set_text(state, &icon_unchecked);
+                    }
+                }
+
+                CheckboxEvent::Checked => {
                     //if event.target == entity {
                         self.checked = true;
                         if let Some(icon_checked) = &self.icon_checked {
@@ -149,7 +165,7 @@ impl EventHandler for Checkbox {
                     //}
                 }
 
-                CheckboxEvent::Uncheck | CheckboxEvent::Unchecked => {
+                CheckboxEvent::Unchecked => {
                     //if event.target == entity {
                         self.checked = false;
                         if let Some(icon_unchecked) = &self.icon_unchecked {
