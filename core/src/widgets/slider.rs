@@ -348,6 +348,13 @@ impl EventHandler for Slider {
                         self.thumb
                             .set_left(state, Length::Pixels(dx - thumb_width / 2.0));
 
+                        if let Some(on_change) = &self.on_change {
+                            let mut event = (on_change)(v);
+                            event.origin = entity;
+
+                            state.insert_event(event);                            
+                        }
+
                         state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));
                     }
                 }
@@ -397,10 +404,10 @@ impl EventHandler for Slider {
                         }
 
 
-                        // state.insert_event(
-                        //     Event::new(SliderEvent::ValueChanged(v))
-                        //         .target(entity),
-                        // );
+                        state.insert_event(
+                            Event::new(SliderEvent::ValueChanged(v))
+                                .target(entity),
+                        );
                     }
                 }
 
