@@ -6,7 +6,6 @@ use crate::widgets::{Button, ProgressBar, SliderEvent, Textbox, TextboxEvent};
 
 use crate::state::style::*;
 
-
 #[derive(Clone)]
 pub struct ValueSlider {
     pub slider: Entity,

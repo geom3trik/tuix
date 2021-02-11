@@ -1,8 +1,12 @@
 use crate::{
     BuildHandler, Builder, CursorIcon, Entity, Event, EventHandler, Hierarchy, HierarchyTree,
-    IntoHierarchyIterator, IntoParentIterator, Propagation, State, WindowEvent,
+    IntoBranchIterator, IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State,
+    WindowEvent,
 };
-use std::collections::{HashMap, VecDeque};
+use std::{
+    collections::{HashMap, VecDeque},
+    println,
+};
 
 use std::time::{Duration, Instant};
 
@@ -119,16 +123,13 @@ impl EventManager {
 
             // Propagate down from root to target (not including target)
             if event.propagation == Propagation::Down || event.propagation == Propagation::DownUp {
-
-
                 // Construct the list of widgets to walk down by going up from the target
-                let ancestors: Vec<Entity> = target.parent_iter(&hierarchy).collect::<Vec<Entity>>();
-                
-                
+                let ancestors: Vec<Entity> =
+                    target.parent_iter(&hierarchy).collect::<Vec<Entity>>();
 
                 for entity in ancestors.iter().rev() {
                     // Skip the window
-                    if *entity == Entity::new(0,0) {
+                    if *entity == Entity::new(0, 0) {
                         continue;
                     }
 
@@ -148,7 +149,6 @@ impl EventManager {
                         }
                     }
                 }
-
 
                 //Walk down the hierarchy
                 // for entity in hierarchy.into_iter() {
@@ -177,10 +177,8 @@ impl EventManager {
 
             // Propagate up from target to root (not including target)
             if event.propagation == Propagation::Up || event.propagation == Propagation::DownUp {
-
                 // Walk up the hierarchy from parent to parent
                 for entity in target.parent_iter(&hierarchy) {
-
                     // Skip the target entity
                     if entity == event.target {
                         continue;
@@ -200,16 +198,15 @@ impl EventManager {
             // Propagate down from target to leaf
             if event.propagation == Propagation::Fall {
                 // Walk hierarchy from the target down the branch
-                for entity in target.into_iter(&hierarchy) {
+                for entity in target.branch_iter(&hierarchy) {
                     // Skip the target entity
                     if entity == event.target {
                         continue;
                     }
 
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        
                         event_handler.on_event(state, entity, event);
-                        
+
                         if event.consumed {
                             continue 'events;
                         }

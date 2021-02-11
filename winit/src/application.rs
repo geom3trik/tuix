@@ -350,9 +350,7 @@ impl Application {
                                 .height
                                 .insert(state.root, Length::Pixels(physical_size.height as f32));
 
-                            state
-                                .data
-                                .set_width(state.root, physical_size.width as f32);
+                            state.data.set_width(state.root, physical_size.width as f32);
                             state
                                 .data
                                 .set_height(state.root, physical_size.height as f32);

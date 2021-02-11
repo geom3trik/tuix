@@ -1055,7 +1055,6 @@ impl PropSet for Entity {
     }
 }
 
-
 pub trait PropGet {
     fn get_width(&self, state: &mut State) -> f32;
 }

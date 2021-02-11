@@ -3,8 +3,8 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, Checkbox, Dimension, Dropdown, Panel, ScrollContainer, Spinner,
-    Textbox, VectorEdit, VectorEditEvent, ResizableVBox
+    Button, Checkbox, Dimension, Dropdown, Panel, ResizableVBox, ScrollContainer, Spinner, Textbox,
+    VectorEdit, VectorEditEvent,
 };
 
 static THEME: &'static str = include_str!("themes/treeview_theme.css");

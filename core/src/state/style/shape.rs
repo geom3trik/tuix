@@ -123,10 +123,7 @@ pub struct GradientStop {
 
 impl GradientStop {
     pub fn new(position: Length, color: Color) -> Self {
-        Self {
-            position,
-            color,
-        }
+        Self { position, color }
     }
 }
 

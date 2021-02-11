@@ -38,7 +38,8 @@ fn main() {
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Button").build(state, row, |builder| builder);
-        Button::with_label("Press Me").build(state, row, |builder| builder);
+        let button = Button::with_label("Press Me").build(state, row, |builder| builder);
+        Tooltip::new("Tooltip").build(state, button, |builder| builder);
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Checkbox").build(state, row, |builder| builder);
@@ -68,11 +69,16 @@ fn main() {
         // DROPDOWN
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Dropdown").build(state, row, |builder| builder);
-        let (_,_,dropdown) = Dropdown::new("Dropdown")
-            .build(state, row, |builder| builder);
+        let (_, _, dropdown) = Dropdown::new("Dropdown").build(state, row, |builder| builder);
         Item::new("Item 1", "Item 1").build(state, dropdown, |builder| builder);
         Item::new("Item 2", "Item 2").build(state, dropdown, |builder| builder);
         Item::new("Item 3", "Item 3").build(state, dropdown, |builder| builder);
+
+        // LISTBOX
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Listbox").build(state, row, |builder| builder);
+        
+
 
         let panel = Panel::new("Sliders").build(state, rvbox, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);
@@ -85,125 +91,131 @@ fn main() {
         let panel = Panel::new("Radio List").build(state, rvbox, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Radio List (V)").build(state, row, |builder| builder);
-        let radio_list = RadioList::new().build(state, row, |builder| 
+        let radio_list = RadioList::new().build(state, row, |builder| {
             builder
                 .set_height(Length::Pixels(80.0))
                 .set_justify_content(JustifyContent::SpaceEvenly)
-        );
-        
-        let item = HBox::new().build(state, radio_list, |builder| builder);
-            let first = Radio::new().build(state, item, |builder| builder);
-            Label::new("Option 1").build(state, item, |builder| 
-                builder
-                .set_font_color(Color::black())
-                .set_width(Length::Pixels(50.0))
-                .set_margin_left(Length::Pixels(5.0))
-            );
-        
-        let item = HBox::new().build(state, radio_list, |builder| builder);
-            Radio::new().build(state, item, |builder| builder);
-            Label::new("Option 2").build(state, item, |builder| 
-                builder
-                .set_font_color(Color::black())
-                .set_width(Length::Pixels(50.0))
-                .set_margin_left(Length::Pixels(5.0))
-            );
+        });
 
         let item = HBox::new().build(state, radio_list, |builder| builder);
-            Radio::new().build(state, item, |builder| builder);
-            Label::new("Option 3").build(state, item, |builder| 
-                builder
+        let first = Radio::new().build(state, item, |builder| builder);
+        Label::new("Option 1").build(state, item, |builder| {
+            builder
                 .set_font_color(Color::black())
                 .set_width(Length::Pixels(50.0))
                 .set_margin_left(Length::Pixels(5.0))
-            );
+        });
+
+        let item = HBox::new().build(state, radio_list, |builder| builder);
+        Radio::new().build(state, item, |builder| builder);
+        Label::new("Option 2").build(state, item, |builder| {
+            builder
+                .set_font_color(Color::black())
+                .set_width(Length::Pixels(50.0))
+                .set_margin_left(Length::Pixels(5.0))
+        });
+
+        let item = HBox::new().build(state, radio_list, |builder| builder);
+        Radio::new().build(state, item, |builder| builder);
+        Label::new("Option 3").build(state, item, |builder| {
+            builder
+                .set_font_color(Color::black())
+                .set_width(Length::Pixels(50.0))
+                .set_margin_left(Length::Pixels(5.0))
+        });
 
         first.set_checked(state, true);
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Radio List (H)").build(state, row, |builder| builder);
-        let radio_list = RadioList::new().build(state, row, |builder| 
+        let radio_list = RadioList::new().build(state, row, |builder| {
             builder
                 .set_flex_direction(FlexDirection::Row)
                 .set_flex_grow(1.0)
                 .set_justify_content(JustifyContent::SpaceEvenly)
-        );
+        });
         let item = HBox::new().build(state, radio_list, |builder| builder);
-            let first = Radio::new().build(state, item, |builder| builder);
-            Label::new("1").build(state, item, |builder| 
-                builder
+        let first = Radio::new().build(state, item, |builder| builder);
+        Label::new("1").build(state, item, |builder| {
+            builder
                 .set_font_color(Color::black())
                 .set_width(Length::Pixels(30.0))
                 .set_margin_left(Length::Pixels(5.0))
-            );
-        
+        });
+
         let item = HBox::new().build(state, radio_list, |builder| builder);
-            Radio::new().build(state, item, |builder| builder);
-            Label::new("2").build(state, item, |builder| 
-                builder
+        Radio::new().build(state, item, |builder| builder);
+        Label::new("2").build(state, item, |builder| {
+            builder
                 .set_font_color(Color::black())
                 .set_width(Length::Pixels(30.0))
                 .set_margin_left(Length::Pixels(5.0))
-            );
+        });
         let item = HBox::new().build(state, radio_list, |builder| builder);
-            Radio::new().build(state, item, |builder| builder);
-            Label::new("3").build(state, item, |builder| 
-                builder
+        Radio::new().build(state, item, |builder| builder);
+        Label::new("3").build(state, item, |builder| {
+            builder
                 .set_font_color(Color::black())
                 .set_width(Length::Pixels(30.0))
                 .set_margin_left(Length::Pixels(5.0))
-            );
-        
+        });
+
         first.set_checked(state, true);
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Radio Buttons").build(state, row, |builder| builder);
-        let radio_list = RadioList::new().build(state, row, |builder| 
+        let radio_list = RadioList::new().build(state, row, |builder| {
             builder
                 .set_flex_direction(FlexDirection::Row)
                 .set_flex_grow(1.0)
-        );
-        
-        let first = RadioButton::new().build(state, radio_list, |builder| builder.set_text("A").class("first"));
-        RadioButton::new().build(state, radio_list, |builder| builder.set_text("B").class("button"));
-        RadioButton::new().build(state, radio_list, |builder| builder.set_text("C").class("last"));
-        
+        });
+
+        let first = RadioButton::new().build(state, radio_list, |builder| {
+            builder.set_text("A").class("first")
+        });
+        RadioButton::new().build(state, radio_list, |builder| {
+            builder.set_text("B").class("button")
+        });
+        RadioButton::new().build(state, radio_list, |builder| {
+            builder.set_text("C").class("last")
+        });
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Radio List (V)").build(state, row, |builder| builder);
-        let radio_list = RadioList::new().build(state, row, |builder| 
+        let radio_list = RadioList::new().build(state, row, |builder| {
             builder
                 .set_height(Length::Pixels(80.0))
                 .set_justify_content(JustifyContent::SpaceEvenly)
-        );
-        
-        let item = HBox::new().build(state, radio_list, |builder| builder);
-            let first = Checkbox::new(true).on_checked(Event::new(WindowEvent::WindowClose).target(Entity::new(0,0))).build(state, item, |builder| builder);
-            Label::new("Option 1").build(state, item, |builder| 
-                builder
-                .set_font_color(Color::black())
-                .set_width(Length::Pixels(50.0))
-                .set_margin_left(Length::Pixels(5.0))
-            );
-        
-        let item = HBox::new().build(state, radio_list, |builder| builder);
-            Checkbox::new(false).build(state, item, |builder| builder);
-            Label::new("Option 2").build(state, item, |builder| 
-                builder
-                .set_font_color(Color::black())
-                .set_width(Length::Pixels(50.0))
-                .set_margin_left(Length::Pixels(5.0))
-            );
+        });
 
         let item = HBox::new().build(state, radio_list, |builder| builder);
-            Checkbox::new(false).build(state, item, |builder| builder);
-            Label::new("Option 3").build(state, item, |builder| 
-                builder
+        let first = Checkbox::new(true)
+            .on_checked(Event::new(WindowEvent::WindowClose).target(Entity::new(0, 0)))
+            .build(state, item, |builder| builder);
+        Label::new("Option 1").build(state, item, |builder| {
+            builder
                 .set_font_color(Color::black())
                 .set_width(Length::Pixels(50.0))
                 .set_margin_left(Length::Pixels(5.0))
-            );
-        
+        });
+
+        let item = HBox::new().build(state, radio_list, |builder| builder);
+        Checkbox::new(false).build(state, item, |builder| builder);
+        Label::new("Option 2").build(state, item, |builder| {
+            builder
+                .set_font_color(Color::black())
+                .set_width(Length::Pixels(50.0))
+                .set_margin_left(Length::Pixels(5.0))
+        });
+
+        let item = HBox::new().build(state, radio_list, |builder| builder);
+        Checkbox::new(false).build(state, item, |builder| builder);
+        Label::new("Option 3").build(state, item, |builder| {
+            builder
+                .set_font_color(Color::black())
+                .set_width(Length::Pixels(50.0))
+                .set_margin_left(Length::Pixels(5.0))
+        });
 
         // Tabs
         // let (tab_bar, tab_container) = TabContainer::new().build(state, window, |builder| builder);

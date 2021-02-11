@@ -1,26 +1,26 @@
-#![allow(dead_code)]
-
 use crate::widgets::*;
 
-pub struct Label {
+use crate::widgets::label::*;
+
+pub struct Tooltip {
     text: String,
 }
 
-impl Label {
+impl Tooltip {
     pub fn new(text: &str) -> Self {
-        Label {
+        Self {
             text: text.to_string(),
         }
     }
 }
 
-impl BuildHandler for Label {
+impl BuildHandler for Tooltip {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_text(state, &self.text)
-            .set_element(state, "label")
+            .set_element(state, "tooltip")
     }
 }
 
-impl EventHandler for Label {}
+impl EventHandler for Tooltip {}

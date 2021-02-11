@@ -260,3 +260,20 @@ radio_button.last {
     border-bottom-right-radius: 3px;
     margin-right: 0px;
 }
+
+tooltip {
+    left: 105%;
+    width: 100px;
+    height: 20px;
+    color: black;
+    background-color: white;
+    border-color: black;
+    padding-left: 5px;
+    border-width: 1px;
+    opacity: 0.0;
+}
+
+button:hover>tooltip {
+    opacity: 1.0;
+    transition: opacity 0.1 0.5;
+}

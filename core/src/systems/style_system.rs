@@ -43,32 +43,24 @@ pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
         let display = state.style.display.get(widget).cloned().unwrap_or_default();
 
         if display == Display::None {
-            state
-                .data
-                .set_visibility(widget, Visibility::Invisible);
+            state.data.set_visibility(widget, Visibility::Invisible);
         }
 
         if let Some(parent) = widget.parent(hierarchy) {
             let parent_visibility = state.data.get_visibility(parent);
             if parent_visibility == Visibility::Invisible {
-                state
-                    .data
-                    .set_visibility(widget, Visibility::Invisible);
+                state.data.set_visibility(widget, Visibility::Invisible);
             }
             let parent_display = state.style.display.get(parent).cloned().unwrap_or_default();
             if parent_display == Display::None {
-                state
-                    .data
-                    .set_visibility(widget, Visibility::Invisible);
+                state.data.set_visibility(widget, Visibility::Invisible);
             }
 
             let parent_opacity = state.data.get_opacity(parent);
 
             let opacity = state.style.opacity.get(widget).cloned().unwrap_or_default();
 
-            state
-                .data
-                .set_opacity(widget, opacity.0 * parent_opacity);
+            state.data.set_opacity(widget, opacity.0 * parent_opacity);
         }
     }
 }

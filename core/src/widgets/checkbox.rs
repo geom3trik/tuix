@@ -7,7 +7,6 @@ use crate::{PropSet, State};
 
 use crate::style::layout::{Align, Justify};
 
-
 const ICON_CHECK: &str = "\u{2713}";
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -144,47 +143,49 @@ impl EventHandler for Checkbox {
                 }
 
                 CheckboxEvent::Checked => {
-                    println!("Checked");
                     //if event.target == entity {
-                        self.checked = true;
-                        if let Some(icon_checked) = &self.icon_checked {
-                            entity.set_text(state, &icon_checked);
+                    self.checked = true;
+                    if let Some(icon_checked) = &self.icon_checked {
+                        entity.set_text(state, &icon_checked);
+                    }
+
+                    entity.set_checked(state, true);
+
+                    if let Some(mut on_checked) = self.on_checked.clone() {
+                        if on_checked.target == Entity::null() {
+                            on_checked.target = entity;
                         }
 
-                        entity.set_checked(state, true);
+                        on_checked.origin = entity;
+                        state.insert_event(on_checked);
+                    }
 
-                        if let Some(mut on_checked) = self.on_checked.clone() {
-                            if on_checked.target == Entity::null() {
-                                on_checked.target = entity;
-                            }
+                    //event.consume();
 
-                            on_checked.origin = entity;
-                            state.insert_event(on_checked);
-                        }
-
-                        //state.insert_event(Event::new(CheckboxEvent::Checked).target(entity).origin(entity));
+                    //state.insert_event(Event::new(CheckboxEvent::Checked).target(entity).origin(entity));
                     //}
                 }
 
                 CheckboxEvent::Unchecked => {
-                    println!("Unchecked");
                     //if event.target == entity {
-                        self.checked = false;
-                        if let Some(icon_unchecked) = &self.icon_unchecked {
-                            entity.set_text(state, &icon_unchecked);
+                    self.checked = false;
+                    if let Some(icon_unchecked) = &self.icon_unchecked {
+                        entity.set_text(state, &icon_unchecked);
+                    }
+                    entity.set_checked(state, false);
+
+                    if let Some(mut on_unchecked) = self.on_unchecked.clone() {
+                        if on_unchecked.target == Entity::null() {
+                            on_unchecked.target = entity;
                         }
-                        entity.set_checked(state, false);
 
-                        if let Some(mut on_unchecked) = self.on_unchecked.clone() {
-                            if on_unchecked.target == Entity::null() {
-                                on_unchecked.target = entity;
-                            }
+                        on_unchecked.origin = entity;
 
-                            on_unchecked.origin = entity;
+                        state.insert_event(on_unchecked);
+                    }
 
-                            state.insert_event(on_unchecked);
-                        }
-                        //state.insert_event(Event::new(CheckboxEvent::Unchecked).target(entity).origin(entity));
+                    //event.consume();
+                    //state.insert_event(Event::new(CheckboxEvent::Unchecked).target(entity).origin(entity));
 
                     //}
                 }
@@ -195,18 +196,16 @@ impl EventHandler for Checkbox {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left && event.target == entity {
                         state.capture(entity);
                     }
-                },
+                }
 
                 WindowEvent::MouseUp(button) => {
-     
-                    if *button == MouseButton::Left && 
-                        event.target == entity && 
-                        state.mouse.left.pressed == entity
+                    if *button == MouseButton::Left
+                        && event.target == entity
+                        && state.mouse.left.pressed == entity
                     {
                         if state.hovered == entity {
                             if self.checked {
@@ -218,10 +217,13 @@ impl EventHandler for Checkbox {
                                 //     on_unchecked.origin = entity;
 
                                 //     state.insert_event(on_unchecked);
-                                   
-                                // }
-                                state.insert_event(Event::new(CheckboxEvent::Unchecked).target(entity).origin(entity));
 
+                                // }
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Unchecked)
+                                        .target(entity)
+                                        .origin(entity),
+                                );
                             } else {
                                 // if let Some(mut on_checked) = self.on_checked.clone() {
                                 //     if on_checked.target == Entity::null() {
@@ -232,17 +234,19 @@ impl EventHandler for Checkbox {
 
                                 //     state.insert_event(on_checked);
                                 // }
-                                state.insert_event(Event::new(CheckboxEvent::Checked).target(entity).origin(entity));
-
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Checked)
+                                        .target(entity)
+                                        .origin(entity),
+                                );
                             }
 
-                            //self.switch(state, entity);                            
+                            //self.switch(state, entity);
                         }
-
 
                         state.release(entity);
                     }
-                },
+                }
 
                 _ => {}
             }

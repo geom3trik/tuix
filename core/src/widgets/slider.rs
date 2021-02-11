@@ -158,8 +158,7 @@ impl EventHandler for ProgressBar {
                     //println!("Mouse Move");
                     if self.sliding {
                         //let dx = self.pressed_x - x;
-                        let dx = (*x - state.data.get_posx(entity))
-                            / state.data.get_width(entity);
+                        let dx = (*x - state.data.get_posx(entity)) / state.data.get_width(entity);
                         //let mut v = self.temp - dx * 0.01;
                         let mut v = dx;
 
@@ -231,8 +230,7 @@ pub struct Slider {
 }
 
 impl Slider {
-    pub fn new() -> Self
-    {
+    pub fn new() -> Self {
         Self {
             thumb: Entity::null(),
             active: Entity::null(),
@@ -247,7 +245,8 @@ impl Slider {
     }
 
     pub fn on_change<F>(mut self, message: F) -> Self
-    where F: 'static + Fn(f32) -> Event + Send
+    where
+        F: 'static + Fn(f32) -> Event + Send,
     {
         self.on_change = Some(Box::new(message));
         self
@@ -305,7 +304,7 @@ impl BuildHandler for Slider {
                     .class("thumb")
             }, //.set_background_color(Color::rgb(80, 80, 200))
         );
-        
+
         // TEMP
         self.thumb.set_left(state, Length::Pixels(80.0));
         self.active.set_width(state, Length::Percentage(1.0));
@@ -330,8 +329,7 @@ impl EventHandler for Slider {
                         let width = state.data.get_width(entity);
                         let thumb_width = state.data.get_width(self.thumb);
 
-                        let mut dx =
-                            (state.mouse.left.pos_down.0 - state.data.get_posx(entity));
+                        let mut dx = (state.mouse.left.pos_down.0 - state.data.get_posx(entity));
 
                         if dx <= thumb_width / 2.0 {
                             dx = thumb_width / 2.0;
@@ -352,7 +350,7 @@ impl EventHandler for Slider {
                             let mut event = (on_change)(v);
                             event.origin = entity;
 
-                            state.insert_event(event);                            
+                            state.insert_event(event);
                         }
 
                         state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));
@@ -395,19 +393,15 @@ impl EventHandler for Slider {
                         //self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
                         self.thumb
                             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
-                        
+
                         if let Some(on_change) = &self.on_change {
                             let mut event = (on_change)(v);
                             event.origin = entity;
 
-                            state.insert_event(event);                            
+                            state.insert_event(event);
                         }
 
-
-                        state.insert_event(
-                            Event::new(SliderEvent::ValueChanged(v))
-                                .target(entity),
-                        );
+                        state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));
                     }
                 }
 

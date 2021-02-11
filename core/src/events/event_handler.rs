@@ -10,8 +10,8 @@ use crate::{Entity, Hierarchy, State};
 use std::collections::{HashMap, VecDeque};
 
 use femtovg::{
-    renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap,
-    LineJoin, Paint, Path, Renderer, Solidity,
+    renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
+    Paint, Path, Renderer, Solidity,
 };
 
 use crate::style::{Justify, Length, Visibility};
@@ -22,9 +22,7 @@ pub type Canvas = femtovg::Canvas<OpenGl>;
 
 pub trait EventHandler: Any + Send {
     // Called when events are flushed
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
-    }
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
@@ -302,28 +300,31 @@ pub trait EventHandler: Any + Send {
 
         canvas.fill_path(&mut path, paint);
 
-
         let mut path = Path::new();
 
-        if border_radius_bottom_left == (width - 2.0*border_width)/2.0 &&
-            border_radius_bottom_right == (width - 2.0*border_width)/2.0 &&
-            border_radius_top_left == (width - 2.0*border_width)/2.0 &&
-            border_radius_top_right == (width - 2.0*border_width)/2.0 {
-                path.circle(posx + (border_width / 2.0) + (width - border_width)/2.0, posy + (border_width / 2.0) +  (height - border_width)/2.0, width/2.0);
-            } else {
-                // Draw rounded rect
-                path.rounded_rect_varying(
-                    posx + (border_width / 2.0),
-                    posy + (border_width / 2.0),
-                    width - border_width,
-                    height - border_width,
-                    border_radius_top_left,
-                    border_radius_top_right,
-                    border_radius_bottom_right,
-                    border_radius_bottom_left,
-                );
-            }
-
+        if border_radius_bottom_left == (width - 2.0 * border_width) / 2.0
+            && border_radius_bottom_right == (width - 2.0 * border_width) / 2.0
+            && border_radius_top_left == (width - 2.0 * border_width) / 2.0
+            && border_radius_top_right == (width - 2.0 * border_width) / 2.0
+        {
+            path.circle(
+                posx + (border_width / 2.0) + (width - border_width) / 2.0,
+                posy + (border_width / 2.0) + (height - border_width) / 2.0,
+                width / 2.0,
+            );
+        } else {
+            // Draw rounded rect
+            path.rounded_rect_varying(
+                posx + (border_width / 2.0),
+                posy + (border_width / 2.0),
+                width - border_width,
+                height - border_width,
+                border_radius_top_left,
+                border_radius_top_right,
+                border_radius_bottom_right,
+                border_radius_bottom_left,
+            );
+        }
 
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);

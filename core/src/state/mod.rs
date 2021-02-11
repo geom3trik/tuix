@@ -22,13 +22,12 @@ pub use mouse::*;
 pub mod resource;
 pub use resource::*;
 
-
 pub use crate::events::{Builder, Event, EventHandler, Propagation};
 pub use crate::window_event::WindowEvent;
 
 use femtovg::FontId;
 
-use std::collections::{VecDeque};
+use std::collections::VecDeque;
 
 use fnv::FnvHashMap;
 
@@ -47,7 +46,7 @@ pub struct State {
     entity_manager: EntityManager, // Creates and destroys entities
     pub hierarchy: Hierarchy,      // The widget tree
     pub style: Style,              // The style properties for every widget
-    pub data: Data,      // Computed data
+    pub data: Data,                // Computed data
     pub root: Entity,
     pub mouse: MouseState,
     pub modifiers: ModifiersState,

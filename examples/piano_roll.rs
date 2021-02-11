@@ -60,8 +60,9 @@ impl BuildHandler for PianoRoll {
             builder.set_background_color(Color::rgb(200, 200, 255))
         });
 
-
-        let scroll = ScrollContainer::new().build(state, left, |builder| builder.set_width(Length::Pixels(200.0)));
+        let scroll = ScrollContainer::new().build(state, left, |builder| {
+            builder.set_width(Length::Pixels(200.0))
+        });
 
         let keys_container = VBox::new().build(state, scroll, |builder| {
             builder
@@ -104,12 +105,11 @@ impl BuildHandler for PianoRoll {
                 .set_background_color(Color::rgb(200, 200, 200))
         });
 
-        self.midi_grid_scroll_container =
-            ScrollContainerH::new().build(state, right, |builder| {
-                builder
-                    .set_width(Length::Percentage(1.0))                
-                    .set_height(Length::Percentage(1.0))
-            });
+        self.midi_grid_scroll_container = ScrollContainerH::new().build(state, right, |builder| {
+            builder
+                .set_width(Length::Percentage(1.0))
+                .set_height(Length::Percentage(1.0))
+        });
 
         let midi_grid = MidiGrid::new().build(
             state,
@@ -123,13 +123,13 @@ impl BuildHandler for PianoRoll {
             }, //.set_clip_widget(self.midi_grid_scroll_container)
         );
 
-        let midi_note = MidiNote::new().build(state, midi_grid, |builder|
+        let midi_note = MidiNote::new().build(state, midi_grid, |builder| {
             builder
                 .set_top(Length::Pixels(0.0))
                 .set_width(Length::Pixels(40.0))
                 .set_height(Length::Pixels(24.0))
-                .set_background_color(Color::rgb(255,20,20))
-        );
+                .set_background_color(Color::rgb(255, 20, 20))
+        });
 
         entity
     }
@@ -145,7 +145,7 @@ impl EventHandler for PianoRoll {
                         .set_top(state, Length::Percentage(*val));
                 }
 
-                _=> {}
+                _ => {}
             }
         }
     }
@@ -425,11 +425,9 @@ impl EventHandler for MidiNote {
                             self.resizing_left = true;
                             state.capture(entity);
                         } else if state.mouse.left.pos_down.0
-                            > state.data.get_posx(entity) + state.data.get_width(entity)
-                                - 5.0
+                            > state.data.get_posx(entity) + state.data.get_width(entity) - 5.0
                             && state.mouse.left.pos_down.0
-                                < state.data.get_posx(entity)
-                                    + state.data.get_width(entity)
+                                < state.data.get_posx(entity) + state.data.get_width(entity)
                         {
                             self.resizing_right = true;
                             state.capture(entity);
@@ -480,15 +478,10 @@ impl EventHandler for MidiNote {
                     }
 
                     if self.resizing_right {
-                        if *x
-                            > state.data.get_posx(entity)
-                                + state.data.get_width(entity)
-                                + 20.0
-                        {
+                        if *x > state.data.get_posx(entity) + state.data.get_width(entity) + 20.0 {
                             entity.set_width(state, Length::Pixels(width + 40.0));
                         } else if *x
-                            < state.data.get_posx(entity) + state.data.get_width(entity)
-                                - 20.0
+                            < state.data.get_posx(entity) + state.data.get_width(entity) - 20.0
                         {
                             entity.set_width(state, Length::Pixels(width - 40.0));
                         }

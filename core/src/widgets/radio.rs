@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use crate::{Entity, HierarchyTree};
 use crate::mouse::*;
+use crate::{Entity, HierarchyTree};
 
 use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
 use crate::{PropSet, State};
@@ -19,21 +19,17 @@ use crate::widgets::checkbox::*;
 // }
 
 #[derive(Default)]
-pub struct RadioList {
-    
-}
+pub struct RadioList {}
 
 impl RadioList {
     pub fn new() -> Self {
-        RadioList {
-        }
+        RadioList {}
     }
 }
 
 impl BuildHandler for RadioList {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         entity.set_element(state, "radio_list")
     }
 }
@@ -42,7 +38,6 @@ impl EventHandler for RadioList {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(radio_event) = event.message.downcast::<CheckboxEvent>() {
             match radio_event {
-
                 CheckboxEvent::Unchecked => {
                     if event.target != entity {
                         event.consume();
@@ -51,6 +46,7 @@ impl EventHandler for RadioList {
 
                 CheckboxEvent::Checked => {
                     //println!("Received Radio Event: {}", event.target);
+                    if event.target.is_descendant_of(&state.hierarchy, entity) {
                         if event.target != entity && event.origin != entity {
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)
@@ -72,32 +68,52 @@ impl EventHandler for RadioList {
 
                             event.consume();
                         }
-                        
+                    }
 
-                        // state.insert_event(
-                        //     Event::new(RadioEvent::Check)
-                        //         .target(entity)
-                        //         .origin(event.target)
-                        //         .propagate(Propagation::Fall),
-                        // );
-
-                        
-                
+                    // state.insert_event(
+                    //     Event::new(RadioEvent::Check)
+                    //         .target(entity)
+                    //         .origin(event.target)
+                    //         .propagate(Propagation::Fall),
+                    // );
                 }
 
-                // CheckboxEvent::Check => {
-                //     if event.target != entity {
-                //         event.consume();
-                //     }
-                // }
+                CheckboxEvent::Check => {
+                    if event.target != entity {
+                        event.consume();
+                    }
 
-                // CheckboxEvent::Uncheck => {
-                //     if event.target != entity {
-                //         event.consume();
-                //     }
-                // }
+                    if event.target.is_descendant_of(&state.hierarchy, entity) {
+                        if event.target != entity && event.origin != entity {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Uncheck)
+                                    .target(entity)
+                                    .origin(event.target)
+                                    .propagate(Propagation::Fall),
+                            );
 
-                _=> {}
+                            event.consume();
+                        }
+
+                        if event.target != entity && event.origin != entity {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Check)
+                                    .target(event.target)
+                                    .origin(entity)
+                                    .propagate(Propagation::Direct),
+                            );
+
+                            event.consume();
+                        }
+                    }
+                }
+
+                CheckboxEvent::Uncheck => {
+                    if event.target != entity {
+                        event.consume();
+                    }
+                }
+                _ => {}
             }
         }
     }
@@ -135,11 +151,8 @@ impl Radio {
 impl BuildHandler for Radio {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         self.marker = Element::new().build(state, entity, |builder| {
-            builder
-                .set_hoverability(false)
-                .class("marker")
+            builder.set_hoverability(false).class("marker")
         });
 
         entity.set_element(state, "radio")
@@ -148,7 +161,6 @@ impl BuildHandler for Radio {
 
 impl EventHandler for Radio {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
         self.checkbox.on_event(state, entity, event);
 
         /*
@@ -169,9 +181,9 @@ impl EventHandler for Radio {
 
                                 //     state.insert_event(on_checked);
                                 // }
-                                
+
                                 state.insert_event(Event::new(CheckboxEvent::Checked).target(entity));
-                            }                            
+                            }
                         }
 
 
@@ -295,7 +307,7 @@ impl RadioButton {
 
     pub fn on_checked(mut self, event: Event) -> Self {
         self.radio = self.radio.on_checked(event);
-        
+
         self
     }
 

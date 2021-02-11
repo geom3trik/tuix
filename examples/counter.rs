@@ -17,7 +17,6 @@ struct Counter {
     label: Entity,
 }
 
-
 impl Counter {
     pub fn new() -> Self {
         Counter {
@@ -35,9 +34,7 @@ impl Counter {
 impl BuildHandler for Counter {
     type Ret = Entity;
 
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret
-    {
-
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Button::with_label("increment")
             .on_press(Event::new(CounterMessage::Increment))
             .build(state, entity, |builder| builder.class("increment"));
@@ -46,8 +43,7 @@ impl BuildHandler for Counter {
             .on_press(Event::new(CounterMessage::Decrement))
             .build(state, entity, |builder| builder.class("decrement"));
 
-        self.label = Label::new(&self.value.to_string())
-            .build(state, entity, |builder| builder);
+        self.label = Label::new(&self.value.to_string()).build(state, entity, |builder| builder);
 
         entity.set_element(state, "counter")
     }
@@ -82,7 +78,7 @@ fn main() {
             // Build the widget
             .build(state, window, |builder| builder);
 
-        // Set the window title 
+        // Set the window title
         win_desc.with_title("Counter").with_inner_size(400, 100)
     });
 

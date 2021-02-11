@@ -78,7 +78,7 @@ impl Hierarchy {
         }
     }
 
-    /// Returns the first child of an entity 
+    /// Returns the first child of an entity
     pub fn get_first_child(&self, entity: Entity) -> Option<Entity> {
         return self.first_child[entity.index()];
     }
@@ -121,7 +121,6 @@ impl Hierarchy {
 
     // Not decided yet how this should work
     pub fn remove_children(&mut self, _entity: Entity) {}
-
 
     /// Returns true if the entity has children
     pub fn has_children(&self, entity: Entity) -> bool {
@@ -432,6 +431,43 @@ impl<'a> IntoIterator for &'a Hierarchy {
     }
 }
 
+pub struct BranchIterator<'a> {
+    hierarchy: &'a Hierarchy,
+    start_node: Entity,
+    current_node: Option<Entity>,
+}
+
+impl<'a> Iterator for BranchIterator<'a> {
+    type Item = Entity;
+    fn next(&mut self) -> Option<Entity> {
+        let r = self.current_node;
+
+        if let Some(current) = self.current_node {
+            if let Some(child) = self.hierarchy.first_child[current.index()] {
+                self.current_node = Some(child);
+            } else {
+                let mut temp = Some(current);
+                while temp.is_some() {
+                    if let Some(sibling) = self.hierarchy.next_sibling[temp.unwrap().index()] {
+                        self.current_node = Some(sibling);
+                        return r;
+                    } else {
+                        temp = self.hierarchy.parent[temp.unwrap().index()];
+                        if Some(self.start_node) == temp {
+                            self.current_node = None;
+                            temp = None;
+                        }
+                    }
+                }
+
+                self.current_node = None;
+            }
+        }
+
+        return r;
+    }
+}
+
 // Iterator for iterating through the hierarchy from top to bottom
 pub struct HierarchyIterator<'a> {
     hierarchy: &'a Hierarchy,
@@ -563,6 +599,25 @@ impl<'a> IntoHierarchyIterator<'a> for &'a Entity {
     fn into_iter(self, h: &'a Hierarchy) -> Self::IntoIter {
         HierarchyIterator {
             hierarchy: h,
+            current_node: Some(*self),
+        }
+    }
+}
+
+pub trait IntoBranchIterator<'a> {
+    type Item;
+    type IntoIter: Iterator<Item = Self::Item>;
+    fn branch_iter(self, hierarchy: &'a Hierarchy) -> Self::IntoIter;
+}
+
+impl<'a> IntoBranchIterator<'a> for &'a Entity {
+    type Item = Entity;
+    type IntoIter = BranchIterator<'a>;
+
+    fn branch_iter(self, h: &'a Hierarchy) -> Self::IntoIter {
+        BranchIterator {
+            hierarchy: h,
+            start_node: *self,
             current_node: Some(*self),
         }
     }

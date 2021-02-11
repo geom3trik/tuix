@@ -239,8 +239,8 @@ impl EventHandler for Scrollbar {
                 WindowEvent::MouseMove(_, y) => {
                     if self.moving {
                         let dist_y = *y - self.pressed_y;
-                        let overflow = state.data.get_height(entity)
-                            - state.data.get_height(self.front);
+                        let overflow =
+                            state.data.get_height(entity) - state.data.get_height(self.front);
                         let ratio = dist_y / overflow;
                         let r = self.position + ratio;
                         if let Some(scroll) = state.style.scroll.get_mut(self.entity) {

@@ -283,14 +283,14 @@ impl EventHandler for Dropdown {
                         if event.target == entity || event.target == self.header {
                             println!("Mouse down on dropdown");
                             //if state.hovered.is_child_of(&state.hierarchy, self.container) {
-                                if state.hovered != entity {
-                                    state.insert_event(
-                                        Event::new(WindowEvent::MouseDown(*button))
-                                            .target(state.hovered)
-                                            .propagate(Propagation::Direct),
-                                    );
-                                }
-                                
+                            if state.hovered != entity {
+                                state.insert_event(
+                                    Event::new(WindowEvent::MouseDown(*button))
+                                        .target(state.hovered)
+                                        .propagate(Propagation::Direct),
+                                );
+                            }
+
                             //}
 
                             //return true;
@@ -330,7 +330,9 @@ impl EventHandler for Dropdown {
 
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-                        if (event.target == entity || event.target == self.header) && event.origin != entity {
+                        if (event.target == entity || event.target == self.header)
+                            && event.origin != entity
+                        {
                             if state.mouse.left.pressed == state.hovered {
                                 if !self.open {
                                     println!("Capture");

@@ -99,7 +99,7 @@ impl EventHandler for Switch {
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
     }

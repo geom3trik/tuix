@@ -42,33 +42,23 @@ impl Color {
     }
 
     pub fn black() -> Self {
-        Self {
-            data: 0xFF000000,
-        }
+        Self { data: 0xFF000000 }
     }
 
     pub fn white() -> Self {
-        Self {
-            data: 0xFFFFFFFF,
-        }
+        Self { data: 0xFFFFFFFF }
     }
 
     pub fn red() -> Self {
-        Self {
-            data: 0xFFFF0000,
-        }
+        Self { data: 0xFFFF0000 }
     }
 
     pub fn green() -> Self {
-        Self {
-            data: 0xFF00FF00,
-        }
+        Self { data: 0xFF00FF00 }
     }
 
     pub fn blue() -> Self {
-        Self {
-            data: 0xFF0000FF,
-        }
+        Self { data: 0xFF0000FF }
     }
 
     // Interpolate between two colors

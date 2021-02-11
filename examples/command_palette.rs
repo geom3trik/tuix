@@ -258,7 +258,6 @@ impl EventHandler for CommandPalette {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::KeyDown(code, key) => {
-
                     match key {
                         Some(Key::ArrowDown) => {
                             if let Some(next_item) =
@@ -287,7 +286,7 @@ impl EventHandler for CommandPalette {
                             }
                         }
 
-                        _=> {}
+                        _ => {}
                     }
 
                     // if *key == Some(Key::ArrowDown) {
@@ -353,8 +352,7 @@ impl BuildHandler for Command {
     }
 }
 
-impl EventHandler for Command {
-}
+impl EventHandler for Command {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SearchLabelEvent {
@@ -387,7 +385,7 @@ impl BuildHandler for SearchLabel {
 }
 
 impl EventHandler for SearchLabel {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event){
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(search_label_event) = event.message.downcast::<SearchLabelEvent>() {
             match search_label_event {
                 SearchLabelEvent::Highlight(indices) => {

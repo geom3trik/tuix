@@ -104,7 +104,7 @@ pub struct Event {
     pub propagation: Propagation,
     // Whether the event can be consumed
     pub consumable: bool,
-    // Determines whether the event should continue to be propagated 
+    // Determines whether the event should continue to be propagated
     pub(crate) consumed: bool,
     // Whether the event is unique (only the latest copy can exist in a queue at a time)
     pub unique: bool,

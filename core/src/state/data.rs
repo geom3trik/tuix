@@ -53,7 +53,7 @@ pub struct Data {
     pub position: Vec<Pos>,
     pub size: Vec<Pos>,
     pub visibility: Vec<Visibility>,
-    pub opacity: Vec<f32>,    
+    pub opacity: Vec<f32>,
     pub hoverability: Vec<bool>,
     pub z_order: Vec<i32>,
     pub clip_widget: Vec<Entity>,
@@ -63,8 +63,6 @@ pub struct Data {
     pub(crate) child_pos: Vec<f32>,
     pub(crate) child_grow_sum: Vec<f32>,
     pub(crate) child_shrink_sum: Vec<f32>,
-
-
 }
 
 impl Data {

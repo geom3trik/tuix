@@ -159,8 +159,7 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
 
         Label::new("Radio").build(state, row, |builder| builder.class("label"));
-        let radio_list =
-            RadioList::new().build(state, row, |builder| builder.set_flex_grow(1.0));
+        let radio_list = RadioList::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))

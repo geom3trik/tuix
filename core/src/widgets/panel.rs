@@ -206,7 +206,7 @@ impl EventHandler for Panel {
                                 {
                                     animation.keyframes.first_mut().unwrap().1 =
                                         Length::Pixels(self.container_height);
-                                }                            
+                                }
                             }
                         }
                     }
