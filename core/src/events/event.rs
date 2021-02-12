@@ -14,13 +14,6 @@ pub enum Propagation {
     Direct,
 }
 
-//TODO - Determines if the event can be cancelled
-#[derive(Debug, Clone)]
-pub enum Cancellable {
-    Yes,
-    No,
-}
-
 // A message is a wrapper around an Any but with the added ability to Clone the message
 pub trait Message: Any + MessageClone + Debug + Send {
     // An &Any can be cast to a reference to a concrete type.

@@ -64,6 +64,7 @@ pub struct State {
 }
 
 impl State {
+
     pub fn new() -> Self {
         let mut entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
@@ -91,10 +92,10 @@ impl State {
             root,
             mouse,
             modifiers,
-            hovered: Entity::new(0, 0),
+            hovered: Entity::new(0),
             active: Entity::null(),
             captured: Entity::null(),
-            focused: Entity::new(0, 0),
+            focused: Entity::new(0),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             fonts: Fonts {
@@ -115,22 +116,29 @@ impl State {
         Builder::new(self, entity)
     }
 
+    /// Adds a stylesheet to the application
+    ///
+    /// This function adds the stylesheet path to the application allowing for hot reloading of syles
+    /// while the application is running.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// state.add_stylesheet("path_to_stylesheet.css");
+    /// ```
     pub fn insert_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {
         let style_string = std::fs::read_to_string(path.clone())?;
         self.resource_manager.stylesheets.push(path.to_owned());
-
-        // Parse the theme stylesheet
         self.style.parse_theme(&style_string);
-        // self.resource_manager.themes.push(style_string);
 
         Ok(())
     }
+
 
     pub fn insert_theme(&mut self, theme: &str) {
         self.resource_manager.themes.push(theme.to_owned());
 
         self.reload_styles();
-        // self.style.parse_theme(&overall_theme);
     }
 
     // Removes all style data and then reloads the stylesheets
@@ -211,6 +219,15 @@ impl State {
         Ok(())
     }
 
+    /// Insert a new event into the application event queue
+    ///
+    /// Inserts a new event into the application event queue that will be processed on the next event loop.
+    /// If the event unique flag is set to true, only the most recent event of the same type will exist in the queue.
+    ///
+    /// # Examples
+    /// ```
+    /// state.insert_event(Event::new(WindowEvent::WindowClose));
+    /// ```
     pub fn insert_event(&mut self, mut event: Event) {
         if event.unique {
             self.event_queue.retain(|e| e != &event);
@@ -219,6 +236,7 @@ impl State {
         self.event_queue.push_back(event);
     }
 
+    // TODO
     pub fn id2entity(&self, id: &str) -> Option<Entity> {
         self.style.ids.get_by_left(&id.to_string()).cloned()
     }
@@ -258,7 +276,9 @@ impl State {
         }
     }
 
-    pub fn add(&mut self, parent: Entity) -> Entity {
+
+    // Adds a new entity with a specified parent
+    pub(crate) fn add(&mut self, parent: Entity) -> Entity {
         let entity = self
             .entity_manager
             .create_entity()
@@ -285,13 +305,15 @@ impl State {
     // }
 
     //  TODO
-    // pub fn remove(&mut self, entity: Entity) {
-    //     //self.hierarchy.remove(entity);
-    //     //self.transform.remove(entity);
-    //     //self.style.remove(entity);
-    //     //self.entity_manager.destroy_entity(entity);
-    // }
+    pub(crate) fn remove(&mut self, entity: Entity) {
+        self.hierarchy.remove(entity);
+        self.data.remove(entity);
+        self.style.remove(entity);
+        self.entity_manager.destroy_entity(entity);
+    }
 
+    // Run all pending animations
+    // This should probably be moved to style
     pub fn apply_animations(&mut self) -> bool {
         self.style
             .background_color
@@ -367,9 +389,5 @@ impl State {
             || self.style.max_width.has_animations()
             || self.style.min_height.has_animations()
             || self.style.max_height.has_animations()
-    }
-
-    pub fn get_root(&self) -> Entity {
-        self.root
     }
 }

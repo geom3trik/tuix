@@ -190,7 +190,7 @@ fn main() {
 
         let item = HBox::new().build(state, radio_list, |builder| builder);
         let first = Checkbox::new(true)
-            .on_checked(Event::new(WindowEvent::WindowClose).target(Entity::new(0, 0)))
+            .on_checked(Event::new(WindowEvent::WindowClose).target(Entity::root()))
             .build(state, item, |builder| builder);
         Label::new("Option 1").build(state, item, |builder| {
             builder

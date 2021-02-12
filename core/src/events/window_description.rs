@@ -9,6 +9,7 @@ impl Size {
     }
 }
 
+/// Passed to the window to set various window properties
 pub struct WindowDescription {
     pub title: String,
     pub inner_size: Size,

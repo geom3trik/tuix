@@ -122,11 +122,11 @@ impl ApplicationRunner {
 
         state
             .data
-            .set_width(state.get_root(), physical_size.width as f32);
+            .set_width(Entity::root(), physical_size.width as f32);
         state
             .data
-            .set_height(state.get_root(), physical_size.height as f32);
-        state.data.set_opacity(state.get_root(), 1.0);
+            .set_height(Entity::root(), physical_size.height as f32);
+        state.data.set_opacity(Entity::root(), 1.0);
 
         WindowWidget::new().build_window(&mut state);
 
@@ -168,7 +168,7 @@ impl ApplicationRunner {
             self.state.insert_event(
                 Event::new(WindowEvent::Relayout)
                     .target(Entity::null())
-                    .origin(Entity::new(0, 0)),
+                    .origin(Entity::root()),
             );
             //self.state.insert_event(Event::new(WindowEvent::Redraw));
             self.should_redraw = true;
@@ -208,7 +208,7 @@ impl ApplicationRunner {
                     self.state.mouse.cursorx = cursorx;
                     self.state.mouse.cursory = cursory;
 
-                    let mut hovered_widget = Entity::new(0, 0);
+                    let mut hovered_widget = Entity::root();
 
                     // This only really needs to be computed when the hierarchy changes
                     // Can be optimised
@@ -334,7 +334,7 @@ impl ApplicationRunner {
                                 .target(self.state.captured)
                                 .propagate(Propagation::Direct),
                         );
-                    } else if self.state.hovered != Entity::new(0, 0) {
+                    } else if self.state.hovered != Entity::root() {
                         self.state.insert_event(
                             Event::new(WindowEvent::MouseMove(cursorx, cursory))
                                 .target(self.state.hovered),

@@ -209,7 +209,7 @@ impl EventHandler for MidiGrid {
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
         // Skip window
-        if entity == Entity::new(0, 0) {
+        if entity == Entity::root() {
             return;
         }
 

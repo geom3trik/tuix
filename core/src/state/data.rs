@@ -2,13 +2,6 @@ use crate::entity::Entity;
 
 use crate::state::style::Visibility;
 
-#[derive(Clone, Copy, Debug)]
-pub struct Rect {
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
-}
 
 #[derive(Clone, Copy, Debug)]
 pub struct Pos {
@@ -41,11 +34,6 @@ impl std::ops::Add for Pos {
             y: self.y + other.y,
         }
     }
-}
-
-pub struct Overflow {
-    pub pos: f32,
-    pub overflow: f32,
 }
 
 #[derive(Clone)]
@@ -98,7 +86,7 @@ impl Data {
             self.child_shrink_sum.resize(key + 1, 0.0);
             self.opacity.resize(key + 1, 0.0);
             self.z_order.resize(key + 1, 0);
-            self.clip_widget.resize(key + 1, Entity::new(0, 0));
+            self.clip_widget.resize(key + 1, Entity::new(0));
         }
 
         // Are these needed?

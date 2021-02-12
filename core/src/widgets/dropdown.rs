@@ -176,7 +176,7 @@ impl BuildHandler for Dropdown {
                 //.set_height(Length::Pixels(0.0))
                 .set_opacity(0.0)
                 .set_z_order(1)
-                .set_clip_widget(Entity::new(0, 0))
+                .set_clip_widget(Entity::root())
                 //.set_visibility(Visibility::Invisible)
                 //.set_background_color(Color::rgb(100, 50, 50))
                 .class("container")

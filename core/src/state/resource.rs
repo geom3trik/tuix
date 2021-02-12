@@ -31,6 +31,7 @@ impl ResourceManager {
     // TODO
     pub fn add_image(name: &str, path: &str) {}
 
+    pub fn add_font(name: &str, path: &str) {}
     // pub fn add_stylesheet(&mut self, path: String) -> Result<(), std::io::Error> {
 
     //     let style_string = std::fs::read_to_string(path.clone())?;

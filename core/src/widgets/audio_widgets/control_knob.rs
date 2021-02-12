@@ -114,7 +114,7 @@ impl EventHandler for ControlKnob {
                             self.value = ((*val).min(self.max)).max(self.min);
 
                             state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
                             );
                         }
                     }
@@ -185,7 +185,7 @@ impl EventHandler for ControlKnob {
                             );
 
                             state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
                             );
                         }
                     }

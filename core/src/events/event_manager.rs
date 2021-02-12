@@ -18,8 +18,8 @@ use femtovg::{
 use fnv::FnvHashMap;
 
 pub struct EventManager {
-    // List of event handlers
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    
     // Queue of events to be processed
     pub event_queue: Vec<Event>,
 
@@ -45,10 +45,10 @@ impl EventManager {
     // }
 
     pub fn flush_events(&mut self, state: &mut State) -> bool {
-        //println!("FLUSH");
+
         let mut needs_redraw = false;
 
-        // Copy the hierarchy from state
+        // Clone the hierarchy from state
         let hierarchy = state.hierarchy.clone();
 
         // Clear the event queue in the event manager
@@ -57,7 +57,7 @@ impl EventManager {
         // Move event handlers from state to event manager
         self.event_handlers.extend(state.event_handlers.drain());
 
-        // Move events from state into event manager
+        // Clone events from state into event manager
         let event_queue = state.event_queue.clone();
 
         // Sort the events by order
@@ -105,6 +105,7 @@ impl EventManager {
                 }
             }
 
+            // Define the target to prevent multiple mutable borrows error
             let target = event.target;
 
             // A null entity as target means send event to all entities
@@ -125,11 +126,12 @@ impl EventManager {
             if event.propagation == Propagation::Down || event.propagation == Propagation::DownUp {
                 // Construct the list of widgets to walk down by going up from the target
                 let ancestors: Vec<Entity> =
-                    target.parent_iter(&hierarchy).collect::<Vec<Entity>>();
+                    event.target.parent_iter(&hierarchy).collect::<Vec<Entity>>();
 
+                // Walk down the list of ancestors
                 for entity in ancestors.iter().rev() {
                     // Skip the window
-                    if *entity == Entity::new(0, 0) {
+                    if *entity == Entity::root() {
                         continue;
                     }
 
@@ -138,32 +140,16 @@ impl EventManager {
                         break;
                     }
 
-                    //println!("Ancestor: {:?}", entity);
-
                     // Send event to all ancestors before the target
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
                         event_handler.on_event(state, *entity, event);
 
+                        // Skip to the next event if the current event is consumed
                         if event.consumed {
                             continue 'events;
                         }
                     }
                 }
-
-                //Walk down the hierarchy
-                // for entity in hierarchy.into_iter() {
-                //     // Stop before the target entity
-                //     if entity == event.target {
-                //         break;
-                //     }
-
-                //     // Send event to all entities before the target
-                //     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                //         if event_handler.on_event(state, entity, event) {
-                //             continue 'events;
-                //         }
-                //     }
-                // }
             }
 
             // Send event to target
@@ -179,6 +165,7 @@ impl EventManager {
             if event.propagation == Propagation::Up || event.propagation == Propagation::DownUp {
                 // Walk up the hierarchy from parent to parent
                 for entity in target.parent_iter(&hierarchy) {
+                    
                     // Skip the target entity
                     if entity == event.target {
                         continue;
@@ -188,6 +175,7 @@ impl EventManager {
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
                         event_handler.on_event(state, entity, event);
 
+                        // Skip to the next event if the current event is consumed
                         if event.consumed {
                             continue 'events;
                         }
@@ -195,18 +183,21 @@ impl EventManager {
                 }
             }
 
-            // Propagate down from target to leaf
+            // Propagate down from target to leaf of current branch
             if event.propagation == Propagation::Fall {
                 // Walk hierarchy from the target down the branch
                 for entity in target.branch_iter(&hierarchy) {
+                    
                     // Skip the target entity
                     if entity == event.target {
                         continue;
                     }
 
+                    // Send event to all entities after the target on the same branch
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
                         event_handler.on_event(state, entity, event);
 
+                        // Skip to the next event if the current event is consumed
                         if event.consumed {
                             continue 'events;
                         }

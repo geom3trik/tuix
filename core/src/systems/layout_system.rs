@@ -9,7 +9,7 @@ use crate::flexbox::AlignItems;
 
 pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
     for entity in hierarchy.into_iter() {
-        if entity == Entity::new(0, 0) {
+        if entity == Entity::root() {
             continue;
         }
 
@@ -40,7 +40,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
     //////////////////////
     while let Some(entity) = hierarchy_up_iterator.next_back() {
         // Stop before the window
-        if *entity == Entity::new(0, 0) {
+        if *entity == Entity::root() {
             break;
         }
 

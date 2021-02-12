@@ -1,5 +1,5 @@
 use crate::{application::ApplicationRunner, Renderer};
-use baseview::{Event, Window, WindowHandler, WindowOpenOptions, WindowScalePolicy};
+use baseview::{Event, EventStatus, Window, WindowHandler, WindowOpenOptions, WindowScalePolicy};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use tuix_core::{Entity, State, WindowDescription};
 
@@ -137,13 +137,15 @@ impl WindowHandler for TuixWindow {
         self.context.make_not_current();
     }
 
-    fn on_event(&mut self, _window: &mut Window<'_>, event: Event) {
+    fn on_event(&mut self, _window: &mut Window<'_>, event: Event) -> EventStatus {
         let mut should_quit = false;
         self.application.handle_event(event, &mut should_quit);
 
         if should_quit {
             // TODO: Request close.
         }
+
+        EventStatus::Ignored
     }
 }
 

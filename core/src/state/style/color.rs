@@ -1,5 +1,6 @@
 use std::fmt;
 
+// Describes a color
 #[derive(Copy, Clone)]
 #[repr(packed)]
 pub struct Color {

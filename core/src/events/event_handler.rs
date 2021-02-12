@@ -27,7 +27,7 @@ pub trait EventHandler: Any + Send {
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
         // Skip window
-        if entity == Entity::new(0, 0) {
+        if entity == Entity::root() {
             return;
         }
 

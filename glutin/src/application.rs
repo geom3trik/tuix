@@ -93,12 +93,12 @@ impl Application {
 
         state
             .data
-            .set_width(state.get_root(), window_description.inner_size.width as f32);
+            .set_width(Entity::root(), window_description.inner_size.width as f32);
         state.data.set_height(
-            state.get_root(),
+            Entity::root(),
             window_description.inner_size.height as f32,
         );
-        state.data.set_opacity(state.get_root(), 1.0);
+        state.data.set_opacity(Entity::root(), 1.0);
 
         WindowWidget::new().build_window(&mut state);
 
@@ -180,7 +180,7 @@ impl Application {
                         state.insert_event(
                             Event::new(WindowEvent::Relayout)
                                 .target(Entity::null())
-                                .origin(Entity::new(0, 0)),
+                                .origin(Entity::root()),
                         );
                         //state.insert_event(Event::new(WindowEvent::Redraw));
                         event_loop_proxy.send_event(());
@@ -419,7 +419,7 @@ impl Application {
                             state.mouse.cursorx = cursorx as f32;
                             state.mouse.cursory = cursory as f32;
 
-                            let mut hovered_widget = Entity::new(0, 0);
+                            let mut hovered_widget = Entity::root();
 
                             // This only really needs to be computed when the hierarchy changes
                             // Can be optimised
@@ -558,7 +558,7 @@ impl Application {
                                         .target(state.captured)
                                         .propagate(Propagation::Direct),
                                 );
-                            } else if state.hovered != Entity::new(0, 0) {
+                            } else if state.hovered != Entity::root() {
                                 state.insert_event(
                                     Event::new(WindowEvent::MouseMove(cursorx, cursory))
                                         .target(state.hovered),

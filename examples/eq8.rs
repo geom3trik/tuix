@@ -167,17 +167,17 @@ impl BuildHandler for EQ8 {
 }
 
 impl EventHandler for EQ8 {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 // WindowEvent::GeometryChanged => {
                 //     // Prevents infinite recursion (except when there are multiple control points)
                 //     if event.origin != entity {
                 //         let parent = state.hierarchy.get_parent(entity).unwrap();
-                //         let parent_width = state.transform.get_width(parent);
-                //         let parent_height = state.transform.get_height(parent);
-                //         let width = state.transform.get_width(entity);
-                //         let height = state.transform.get_height(entity);
+                //         let parent_width = state.data.get_width(parent);
+                //         let parent_height = state.data.get_height(parent);
+                //         let width = state.data.get_width(entity);
+                //         let height = state.data.get_height(entity);
 
                 //         let min = 1.477121;
                 //         let max = 4.3013;
@@ -203,7 +203,7 @@ impl EventHandler for EQ8 {
                             .target(entity)
                             .propagate(Propagation::Fall),
                     );
-                    return true;
+                    event.consume();
                 }
 
                 FilterEvent::GainChange(channel, gain) => {
@@ -212,14 +212,12 @@ impl EventHandler for EQ8 {
                             .target(entity)
                             .propagate(Propagation::Fall),
                     );
-                    return true;
+                    event.consume();
                 }
 
                 _ => {}
             }
         }
-
-        false
     }
 }
 
@@ -267,7 +265,7 @@ impl BuildHandler for EQChannel {
         self.frequency_knob = ValueKnob::new("Freq", 30.0, 30.0, 20000.0)
             .on_change(move |val| Event::new(EqChannelEvent::FreqChanged(val)).target(entity))
             .with_log_scale()
-            .build(state, entity, |builder| builder.id("channel1_freq_knob"));
+            .build(state, entity, |builder| builder.set_id("channel1_freq_knob"));
         self.gain_knob =
             ValueKnob::new("Gain", 0.0, -12.0, 12.0).build(state, entity, |builder| builder);
         self.q_knob = ValueKnob::new("Q", 0.7, 0.0, 5.0).build(state, entity, |builder| builder);
@@ -279,7 +277,7 @@ impl BuildHandler for EQChannel {
 }
 
 impl EventHandler for EQChannel {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(eqchannel_event) = event.message.downcast::<EqChannelEvent>() {
             match eqchannel_event {
                 EqChannelEvent::Enabled => {
@@ -311,29 +309,27 @@ impl EventHandler for EQChannel {
                 _ => {}
             }
         }
-
-        false
     }
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
         // Skip window
-        if entity == Entity::new(0, 0) {
+        if entity == Entity::root() {
             return;
         }
 
         // Skip invisible widgets
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        if state.transform.get_opacity(entity) == 0.0 {
+        if state.data.get_opacity(entity) == 0.0 {
             return;
         }
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         let padding_left = match state
             .style
@@ -403,8 +399,8 @@ impl EventHandler for EQChannel {
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 
-        let parent_width = state.transform.get_width(parent);
-        let parent_height = state.transform.get_height(parent);
+        let parent_width = state.data.get_width(parent);
+        let parent_height = state.data.get_height(parent);
 
         let border_radius_top_left = match state
             .style
@@ -454,7 +450,7 @@ impl EventHandler for EQChannel {
             _ => 0.0,
         };
 
-        let opacity = state.transform.get_opacity(entity);
+        let opacity = state.data.get_opacity(entity);
 
         let mut background_color: Color = background_color.into();
         background_color.set_alphaf(background_color.a * opacity);
@@ -484,7 +480,7 @@ impl EventHandler for EQChannel {
             return;
         }
 
-        // Apply transformations
+        // Apply dataations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
@@ -493,19 +489,19 @@ impl EventHandler for EQChannel {
         canvas.rotate(rotate.to_radians());
         canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
-        //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
+        //let pt = canvas.data().inversed().data_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
         // canvas.translate(pt.0, pt.1);
         // canvas.scale(1.0, scaley.0);
         // canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let clip_entity = state.transform.get_clip_widget(entity);
+        let clip_entity = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.transform.get_posx(clip_entity);
-        let clip_posy = state.transform.get_posy(clip_entity);
-        let clip_width = state.transform.get_width(clip_entity);
-        let clip_height = state.transform.get_height(clip_entity);
+        let clip_posx = state.data.get_posx(clip_entity);
+        let clip_posy = state.data.get_posy(clip_entity);
+        let clip_width = state.data.get_width(clip_entity);
+        let clip_height = state.data.get_height(clip_entity);
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
         //canvas.scissor(0.0, 0.0, 100.0, 100.0);
@@ -686,33 +682,33 @@ impl EventHandler for EQChannel {
         /*
         window.context.borrow_mut().frame(
             (
-                state.transform.get_width(state.root),
-                state.transform.get_height(state.root),
+                state.data.get_width(state.root),
+                state.data.get_height(state.root),
             ),
             1.0 as f32,
             |mut frame| {
 
-                let zoom = Transform::new().scale(state.transform.get_zoom_scale(entity), state.transform.get_zoom_scale(entity));
-                frame.transformed(Transform::new(), |frame| {
+                let zoom = data::new().scale(state.data.get_zoom_scale(entity), state.data.get_zoom_scale(entity));
+                frame.dataed(data::new(), |frame| {
                     if entity == Entity::new(0, 0) {
                         return;
                     }
 
                     // Skip invisible widgets
-                    if state.transform.get_visibility(entity) == Visibility::Invisible {
+                    if state.data.get_visibility(entity) == Visibility::Invisible {
                         //println!("Entity: {} is invisible", entity);
                         return;
                     }
 
-                    if state.transform.get_opacity(entity) == 0.0 {
+                    if state.data.get_opacity(entity) == 0.0 {
                         //println!("Entity: {} has 0 opacity", entity);
                         return;
                     }
 
-                    let posx = state.transform.get_posx(entity);
-                    let posy = state.transform.get_posy(entity);
-                    let width = state.transform.get_width(entity);
-                    let height = state.transform.get_height(entity);
+                    let posx = state.data.get_posx(entity);
+                    let posy = state.data.get_posy(entity);
+                    let width = state.data.get_width(entity);
+                    let height = state.data.get_height(entity);
 
                     //println!("DRAW: {} {} {} {} {}", entity, posx, posy, width, height);
 
@@ -723,7 +719,7 @@ impl EventHandler for EQChannel {
 
                     let parent = state.hierarchy.get_parent(entity).unwrap();
 
-                    let parent_width = state.transform.get_width(parent);
+                    let parent_width = state.data.get_width(parent);
 
                     // let clip_entity = state
                     //     .style
@@ -732,14 +728,14 @@ impl EventHandler for EQChannel {
                     //     .cloned()
                     //     .unwrap_or_default();
 
-                    let clip_entity = state.transform.get_clip_widget(entity);
+                    let clip_entity = state.data.get_clip_widget(entity);
 
                     //let clip_entity = state.root;
 
-                    let clip_posx = state.transform.get_posx(clip_entity);
-                    let clip_posy = state.transform.get_posy(clip_entity);
-                    let clip_width = state.transform.get_width(clip_entity);
-                    let clip_height = state.transform.get_height(clip_entity);
+                    let clip_posx = state.data.get_posx(clip_entity);
+                    let clip_posy = state.data.get_posy(clip_entity);
+                    let clip_width = state.data.get_width(clip_entity);
+                    let clip_height = state.data.get_height(clip_entity);
 
                     //let mut path_opts: PathOptions = Default::default();
 
@@ -783,12 +779,12 @@ impl EventHandler for EQChannel {
 
                     //let rotate = &10.0;
 
-                    let trans1 = Transform::new().translate(-posx - width / 2.0, -posy - height / 2.0);
-                    let rotation = Transform::new().rotate((*rotate as f32).to_radians());
-                    let trans2 = Transform::new().translate(posx + width / 2.0, posy + height / 2.0);
+                    let trans1 = data::new().translate(-posx - width / 2.0, -posy - height / 2.0);
+                    let rotation = data::new().rotate((*rotate as f32).to_radians());
+                    let trans2 = data::new().translate(posx + width / 2.0, posy + height / 2.0);
 
-                    let transform = trans1 * rotation * trans2;
-                    //let rotation = Transform::new().translate(50.0, 0.0);
+                    let data = trans1 * rotation * trans2;
+                    //let rotation = data::new().translate(50.0, 0.0);
 
                     let path_opts = PathOptions {
                         clip: Clip::Scissor(Scissor {
@@ -796,10 +792,10 @@ impl EventHandler for EQChannel {
                             y: clip_posy,
                             width: clip_width,
                             height: clip_height,
-                            transform: None,
+                            data: None,
 
                         }),
-                        transform: Some(transform),
+                        data: Some(data),
                         ..Default::default()
                     };
 
@@ -848,7 +844,7 @@ impl EventHandler for EQChannel {
                         _ => 0.0,
                     };
 
-                    let opacity = state.transform.get_opacity(entity);
+                    let opacity = state.data.get_opacity(entity);
 
                     let mut background_color: nanovg::Color = background_color.into();
                     //let mut background_color: nvg::Color = background_color.into();
@@ -976,9 +972,9 @@ impl EventHandler for EQChannel {
                                 y: clip_posy,
                                 width: clip_width,
                                 height: clip_height,
-                                transform: None,
+                                data: None,
                             }),
-                            transform: Some(transform),
+                            data: Some(data),
                             //line_height: 1.0,
                             ..Default::default()
                         };
@@ -991,7 +987,7 @@ impl EventHandler for EQChannel {
 
 
                 //     context.begin_path();
-                //     context.reset_transform();
+                //     context.reset_data();
                 //     context.translate(posx+width/2.0, posy+height/2.0);
                 //     context.rotate(rotate * std::f32::consts::PI / 180.0);
                 //     context.translate(-posx-width/2.0,-posy-height/2.0);
@@ -1013,7 +1009,7 @@ impl EventHandler for EQChannel {
                 //             "Icons" => {context.font("entypo");}
                 //             _=> {}
                 //         }
-                //         //context.reset_transform();
+                //         //context.reset_data();
                 //         //context.rotate(45.0 * std::f32::consts::PI / 180.0);
                 //         context.font_size(text.font_size);
                 //         context.begin_path();
@@ -1095,23 +1091,23 @@ use femtovg::{
 impl EventHandler for FreqGraph {
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
         // Skip window
-        if entity == Entity::new(0, 0) {
+        if entity == Entity::root() {
             return;
         }
 
         // Skip invisible widgets
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        if state.transform.get_opacity(entity) == 0.0 {
+        if state.data.get_opacity(entity) == 0.0 {
             return;
         }
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
 
@@ -1153,7 +1149,7 @@ impl EventHandler for FreqGraph {
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 
-        let parent_width = state.transform.get_width(parent);
+        let parent_width = state.data.get_width(parent);
 
         let border_radius_top_left = match state
             .style
@@ -1203,7 +1199,7 @@ impl EventHandler for FreqGraph {
             _ => 0.0,
         };
 
-        let opacity = state.transform.get_opacity(entity);
+        let opacity = state.data.get_opacity(entity);
 
         let mut background_color: femtovg::Color = background_color.into();
         background_color.set_alphaf(background_color.a * opacity);
@@ -1228,7 +1224,7 @@ impl EventHandler for FreqGraph {
 
         //println!("Border Width: {}", border_width);
 
-        // Apply transformations
+        // Apply dataations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
@@ -1247,12 +1243,12 @@ impl EventHandler for FreqGraph {
         canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let clip_entity = state.transform.get_clip_widget(entity);
+        let clip_entity = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.transform.get_posx(clip_entity);
-        let clip_posy = state.transform.get_posy(clip_entity);
-        let clip_width = state.transform.get_width(clip_entity);
-        let clip_height = state.transform.get_height(clip_entity);
+        let clip_posx = state.data.get_posx(clip_entity);
+        let clip_posy = state.data.get_posy(clip_entity);
+        let clip_width = state.data.get_width(clip_entity);
+        let clip_height = state.data.get_height(clip_entity);
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
 
@@ -1486,7 +1482,7 @@ impl BuildHandler for ControlPoint {
 }
 
 impl EventHandler for ControlPoint {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 // Currently this gets stuck in a recursion because other control points trigger a relayout event
@@ -1497,10 +1493,10 @@ impl EventHandler for ControlPoint {
                     // Prevents infinite recursion (except when there are multiple control points)
                     if event.origin != entity && !state.hierarchy.is_sibling(event.origin, entity) {
                         let parent = state.hierarchy.get_parent(entity).unwrap();
-                        let parent_width = state.transform.get_width(parent);
-                        let parent_height = state.transform.get_height(parent);
-                        let width = state.transform.get_width(entity);
-                        let height = state.transform.get_height(entity);
+                        let parent_width = state.data.get_width(parent);
+                        let parent_height = state.data.get_height(parent);
+                        let width = state.data.get_width(entity);
+                        let height = state.data.get_height(entity);
 
                         let min = 1.477121;
                         let max = 4.3013;
@@ -1518,8 +1514,8 @@ impl EventHandler for ControlPoint {
                 WindowEvent::MouseDown(button) => {
                     if event.target == entity && *button == MouseButton::Left {
                         self.moving = true;
-                        self.px = state.transform.get_posx(entity);
-                        self.py = state.transform.get_posy(entity);
+                        self.px = state.data.get_posx(entity);
+                        self.py = state.data.get_posy(entity);
                         state.capture(entity);
                     }
                 }
@@ -1535,13 +1531,13 @@ impl EventHandler for ControlPoint {
                     if self.moving {
                         let parent = state.hierarchy.get_parent(entity).unwrap();
 
-                        let parent_posx = state.transform.get_posx(parent);
-                        let parent_posy = state.transform.get_posy(parent);
-                        let parent_width = state.transform.get_width(parent);
-                        let parent_height = state.transform.get_height(parent);
+                        let parent_posx = state.data.get_posx(parent);
+                        let parent_posy = state.data.get_posy(parent);
+                        let parent_width = state.data.get_width(parent);
+                        let parent_height = state.data.get_height(parent);
 
-                        let width = state.transform.get_width(entity);
-                        let height = state.transform.get_height(entity);
+                        let width = state.data.get_width(entity);
+                        let height = state.data.get_height(entity);
 
                         let ddx = state.mouse.left.pos_down.0 - self.px;
                         let ddy = state.mouse.left.pos_down.1 - self.py;
@@ -1606,8 +1602,6 @@ impl EventHandler for ControlPoint {
                 _ => {}
             }
         }
-
-        false
     }
 }
 

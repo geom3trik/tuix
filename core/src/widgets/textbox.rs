@@ -197,7 +197,7 @@ impl EventHandler for Textbox {
                         }
 
                         if state.focused == entity {
-                            state.focused = Entity::new(0, 0);
+                            state.focused = Entity::root();
                         }
 
                         //state.captured = Entity::null();
@@ -298,7 +298,7 @@ impl EventHandler for Textbox {
 
                             self.edit = false;
                             entity.set_active(state, false);
-                            state.focused = Entity::new(0, 0);
+                            state.focused = Entity::root();
                             state.captured = Entity::null();
 
                             // state.insert_event(
@@ -382,7 +382,7 @@ impl EventHandler for Textbox {
         //images: &HashMap<String, nanovg::Image>,
     ) {
         // Skip window
-        if entity == Entity::new(0, 0) {
+        if entity == Entity::root() {
             return;
         }
 

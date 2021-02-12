@@ -8,7 +8,7 @@ use std::hash::{Hash, Hasher};
 
 pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
     for entity in hierarchy.into_iter() {
-        if entity == Entity::new(0, 0) {
+        if entity == Entity::root() {
             continue;
         }
 
@@ -100,7 +100,7 @@ fn check_match(state: &State, widget: Entity, selector: &Selector) -> bool {
 pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
     // Loop through all entities
     for entity in hierarchy.into_iter() {
-        if entity == Entity::new(0, 0) {
+        if entity == Entity::root() {
             continue;
         }
 
