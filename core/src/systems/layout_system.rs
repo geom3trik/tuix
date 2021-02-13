@@ -35,6 +35,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
     let mut hierarchy_up_iterator = hierarchy.entities.iter();
 
+    //let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
+    let layout_hierarchy = hierarchy.entities.clone();
+
     //////////////////////
     // Walk up the tree //
     //////////////////////

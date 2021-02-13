@@ -3,7 +3,7 @@ use crate::{
     state,
 };
 
-use crate::build_handler::Builder;
+use crate::builder::Builder;
 
 use crate::{Entity, Hierarchy, State};
 

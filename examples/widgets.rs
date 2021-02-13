@@ -44,6 +44,7 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Checkbox").build(state, row, |builder| builder);
         Checkbox::new(false).build(state, row, |builder| builder);
+        Checkbox::new(false).build(state, row, |builder| builder);
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Switch").build(state, row, |builder| builder);

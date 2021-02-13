@@ -66,35 +66,39 @@ pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
 }
 
 // Returns true if the widget matches the selector
-fn check_match(state: &State, widget: Entity, selector: &Selector) -> bool {
-    // Construct the widget selector
-    let mut widget_selector = Selector::new();
+fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
+    // Construct the entity selector
+    let mut entity_selector = Selector::new();
 
-    // Get the widget id from state
-    //widget_selector.id = state.style.ids.get(widget).cloned();
+    // Get the entity id from state
+    //entity_selector.id = state.style.ids.get(entity).cloned();
     let mut s = DefaultHasher::new();
-    widget_selector.id = state.style.ids.get_by_right(&widget).map(|f| {
+    entity_selector.id = state.style.ids.get_by_right(&entity).map(|f| {
         f.hash(&mut s);
         s.finish()
     });
 
-    // Get the widget element from state
-    widget_selector.element = state.style.elements.get(widget).cloned();
+    // Get the entity element from state
+    entity_selector.element = state.style.elements.get(entity).cloned();
 
-    // Get the widget class list from state
-    if let Some(class_list) = state.style.classes.get(widget) {
-        widget_selector.classes = class_list.clone();
+    // Get the entity class list from state
+    if let Some(class_list) = state.style.classes.get(entity) {
+        entity_selector.classes = class_list.clone();
     }
 
     // Set the pseudoclass selectors
-    widget_selector.pseudo_classes = state
+    entity_selector.pseudo_classes = state
         .style
         .pseudo_classes
-        .get(widget)
+        .get(entity)
         .cloned()
         .unwrap_or_default();
+    
+    if state.active == entity {
+        entity_selector.pseudo_classes.set_active(true);
+    }
 
-    return selector.matches(&widget_selector);
+    return selector.matches(&entity_selector);
 }
 
 pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
@@ -106,7 +110,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 
         // Possible point to add Cascading
 
-        // Create a list of style rules that match this widget
+        // Create a list of style rules that match this entity
         let mut matched_rules: Vec<usize> = Vec::new();
 
         // Loop through all of the style rules
@@ -440,7 +444,7 @@ pub fn apply_styles2(state: &mut State, hierarchy: &Hierarchy, mut style_entity:
             continue;
         }
 
-        // Create a list of style rules that match this widget
+        // Create a list of style rules that match this entity
         let mut matched_rules: Vec<usize> = Vec::new();
 
         // Loop through all of the style rules

@@ -17,7 +17,7 @@ impl Default for Entity {
 
 impl std::fmt::Display for Entity {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.index())
+        write!(f, "{}", self.index_unchecked())
     }
 }
 
@@ -42,8 +42,20 @@ impl Entity {
         }
     }
 
-    pub fn index(&self) -> usize {
-        return self.0 as usize;
+    // pub fn index(&self) -> usize {
+    //     return self.0 as usize;
+    // }
+
+    pub fn index(&self) -> Option<usize> {
+        if self.0 < std::u32::MAX - 1 {
+            Some(self.0 as usize)
+        } else {
+            None
+        }
+    }
+
+    pub(crate) fn index_unchecked(&self) -> usize {
+        self.0 as usize
     }
 
     pub fn root() -> Entity {
@@ -100,8 +112,9 @@ impl EntityManager {
 
     // Destroy an entity.
     pub(crate) fn destroy_entity(&mut self, entity: Entity) {
-        let idx = entity.index();
-        self.count -= 1;
-        self.free_indices.push_back(idx as u32);
+        if let Some(index) = entity.index() {
+            self.count -= 1;
+            self.free_indices.push_back(index as u32);            
+        }
     }
 }

@@ -71,6 +71,10 @@ impl EventManager {
         'events: for event in self.event_queue.iter_mut() {
             //println!("Event: {:?}", event);
 
+            if event.target == Entity::default() {
+                continue 'events;
+            }
+
             if let Some(window_event) = event.message.downcast::<WindowEvent>() {
                 match window_event {
                     WindowEvent::Redraw => {

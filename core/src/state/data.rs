@@ -72,7 +72,7 @@ impl Data {
     }
 
     pub fn add(&mut self, entity: Entity) {
-        let key = entity.index();
+        let key = entity.index_unchecked();
 
         if (key + 1) > self.position.len() {
             self.position.resize(key + 1, Default::default());
@@ -109,143 +109,143 @@ impl Data {
     // Event if the position and size are 0.0, or the entity is invisible.
 
     pub fn get_clip_widget(&self, entity: Entity) -> Entity {
-        self.clip_widget.get(entity.index()).cloned().unwrap()
+        self.clip_widget.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn get_z_order(&self, entity: Entity) -> i32 {
-        self.z_order.get(entity.index()).cloned().unwrap()
+        self.z_order.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn get_child_sum(&self, entity: Entity) -> f32 {
-        self.child_sum.get(entity.index()).cloned().unwrap()
+        self.child_sum.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn get_child_max(&self, entity: Entity) -> f32 {
-        self.child_max.get(entity.index()).cloned().unwrap()
+        self.child_max.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn get_child_pos(&self, entity: Entity) -> f32 {
-        self.child_pos.get(entity.index()).cloned().unwrap()
+        self.child_pos.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn get_child_grow_sum(&self, entity: Entity) -> f32 {
-        self.child_grow_sum.get(entity.index()).cloned().unwrap()
+        self.child_grow_sum.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn get_child_shrink_sum(&self, entity: Entity) -> f32 {
-        self.child_shrink_sum.get(entity.index()).cloned().unwrap()
+        self.child_shrink_sum.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn get_posx(&self, entity: Entity) -> f32 {
-        self.position.get(entity.index()).cloned().unwrap().x
+        self.position.get(entity.index_unchecked()).cloned().unwrap().x
     }
 
     pub fn get_posy(&self, entity: Entity) -> f32 {
-        self.position.get(entity.index()).cloned().unwrap().y
+        self.position.get(entity.index_unchecked()).cloned().unwrap().y
     }
 
     pub fn get_width(&self, entity: Entity) -> f32 {
-        self.size.get(entity.index()).cloned().unwrap().x
+        self.size.get(entity.index_unchecked()).cloned().unwrap().x
     }
 
     pub fn get_height(&self, entity: Entity) -> f32 {
-        self.size.get(entity.index()).cloned().unwrap().y
+        self.size.get(entity.index_unchecked()).cloned().unwrap().y
     }
 
     pub fn get_opacity(&self, entity: Entity) -> f32 {
-        self.opacity.get(entity.index()).cloned().unwrap()
+        self.opacity.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     // SETTERS
 
     pub fn set_clip_widget(&mut self, entity: Entity, val: Entity) {
-        if let Some(clip_widget) = self.clip_widget.get_mut(entity.index()) {
+        if let Some(clip_widget) = self.clip_widget.get_mut(entity.index_unchecked()) {
             *clip_widget = val;
         }
     }
 
     pub fn set_z_order(&mut self, entity: Entity, val: i32) {
-        if let Some(z_order) = self.z_order.get_mut(entity.index()) {
+        if let Some(z_order) = self.z_order.get_mut(entity.index_unchecked()) {
             *z_order = val;
         }
     }
 
     pub fn set_child_sum(&mut self, entity: Entity, val: f32) {
-        if let Some(child_sum) = self.child_sum.get_mut(entity.index()) {
+        if let Some(child_sum) = self.child_sum.get_mut(entity.index_unchecked()) {
             *child_sum = val;
         }
     }
 
     pub fn set_child_max(&mut self, entity: Entity, val: f32) {
-        if let Some(child_max) = self.child_max.get_mut(entity.index()) {
+        if let Some(child_max) = self.child_max.get_mut(entity.index_unchecked()) {
             *child_max = val;
         }
     }
 
     pub fn set_child_pos(&mut self, entity: Entity, val: f32) {
-        if let Some(child_pos) = self.child_pos.get_mut(entity.index()) {
+        if let Some(child_pos) = self.child_pos.get_mut(entity.index_unchecked()) {
             *child_pos = val;
         }
     }
 
     pub fn set_child_grow_sum(&mut self, entity: Entity, val: f32) {
-        if let Some(child_grow_sum) = self.child_grow_sum.get_mut(entity.index()) {
+        if let Some(child_grow_sum) = self.child_grow_sum.get_mut(entity.index_unchecked()) {
             *child_grow_sum = val;
         }
     }
 
     pub fn set_child_shrink_sum(&mut self, entity: Entity, val: f32) {
-        if let Some(child_shrink_sum) = self.child_shrink_sum.get_mut(entity.index()) {
+        if let Some(child_shrink_sum) = self.child_shrink_sum.get_mut(entity.index_unchecked()) {
             *child_shrink_sum = val;
         }
     }
 
     pub fn set_posx(&mut self, entity: Entity, val: f32) {
-        if let Some(position) = self.position.get_mut(entity.index()) {
+        if let Some(position) = self.position.get_mut(entity.index_unchecked()) {
             position.x = val;
         }
     }
 
     pub fn set_posy(&mut self, entity: Entity, val: f32) {
-        if let Some(position) = self.position.get_mut(entity.index()) {
+        if let Some(position) = self.position.get_mut(entity.index_unchecked()) {
             position.y = val;
         }
     }
 
     pub fn set_width(&mut self, entity: Entity, val: f32) {
-        if let Some(size) = self.size.get_mut(entity.index()) {
+        if let Some(size) = self.size.get_mut(entity.index_unchecked()) {
             size.x = val;
         }
     }
 
     pub fn set_height(&mut self, entity: Entity, val: f32) {
-        if let Some(size) = self.size.get_mut(entity.index()) {
+        if let Some(size) = self.size.get_mut(entity.index_unchecked()) {
             size.y = val;
         }
     }
 
     pub fn get_visibility(&self, entity: Entity) -> Visibility {
-        self.visibility.get(entity.index()).cloned().unwrap()
+        self.visibility.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn set_visibility(&mut self, entity: Entity, val: Visibility) {
-        if let Some(visibility) = self.visibility.get_mut(entity.index()) {
+        if let Some(visibility) = self.visibility.get_mut(entity.index_unchecked()) {
             *visibility = val;
         }
     }
 
     pub fn get_hoverability(&self, entity: Entity) -> bool {
-        self.hoverability.get(entity.index()).cloned().unwrap()
+        self.hoverability.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn set_hoverability(&mut self, entity: Entity, val: bool) {
-        if let Some(hoverability) = self.hoverability.get_mut(entity.index()) {
+        if let Some(hoverability) = self.hoverability.get_mut(entity.index_unchecked()) {
             *hoverability = val;
         }
     }
 
     pub fn set_opacity(&mut self, entity: Entity, val: f32) {
-        if let Some(opacity) = self.opacity.get_mut(entity.index()) {
+        if let Some(opacity) = self.opacity.get_mut(entity.index_unchecked()) {
             *opacity = val;
         }
     }

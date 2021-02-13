@@ -111,27 +111,30 @@ where
 
     //Insert inline style
     pub fn insert(&mut self, entity: Entity, value: T) {
-        if entity.index() >= self.entity_indices.len() {
-            self.entity_indices
-                .resize(entity.index() + 1, Default::default());
-            self.entity_indices[entity.index()] = Index::new(self.inline_data.len()).inline(true);
-            //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
-            self.inline_data.push(value);
-        } else {
-            let data_index = self.entity_indices[entity.index()].index();
-
-            if data_index >= self.inline_data.len() {
-                self.entity_indices[entity.index()] =
-                    Index::new(self.inline_data.len()).inline(true);
-
+        if let Some(index) = entity.index() {
+            if index >= self.entity_indices.len() {
+                self.entity_indices
+                    .resize(index + 1, Default::default());
+                self.entity_indices[index] = Index::new(self.inline_data.len()).inline(true);
+                //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
                 self.inline_data.push(value);
             } else {
-                self.entity_indices[entity.index()]
-                    .set_inherited(false)
-                    .set_inline(true);
-                self.inline_data[data_index] = value;
-            }
+                let data_index = self.entity_indices[index].index();
+
+                if data_index >= self.inline_data.len() {
+                    self.entity_indices[index] =
+                        Index::new(self.inline_data.len()).inline(true);
+
+                    self.inline_data.push(value);
+                } else {
+                    self.entity_indices[index]
+                        .set_inherited(false)
+                        .set_inline(true);
+                    self.inline_data[data_index] = value;
+                }
+            }            
         }
+
     }
 
     // When the style system has determined the matching rule with the highest
@@ -155,35 +158,35 @@ where
         }
 
         // Check if entity exists, else add the entity
-        if entity.index() >= self.entity_indices.len() {
+        if entity.index_unchecked() >= self.entity_indices.len() {
             self.entity_indices
-                .resize(entity.index() + 1, Default::default());
+                .resize(entity.index_unchecked() + 1, Default::default());
         }
         // Link the entity to the same data as the rule
 
         // Check if the entity is already linked to the rule
-        if self.entity_indices[entity.index()].index() == rule_data_index {
+        if self.entity_indices[entity.index_unchecked()].index() == rule_data_index {
             return LinkType::AlreadyLinked;
         }
 
-        self.entity_indices[entity.index()] = Index::new(rule_data_index);
+        self.entity_indices[entity.index_unchecked()] = Index::new(rule_data_index);
 
         LinkType::NewLink
     }
 
     pub fn unlink(&mut self, entity: Entity) {
-        if entity.index() >= self.entity_indices.len() {
+        if entity.index_unchecked() >= self.entity_indices.len() {
             return;
         }
 
-        self.entity_indices[entity.index()] = Index::default();
+        self.entity_indices[entity.index_unchecked()] = Index::default();
     }
 
     // Returns true if
     pub fn link_rule(&mut self, entity: Entity, rule_list: &Vec<usize>) -> bool {
         // Check if the entity already has an inline style. If so then rules don't affect it.
-        if entity.index() < self.entity_indices.len() {
-            if self.entity_indices[entity.index()].is_inline() {
+        if entity.index_unchecked() < self.entity_indices.len() {
+            if self.entity_indices[entity.index_unchecked()].is_inline() {
                 return false;
             }
         }
@@ -228,11 +231,11 @@ where
 
     // Get data linked to entity
     pub fn get(&self, entity: Entity) -> Option<&T> {
-        if entity.index() >= self.entity_indices.len() {
+        if entity.index_unchecked() >= self.entity_indices.len() {
             return None;
         }
 
-        let data_index = self.entity_indices[entity.index()];
+        let data_index = self.entity_indices[entity.index_unchecked()];
 
         if data_index.is_inline() {
             if data_index.index() >= self.inline_data.len() {
@@ -250,11 +253,11 @@ where
     }
 
     pub fn get_mut(&mut self, entity: Entity) -> Option<&mut T> {
-        if entity.index() >= self.entity_indices.len() {
+        if entity.index_unchecked() >= self.entity_indices.len() {
             return None;
         }
 
-        let data_index = self.entity_indices[entity.index()];
+        let data_index = self.entity_indices[entity.index_unchecked()];
 
         if data_index.is_inline() {
             if data_index.index() >= self.inline_data.len() {

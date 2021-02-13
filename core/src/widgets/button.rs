@@ -4,7 +4,15 @@ use crate::entity::Entity;
 use crate::mouse::*;
 
 use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
-use crate::{PropSet, State};
+use crate::{PropSet, State, Code};
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ButtonEvent {
+    Pressed,
+    Released,
+    Press,
+    Release,
+}
 
 pub struct Button {
     pub id: Entity,
@@ -24,7 +32,6 @@ impl Button {
         }
     }
 
-    // Add text to be displayed on the button
     pub fn with_label(text: &str) -> Self {
         Button {
             id: Entity::default(),
@@ -52,31 +59,56 @@ impl BuildHandler for Button {
             entity.set_text(state, text);
         }
 
-        state.style.insert_element(entity, "button");
-
-        entity
+        entity.set_element(state, "button")
     }
 }
 
 impl EventHandler for Button {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
+
+        if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
+            match button_event {
+                ButtonEvent::Pressed => {
+                    println!("Button Pressed");
+                    if let Some(mut on_press) = self.on_press.clone() {
+                        if on_press.target == Entity::default() {
+                            on_press.target = entity;
+                        }
+
+                        on_press.origin = entity;
+                        on_press.propagation = Propagation::Down;
+                        state.insert_event(on_press);
+                    }
+
+                    entity.set_active(state, true);
+                }
+
+                ButtonEvent::Released => {
+                    if let Some(mut on_release) = self.on_release.clone() {
+                        if on_release.target == Entity::default() {
+                            on_release.target = entity;
+                        }
+
+                        on_release.origin = entity;
+                        on_release.propagation = Propagation::Down;
+                        state.insert_event(on_release);
+                    }
+
+                    entity.set_active(state, false);
+                }
+
+                _=> {}
+            }
+        }
+
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if entity == event.target {
-                            println!("Mouse Down on Button");
-                            //state.focused = entity;
-
-                            if let Some(mut on_press) = self.on_press.clone() {
-                                if on_press.target == Entity::null() {
-                                    on_press.target = entity;
-                                }
-
-                                on_press.origin = entity;
-                                on_press.propagation = Propagation::Down;
-                                state.insert_event(on_press);
-                            }
+                            state.capture(entity);
+                            state.insert_event(Event::new(ButtonEvent::Pressed).target(entity).origin(entity));
                         }
                     }
 
@@ -85,21 +117,35 @@ impl EventHandler for Button {
 
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-                        if entity == event.target && entity == state.hovered {
-                            if let Some(mut on_release) = self.on_release.clone() {
-                                if on_release.target == Entity::null() {
-                                    on_release.target = entity;
-                                }
-
-                                on_release.origin = entity;
-                                on_release.propagation = Propagation::Down;
-                                state.insert_event(on_release);
+                        if entity == event.target {
+                            state.release(entity);
+                            entity.set_active(state, false);
+                            if state.hovered == entity {
+                                state.insert_event(Event::new(ButtonEvent::Released).target(entity).origin(entity));
                             }
                         }
                     }
 
                     _ => {}
                 },
+
+                WindowEvent::KeyDown(code, _) => match code {
+                    Code::Space => {
+                        if state.focused == entity {
+                            state.insert_event(Event::new(ButtonEvent::Pressed).target(entity).origin(entity));
+                        }
+                    }
+
+                    _=> {}
+                }
+
+                WindowEvent::KeyUp(code, _) => match code {
+                    Code::Space => {
+                        state.insert_event(Event::new(ButtonEvent::Released).target(entity).origin(entity));
+                    }
+
+                    _=> {}
+                } 
 
                 _ => {}
             }
