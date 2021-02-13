@@ -237,8 +237,10 @@ impl BuildHandler for Calculator {
                 builder.set_text("\u{003D}").class("operator")
             });
 
+        
         state.focused = self.display;
 
+        // Define the focus order for the buttons
         self.display
             .set_focus_order(state, self.clear, self.decimal_point);
         self.clear
