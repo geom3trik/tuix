@@ -135,8 +135,8 @@ impl Application {
 
         let mut counter = 0;
 
-        //state.insert_event(Event::new(WindowEvent::Restyle));
-        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
 
         let event_loop_proxy = self.event_loop.create_proxy();
 
@@ -179,7 +179,7 @@ impl Application {
                         *control_flow = ControlFlow::Poll;
                         state.insert_event(
                             Event::new(WindowEvent::Relayout)
-                                .target(Entity::null())
+                                .target(Entity::root())
                                 .origin(Entity::root()),
                         );
                         //state.insert_event(Event::new(WindowEvent::Redraw));
@@ -401,11 +401,11 @@ impl Application {
                                 .data
                                 .set_height(state.root, physical_size.height as f32);
 
-                            state.insert_event(Event::new(WindowEvent::Restyle).origin(state.root));
+                            state.insert_event(Event::new(WindowEvent::Restyle).origin(state.root).target(Entity::root()));
                             state.insert_event(
-                                Event::new(WindowEvent::Relayout).target(Entity::null()),
+                                Event::new(WindowEvent::Relayout).target(Entity::root()),
                             );
-                            state.insert_event(Event::new(WindowEvent::Redraw));
+                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                         }
 
                         glutin::event::WindowEvent::CursorMoved {
@@ -608,7 +608,7 @@ impl Application {
                                         && state.active != state.hovered
                                     {
                                         state.active = state.hovered;
-                                        state.insert_event(Event::new(WindowEvent::Restyle));
+                                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
                                     }
 
                                     if state.captured != Entity::null() {

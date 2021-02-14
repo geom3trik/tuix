@@ -70,15 +70,17 @@ impl EventHandler for Button {
         if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
             match button_event {
                 ButtonEvent::Pressed => {
-                    println!("Button Pressed");
+                    println!("Button Pressed: {}", entity);
                     if let Some(mut on_press) = self.on_press.clone() {
-                        if on_press.target == Entity::default() {
+                        if on_press.target == Entity::null() {
                             on_press.target = entity;
                         }
 
                         on_press.origin = entity;
                         on_press.propagation = Propagation::Down;
+
                         state.insert_event(on_press);
+                        
                     }
 
                     entity.set_active(state, true);

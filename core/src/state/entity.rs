@@ -27,7 +27,7 @@ impl Entity {
     }
 
     pub fn default() -> Entity {
-        Entity(std::u32::MAX - 1)
+        Entity(std::u32::MAX)
     }
 
     pub fn new(index: u32) -> Entity {

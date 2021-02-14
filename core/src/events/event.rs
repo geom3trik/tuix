@@ -12,6 +12,7 @@ pub enum Propagation {
     DownUp,
     Fall,
     Direct,
+    All,
 }
 
 // A message is a wrapper around an Any but with the added ability to Clone the message

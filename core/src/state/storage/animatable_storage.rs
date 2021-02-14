@@ -373,17 +373,13 @@ where
 
         for state in inactive.into_iter() {
             for entity in state.entities.iter() {
-                if let Some(index) = entity.index() {
-                    self.entity_indices[index].animation_id = std::usize::MAX;
-                }
+                self.entity_indices[entity.index_unchecked()].animation_id = std::usize::MAX;
             }
         }
 
         for (index, state) in self.active_animations.iter().enumerate() {
             for entity in state.entities.iter() {
-                if let Some(index) = entity.index() {
-                    self.entity_indices[index].animation_id = index;
-                }
+                self.entity_indices[entity.index_unchecked()].animation_id = index;
             }
         }
     }
@@ -607,8 +603,13 @@ where
         }
 
         let animation_index = self.entity_indices[entity.index_unchecked()].animation_id;
+        
+        // if entity == Entity::new(5) {
+        //     println!("Get Animation: {:?}", animation_index);
+        // }
 
         if animation_index < self.active_animations.len() {
+
             return self.active_animations[animation_index].get_output();
         }
 

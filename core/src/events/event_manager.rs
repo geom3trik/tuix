@@ -71,7 +71,7 @@ impl EventManager {
         'events: for event in self.event_queue.iter_mut() {
             //println!("Event: {:?}", event);
 
-            if event.target == Entity::default() {
+            if event.target == Entity::null() {
                 continue 'events;
             }
 
@@ -113,7 +113,7 @@ impl EventManager {
             let target = event.target;
 
             // A null entity as target means send event to all entities
-            if event.target == Entity::null() {
+            if event.propagation == Propagation::All {
                 for entity in hierarchy.into_iter() {
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
                         event_handler.on_event(state, entity, event);
@@ -123,7 +123,7 @@ impl EventManager {
                         }
                     }
                 }
-                continue 'events;
+                continue 'events;                
             }
 
             // Propagate down from root to target (not including target)

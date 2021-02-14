@@ -1,6 +1,6 @@
 use crate::state::style::*;
 use crate::State;
-use crate::{entity::Entity, BuildHandler, Builder, EventHandler};
+use crate::{entity::Entity, BuildHandler, Builder, EventHandler, Propagation};
 
 use crate::{Event, WindowEvent};
 
@@ -244,8 +244,8 @@ impl PropSet for Entity {
             pseudo_classes.set_disabled(!value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
 
         self
     }
@@ -256,8 +256,8 @@ impl PropSet for Entity {
             pseudo_classes.set_enabled(!value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
 
         self
     }
@@ -267,8 +267,8 @@ impl PropSet for Entity {
             pseudo_classes.set_checked(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
 
         self
     }
@@ -278,8 +278,8 @@ impl PropSet for Entity {
             pseudo_classes.set_over(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
 
         self
     }
@@ -289,8 +289,8 @@ impl PropSet for Entity {
             pseudo_classes.set_active(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
 
         self
     }
@@ -300,8 +300,8 @@ impl PropSet for Entity {
             pseudo_classes.set_hover(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
 
         self
     }
@@ -311,8 +311,8 @@ impl PropSet for Entity {
             pseudo_classes.set_focus(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
 
         self
     }
@@ -342,10 +342,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -356,10 +356,11 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
+                
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -373,7 +374,7 @@ impl PropSet for Entity {
                 .target(Entity::null())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -384,10 +385,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -398,10 +399,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -412,10 +413,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -434,10 +435,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -447,10 +448,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -460,10 +461,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -474,10 +475,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -487,10 +488,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -500,10 +501,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -513,10 +514,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -527,10 +528,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -540,10 +541,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -553,10 +554,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -566,10 +567,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -579,10 +580,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -593,10 +594,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -606,10 +607,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -620,10 +621,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -633,10 +634,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -646,10 +647,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -659,10 +660,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -683,10 +684,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -707,10 +708,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -720,10 +721,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -731,7 +732,7 @@ impl PropSet for Entity {
     fn set_font_color(self, state: &mut State, value: Color) -> Self {
         state.style.font_color.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -740,7 +741,7 @@ impl PropSet for Entity {
     fn set_text_justify(self, state: &mut State, value: Justify) -> Self {
         state.style.text_justify.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -748,7 +749,7 @@ impl PropSet for Entity {
     fn set_text_align(self, state: &mut State, value: Align) -> Self {
         state.style.text_align.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -757,7 +758,7 @@ impl PropSet for Entity {
     fn set_background_color(self, state: &mut State, value: Color) -> Self {
         state.style.background_color.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -768,10 +769,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -779,7 +780,7 @@ impl PropSet for Entity {
     fn set_border_color(self, state: &mut State, value: Color) -> Self {
         state.style.border_color.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -791,7 +792,7 @@ impl PropSet for Entity {
         state.style.border_radius_bottom_left.insert(self, value);
         state.style.border_radius_bottom_right.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -799,7 +800,7 @@ impl PropSet for Entity {
     fn set_border_radius_top_left(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_top_left.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -807,7 +808,7 @@ impl PropSet for Entity {
     fn set_border_radius_top_right(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_top_right.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -815,7 +816,7 @@ impl PropSet for Entity {
     fn set_border_radius_bottom_left(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_bottom_left.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -823,7 +824,7 @@ impl PropSet for Entity {
     fn set_border_radius_bottom_right(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_bottom_right.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -837,10 +838,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -850,10 +851,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -862,10 +863,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -874,10 +875,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -886,10 +887,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -903,10 +904,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -916,10 +917,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -928,10 +929,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -940,10 +941,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -952,10 +953,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -966,10 +967,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -979,10 +980,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -1002,10 +1003,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -1025,10 +1026,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -1046,10 +1047,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
