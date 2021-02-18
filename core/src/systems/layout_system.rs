@@ -306,7 +306,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     - parent_padding_left
                     - parent_padding_right
                     - 2.0 * parent_border_width
-                    //- state.data.get_child_sum(*parent)
+                    - state.data.get_child_sum(*parent)
             }
 
             FlexDirection::Column => {
@@ -314,9 +314,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     - parent_padding_top
                     - parent_padding_bottom
                     - 2.0 * parent_border_width
-                    //- state.data.get_child_sum(*parent)
+                    - state.data.get_child_sum(*parent)
             }
         };
+
+        let mut child_main_sum = free_space;
         
         // Used to calculate the positional proportion of the child
         let mut proportion_numerator = 0.0f32;
@@ -478,6 +480,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 }
             }
 
+            //println!("Child: {}  Width: {}  Height: {}", child, new_width, new_height);
+
             match position {
                 Position::Relative => {
                     match parent_flex_direction {
@@ -503,6 +507,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                     new_width += child_padding_left
                                         + child_padding_right
                                         + 2.0 * child_border_width;
+
+                                    free_space -= new_width + child_margin_left + child_margin_right;
                                 }
                                 _ => {}
                             };
@@ -515,7 +521,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                     + 2.0 * child_border_width;
                             }
 
-                            free_space -= new_width + child_margin_left + child_margin_right;
+                            //free_space -= new_width + child_margin_left + child_margin_right;
 
                             if free_space >= 0.0 {
                                 let flex_width = (proportion_numerator * free_space
@@ -528,7 +534,6 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             } else {
                                 new_width += flex_shrink_fraction * free_space;
                             }
-
 
 
                             if let Some(align_self) = state.style.align_self.get(child) {
@@ -578,6 +583,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             // Apply size contraints
                             new_width = new_width.clamp(child_min_width, child_max_width);
                             new_height = new_height.clamp(child_min_height, child_max_height);
+
+                            child_main_sum -= new_width;
                         }
 
                         FlexDirection::Column => {
@@ -599,6 +606,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                     new_height += child_padding_top
                                         + child_padding_bottom
                                         + 2.0 * child_border_width;
+
+                                    free_space -= new_height + child_margin_top + child_margin_bottom;
                                 }
                                 _ => {}
                             };
@@ -610,7 +619,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                     + 2.0 * child_border_width;
                             }
 
-                            free_space -= new_height + child_margin_top + child_margin_bottom;
+                            //free_space -= new_height + child_margin_top + child_margin_bottom;
+
+                            //println!("Child: {} Free Space: {}", child, free_space);
 
                             if free_space >= 0.0 {
                                 let flex_height = (proportion_numerator * free_space
@@ -619,17 +630,13 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                                     - flex_length_sum;
                                 flex_length_sum += flex_height;
                                 new_height += flex_height;
+                                //free_space -= flex_height;
                             //new_height += flex_grow_fraction * parent_free_space;
                             } else {
                                 new_height += flex_shrink_fraction * free_space;
+                                //free_space -= flex_shrink_fraction * free_space;
                             }
 
-                            let align_items = state
-                                .style
-                                .align_items
-                                .get(*parent)
-                                .cloned()
-                                .unwrap_or_default();
 
                             if let Some(align_self) = state.style.align_self.get(child) {
                                 if *align_self == AlignSelf::Stretch {
@@ -676,21 +683,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             };
 
                             // Apply size contraints
-                            if new_width < child_min_width {
-                                new_width = child_min_width;
-                            }
+                            new_width = new_width.clamp(child_min_width, child_max_width);
+                            new_height = new_height.clamp(child_min_height, child_max_height);
 
-                            if new_width > child_max_width {
-                                new_width = child_max_width;
-                            }
-
-                            if new_height < child_min_height {
-                                new_height = child_min_height;
-                            }
-
-                            if new_height > child_max_height {
-                                new_height = child_max_height;
-                            }
+                            child_main_sum -= new_height;
                         }
                     }
                 }
@@ -790,6 +786,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 //should_continue = false;
             //}
         }
+
 
         let mut current_pos = 0.0;
 

@@ -9,6 +9,14 @@ keywords = ["ui", "gui", "gpu", "graphics", "css"]
 repository = "https://github.com/geom3trik/tuix"
 edition = "2018"
 
+[[example]]
+name = "position"
+path = "examples/layout/position.rs"
+
+[[example]]
+name = "justify_content"
+path = "examples/layout/justify_content.rs"
+
 [workspace]
 members = [
     "winit",
