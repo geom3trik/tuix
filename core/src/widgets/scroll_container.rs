@@ -506,6 +506,7 @@ impl EventHandler for ScrollContainer {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::GeometryChanged(geometry_changed) => {
+                    //println!("Geometry Changed");
                     if event.target == self.container || event.target == entity {
                         if geometry_changed.width || geometry_changed.height {
                             let mut scrollh = state.data.get_height(entity)

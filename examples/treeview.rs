@@ -16,7 +16,7 @@ fn main() {
 
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
-        state.insert_theme(THEME);
+        state.add_theme(THEME);
 
         let rvbox = ResizableVBox::new().build(state, window, |builder| {
             builder

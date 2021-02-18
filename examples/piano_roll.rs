@@ -12,7 +12,7 @@ static THEME: &'static str = include_str!("themes/widget_theme.css");
 fn main() {
     // Create the app
     let mut app = Application::new(|win_desc, state, window| {
-        state.insert_theme(THEME);
+        state.add_theme(THEME);
 
         let piano_roll = PianoRoll::new().build(state, window, |builder| {
             builder

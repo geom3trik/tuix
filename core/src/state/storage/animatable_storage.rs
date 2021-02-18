@@ -222,8 +222,7 @@ where
         if let Some(index) = entity.index() {
             if index >= self.entity_indices.len() {
                 // Resize entity indices to include new entity
-                self.entity_indices
-                    .resize(index + 1, Default::default());
+                self.entity_indices.resize(index + 1, Default::default());
                 // Set the data index to the data position
                 self.entity_indices[index].data_index = Index::new(self.inline_data.len())
                     .inherited(false)
@@ -236,10 +235,9 @@ where
 
                 if data_index.is_inline() {
                     if data_index.index() >= self.inline_data.len() {
-                        self.entity_indices[index].data_index =
-                            Index::new(self.inline_data.len())
-                                .inherited(false)
-                                .inline(true);
+                        self.entity_indices[index].data_index = Index::new(self.inline_data.len())
+                            .inherited(false)
+                            .inline(true);
                         self.inline_data.push(value);
                     } else {
                         self.entity_indices[index]
@@ -258,7 +256,6 @@ where
                 //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
             }
         }
-        
     }
 
     // Insert an animation definition
@@ -279,8 +276,7 @@ where
 
             // Link the entity to the animation
             if index >= self.entity_indices.len() {
-                self.entity_indices
-                    .resize(index + 1, Default::default());
+                self.entity_indices.resize(index + 1, Default::default());
             }
 
             let animation_index = self.entity_indices[index].animation_id;
@@ -308,9 +304,8 @@ where
                 animation.output = Some(animation.keyframes.first().unwrap().1.clone());
                 self.entity_indices[index].animation_id = self.active_animations.len();
                 self.active_animations.push(animation);
-            }    
+            }
         }
-        
     }
 
     pub fn animate(&mut self, current_time: std::time::Instant) {
@@ -428,8 +423,7 @@ where
 
             // Check if entity exists, else add the entity
             if index >= self.entity_indices.len() {
-                self.entity_indices
-                    .resize(index + 1, Default::default());
+                self.entity_indices.resize(index + 1, Default::default());
             }
 
             // Check if the entity is already linked to the rule
@@ -500,7 +494,6 @@ where
         } else {
             LinkType::NoRule
         }
-        
     }
 
     pub fn has_animations(&self) -> bool {
@@ -519,9 +512,8 @@ where
                 return;
             }
 
-            self.entity_indices[index].data_index = Index::default();            
+            self.entity_indices[index].data_index = Index::default();
         }
-
     }
 
     pub fn link_rule(&mut self, entity: Entity, rule_list: &Vec<usize>) -> bool {
@@ -561,11 +553,10 @@ where
 
             self.unlink(entity);
 
-            false    
+            false
         } else {
             false
         }
-        
     }
 
     // Insert rule data
@@ -603,13 +594,12 @@ where
         }
 
         let animation_index = self.entity_indices[entity.index_unchecked()].animation_id;
-        
+
         // if entity == Entity::new(5) {
         //     println!("Get Animation: {:?}", animation_index);
         // }
 
         if animation_index < self.active_animations.len() {
-
             return self.active_animations[animation_index].get_output();
         }
 
@@ -632,7 +622,6 @@ where
 
     // Returns true if the entity is linked to a currently active animation
     pub fn is_animating(&self, entity: Entity) -> bool {
-
         if entity.index_unchecked() >= self.entity_indices.len() {
             return false;
         }

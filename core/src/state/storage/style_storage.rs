@@ -113,8 +113,7 @@ where
     pub fn insert(&mut self, entity: Entity, value: T) {
         if let Some(index) = entity.index() {
             if index >= self.entity_indices.len() {
-                self.entity_indices
-                    .resize(index + 1, Default::default());
+                self.entity_indices.resize(index + 1, Default::default());
                 self.entity_indices[index] = Index::new(self.inline_data.len()).inline(true);
                 //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
                 self.inline_data.push(value);
@@ -122,8 +121,7 @@ where
                 let data_index = self.entity_indices[index].index();
 
                 if data_index >= self.inline_data.len() {
-                    self.entity_indices[index] =
-                        Index::new(self.inline_data.len()).inline(true);
+                    self.entity_indices[index] = Index::new(self.inline_data.len()).inline(true);
 
                     self.inline_data.push(value);
                 } else {
@@ -132,9 +130,8 @@ where
                         .set_inline(true);
                     self.inline_data[data_index] = value;
                 }
-            }            
+            }
         }
-
     }
 
     // When the style system has determined the matching rule with the highest

@@ -62,6 +62,10 @@ impl Color {
         Self { data: 0xFF0000FF }
     }
 
+    pub fn yellow() -> Self {
+        Self { data: 0xFF00FFFF }
+    }
+
     // Interpolate between two colors
     pub fn interpolate(start_color: Color, end_color: Color, scale: f64) -> Color {
         let r = Color::interp(start_color.r(), end_color.r(), scale);

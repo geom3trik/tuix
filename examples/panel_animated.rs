@@ -107,7 +107,7 @@ impl EventHandler for ColorEdit {
 fn main() {
     // Create the app
     let mut app = Application::new(|window, state, root| {
-        state.insert_theme(THEME);
+        state.add_theme(THEME);
 
         let rvbox = ResizableVBox::new().build(state, root, |builder| {
             builder

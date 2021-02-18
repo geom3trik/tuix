@@ -14,10 +14,10 @@ static CUSTOM_THEME: &'static str = include_str!("themes/custom_theme.css");
 
 fn main() {
     let app = Application::new(|win_desc, state, window| {
-        state.insert_theme(DEFAULT_THEME);
+        state.add_theme(DEFAULT_THEME);
 
         // Properties defined in CUSTOM_THEME override the same properties defined in DEFAULT_THEME
-        state.insert_theme(CUSTOM_THEME);
+        state.add_theme(CUSTOM_THEME);
 
         // An element is the simplest widget. It has no built in styling and doesn't handle any events.
         let first = Element::new().build(state, window, |builder| {

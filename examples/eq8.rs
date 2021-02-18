@@ -265,7 +265,9 @@ impl BuildHandler for EQChannel {
         self.frequency_knob = ValueKnob::new("Freq", 30.0, 30.0, 20000.0)
             .on_change(move |val| Event::new(EqChannelEvent::FreqChanged(val)).target(entity))
             .with_log_scale()
-            .build(state, entity, |builder| builder.set_id("channel1_freq_knob"));
+            .build(state, entity, |builder| {
+                builder.set_id("channel1_freq_knob")
+            });
         self.gain_knob =
             ValueKnob::new("Gain", 0.0, -12.0, 12.0).build(state, entity, |builder| builder);
         self.q_knob = ValueKnob::new("Q", 0.7, 0.0, 5.0).build(state, entity, |builder| builder);

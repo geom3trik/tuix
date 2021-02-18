@@ -47,7 +47,7 @@ pub struct State {
     pub hierarchy: Hierarchy,      // The widget tree
     pub style: Style,              // The style properties for every widget
     pub data: Data,                // Computed data
-    pub root: Entity,
+
     pub mouse: MouseState,
     pub modifiers: ModifiersState,
     pub hovered: Entity,
@@ -60,11 +60,10 @@ pub struct State {
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
-    pub resource_manager: ResourceManager, //TODO
+    resource_manager: ResourceManager, //TODO
 }
 
 impl State {
-
     pub fn new() -> Self {
         let mut entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
@@ -89,7 +88,6 @@ impl State {
             hierarchy,
             style,
             data,
-            root,
             mouse,
             modifiers,
             hovered: Entity::new(0),
@@ -126,7 +124,7 @@ impl State {
     /// ```
     /// state.add_stylesheet("path_to_stylesheet.css");
     /// ```
-    pub fn insert_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {
+    pub fn add_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {
         let style_string = std::fs::read_to_string(path.clone())?;
         self.resource_manager.stylesheets.push(path.to_owned());
         self.style.parse_theme(&style_string);
@@ -134,11 +132,18 @@ impl State {
         Ok(())
     }
 
-
-    pub fn insert_theme(&mut self, theme: &str) {
+    pub fn add_theme(&mut self, theme: &str) {
         self.resource_manager.themes.push(theme.to_owned());
 
         self.reload_styles();
+    }
+
+    pub fn add_image(&mut self, name: &str, path: &str) {
+        println!("Add an image to resource manager");
+    }
+
+    pub fn add_font(&mut self, name: &str, path: &str) {
+        println!("Add an font to resource manager");
     }
 
     // Removes all style data and then reloads the stylesheets
@@ -212,9 +217,9 @@ impl State {
 
         self.style.parse_theme(&overall_theme);
 
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::null()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::null()));
+        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         Ok(())
     }
@@ -275,7 +280,6 @@ impl State {
             self.active = Entity::null();
         }
     }
-
 
     // Adds a new entity with a specified parent
     pub(crate) fn add(&mut self, parent: Entity) -> Entity {

@@ -162,6 +162,7 @@ pub struct Style {
 
     //Text Properties
     pub text: DenseStorage<Text>,
+    pub tooltip: DenseStorage<String>,
 
     pub font_color: AnimatableStorage<Color>,
     pub font_size: AnimatableStorage<f32>,
@@ -275,6 +276,7 @@ impl Style {
             //grid_item: DenseStorage::new(),
             //size_constraints: DenseStorage::new(),
             text: DenseStorage::new(),
+            tooltip: DenseStorage::new(),
         }
     }
 

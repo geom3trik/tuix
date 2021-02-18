@@ -31,9 +31,8 @@ where
                 } else {
                     self.data[data_index] = value;
                 }
-            }            
+            }
         }
-
     }
 
     pub fn remove(&mut self, _entity: Entity) {}
@@ -71,7 +70,7 @@ where
             self.insert(entity, value);
             return;
         }
-        
+
         if let Some(index) = entity.index() {
             let data_index = self.indices[index] as usize;
 
@@ -80,7 +79,7 @@ where
                 return;
             }
 
-            self.data[data_index] = value;            
+            self.data[data_index] = value;
         }
     }
 

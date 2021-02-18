@@ -13,7 +13,7 @@ impl WindowWidget {
     }
 
     pub fn build_window(self, state: &mut State) {
-        state.build(state.root, self);
+        state.build(Entity::root(), self);
     }
 }
 
@@ -33,6 +33,7 @@ impl EventHandler for WindowWidget {
                 }
 
                 WindowEvent::Relayout => {
+                    //println!("Relayout");
                     apply_z_ordering(state, &state.hierarchy.clone());
                     apply_visibility(state, &state.hierarchy.clone());
                     apply_clipping(state, &state.hierarchy.clone());

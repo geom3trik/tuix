@@ -47,8 +47,8 @@ impl Application {
 
         let event_manager = EventManager::new();
 
-        let root = state.root;
-        state.hierarchy.add(state.root, None);
+        let root = Entity::root();
+        state.hierarchy.add(Entity::root(), None);
 
         //let window_description = win(WindowDescription::new());
         let window_description = app(WindowDescription::new(), &mut state, root);
@@ -83,21 +83,20 @@ impl Application {
         state.fonts = fonts;
 
         state.style.width.insert(
-            state.root,
+            Entity::root(),
             Length::Pixels(window_description.inner_size.width as f32),
         );
         state.style.height.insert(
-            state.root,
+            Entity::root(),
             Length::Pixels(window_description.inner_size.height as f32),
         );
 
         state
             .data
             .set_width(Entity::root(), window_description.inner_size.width as f32);
-        state.data.set_height(
-            Entity::root(),
-            window_description.inner_size.height as f32,
-        );
+        state
+            .data
+            .set_height(Entity::root(), window_description.inner_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
 
         WindowWidget::new().build_window(&mut state);
@@ -108,18 +107,6 @@ impl Application {
             event_manager: event_manager,
             state: state,
         }
-    }
-
-    pub fn get_window(&self) -> Entity {
-        self.state.root
-    }
-
-    pub fn get_state(&mut self) -> &mut State {
-        &mut self.state
-    }
-
-    pub fn get_event_manager(&mut self) -> &mut EventManager {
-        &mut self.event_manager
     }
 
     pub fn run(self) {
@@ -169,6 +156,7 @@ impl Application {
 
                     let mut needs_redraw = false;
                     while !state.event_queue.is_empty() {
+                        //println!("Flush Events");
                         if event_manager.flush_events(&mut state) {
                             needs_redraw = true;
                         }
@@ -255,9 +243,16 @@ impl Application {
                         glutin::event::WindowEvent::Focused(_) => {
                             state.insert_event(
                                 Event::new(WindowEvent::Restyle)
-                                    .target(state.root)
-                                    .origin(state.root),
+                                    .target(Entity::root())
+                                    .origin(Entity::root()),
                             );
+                            state.insert_event(
+                                Event::new(WindowEvent::Relayout)
+                                    .target(Entity::root())
+                                    .origin(Entity::root()),
+                            );
+
+                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                         }
 
                         ////////////////////
@@ -320,7 +315,7 @@ impl Application {
                                             // TODO impliment reverse iterator for hierarchy
                                             // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
                                             //     Some(val) => val,
-                                            //     None => state.root,
+                                            //     None => Entity::root(),
                                             // };
                                         }
                                     } else {
@@ -333,7 +328,7 @@ impl Application {
                                             state.focused =
                                                 match state.focused.into_iter(&hierarchy).next() {
                                                     Some(val) => val,
-                                                    None => state.root,
+                                                    None => Entity::root(),
                                                 };
                                             state.focused.set_focus(&mut state, true);
                                         }
@@ -341,8 +336,8 @@ impl Application {
 
                                     state.insert_event(
                                         Event::new(WindowEvent::Restyle)
-                                            .target(state.root)
-                                            .origin(state.root),
+                                            .target(Entity::root())
+                                            .origin(Entity::root()),
                                     );
                                 }
                             }
@@ -388,20 +383,20 @@ impl Application {
                             state
                                 .style
                                 .width
-                                .insert(state.root, Length::Pixels(physical_size.width as f32));
+                                .insert(Entity::root(), Length::Pixels(physical_size.width as f32));
                             state
                                 .style
                                 .height
-                                .insert(state.root, Length::Pixels(physical_size.height as f32));
+                                .insert(Entity::root(), Length::Pixels(physical_size.height as f32));
 
                             state
                                 .data
-                                .set_width(state.root, physical_size.width as f32);
+                                .set_width(Entity::root(), physical_size.width as f32);
                             state
                                 .data
-                                .set_height(state.root, physical_size.height as f32);
+                                .set_height(Entity::root(), physical_size.height as f32);
 
-                            state.insert_event(Event::new(WindowEvent::Restyle).origin(state.root).target(Entity::root()));
+                            state.insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()).target(Entity::root()));
                             state.insert_event(
                                 Event::new(WindowEvent::Relayout).target(Entity::root()),
                             );
@@ -540,16 +535,13 @@ impl Application {
                                 );
 
                                 state.insert_event(
-                                    Event::new(WindowEvent::Restyle).origin(hovered_widget),
-                                );
-                                state.insert_event(
-                                    Event::new(WindowEvent::Restyle).origin(state.hovered),
+                                    Event::new(WindowEvent::Restyle).target(Entity::root()),
                                 );
 
                                 state.hovered = hovered_widget;
                                 state.active = Entity::null();
 
-                                state.insert_event(Event::new(WindowEvent::Redraw));
+                                state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                             }
 
                             if state.captured != Entity::null() {

@@ -19,7 +19,7 @@ use fnv::FnvHashMap;
 
 pub struct EventManager {
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
-    
+
     // Queue of events to be processed
     pub event_queue: Vec<Event>,
 
@@ -45,7 +45,6 @@ impl EventManager {
     // }
 
     pub fn flush_events(&mut self, state: &mut State) -> bool {
-
         let mut needs_redraw = false;
 
         // Clone the hierarchy from state
@@ -123,14 +122,16 @@ impl EventManager {
                         }
                     }
                 }
-                continue 'events;                
+                continue 'events;
             }
 
             // Propagate down from root to target (not including target)
             if event.propagation == Propagation::Down || event.propagation == Propagation::DownUp {
                 // Construct the list of widgets to walk down by going up from the target
-                let ancestors: Vec<Entity> =
-                    event.target.parent_iter(&hierarchy).collect::<Vec<Entity>>();
+                let ancestors: Vec<Entity> = event
+                    .target
+                    .parent_iter(&hierarchy)
+                    .collect::<Vec<Entity>>();
 
                 // Walk down the list of ancestors
                 for entity in ancestors.iter().rev() {
@@ -169,7 +170,6 @@ impl EventManager {
             if event.propagation == Propagation::Up || event.propagation == Propagation::DownUp {
                 // Walk up the hierarchy from parent to parent
                 for entity in target.parent_iter(&hierarchy) {
-                    
                     // Skip the target entity
                     if entity == event.target {
                         continue;
@@ -191,7 +191,6 @@ impl EventManager {
             if event.propagation == Propagation::Fall {
                 // Walk hierarchy from the target down the branch
                 for entity in target.branch_iter(&hierarchy) {
-                    
                     // Skip the target entity
                     if entity == event.target {
                         continue;
@@ -217,8 +216,8 @@ impl EventManager {
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
 
-        let width = state.data.get_width(state.root);
-        let height = state.data.get_height(state.root);
+        let width = state.data.get_width(Entity::root());
+        let height = state.data.get_height(Entity::root());
         // TODO: Move this to the window widget
         let dpi_factor = 1.0;
 
@@ -234,7 +233,7 @@ impl EventManager {
         let background_color: femtovg::Color = state
             .style
             .background_color
-            .get(state.root)
+            .get(Entity::root())
             .cloned()
             .unwrap_or_default()
             .into();

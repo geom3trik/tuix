@@ -70,7 +70,7 @@ impl EventHandler for Counter {
 fn main() {
     // Create the app
     let app = Application::new(|win_desc, state, window| {
-        state.insert_theme(THEME);
+        state.add_theme(THEME);
 
         Counter::default()
             // Set local state

@@ -63,7 +63,6 @@ impl Entity {
     }
 }
 
-
 impl std::ops::Not for Entity {
     type Output = bool;
     fn not(self) -> Self::Output {
@@ -114,7 +113,7 @@ impl EntityManager {
     pub(crate) fn destroy_entity(&mut self, entity: Entity) {
         if let Some(index) = entity.index() {
             self.count -= 1;
-            self.free_indices.push_back(index as u32);            
+            self.free_indices.push_back(index as u32);
         }
     }
 }

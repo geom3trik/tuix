@@ -2,7 +2,6 @@ use crate::entity::Entity;
 
 use crate::state::style::Visibility;
 
-
 #[derive(Clone, Copy, Debug)]
 pub struct Pos {
     pub x: f32,
@@ -109,7 +108,10 @@ impl Data {
     // Event if the position and size are 0.0, or the entity is invisible.
 
     pub fn get_clip_widget(&self, entity: Entity) -> Entity {
-        self.clip_widget.get(entity.index_unchecked()).cloned().unwrap()
+        self.clip_widget
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn get_z_order(&self, entity: Entity) -> i32 {
@@ -117,39 +119,70 @@ impl Data {
     }
 
     pub fn get_child_sum(&self, entity: Entity) -> f32 {
-        self.child_sum.get(entity.index_unchecked()).cloned().unwrap()
+        self.child_sum
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn get_child_max(&self, entity: Entity) -> f32 {
-        self.child_max.get(entity.index_unchecked()).cloned().unwrap()
+        self.child_max
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn get_child_pos(&self, entity: Entity) -> f32 {
-        self.child_pos.get(entity.index_unchecked()).cloned().unwrap()
+        self.child_pos
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn get_child_grow_sum(&self, entity: Entity) -> f32 {
-        self.child_grow_sum.get(entity.index_unchecked()).cloned().unwrap()
+        self.child_grow_sum
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn get_child_shrink_sum(&self, entity: Entity) -> f32 {
-        self.child_shrink_sum.get(entity.index_unchecked()).cloned().unwrap()
+        self.child_shrink_sum
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn get_posx(&self, entity: Entity) -> f32 {
-        self.position.get(entity.index_unchecked()).cloned().unwrap().x
+        self.position
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap_or_default()
+            .x
     }
 
     pub fn get_posy(&self, entity: Entity) -> f32 {
-        self.position.get(entity.index_unchecked()).cloned().unwrap().y
+        self.position
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap_or_default()
+            .y
     }
 
     pub fn get_width(&self, entity: Entity) -> f32 {
-        self.size.get(entity.index_unchecked()).cloned().unwrap().x
+        self.size
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap_or_default()
+            .x
     }
 
     pub fn get_height(&self, entity: Entity) -> f32 {
-        self.size.get(entity.index_unchecked()).cloned().unwrap().y
+        self.size
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap_or_default()
+            .y
     }
 
     pub fn get_opacity(&self, entity: Entity) -> f32 {
@@ -225,7 +258,10 @@ impl Data {
     }
 
     pub fn get_visibility(&self, entity: Entity) -> Visibility {
-        self.visibility.get(entity.index_unchecked()).cloned().unwrap()
+        self.visibility
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn set_visibility(&mut self, entity: Entity, val: Visibility) {
@@ -235,7 +271,10 @@ impl Data {
     }
 
     pub fn get_hoverability(&self, entity: Entity) -> bool {
-        self.hoverability.get(entity.index_unchecked()).cloned().unwrap()
+        self.hoverability
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn set_hoverability(&mut self, entity: Entity, val: bool) {

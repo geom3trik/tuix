@@ -21,7 +21,7 @@ fn main() {
             .add_image("lena", "resources/images/lena.png");
 
         Element::new().build(state, window, |builder| {
-            builder.set_background_image("image")
+            builder.set_background_image("lena")
         });
 
         win_desc.with_title("Hello GUI")

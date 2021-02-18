@@ -121,7 +121,7 @@ impl EventHandler for Textbox {
                         //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                         // );
 
-                        state.insert_event(Event::new(WindowEvent::Redraw));
+                        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                     }
                 }
 
@@ -146,7 +146,7 @@ impl EventHandler for Textbox {
                         //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                         // );
 
-                        state.insert_event(Event::new(WindowEvent::Redraw));
+                        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                     }
                 }
 
@@ -173,7 +173,7 @@ impl EventHandler for Textbox {
                         //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                         // );
 
-                        state.insert_event(Event::new(WindowEvent::Redraw));
+                        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                     } else {
                         self.edit = false;
                         entity.set_active(state, false);
@@ -188,7 +188,7 @@ impl EventHandler for Textbox {
                         //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                         // );
 
-                        state.insert_event(Event::new(WindowEvent::Redraw));
+                        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
                         if state.captured == entity {
                             state.insert_event(
@@ -225,7 +225,9 @@ impl EventHandler for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
-                            state.insert_event(Event::new(WindowEvent::Redraw));
+                            state.insert_event(
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
+                            );
                         }
                     }
 
@@ -243,7 +245,9 @@ impl EventHandler for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
-                            state.insert_event(Event::new(WindowEvent::Redraw));
+                            state.insert_event(
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
+                            );
                         }
                     }
                     if *key == Some(Key::Backspace) {
@@ -285,7 +289,9 @@ impl EventHandler for Textbox {
                                 }
                             }
 
-                            state.insert_event(Event::new(WindowEvent::Redraw));
+                            state.insert_event(
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
+                            );
                         }
                     }
                     if *key == Some(Key::Enter) {
@@ -305,7 +311,9 @@ impl EventHandler for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
-                            state.insert_event(Event::new(WindowEvent::Redraw));
+                            state.insert_event(
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
+                            );
                         }
                     }
                     if *key == Some(Key::Escape) {
@@ -318,7 +326,9 @@ impl EventHandler for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
-                            state.insert_event(Event::new(WindowEvent::Redraw));
+                            state.insert_event(
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
+                            );
                         }
                     }
                 }
@@ -364,7 +374,9 @@ impl EventHandler for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
-                            state.insert_event(Event::new(WindowEvent::Redraw));
+                            state.insert_event(
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
+                            );
                         }
                     }
                 }

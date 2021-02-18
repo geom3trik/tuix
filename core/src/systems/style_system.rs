@@ -7,6 +7,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
 pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
+    //println!("Apply Clipping");
     for entity in hierarchy.into_iter() {
         if entity == Entity::root() {
             continue;
@@ -24,6 +25,7 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
 }
 
 pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
+    //println!("Apply Visibility");
     let mut draw_hierarchy: Vec<Entity> = hierarchy.into_iter().collect();
     draw_hierarchy.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
@@ -93,7 +95,7 @@ fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
         .get(entity)
         .cloned()
         .unwrap_or_default();
-    
+
     if state.active == entity {
         entity_selector.pseudo_classes.set_active(true);
     }
@@ -102,6 +104,7 @@ fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
 }
 
 pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
+    //println!("Restyle");
     // Loop through all entities
     for entity in hierarchy.into_iter() {
         if entity == Entity::root() {

@@ -1,8 +1,6 @@
-use crate::{State, Entity, EventHandler};
+use crate::{Entity, EventHandler, State};
 
 use crate::state::style::*;
-
-
 
 // Contains an entity id and a mutable reference to state and can be used to set properties
 pub struct Builder<'a> {
@@ -96,6 +94,15 @@ impl<'a> Builder<'a> {
                 },
             );
         }
+
+        self
+    }
+
+    pub fn set_tooltip(mut self, val: &str) -> Self {
+        self.state
+            .style
+            .tooltip
+            .insert(self.entity, val.to_string());
 
         self
     }

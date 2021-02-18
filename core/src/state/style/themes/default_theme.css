@@ -1,11 +1,7 @@
-.menu_bar {
-    background-color: #646464;
-}
+
 
 
 button {
-    height: 30px;
-    width: 100px;
     color: white;
     background-color: #ff5e1a;
     border-radius: 3px;
@@ -16,10 +12,14 @@ button:hover {
     background-color: #ff7033;
 }
 
+/* .menu_bar {
+    background-color: #646464;
+} */
+
 panel>.container1>.container2>hbox {
-    /* height: 30px; */
     padding: 10px;
     align-items: center;
+    background-color: #ffffff;
 }
 
 panel>.container1 {
@@ -29,7 +29,6 @@ panel>.container1 {
 panel>.header {
     background-color: #ff5e1a;
     height: 30px;
-    flex-grow: 1.0;
 }
 
 panel .container2>hbox>label {
@@ -38,6 +37,8 @@ panel .container2>hbox>label {
     color: black;
     padding-left: 5px;
 }
+
+/*
 
 checkbox {
     width: 20px;
@@ -183,7 +184,6 @@ dropdown>.container>.item:hover {
 
 slider {
     width: 100px;
-    /* flex-grow: 1.0; */
     height: 4px;
     border-radius: 2px;
     background-color: #646464;
@@ -198,10 +198,6 @@ slider>.thumb {
     background-color:#ff5e1a;
     border-radius: 9.5px;
 }
-
-/* radio_list {
-    align-items: center;
-} */
 
 radio {
     border-color: black;
@@ -276,4 +272,4 @@ tooltip {
 button:hover>tooltip {
     opacity: 1.0;
     transition: opacity 0.1 0.5;
-}
+} */

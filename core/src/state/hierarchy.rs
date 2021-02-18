@@ -43,7 +43,6 @@ impl Hierarchy {
         } else {
             None
         }
-
     }
 
     /// Returns the nth child of an entity
@@ -62,7 +61,7 @@ impl Hierarchy {
             return f;
         } else {
             None
-    }
+        }
     }
 
     /// Returns the number of children of an entity
@@ -75,7 +74,7 @@ impl Hierarchy {
                 f = self.next_sibling[f.unwrap().index().unwrap()];
             }
 
-            Some(r)            
+            Some(r)
         } else {
             None
         }
@@ -100,7 +99,7 @@ impl Hierarchy {
             self.first_child[index]
         } else {
             None
-        }  
+        }
     }
 
     /// Returns the next sibling of an entity
@@ -157,7 +156,6 @@ impl Hierarchy {
         } else {
             false
         }
-        
     }
 
     pub fn remove(&mut self, entity: Entity) {
@@ -189,8 +187,6 @@ impl Hierarchy {
             self.prev_sibling[index] = None;
             self.parent[index] = None;
         }
-
-        
     }
 
     // Makes the entity the first child of its parent
@@ -236,7 +232,6 @@ impl Hierarchy {
         } else {
             Err(HierarchyError {})
         }
-        
     }
 
     pub fn set_next_sibling(
@@ -432,9 +427,8 @@ impl Hierarchy {
                     self.next_sibling[temp.unwrap().index_unchecked()] = Some(entity);
                     self.prev_sibling[index] = temp;
                 }
-            }            
+            }
         }
-
     }
 
     pub fn add_with_sibling(&mut self, entity: Entity, sibling: Entity) {
@@ -460,9 +454,8 @@ impl Hierarchy {
                 self.prev_sibling[index] = Some(sibling);
 
                 self.next_sibling[sibling.index_unchecked()] = Some(entity);
-            }            
+            }
         }
-
     }
 }
 
@@ -496,7 +489,9 @@ impl<'a> Iterator for BranchIterator<'a> {
             } else {
                 let mut temp = Some(current);
                 while temp.is_some() {
-                    if let Some(sibling) = self.hierarchy.next_sibling[temp.unwrap().index_unchecked()] {
+                    if let Some(sibling) =
+                        self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
+                    {
                         self.current_node = Some(sibling);
                         return r;
                     } else {
@@ -534,7 +529,9 @@ impl<'a> Iterator for HierarchyIterator<'a> {
             } else {
                 let mut temp = Some(current);
                 while temp.is_some() {
-                    if let Some(sibling) = self.hierarchy.next_sibling[temp.unwrap().index_unchecked()] {
+                    if let Some(sibling) =
+                        self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
+                    {
                         self.current_node = Some(sibling);
                         return r;
                     } else {

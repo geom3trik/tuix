@@ -9,8 +9,10 @@ use crate::state::hierarchy::*;
 pub trait PropSet {
     //fn get_first_child(self, hierarchy: &Hierarchy) -> Option<Entity>;
 
+    /// Add a class name to an entity
     fn class(self, state: &mut State, class_name: &str) -> Self;
 
+    // TODO move to PropGet
     fn get_parent(self, state: &mut State) -> Option<Entity>;
 
     fn is_enabled(self, state: &mut State) -> bool;
@@ -98,8 +100,12 @@ pub trait PropSet {
     fn set_text_align(self, state: &mut State, align: Align) -> Self;
     fn set_text_justify(self, state: &mut State, justify: Justify) -> Self;
 
+    // Tooltip
+    fn set_tooltip(self, state: &mut State, text: &str) -> Self;
+
     // Background
     fn set_background_color(self, state: &mut State, value: Color) -> Self;
+    fn set_background_image(self, state: &mut State, value: String) -> Self;
 
     // Border
     fn set_border_width(self, state: &mut State, value: Length) -> Self;
@@ -244,8 +250,16 @@ impl PropSet for Entity {
             pseudo_classes.set_disabled(!value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -256,8 +270,16 @@ impl PropSet for Entity {
             pseudo_classes.set_enabled(!value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -267,8 +289,21 @@ impl PropSet for Entity {
             pseudo_classes.set_checked(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Relayout)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -278,8 +313,16 @@ impl PropSet for Entity {
             pseudo_classes.set_over(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -289,8 +332,16 @@ impl PropSet for Entity {
             pseudo_classes.set_active(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -300,8 +351,16 @@ impl PropSet for Entity {
             pseudo_classes.set_hover(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -311,8 +370,16 @@ impl PropSet for Entity {
             pseudo_classes.set_focus(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self).target(Entity::root()));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -358,7 +425,6 @@ impl PropSet for Entity {
             Event::new(WindowEvent::Relayout)
                 .target(Entity::root())
                 .origin(self),
-                
         );
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
@@ -668,6 +734,13 @@ impl PropSet for Entity {
         self
     }
 
+    // Tooltip
+    fn set_tooltip(self, state: &mut State, value: &str) -> Self {
+        state.style.tooltip.insert(self, value.to_string());
+
+        self
+    }
+
     // Text
     fn set_text(self, state: &mut State, value: &str) -> Self {
         if let Some(data) = state.style.text.get_mut(self) {
@@ -757,6 +830,14 @@ impl PropSet for Entity {
     // Background
     fn set_background_color(self, state: &mut State, value: Color) -> Self {
         state.style.background_color.insert(self, value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self
+    }
+
+    fn set_background_image(self, state: &mut State, value: String) -> Self {
+        state.style.background_image.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
@@ -1057,11 +1138,218 @@ impl PropSet for Entity {
 }
 
 pub trait PropGet {
-    fn get_width(&self, state: &mut State) -> f32;
+    // Position
+    fn get_position(&self, state: &mut State) -> Position;
+    fn get_left(&self, state: &mut State) -> Length;
+    fn get_right(&self, state: &mut State) -> Length;
+    fn get_top(&self, state: &mut State) -> Length;
+    fn get_bottom(&self, state: &mut State) -> Length;
+
+    // Size
+    fn get_width(&self, state: &mut State) -> Length;
+    fn get_height(&self, state: &mut State) -> Length;
+
+    // Size Constraints
+    fn get_min_width(&self, state: &mut State) -> Length;
+    fn get_max_width(&self, state: &mut State) -> Length;
+    fn get_min_height(&self, state: &mut State) -> Length;
+    fn get_max_height(&self, state: &mut State) -> Length;
+
+    // Margins
+    fn get_margin_left(&self, state: &mut State) -> Length;
+    fn get_margin_right(&self, state: &mut State) -> Length;
+    fn get_margin_top(&self, state: &mut State) -> Length;
+    fn get_margin_bottom(&self, state: &mut State) -> Length;
+
+    // Padding
+    fn get_padding_left(&self, state: &mut State) -> Length;
+    fn get_padding_right(&self, state: &mut State) -> Length;
+    fn get_padding_top(&self, state: &mut State) -> Length;
+    fn get_padding_bottom(&self, state: &mut State) -> Length;
+
+    // Border
+    fn get_border_width(&self, state: &mut State) -> Length;
+
+    // Flex Container
+    fn get_flex_direction(&self, state: &mut State) -> FlexDirection;
+    fn get_flex_basis(&self, state: &mut State) -> f32;
+
+    // Flex Item
+    fn get_flex_grow(&self, state: &mut State) -> f32;
+    fn get_flex_shrink(&self, state: &mut State) -> f32;
 }
 
 impl PropGet for Entity {
-    fn get_width(&self, state: &mut State) -> f32 {
-        state.data.get_width(*self)
+    // Position
+    fn get_position(&self, state: &mut State) -> Position {
+        state.style.position.get(*self).cloned().unwrap_or_default()
+    }
+    fn get_left(&self, state: &mut State) -> Length {
+        state.style.left.get(*self).cloned().unwrap_or_default()
+    }
+    fn get_right(&self, state: &mut State) -> Length {
+        state.style.right.get(*self).cloned().unwrap_or_default()
+    }
+    fn get_top(&self, state: &mut State) -> Length {
+        state.style.top.get(*self).cloned().unwrap_or_default()
+    }
+    fn get_bottom(&self, state: &mut State) -> Length {
+        state.style.bottom.get(*self).cloned().unwrap_or_default()
+    }
+
+    // Size
+    fn get_width(&self, state: &mut State) -> Length {
+        state.style.width.get(*self).cloned().unwrap_or_default()
+    }
+
+    fn get_height(&self, state: &mut State) -> Length {
+        state.style.height.get(*self).cloned().unwrap_or_default()
+    }
+
+    // Size Constraints
+    fn get_min_width(&self, state: &mut State) -> Length {
+        state
+            .style
+            .min_width
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_max_width(&self, state: &mut State) -> Length {
+        state
+            .style
+            .max_width
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_min_height(&self, state: &mut State) -> Length {
+        state
+            .style
+            .min_height
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_max_height(&self, state: &mut State) -> Length {
+        state
+            .style
+            .max_height
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Margins
+    fn get_margin_left(&self, state: &mut State) -> Length {
+        state
+            .style
+            .margin_left
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_margin_right(&self, state: &mut State) -> Length {
+        state
+            .style
+            .margin_right
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_margin_top(&self, state: &mut State) -> Length {
+        state
+            .style
+            .margin_top
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_margin_bottom(&self, state: &mut State) -> Length {
+        state
+            .style
+            .margin_bottom
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Padding
+    fn get_padding_left(&self, state: &mut State) -> Length {
+        state
+            .style
+            .padding_left
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_padding_right(&self, state: &mut State) -> Length {
+        state
+            .style
+            .padding_right
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+    fn get_padding_top(&self, state: &mut State) -> Length {
+        state
+            .style
+            .padding_top
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+    fn get_padding_bottom(&self, state: &mut State) -> Length {
+        state
+            .style
+            .padding_bottom
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Border
+    fn get_border_width(&self, state: &mut State) -> Length {
+        state
+            .style
+            .border_width
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Flex Container
+    fn get_flex_direction(&self, state: &mut State) -> FlexDirection {
+        state
+            .style
+            .flex_direction
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_flex_basis(&self, state: &mut State) -> f32 {
+        state
+            .style
+            .flex_basis
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Flex Item
+    fn get_flex_grow(&self, state: &mut State) -> f32 {
+        state.style.flex_grow.get(*self).cloned().unwrap_or_default()
+    }
+
+    fn get_flex_shrink(&self, state: &mut State) -> f32 {
+        state.style.flex_shrink.get(*self).cloned().unwrap_or_default()
     }
 }

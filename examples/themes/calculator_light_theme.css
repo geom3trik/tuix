@@ -14,8 +14,8 @@
     font-size: 60.0;
     color: #FFFFFF;
     background-color: #363636;
-    background-color: #363636;
-    border-width: 1px;
+    border-color: #363636;
+    border-width: 1.0;
     padding-right: 10px;
     flex-grow: 1.0;
 }
@@ -56,12 +56,10 @@ button.digit.zero {
 
 button.digit:hover {
     background-color: #c7c7c7;
-    border-color: #c7c7c7;
 }
 
 button.digit:active {
     background-color: #8f8f8f;
-    border-color: #8f8f8f;
 }
 
 button.digit:focus {

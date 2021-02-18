@@ -17,28 +17,28 @@ impl Length {
         }
     }
 
-    pub fn get_value(&self) -> f32 {
+    pub fn get_value(&self, parent_length: f32) -> f32 {
         match self {
             Length::Auto => 0.0,
             Length::Initial(value) => 0.0,
             Length::Pixels(value) => *value,
-            Length::Percentage(value) => *value * 100.0,
+            Length::Percentage(value) => *value * parent_length,
         }
     }
 
-    pub fn set_value(&mut self, value: f32) {
-        match self {
-            Length::Pixels(val) => {
-                *val = value;
-            }
+    // pub fn set_value(&mut self, value: f32) {
+    //     match self {
+    //         Length::Pixels(val) => {
+    //             *val = value;
+    //         }
 
-            Length::Percentage(val) => {
-                *val = value;
-            }
+    //         Length::Percentage(val) => {
+    //             *val = value;
+    //         }
 
-            _ => {}
-        }
-    }
+    //         _ => {}
+    //     }
+    // }
 }
 
 impl Default for Length {

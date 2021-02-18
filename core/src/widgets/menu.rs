@@ -138,7 +138,7 @@ impl EventHandler for Menu {
 
                 MenuEvent::Close(id) => {
                     if *id == entity {
-                        if entity.parent(&state.hierarchy).unwrap() == state.root {
+                        if entity.parent(&state.hierarchy).unwrap() == Entity::root() {
                             state.release(entity);
                         }
                         //state.style.checked.set(entity, false);

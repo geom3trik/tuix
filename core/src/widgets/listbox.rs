@@ -7,13 +7,9 @@ pub enum ListboxEvent {
     CheckPrev(Entity),
 }
 
-pub struct ListboxItem {
+pub struct ListboxItem {}
 
-}
-
-impl ListboxItem {
-    
-}
+impl ListboxItem {}
 
 pub struct Listbox {}
 

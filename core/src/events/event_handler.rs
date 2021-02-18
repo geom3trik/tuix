@@ -26,6 +26,7 @@ pub trait EventHandler: Any + Send {
 
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+        //println!("Redraw");
         // Skip window
         if entity == Entity::root() {
             return;
@@ -342,8 +343,11 @@ pub trait EventHandler: Any + Send {
                 _ => state.fonts.regular.unwrap(),
             };
 
-            let mut x = posx + (border_width / 2.0);
-            let mut y = posy + (border_width / 2.0);
+            // let mut x = posx + (border_width / 2.0);
+            // let mut y = posy + (border_width / 2.0);
+
+            let mut x = posx;
+            let mut y = posy;
 
             let text_string = text.text.to_owned();
 

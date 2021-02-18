@@ -156,7 +156,7 @@ impl EventHandler for Scrollbar {
                         //state.style.enabled.set(entity, true);
                         entity.set_enabled(state, true);
                     }
-                    state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
+                    state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
                 }
 
                 WindowEvent::MouseScroll(_, y) => {
@@ -192,8 +192,9 @@ impl EventHandler for Scrollbar {
                             entity.set_enabled(state, true);
                         }
 
-                        state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
-                        state.insert_event(Event::new(WindowEvent::Relayout));
+                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                        state
+                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                         println!(
                             "Scroll: {}",
                             state
@@ -264,8 +265,9 @@ impl EventHandler for Scrollbar {
                         self.front
                             .set_top(state, Length::Percentage(scroll.y * (1.0 - scroll.h)));
 
-                        state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
-                        state.insert_event(Event::new(WindowEvent::Relayout).target(state.root));
+                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                        state
+                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                         //println!("overflow: {}, dist: {}, ratio: {}", overflow, dist_y, r);
                     }
                 }

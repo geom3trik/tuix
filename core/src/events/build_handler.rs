@@ -2,10 +2,9 @@ use crate::{entity, Entity, EventHandler, EventManager, Selector, State};
 
 use crate::{Align, Display, FlexDirection, Hierarchy, Justify};
 
-use crate::state::style::flexbox::{AlignContent, AlignItems, AlignSelf};
 use super::builder::Builder;
+use crate::state::style::flexbox::{AlignContent, AlignItems, AlignSelf};
 use crate::style::*;
-
 
 // Inherited by all widgets
 pub trait BuildHandler: EventHandler {
@@ -32,5 +31,3 @@ pub trait BuildHandler: EventHandler {
         ret
     }
 }
-
-

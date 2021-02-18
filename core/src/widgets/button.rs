@@ -4,7 +4,7 @@ use crate::entity::Entity;
 use crate::mouse::*;
 
 use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
-use crate::{PropSet, State, Code};
+use crate::{Code, PropSet, State};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ButtonEvent {
@@ -65,8 +65,6 @@ impl BuildHandler for Button {
 
 impl EventHandler for Button {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
-
         if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
             match button_event {
                 ButtonEvent::Pressed => {
@@ -80,7 +78,6 @@ impl EventHandler for Button {
                         on_press.propagation = Propagation::Down;
 
                         state.insert_event(on_press);
-                        
                     }
 
                     entity.set_active(state, true);
@@ -100,7 +97,7 @@ impl EventHandler for Button {
                     entity.set_active(state, false);
                 }
 
-                _=> {}
+                _ => {}
             }
         }
 
@@ -110,7 +107,11 @@ impl EventHandler for Button {
                     MouseButton::Left => {
                         if entity == event.target {
                             state.capture(entity);
-                            state.insert_event(Event::new(ButtonEvent::Pressed).target(entity).origin(entity));
+                            state.insert_event(
+                                Event::new(ButtonEvent::Pressed)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
                         }
                     }
 
@@ -123,7 +124,11 @@ impl EventHandler for Button {
                             state.release(entity);
                             entity.set_active(state, false);
                             if state.hovered == entity {
-                                state.insert_event(Event::new(ButtonEvent::Released).target(entity).origin(entity));
+                                state.insert_event(
+                                    Event::new(ButtonEvent::Released)
+                                        .target(entity)
+                                        .origin(entity),
+                                );
                             }
                         }
                     }
@@ -134,20 +139,28 @@ impl EventHandler for Button {
                 WindowEvent::KeyDown(code, _) => match code {
                     Code::Space => {
                         if state.focused == entity {
-                            state.insert_event(Event::new(ButtonEvent::Pressed).target(entity).origin(entity));
+                            state.insert_event(
+                                Event::new(ButtonEvent::Pressed)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
                         }
                     }
 
-                    _=> {}
-                }
+                    _ => {}
+                },
 
                 WindowEvent::KeyUp(code, _) => match code {
                     Code::Space => {
-                        state.insert_event(Event::new(ButtonEvent::Released).target(entity).origin(entity));
+                        state.insert_event(
+                            Event::new(ButtonEvent::Released)
+                                .target(entity)
+                                .origin(entity),
+                        );
                     }
 
-                    _=> {}
-                } 
+                    _ => {}
+                },
 
                 _ => {}
             }

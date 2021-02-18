@@ -7,7 +7,7 @@ fn main() {
     let tb = Textbox::new("Test");
 
     let app = Application::new(|wind_desc, state, window| {
-        state.insert_theme(DEFAULT_THEME);
+        state.add_theme(DEFAULT_THEME);
 
         //window.set_align_items(state, AlignItems::Center);
 

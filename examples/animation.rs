@@ -100,25 +100,27 @@ impl BuildHandler for Animations {
 
         let container = Element::new().build(state, hbox, |builder| builder.set_flex_grow(4.0));
 
-        self.element = Element::new().build(state, container, |builder| 
-            builder.class("element")
-            .set_text("Test Text")
-            .set_text_align(Align::Start)
-        );
-        
+        self.element = Element::new().build(state, container, |builder| {
+            builder
+                .class("element")
+                .set_text("Test Text")
+                .set_text_align(Align::Start)
+        });
 
-        Element::new().build(state, self.element, |builder| builder
-            .class("subelement")
-            .set_width(Length::Pixels(100.0))
-            .set_height(Length::Pixels(5.0))
-        );
+        Element::new().build(state, self.element, |builder| {
+            builder
+                .class("subelement")
+                .set_width(Length::Pixels(100.0))
+                .set_height(Length::Pixels(5.0))
+        });
 
-        Element::new().build(state, self.element, |builder| builder
-            .class("subelement")
-            .set_width(Length::Pixels(100.0))
-            .set_height(Length::Pixels(5.0))
-            .set_top(Length::Pixels(15.0))
-        );
+        Element::new().build(state, self.element, |builder| {
+            builder
+                .class("subelement")
+                .set_width(Length::Pixels(100.0))
+                .set_height(Length::Pixels(5.0))
+                .set_top(Length::Pixels(15.0))
+        });
 
         // Background Color Animation
         let background_color_animation_state = AnimationState::new()

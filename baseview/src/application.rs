@@ -114,11 +114,11 @@ impl ApplicationRunner {
         state
             .style
             .width
-            .insert(state.root, Length::Pixels(logical_size.width as f32));
+            .insert(Entity::root(), Length::Pixels(logical_size.width as f32));
         state
             .style
             .height
-            .insert(state.root, Length::Pixels(logical_size.height as f32));
+            .insert(Entity::root(), Length::Pixels(logical_size.height as f32));
 
         state
             .data
@@ -151,7 +151,7 @@ impl ApplicationRunner {
 
     /*
     pub fn get_window(&self) -> Entity {
-        self.state.root
+        self.Entity::root()
     }
 
     pub fn get_state(&mut self) -> &mut State {
@@ -550,7 +550,7 @@ impl ApplicationRunner {
                             // TODO impliment reverse iterator for hierarchy
                             // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
                             //     Some(val) => val,
-                            //     None => state.root,
+                            //     None => Entity::root(),
                             // };
                         }
                     } else {
@@ -563,7 +563,7 @@ impl ApplicationRunner {
                             self.state.focused =
                                 match self.state.focused.into_iter(&self.hierarchy).next() {
                                     Some(val) => val,
-                                    None => self.state.root,
+                                    None => Entity::root(),
                                 };
                             self.state.focused.set_focus(&mut self.state, true);
                         }
@@ -571,8 +571,8 @@ impl ApplicationRunner {
 
                     self.state.insert_event(
                         Event::new(WindowEvent::Restyle)
-                            .target(self.state.root)
-                            .origin(self.state.root),
+                            .target(Entity::root())
+                            .origin(Entity::root()),
                     );
                 }
 
@@ -630,8 +630,8 @@ impl ApplicationRunner {
                 baseview::WindowEvent::Focused => {
                     self.state.insert_event(
                         Event::new(WindowEvent::Restyle)
-                            .target(self.state.root)
-                            .origin(self.state.root),
+                            .target(Entity::root())
+                            .origin(Entity::root()),
                     );
                 }
                 baseview::WindowEvent::Resized(window_info) => {
@@ -653,21 +653,21 @@ impl ApplicationRunner {
                     self.state
                         .style
                         .width
-                        .insert(self.state.root, Length::Pixels(logical_size.0 as f32));
+                        .insert(Entity::root(), Length::Pixels(logical_size.0 as f32));
                     self.state
                         .style
                         .height
-                        .insert(self.state.root, Length::Pixels(logical_size.1 as f32));
+                        .insert(Entity::root(), Length::Pixels(logical_size.1 as f32));
 
                     self.state
                         .data
-                        .set_width(self.state.root, physical_size.0 as f32);
+                        .set_width(Entity::root(), physical_size.0 as f32);
                     self.state
                         .data
-                        .set_height(self.state.root, physical_size.1 as f32);
+                        .set_height(Entity::root(), physical_size.1 as f32);
 
                     self.state
-                        .insert_event(Event::new(WindowEvent::Restyle).origin(self.state.root));
+                        .insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()));
                     self.state
                         .insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
                     self.state.insert_event(Event::new(WindowEvent::Redraw));

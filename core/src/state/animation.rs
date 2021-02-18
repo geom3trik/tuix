@@ -30,7 +30,6 @@ impl Transition {
     }
 }
 
-
 pub trait Interpolator {
     fn interpolate(start: &Self, end: &Self, t: f32) -> Self;
 }

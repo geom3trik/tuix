@@ -12,7 +12,7 @@ use femtovg::{
 
 fn main() {
     let app = Application::new(|win_desc, state, window| {
-        state.insert_stylesheet("examples/themes/cmd_palette_theme.css");
+        state.add_stylesheet("examples/themes/cmd_palette_theme.css");
 
         CommandPalette::new().build(state, window, |builder| {
             builder

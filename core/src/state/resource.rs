@@ -8,7 +8,7 @@ pub struct Image {
     pub height: usize,
     pub data: Vec<u32>,
 }
-                        
+
 pub struct ResourceId(u32);
 
 pub struct ResourceManager {
@@ -29,9 +29,9 @@ impl ResourceManager {
     }
 
     // TODO
-    pub fn add_image(name: &str, path: &str) {}
+    pub(crate) fn add_image(&mut self, name: &str, path: &str) {}
 
-    pub fn add_font(name: &str, path: &str) {}
+    pub(crate) fn add_font(&mut self, name: &str, path: &str) {}
     // pub fn add_stylesheet(&mut self, path: String) -> Result<(), std::io::Error> {
 
     //     let style_string = std::fs::read_to_string(path.clone())?;

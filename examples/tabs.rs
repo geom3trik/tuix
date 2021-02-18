@@ -8,7 +8,7 @@ static THEME: &'static str = include_str!("themes/tabs_theme.css");
 
 fn main() {
     let app = Application::new(|win_desc, state, window| {
-        state.insert_theme(THEME);
+        state.add_theme(THEME);
 
         // Create a tab container
         let (tab_bar, tab_container) = TabContainer::new().build(state, window, |builder| builder);

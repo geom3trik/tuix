@@ -1,15 +1,31 @@
 
-.one {
-  width: 200px;
-  height: 200px;
-  /* background-color: red; */
-  transition: background-color 0.5 0.0;
+/* .one {
+  width: 100px;
+  height: 10px;
+  background-color: red;
+  margin: 10px;
+  padding: 10px;
+  border-color: black;
+  border-width: 10px;
+  flex-direction: row;
 }
 
-.one:hover {
+.two {
+  width: 40px;
+  height: 100%;
+  background-color: blue;
+}
 
-  background-color: red;
-  
+.three {
+  width: 50%;
+  height: 50%;
+  background-color: green;
+}
+
+.four {
+  height: 40px;
+  background-color: yellow;
+  flex-grow: 1.0;
 }
 
 .test {
@@ -23,4 +39,50 @@
   flex-grow: 2.0;
   height: 50px;
   background-color: green;
+} */
+
+
+
+dropdown {
+  height: 28px;
+  color: black;
+  border-width: 1px;
+  border-color: black;
+  border-radius: 3;
+  text-justify: center;
+}
+
+dropdown label {
+  color: black;
+  text-justify: center;
+}
+
+dropdown .icon {
+  text-justify: center;
+  color: #ff5e1a;
+  width: 20px;
+}
+
+dropdown>.container {
+  top: 100%;
+  background-color: white;
+  border-color: black;
+  border-width: 1px;
+}
+
+dropdown>.container>.item {
+  height: 30px;
+  width: 100px;
+  color: black;
+  padding-left: 10px;
+  background-color: white;
+  transition: background-color 0.1 0.0;
+}
+
+dropdown>.container>.item:hover {
+  height: 30px;
+  width: 100px;
+  color: white;
+  background-color: #ff5e1a;
+  transition: background-color 0.1 0.0;
 }
