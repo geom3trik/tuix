@@ -65,8 +65,8 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     }
 
     let (main, cross) = match parent_flex_direction {
-        FlexDirection::Row => (child.get_width(state), child.get_height(state)),
-        FlexDirection::Column => (child.get_height(state), child.get_width(state)),
+        FlexDirection::Row | FlexDirection::RowReverse => (child.get_width(state), child.get_height(state)),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (child.get_height(state), child.get_width(state)),
     };
 
     // A main specified in pixels overrides child sum
@@ -93,8 +93,8 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     }
 
     let (min_main, max_main, min_cross, max_cross) = match parent_flex_direction {
-        FlexDirection::Row => (child_min_width, child_max_width, child_min_height, child_max_height),
-        FlexDirection::Column => (child_min_height, child_max_height, child_min_width, child_max_width),
+        FlexDirection::Row | FlexDirection::RowReverse => (child_min_width, child_max_width, child_min_height, child_max_height),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (child_min_height, child_max_height, child_min_width, child_max_width),
     };
 
     // Apply size constraints
@@ -115,8 +115,8 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     let parent_height = state.data.get_height(parent);
 
     let (parent_main, parent_cross) = match parent_flex_direction {
-        FlexDirection::Row => (parent_width, parent_height),
-        FlexDirection::Column => (parent_height, parent_width),
+        FlexDirection::Row | FlexDirection::RowReverse => (parent_width, parent_height),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (parent_height, parent_width),
     };
         
     // Child size constraints
@@ -139,8 +139,8 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     }
 
     let (main, cross) = match parent_flex_direction {
-        FlexDirection::Row => (child.get_width(state), child.get_height(state)),
-        FlexDirection::Column => (child.get_height(state), child.get_width(state)),
+        FlexDirection::Row | FlexDirection::RowReverse => (child.get_width(state), child.get_height(state)),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (child.get_height(state), child.get_width(state)),
     };
 
     // A main specified in pixels overrides child sum
@@ -162,8 +162,8 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     }
 
     let (min_main, max_main, min_cross, max_cross) = match parent_flex_direction {
-        FlexDirection::Row => (child_min_width, child_max_width, child_min_height, child_max_height),
-        FlexDirection::Column => (child_min_height, child_max_height, child_min_width, child_max_width),
+        FlexDirection::Row | FlexDirection::RowReverse => (child_min_width, child_max_width, child_min_height, child_max_height),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (child_min_height, child_max_height, child_min_width, child_max_width),
     };
 
     // Align stretch overrides child max
@@ -253,13 +253,13 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         let parent_flex_direction = parent.get_flex_direction(state);
 
         let (parent_main, parent_cross) = match parent_flex_direction {
-            FlexDirection::Row => (state.data.get_width(*parent), state.data.get_height(*parent)),
-            FlexDirection::Column => (state.data.get_height(*parent), state.data.get_width(*parent)),
+            FlexDirection::Row | FlexDirection::RowReverse => (state.data.get_width(*parent), state.data.get_height(*parent)),
+            FlexDirection::Column | FlexDirection::ColumnReverse => (state.data.get_height(*parent), state.data.get_width(*parent)),
         };
 
         let (parent_pos_main, parent_pos_cross) = match parent_flex_direction {
-            FlexDirection::Row => (state.data.get_posx(*parent), state.data.get_posy(*parent)),
-            FlexDirection::Column => (state.data.get_posy(*parent), state.data.get_posx(*parent)),
+            FlexDirection::Row | FlexDirection::RowReverse => (state.data.get_posx(*parent), state.data.get_posy(*parent)),
+            FlexDirection::Column | FlexDirection::ColumnReverse => (state.data.get_posy(*parent), state.data.get_posx(*parent)),
         };
 
         let mut main_sum = 0.0;
@@ -285,12 +285,12 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             //println!("DOWN -> new_main: {} new_cross: {}", new_main, new_cross);
 
             match parent_flex_direction {
-                FlexDirection::Row => {
+                FlexDirection::Row | FlexDirection::RowReverse => {
                     state.data.set_width(child, new_main);
                     state.data.set_height(child, new_cross);
                 }
 
-                FlexDirection::Column => {
+                FlexDirection::Column | FlexDirection::ColumnReverse => {
                     state.data.set_height(child, new_main);
                     state.data.set_width(child, new_cross);
                 }
@@ -310,7 +310,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             // Sort flexible children by max_main
             match parent_flex_direction {
-                FlexDirection::Row => {
+                FlexDirection::Row | FlexDirection::RowReverse => {
                     flexible_children.sort_by(|a, b| {
                         a.get_max_width(state)
                             .get_value_or(parent_main, std::f32::INFINITY)
@@ -318,7 +318,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     });
                 }
 
-                FlexDirection::Column => {
+                FlexDirection::Column | FlexDirection::ColumnReverse => {
                     flexible_children.sort_by(|a, b| {
                         a.get_max_height(state)
                             .get_value_or(parent_main, std::f32::INFINITY)
@@ -358,7 +358,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 //println!("child: {} free_space: {} flex_grow: {} flex_grow_sum: {}", child, free_space, child_flex_grow, flex_grow_sum);
 
                 match parent_flex_direction {
-                    FlexDirection::Row => {
+                    FlexDirection::Row | FlexDirection::RowReverse => {
                         let child_width = state.data.get_width(*child);
                         let mut new_width = child_width + space_per_flex.round();
 
@@ -371,7 +371,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                         state.data.set_width(*child, new_width);
                     }
     
-                    FlexDirection::Column => {
+                    FlexDirection::Column | FlexDirection::ColumnReverse => {
                         let child_height = state.data.get_height(*child);
                         let mut new_height = child_height + space_per_flex.round();
 
@@ -397,6 +397,14 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         ///////////////////////
         // Position Entities //
         ///////////////////////
+
+        let children = match parent_flex_direction {
+            FlexDirection::Row | FlexDirection::Column => parent.child_iter(&hierarchy).collect::<Vec<_>>(),
+            FlexDirection::RowReverse | FlexDirection::ColumnReverse => parent.child_iter(&hierarchy).rev().collect::<Vec<_>>(),
+        };
+
+        
+
         let mut space_per_element = 0.0;
         let mut current_pos = 0.0;
 
@@ -420,15 +428,17 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             }
             _ => {}
         }
+
+
         
-        for child in parent.child_iter(&hierarchy) {
+        for child in children.into_iter() {
 
             let child_width = state.data.get_width(child);
             let child_height = state.data.get_height(child);
 
             let (child_main, child_cross) = match parent_flex_direction {
-                FlexDirection::Row => (child_width, child_height),
-                FlexDirection::Column => (child_height, child_width),
+                FlexDirection::Row | FlexDirection::RowReverse => (child_width, child_height),
+                FlexDirection::Column | FlexDirection::ColumnReverse => (child_height, child_width),
             };
 
             let main_pos = parent_pos_main + current_pos;
@@ -442,13 +452,13 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             };            
 
             match parent_flex_direction {
-                FlexDirection::Row => {
+                FlexDirection::Row | FlexDirection::RowReverse => {
                     state.data.set_posx(child, main_pos);
                     state.data.set_posy(child, cross_pos);
                     
                 }
 
-                FlexDirection::Column => {
+                FlexDirection::Column | FlexDirection::ColumnReverse => {
                     state.data.set_posy(child, main_pos);
                     state.data.set_posx(child, cross_pos);
                 }
@@ -457,7 +467,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
     }
 }
 
+fn position_child(state: &mut State, child: Entity) {
 
+}
+
+/* 
 pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
     //println!("Relayout");
     // Reset
@@ -2961,3 +2975,4 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         // Set the data properties
     }
 }
+*/

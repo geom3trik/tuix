@@ -6,7 +6,7 @@ fn main() {
     let app = Application::new(|win_desc, state, window| {
 
 
-        let window_flex_direction = FlexDirection::Column;
+        let window_flex_direction = FlexDirection::Row;
 
         window.set_background_color(state, Color::white()).set_flex_direction(state, window_flex_direction);
 

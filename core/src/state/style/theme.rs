@@ -817,6 +817,8 @@ fn parse_flex_direction<'i, 't>(
         Token::Ident(name) => match name.as_ref() {
             "row" => FlexDirection::Row,
             "column" => FlexDirection::Column,
+            "row-reverse" => FlexDirection::RowReverse,
+            "column-reverse" => FlexDirection::ColumnReverse,
 
             _ => {
                 return Err(
