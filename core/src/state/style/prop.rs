@@ -1138,6 +1138,10 @@ impl PropSet for Entity {
 }
 
 pub trait PropGet {
+
+    // Display
+    fn get_display(&self, state: &mut State) -> Display;
+
     // Position
     fn get_position(&self, state: &mut State) -> Position;
     fn get_left(&self, state: &mut State) -> Length;
@@ -1173,6 +1177,8 @@ pub trait PropGet {
     // Flex Container
     fn get_flex_direction(&self, state: &mut State) -> FlexDirection;
     fn get_flex_basis(&self, state: &mut State) -> f32;
+    fn get_justify_content(&self, state: &mut State) -> JustifyContent;
+    fn get_align_items(&self, state: &mut State) -> AlignItems;
 
     // Flex Item
     fn get_flex_grow(&self, state: &mut State) -> f32;
@@ -1180,6 +1186,11 @@ pub trait PropGet {
 }
 
 impl PropGet for Entity {
+    // Display
+    fn get_display(&self, state: &mut State) -> Display {
+        state.style.display.get(*self).cloned().unwrap_or_default()
+    }
+
     // Position
     fn get_position(&self, state: &mut State) -> Position {
         state.style.position.get(*self).cloned().unwrap_or_default()
@@ -1342,6 +1353,14 @@ impl PropGet for Entity {
             .get(*self)
             .cloned()
             .unwrap_or_default()
+    }
+
+    fn get_justify_content(&self, state: &mut State) -> JustifyContent {
+        state.style.justify_content.get(*self).cloned().unwrap_or_default()
+    }
+
+    fn get_align_items(&self, state: &mut State) -> AlignItems {
+        state.style.align_items.get(*self).cloned().unwrap_or_default()
     }
 
     // Flex Item

@@ -165,6 +165,11 @@ impl State {
         // Size
         self.style.width.remove_styles();
         self.style.height.remove_styles();
+        // Size Constraints
+        self.style.min_width.remove_styles();
+        self.style.max_width.remove_styles();
+        self.style.min_height.remove_styles();
+        self.style.max_height.remove_styles();
         // Margins
         self.style.margin_left.remove_styles();
         self.style.margin_right.remove_styles();

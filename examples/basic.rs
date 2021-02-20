@@ -12,29 +12,29 @@ fn main() {
             Err(e) => println!("Error loading stylesheet: {}", e),
         }
 
-        window.set_background_color(state, Color::rgb(255, 255, 255));
+        window.set_background_color(state, Color::rgb(255, 255, 255)).set_flex_direction(state, FlexDirection::Row);
 
         //window.set_flex_direction(state, FlexDirection::Row);
         // let levels = HBox::new().build(state, window, |builder| builder.set_width(Length::Pixels(50.0)).set_background_color(Color::red()));
 
         // let left_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
-
-        //let one = Element::new().build(state, window, |builder| builder.class("one"));
-        //let two = Element::new().build(state, one, |builder| builder.class("two"));
-        //let three = Element::new().build(state, one, |builder| builder.class("three"));
-        //let four = Element::new().build(state, one, |builder| builder.class("four"));
+        let container = Element::new().build(state, window, |builder| builder.class("container"));
+        let one = Element::new().build(state, container, |builder| builder.class("one"));
+        let two = Element::new().build(state, container, |builder| builder.class("two"));
+        let three = Element::new().build(state, container, |builder| builder.class("three"));
+        // let four = Element::new().build(state, one, |builder| builder.class("four"));
 
         //let test= Spinner::new(0).build(state, window, |builder| builder);
 
-        let (_, _, dropdown) = Dropdown::new("Dropdown").build(state, window, |builder| 
-            builder
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(30.0))
-        );
-        Item::new("Item 1", "Item 1").build(state, dropdown, |builder| builder);
-        Item::new("Item 2", "Item 2").build(state, dropdown, |builder| builder);
-        Item::new("Item 3", "Item 3").build(state, dropdown, |builder| builder);
+        // let (_, _, dropdown) = Dropdown::new("Dropdown").build(state, window, |builder| 
+        //     builder
+        //         .set_width(Length::Pixels(100.0))
+        //         .set_height(Length::Pixels(30.0))
+        // );
+        // Item::new("Item 1", "Item 1").build(state, dropdown, |builder| builder);
+        // Item::new("Item 2", "Item 2").build(state, dropdown, |builder| builder);
+        // Item::new("Item 3", "Item 3").build(state, dropdown, |builder| builder);
 
         // Checkbox::new(false)
         //     .build(state, footer, |builder| {

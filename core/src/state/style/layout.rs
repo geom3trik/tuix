@@ -26,6 +26,15 @@ impl Length {
         }
     }
 
+    pub fn get_value_or(&self, parent_length: f32, default: f32) -> f32 {
+        match self {
+            Length::Auto => default,
+            Length::Initial(value) => default,
+            Length::Pixels(value) => *value,
+            Length::Percentage(value) => *value * parent_length,
+        }
+    }
+
     // pub fn set_value(&mut self, value: f32) {
     //     match self {
     //         Length::Pixels(val) => {

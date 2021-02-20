@@ -46,7 +46,7 @@ fn main() {
         );
         //Tooltip::new("Tooltip").build(state, button, |builder| builder);
 
-        let panel = Panel::new("Buttons").build(state, rvbox, |builder| builder);
+        //let panel = Panel::new("Buttons").build(state, rvbox, |builder| builder);
         // let row = HBox::new().build(state, panel, |builder| builder);
         // Label::new("Checkbox").build(state, row, |builder| builder);
         // Checkbox::new(false).build(state, row, |builder| builder);

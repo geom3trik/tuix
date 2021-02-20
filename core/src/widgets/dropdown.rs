@@ -41,7 +41,7 @@ impl BuildHandler for Item {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            //.set_flex_grow(state, 1.0)
+            .set_flex_grow(state, 1.0)
             .set_text(state, &self.text)
             .class(state, "item");
 
