@@ -81,9 +81,16 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
         new_cross = state.data.get_child_sum(child);
     }
 
+
+
+    let child_position = child.get_position(state);
+
+
     // Add padding
     new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
     new_cross += child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
+
+    //println!("New Main: {}, New Cross: {}", new_main, new_cross);
 
     let (main, cross) = match parent_flex_direction {
         FlexDirection::Row | FlexDirection::RowReverse => (child.get_width(state), child.get_height(state)),
@@ -112,12 +119,14 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     if let Some(flex_basis) = state.style.flex_basis.get(child) {
         new_main = *flex_basis;
     }
+    
 
     let (min_main, max_main, min_cross, max_cross) = match parent_flex_direction {
         FlexDirection::Row | FlexDirection::RowReverse => (child_min_width, child_max_width, child_min_height, child_max_height),
         FlexDirection::Column | FlexDirection::ColumnReverse => (child_min_height, child_max_height, child_min_width, child_max_width),
     };
 
+    // Main and Cross should be at least as big as padding + border
     new_main = new_main.max(child_padding_main_before + child_padding_main_after + 2.0 * child_border_width);
     new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width);    
 
@@ -171,6 +180,12 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     let child_min_height = child.get_min_height(state).get_value_or(parent_height, 0.0);
     let child_max_height = child.get_max_height(state).get_value_or(parent_height, std::f32::INFINITY);
 
+
+    let (min_main, max_main, min_cross, max_cross) = match parent_flex_direction {
+        FlexDirection::Row | FlexDirection::RowReverse => (child_min_width, child_max_width, child_min_height, child_max_height),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (child_min_height, child_max_height, child_min_width, child_max_width),
+    };
+
     let child_flex_direction = child.get_flex_direction(state);
 
     let mut new_main;
@@ -189,57 +204,144 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
     new_cross += child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
 
-    let (main, cross) = match parent_flex_direction {
-        FlexDirection::Row | FlexDirection::RowReverse => (child.get_width(state), child.get_height(state)),
-        FlexDirection::Column | FlexDirection::ColumnReverse => (child.get_height(state), child.get_width(state)),
-    };
 
-    // A main specified in pixels overrides child sum
-    match main {
-        Length::Pixels(val) => {
-            new_main = val
+    let child_position = child.get_position(state);
+
+    match child_position {
+        Position::Relative => {
+            let (main, cross) = match parent_flex_direction {
+                FlexDirection::Row | FlexDirection::RowReverse => (child.get_width(state), child.get_height(state)),
+                FlexDirection::Column | FlexDirection::ColumnReverse => (child.get_height(state), child.get_width(state)),
+            };
+
+            // A main specified in pixels overrides child sum
+            match main {
+                Length::Pixels(val) => {
+                    new_main = val
+                }
+
+                Length::Percentage(val) => {
+                    new_main = parent_main * val
+                }
+
+                _=> {}
+            } 
+
+            // Flex basis overrides main
+            if let Some(flex_basis) = state.style.flex_basis.get(child) {
+                new_main = *flex_basis;
+            }
+
+
+
+            // Align stretch overrides child max
+            if let Some(child_align_self) = state.style.align_self.get(child) {
+                if *child_align_self == AlignSelf::Stretch {
+                    new_cross = parent_cross;
+                }
+            } else {
+                if parent_align_items == AlignItems::Stretch {
+                    new_cross = parent_cross;
+                }
+            }
+
+            // A cross specified in pixels overrides align stretch
+            match cross {
+                Length::Pixels(val) => {
+                    new_cross = val
+                }
+
+                Length::Percentage(val) => {
+                    new_cross = parent_cross * val
+                }
+
+                _=> {}
+            }            
         }
 
-        Length::Percentage(val) => {
-            new_main = parent_main * val
+        Position::Absolute => {
+            let (mut new_width, mut new_height) = match parent_flex_direction {
+                FlexDirection::Row | FlexDirection::RowReverse => (new_main, new_cross),
+
+                FlexDirection::Column | FlexDirection::ColumnReverse => (new_cross, new_main),
+            };
+
+            // let mut new_width = 0.0;
+            // let mut new_height = 0.0; 
+
+            let width = child.get_width(state);
+            let height = child.get_height(state);
+
+            let left = child.get_left(state);
+            let right = child.get_right(state);
+            let top = child.get_top(state);
+            let bottom = child.get_bottom(state);
+
+            let r = match right {
+                Length::Pixels(val) => val,
+                Length::Percentage(val) => val * parent_width,
+                Length::Initial(val) => val,
+                Length::Auto => 0.0,
+            };
+
+            let l = match left {
+                Length::Pixels(val) => val,
+                Length::Percentage(val) => val * parent_width,
+                Length::Initial(val) => val,
+                Length::Auto => 0.0,
+            };
+
+            if !right.is_auto() && !left.is_auto() {
+                new_width = parent_width - l - r;
+            }
+
+            let b = match bottom {
+                Length::Pixels(val) => val,
+                Length::Percentage(val) => val * parent_height,
+                Length::Initial(val) => val,
+                Length::Auto => 0.0,
+            };
+
+            let t = match top {
+                Length::Pixels(val) => val,
+                Length::Percentage(val) => val * parent_height,
+                Length::Initial(val) => val,
+                Length::Auto => 0.0,
+            };
+
+            if !bottom.is_auto() && !top.is_auto() {
+                new_height = parent_height - t - b;
+            }
+
+            match width {
+                Length::Auto => {}
+                Length::Pixels(val) => new_width = val,
+                Length::Initial(val) => new_width = val,
+                Length::Percentage(val) => new_width = val * parent_width,
+            }
+
+            match height {
+                Length::Auto => {}
+                Length::Pixels(val) => new_height = val,
+                Length::Initial(val) => new_height = val,
+                Length::Percentage(val) => new_height = val * parent_height,
+            }
+
+            match parent_flex_direction {
+                FlexDirection::Row | FlexDirection::RowReverse => {
+                    new_main = new_width;
+                    new_cross = new_height;
+                }
+
+                FlexDirection::Column | FlexDirection::ColumnReverse => {
+                    new_main = new_height;
+                    new_cross = new_width;
+                }
+            }
         }
-
-        _=> {}
-    } 
-
-    // Flex basis overrides main
-    if let Some(flex_basis) = state.style.flex_basis.get(child) {
-        new_main = *flex_basis;
     }
 
-    let (min_main, max_main, min_cross, max_cross) = match parent_flex_direction {
-        FlexDirection::Row | FlexDirection::RowReverse => (child_min_width, child_max_width, child_min_height, child_max_height),
-        FlexDirection::Column | FlexDirection::ColumnReverse => (child_min_height, child_max_height, child_min_width, child_max_width),
-    };
 
-    // Align stretch overrides child max
-    if let Some(child_align_self) = state.style.align_self.get(child) {
-        if *child_align_self == AlignSelf::Stretch {
-            new_cross = parent_cross;
-        }
-    } else {
-        if parent_align_items == AlignItems::Stretch {
-            new_cross = parent_cross;
-        }
-    }
-
-    // A cross specified in pixels overrides align stretch
-    match cross {
-        Length::Pixels(val) => {
-            new_cross = val
-        }
-
-        Length::Percentage(val) => {
-            new_cross = parent_cross * val
-        }
-
-        _=> {}
-    }
 
 
     new_main = new_main.max(child_padding_main_before + child_padding_main_after + 2.0 * child_border_width);
@@ -283,14 +385,15 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
         let parent = child.get_parent(state).unwrap();
-        
-        let (new_main, new_cross) = calculate_up(state, *child);
 
+        let (new_main, new_cross) = calculate_up(state, *child);
+    
         //println!("UP: {} -> new_main: {} new_cross: {}", child, new_main, new_cross);
 
         let child_position = child.get_position(state);
         match child_position {
             Position::Relative => {
+
                 state.data.set_child_sum(parent, state.data.get_child_sum(parent) + new_main);
 
                 let child_max = new_cross.max(state.data.get_child_max(parent));
@@ -351,14 +454,6 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         // Resize entities //
         /////////////////////
         for child in parent.child_iter(&hierarchy) {
-
-            let child_flex_grow = child.get_flex_grow(state);
-            flex_grow_sum += child_flex_grow;
-
-            let child_flex_shrink = child.get_flex_shrink(state);
-            flex_shrink_sum += child_flex_shrink;
-
-            num_of_children += 1;
             
             let (new_main, new_cross) = calculate_down(state, child);
 
@@ -376,12 +471,28 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 }
             }
 
-            main_sum += new_main;
+            let child_position = child.get_position(state);
+
+            match child_position {
+                Position::Relative => {
+                    let child_flex_grow = child.get_flex_grow(state);
+                    flex_grow_sum += child_flex_grow;
+
+                    let child_flex_shrink = child.get_flex_shrink(state);
+                    flex_shrink_sum += child_flex_shrink;
+
+                    num_of_children += 1;
+                    main_sum += new_main;
+                }
+
+                _=> {}
+            } 
+
+
         }
 
         let mut free_space = parent_main - parent_padding_main_before - parent_padding_main_after - 2.0 * parent_border_width - main_sum;
         //println!("Entity: {}  free_space: {}", parent, free_space);
-
         
         // Positive free space so flexible entities can grow to fill
         if free_space > 0.0 && flex_grow_sum > 0.0 {
@@ -414,56 +525,64 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             //////////////////////////////
             for child in flexible_children.iter() {
 
-                //println!("Flexible Child: {}", child);
+                let child_position = child.get_position(state);
 
-                // Child size constraints
-                let child_min_width = match child.get_min_width(state) {
-                    Length::Pixels(val) => val,
-                    _=> 0.0,
-                };
-                let child_max_width = match child.get_max_width(state) {
-                    Length::Pixels(val) => val,
-                    _ => std::f32::INFINITY,
-                };
-                let child_min_height = match child.get_min_height(state) {
-                    Length::Pixels(val) => val,
-                    _=> 0.0,
-                };
-                let child_max_height = match child.get_max_height(state) {
-                    Length::Pixels(val) => val,
-                    _ => std::f32::INFINITY,
-                };
+                match child_position {
+                    Position::Relative => {
+                        //println!("Flexible Child: {}", child);
 
-                let child_flex_grow = child.get_flex_grow(state);
-                let space_per_flex = free_space * child_flex_grow / flex_grow_sum;
-                //println!("child: {} free_space: {} flex_grow: {} flex_grow_sum: {}", child, free_space, child_flex_grow, flex_grow_sum);
+                        // Child size constraints
+                        let child_min_width = match child.get_min_width(state) {
+                            Length::Pixels(val) => val,
+                            _=> 0.0,
+                        };
+                        let child_max_width = match child.get_max_width(state) {
+                            Length::Pixels(val) => val,
+                            _ => std::f32::INFINITY,
+                        };
+                        let child_min_height = match child.get_min_height(state) {
+                            Length::Pixels(val) => val,
+                            _=> 0.0,
+                        };
+                        let child_max_height = match child.get_max_height(state) {
+                            Length::Pixels(val) => val,
+                            _ => std::f32::INFINITY,
+                        };
 
-                match parent_flex_direction {
-                    FlexDirection::Row | FlexDirection::RowReverse => {
-                        let child_width = state.data.get_width(*child);
-                        let mut new_width = child_width + space_per_flex.round();
+                        let child_flex_grow = child.get_flex_grow(state);
+                        let space_per_flex = free_space * child_flex_grow / flex_grow_sum;
+                        //println!("child: {} free_space: {} flex_grow: {} flex_grow_sum: {}", child, free_space, child_flex_grow, flex_grow_sum);
 
-                        // Apply constraint (only max is needed because element is growing)
-                        new_width = new_width.min(child_max_width);
+                        match parent_flex_direction {
+                            FlexDirection::Row | FlexDirection::RowReverse => {
+                                let child_width = state.data.get_width(*child);
+                                let mut new_width = child_width + space_per_flex.round();
 
-                        free_space += child_width - new_width;
-                        flex_grow_sum -= child_flex_grow;
+                                // Apply constraint (only max is needed because element is growing)
+                                new_width = new_width.min(child_max_width);
 
-                        state.data.set_width(*child, new_width);
+                                free_space += child_width - new_width;
+                                flex_grow_sum -= child_flex_grow;
+
+                                state.data.set_width(*child, new_width);
+                            }
+            
+                            FlexDirection::Column | FlexDirection::ColumnReverse => {
+                                let child_height = state.data.get_height(*child);
+                                let mut new_height = child_height + space_per_flex.round();
+
+                                // Apply constraint (only max is needed because element is growing)
+                                new_height = new_height.min(child_max_height);
+
+                                free_space += child_height - new_height;
+                                flex_grow_sum -= child_flex_grow;
+
+                                state.data.set_height(*child, new_height);
+                            }
+                        }
                     }
-    
-                    FlexDirection::Column | FlexDirection::ColumnReverse => {
-                        let child_height = state.data.get_height(*child);
-                        let mut new_height = child_height + space_per_flex.round();
 
-                        // Apply constraint (only max is needed because element is growing)
-                        new_height = new_height.min(child_max_height);
-
-                        free_space += child_height - new_height;
-                        flex_grow_sum -= child_flex_grow;
-
-                        state.data.set_height(*child, new_height);
-                    }
+                    _=> {}
                 }
             }
         
@@ -615,7 +734,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             new_posx = parent_posx + parent_width
                                 - child_width
                                 - (val
-                                    * (parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width));
+                                    * parent_width);
                         }
 
                         _ => {}
@@ -629,7 +748,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                         Length::Percentage(val) => {
                             new_posx = parent_posx
                                 + (val
-                                    * (parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width));
+                                    * parent_width);
                         }
 
                         _ => {}
@@ -644,7 +763,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             new_posy = parent_posy + parent_height
                                 - child_height
                                 - (val
-                                    * (parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width));
+                                    * parent_height);
                         }
 
                         _ => {}
@@ -658,7 +777,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                         Length::Percentage(val) => {
                             new_posy = parent_posy
                                 + (val
-                                    * (parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width));
+                                    * parent_height);
                         }
 
                         _ => {}
