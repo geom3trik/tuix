@@ -63,25 +63,26 @@ switch {
     height: 20px;
     background-color: #646464;
     flex-direction: row;
-    padding-top: 2px;
+    padding: 2px;
+    /* padding-top: 2px;
     padding-bottom: 2px;
     padding-left: 2.5px;
-    padding-right: 2.5px;
+    padding-right: 2.5px; */
     transition: background-color 0.1 0.0;
-    border-radius: 11px;
+    border-radius: 9.5px;
 }
 
 switch>.front {
-    left: 0px;
-    width: 20px;
+    left: 0%;
+    width: 50%;
     background-color: white;
     transition: left 0.1 0.0;
-    border-radius: 10;
+    border-radius: 7.5px;
 }
 
 
 switch:checked>.front {
-    left: 16.5px;
+    left: 50%;
     transition: left 0.1 0.0;
 }
 
@@ -113,24 +114,24 @@ spinner>textbox {
     border-bottom-left-radius: 3;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    margin: 0px;
-    margin-right: -1;
+    /* margin: 0px;
+    margin-right: -1; */
     text-align: center;
     text-justify: center;
-    height: 28px;
-    width: 78px;
+    /* height: 28px; */
+    /* width: 78px; */
 }
 
 spinner>.arrow_container {
     border-width: 1px;
     border-color: black;
-    border-top-right-radius: 3;
-    border-bottom-right-radius: 3;
+    /* border-top-right-radius: 3;
+    border-bottom-right-radius: 3; */
 }
 
 textbox {
     flex-grow: 1.0;
-    height: 28px;
+    height: 30px;
     color: black;
     border-width: 1px;
     border-color: black;
@@ -140,7 +141,7 @@ textbox {
 
 dropdown {
     flex-grow: 1.0;
-    height: 28px;
+    height: 30px;
     color: black;
     border-width: 1px;
     border-color: black;

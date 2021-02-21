@@ -1183,6 +1183,7 @@ pub trait PropGet {
     // Flex Item
     fn get_flex_grow(&self, state: &mut State) -> f32;
     fn get_flex_shrink(&self, state: &mut State) -> f32;
+    fn get_align_self(&self, state: &mut State) -> AlignSelf;
 }
 
 impl PropGet for Entity {
@@ -1370,5 +1371,9 @@ impl PropGet for Entity {
 
     fn get_flex_shrink(&self, state: &mut State) -> f32 {
         state.style.flex_shrink.get(*self).cloned().unwrap_or_default()
+    }
+
+    fn get_align_self(&self, state: &mut State) -> AlignSelf {
+        state.style.align_self.get(*self).cloned().unwrap_or_default()
     }
 }

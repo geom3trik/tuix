@@ -39,6 +39,8 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     let child_padding_top = child.get_padding_top(state).get_value(0.0);
     let child_padding_bottom = child.get_padding_bottom(state).get_value(0.0);
 
+    let child_border_width = child.get_border_width(state).get_value(0.0);
+
     let (child_padding_main_before, child_padding_main_after, child_padding_cross_before, child_padding_cross_after) = match parent_flex_direction {
         FlexDirection::Row | FlexDirection::RowReverse => (child_padding_left, child_padding_right, child_padding_top, child_padding_bottom),
         FlexDirection::Column | FlexDirection::ColumnReverse => (child_padding_top, child_padding_bottom, child_padding_left, child_padding_right),
@@ -80,8 +82,8 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     }
 
     // Add padding
-    new_main += child_padding_main_before + child_padding_main_after;
-    new_cross += child_padding_cross_before + child_padding_cross_after;
+    new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
+    new_cross += child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
 
     let (main, cross) = match parent_flex_direction {
         FlexDirection::Row | FlexDirection::RowReverse => (child.get_width(state), child.get_height(state)),
@@ -116,8 +118,8 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
         FlexDirection::Column | FlexDirection::ColumnReverse => (child_min_height, child_max_height, child_min_width, child_max_width),
     };
 
-    new_main = new_main.max(child_padding_main_before + child_padding_main_after);
-    new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after);    
+    new_main = new_main.max(child_padding_main_before + child_padding_main_after + 2.0 * child_border_width);
+    new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width);    
 
     // Apply size constraints
     new_main = new_main.clamp(min_main, max_main);
@@ -136,9 +138,17 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     let parent_width = state.data.get_width(parent);
     let parent_height = state.data.get_height(parent);
 
+    // It shoudl probably be grand-parent width and height
+    let parent_padding_left = parent.get_padding_left(state).get_value(parent_width);
+    let parent_padding_right = parent.get_padding_right(state).get_value(parent_width);
+    let parent_padding_top = parent.get_padding_top(state).get_value(parent_height);
+    let parent_padding_bottom = parent.get_padding_bottom(state).get_value(parent_height);
+
+    let parent_border_width = parent.get_border_width(state).get_value(parent_width);
+
     let (parent_main, parent_cross) = match parent_flex_direction {
-        FlexDirection::Row | FlexDirection::RowReverse => (parent_width, parent_height),
-        FlexDirection::Column | FlexDirection::ColumnReverse => (parent_height, parent_width),
+        FlexDirection::Row | FlexDirection::RowReverse => (parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width, parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width, parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width),
     };
 
     // Child padding
@@ -151,6 +161,9 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
         FlexDirection::Row | FlexDirection::RowReverse => (child_padding_left, child_padding_right, child_padding_top, child_padding_bottom),
         FlexDirection::Column | FlexDirection::ColumnReverse => (child_padding_top, child_padding_bottom, child_padding_left, child_padding_right),
     };
+
+
+    let child_border_width = child.get_border_width(state).get_value(parent_width);
 
     // Child size constraints
     let child_min_width = child.get_min_width(state).get_value_or(parent_width, 0.0);
@@ -173,8 +186,8 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
 
     
     // Add padding
-    new_main += child_padding_main_before + child_padding_main_after;
-    new_cross += child_padding_cross_before + child_padding_cross_after;
+    new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
+    new_cross += child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
 
     let (main, cross) = match parent_flex_direction {
         FlexDirection::Row | FlexDirection::RowReverse => (child.get_width(state), child.get_height(state)),
@@ -229,8 +242,8 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     }
 
 
-    new_main = new_main.max(child_padding_main_before + child_padding_main_after);
-    new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after);    
+    new_main = new_main.max(child_padding_main_before + child_padding_main_after + 2.0 * child_border_width);
+    new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after * 2.0 * child_border_width);    
 
 
     // Apply size constraints
@@ -295,9 +308,15 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_flex_direction = parent.get_flex_direction(state);
 
+
+        let parent_posx = state.data.get_posx(*parent);
+        let parent_posy = state.data.get_posy(*parent);
+        let parent_width = state.data.get_width(*parent);
+        let parent_height = state.data.get_height(*parent);
+
         let (parent_main, parent_cross) = match parent_flex_direction {
-            FlexDirection::Row | FlexDirection::RowReverse => (state.data.get_width(*parent), state.data.get_height(*parent)),
-            FlexDirection::Column | FlexDirection::ColumnReverse => (state.data.get_height(*parent), state.data.get_width(*parent)),
+            FlexDirection::Row | FlexDirection::RowReverse => (parent_width, parent_height),
+            FlexDirection::Column | FlexDirection::ColumnReverse => (parent_height, parent_width),
         };
 
         let (parent_pos_main, parent_pos_cross) = match parent_flex_direction {
@@ -320,6 +339,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             FlexDirection::Row | FlexDirection::RowReverse => (parent_padding_left, parent_padding_right, parent_padding_top, parent_padding_bottom),
             FlexDirection::Column | FlexDirection::ColumnReverse => (parent_padding_top, parent_padding_bottom, parent_padding_left, parent_padding_right),
         };
+
+        let parent_border_width = parent.get_border_width(state).get_value(parent_width);
 
         let mut main_sum = 0.0;
         let mut flex_grow_sum = 0.0;
@@ -358,7 +379,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             main_sum += new_main;
         }
 
-        let mut free_space = parent_main - parent_padding_main_before - parent_padding_main_after - main_sum;
+        let mut free_space = parent_main - parent_padding_main_before - parent_padding_main_after - 2.0 * parent_border_width - main_sum;
         //println!("Entity: {}  free_space: {}", parent, free_space);
 
         
@@ -498,39 +519,176 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             let child_width = state.data.get_width(child);
             let child_height = state.data.get_height(child);
 
-            let (child_main, child_cross) = match parent_flex_direction {
-                FlexDirection::Row | FlexDirection::RowReverse => (child_width, child_height),
-                FlexDirection::Column | FlexDirection::ColumnReverse => (child_height, child_width),
-            };
+            let left = child.get_left(state);
+            let right = child.get_right(state);
+            let top = child.get_top(state);
+            let bottom = child.get_bottom(state);
 
-            let main_pos = parent_pos_main + current_pos;
-            current_pos += child_main + space_per_element;
+            let position = child.get_position(state);
 
-            let cross_pos = parent_pos_cross + match parent_align_items {
-                AlignItems::FlexStart => 0.0,
-                AlignItems::FlexEnd => parent_cross - parent_padding_cross_before - parent_padding_cross_after - child_cross,
-                AlignItems::Center => (parent_cross  - parent_padding_cross_before - parent_padding_cross_after - child_cross) / 2.0,
-                AlignItems::Stretch => 0.0,
-            };            
+            let mut new_posx = 0.0;
+            let mut new_posy = 0.0;
 
-            match parent_flex_direction {
-                FlexDirection::Row | FlexDirection::RowReverse => {
-                    state.data.set_posx(child, parent_padding_left + main_pos);
-                    state.data.set_posy(child, parent_padding_top + cross_pos);
+            match position {
+                Position::Relative => {
+                    let (child_main, child_cross) = match parent_flex_direction {
+                        FlexDirection::Row | FlexDirection::RowReverse => (child_width, child_height),
+                        FlexDirection::Column | FlexDirection::ColumnReverse => (child_height, child_width),
+                    };
+
+                    let main_pos = parent_pos_main + current_pos;
+                    current_pos += child_main + space_per_element;
+
+                    let mut cross_pos = parent_pos_cross + match parent_align_items {
+                        AlignItems::FlexStart => 0.0,
+                        AlignItems::FlexEnd => parent_cross - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross,
+                        AlignItems::Center => (parent_cross  - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross) / 2.0,
+                        AlignItems::Stretch => 0.0,
+                    };
+
+                    // align-self overrides align-items
+                    if let Some(align_self) = state.style.align_self.get(child) {
+                        match align_self {
+                            AlignSelf::FlexStart => cross_pos = 0.0,
+                            AlignSelf::FlexEnd => cross_pos = parent_cross - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross,
+                            AlignSelf::Center => cross_pos = (parent_cross  - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross) / 2.0,
+                            AlignSelf::Stretch => cross_pos = 0.0,
+                        }
+                    }
+
+
+
+                    match parent_flex_direction {
+                        FlexDirection::Row | FlexDirection::RowReverse => {
+                            new_posx = parent_padding_left + parent_border_width + main_pos;
+                            new_posy = parent_padding_top + parent_border_width + cross_pos;
+                            //state.data.set_posx(child, parent_padding_left + main_pos);
+                            //state.data.set_posy(child, parent_padding_top + cross_pos);
+                            
+                        }
+
+                        FlexDirection::Column | FlexDirection::ColumnReverse => {
+                            new_posy = parent_padding_top + parent_border_width + main_pos;
+                            new_posx = parent_padding_left + parent_border_width + cross_pos;
+                            //state.data.set_posy(child, parent_padding_top + main_pos);
+                            //state.data.set_posx(child, parent_padding_left + cross_pos);
+                        }
+                    }  
+                    
+                    match left {
+                        Length::Pixels(val) => {
+                            new_posx += val;
+                        }
+
+                        Length::Percentage(val) => {
+                            new_posx += val * (parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width);
+                        }
+
+                        _ => {}
+                    }
+
+                    match top {
+                        Length::Pixels(val) => {
+                            new_posy += val;
+                        }
+
+                        Length::Percentage(val) => {
+                            new_posy += val * (parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width);
+                        }
+
+                        _ => {}
+                    }
                     
                 }
 
-                FlexDirection::Column | FlexDirection::ColumnReverse => {
-                    state.data.set_posy(child, parent_padding_top + main_pos);
-                    state.data.set_posx(child, parent_padding_left + cross_pos);
+                Position::Absolute => {
+
+                    new_posx = parent_posx;
+                    new_posy = parent_posy;
+
+                    match right {
+                        Length::Pixels(val) => {
+                            new_posx = parent_posx + parent_width - child_width - val;
+                        }
+
+                        Length::Percentage(val) => {
+                            new_posx = parent_posx + parent_width
+                                - child_width
+                                - (val
+                                    * (parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width));
+                        }
+
+                        _ => {}
+                    }
+
+                    match left {
+                        Length::Pixels(val) => {
+                            new_posx = parent_posx + val;
+                        }
+
+                        Length::Percentage(val) => {
+                            new_posx = parent_posx
+                                + (val
+                                    * (parent_width - parent_padding_left - parent_padding_right - 2.0 * parent_border_width));
+                        }
+
+                        _ => {}
+                    }
+
+                    match bottom {
+                        Length::Pixels(val) => {
+                            new_posy = parent_posy + parent_height - child_height - val;
+                        }
+
+                        Length::Percentage(val) => {
+                            new_posy = parent_posy + parent_height
+                                - child_height
+                                - (val
+                                    * (parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width));
+                        }
+
+                        _ => {}
+                    }
+
+                    match top {
+                        Length::Pixels(val) => {
+                            new_posy = parent_posy + val;
+                        }
+
+                        Length::Percentage(val) => {
+                            new_posy = parent_posy
+                                + (val
+                                    * (parent_height - parent_padding_top - parent_padding_bottom - 2.0 * parent_border_width));
+                        }
+
+                        _ => {}
+                    }
                 }
+            }
+
+            let mut geometry_changed = GeometryChanged::default();
+
+            if state.data.get_posx(child) != new_posx {
+                state.data.set_posx(child, new_posx);
+                //should_continue = true;
+                geometry_changed.posx = true;
+            }
+
+            if state.data.get_posy(child) != new_posy {
+                state.data.set_posy(child, new_posy);
+                //should_continue = true;
+                geometry_changed.posy = true;
+            }
+
+            if geometry_changed.posx || geometry_changed.posy {
+                state.insert_event(
+                    Event::new(WindowEvent::GeometryChanged(geometry_changed))
+                        .target(child)
+                        .propagate(Propagation::Down),
+                );                    
             }
         }
     }
-}
-
-fn position_child(state: &mut State, child: Entity) {
-
 }
 
 /* 
