@@ -19,7 +19,7 @@ button:hover {
 panel>.container1>.container2>hbox {
     padding: 10px;
     align-items: center;
-    background-color: #ffffff;
+    /* background-color: #ffffff; */
 }
 
 panel>.container1 {
@@ -38,7 +38,7 @@ panel .container2>hbox>label {
     padding-left: 5px;
 }
 
-/*
+
 
 checkbox {
     width: 20px;
@@ -56,6 +56,7 @@ checkbox:checked {
     color: white;
     transition: background-color 0.1 0.0;
 }
+
 
 switch {
     width: 36px;
@@ -272,4 +273,4 @@ tooltip {
 button:hover>tooltip {
     opacity: 1.0;
     transition: opacity 0.1 0.5;
-} */
+}

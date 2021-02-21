@@ -30,6 +30,21 @@ pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
 fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
     let parent = child.get_parent(state).unwrap();
+
+    let parent_flex_direction = parent.get_flex_direction(state);
+
+    // Child padding
+    let child_padding_left = child.get_padding_left(state).get_value(0.0);
+    let child_padding_right = child.get_padding_right(state).get_value(0.0);
+    let child_padding_top = child.get_padding_top(state).get_value(0.0);
+    let child_padding_bottom = child.get_padding_bottom(state).get_value(0.0);
+
+    let (child_padding_main_before, child_padding_main_after, child_padding_cross_before, child_padding_cross_after) = match parent_flex_direction {
+        FlexDirection::Row | FlexDirection::RowReverse => (child_padding_left, child_padding_right, child_padding_top, child_padding_bottom),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (child_padding_top, child_padding_bottom, child_padding_left, child_padding_right),
+    };
+
+    //println!("child: {}  ppmb: {} ppma: {} ppcb: {}, ppca: {}", child, child_padding_main_before, child_padding_main_after, child_padding_cross_before, child_padding_cross_after);
         
     // Child size constraints
     let child_min_width = match child.get_min_width(state) {
@@ -50,7 +65,7 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     };
 
 
-    let parent_flex_direction = parent.get_flex_direction(state);
+    
     let child_flex_direction = child.get_flex_direction(state);
 
     let mut new_main;
@@ -58,11 +73,15 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
 
     if child_flex_direction == parent_flex_direction {
         new_main = state.data.get_child_sum(child);
-        new_cross = state.data.get_child_max(child);            
+        new_cross = state.data.get_child_max(child);
     } else {
         new_main = state.data.get_child_max(child);
         new_cross = state.data.get_child_sum(child);
     }
+
+    // Add padding
+    new_main += child_padding_main_before + child_padding_main_after;
+    new_cross += child_padding_cross_before + child_padding_cross_after;
 
     let (main, cross) = match parent_flex_direction {
         FlexDirection::Row | FlexDirection::RowReverse => (child.get_width(state), child.get_height(state)),
@@ -97,6 +116,9 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
         FlexDirection::Column | FlexDirection::ColumnReverse => (child_min_height, child_max_height, child_min_width, child_max_width),
     };
 
+    new_main = new_main.max(child_padding_main_before + child_padding_main_after);
+    new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after);    
+
     // Apply size constraints
     new_main = new_main.clamp(min_main, max_main);
     new_cross = new_cross.clamp(min_cross, max_cross);
@@ -118,7 +140,18 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
         FlexDirection::Row | FlexDirection::RowReverse => (parent_width, parent_height),
         FlexDirection::Column | FlexDirection::ColumnReverse => (parent_height, parent_width),
     };
-        
+
+    // Child padding
+    let child_padding_left = child.get_padding_left(state).get_value(parent_width);
+    let child_padding_right = child.get_padding_right(state).get_value(parent_width);
+    let child_padding_top = child.get_padding_top(state).get_value(parent_height);
+    let child_padding_bottom = child.get_padding_bottom(state).get_value(parent_height);
+
+    let (child_padding_main_before, child_padding_main_after, child_padding_cross_before, child_padding_cross_after) = match parent_flex_direction {
+        FlexDirection::Row | FlexDirection::RowReverse => (child_padding_left, child_padding_right, child_padding_top, child_padding_bottom),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (child_padding_top, child_padding_bottom, child_padding_left, child_padding_right),
+    };
+
     // Child size constraints
     let child_min_width = child.get_min_width(state).get_value_or(parent_width, 0.0);
     let child_max_width = child.get_max_width(state).get_value_or(parent_width, std::f32::INFINITY);
@@ -137,6 +170,11 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
         new_main = state.data.get_child_max(child);
         new_cross = state.data.get_child_sum(child);
     }
+
+    
+    // Add padding
+    new_main += child_padding_main_before + child_padding_main_after;
+    new_cross += child_padding_cross_before + child_padding_cross_after;
 
     let (main, cross) = match parent_flex_direction {
         FlexDirection::Row | FlexDirection::RowReverse => (child.get_width(state), child.get_height(state)),
@@ -190,6 +228,11 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
         _=> {}
     }
 
+
+    new_main = new_main.max(child_padding_main_before + child_padding_main_after);
+    new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after);    
+
+
     // Apply size constraints
     new_main = new_main.clamp(min_main, max_main);
     new_cross = new_cross.clamp(min_cross, max_cross);
@@ -198,7 +241,7 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
 }
 
 pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
-    println!("RELAYOUT");
+    //println!("RELAYOUT");
     
     let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
 
@@ -230,7 +273,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         
         let (new_main, new_cross) = calculate_up(state, *child);
 
-        //println!("UP -> new_main: {} new_cross: {}", new_main, new_cross);
+        //println!("UP: {} -> new_main: {} new_cross: {}", child, new_main, new_cross);
 
         let child_position = child.get_position(state);
         match child_position {
@@ -262,6 +305,22 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             FlexDirection::Column | FlexDirection::ColumnReverse => (state.data.get_posy(*parent), state.data.get_posx(*parent)),
         };
 
+        //let grand_parent = parent.get_parent(state).unwrap();
+
+        //let grand_parent_width = state.data.get_width(grand_parent);
+        //let grand_parent_height = state.data.get_height(grand_parent);
+
+        // Parent padding
+        let parent_padding_left = parent.get_padding_left(state).get_value(0.0);
+        let parent_padding_right = parent.get_padding_right(state).get_value(0.0);
+        let parent_padding_top = parent.get_padding_top(state).get_value(0.0);
+        let parent_padding_bottom = parent.get_padding_bottom(state).get_value(0.0);
+
+        let (parent_padding_main_before, parent_padding_main_after, parent_padding_cross_before, parent_padding_cross_after) = match parent_flex_direction {
+            FlexDirection::Row | FlexDirection::RowReverse => (parent_padding_left, parent_padding_right, parent_padding_top, parent_padding_bottom),
+            FlexDirection::Column | FlexDirection::ColumnReverse => (parent_padding_top, parent_padding_bottom, parent_padding_left, parent_padding_right),
+        };
+
         let mut main_sum = 0.0;
         let mut flex_grow_sum = 0.0;
         let mut flex_shrink_sum = 0.0;
@@ -282,7 +341,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             
             let (new_main, new_cross) = calculate_down(state, child);
 
-            //println!("DOWN -> new_main: {} new_cross: {}", new_main, new_cross);
+            //println!("DOWN: {} -> new_main: {} new_cross: {}", child, new_main, new_cross);
 
             match parent_flex_direction {
                 FlexDirection::Row | FlexDirection::RowReverse => {
@@ -299,9 +358,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             main_sum += new_main;
         }
 
-        let mut free_space = parent_main - main_sum;
+        let mut free_space = parent_main - parent_padding_main_before - parent_padding_main_after - main_sum;
         //println!("Entity: {}  free_space: {}", parent, free_space);
 
+        
         // Positive free space so flexible entities can grow to fill
         if free_space > 0.0 && flex_grow_sum > 0.0 {
             // Filter to keep only flexible children
@@ -391,7 +451,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
 
         }
-
+        
         
 
         ///////////////////////
@@ -429,6 +489,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             _ => {}
         }
 
+        
+
 
         
         for child in children.into_iter() {
@@ -446,21 +508,21 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let cross_pos = parent_pos_cross + match parent_align_items {
                 AlignItems::FlexStart => 0.0,
-                AlignItems::FlexEnd => parent_cross - child_cross,
-                AlignItems::Center => (parent_cross - child_cross) / 2.0,
+                AlignItems::FlexEnd => parent_cross - parent_padding_cross_before - parent_padding_cross_after - child_cross,
+                AlignItems::Center => (parent_cross  - parent_padding_cross_before - parent_padding_cross_after - child_cross) / 2.0,
                 AlignItems::Stretch => 0.0,
             };            
 
             match parent_flex_direction {
                 FlexDirection::Row | FlexDirection::RowReverse => {
-                    state.data.set_posx(child, main_pos);
-                    state.data.set_posy(child, cross_pos);
+                    state.data.set_posx(child, parent_padding_left + main_pos);
+                    state.data.set_posy(child, parent_padding_top + cross_pos);
                     
                 }
 
                 FlexDirection::Column | FlexDirection::ColumnReverse => {
-                    state.data.set_posy(child, main_pos);
-                    state.data.set_posx(child, cross_pos);
+                    state.data.set_posy(child, parent_padding_top + main_pos);
+                    state.data.set_posx(child, parent_padding_left + cross_pos);
                 }
             }
         }

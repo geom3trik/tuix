@@ -6,15 +6,17 @@
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
+  padding-top: 20px;
 }
 
 .one {
   width: 300px;
   /* flex-basis: 200px; */
-  height: 200px;
+  /* height: 200px; */
+  padding-top: 20px;
   background-color: red;
   /* max-width: 100px; */
-  flex-grow: 1.0;
+  /* flex-grow: 1.0; */
   /* max-height: 50px; */
   /* margin: 10px; */
   /* padding: 10px; */
@@ -26,7 +28,7 @@
 .two {
   width: 40px;
   height: 80px;
-  flex-grow: 1.0;
+  /* flex-grow: 1.0; */
   /* max-width: 100px; */
   /* max-height: 50px; */
   background-color: green;
@@ -34,7 +36,7 @@
 }
 
 .three {
-  width: 20px;
+  width: 40px;
   height: 40px;
   flex-grow: 1.0;
   min-width: 80px;
