@@ -115,24 +115,28 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
         _=> {}
     }
 
+    let child_flex_basis = child.get_flex_basis(state);
+
     // Flex basis overrides main
-    if let Some(flex_basis) = state.style.flex_basis.get(child) {
-        new_main = *flex_basis;
+    match child_flex_basis {
+        Length::Pixels(val) => new_main = val,
+        _=> {}
     }
-    
 
     let (min_main, max_main, min_cross, max_cross) = match parent_flex_direction {
         FlexDirection::Row | FlexDirection::RowReverse => (child_min_width, child_max_width, child_min_height, child_max_height),
         FlexDirection::Column | FlexDirection::ColumnReverse => (child_min_height, child_max_height, child_min_width, child_max_width),
     };
 
+    // Apply size constraints
+    new_main = new_main.clamp(min_main, max_main);
+    new_cross = new_cross.clamp(min_cross, max_cross);    
+
     // Main and Cross should be at least as big as padding + border
     new_main = new_main.max(child_padding_main_before + child_padding_main_after + 2.0 * child_border_width);
     new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width);    
 
-    // Apply size constraints
-    new_main = new_main.clamp(min_main, max_main);
-    new_cross = new_cross.clamp(min_cross, max_cross);
+
 
     (new_main, new_cross)
 }
@@ -227,10 +231,15 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
                 _=> {}
             } 
 
+            let child_flex_basis = child.get_flex_basis(state);
+
             // Flex basis overrides main
-            if let Some(flex_basis) = state.style.flex_basis.get(child) {
-                new_main = *flex_basis;
+            match child_flex_basis {
+                Length::Pixels(val) => new_main = val,
+                Length::Percentage(val) => new_main = parent_main * val,
+                _=> {}
             }
+        
 
 
 
@@ -341,16 +350,14 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
         }
     }
 
-
-
-
-    new_main = new_main.max(child_padding_main_before + child_padding_main_after + 2.0 * child_border_width);
-    new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after * 2.0 * child_border_width);    
-
-
     // Apply size constraints
     new_main = new_main.clamp(min_main, max_main);
     new_cross = new_cross.clamp(min_cross, max_cross);
+
+
+    new_main = new_main.max(child_padding_main_before + child_padding_main_after + 2.0 * child_border_width);
+    new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width);    
+
 
     (new_main, new_cross)
 }
@@ -386,7 +393,21 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
         let parent = child.get_parent(state).unwrap();
 
-        let (new_main, new_cross) = calculate_up(state, *child);
+        let parent_flex_direction = parent.get_flex_direction(state);
+
+        let child_margin_left = child.get_margin_left(state).get_value(0.0);
+        let child_margin_right = child.get_margin_right(state).get_value(0.0);
+        let child_margin_top = child.get_margin_top(state).get_value(0.0);
+        let child_margin_bottom = child.get_margin_bottom(state).get_value(0.0);
+
+        let (child_margin_main_before, child_margin_main_after, child_margin_cross_before, child_margin_cross_after) = match parent_flex_direction {
+            FlexDirection::Row | FlexDirection::RowReverse => (child_margin_left, child_margin_right, child_margin_top, child_margin_bottom),
+            FlexDirection::Column | FlexDirection::ColumnReverse => (child_margin_top, child_margin_bottom, child_margin_left, child_margin_right),
+        };
+
+
+
+        let (mut new_main, mut new_cross) = calculate_up(state, *child);
     
         //println!("UP: {} -> new_main: {} new_cross: {}", child, new_main, new_cross);
 
@@ -394,8 +415,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         match child_position {
             Position::Relative => {
 
+                new_main += child_margin_main_before + child_margin_main_after;
                 state.data.set_child_sum(parent, state.data.get_child_sum(parent) + new_main);
 
+                new_cross += child_margin_cross_before + child_margin_cross_after;
                 let child_max = new_cross.max(state.data.get_child_max(parent));
                 state.data.set_child_max(parent,child_max);
             }
@@ -471,6 +494,16 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 }
             }
 
+            let child_margin_left = child.get_margin_left(state).get_value(0.0);
+            let child_margin_right = child.get_margin_right(state).get_value(0.0);
+            let child_margin_top = child.get_margin_top(state).get_value(0.0);
+            let child_margin_bottom = child.get_margin_bottom(state).get_value(0.0);
+    
+            let (child_margin_main_before, child_margin_main_after, child_margin_cross_before, child_margin_cross_after) = match parent_flex_direction {
+                FlexDirection::Row | FlexDirection::RowReverse => (child_margin_left, child_margin_right, child_margin_top, child_margin_bottom),
+                FlexDirection::Column | FlexDirection::ColumnReverse => (child_margin_top, child_margin_bottom, child_margin_left, child_margin_right),
+            };
+
             let child_position = child.get_position(state);
 
             match child_position {
@@ -482,7 +515,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     flex_shrink_sum += child_flex_shrink;
 
                     num_of_children += 1;
-                    main_sum += new_main;
+                    main_sum += new_main + child_margin_main_before + child_margin_main_after;
                 }
 
                 _=> {}
@@ -643,6 +676,16 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             let top = child.get_top(state);
             let bottom = child.get_bottom(state);
 
+            let child_margin_left = child.get_margin_left(state).get_value(0.0);
+            let child_margin_right = child.get_margin_right(state).get_value(0.0);
+            let child_margin_top = child.get_margin_top(state).get_value(0.0);
+            let child_margin_bottom = child.get_margin_bottom(state).get_value(0.0);
+    
+            let (child_margin_main_before, child_margin_main_after, child_margin_cross_before, child_margin_cross_after) = match parent_flex_direction {
+                FlexDirection::Row | FlexDirection::RowReverse => (child_margin_left, child_margin_right, child_margin_top, child_margin_bottom),
+                FlexDirection::Column | FlexDirection::ColumnReverse => (child_margin_top, child_margin_bottom, child_margin_left, child_margin_right),
+            };
+
             let position = child.get_position(state);
 
             let mut new_posx = 0.0;
@@ -656,12 +699,12 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     };
 
                     let main_pos = parent_pos_main + current_pos;
-                    current_pos += child_main + space_per_element;
+                    current_pos += child_main + space_per_element + child_margin_main_before + child_margin_main_after;
 
                     let mut cross_pos = parent_pos_cross + match parent_align_items {
                         AlignItems::FlexStart => 0.0,
-                        AlignItems::FlexEnd => parent_cross - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross,
-                        AlignItems::Center => (parent_cross  - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross) / 2.0,
+                        AlignItems::FlexEnd => parent_cross - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross - child_margin_cross_before - child_margin_cross_after,
+                        AlignItems::Center => (parent_cross  - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross - child_margin_cross_before - child_margin_cross_after) / 2.0,
                         AlignItems::Stretch => 0.0,
                     };
 
@@ -717,6 +760,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                         _ => {}
                     }
+
+                    new_posx += child_margin_left;
+                    new_posy += child_margin_top;
                     
                 }
 

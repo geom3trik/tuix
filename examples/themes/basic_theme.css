@@ -10,34 +10,36 @@
 } */
 
 .one {
-  position: absolute;
   width: 300px;
   /* flex-basis: 200px; */
-  /* height: 200px; */
-  padding-top: 20px;
+  /* height: 100px; */
   background-color: red;
   /* max-width: 100px; */
   /* flex-grow: 1.0; */
-  /* max-height: 50px; */
   /* margin: 10px; */
   /* padding: 10px; */
-  /* border-color: black; */
-  /* border-width: 10px; */
-  flex-direction: column;
+  border-color: black;
+  border-width: 0px;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 20px;
 }
 
 .two {
   width: 40px;
   height: 80px;
+  margin: 20px;
   /* flex-grow: 1.0; */
   /* max-width: 100px; */
   /* max-height: 50px; */
   background-color: green;
   flex-direction: column;
+  padding: 10px;
+  border-color: black;
+  border-width: 10px;
 }
 
 .three {
-  width: 40px;
   height: 40px;
   flex-grow: 1.0;
   /* min-width: 80px; */
@@ -52,6 +54,7 @@
   height: 50px;
   background-color: yellow;
   flex-grow: 1.0;
+  margin-right: 20px;
 }
 
 .test {

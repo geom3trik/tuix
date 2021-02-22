@@ -129,7 +129,7 @@ impl BuildHandler for TabContainer {
         self.tab_bar = TabBar::new().build(state, entity, |builder| {
             builder
                 .set_flex_direction(FlexDirection::Row)
-                .set_flex_basis(30.0)
+                .set_flex_basis(Length::Pixels(30.0))
                 .class("tab_bar")
         });
 

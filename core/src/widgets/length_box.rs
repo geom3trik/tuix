@@ -45,7 +45,7 @@ impl BuildHandler for LengthBox {
         self.unit = Dropdown::new("-")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(30.0)
+                    .set_flex_basis(Length::Pixels(30.0))
                     .set_text_justify(Justify::End)
                     .class("unit")
             })

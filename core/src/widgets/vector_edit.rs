@@ -190,7 +190,7 @@ where
         self.dims = Dropdown::new("4")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(30.0)
+                    .set_flex_basis(Length::Pixels(30.0))
                     .set_text_justify(Justify::End)
                     .set_margin_left(Length::Pixels(5.0))
                     .class("dim")

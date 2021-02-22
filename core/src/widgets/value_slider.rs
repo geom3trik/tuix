@@ -35,7 +35,7 @@ impl BuildHandler for ValueSlider {
         self.slider = ProgressBar::new().build(state, entity, |builder| builder.set_flex_grow(1.0));
         self.value = Textbox::new("0.5").build(state, entity, |builder| {
             builder
-                .set_flex_basis(50.0)
+                .set_flex_basis(Length::Pixels(50.0))
                 .set_margin_left(Length::Pixels(5.0))
         });
         self.label = Button::new().build(state, self.slider, |builder| {

@@ -139,7 +139,7 @@ pub struct Style {
     pub align_self: StyleStorage<AlignSelf>,
     pub flex_grow: AnimatableStorage<f32>,
     pub flex_shrink: AnimatableStorage<f32>,
-    pub flex_basis: AnimatableStorage<f32>,
+    pub flex_basis: AnimatableStorage<Length>,
 
     //pub grid_item: DenseStorage<GridItem>,
 

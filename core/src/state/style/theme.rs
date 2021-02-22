@@ -373,7 +373,7 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "align-self" => Property::AlignSelf(parse_align_self(input)?),
 
             // Flex Item
-            "flex-basis" => Property::FlexBasis(parse_length_or_percentage(input)?),
+            "flex-basis" => Property::FlexBasis(parse_length(input)?),
             "flex-grow" => Property::FlexGrow(parse_length_or_percentage(input)?),
             "flex-shrink" => Property::FlexShrink(parse_length_or_percentage(input)?),
 

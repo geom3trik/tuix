@@ -68,7 +68,7 @@ pub trait PropSet {
     // Flex Item
     fn set_flex_grow(self, state: &mut State, value: f32) -> Self;
     fn set_flex_shrink(self, state: &mut State, value: f32) -> Self;
-    fn set_flex_basis(self, state: &mut State, value: f32) -> Self;
+    fn set_flex_basis(self, state: &mut State, value: Length) -> Self;
     fn set_align_self(self, state: &mut State, value: AlignSelf) -> Self;
 
     // Positioning
@@ -562,7 +562,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_flex_basis(self, state: &mut State, value: f32) -> Self {
+    fn set_flex_basis(self, state: &mut State, value: Length) -> Self {
         state.style.flex_basis.insert(self, value);
 
         state.insert_event(
@@ -1176,7 +1176,7 @@ pub trait PropGet {
 
     // Flex Container
     fn get_flex_direction(&self, state: &mut State) -> FlexDirection;
-    fn get_flex_basis(&self, state: &mut State) -> f32;
+    fn get_flex_basis(&self, state: &mut State) -> Length;
     fn get_justify_content(&self, state: &mut State) -> JustifyContent;
     fn get_align_items(&self, state: &mut State) -> AlignItems;
 
@@ -1347,7 +1347,7 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    fn get_flex_basis(&self, state: &mut State) -> f32 {
+    fn get_flex_basis(&self, state: &mut State) -> Length {
         state
             .style
             .flex_basis

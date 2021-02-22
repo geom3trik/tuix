@@ -325,7 +325,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_flex_basis(mut self, val: f32) -> Self {
+    pub fn set_flex_basis(mut self, val: Length) -> Self {
         self.state.style.flex_basis.insert(self.entity, val);
 
         self

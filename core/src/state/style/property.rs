@@ -58,7 +58,7 @@ pub enum Property {
     AlignContent(AlignContent),
 
     // Flex Item
-    FlexBasis(f32),
+    FlexBasis(Length),
     FlexGrow(f32),
     FlexShrink(f32),
     AlignSelf(AlignSelf),
