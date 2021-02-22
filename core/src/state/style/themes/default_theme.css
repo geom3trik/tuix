@@ -114,8 +114,8 @@ spinner>textbox {
     border-bottom-left-radius: 3;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    /* margin: 0px;
-    margin-right: -1; */
+    /* margin: 0px;*/
+    margin-right: -1;
     text-align: center;
     text-justify: center;
     /* height: 28px; */
@@ -125,8 +125,8 @@ spinner>textbox {
 spinner>.arrow_container {
     border-width: 1px;
     border-color: black;
-    /* border-top-right-radius: 3;
-    border-bottom-right-radius: 3; */
+    border-top-right-radius: 3;
+    border-bottom-right-radius: 3;
 }
 
 textbox {

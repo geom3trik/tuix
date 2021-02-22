@@ -611,7 +611,11 @@ pub fn main() {
     let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
     let mut app = Application::new(|win_desc, state, window| {
-        state.add_theme(LIGHT_THEME);
+        //state.add_theme(LIGHT_THEME);
+        match state.add_stylesheet("examples/themes/calculator_light_theme.css") {
+            Ok(_) => {}
+            Err(e) => println!("Error loading stylesheet: {}", e),
+        }
 
         Calculator::default().build(state, window, |builder| builder.class("calculator"));
 

@@ -157,14 +157,17 @@ impl EventManager {
                 }
             }
 
-            // Send event to target
-            if let Some(event_handler) = self.event_handlers.get_mut(&event.target) {
-                event_handler.on_event(state, event.target, event);
+            if event.propagation != Propagation::Fall {
+                // Send event to target
+                if let Some(event_handler) = self.event_handlers.get_mut(&event.target) {
+                    event_handler.on_event(state, event.target, event);
 
-                if event.consumed {
-                    continue 'events;
-                }
+                    if event.consumed {
+                        continue 'events;
+                    }
+                }                
             }
+
 
             // Propagate up from target to root (not including target)
             if event.propagation == Propagation::Up || event.propagation == Propagation::DownUp {

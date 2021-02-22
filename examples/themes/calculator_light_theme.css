@@ -14,8 +14,6 @@
     font-size: 60.0;
     color: #FFFFFF;
     background-color: #363636;
-    border-color: #363636;
-    border-width: 1.0;
     padding-right: 10px;
     flex-grow: 1.0;
 }
@@ -30,7 +28,11 @@ button {
     text-justify: center;
     font-size: 40.0;
     color: white;
-    border-width: 1px;
+}
+
+button:focus {
+    border-color:yellow;
+    border-width: 5px;
 }
 
 hbox {
@@ -45,12 +47,11 @@ hbox.last {
 button.digit {
     margin-right: 1px;
     background-color: #adadad;
-    border-color: #adadad;
     flex-grow: 1.0;
 }
 
 button.digit.zero {
-    flex-basis: 3px;
+    /* flex-basis: 1px; */
     flex-grow: 2.0;
 }
 
@@ -62,22 +63,20 @@ button.digit:active {
     background-color: #8f8f8f;
 }
 
-button.digit:focus {
+/* button.digit:focus {
     border-color:yellow;
     border-width: 1px;
-}
+} */
 
 button.operator {
-    /* margin-right: 1px; */
     background-color: #ff7b00;
-    border-color: #ff7b00;
     flex-grow: 1.0;
 }
 
-button.operator:focus {
+/* button.operator:focus {
     border-color:yellow;
     border-width: 1px;
-}
+} */
 
 button.operator:hover {
     background-color: #ff8f26;

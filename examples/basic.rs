@@ -22,9 +22,9 @@ fn main() {
         // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         //let container = Element::new().build(state, window, |builder| builder.class("container"));
         let one = Element::new().build(state, window, |builder| builder.class("one"));
-        let two = Element::new().build(state, one, |builder| builder.class("two"));
-        let three = Element::new().build(state, one, |builder| builder.class("three"));
-        let four = Element::new().build(state, one, |builder| builder.class("four"));
+        // let two = Element::new().build(state, one, |builder| builder.class("two"));
+        // let three = Element::new().build(state, one, |builder| builder.class("three"));
+        // let four = Element::new().build(state, one, |builder| builder.class("four"));
 
         //let test= Spinner::new(0).build(state, window, |builder| builder);
 

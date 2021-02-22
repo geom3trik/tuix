@@ -14,6 +14,7 @@ pub enum ButtonEvent {
     Release,
 }
 
+#[derive(Default)]
 pub struct Button {
     pub id: Entity,
 
@@ -68,7 +69,6 @@ impl EventHandler for Button {
         if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
             match button_event {
                 ButtonEvent::Pressed => {
-                    println!("Button Pressed: {}", entity);
                     if let Some(mut on_press) = self.on_press.clone() {
                         if on_press.target == Entity::null() {
                             on_press.target = entity;
@@ -105,7 +105,8 @@ impl EventHandler for Button {
             match window_event {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
-                        if entity == event.target {
+                        //println!("entity: {} {:?}", entity, entity.is_disabled(state));
+                        if entity == event.target && !entity.is_disabled(state) {
                             state.capture(entity);
                             state.insert_event(
                                 Event::new(ButtonEvent::Pressed)
@@ -123,13 +124,16 @@ impl EventHandler for Button {
                         if entity == event.target {
                             state.release(entity);
                             entity.set_active(state, false);
-                            if state.hovered == entity {
-                                state.insert_event(
-                                    Event::new(ButtonEvent::Released)
-                                        .target(entity)
-                                        .origin(entity),
-                                );
+                            if !entity.is_disabled(state) {
+                                if state.hovered == entity {
+                                    state.insert_event(
+                                        Event::new(ButtonEvent::Released)
+                                            .target(entity)
+                                            .origin(entity),
+                                    );
+                                }                                
                             }
+
                         }
                     }
 
@@ -138,7 +142,7 @@ impl EventHandler for Button {
 
                 WindowEvent::KeyDown(code, _) => match code {
                     Code::Space => {
-                        if state.focused == entity {
+                        if state.focused == entity && !entity.is_disabled(state) {
                             state.insert_event(
                                 Event::new(ButtonEvent::Pressed)
                                     .target(entity)
