@@ -718,11 +718,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                     // align-self overrides align-items
                     if let Some(align_self) = state.style.align_self.get(child) {
-                        match align_self {
-                            AlignSelf::FlexStart => cross_pos = 0.0,
-                            AlignSelf::FlexEnd => cross_pos = parent_cross - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross,
-                            AlignSelf::Center => cross_pos = (parent_cross  - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross) / 2.0,
-                            AlignSelf::Stretch => cross_pos = 0.0,
+                        cross_pos = parent_pos_cross + match align_self {
+                            AlignSelf::FlexStart => 0.0,
+                            AlignSelf::FlexEnd => parent_cross - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross,
+                            AlignSelf::Center => (parent_cross  - parent_padding_cross_before - parent_padding_cross_after - 2.0 * parent_border_width - child_cross) / 2.0,
+                            AlignSelf::Stretch => 0.0,
                         }
                     }
 
