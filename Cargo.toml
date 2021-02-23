@@ -21,6 +21,10 @@ path = "examples/layout/justify_content.rs"
 name = "align_items"
 path = "examples/layout/align_items.rs"
 
+[[example]]
+name = "flex_grow"
+path = "examples/layout/flex_grow.rs"
+
 [workspace]
 members = [
     "winit",

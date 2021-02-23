@@ -21,10 +21,16 @@ fn main() {
         // let left_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         //let container = Element::new().build(state, window, |builder| builder.class("container"));
-        let one = Element::new().build(state, window, |builder| builder.class("one"));
+        //let one = Element::new().build(state, window, |builder| builder.class("one"));
         // let two = Element::new().build(state, one, |builder| builder.class("two"));
         // let three = Element::new().build(state, one, |builder| builder.class("three"));
         // let four = Element::new().build(state, one, |builder| builder.class("four"));
+
+        let test = VectorEdit::<f32>::new().build(state, window, |builder| builder
+            .set_width(Length::Pixels(100.0))
+            .set_height(Length::Pixels(30.0))
+            .set_background_color(Color::blue())
+        );
 
         //let test= Spinner::new(0).build(state, window, |builder| builder);
 

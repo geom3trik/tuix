@@ -435,6 +435,12 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
     /////////////////////////////
     for parent in layout_hierarchy.iter() {
 
+        // Skip non-displayed entities
+        let parent_display = parent.get_display(state);
+        if parent_display == Display::None {
+            continue;
+        }
+
         let parent_flex_direction = parent.get_flex_direction(state);
 
 
@@ -480,10 +486,29 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         // Resize entities //
         /////////////////////
         for child in parent.child_iter(&hierarchy) {
+
+            // Skip non-displayed entities
+            let child_display = child.get_display(state);
+            if child_display == Display::None {
+                continue;
+            }
             
             let (new_main, new_cross) = calculate_down(state, child);
 
             //println!("DOWN: {} -> new_main: {} new_cross: {}", child, new_main, new_cross);
+
+            let mut geometry_changed = GeometryChanged::default();
+
+            geometry_changed.width = true;
+            geometry_changed.height = true;
+    
+            if geometry_changed.width || geometry_changed.height {
+                state.insert_event(
+                    Event::new(WindowEvent::GeometryChanged(geometry_changed))
+                        .target(child)
+                        .propagate(Propagation::Down),
+                );
+            }
 
             match parent_flex_direction {
                 FlexDirection::Row | FlexDirection::RowReverse => {
@@ -561,6 +586,12 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             //////////////////////////////
             for child in flexible_children.iter() {
 
+                // Skip non-displayed entities
+                let child_display = child.get_display(state);
+                if child_display == Display::None {
+                    continue;
+                }
+
                 let child_margin_left = child.get_margin_left(state).get_value(0.0);
                 let child_margin_right = child.get_margin_right(state).get_value(0.0);
                 let child_margin_top = child.get_margin_top(state).get_value(0.0);
@@ -632,6 +663,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
 
         }
+
+          
+        
         
         
 
@@ -675,6 +709,12 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         
         for child in children.into_iter() {
+
+            // Skip non-displayed entities
+            let child_display = child.get_display(state);
+            if child_display == Display::None {
+                continue;
+            }
 
             let child_width = state.data.get_width(child);
             let child_height = state.data.get_height(child);

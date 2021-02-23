@@ -586,8 +586,8 @@ impl EventHandler for SearchLabel {
         // Stupid way, draw each glyph seperately
         if let Some(text) = state.style.text.get_mut(entity) {
             let font_id = match text.font.as_ref() {
-                "Sans" => state.fonts.regular.unwrap(),
-                "Icons" => state.fonts.icons.unwrap(),
+                "sans" => state.fonts.regular.unwrap(),
+                "icons" => state.fonts.icons.unwrap(),
                 _ => state.fonts.regular.unwrap(),
             };
 

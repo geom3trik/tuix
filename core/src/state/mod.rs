@@ -36,6 +36,7 @@ pub struct Fonts {
     pub regular: Option<FontId>,
     pub bold: Option<FontId>,
     pub icons: Option<FontId>,
+    pub emoji: Option<FontId>,
 }
 
 pub enum Command {
@@ -100,6 +101,7 @@ impl State {
                 regular: None,
                 bold: None,
                 icons: None,
+                emoji: None,
             },
             resource_manager: ResourceManager::new(),
         }

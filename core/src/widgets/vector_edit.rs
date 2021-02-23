@@ -7,6 +7,20 @@ use crate::{MouseButton, Propagation, State};
 use crate::widgets::{Button, Dropdown, DropdownEvent, Item, Textbox, TextboxEvent};
 use crate::AnimationState;
 
+const VEC_EDIT_STYLE: &str = r#"
+    vector_edit .icon {
+        display: none;
+    }
+
+    vector_edit .dim {
+        flex-grow: 0.0;
+    }
+
+    vector_edit .header>label {
+        text-justify: center;
+    }
+"#;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum VectorEditEvent<T> {
     ValueChanged(T, T, T, T),
@@ -167,6 +181,10 @@ where
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+
+
+        state.add_theme(VEC_EDIT_STYLE);
+
         entity.set_flex_direction(state, FlexDirection::Row);
 
         self.x = Textbox::new(&self.xval.to_string())

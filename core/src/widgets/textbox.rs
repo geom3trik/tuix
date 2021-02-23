@@ -558,8 +558,7 @@ impl EventHandler for Textbox {
         //println!("Border Width: {}", border_width);
 
         // Skip widgets with no width or no height
-        if width + 2.0 * border_width + padding_left + padding_right == 0.0
-            || height + 2.0 * border_width + padding_top + padding_bottom == 0.0
+        if width == 0.0|| height == 0.0
         {
             return;
         }
@@ -632,8 +631,8 @@ impl EventHandler for Textbox {
 
         if let Some(text) = state.style.text.get_mut(entity) {
             let font_id = match text.font.as_ref() {
-                "Sans" => state.fonts.regular.unwrap(),
-                "Icons" => state.fonts.icons.unwrap(),
+                "sans" => state.fonts.regular.unwrap(),
+                "icons" => state.fonts.icons.unwrap(),
                 _ => state.fonts.regular.unwrap(),
             };
 

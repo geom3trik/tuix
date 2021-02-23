@@ -73,7 +73,7 @@ impl BuildHandler for Panel {
         self.checkbox = Element::new().build(state, self.header, |builder| {
             builder
                 .set_text(ICON_DOWN_OPEN_BIG)
-                .set_font("Icons")
+                .set_font("icons")
                 .set_text_justify(Justify::Center)
                 .set_text_align(Align::Center)
                 .set_width(Length::Pixels(20.0))
@@ -116,7 +116,7 @@ impl BuildHandler for Panel {
         state.style.insert_element(entity, "panel");
 
         let container_expand_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(1000))
+            .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
@@ -126,8 +126,8 @@ impl BuildHandler for Panel {
             .insert_animation(container_expand_animation);
 
         let container_collapse_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(1000))
-            .with_delay(std::time::Duration::from_millis(1000))
+            .with_duration(std::time::Duration::from_millis(100))
+            .with_delay(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
@@ -137,8 +137,8 @@ impl BuildHandler for Panel {
             .insert_animation(container_collapse_animation);
 
         let container_fade_in_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(1000))
-            .with_delay(std::time::Duration::from_millis(1000))
+            .with_duration(std::time::Duration::from_millis(100))
+            .with_delay(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Opacity(0.0)))
             .with_keyframe((1.0, Opacity(1.0)));
 
@@ -148,7 +148,7 @@ impl BuildHandler for Panel {
             .insert_animation(container_fade_in_animation);
 
         let container_fade_out_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(1000))
+            .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Opacity(1.0)))
             .with_keyframe((1.0, Opacity(0.0)));
 
@@ -158,15 +158,15 @@ impl BuildHandler for Panel {
             .insert_animation(container_fade_out_animation);
 
         let arrow_expand_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(1000))
+            .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, -90.0))
             .with_keyframe((1.0, 0.0));
 
         self.arrow_expand_animation = state.style.rotate.insert_animation(arrow_expand_animation);
 
         let arrow_collapse_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(1000))
-            .with_delay(std::time::Duration::from_millis(1000))
+            .with_duration(std::time::Duration::from_millis(100))
+            .with_delay(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, 0.0))
             .with_keyframe((1.0, -90.0));
 
@@ -225,18 +225,18 @@ impl EventHandler for Panel {
                                     Event::new(PanelEvent::Open(entity)).target(entity),
                                 );
 
-                                // state
-                                //     .style
-                                //     .height
-                                //     .play_animation(self.container, self.expand_animation);
-                                // state
-                                //     .style
-                                //     .opacity
-                                //     .play_animation(self.other_container, self.fade_in_animation);
-                                // state
-                                //     .style
-                                //     .rotate
-                                //     .play_animation(self.checkbox, self.arrow_expand_animation);
+                                state
+                                    .style
+                                    .height
+                                    .play_animation(self.container, self.expand_animation);
+                                state
+                                    .style
+                                    .opacity
+                                    .play_animation(self.other_container, self.fade_in_animation);
+                                state
+                                    .style
+                                    .rotate
+                                    .play_animation(self.checkbox, self.arrow_expand_animation);
 
                                 self.checkbox.set_rotate(state, 0.0);
                                 //self.container
@@ -255,18 +255,18 @@ impl EventHandler for Panel {
                                     Event::new(PanelEvent::Close(entity)).target(entity),
                                 );
 
-                                // state
-                                //     .style
-                                //     .height
-                                //     .play_animation(self.container, self.collapse_animation);
-                                // state
-                                //     .style
-                                //     .opacity
-                                //     .play_animation(self.other_container, self.fade_out_animation);
-                                // state
-                                //     .style
-                                //     .rotate
-                                //     .play_animation(self.checkbox, self.arrow_collapse_animation);
+                                state
+                                    .style
+                                    .height
+                                    .play_animation(self.container, self.collapse_animation);
+                                state
+                                    .style
+                                    .opacity
+                                    .play_animation(self.other_container, self.fade_out_animation);
+                                state
+                                    .style
+                                    .rotate
+                                    .play_animation(self.checkbox, self.arrow_collapse_animation);
 
                                 self.checkbox.set_rotate(state, -90.0);
                                 self.container.set_height(state, Length::Pixels(0.0));

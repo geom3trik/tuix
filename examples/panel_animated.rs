@@ -44,7 +44,7 @@ impl BuildHandler for ColorEdit {
         let test = Dropdown::new("RGB")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(40.0)
+                    .set_flex_basis(Length::Pixels(40.0))
                     .set_text_justify(Justify::End)
                     .class("dim")
             })

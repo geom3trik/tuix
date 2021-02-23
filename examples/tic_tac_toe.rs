@@ -21,6 +21,8 @@ fn calculate_winner(squares: &[GameData; 9]) -> GameData {
 
     return GameData::Null;
 }
+
+// Data to describe the state of a square as well as the current player
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum GameData {
     X,
@@ -28,6 +30,7 @@ pub enum GameData {
     Null,
 }
 
+// The game events
 #[derive(Debug, Clone, PartialEq)]
 pub enum GameEvent {
     SquarePressed(usize),
@@ -35,6 +38,7 @@ pub enum GameEvent {
     Restart,
 }
 
+// Widget to describe the board state
 pub struct Board {
     squares: [GameData; 9],
     current_player: GameData,
@@ -57,6 +61,7 @@ impl Board {
     }
 }
 
+// Add the squares and the post-game overlay
 impl BuildHandler for Board {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
@@ -71,7 +76,9 @@ impl BuildHandler for Board {
         }
 
         self.overlay = Element::new().build(state, entity, |builder| builder.class("overlay"));
+
         self.winner_label = Label::new("").build(state, self.overlay, |builder| builder.class("winner"));
+
         Button::with_label("Play Again")
             .on_release(Event::new(GameEvent::Restart).target(entity))
             .build(state, self.overlay, |builder| builder.class("replay"));
@@ -80,6 +87,7 @@ impl BuildHandler for Board {
     }
 }
 
+// React to the various game events
 impl EventHandler for Board {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(game_event) = event.message.downcast::<GameEvent>() {
@@ -141,6 +149,8 @@ impl EventHandler for Board {
     }
 }
 
+
+// Widget to describe a square in the board
 #[derive(Default)]
 pub struct Square {
     button: Button,
@@ -154,6 +164,7 @@ impl Square {
     }
 }
 
+// Inherits from button
 impl BuildHandler for Square {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
@@ -161,6 +172,7 @@ impl BuildHandler for Square {
     }
 }
 
+// Inherits button behaviour and adds new behaviour by reacting to a restart event
 impl EventHandler for Square {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.button.on_event(state, entity, event);
@@ -176,7 +188,7 @@ impl EventHandler for Square {
         }
     }
 }
-
+// Run the app
 fn main() {
     let app = Application::new(|win_desc, state, window| {
         

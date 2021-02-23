@@ -419,6 +419,12 @@ impl<'a> Builder<'a> {
         self
     }
 
+    pub fn set_font_size(mut self, value: f32) -> Self {
+        self.state.style.font_size.insert(self.entity, value);
+
+        self
+    }
+
     // Text Alignment
     pub fn set_text_justify(mut self, value: Justify) -> Self {
         self.state.style.text_justify.insert(self.entity, value);

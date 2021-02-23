@@ -153,7 +153,7 @@ fn main() {
                 .set_background_color(Color::rgb(200,120,50))
         );
 
-        win_desc.with_title("position")
+        win_desc.with_title("Align Items")
     });
 
     app.run();

@@ -100,11 +100,13 @@ impl ApplicationRunner {
         let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
         let icon_font = include_bytes!("../../resources/entypo.ttf");
+        let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
 
         let fonts = Fonts {
             regular: Some(canvas.add_font_mem(regular_font).expect("Cannot add font")),
             bold: Some(canvas.add_font_mem(bold_font).expect("Cannot add font")),
             icons: Some(canvas.add_font_mem(icon_font).expect("Cannot add font")),
+            emoji: Some(canvas.add_font_mem(emoji_font).expect("Cannot add font")),
         };
 
         state.fonts = fonts;

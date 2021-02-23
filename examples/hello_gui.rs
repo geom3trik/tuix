@@ -1,27 +1,15 @@
-extern crate tuix;
 
-use image::buffer::Pixels;
-use tuix::Application;
-use tuix::{widgets::Button, Element};
-
-use tuix::events::BuildHandler;
-
-use tuix::PropSet;
-
-use tuix::Length;
-
-use tuix::style::themes::DEFAULT_THEME;
+use tuix::*;
 
 fn main() {
     let app = Application::new(|win_desc, state, window| {
-        state.insert_theme(DEFAULT_THEME);
 
-        state
-            .resource_manager
-            .add_image("lena", "resources/images/lena.png");
-
-        Element::new().build(state, window, |builder| {
-            builder.set_background_image("lena")
+        Button::with_label("Button").build(state, window, |builder| {
+            builder
+                .set_width(Length::Pixels(100.0))
+                .set_height(Length::Pixels(30.0))
+                .set_background_color(Color::from("#ff5e1a"))
+                .set_text_justify(Justify::Center)
         });
 
         win_desc.with_title("Hello GUI")

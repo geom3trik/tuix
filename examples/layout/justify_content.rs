@@ -26,8 +26,7 @@ fn main() {
         //////////////////
         let container = Element::new().build(state, window, |builder| 
             builder
-                //.set_flex_grow(1.0)
-                .set_height(Length::Pixels(50.0))
+                .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(50,50,50))
                 .set_justify_content(JustifyContent::FlexStart)
                 .set_align_items(AlignItems::Center)
@@ -196,8 +195,7 @@ fn main() {
         /////////////////////
         let container = Element::new().build(state, window, |builder| 
             builder
-                //.set_flex_grow(1.0)
-                .set_height(Length::Pixels(50.0))
+                .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(70,70,70))
                 .set_justify_content(JustifyContent::SpaceEvenly)
                 .set_align_items(AlignItems::Center)
@@ -226,7 +224,7 @@ fn main() {
         );
 
 
-        win_desc.with_title("position")
+        win_desc.with_title("Justify Content")
     });
 
     app.run();

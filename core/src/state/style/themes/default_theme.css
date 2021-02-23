@@ -163,14 +163,15 @@ dropdown .icon {
 
 dropdown>.container {
     top: 100%;
+    width: 100%;
+    margin-top: 5px;
     background-color: white;
     border-color: black;
-    border-width: 10px;
+    border-width: 1px;
 }
 
 dropdown>.container>.item {
     height: 30px;
-    width: 100px;
     color: black;
     padding-left: 10px;
     background-color: white;
@@ -179,7 +180,6 @@ dropdown>.container>.item {
 
 dropdown>.container>.item:hover {
     height: 30px;
-    width: 100px;
     color: white;
     background-color: #ff5e1a;
     transition: background-color 0.1 0.0;

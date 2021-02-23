@@ -42,30 +42,6 @@ impl Color {
         ((self.data & 0xFF00_0000) >> 24) as u8
     }
 
-    pub fn black() -> Self {
-        Self { data: 0xFF000000 }
-    }
-
-    pub fn white() -> Self {
-        Self { data: 0xFFFFFFFF }
-    }
-
-    pub fn red() -> Self {
-        Self { data: 0xFFFF0000 }
-    }
-
-    pub fn green() -> Self {
-        Self { data: 0xFF00FF00 }
-    }
-
-    pub fn blue() -> Self {
-        Self { data: 0xFF0000FF }
-    }
-
-    pub fn yellow() -> Self {
-        Self { data: 0xFF00FFFF }
-    }
-
     // Interpolate between two colors
     pub fn interpolate(start_color: Color, end_color: Color, scale: f64) -> Color {
         let r = Color::interp(start_color.r(), end_color.r(), scale);
@@ -151,5 +127,31 @@ impl std::fmt::Debug for Color {
 impl Default for Color {
     fn default() -> Self {
         Color::rgba(0, 0, 0, 0)
+    }
+}
+
+impl Color {
+    pub fn black() -> Self {
+        Self { data: 0xFF000000 }
+    }
+
+    pub fn white() -> Self {
+        Self { data: 0xFFFFFFFF }
+    }
+
+    pub fn red() -> Self {
+        Self { data: 0xFFFF0000 }
+    }
+
+    pub fn green() -> Self {
+        Self { data: 0xFF00FF00 }
+    }
+
+    pub fn blue() -> Self {
+        Self { data: 0xFF0000FF }
+    }
+
+    pub fn yellow() -> Self {
+        Self { data: 0xFF00FFFF }
     }
 }

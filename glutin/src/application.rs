@@ -1,11 +1,10 @@
 #![allow(deprecated)]
 
-use glutin::dpi::*;
+use glutin::{dpi::*, window};
 use glutin::event_loop::{ControlFlow, EventLoop};
 
 use crate::{
-    keyboard::{scan_to_code, vk_to_key},
-    window,
+    keyboard::{scan_to_code, vk_to_key}
 };
 
 use crate::window::Window;
@@ -58,6 +57,7 @@ impl Application {
         let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
         let icon_font = include_bytes!("../../resources/entypo.ttf");
+        let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
 
         let fonts = Fonts {
             regular: Some(
@@ -78,6 +78,12 @@ impl Application {
                     .add_font_mem(icon_font)
                     .expect("Cannot add font"),
             ),
+            emoji: Some(
+                window 
+                    .canvas
+                    .add_font_mem(emoji_font)
+                    .expect("Cannot add font"),
+            )
         };
 
         state.fonts = fonts;

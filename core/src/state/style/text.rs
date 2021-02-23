@@ -17,7 +17,7 @@ impl Default for Text {
     fn default() -> Self {
         Text {
             text: "".to_string(),
-            font: "Sans".to_string(),
+            font: "sans".to_string(),
             //font_size: 16.0,
             //font_color: Color::rgba(255, 255, 255, 255),
             //indent: 0.0,

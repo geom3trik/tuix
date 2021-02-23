@@ -89,8 +89,10 @@ impl BuildHandler for Animations {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_grow(state, 1.0);
 
+        // Horizontal split
         let hbox = HBox::new().build(state, entity, |builder| builder.set_flex_grow(1.0));
 
+        // List
         let vbox = VBox::new().build(state, hbox, |builder| {
             builder
                 //.set_flex_grow(1.0)
@@ -108,19 +110,9 @@ impl BuildHandler for Animations {
         });
 
         Element::new().build(state, self.element, |builder| {
-            builder
-                .class("subelement")
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(5.0))
+            builder.class("subelement")
         });
 
-        Element::new().build(state, self.element, |builder| {
-            builder
-                .class("subelement")
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(5.0))
-                .set_top(Length::Pixels(15.0))
-        });
 
         // Background Color Animation
         let background_color_animation_state = AnimationState::new()
@@ -170,6 +162,7 @@ impl BuildHandler for Animations {
             .style
             .width
             .insert_animation(size_animation_state.clone());
+
         // Reuse animation state from position animation above
         self.height_animation = state
             .style
@@ -208,6 +201,7 @@ impl BuildHandler for Animations {
             .on_press(Event::new(AnimationsEvent::Play))
             .build(state, vbox, |builder| builder);
 
+        // Border
         self.border_animation = state
             .style
             .border_width
@@ -217,6 +211,7 @@ impl BuildHandler for Animations {
             .on_press(Event::new(AnimationsEvent::Play))
             .build(state, vbox, |builder| builder);
 
+        // Padding
         self.padding_left_animation = state
             .style
             .padding_left
@@ -238,6 +233,7 @@ impl BuildHandler for Animations {
             .on_press(Event::new(AnimationsEvent::Play))
             .build(state, vbox, |builder| builder);
 
+        // Border Radius
         self.border_top_left_animation = state
             .style
             .border_radius_top_left
@@ -250,6 +246,8 @@ impl BuildHandler for Animations {
         self.border_radius_button = Button::with_label("Border Radius")
             .on_press(Event::new(AnimationsEvent::Play))
             .build(state, vbox, |builder| builder);
+
+        
 
         entity
     }
