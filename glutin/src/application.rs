@@ -1,11 +1,9 @@
 #![allow(deprecated)]
 
-use glutin::{dpi::*, window};
 use glutin::event_loop::{ControlFlow, EventLoop};
+use glutin::{dpi::*, window};
 
-use crate::{
-    keyboard::{scan_to_code, vk_to_key}
-};
+use crate::keyboard::{scan_to_code, vk_to_key};
 
 use crate::window::Window;
 
@@ -79,11 +77,11 @@ impl Application {
                     .expect("Cannot add font"),
             ),
             emoji: Some(
-                window 
+                window
                     .canvas
                     .add_font_mem(emoji_font)
                     .expect("Cannot add font"),
-            )
+            ),
         };
 
         state.fonts = fonts;

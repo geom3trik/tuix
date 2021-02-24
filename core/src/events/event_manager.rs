@@ -165,9 +165,8 @@ impl EventManager {
                     if event.consumed {
                         continue 'events;
                     }
-                }                
+                }
             }
-
 
             // Propagate up from target to root (not including target)
             if event.propagation == Propagation::Up || event.propagation == Propagation::DownUp {

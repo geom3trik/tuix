@@ -558,8 +558,7 @@ impl EventHandler for Textbox {
         //println!("Border Width: {}", border_width);
 
         // Skip widgets with no width or no height
-        if width == 0.0|| height == 0.0
-        {
+        if width == 0.0 || height == 0.0 {
             return;
         }
 

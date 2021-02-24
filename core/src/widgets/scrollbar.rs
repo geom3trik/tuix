@@ -9,7 +9,7 @@ use crate::state::style::*;
 
 use crate::widgets::Button;
 
-pub enum Direction {
+pub enum ScrollDirection {
     Horizontal,
     Vertical,
 }
@@ -18,7 +18,7 @@ pub struct Scrollbar {
     entity: Entity,
 
     front: Entity,
-    direction: Direction,
+    direction: ScrollDirection,
 
     pub position: f32,
     pub pos_ratio: f32,
@@ -30,7 +30,7 @@ pub struct Scrollbar {
 }
 
 impl Scrollbar {
-    pub fn new(entity: Entity, direction: Direction) -> Self {
+    pub fn new(entity: Entity, direction: ScrollDirection) -> Self {
         Scrollbar {
             entity,
             front: Entity::null(),
@@ -66,7 +66,7 @@ impl BuildHandler for Scrollbar {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.front = Button::new().build(state, entity, |builder| builder.class("front"));
         match self.direction {
-            Direction::Horizontal => {
+            ScrollDirection::Horizontal => {
                 // entity
                 //     .set_width(state, Length::Pixels(100.0))
                 //     .set_height(state, Length::Pixels(10.0));
@@ -75,7 +75,7 @@ impl BuildHandler for Scrollbar {
                 //.set_background_color(state, Color::rgb(80, 50, 50));
             }
 
-            Direction::Vertical => {
+            ScrollDirection::Vertical => {
                 //entity
                 //    .set_height(state, 1.0);
                 //.set_flex_basis(state, 10.0)

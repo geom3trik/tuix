@@ -6,7 +6,7 @@ use tuix::*;
 
 use tuix::style::themes::DEFAULT_THEME;
 
-// static THEME: &'static str = include_str!("themes/light_theme.css");
+static THEME: &'static str = include_str!("themes/widgets_theme.css");
 
 #[derive(Debug, Clone, PartialEq)]
 enum TestEvent {
@@ -16,6 +16,7 @@ enum TestEvent {
 fn main() {
     Application::new(|win_desc, state, window| {
         state.add_theme(DEFAULT_THEME);
+        state.add_theme(THEME);
 
         // // Menu bar
         // let menu_bar = Element::new().build(state, window, |builder| {
@@ -33,34 +34,38 @@ fn main() {
                 .set_background_color(Color::rgb(60, 60, 60))
         });
 
-        // //
+        // BUTTONS PANEL
         let panel = Panel::new("Buttons").build(state, rvbox, |builder| builder);
 
+        // BUTTON
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Button").build(state, row, |builder| builder);
-        let button = Button::with_label("Press Me").build(state, row, |builder| 
+        let button = Button::with_label("Press Me").build(state, row, |builder| {
             builder
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
                 .set_flex_grow(1.0)
-        );
-        //Tooltip::new("Tooltip").build(state, button, |builder| builder);
+        });
 
-        //let panel = Panel::new("Buttons").build(state, rvbox, |builder| builder);
+        // CHECKBOX
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Checkbox").build(state, row, |builder| builder);
         Checkbox::new(false).build(state, row, |builder| builder);
 
+        // SWITCH
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Switch").build(state, row, |builder| builder);
         let switch = Switch::new(false).build(state, row, |builder| builder);
 
+        // INPUT PANEL
         let panel = Panel::new("Input").build(state, rvbox, |builder| builder);
 
+        // TEXTBOX
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Textbox").build(state, row, |builder| builder);
         Textbox::new("Some Text").build(state, row, |builder| builder);
 
+        // SPINNER
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Spinner").build(state, row, |builder| builder);
         Spinner::new(100)
@@ -70,6 +75,12 @@ fn main() {
             .on_max(Event::new(CheckboxEvent::Check).target(switch))
             .build(state, row, |builder| builder);
 
+        // VECTOR EDIT
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Vector Edit").build(state, row, |builder| builder);
+        VectorEdit::<f32>::new().build(state, row, |builder| builder.set_flex_grow(1.0));
+
+        // LISTS PANEL
         let panel = Panel::new("Lists").build(state, rvbox, |builder| builder);
 
         // DROPDOWN
@@ -84,18 +95,34 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Listbox").build(state, row, |builder| builder);
 
-        // VECTOR EDIT
-        let row = HBox::new().build(state, panel, |builder| builder);
-        Label::new("Vector Edit").build(state, row, |builder| builder);
-        VectorEdit::<f32>::new().build(state, row, |builder| builder.set_flex_grow(1.0));
-
+        // SLIDERS PANEL
         let panel = Panel::new("Sliders").build(state, rvbox, |builder| builder);
+
+        // PROGRESS BAR
         let row = HBox::new().build(state, panel, |builder| builder);
-        Label::new("Value").build(state, row, |builder| builder);
-        let textbox = Textbox::new("0.0").build(state, row, |builder| builder);
+        Label::new("Progress Bar").build(state, row, |builder| builder);
+        let progress = ProgressBar::new()
+            .with_value(0.5)
+            .build(state, row, |builder| builder.set_flex_grow(1.0));
+
+        // SLIDER 1
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Slider").build(state, row, |builder| builder);
-        let slider = Slider::new().build(state, row, |builder| builder);
+        let slider = Slider::new().build(state, row, |builder| builder.set_flex_grow(1.0));
+
+        // SLIDER 2
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Slider").build(state, row, |builder| builder);
+        let slider = Slider::new().build(state, row, |builder| {
+            builder.set_flex_grow(1.0).class("custom1")
+        });
+
+        // SLIDER 3
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Slider").build(state, row, |builder| builder);
+        let slider = Slider::new().build(state, row, |builder| {
+            builder.set_flex_grow(1.0).class("custom2")
+        });
 
         let panel = Panel::new("Radio List").build(state, rvbox, |builder| builder);
         let row = HBox::new().build(state, panel, |builder| builder);

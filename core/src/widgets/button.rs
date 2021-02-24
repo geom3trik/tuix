@@ -131,9 +131,8 @@ impl EventHandler for Button {
                                             .target(entity)
                                             .origin(entity),
                                     );
-                                }                                
+                                }
                             }
-
                         }
                     }
 

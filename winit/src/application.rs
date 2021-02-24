@@ -67,11 +67,11 @@ impl Application {
                     .expect("Cannot add font"),
             ),
             emoji: Some(
-                window 
+                window
                     .canvas
                     .add_font_mem(emoji_font)
                     .expect("Cannot add font"),
-            )
+            ),
         };
 
         state.fonts = fonts;

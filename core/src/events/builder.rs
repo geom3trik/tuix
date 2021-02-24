@@ -134,6 +134,12 @@ impl<'a> Builder<'a> {
         self
     }
 
+    pub fn set_background_gradient(mut self, val: LinearGradient) -> Self {
+        self.state.style.background_gradient.insert(self.entity, val);
+
+        self
+    }
+
     // Box Shadow
     pub fn set_box_shadow_h_offset(mut self, val: Length) -> Self {
         self.state.style.shadow_h_offset.insert(self.entity, val);

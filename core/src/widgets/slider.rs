@@ -17,6 +17,7 @@ pub enum SliderEvent {
     SetValue(f32),
 }
 
+/*
 pub struct ProgressBar {
     front: Entity,
     on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
@@ -215,6 +216,7 @@ impl EventHandler for ProgressBar {
         }
     }
 }
+*/
 
 pub struct Slider {
     thumb: Entity,
@@ -277,14 +279,15 @@ impl Slider {
 impl BuildHandler for Slider {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            .set_width(state, Length::Pixels(100.0))
-            .set_height(state, Length::Pixels(4.0));
+        entity.set_flex_direction(state, FlexDirection::Row);
+        // .set_width(state, Length::Pixels(100.0))
+        // .set_height(state, Length::Pixels(4.0));
         //.set_align_items(state, AlignItems::Center)
         //.set_background_color(state, Color::rgb(200, 80, 80));
 
         self.active = Element::new().build(state, entity, |builder| {
             builder
+                .set_position(Position::Absolute)
                 .set_width(Length::Percentage(0.0))
                 .set_height(Length::Percentage(1.0))
                 //.set_background_color(Color::rgb(60, 60, 200))
@@ -297,10 +300,10 @@ impl BuildHandler for Slider {
             entity,
             |builder| {
                 builder
-                    .set_position(Position::Absolute)
-                    .set_top(Length::Pixels(-8.0))
-                    .set_width(Length::Pixels(20.0))
-                    .set_height(Length::Pixels(20.0))
+                    //.set_position(Position::Absolute)
+                    //.set_top(Length::Pixels(-8.0))
+                    //.set_width(Length::Pixels(20.0))
+                    //.set_height(Length::Pixels(20.0))
                     .class("thumb")
             }, //.set_background_color(Color::rgb(80, 80, 200))
         );

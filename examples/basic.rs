@@ -12,8 +12,10 @@ fn main() {
             Err(e) => println!("Error loading stylesheet: {}", e),
         }
 
-        window.set_background_color(state, Color::rgb(255, 255, 255)).set_flex_direction(state, FlexDirection::Row).set_align_items(state, AlignItems::FlexStart);
-
+        window
+            .set_background_color(state, Color::rgb(255, 255, 255))
+            .set_flex_direction(state, FlexDirection::Row)
+            .set_align_items(state, AlignItems::FlexStart);
 
         //window.set_flex_direction(state, FlexDirection::Row);
         // let levels = HBox::new().build(state, window, |builder| builder.set_width(Length::Pixels(50.0)).set_background_color(Color::red()));
@@ -21,20 +23,27 @@ fn main() {
         // let left_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         //let container = Element::new().build(state, window, |builder| builder.class("container"));
-        //let one = Element::new().build(state, window, |builder| builder.class("one"));
+        let one = Element::new().build(state, window, |builder| {
+            builder.class("one").set_background_gradient(
+                LinearGradient::new(Direction::TopToBottom)
+                    .add_stop(GradientStop::new(Length::Pixels(0.0), Color::rgb(90,90,90)))
+                    .add_stop(GradientStop::new(Length::Pixels(30.0), Color::rgb(50,50,50))),
+            ).set_text("Button")
+        });
+
         // let two = Element::new().build(state, one, |builder| builder.class("two"));
         // let three = Element::new().build(state, one, |builder| builder.class("three"));
         // let four = Element::new().build(state, one, |builder| builder.class("four"));
 
-        let test = VectorEdit::<f32>::new().build(state, window, |builder| builder
-            .set_width(Length::Pixels(100.0))
-            .set_height(Length::Pixels(30.0))
-            .set_background_color(Color::blue())
-        );
+        // let test = VectorEdit::<f32>::new().build(state, window, |builder| builder
+        //     .set_width(Length::Pixels(100.0))
+        //     .set_height(Length::Pixels(30.0))
+        //     .set_background_color(Color::blue())
+        // );
 
         //let test= Spinner::new(0).build(state, window, |builder| builder);
 
-        // let (_, _, dropdown) = Dropdown::new("Dropdown").build(state, window, |builder| 
+        // let (_, _, dropdown) = Dropdown::new("Dropdown").build(state, window, |builder|
         //     builder
         //         .set_width(Length::Pixels(100.0))
         //         .set_height(Length::Pixels(30.0))
@@ -56,11 +65,9 @@ fn main() {
         //     .build(state, zoom_controls, |builder| {
         //         builder.set_font("Icons").class("zoom").class("first")
         //     });
-        
 
         // Element::new().build(state, zoom_controls, |builder| builder.class("zoom"));
 
-        
         // Button::new()
         //     .build(state, zoom_controls, |builder| {
         //         builder.set_font("Icons").class("zoom").class("last")

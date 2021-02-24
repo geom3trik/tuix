@@ -12,6 +12,9 @@ pub use scrollbar::*;
 pub mod slider;
 pub use slider::*;
 
+pub mod progress;
+pub use progress::*;
+
 pub mod checkbox;
 pub use checkbox::*;
 

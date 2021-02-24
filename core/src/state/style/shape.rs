@@ -113,7 +113,7 @@ impl Default for FocusOrder {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct GradientStop {
     // Position of the gradient stop
     pub position: Length,
@@ -127,16 +127,31 @@ impl GradientStop {
     }
 }
 
+
 #[derive(Debug, Clone)]
+pub enum Direction {
+    LeftToRight,
+    RightToLeft,
+    TopToBottom,
+    BottomToTop,
+}
+
+impl Default for Direction {
+    fn default() -> Self {
+        Direction::LeftToRight
+    }
+}
+
+#[derive(Default, Debug, Clone)]
 pub struct LinearGradient {
     // Direction of the gradient
-    pub direction: f32,
+    pub direction: Direction,
     // Stops of the gradient
     pub stops: Vec<GradientStop>,
 }
 
 impl LinearGradient {
-    pub fn new(direction: f32) -> Self {
+    pub fn new(direction: Direction) -> Self {
         Self {
             direction,
             stops: Vec::new(),
@@ -147,5 +162,9 @@ impl LinearGradient {
         self.stops.push(stop);
 
         self
+    }
+
+    pub fn get_stops(&mut self, parent_length: f32) -> Vec<(f32, Color)> {
+        self.stops.iter().map(|stop| (stop.position.get_value(parent_length), stop.color)).collect::<Vec<_>>()
     }
 }

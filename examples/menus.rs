@@ -143,44 +143,40 @@ fn main() {
         //     .on_press(Event::new(WindowEvent::WindowClose))
         //     .build(state, menu3, |builder| builder.class("item"));
 
-
-        
-
-
-        let button = Button::with_label("Right Click Me").build(state, window, |builder| 
+        let button = Button::with_label("Right Click Me").build(state, window, |builder| {
             builder
                 .set_left(Length::Pixels(100.0))
                 .set_top(Length::Pixels(100.0))
                 .set_width(Length::Pixels(150.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::green())
-        );
-        
-        let (container, menu) = ContextMenu::new().build(state, button, |builder| 
+        });
+
+        let (container, menu) = ContextMenu::new().build(state, button, |builder| {
             builder
                 .set_width(Length::Percentage(1.0))
                 .set_height(Length::Percentage(1.0))
-        );
+        });
 
         menu.set_width(state, Length::Pixels(100.0));
 
-        Button::with_label("Option 1").build(state, menu, |builder| 
+        Button::with_label("Option 1").build(state, menu, |builder| {
             builder
                 .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50,50,50))
-        );
+                .set_background_color(Color::rgb(50, 50, 50))
+        });
 
-        Button::with_label("Option 2").build(state, menu, |builder| 
+        Button::with_label("Option 2").build(state, menu, |builder| {
             builder
                 .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50,50,50))
-        );
+                .set_background_color(Color::rgb(50, 50, 50))
+        });
 
-        Button::with_label("Option 3").build(state, menu, |builder| 
+        Button::with_label("Option 3").build(state, menu, |builder| {
             builder
                 .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50,50,50))
-        );
+                .set_background_color(Color::rgb(50, 50, 50))
+        });
 
         win_desc.with_title("Menus")
     });

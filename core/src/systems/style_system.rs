@@ -177,19 +177,22 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             continue;
         }
 
+        let mut should_relayout = false;
+        let mut should_redraw = false;
+
         // Display
         if state.style.display.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
         if state.style.visibility.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.z_order.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         // Currently doesn't do anything - TODO
@@ -197,118 +200,118 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 
         // Opacity
         if state.style.opacity.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         // Positioning
         if state.style.position.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.left.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.right.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.top.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.bottom.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         // Size
         if state.style.width.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.height.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         // Size Constraints
         if state.style.max_width.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.min_width.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.max_height.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.min_height.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         // Margin
         if state.style.margin_left.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.margin_right.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.margin_top.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.margin_bottom.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         // Padding
         if state.style.padding_left.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.padding_right.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.padding_top.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.padding_bottom.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         // Border
         if state.style.border_width.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.border_color.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         if state
@@ -316,7 +319,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .border_radius_top_left
             .link_rule(entity, &matched_rules)
         {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         if state
@@ -324,7 +327,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .border_radius_top_right
             .link_rule(entity, &matched_rules)
         {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         if state
@@ -332,7 +335,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .border_radius_bottom_left
             .link_rule(entity, &matched_rules)
         {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         if state
@@ -340,13 +343,13 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .border_radius_bottom_right
             .link_rule(entity, &matched_rules)
         {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         // Flex Container
         if state.style.flex_direction.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state
@@ -354,53 +357,53 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .justify_content
             .link_rule(entity, &matched_rules)
         {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.align_content.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.align_items.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.align_self.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         // Flex Item
         if state.style.flex_basis.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.flex_grow.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.flex_shrink.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         if state.style.align_self.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_relayout = true;
+            should_redraw = true;
         }
 
         // Text Alignment
         if state.style.text_align.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         if state.style.text_justify.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         // Background
@@ -409,7 +412,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .background_color
             .link_rule(entity, &matched_rules)
         {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         if state
@@ -417,16 +420,49 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .background_image
             .link_rule(entity, &matched_rules)
         {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         // Font
         if state.style.font_color.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
         }
 
         if state.style.font_size.link_rule(entity, &matched_rules) {
-            state.insert_event(Event::new(WindowEvent::Redraw));
+            should_redraw = true;
+        }
+
+        // Shadow
+        if state
+            .style
+            .shadow_h_offset
+            .link_rule(entity, &matched_rules)
+        {
+            should_redraw = true;
+        }
+
+        if state
+            .style
+            .shadow_v_offset
+            .link_rule(entity, &matched_rules)
+        {
+            should_redraw = true;
+        }
+
+        if state.style.shadow_blur.link_rule(entity, &matched_rules) {
+            should_redraw = true;
+        }
+
+        if state.style.shadow_color.link_rule(entity, &matched_rules) {
+            should_redraw = true;
+        }
+
+        if should_relayout {
+            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        }
+
+        if should_redraw {
+            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         }
     }
 }

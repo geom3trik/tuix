@@ -109,10 +109,7 @@ impl BuildHandler for Animations {
                 .set_text_align(Align::Start)
         });
 
-        Element::new().build(state, self.element, |builder| {
-            builder.class("subelement")
-        });
-
+        Element::new().build(state, self.element, |builder| builder.class("subelement"));
 
         // Background Color Animation
         let background_color_animation_state = AnimationState::new()
@@ -246,8 +243,6 @@ impl BuildHandler for Animations {
         self.border_radius_button = Button::with_label("Border Radius")
             .on_press(Event::new(AnimationsEvent::Play))
             .build(state, vbox, |builder| builder);
-
-        
 
         entity
     }

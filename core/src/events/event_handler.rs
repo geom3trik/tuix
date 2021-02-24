@@ -14,7 +14,7 @@ use femtovg::{
     Paint, Path, Renderer, Solidity,
 };
 
-use crate::style::{Justify, Length, Visibility};
+use crate::style::{Justify, Length, Visibility, Direction};
 
 use std::any::{Any, TypeId};
 
@@ -189,8 +189,7 @@ pub trait EventHandler: Any + Send {
         };
 
         // Skip widgets with no width or no height
-        if width == 0.0 || height == 0.0
-        {
+        if width == 0.0 || height == 0.0 {
             return;
         }
 
@@ -202,6 +201,8 @@ pub trait EventHandler: Any + Send {
         canvas.translate(posx + width / 2.0, posy + height / 2.0);
         canvas.rotate(rotate.to_radians());
         canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+
+        canvas.translate(posx,posy);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
@@ -231,6 +232,10 @@ pub trait EventHandler: Any + Send {
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
+
+        if shadow_h_offset > 0.0 {
+            println!("Shadow H: {}", shadow_h_offset);
+        }
 
         let shadow_v_offset = match state
             .style
@@ -269,29 +274,29 @@ pub trait EventHandler: Any + Send {
         // Draw shadow (TODO)
         let mut path = Path::new();
         path.rect(
-            posx + (border_width / 2.0) - shadow_blur + shadow_h_offset,
-            posy + (border_width / 2.0) - shadow_blur + shadow_v_offset,
-            width - border_width + 2.0 * shadow_blur,
-            height - border_width + 2.0 * shadow_blur,
+            0.0 - shadow_blur + shadow_h_offset,
+            0.0 - shadow_blur + shadow_v_offset,
+            width + 2.0 * shadow_blur,
+            height + 2.0 * shadow_blur,
         );
-        // path.rounded_rect_varying(
-        //     posx + (border_width / 2.0),
-        //     posy + (border_width / 2.0),
-        //     width - border_width,
-        //     height - border_width,
-        //     border_radius_top_left,
-        //     border_radius_top_right,
-        //     border_radius_bottom_right,
-        //     border_radius_bottom_left,
-        // );
-        // path.solidity(Solidity::Hole);
+        path.rounded_rect_varying(
+            0.0,
+            0.0,
+            width,
+            height,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left,
+        );
+        path.solidity(Solidity::Hole);
         //let mut paint = Paint::color(shadow_color);
 
         let mut paint = Paint::box_gradient(
-            posx + (border_width / 2.0) + shadow_h_offset,
-            posy + (border_width / 2.0) + shadow_v_offset,
-            width - border_width,
-            height - border_width,
+            0.0 + shadow_h_offset,
+            0.0 + shadow_v_offset,
+            width,
+            height,
             border_radius_top_left,
             shadow_blur,
             shadow_color,
@@ -308,15 +313,15 @@ pub trait EventHandler: Any + Send {
             && border_radius_top_right == (width - 2.0 * border_width) / 2.0
         {
             path.circle(
-                posx + (border_width / 2.0) + (width - border_width) / 2.0,
-                posy + (border_width / 2.0) + (height - border_width) / 2.0,
+                0.0 + (border_width / 2.0) + (width - border_width) / 2.0,
+                0.0 + (border_width / 2.0) + (height - border_width) / 2.0,
                 width / 2.0,
             );
         } else {
             // Draw rounded rect
             path.rounded_rect_varying(
-                posx + (border_width / 2.0),
-                posy + (border_width / 2.0),
+                0.0 + (border_width / 2.0),
+                0.0 + (border_width / 2.0),
                 width - border_width,
                 height - border_width,
                 border_radius_top_left,
@@ -325,14 +330,35 @@ pub trait EventHandler: Any + Send {
                 border_radius_bottom_left,
             );
         }
-
+        
+        
         let mut paint = Paint::color(background_color);
+        
+        if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
+
+            let (start_x, start_y, end_x, end_y) = match background_gradient.direction {
+                Direction::LeftToRight => (0.0, 0.0, width, 0.0),
+                Direction::TopToBottom => (0.0, 0.0, 0.0, height),
+                _=> (0.0, 0.0, width, 0.0),
+            };
+
+            paint = Paint::linear_gradient_stops(start_x, start_y, end_x, end_y, 
+                background_gradient.get_stops(parent_width).iter().map(|stop| {
+                    let col: femtovg::Color = stop.1.into();
+                    (stop.0, col)
+                }).collect::<Vec<_>>().as_slice());
+        }
+
+        
+
         canvas.fill_path(&mut path, paint);
 
         // Draw border
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
+
+        
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
@@ -347,8 +373,8 @@ pub trait EventHandler: Any + Send {
             // let mut x = posx + (border_width / 2.0);
             // let mut y = posy + (border_width / 2.0);
 
-            let mut x = posx;
-            let mut y = posy;
+            let mut x = 0.0;
+            let mut y = 0.0;
 
             let text_string = text.text.to_owned();
 
@@ -410,6 +436,7 @@ pub trait EventHandler: Any + Send {
             canvas.fill_text(x, y, &text_string, paint);
         }
 
+        canvas.translate(-posx, -posy);
         canvas.restore();
 
         /*

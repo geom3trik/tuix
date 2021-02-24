@@ -1138,7 +1138,6 @@ impl PropSet for Entity {
 }
 
 pub trait PropGet {
-
     // Display
     fn get_display(&self, state: &mut State) -> Display;
 
@@ -1357,23 +1356,48 @@ impl PropGet for Entity {
     }
 
     fn get_justify_content(&self, state: &mut State) -> JustifyContent {
-        state.style.justify_content.get(*self).cloned().unwrap_or_default()
+        state
+            .style
+            .justify_content
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
     }
 
     fn get_align_items(&self, state: &mut State) -> AlignItems {
-        state.style.align_items.get(*self).cloned().unwrap_or_default()
+        state
+            .style
+            .align_items
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
     }
 
     // Flex Item
     fn get_flex_grow(&self, state: &mut State) -> f32 {
-        state.style.flex_grow.get(*self).cloned().unwrap_or_default()
+        state
+            .style
+            .flex_grow
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
     }
 
     fn get_flex_shrink(&self, state: &mut State) -> f32 {
-        state.style.flex_shrink.get(*self).cloned().unwrap_or_default()
+        state
+            .style
+            .flex_shrink
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
     }
 
     fn get_align_self(&self, state: &mut State) -> AlignSelf {
-        state.style.align_self.get(*self).cloned().unwrap_or_default()
+        state
+            .style
+            .align_self
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
     }
 }

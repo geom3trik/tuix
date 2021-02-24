@@ -1,7 +1,6 @@
 use crate::animation::Interpolator;
 use crate::entity::Entity;
 
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct MaxWidth(pub f32);
 

@@ -29,7 +29,6 @@ pub use layout::*;
 pub mod length;
 pub use length::*;
 
-
 pub mod shape;
 pub use shape::*;
 
@@ -157,6 +156,7 @@ pub struct Style {
     // Background
     pub background_color: AnimatableStorage<Color>,
     pub background_image: StyleStorage<String>,
+    pub background_gradient: StyleStorage<LinearGradient>,
 
     // Box Shadow
     pub shadow_h_offset: AnimatableStorage<Length>,
@@ -268,6 +268,7 @@ impl Style {
 
             background_color: AnimatableStorage::new(),
             background_image: StyleStorage::new(),
+            background_gradient: StyleStorage::new(),
 
             //justification: DenseStorage::new(),
             //alignment: DenseStorage::new(),
@@ -504,11 +505,36 @@ impl Style {
                         self.z_order.insert_rule(rule_id, value);
                     }
 
+                    Property::BoxShadow(box_shadow) => {
+                        self.shadow_h_offset
+                            .insert_rule(rule_id, box_shadow.horizontal_offset);
+                        self.shadow_v_offset
+                            .insert_rule(rule_id, box_shadow.vertical_offset);
+                        self.shadow_blur
+                            .insert_rule(rule_id, box_shadow.blur_radius);
+                        self.shadow_color.insert_rule(rule_id, box_shadow.color);
+                    }
+
                     Property::Transition(transitions) => {
                         for transition in transitions {
                             match transition.property.as_ref() {
                                 "background-color" => {
                                     self.background_color.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "flex-basis" => {
+                                    self.flex_basis.insert_transition(
                                         rule_id,
                                         AnimationState::new()
                                             .with_duration(std::time::Duration::from_secs_f32(

@@ -181,8 +181,6 @@ where
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
-
         state.add_theme(VEC_EDIT_STYLE);
 
         entity.set_flex_direction(state, FlexDirection::Row);

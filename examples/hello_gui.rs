@@ -1,9 +1,7 @@
-
 use tuix::*;
 
 fn main() {
     let app = Application::new(|win_desc, state, window| {
-
         Button::with_label("Button").build(state, window, |builder| {
             builder
                 .set_width(Length::Pixels(100.0))
