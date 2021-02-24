@@ -69,13 +69,36 @@ The general idea of tuix is that widgets contain the application data which is m
 First we need a widget to hold our data. In tuix a widget is just a struct:
 
 ```Rust
-#[derive(Default)]
 pub struct Counter {
     value: i32,
     label: Entity,
 }
 ```
-Inside out counter widget we have a field for the value of the counter and a field which will store the `Entity` id of the label widget that will display the value.
+Inside our counter widget we have a field for the value of the counter and a field which will store the `Entity` of the label widget that will display the value. An `Entity` is an id which is used to modify `State`, a sort of database for the state of the app. 
+
+While `State` stores the data for the GUI, like style properties and events, the data inside the widgets, like our `value` is application data defined by the user. Once the the widget is built into the app this data can only be accessed by the widget at three different stages:
+
+1. During the build stage which happens only once when a widget is built
+2. During the event handling stage which happens whenever the widget receives an event
+3. During the drawing phase which happens when the app needs to be redrawn
+
+Next, we provide an implementation for the `Counter` so an instance can be created and the initial value can be set:
+
+```Rust
+impl Counter {
+    pub fn new() -> Self {
+        Self {
+            value: 0,
+            label: Entity::default(),
+        }
+    }
+    
+    fn with_initial_value(mut self, val: i32) -> Self {
+        self.value = val;
+        self
+    }
+}
+```
 
 Next we define the messages that the counter should respond to. In tuix, any struct or enum that implements `Debug`, `Clone`, and `PartialEq` can be a message:
 
@@ -85,7 +108,8 @@ pub enum CounterMessage {
     Decrement,
 }
 ```
-To make our counter struct an actual widget it needs to implement two traits. The first is the `BuildHandler` which has a single function called `on_build` which will describe how our widget is constructed with all of its sub-widgets:
+
+Now, to make our counter struct an actual widget it needs to implement two traits: `BuildHandler` and `EventHandler`. The first is the `BuildHandler` which has a single function called `on_build` which will describe how our widget is constructed with all of its sub-widgets:
 
 ```Rust
 impl BuildHandler for Counter {
@@ -108,9 +132,9 @@ impl BuildHandler for Counter {
 ```
 There's a lot going on here so let's break it down. The `on_build()` method will be called when an instance of our counter widget is constructed using `build()`. 
 
-Inside this method we create two buttons and a label. The first button is our increment button so we give it an event to emit when pressed with the `Increment` message we defined before. We've also given the button the class name "increment" so we can more easily style the button. Notice that for the parent we've used `entity`. This is the id that will be given to our counter widget instance when constructed.  
+Inside this method we create two buttons and a label. The first button is our increment button so we give it an event to emit when pressed with the `Increment` message we defined before. We've also given the button the class name "increment" so we can more easily style the button. Notice that for the parent we've used `entity`, which is the id given to our counter widget instance when built.  
 
-We repeat this process for the decrement button, but this time with an event message of `Decrement` and a class name of "increment". Then, we construct a label with an initial value of "0". Lastly we set the element name of our counter widget to "counter".
+We repeat this process for the decrement button, but this time with an event message of `Decrement` and a class name of "decrement". Then, we construct the label and set the text to the intial value stored in the `Counter` instance, which may have been initialised with the `with_initial_value` method. Lastly we set the element name of our counter widget to "counter", so we can use this name to style the entire widget.
 
 With the building part done we can now implement the `EventHandler` trait so that our counter can react to the events sent by our buttons:
 
@@ -135,14 +159,14 @@ impl EventHandler for Counter {
     }
 }
 ```
-To react to events we override the `on_event()` method within the `EventHandler` implementation. This function is similar to `on_build` but with the addition of an `event` argument. Because our counter widget could receive multiple types of events, we need to try downcasting the event message into the `CounterMessage` toye we're looking for. After this, we match on the variants and update the internal `value` and the text of the `label` accordingly.
+To react to events we override the `on_event()` method. This function is similar to `on_build` but with the addition of an `event` argument. Because our counter widget could receive multiple types of events, we need to try downcasting the event message into the `CounterMessage` that we are looking for. After this, we match on the variants, update the internal `value`, and set the text of the `label` accordingly.
 
-It's worth spending a moment to discuss what's happening here. How does the counter receive the messages? This is roughly the order of events happening in tuix whe the user presses the increment button:
+It's worth spending a moment to discuss what's happening here. How does the counter receive the messages? This is roughly the order of events happening in tuix when the user presses the increment button:
 
 1. Increment button pushes the 'on_press' event (in this case an event with a `CounterMessage::Increment` message) into an event queue in `State`.
 2. Events from state are moved to an `EventManager` which then propagates those events through the hierarchy of widgets. By default event are sent down the hierarchy to the target and then back up to the root. We didn't specify a target for the `on_press` event so it defaults to the button itself.
-3. Because our counter widget is the parent of the button it receives the event during the down phase of propagation and also on the up phase. We intercept this event and react to it, incrementing the value and changing the label text. To prevent the counter incrementing again during the up phase we consume the event.
-4. Because we set the text on the label, which is a style property, this automatically triggers a redraw of the UI. In general, relayout and redraw will only trigger when a property that would effect the layout or visuals of the app changes (there is also a way to manually trigger them).
+3. Because our counter widget is the parent of the button it receives the event during the down phase of propagation and also on the up phase. We intercept this event and react to it, incrementing the value and changing the label text. To prevent the counter incrementing again during the up phase we consume the event with `event.consume()`.
+4. Because we set the text on the label, which is a style property, this automatically triggers a redraw of the UI. In general, relayout and redraw will only trigger when a property that would affect the layout or visuals of the app changes (there is also a way to manually trigger them).
 
 Before we finish off this counter example by placing our new counter widget into an app, we need to set some style properties. We could use inline styles within our rust code to do this, but for better reusability we'll use CSS, which can be defined in its own file. You can find some example styling for this counter in the 'examples/themes' directory of tuix, under the name 'counter_theme.css'.
 
@@ -154,10 +178,10 @@ static THEME: &'static str = include_str!("themes/counter_theme.css");
 fn main() {
     // Create the app
     let app = Application::new(|win_desc, state, window| {
-        state.insert_theme(THEME);
+        state.add_theme(THEME);
 
-        Counter::default()
-            .set_initial_value(50)
+        Counter::new()
+            .with_initial_value(50)
             .build(state, window, |builder| builder);
             
         win_desc.with_title("Counter").with_inner_size(400, 100)
@@ -166,6 +190,10 @@ fn main() {
     app.run();
 }
 ```
+Now we create an app which gives us a closure with three arguments. The first is a `WindowDescription` we can use to set the properties of the window like the title and size, which we do last because the closure expects the window description to be returned. The second is the `State` which is created by the app and passed to all widgets during building, events, and drawing. The final argument of the closure is an `Entity` id to the window which acts as the top level widget in the hierarchy.  
+
+The first line of the closure adds the stylsheet to the app. Next, we create an instance of our counter, set the initial value, and then build the widget into the app the same way we did with the sub-widgets of the counter. Then, as mentioned before, we set the window title and intial size and return the window description.
+
 And we're done! 
 
 ![counter](https://github.com/geom3trik/tuix/blob/develop/docs/counter.png?raw=true)
