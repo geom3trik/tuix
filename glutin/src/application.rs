@@ -122,7 +122,7 @@ impl Application {
         let mut window = self.window;
         let mut should_quit = false;
 
-        let hierarchy = state.hierarchy.clone();
+        //let hierarchy = state.hierarchy.clone();
 
         let mut counter = 0;
 
@@ -183,6 +183,7 @@ impl Application {
                     }
 
                     if first_time {
+                        let hierarchy = state.hierarchy.clone();
                         apply_styles(&mut state, &hierarchy);
                         first_time = false;
                     }
@@ -208,7 +209,9 @@ impl Application {
                 }
 
                 // REDRAW
+
                 GEvent::RedrawRequested(_) => {
+                    let hierarchy = state.hierarchy.clone();
                     event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
                     // Swap buffers
                     window
@@ -292,6 +295,14 @@ impl Application {
                                     state.reload_styles().unwrap();
                                 }
 
+                                if virtual_keycode == VirtualKeyCode::H && s == MouseButtonState::Pressed {
+                                    println!("Hierarchy");
+                                    for entity in state.hierarchy.into_iter() {
+                                        println!("Entity: {}  Parent: {:?} FC: {:?} NS: {:?}", entity, state.hierarchy.get_parent(entity), state.hierarchy.get_first_child(entity), state.hierarchy.get_next_sibling(entity));
+
+                                    }
+                                }
+
                                 if virtual_keycode == VirtualKeyCode::Tab
                                     && s == MouseButtonState::Pressed
                                 {
@@ -323,6 +334,7 @@ impl Application {
                                             // };
                                         }
                                     } else {
+                                        let hierarchy = state.hierarchy.clone();
                                         if next_focus != Entity::null() {
                                             state.focused.set_focus(&mut state, false);
                                             state.focused = next_focus;

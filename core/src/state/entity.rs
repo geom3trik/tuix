@@ -112,7 +112,7 @@ impl EntityManager {
     // Destroy an entity.
     pub(crate) fn destroy_entity(&mut self, entity: Entity) {
         if let Some(index) = entity.index() {
-            self.count -= 1;
+            //self.count -= 1;
             self.free_indices.push_back(index as u32);
         }
     }

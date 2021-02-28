@@ -111,6 +111,8 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             continue;
         }
 
+        //println!("Entity: {}  Parent: {:?} FC: {:?} NS: {:?}", entity, hierarchy.get_parent(entity), hierarchy.get_first_child(entity), hierarchy.get_next_sibling(entity));
+
         // Possible point to add Cascading
 
         // Create a list of style rules that match this entity
