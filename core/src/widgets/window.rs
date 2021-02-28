@@ -5,13 +5,13 @@ use crate::systems::{
 };
 
 #[derive(Clone)]
-pub struct WindowWidget {
+pub struct WindowWidgetOld {
     
 }
 
-impl WindowWidget {
+impl WindowWidgetOld {
     pub fn new() -> Self {
-        WindowWidget {}
+        WindowWidgetOld {}
     }
 
     pub fn build_window(self, state: &mut State) {
@@ -19,7 +19,7 @@ impl WindowWidget {
     }
 }
 
-impl EventHandler for WindowWidget {
+impl EventHandler for WindowWidgetOld {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

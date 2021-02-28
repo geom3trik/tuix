@@ -6,7 +6,7 @@ use femtovg::{renderer::OpenGl, Canvas, Color};
 use raw_gl_context::{GlConfig, GlContext};
 
 use crate::keyboard::{scan_to_code, vk_to_key};
-use crate::window::{Window, WindowWidget2};
+use crate::window::{Window, WindowWidget};
 
 use tuix_core::{events::{Event, EventManager, Propagation}, window};
 use tuix_core::state::hierarchy::IntoHierarchyIterator;
@@ -17,7 +17,7 @@ use tuix_core::{Length, Visibility};
 
 use tuix_core::state::style::prop::*;
 use tuix_core::systems::{apply_clipping, apply_styles, apply_visibility, apply_z_ordering};
-use tuix_core::{WindowDescription, WindowEvent, WindowWidget, AppEvent};
+use tuix_core::{WindowDescription, WindowEvent, AppEvent};
 
 type WEvent<'a, T> = winit::event::Event<'a, T>;
 use winit::window::WindowBuilder;
@@ -243,7 +243,7 @@ impl Application {
         let mut windows = HashMap::new();
         windows.insert(handle.id(), Entity::root());
 
-        let mut window_widget = WindowWidget2::default();
+        let mut window_widget = WindowWidget::default();
         window_widget.handle = Some(handle);
         window_widget.build_window(&mut state);
         contexts.insert(Entity::root(), (context, canvas));
@@ -287,7 +287,7 @@ impl Application {
                         if event_manager.flush_events(&mut state, |event_handlers, app_event| {
                             match app_event {
                                 AppEvent::AddWindow(entity) => {
-                                    entity.testy2(event_handlers, |window_widget: &mut WindowWidget2| {
+                                    entity.testy2(event_handlers, |window_widget: &mut WindowWidget| {
                                         contexts.insert(*entity, window_widget.create_window(event_loop));
                                         windows.insert(window_widget.id(), *entity);
                                         //windows.push(*entity);

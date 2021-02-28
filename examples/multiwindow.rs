@@ -3,7 +3,7 @@ use tuix::*;
 
 use tuix::button::Button;
 
-use tuix_winit::window::WindowWidget2;
+use tuix_winit::window::WindowWidget;
 
 
 const STYLE: &str = r#"
@@ -53,7 +53,7 @@ button.increment:hover {
 }
 
 
-counter {
+app {
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
@@ -88,7 +88,7 @@ impl BuildHandler for App {
         Button::with_label("Spawn Window")
             .on_press(Event::new(AppMessage::AddWindow))
             .build(state, entity, |builder| builder.class("increment").set_width(Length::Pixels(200.0)));
-        entity.set_element(state, "counter")
+        entity.set_element(state, "app")
     }
 }
 

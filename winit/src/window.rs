@@ -11,11 +11,11 @@ use raw_gl_context::{GlConfig, GlContext};
 use tuix_core::*;
 
 #[derive(Default)]
-pub struct WindowWidget2 {
+pub struct WindowWidget {
     pub handle: Option<winit::window::Window>,
 }
 
-impl WindowWidget2 {
+impl WindowWidget {
     pub fn id(&self) -> winit::window::WindowId {
         self.handle.as_ref().unwrap().id()
     }
@@ -164,7 +164,7 @@ impl WindowWidget2 {
     }
 }
 
-impl BuildHandler for WindowWidget2 {
+impl BuildHandler for WindowWidget {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         println!("Build a Window");
@@ -181,7 +181,7 @@ impl BuildHandler for WindowWidget2 {
     }
 }
 
-impl EventHandler for WindowWidget2 {
+impl EventHandler for WindowWidget {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(app_event) = event.message.downcast::<AppEvent>() {
             match app_event {

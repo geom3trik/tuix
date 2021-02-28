@@ -64,7 +64,7 @@ pub mod vector_edit;
 pub use vector_edit::*;
 
 pub mod window;
-pub use window::WindowWidget;
+pub use window::WindowWidgetOld;
 
 pub mod listbox;
 pub use listbox::*;
