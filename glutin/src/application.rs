@@ -22,7 +22,7 @@ use tuix_core::state::style::prop::*;
 
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
-use tuix_core::systems::{apply_clipping, apply_styles, apply_visibility, apply_z_ordering};
+use tuix_core::systems::{apply_clipping, apply_styles, apply_visibility, apply_z_ordering, apply_hover};
 
 use glutin::event::VirtualKeyCode;
 
@@ -141,26 +141,12 @@ impl Application {
 
                 GEvent::UserEvent(_) => {
                     window.handle.window().request_redraw();
-
-                    //println!("User Event");
-                    // if state.apply_animations() {
-                    //     *control_flow = ControlFlow::Poll;
-                    //     state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(Entity::new(0, 0)));
-                    //     //state.insert_event(Event::new(WindowEvent::Redraw));
-                    //     event_loop_proxy.send_event(());
-                    //     window.handle.window().request_redraw();
-                    // } else {
-                    //     *control_flow = ControlFlow::Wait;
-                    // }
                 }
 
                 GEvent::MainEventsCleared => {
-                    //println!("Main Events Cleared: {}", counter);
-                    //counter += 1;
 
                     let mut needs_redraw = false;
                     while !state.event_queue.is_empty() {
-                        //println!("Flush Events");
                         if event_manager.flush_events(&mut state) {
                             needs_redraw = true;
                         }
@@ -430,150 +416,7 @@ impl Application {
                             state.mouse.cursorx = cursorx as f32;
                             state.mouse.cursory = cursory as f32;
 
-                            let mut hovered_widget = Entity::root();
-
-                            // This only really needs to be computed when the hierarchy changes
-                            // Can be optimised
-                            let mut draw_hierarchy: Vec<Entity> =
-                                state.hierarchy.into_iter().collect();
-
-                            draw_hierarchy
-                                .sort_by_cached_key(|entity| state.data.get_z_order(*entity));
-
-                            for widget in draw_hierarchy.into_iter() {
-                                // Skip invisible widgets
-                                if state.data.get_visibility(widget) == Visibility::Invisible {
-                                    continue;
-                                }
-
-                                // This shouldn't be here but there's a bug if it isn't
-                                if state.data.get_opacity(widget) == 0.0 {
-                                    continue;
-                                }
-
-                                // Skip non-hoverable widgets
-                                if state.data.get_hoverability(widget) != true {
-                                    continue;
-                                }
-
-                                let border_width = match state
-                                    .style
-                                    .border_width
-                                    .get(widget)
-                                    .cloned()
-                                    .unwrap_or_default()
-                                {
-                                    Length::Pixels(val) => val,
-                                    //Length::Percentage(val) => parent_width * val,
-                                    _ => 0.0,
-                                };
-
-                                let posx = state.data.get_posx(widget) - (border_width / 2.0);
-                                let posy = state.data.get_posy(widget) - (border_width / 2.0);
-                                let width = state.data.get_width(widget) + (border_width);
-                                let height = state.data.get_height(widget) + (border_width);
-
-                                let clip_widget = state.data.get_clip_widget(widget);
-
-                                let clip_posx = state.data.get_posx(clip_widget);
-                                let clip_posy = state.data.get_posy(clip_widget);
-                                let clip_width = state.data.get_width(clip_widget);
-                                let clip_height = state.data.get_height(clip_widget);
-
-                                if cursorx >= posx
-                                    && cursorx >= clip_posx
-                                    && cursorx < (posx + width)
-                                    && cursorx < (clip_posx + clip_width)
-                                    && cursory >= posy
-                                    && cursory >= clip_posy
-                                    && cursory < (posy + height)
-                                    && cursory < (clip_posy + clip_height)
-                                {
-                                    hovered_widget = widget;
-                                    if let Some(pseudo_classes) =
-                                        state.style.pseudo_classes.get_mut(hovered_widget)
-                                    {
-                                        pseudo_classes.set_over(true);
-                                    }
-                                } else {
-                                    if let Some(pseudo_classes) =
-                                        state.style.pseudo_classes.get_mut(hovered_widget)
-                                    {
-                                        pseudo_classes.set_over(false);
-                                    }
-                                }
-                            }
-
-                            if hovered_widget != state.hovered {
-                                // Useful for debugging
-
-                                println!(
-                                    "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-                                    hovered_widget,
-                                    state.hierarchy.get_parent(hovered_widget),
-                                    state.data.get_posx(hovered_widget),
-                                    state.data.get_posy(hovered_widget),
-                                    state.data.get_width(hovered_widget),
-                                    state.data.get_height(hovered_widget),
-                                    state.data.get_z_order(hovered_widget),
-                                );
-
-                                if let Some(pseudo_classes) =
-                                    state.style.pseudo_classes.get_mut(hovered_widget)
-                                {
-                                    pseudo_classes.set_hover(true);
-                                }
-
-                                if let Some(pseudo_classes) =
-                                    state.style.pseudo_classes.get_mut(state.hovered)
-                                {
-                                    pseudo_classes.set_hover(false);
-                                }
-
-                                // if state.captured != Entity::null() {
-                                //     state.insert_event(
-                                //         Event::new(WindowEvent::MouseOver)
-                                //             .target(state.captured)
-                                //             .propagate(Propagation::Direct),
-                                //     );
-                                // } else if state.hovered != Entity::new(0, 0) {
-                                //     state.insert_event(
-                                //         Event::new(WindowEvent::MouseOver)
-                                //             .target(state.hovered),
-                                //     );
-                                // }
-
-                                state.insert_event(
-                                    Event::new(WindowEvent::MouseOver).target(hovered_widget),
-                                );
-                                state.insert_event(
-                                    Event::new(WindowEvent::MouseOut).target(state.hovered),
-                                );
-
-                                state.insert_event(
-                                    Event::new(WindowEvent::Restyle).target(Entity::root()),
-                                );
-
-                                state.hovered = hovered_widget;
-                                state.active = Entity::null();
-
-                                state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-                            }
-
-                            if state.captured != Entity::null() {
-                                state.insert_event(
-                                    Event::new(WindowEvent::MouseMove(cursorx, cursory))
-                                        .target(state.captured)
-                                        .propagate(Propagation::Direct),
-                                );
-                            } else if state.hovered != Entity::root() {
-                                state.insert_event(
-                                    Event::new(WindowEvent::MouseMove(cursorx, cursory))
-                                        .target(state.hovered),
-                                );
-                            }
-
-                            pos = (cursorx, cursory);
+                            apply_hover(&mut state);
                         }
 
                         glutin::event::WindowEvent::MouseInput {

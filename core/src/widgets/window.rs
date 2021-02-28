@@ -1,4 +1,4 @@
-use crate::{Entity, Event, EventHandler, State, WindowEvent};
+use crate::{Entity, Event, EventHandler, State, WindowEvent, apply_hover};
 
 use crate::systems::{
     apply_clipping, apply_layout, apply_styles, apply_visibility, apply_z_ordering,
@@ -38,6 +38,7 @@ impl EventHandler for WindowWidget {
                     apply_visibility(state, &state.hierarchy.clone());
                     apply_clipping(state, &state.hierarchy.clone());
                     apply_layout(state, &state.hierarchy.clone());
+                    apply_hover(state);
                 }
 
                 WindowEvent::Redraw => {}
