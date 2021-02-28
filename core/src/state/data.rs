@@ -44,6 +44,7 @@ pub struct Data {
     pub hoverability: Vec<bool>,
     pub z_order: Vec<i32>,
     pub clip_widget: Vec<Entity>,
+    pub window: Vec<Entity>,
     // Holds the child_width_sum and then the free_width_space
     pub(crate) child_sum: Vec<f32>, // Sum of child widths
     pub(crate) child_max: Vec<f32>, // Max child width
@@ -67,6 +68,7 @@ impl Data {
             opacity: Vec::new(),
             z_order: Vec::new(),
             clip_widget: Vec::new(),
+            window: Vec::new(),
         }
     }
 
@@ -86,6 +88,7 @@ impl Data {
             self.opacity.resize(key + 1, 0.0);
             self.z_order.resize(key + 1, 0);
             self.clip_widget.resize(key + 1, Entity::new(0));
+            self.window.resize(key + 1, Entity::root());
         }
 
         // Are these needed?
@@ -106,6 +109,11 @@ impl Data {
 
     // For getters and setters it's safe to use unwrap because every entity must have a position and size.
     // Event if the position and size are 0.0, or the entity is invisible.
+
+
+    pub fn get_window(&self, entity: Entity) -> Entity {
+        self.window.get(entity.index_unchecked()).cloned().unwrap()
+    }
 
     pub fn get_clip_widget(&self, entity: Entity) -> Entity {
         self.clip_widget
@@ -190,6 +198,11 @@ impl Data {
     }
 
     // SETTERS
+    pub fn set_window(&mut self, entity: Entity, val: Entity) {
+        if let Some(window) = self.window.get_mut(entity.index_unchecked()) {
+            *window = val;
+        }
+    }
 
     pub fn set_clip_widget(&mut self, entity: Entity, val: Entity) {
         if let Some(clip_widget) = self.clip_widget.get_mut(entity.index_unchecked()) {

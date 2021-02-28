@@ -20,7 +20,7 @@ use std::any::{Any, TypeId};
 
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
-pub trait EventHandler: Any + Send {
+pub trait EventHandler: Any {
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
@@ -218,7 +218,7 @@ pub trait EventHandler: Any + Send {
         let clip_width = state.data.get_width(clip_entity);
         let clip_height = state.data.get_height(clip_entity);
 
-        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+        //canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
         //canvas.scissor(0.0, 0.0, 100.0, 100.0);
 
         let shadow_h_offset = match state

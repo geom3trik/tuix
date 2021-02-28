@@ -1,9 +1,14 @@
-use winit::event_loop::{ControlFlow, EventLoop};
+use std::collections::HashMap;
+
+use winit::event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget};
+
+use femtovg::{renderer::OpenGl, Canvas, Color};
+use raw_gl_context::{GlConfig, GlContext};
 
 use crate::keyboard::{scan_to_code, vk_to_key};
-use crate::window::Window;
+use crate::window::{Window, WindowWidget2};
 
-use tuix_core::events::{Event, EventManager, Propagation};
+use tuix_core::{events::{Event, EventManager, Propagation}, window};
 use tuix_core::state::hierarchy::IntoHierarchyIterator;
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 use tuix_core::state::Fonts;
@@ -12,35 +17,179 @@ use tuix_core::{Length, Visibility};
 
 use tuix_core::state::style::prop::*;
 use tuix_core::systems::{apply_clipping, apply_styles, apply_visibility, apply_z_ordering};
-use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
+use tuix_core::{WindowDescription, WindowEvent, WindowWidget, AppEvent};
 
 type WEvent<'a, T> = winit::event::Event<'a, T>;
+use winit::window::WindowBuilder;
+use winit::dpi::PhysicalSize;
+use winit::window::Icon;
 
 use winit::event::VirtualKeyCode;
 
 pub struct Application {
-    pub window: Window,
+    //pub window: Window,
     pub state: State,
-    event_loop: EventLoop<()>,
-    pub event_manager: EventManager,
+    pub window_description: WindowDescription,
+    // event_loop: EventLoop<()>,
+    // pub event_manager: EventManager,
+    // windows: Vec<Entity>,
 }
 
 impl Application {
     pub fn new<F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription>(
         mut app: F,
     ) -> Self {
-        let event_loop = EventLoop::new();
+        // let event_loop = EventLoop::new();
         let mut state = State::new();
 
-        let event_manager = EventManager::new();
+        // let event_manager = EventManager::new();
 
-        let root = Entity::root();
+        // let root = Entity::root();
         state.hierarchy.add(Entity::root(), None);
 
-        //let window_description = win(WindowDescription::new());
-        let window_description = app(WindowDescription::new(), &mut state, root);
+        // //let window_description = win(WindowDescription::new());
+        let window_description = app(WindowDescription::new(), &mut state, Entity::root());
 
-        let mut window = Window::new(&event_loop, &window_description);
+        // let mut window = WindowWidget2::new(&event_loop, &window_description);
+
+        // let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
+        // let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
+        // let icon_font = include_bytes!("../../resources/entypo.ttf");
+        // let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
+
+        // let fonts = Fonts {
+        //     regular: Some(
+        //         window
+        //             .canvas.unwrap()
+        //             .add_font_mem(regular_font)
+        //             .expect("Cannot add font"),
+        //     ),
+        //     bold: Some(
+        //         window
+        //             .canvas.unwrap()
+        //             .add_font_mem(bold_font)
+        //             .expect("Cannot add font"),
+        //     ),
+        //     icons: Some(
+        //         window
+        //             .canvas.unwrap()
+        //             .add_font_mem(icon_font)
+        //             .expect("Cannot add font"),
+        //     ),
+        //     emoji: Some(
+        //         window
+        //             .canvas.unwrap()
+        //             .add_font_mem(emoji_font)
+        //             .expect("Cannot add font"),
+        //     ),
+        // };
+
+        // state.fonts = fonts;
+
+        // state.style.width.insert(
+        //     Entity::root(),
+        //     Length::Pixels(window_description.inner_size.width as f32),
+        // );
+        // state.style.height.insert(
+        //     Entity::root(),
+        //     Length::Pixels(window_description.inner_size.height as f32),
+        // );
+
+        // state
+        //     .data
+        //     .set_width(Entity::root(), window_description.inner_size.width as f32);
+        // state
+        //     .data
+        //     .set_height(Entity::root(), window_description.inner_size.height as f32);
+        // state.data.set_opacity(Entity::root(), 1.0);
+
+        // window.build_window(&mut state);
+
+
+        Application {
+            //window,
+            // event_loop,
+            // event_manager,
+            state,
+            window_description,
+            // windows: Vec::new(),
+        }
+    }
+
+    pub fn run(mut self) {
+        let mut pos: (f32, f32) = (0.0, 0.0);
+
+        let mut state = self.state;
+        //state.hierarchy.add(Entity::root(), None);
+        let mut event_manager = EventManager::new();
+        //let mut window = self.window;
+
+        let mut should_quit = false;
+
+        let hierarchy = state.hierarchy.clone();
+
+        let event_loop = EventLoop::new();
+
+        //let mut windows = self.windows;
+
+        let mut num_of_windows = 1;
+
+        let mut contexts: HashMap<Entity, (GlContext, Canvas<OpenGl>)> = HashMap::new();
+
+        let window_description = self.window_description;
+
+        let window_builder = WindowBuilder::new()
+            .with_title(&window_description.title)
+            .with_inner_size(PhysicalSize::new(
+                window_description.inner_size.width,
+                window_description.inner_size.height,
+            ))
+            .with_min_inner_size(PhysicalSize::new(
+                window_description.min_inner_size.width,
+                window_description.min_inner_size.height,
+            ))
+            .with_window_icon(if let Some(icon) = &window_description.icon {
+                Some(
+                    Icon::from_rgba(
+                        icon.clone(),
+                        window_description.icon_width,
+                        window_description.icon_height,
+                    )
+                    .unwrap(),
+                )
+            } else {
+                None
+            });
+
+        let handle = window_builder
+            .build(&event_loop)
+            .expect("Window creation failed");
+        
+        let mut gl_config = GlConfig::default();
+        gl_config.vsync = true;
+
+        let context =
+        GlContext::create(&handle, gl_config).expect("OpenGL context creation failed");
+
+        context.make_current();
+
+        let renderer = OpenGl::new(|s| context.get_proc_address(s) as *const _)
+            .expect("Cannot create renderer");
+        let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
+
+        let dpi_factor = handle.scale_factor();
+        let size = handle.inner_size();
+
+        canvas.set_size(size.width as u32, size.height as u32, dpi_factor as f32);
+        canvas.clear_rect(
+            0,
+            0,
+            size.width as u32,
+            size.height as u32,
+            Color::rgb(80, 80, 255),
+        );
+
+        context.make_not_current();
 
         let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
@@ -49,26 +198,22 @@ impl Application {
 
         let fonts = Fonts {
             regular: Some(
-                window
-                    .canvas
+                canvas
                     .add_font_mem(regular_font)
                     .expect("Cannot add font"),
             ),
             bold: Some(
-                window
-                    .canvas
+                canvas
                     .add_font_mem(bold_font)
                     .expect("Cannot add font"),
             ),
             icons: Some(
-                window
-                    .canvas
+                canvas
                     .add_font_mem(icon_font)
                     .expect("Cannot add font"),
             ),
             emoji: Some(
-                window
-                    .canvas
+                canvas
                     .add_font_mem(emoji_font)
                     .expect("Cannot add font"),
             ),
@@ -93,49 +238,72 @@ impl Application {
             .set_height(Entity::root(), window_description.inner_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
 
-        WindowWidget::new().build_window(&mut state);
+        let mut windows = HashMap::new();
+        windows.insert(handle.id(), Entity::root());
 
-        Application {
-            window,
-            event_loop,
-            event_manager,
-            state,
-        }
-    }
+        let mut window_widget = WindowWidget2::default();
+        window_widget.handle = Some(handle);
+        window_widget.build_window(&mut state);
+        contexts.insert(Entity::root(), (context, canvas));
 
-    pub fn run(mut self) {
-        let mut pos: (f32, f32) = (0.0, 0.0);
 
-        let mut state = self.state;
-        let mut event_manager = self.event_manager;
-        let mut window = self.window;
 
-        let mut should_quit = false;
+        //let event_loop = EventLoop::new();
 
-        let hierarchy = state.hierarchy.clone();
 
-        //state.insert_event(Event::new(WindowEvent::Restyle));
-        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        
+
+        let event_loop_proxy = event_loop.create_proxy();
 
         let mut first_time = true;
 
-        self.event_loop.run(move |event, _, control_flow| {
+        event_loop.run(move |event, event_loop, control_flow| {
             match event {
                 WEvent::LoopDestroyed => return,
 
-                WEvent::UserEvent(_) => {}
+                WEvent::UserEvent(_) => {
+                    //window.handle.request_redraw();
+                }
 
                 WEvent::MainEventsCleared => {
                     let mut needs_redraw = false;
+                    while !state.event_queue.is_empty() {
+                        //println!("Flush Events");
+                        if event_manager.flush_events(&mut state, |event_handlers, app_event| {
+                            match app_event {
+                                AppEvent::AddWindow(entity) => {
+                                    entity.testy2(event_handlers, |window_widget: &mut WindowWidget2| {
+                                        contexts.insert(*entity, window_widget.create_window(event_loop));
+                                        windows.insert(window_widget.id(), *entity);
+                                        //windows.push(*entity);
+                                        num_of_windows += 1;
+                                    });
+                                }
+                                _=> {}
+                            }
+                        }) {
+                            needs_redraw = true;
+                        }
+                    }
 
                     if state.apply_animations() {
+                        //println!("Animate");
+                        *control_flow = ControlFlow::Poll;
                         state.insert_event(
                             Event::new(WindowEvent::Relayout)
-                                .target(Entity::null())
+                                .target(Entity::root())
                                 .origin(Entity::root()),
                         );
                         //state.insert_event(Event::new(WindowEvent::Redraw));
-                        needs_redraw = true;
+                        event_loop_proxy.send_event(());
+                        //window.handle.request_redraw();
+                    } else {
+                        //println!("Wait");
+                        *control_flow = ControlFlow::Wait;
                     }
 
                     if first_time {
@@ -143,43 +311,30 @@ impl Application {
                         first_time = false;
                     }
 
-                    while !state.event_queue.is_empty() {
-                        if event_manager.flush_events(&mut state) {
-                            needs_redraw = true;
-                        }
-                    }
-
                     if needs_redraw {
-                        window.window.request_redraw();
+                        //window.handle.request_redraw();
                     }
-
-                    // event_manager.flush_events(&mut state);
-
-                    // apply_z_ordering(&mut state, &hierarchy);
-                    // apply_visibility(&mut state, &hierarchy);
-                    // apply_clipping(&mut state, &hierarchy);
-                    // layout_fun(&mut state, &hierarchy);
-
-                    // event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
-                    // window
-                    //     .handle
-                    //     .swap_buffers()
-                    //     .expect("Failed to swap buffers");
                 }
 
                 // REDRAW
                 WEvent::RedrawRequested(_) => {
-                    window.context.make_current();
+                    //println!("windows: {:?}", windows);
+                    // for window in windows.iter() {
+                    //     state.insert_event(Event::new(AppEvent::Redraw).target(*window).propagate(Propagation::Direct));
+                    // }
 
-                    event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
-
-                    window.context.swap_buffers();
-                    window.context.make_not_current();
+                    for (window, (context, canvas)) in contexts.iter_mut() {
+                        context.make_current();
+                        let hierarchy = state.hierarchy.clone();
+                        event_manager.draw(&mut state, &hierarchy, *window, canvas);
+                        context.swap_buffers();
+                        context.make_not_current();
+                    }
                 }
 
                 WEvent::WindowEvent {
                     event,
-                    window_id: _,
+                    window_id,
                 } => {
                     match event {
                         //////////////////
@@ -187,7 +342,14 @@ impl Application {
                         //////////////////
                         winit::event::WindowEvent::CloseRequested => {
                             state.insert_event(Event::new(WindowEvent::WindowClose));
+                            println!("Close: {:?}", window_id);
+                            num_of_windows -= 1;
+                            if num_of_windows == 0 {
+                                should_quit = true;
+                            }
+
                             should_quit = true;
+                            
                         }
 
                         //TODO
@@ -335,29 +497,30 @@ impl Application {
                         }
 
                         winit::event::WindowEvent::Resized(physical_size) => {
+                            let window_entity = windows.get(&window_id).unwrap();
                             state
                                 .style
                                 .width
-                                .insert(Entity::root(), Length::Pixels(physical_size.width as f32));
+                                .insert(*window_entity, Length::Pixels(physical_size.width as f32));
                             state.style.height.insert(
-                                Entity::root(),
+                                *window_entity,
                                 Length::Pixels(physical_size.height as f32),
                             );
 
                             state
                                 .data
-                                .set_width(Entity::root(), physical_size.width as f32);
+                                .set_width(*window_entity, physical_size.width as f32);
                             state
                                 .data
-                                .set_height(Entity::root(), physical_size.height as f32);
+                                .set_height(*window_entity, physical_size.height as f32);
 
                             state.insert_event(
-                                Event::new(WindowEvent::Restyle).origin(Entity::root()),
+                                Event::new(WindowEvent::Restyle).target(*window_entity),
                             );
                             state.insert_event(
-                                Event::new(WindowEvent::Relayout).target(Entity::null()),
+                                Event::new(WindowEvent::Relayout).target(*window_entity),
                             );
-                            state.insert_event(Event::new(WindowEvent::Redraw));
+                            state.insert_event(Event::new(WindowEvent::Redraw).target(*window_entity));
                         }
 
                         winit::event::WindowEvent::CursorMoved {
@@ -365,23 +528,46 @@ impl Application {
                             position,
                             ..
                         } => {
+
+                            let window = windows.get(&window_id).unwrap();
+
                             let cursorx = (position.x) as f32;
                             let cursory = (position.y) as f32;
+
+                            //println!("cursorx: {} cursory: {} window: {:?}", cursorx, cursory, window_id);
 
                             state.mouse.cursorx = cursorx as f32;
                             state.mouse.cursory = cursory as f32;
 
                             let mut hovered_widget = Entity::root();
 
-                            // This only really needs to be computed when the hierarchy changes
-                            // Can be optimised
-                            let mut draw_hierarchy: Vec<Entity> =
-                                state.hierarchy.into_iter().collect();
+                            let mut draw_hierarchy = Vec::new();
+                            let mut temp = Some(*window);
+                            let hierarchy = state.hierarchy.clone();
+                            let mut iterator = window.into_iter(&hierarchy);
+                            while temp.is_some() {
+                                
+                                temp = iterator.next();
+                                if let Some(entity) = temp {
+
+                                    let parent_window = state.data.get_window(entity);
+                                    if parent_window != *window {
+                                        temp = iterator.next_branch();
+                                    } else {
+                                        draw_hierarchy.push(entity);
+                                    }
+                                    
+                                }
+                            }
+
+                            // let mut draw_hierarchy: Vec<Entity> =
+                            //     state.hierarchy.into_iter().collect();
 
                             draw_hierarchy
                                 .sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
                             for widget in draw_hierarchy.into_iter() {
+                                //println!("entity: {}", widget);
                                 // Skip invisible widgets
                                 if state.data.get_visibility(widget) == Visibility::Invisible {
                                     continue;
@@ -416,10 +602,16 @@ impl Application {
 
                                 let clip_widget = state.data.get_clip_widget(widget);
 
-                                let clip_posx = state.data.get_posx(clip_widget);
-                                let clip_posy = state.data.get_posy(clip_widget);
-                                let clip_width = state.data.get_width(clip_widget);
-                                let clip_height = state.data.get_height(clip_widget);
+                                // let clip_posx = state.data.get_posx(clip_widget);
+                                // let clip_posy = state.data.get_posy(clip_widget);
+                                // let clip_width = state.data.get_width(clip_widget);
+                                // let clip_height = state.data.get_height(clip_widget);
+
+                                let clip_posx = 0.0;
+                                let clip_posy = 0.0;
+                                let clip_width = std::f32::MAX;
+                                let clip_height = std::f32::MAX;
+
 
                                 if cursorx >= posx
                                     && cursorx >= clip_posx
@@ -448,16 +640,16 @@ impl Application {
                             if hovered_widget != state.hovered {
                                 // Useful for debugging
 
-                                // println!(
-                                //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-                                //     hovered_widget,
-                                //     state.hierarchy.get_parent(hovered_widget),
-                                //     state.transform.get_posx(hovered_widget),
-                                //     state.transform.get_posy(hovered_widget),
-                                //     state.transform.get_width(hovered_widget),
-                                //     state.transform.get_height(hovered_widget),
-                                //     state.transform.get_z_order(hovered_widget),
-                                // );
+                                println!(
+                                    "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+                                    hovered_widget,
+                                    state.hierarchy.get_parent(hovered_widget),
+                                    state.data.get_posx(hovered_widget),
+                                    state.data.get_posy(hovered_widget),
+                                    state.data.get_width(hovered_widget),
+                                    state.data.get_height(hovered_widget),
+                                    state.data.get_z_order(hovered_widget),
+                                );
 
                                 if let Some(pseudo_classes) =
                                     state.style.pseudo_classes.get_mut(hovered_widget)

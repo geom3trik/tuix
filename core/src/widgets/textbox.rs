@@ -39,8 +39,8 @@ pub struct Textbox {
     dragx: f32,
 
     // Events
-    on_change: Option<Box<dyn Fn(&str) -> Event + Send>>,
-    on_submit: Option<Box<dyn Fn(&str) -> Event + Send>>,
+    on_change: Option<Box<dyn Fn(&str) -> Event>>,
+    on_submit: Option<Box<dyn Fn(&str) -> Event>>,
 }
 
 impl Textbox {
@@ -78,7 +78,7 @@ impl Textbox {
 
     pub fn on_change<F>(mut self, on_change: F) -> Self
     where
-        F: 'static + Fn(&str) -> Event + Send,
+        F: 'static + Fn(&str) -> Event,
     {
         self.on_change = Some(Box::new(on_change));
 
@@ -588,7 +588,7 @@ impl EventHandler for Textbox {
         let clip_width = state.data.get_width(clip_entity);
         let clip_height = state.data.get_height(clip_entity);
 
-        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+        //canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
 
         let shadow_h_offset = state
             .style

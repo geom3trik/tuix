@@ -5,6 +5,7 @@ use crate::{entity::Entity, BuildHandler, Builder, EventHandler, Propagation};
 use crate::{Event, WindowEvent};
 
 use crate::state::hierarchy::*;
+use fnv::FnvHashMap;
 
 pub trait PropSet {
     //fn get_first_child(self, hierarchy: &Hierarchy) -> Option<Entity>;
@@ -147,7 +148,7 @@ pub trait PropSet {
 
     fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
         self,
-        state: &mut State,
+        event_handlers: &mut FnvHashMap<Entity, Box<dyn EventHandler>>,
         mutator: F,
     ) -> Self;
 }
@@ -166,13 +167,15 @@ impl PropSet for Entity {
 
     fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
         self,
-        state: &mut State,
+        event_handlers: &mut FnvHashMap<Entity, Box<dyn EventHandler>>,
         mut mutator: F,
     ) -> Self
     where
         Self: std::marker::Sized + 'static,
     {
-        let t = state.event_handlers.get_mut(&self).unwrap();
+
+        //println!("Event Handlers: {:?}", event_handlers.keys());
+        let t = event_handlers.get_mut(&self).unwrap();
 
         let t1 = t.downcast::<B>().expect("Failed to cast");
 

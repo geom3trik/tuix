@@ -177,7 +177,6 @@ where
         + Copy
         + PartialEq
         + std::str::FromStr
-        + Send,
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
@@ -261,7 +260,6 @@ where
         + Copy
         + PartialEq
         + std::str::FromStr
-        + Send,
 {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         let target = event.target;

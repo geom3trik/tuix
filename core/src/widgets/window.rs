@@ -1,3 +1,4 @@
+
 use crate::{Entity, Event, EventHandler, State, WindowEvent};
 
 use crate::systems::{
@@ -5,7 +6,9 @@ use crate::systems::{
 };
 
 #[derive(Clone)]
-pub struct WindowWidget {}
+pub struct WindowWidget {
+    
+}
 
 impl WindowWidget {
     pub fn new() -> Self {

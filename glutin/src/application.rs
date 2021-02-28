@@ -141,22 +141,9 @@ impl Application {
 
                 GEvent::UserEvent(_) => {
                     window.handle.window().request_redraw();
-
-                    //println!("User Event");
-                    // if state.apply_animations() {
-                    //     *control_flow = ControlFlow::Poll;
-                    //     state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()).origin(Entity::new(0, 0)));
-                    //     //state.insert_event(Event::new(WindowEvent::Redraw));
-                    //     event_loop_proxy.send_event(());
-                    //     window.handle.window().request_redraw();
-                    // } else {
-                    //     *control_flow = ControlFlow::Wait;
-                    // }
                 }
 
                 GEvent::MainEventsCleared => {
-                    //println!("Main Events Cleared: {}", counter);
-                    //counter += 1;
 
                     let mut needs_redraw = false;
                     while !state.event_queue.is_empty() {
@@ -190,21 +177,6 @@ impl Application {
                     if needs_redraw {
                         window.handle.window().request_redraw();
                     }
-
-                    //
-
-                    // event_manager.flush_events(&mut state);
-
-                    // apply_z_ordering(&mut state, &hierarchy);
-                    // apply_visibility(&mut state, &hierarchy);
-                    // apply_clipping(&mut state, &hierarchy);
-                    // layout_fun(&mut state, &hierarchy);
-
-                    // event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
-                    // window
-                    //     .handle
-                    //     .swap_buffers()
-                    //     .expect("Failed to swap buffers");
                 }
 
                 // REDRAW

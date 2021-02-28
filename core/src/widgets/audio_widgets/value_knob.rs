@@ -70,7 +70,7 @@ pub struct ValueKnob {
 
     is_log: bool,
 
-    pub on_change: Option<Arc<Mutex<dyn Fn(f32) -> Event + Send>>>,
+    pub on_change: Option<Arc<Mutex<dyn Fn(f32) -> Event>>>,
 }
 
 impl ValueKnob {
@@ -111,7 +111,7 @@ impl ValueKnob {
     pub fn on_change<F>(mut self, message: F) -> Self
     where
         F: Fn(f32) -> Event,
-        F: 'static + Send,
+        F: 'static,
     {
         self.on_change = Some(Arc::new(Mutex::new(message)));
         self
