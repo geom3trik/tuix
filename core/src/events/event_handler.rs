@@ -27,6 +27,8 @@ pub trait EventHandler: Any {
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
         //println!("Redraw");
+
+
         // Skip window
         if entity == Entity::root() {
             return;
@@ -232,10 +234,6 @@ pub trait EventHandler: Any {
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
-
-        if shadow_h_offset > 0.0 {
-            println!("Shadow H: {}", shadow_h_offset);
-        }
 
         let shadow_v_offset = match state
             .style

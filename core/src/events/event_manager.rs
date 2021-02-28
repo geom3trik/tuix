@@ -56,6 +56,14 @@ impl EventManager {
         // Move event handlers from state to event manager
         self.event_handlers.extend(state.event_handlers.drain());
 
+        // Remove widgets that should be removed
+        for entity in state.removed_entities.iter() {
+            self.event_handlers.remove(entity);            
+        }
+
+        state.removed_entities.clear();
+
+
         // Clone events from state into event manager
         let event_queue = state.event_queue.clone();
 

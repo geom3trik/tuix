@@ -158,10 +158,44 @@ impl Hierarchy {
         }
     }
 
-    pub fn remove(&mut self, entity: Entity) {
+    fn recursive_remove(&mut self, entity: Entity) {
+        println!("Remove: {}", entity);
         // Recursively remove all of the nodes below this one
-        // if let Some(child) = self.get_first_child(entity) {
-        //     self.remove(child);
+        if let Some(child) = self.get_first_child(entity) {
+            self.recursive_remove(child);
+        } else if let Some(next_sibling) = self.get_next_sibling(entity) {
+            self.recursive_remove(next_sibling);
+        }
+
+        if let Some(index) = entity.index() {
+            if let Some((index, _)) = self.entities.iter().enumerate().find(|(_, &e)| e == entity) {
+                self.entities.remove(index);
+            }
+
+            if let Some(parent) = self.get_parent(entity) {
+                if self.is_first_child(entity) {
+                    self.first_child[parent.index_unchecked()] = self.get_next_sibling(entity);
+                }
+            }
+
+            if let Some(prev_sibling) = self.get_prev_sibling(entity) {
+                self.next_sibling[prev_sibling.index_unchecked()] = self.get_next_sibling(entity);
+            }
+
+            if let Some(next_sibling) = self.get_next_sibling(entity) {
+                self.prev_sibling[next_sibling.index_unchecked()] = self.get_prev_sibling(entity);
+            }
+
+            self.next_sibling[index] = None;
+            self.prev_sibling[index] = None;
+            self.parent[index] = None;
+        }
+    }
+
+    pub fn remove(&mut self, entity: Entity) {
+
+        // if let Some(first_child) = self.get_first_child(entity) {
+        //     self.recursive_remove(first_child);
         // }
 
         if let Some(index) = entity.index() {

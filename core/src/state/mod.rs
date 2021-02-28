@@ -57,6 +57,7 @@ pub struct State {
     pub focused: Entity,
 
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub(crate) removed_entities: Vec<Entity>,
     pub event_queue: VecDeque<Event>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
@@ -97,6 +98,7 @@ impl State {
             focused: Entity::new(0),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
+            removed_entities: Vec::new(),
             fonts: Fonts {
                 regular: None,
                 bold: None,
@@ -295,12 +297,13 @@ impl State {
             .create_entity()
             .expect("Failed to create entity");
         self.hierarchy.add(entity, Some(parent));
-
         self.data.add(entity);
         self.style.add(entity);
 
-        let parent_window = self.data.get_window(parent);
-        self.data.set_window(entity, parent_window);
+        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
 
         entity
     }
@@ -319,11 +322,24 @@ impl State {
     // }
 
     //  TODO
-    pub(crate) fn remove(&mut self, entity: Entity) {
-        self.hierarchy.remove(entity);
-        self.data.remove(entity);
-        self.style.remove(entity);
-        self.entity_manager.destroy_entity(entity);
+    pub fn remove(&mut self, entity: Entity) {
+
+        let delete_list = entity.branch_iter(&self.hierarchy).collect::<Vec<_>>();
+
+        for entity in delete_list.iter().rev() {
+            self.hierarchy.remove(*entity);
+            self.hierarchy.remove(*entity);
+            self.data.remove(*entity);
+            self.style.remove(*entity);
+            self.entity_manager.destroy_entity(*entity);
+            self.removed_entities.push(*entity);
+        }
+
+    
+        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
     }
 
     // Run all pending animations
