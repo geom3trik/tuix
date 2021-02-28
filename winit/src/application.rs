@@ -350,7 +350,10 @@ impl Application {
                             state.insert_event(Event::new(WindowEvent::WindowClose));
                             if let Some(window_entity) = windows.get(&window_id) {
                                 state.remove(*window_entity);
-                                windows.remove(&window_id);
+                                if let Some(window_entity) = windows.remove(&window_id) {
+                                    contexts.remove(&window_entity);
+                                }
+                                
                                 if windows.len() == 0 {
                                     should_quit = true;
                                 }                                

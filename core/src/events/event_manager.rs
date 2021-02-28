@@ -414,11 +414,6 @@ impl EventManager {
 
         let hierarchy = state.hierarchy.clone();
 
-        if window.get_parent(state).is_none() && window != Entity::root() {
-            println!("no window: {}", window);
-            return;
-        }
-
         let width = state.data.get_width(window);
         let height = state.data.get_height(window);
         // TODO: Move this to the window widget

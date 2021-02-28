@@ -98,7 +98,7 @@ impl EventHandler for App {
             match counter_event {
                 AppMessage::AddWindow => {
                     println!("Add Window!");
-                    let window = WindowWidget2::default().build(state, entity, |builder| builder);
+                    let window = WindowWidget::default().build(state, entity, |builder| builder);
                     let container = Element::new().build(state, window, |builder| 
                         builder
                             .set_flex_grow(1.0)
@@ -122,7 +122,6 @@ impl EventHandler for App {
                 SliderEvent::ValueChanged(val) => {
                     let v = (*val * 255.0) as u8;
                     entity.set_background_color(state, Color::rgb(v,v,v));
-                    event.consume();
                 }
                 _=> {}                
             }
