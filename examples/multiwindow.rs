@@ -116,6 +116,18 @@ impl EventHandler for App {
                 }
             }
         }
+
+        if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
+            match slider_event {
+                SliderEvent::ValueChanged(val) => {
+                    let v = (*val * 255.0) as u8;
+                    entity.set_background_color(state, Color::rgb(v,v,v));
+                    event.consume();
+                }
+                _=> {}                
+            }
+
+        }
     }
 }
 

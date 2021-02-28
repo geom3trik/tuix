@@ -110,11 +110,13 @@ pub trait EventHandler: Any {
             .get(entity)
             .cloned()
             .unwrap_or_default();
+        
+        //println!("Entity: {}", entity);
 
         let parent = state
             .hierarchy
             .get_parent(entity)
-            .expect("Failed to find parent somehow");
+            .expect(&format!("Failed to find parent somehow: {}", entity));
 
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);

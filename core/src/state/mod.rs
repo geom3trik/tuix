@@ -300,6 +300,11 @@ impl State {
         self.data.add(entity);
         self.style.add(entity);
 
+        let parent_window = self.data.get_window(parent);
+        self.data.set_window(entity, parent_window);
+
+
+
         self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));

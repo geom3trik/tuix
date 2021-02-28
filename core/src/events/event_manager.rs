@@ -236,6 +236,13 @@ impl EventManager {
         // Move event handlers from state to event manager
         self.event_handlers.extend(state.event_handlers.drain());
 
+        // Remove widgets that should be removed
+        for entity in state.removed_entities.iter() {
+            self.event_handlers.remove(entity);            
+        }
+
+        state.removed_entities.clear();
+
         // Clone events from state into event manager
         let event_queue = state.event_queue.clone();
 
@@ -399,9 +406,18 @@ impl EventManager {
         return needs_redraw;
     }
 
-    pub fn draw(&mut self, state: &mut State, hierarchy: &Hierarchy, window: Entity, canvas: &mut Canvas<OpenGl>) {
+    pub fn draw(&mut self, state: &mut State, _: &Hierarchy, window: Entity, canvas: &mut Canvas<OpenGl>) {
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
+
+        
+
+        let hierarchy = state.hierarchy.clone();
+
+        if window.get_parent(state).is_none() && window != Entity::root() {
+            println!("no window: {}", window);
+            return;
+        }
 
         let width = state.data.get_width(window);
         let height = state.data.get_height(window);

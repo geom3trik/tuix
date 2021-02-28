@@ -126,7 +126,7 @@ impl Application {
 
         let mut should_quit = false;
 
-        let hierarchy = state.hierarchy.clone();
+        //let hierarchy = state.hierarchy.clone();
 
         let event_loop = EventLoop::new();
 
@@ -238,6 +238,8 @@ impl Application {
             .set_height(Entity::root(), window_description.inner_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
 
+        let main_window = handle.id();
+
         let mut windows = HashMap::new();
         windows.insert(handle.id(), Entity::root());
 
@@ -267,10 +269,19 @@ impl Application {
 
                 WEvent::UserEvent(_) => {
                     //window.handle.request_redraw();
+                    state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                    // for (window, (context, canvas)) in contexts.iter_mut() {
+                    //     context.make_current();
+                    //     let hierarchy = state.hierarchy.clone();
+                    //     event_manager.draw(&mut state, &hierarchy, *window, canvas);
+                    //     context.swap_buffers();
+                    //     context.make_not_current();
+                    // }
                 }
 
                 WEvent::MainEventsCleared => {
                     let mut needs_redraw = false;
+
                     while !state.event_queue.is_empty() {
                         //println!("Flush Events");
                         if event_manager.flush_events(&mut state, |event_handlers, app_event| {
@@ -306,11 +317,6 @@ impl Application {
                         *control_flow = ControlFlow::Wait;
                     }
 
-                    if first_time {
-                        apply_styles(&mut state, &hierarchy);
-                        first_time = false;
-                    }
-
                     if needs_redraw {
                         //window.handle.request_redraw();
                     }
@@ -318,14 +324,10 @@ impl Application {
 
                 // REDRAW
                 WEvent::RedrawRequested(_) => {
-                    //println!("windows: {:?}", windows);
-                    // for window in windows.iter() {
-                    //     state.insert_event(Event::new(AppEvent::Redraw).target(*window).propagate(Propagation::Direct));
-                    // }
-
+                    let hierarchy = state.hierarchy.clone();
+                    
                     for (window, (context, canvas)) in contexts.iter_mut() {
                         context.make_current();
-                        let hierarchy = state.hierarchy.clone();
                         event_manager.draw(&mut state, &hierarchy, *window, canvas);
                         context.swap_buffers();
                         context.make_not_current();
@@ -341,15 +343,18 @@ impl Application {
                         // Close Window //
                         //////////////////
                         winit::event::WindowEvent::CloseRequested => {
-                            state.insert_event(Event::new(WindowEvent::WindowClose));
-                            println!("Close: {:?}", window_id);
-                            num_of_windows -= 1;
-                            if num_of_windows == 0 {
+                            println!("Close Window: {:?}", window_id);
+                            if window_id == main_window {
                                 should_quit = true;
                             }
-
-                            should_quit = true;
-                            
+                            state.insert_event(Event::new(WindowEvent::WindowClose));
+                            if let Some(window_entity) = windows.get(&window_id) {
+                                state.remove(*window_entity);
+                                windows.remove(&window_id);
+                                if windows.len() == 0 {
+                                    should_quit = true;
+                                }                                
+                            }
                         }
 
                         //TODO
@@ -407,6 +412,14 @@ impl Application {
                                     state.reload_styles().unwrap();
                                 }
 
+                                if virtual_keycode == VirtualKeyCode::H && s == MouseButtonState::Pressed {
+                                    println!("Hierarchy");
+                                    for entity in state.hierarchy.into_iter() {
+                                        println!("Entity: {}  Parent: {:?} FC: {:?} NS: {:?}", entity, state.hierarchy.get_parent(entity), state.hierarchy.get_first_child(entity), state.hierarchy.get_next_sibling(entity));
+
+                                    }
+                                }
+
                                 if virtual_keycode == VirtualKeyCode::Tab
                                     && s == MouseButtonState::Pressed
                                 {
@@ -443,6 +456,7 @@ impl Application {
                                             state.focused = next_focus;
                                             state.focused.set_focus(&mut state, true);
                                         } else {
+                                            let hierarchy = state.hierarchy.clone();
                                             state.focused.set_focus(&mut state, false);
                                             state.focused =
                                                 match state.focused.into_iter(&hierarchy).next() {

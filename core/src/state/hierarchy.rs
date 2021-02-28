@@ -4,7 +4,7 @@ pub enum HierarchyErrorKind {}
 
 pub struct HierarchyError {}
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Hierarchy {
     pub entities: Vec<Entity>,
     pub parent: Vec<Option<Entity>>,
