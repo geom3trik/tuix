@@ -135,17 +135,4 @@ pub fn apply_hover(state: &mut State) {
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
     }
-
-    if state.captured != Entity::null() {
-        state.insert_event(
-            Event::new(WindowEvent::MouseMove(cursorx, cursory))
-                .target(state.captured)
-                .propagate(Propagation::Direct),
-        );
-    } else if state.hovered != Entity::root() {
-        state.insert_event(
-            Event::new(WindowEvent::MouseMove(cursorx, cursory))
-                .target(state.hovered),
-        );
-    }
 }

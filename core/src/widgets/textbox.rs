@@ -5,8 +5,6 @@ use crate::events::*;
 use crate::mouse::*;
 use crate::{BuildHandler, Justify, Length, PropSet, State, Visibility, WindowEvent};
 
-use glutin::event::VirtualKeyCode;
-
 use femtovg::{
     renderer::OpenGl, Align, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId,
     LineCap, LineJoin, Paint, Path, Renderer, Solidity,

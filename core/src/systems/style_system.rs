@@ -74,11 +74,11 @@ fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
 
     // Get the entity id from state
     //entity_selector.id = state.style.ids.get(entity).cloned();
-    let mut s = DefaultHasher::new();
-    entity_selector.id = state.style.ids.get_by_right(&entity).map(|f| {
-        f.hash(&mut s);
-        s.finish()
-    });
+    // let mut s = DefaultHasher::new();
+    // entity_selector.id = state.style.ids.get_by_right(&entity).map(|f| {
+    //     f.hash(&mut s);
+    //     s.finish()
+    // });
 
     // Get the entity element from state
     entity_selector.element = state.style.elements.get(entity).cloned();

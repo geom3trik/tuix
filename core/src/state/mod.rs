@@ -251,9 +251,9 @@ impl State {
     }
 
     // TODO
-    pub fn id2entity(&self, id: &str) -> Option<Entity> {
-        self.style.ids.get_by_left(&id.to_string()).cloned()
-    }
+    // pub fn id2entity(&self, id: &str) -> Option<Entity> {
+    //     self.style.ids.get_by_left(&id.to_string()).cloned()
+    // }
 
     // This should probably be moved to state.mouse
     pub fn capture(&mut self, id: Entity) {

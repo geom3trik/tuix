@@ -124,13 +124,13 @@ impl EventHandler for ResizableVBox {
                         if *x > state.data.get_posx(entity) + state.data.get_width(entity) - 4.0
                             && *x < state.data.get_posx(entity) + state.data.get_width(entity)
                         {
-                            state.insert_event(Event::new(WindowEvent::SetCursor(
-                                CursorIcon::EResize,
-                            )));
+                            // state.insert_event(Event::new(WindowEvent::SetCursor(
+                            //     CursorIcon::EResize,
+                            // )));
                         } else {
-                            state.insert_event(Event::new(WindowEvent::SetCursor(
-                                CursorIcon::Arrow,
-                            )));
+                            // state.insert_event(Event::new(WindowEvent::SetCursor(
+                            //     CursorIcon::Arrow,
+                            // )));
                             state.release(entity);
                         }
                     }

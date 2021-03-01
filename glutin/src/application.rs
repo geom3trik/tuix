@@ -402,6 +402,19 @@ impl Application {
                             state.mouse.cursory = cursory as f32;
 
                             apply_hover(&mut state);
+
+                            if state.captured != Entity::null() {
+                                state.insert_event(
+                                    Event::new(WindowEvent::MouseMove(cursorx, cursory))
+                                        .target(state.captured)
+                                        .propagate(Propagation::Direct),
+                                );
+                            } else if state.hovered != Entity::root() {
+                                state.insert_event(
+                                    Event::new(WindowEvent::MouseMove(cursorx, cursory))
+                                        .target(state.hovered),
+                                );
+                            }
                         }
 
                         glutin::event::WindowEvent::MouseInput {

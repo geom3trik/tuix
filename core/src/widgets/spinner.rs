@@ -17,7 +17,7 @@ use crate::layout::{Align, Justify};
 
 use crate::widgets::{Element, Textbox, TextboxEvent};
 
-use num::{Bounded, Num, One};
+use num_traits::{Bounded, Num, One};
 
 // #[derive(Debug, Clone, PartialEq)]
 // pub enum SpinnerEvent {
