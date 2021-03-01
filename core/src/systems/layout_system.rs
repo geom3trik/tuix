@@ -1,4 +1,4 @@
-use bimap::btree::IntoIter;
+// use bimap::btree::IntoIter;
 use prop::PropGet;
 
 use crate::{Entity, GeometryChanged, Propagation, State};
