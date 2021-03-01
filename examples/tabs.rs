@@ -16,29 +16,29 @@ fn main() {
                 .set_padding(Length::Pixels(10.0))
         );
 
-        // Create a tab container
-        let (tab_bar1, tab_container1) = Tabs::new().build(state, window, |builder| builder);
+        // Create a tab manager
+        let (tab_bar1, tab_viewport1) = TabManager::new().build(state, window, |builder| builder);
 
         // Add a tab to the tab bar
         let first_tab = Tab::new("first")   
             .build(state, tab_bar1, |builder| {
-                builder.set_text("First")
+                builder.set_text("First").class("tab")
         });
 
         first_tab.set_checked(state, true);
 
-        // Add a widget to contain what will be displayed when tab 1 is selected
-        let first_container = TabContainer::new("first").build(state, tab_container1, |builder| builder.class("first"));
+        // Add a tab container to the tab manager viewport
+        let first_container = TabContainer::new("first").build(state, tab_viewport1, |builder| builder.class("first"));
 
         // Add a button to this container
         Button::with_label("First Button").build(state, first_container, |builder| builder.class("test"));
 
         let second_tab = Tab::new("second")
             .build(state, tab_bar1, |builder| {
-                builder.set_text("Second")
+                builder.set_text("Second").class("tab")
         });
 
-        let second_container = TabContainer::new("second").build(state, tab_container1, |builder| builder.class("second"));
+        let second_container = TabContainer::new("second").build(state, tab_viewport1, |builder| builder.class("second"));
         second_container.set_display(state, Display::None);
 
         Button::with_label("Second Button").build(state, second_container, |builder| builder.class("test"));
@@ -48,33 +48,37 @@ fn main() {
             builder
                 .set_flex_grow(1.0)
                 .set_align_self(AlignSelf::Stretch)
-                .set_background_color(Color::blue())
+                .set_background_color(Color::rgb(30,30,30))
                 .set_flex_direction(FlexDirection::Row)
+                .set_padding_top(Length::Pixels(2.0))
         );
 
-        // Create a tab container
-        let (tab_bar2, tab_container2) = Tabs::new().build(state, more_tabs, |builder| builder);
+        // Create a tab manager
+        let (tab_bar2, tab_viewport2) = TabManager::new().build(state, more_tabs, |builder| 
+            builder.class("vertical")
+        );
 
-        // Add a tab to the tab bar
-        let first_tab = Tab::new("first")
+
+        let first_tab = RadioButton::new()
+            .on_checked(Event::new(TabEvent::SwitchTab("first".to_string())).propagate(Propagation::Up))
             .build(state, tab_bar2, |builder| {
-                builder.set_text("First")
+                builder.set_text("First").class("tab")
         });
 
         first_tab.set_checked(state, true);
 
-        // Add a widget to contain what will be displayed when tab 1 is selected
-        let first_container = TabContainer::new("first").build(state, tab_container2, |builder| builder.class("first"));
+        let first_container = TabContainer::new("first").build(state, tab_viewport2, |builder| builder.class("first"));
 
         // Add a button to this container
         Button::with_label("First Button").build(state, first_container, |builder| builder.class("test"));
 
-        let second_tab = Tab::new("second")
+        let second_tab = RadioButton::new()
+            .on_checked(Event::new(TabEvent::SwitchTab("second".to_string())).propagate(Propagation::Up))
             .build(state, tab_bar2, |builder| {
-                builder.set_text("Second")
+                builder.set_text("Second").class("tab")
         });
 
-        let second_container = TabContainer::new("second").build(state, tab_container2, |builder| builder.class("second"));
+        let second_container = TabContainer::new("second").build(state, tab_viewport2, |builder| builder.class("second"));
         second_container.set_display(state, Display::None);
 
         Button::with_label("Second Button").build(state, second_container, |builder| builder.class("test"));

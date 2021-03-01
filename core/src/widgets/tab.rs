@@ -33,7 +33,7 @@ impl BuildHandler for TabBar {
 
         self.list.on_build(state, entity);
 
-        entity.set_flex_direction(state, FlexDirection::Row);
+        //entity.set_flex_direction(state, FlexDirection::Row);
 
         state.style.insert_element(entity, "tab_bar");
 
@@ -91,41 +91,41 @@ impl EventHandler for Tab {
 
 
 
-pub struct Tabs {
+pub struct TabManager {
     pub tab_bar: Entity,
-    pub container: Entity,
+    pub viewport: Entity,
 }
 
-impl Tabs {
+impl TabManager {
     pub fn new() -> Self {
         Self {
             tab_bar: Entity::default(),
-            container: Entity::default(),
+            viewport: Entity::default(),
         }
     }
 }
 
-impl BuildHandler for Tabs {
+impl BuildHandler for TabManager {
     type Ret = (Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         self.tab_bar = TabBar::new().build(state, entity, |builder| builder);
 
-        self.container = Element::new().build(state, entity, |builder| builder.class("container"));
+        self.viewport = Element::new().build(state, entity, |builder| builder.class("viewport"));
 
-        entity.set_element(state, "tabs");
+        entity.set_element(state, "tab_manager");
 
-        (self.tab_bar, self.container)
+        (self.tab_bar, self.viewport)
     }
 }
 
-impl EventHandler for Tabs {
+impl EventHandler for TabManager {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
                 TabEvent::SwitchTab(name) => {
                     if event.origin.is_descendant_of(&state.hierarchy, self.tab_bar) || event.target == self.tab_bar {
-                        state.insert_event(Event::new(TabEvent::SwitchTab(name.clone())).target(entity).propagate(Propagation::Fall).origin(event.origin));
+                        state.insert_event(Event::new(TabEvent::SwitchTab(name.clone())).target(self.viewport).propagate(Propagation::Fall).origin(event.origin));
                     }          
                     
                     event.consume();

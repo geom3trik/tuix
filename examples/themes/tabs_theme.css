@@ -1,16 +1,16 @@
 
 
-tabs {
-    width: 300px;
+tab_manager {
     flex-grow: 1.0;
 }
 
 tab_bar {
     background-color: #202020;
     flex-basis: 30px;
+    flex-direction: row;
 }
 
-tab_bar>tab {
+tab_bar>.tab {
     background-color: #2e2e2e;
     margin-right: 1px;
     margin-bottom: 1px;
@@ -18,10 +18,31 @@ tab_bar>tab {
     text-justify: center;
 }
 
-tab_bar>tab:checked {
+tab_bar>.tab:checked {
     margin-bottom: 0px;
     background-color: #383838;
 }
+
+/* Styles for a vertical tab bar */
+
+tab_manager.vertical {
+    flex-direction: row;
+}
+
+tab_manager.vertical tab_bar {
+    flex-basis: 100px;
+    flex-direction: column;
+}
+
+tab_manager.vertical tab_bar>.tab {
+    flex-basis: 30px;
+}
+
+tab_manager.vertical tab_bar>.tab:checked {
+    margin-bottom: 1px;
+    margin-right: 0px;
+}
+
 
 .first {
     flex-grow: 1.0;
@@ -33,9 +54,9 @@ tab_bar>tab:checked {
     align-items: center;
 }
 
-tabs>.container {
+tab_manager>.viewport {
     background-color: #383838;
-    height: 100%;
+    flex-grow: 1.0;
 }
 
 .test {
