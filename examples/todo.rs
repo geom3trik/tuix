@@ -4,9 +4,9 @@ use tuix::*;
 
 use tuix::style::themes::DEFAULT_THEME;
 fn main() {
-    let tb = Textbox::new("Test");
-
     let app = Application::new(|wind_desc, state, window| {
+        let tb = Textbox::new("Test");
+
         state.add_theme(DEFAULT_THEME);
 
         //window.set_align_items(state, AlignItems::Center);
