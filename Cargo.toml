@@ -34,7 +34,7 @@ members = [
 ]
 
 [features]
-default = ["glutin"]
+default = ["baseview"]
 winit = ["tuix_winit"]
 glutin = ["tuix_glutin"]
 baseview = ["tuix_baseview"]

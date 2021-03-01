@@ -1,7 +1,5 @@
 #![allow(dead_code)]
 
-use glutin::window::Window;
-
 use crate::entity::Entity;
 use crate::events::{BuildHandler, Event, EventHandler};
 use crate::state::style::*;
