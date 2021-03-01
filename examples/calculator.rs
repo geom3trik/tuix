@@ -607,10 +607,10 @@ impl EventHandler for Calculator {
 }
 
 pub fn main() {
-    // Replace this with icon loading using resource manager when working
-    let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
-
     let mut app = Application::new(|win_desc, state, window| {
+        // Replace this with icon loading using resource manager when working
+        let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
+
         //state.add_theme(LIGHT_THEME);
         match state.add_stylesheet("examples/themes/calculator_light_theme.css") {
             Ok(_) => {}
