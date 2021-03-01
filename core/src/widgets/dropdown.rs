@@ -281,7 +281,7 @@ impl EventHandler for Dropdown {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if event.target == entity || event.target == self.header {
-                            println!("Mouse down on dropdown");
+            
                             //if state.hovered.is_child_of(&state.hierarchy, self.container) {
                             if state.hovered != entity {
                                 state.insert_event(
@@ -300,7 +300,7 @@ impl EventHandler for Dropdown {
                 },
 
                 WindowEvent::MouseCaptureOutEvent => {
-                    println!("Mouse Out on Dropdown");
+   
                     self.open = false;
 
                     self.header.set_disabled(state, true);
@@ -335,7 +335,6 @@ impl EventHandler for Dropdown {
                         {
                             if state.mouse.left.pressed == state.hovered {
                                 if !self.open {
-                                    println!("Capture");
                                     state.capture(entity);
                                 } else {
                                     state.release(entity);

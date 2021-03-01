@@ -331,7 +331,6 @@ impl State {
             self.hierarchy.remove(*entity);
             self.data.remove(*entity);
             self.style.remove(*entity);
-            self.entity_manager.destroy_entity(*entity);
             self.removed_entities.push(*entity);
         }
 

@@ -1,15 +1,16 @@
 
 
-tab_container {
+tabs {
     width: 300px;
     flex-grow: 1.0;
 }
 
 tab_bar {
     background-color: #202020;
+    flex-basis: 30px;
 }
 
-tab_bar>button {
+tab_bar>tab {
     background-color: #2e2e2e;
     margin-right: 1px;
     margin-bottom: 1px;
@@ -17,22 +18,22 @@ tab_bar>button {
     text-justify: center;
 }
 
-tab_bar>button:checked {
+tab_bar>tab:checked {
     margin-bottom: 0px;
     background-color: #383838;
 }
 
-.item1 {
+.first {
     flex-grow: 1.0;
     align-items: center;
 }
 
-.item2 {
+.second {
     flex-grow: 1.0;
     align-items: center;
 }
 
-tab_container>.container {
+tabs>.container {
     background-color: #383838;
     height: 100%;
 }
@@ -44,4 +45,50 @@ tab_container>.container {
     border-radius: 3px;
     text-justify: center;
     margin: 10px;
+}
+
+dropdown {
+    background-color: #383838;
+    height: 30px;
+    color: black;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 3;
+    text-justify: center;
+}
+
+dropdown label {
+    color: black;
+    text-justify: center;
+}
+
+dropdown .icon {
+    text-justify: center;
+    color: #ff5e1a;
+    width: 30px;
+}
+
+dropdown>.container {
+    top: 100%;
+    width: 100%;
+    margin-top: 5px;
+    background-color: white;
+    border-color: black;
+    border-width: 1px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 128);
+}
+
+dropdown>.container .item {
+    height: 30px;
+    color: black;
+    padding-left: 10px;
+    background-color: white;
+    transition: background-color 0.1 0.0;
+}
+
+dropdown>.container .item:hover {
+    height: 30px;
+    color: white;
+    background-color: #ff5e1a;
+    transition: background-color 0.1 0.0;
 }

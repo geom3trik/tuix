@@ -8,11 +8,6 @@ use tuix::style::themes::DEFAULT_THEME;
 
 static THEME: &'static str = include_str!("themes/widgets_theme.css");
 
-#[derive(Debug, Clone, PartialEq)]
-enum TestEvent {
-    SomethingChanged(f32),
-}
-
 fn main() {
     Application::new(|win_desc, state, window| {
         state.add_theme(DEFAULT_THEME);

@@ -1,8 +1,6 @@
 extern crate tuix;
 
-use tuix::{
-    Application, BuildHandler, Button, Display, Event, EventHandler, TabContainer, TabEvent,
-};
+use tuix::*;
 
 static THEME: &'static str = include_str!("themes/tabs_theme.css");
 
@@ -10,35 +8,88 @@ fn main() {
     let app = Application::new(|win_desc, state, window| {
         state.add_theme(THEME);
 
+        window.set_flex_direction(state, FlexDirection::Row);
+
+        let controls = Element::new().build(state, window, |builder| 
+            builder
+                .set_flex_basis(Length::Pixels(200.0))
+                .set_padding(Length::Pixels(10.0))
+        );
+
         // Create a tab container
-        let (tab_bar, tab_container) = TabContainer::new().build(state, window, |builder| builder);
+        let (tab_bar1, tab_container1) = Tabs::new().build(state, window, |builder| builder);
 
         // Add a tab to the tab bar
-        Button::with_label("First")
-            .on_press(Event::new(TabEvent::SwitchTab(0)))
-            .build(state, tab_bar, |builder| builder.set_checked(true));
+        let first_tab = Tab::new("first")   
+            .build(state, tab_bar1, |builder| {
+                builder.set_text("First")
+        });
+
+        first_tab.set_checked(state, true);
 
         // Add a widget to contain what will be displayed when tab 1 is selected
-        let first = Button::new().build(state, tab_container, |builder| builder.class("item1"));
-        // Add a button to this widget
-        Button::with_label("First Button").build(state, first, |builder| builder.class("test"));
+        let first_container = TabContainer::new("first").build(state, tab_container1, |builder| builder.class("first"));
 
-        Button::with_label("Second")
-            .on_press(Event::new(TabEvent::SwitchTab(1)))
-            .build(state, tab_bar, |builder| builder);
-        let second = Button::new().build(state, tab_container, |builder| {
-            builder.class("item2").set_display(Display::None)
+        // Add a button to this container
+        Button::with_label("First Button").build(state, first_container, |builder| builder.class("test"));
+
+        let second_tab = Tab::new("second")
+            .build(state, tab_bar1, |builder| {
+                builder.set_text("Second")
         });
 
-        Button::with_label("Second Button").build(state, second, |builder| builder.class("test"));
+        let second_container = TabContainer::new("second").build(state, tab_container1, |builder| builder.class("second"));
+        second_container.set_display(state, Display::None);
 
-        Button::with_label("Third")
-            .on_press(Event::new(TabEvent::SwitchTab(2)))
-            .build(state, tab_bar, |builder| builder);
-        let third = Button::new().build(state, tab_container, |builder| {
-            builder.class("item1").set_display(Display::None)
+        Button::with_label("Second Button").build(state, second_container, |builder| builder.class("test"));
+
+        // I hear you like tabs, so I put some tabs in your tabs
+        let more_tabs = Element::new().build(state, second_container, |builder|
+            builder
+                .set_flex_grow(1.0)
+                .set_align_self(AlignSelf::Stretch)
+                .set_background_color(Color::blue())
+                .set_flex_direction(FlexDirection::Row)
+        );
+
+        // Create a tab container
+        let (tab_bar2, tab_container2) = Tabs::new().build(state, more_tabs, |builder| builder);
+
+        // Add a tab to the tab bar
+        let first_tab = Tab::new("first")
+            .build(state, tab_bar2, |builder| {
+                builder.set_text("First")
         });
-        Button::with_label("Third Button").build(state, third, |builder| builder.class("test"));
+
+        first_tab.set_checked(state, true);
+
+        // Add a widget to contain what will be displayed when tab 1 is selected
+        let first_container = TabContainer::new("first").build(state, tab_container2, |builder| builder.class("first"));
+
+        // Add a button to this container
+        Button::with_label("First Button").build(state, first_container, |builder| builder.class("test"));
+
+        let second_tab = Tab::new("second")
+            .build(state, tab_bar2, |builder| {
+                builder.set_text("Second")
+        });
+
+        let second_container = TabContainer::new("second").build(state, tab_container2, |builder| builder.class("second"));
+        second_container.set_display(state, Display::None);
+
+        Button::with_label("Second Button").build(state, second_container, |builder| builder.class("test"));
+
+
+        // DROPDOWN
+        let (_, _, dropdown_container) = Dropdown::new("Select Tab").build(state, controls, |builder| builder);
+        let list = RadioList::new().build(state, dropdown_container, |builder| builder);
+        Button::new()
+            .on_press(Event::new(TabEvent::SwitchTab("first".to_string())).target(tab_bar1))   
+            .build(state, list, |builder| builder.set_text("First").class("item"));
+        Button::new()
+            .on_press(Event::new(TabEvent::SwitchTab("second".to_string())).target(tab_bar1))
+            .build(state, list, |builder| builder.set_text("Second").class("item"));
+
 
         win_desc.with_title("Text Input")
     });

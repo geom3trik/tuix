@@ -78,42 +78,29 @@ impl std::ops::Not for Entity {
 
 #[derive(Clone)]
 pub(crate) struct EntityManager {
-    // The current number of active entities
+
     count: usize,
-    // List of reusable entity id's
-    free_indices: VecDeque<u32>,
 }
 
 impl EntityManager {
     pub(crate) fn new() -> EntityManager {
         EntityManager {
             count: 0,
-            free_indices: VecDeque::new(),
         }
     }
 
-    // Create a new entity. Will reuse a previously destroyed entity id if one is available.
     pub(crate) fn create_entity(&mut self) -> Option<Entity> {
-        let idx;
-        if self.free_indices.len() > 1024 {
-            idx = self.free_indices.pop_front();
-        } else {
-            idx = Some(self.count as u32);
-        }
-
-        if let Some(index) = idx {
-            self.count += 1;
-            return Some(Entity::new(index));
-        }
-
-        return None;
+        let index = self.count as u32;
+        self.count += 1;
+        
+        return Some(Entity::new(index));
     }
 
     // Destroy an entity.
-    pub(crate) fn destroy_entity(&mut self, entity: Entity) {
-        if let Some(index) = entity.index() {
-            //self.count -= 1;
-            self.free_indices.push_back(index as u32);
-        }
-    }
+    // pub(crate) fn destroy_entity(&mut self, entity: Entity) {
+    //     if let Some(index) = entity.index() {
+    //         //self.count -= 1;
+    //         self.free_indices.push_back(index as u32);
+    //     }
+    // }
 }
