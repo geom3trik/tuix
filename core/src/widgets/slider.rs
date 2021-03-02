@@ -19,7 +19,7 @@ pub enum SliderEvent {
 /*
 pub struct ProgressBar {
     front: Entity,
-    on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
+    on_change: Option<Box<dyn Fn(f32) -> Event>>,
     value: f32,
     temp: f32,
     sliding: bool,
@@ -40,7 +40,7 @@ impl ProgressBar {
 
     pub fn on_change<F>(mut self, message: F) -> Self
     where
-        F: 'static + Send + Fn(f32) -> Event,
+        F: 'static + Fn(f32) -> Event,
     {
         self.on_change = Some(Box::new(message));
         self
@@ -221,7 +221,7 @@ pub struct Slider {
     thumb: Entity,
     active: Entity,
     sliding: bool,
-    on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
+    on_change: Option<Box<dyn Fn(f32) -> Event>>,
 
     value: f32,
 
@@ -247,7 +247,7 @@ impl Slider {
 
     pub fn on_change<F>(mut self, message: F) -> Self
     where
-        F: 'static + Fn(f32) -> Event + Send,
+        F: 'static + Fn(f32) -> Event,
     {
         self.on_change = Some(Box::new(message));
         self

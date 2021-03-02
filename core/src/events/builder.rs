@@ -15,7 +15,7 @@ impl<'a> Builder<'a> {
 
     pub fn build<T>(mut self, event_handler: T) -> Entity
     where
-        T: EventHandler + 'static + Sized + Send,
+        T: EventHandler + 'static + Sized,
     {
         self.state
             .event_handlers

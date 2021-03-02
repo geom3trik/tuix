@@ -42,11 +42,11 @@ pub struct Spinner<T> {
     max: T,
 
     // Triggered when the spinner is incremented
-    on_increment: Option<Box<dyn Fn(T) -> Event + Send>>,
+    on_increment: Option<Box<dyn Fn(T) -> Event>>,
     // Triggered when the spinner is decremented
-    on_decrement: Option<Box<dyn Fn(T) -> Event + Send>>,
+    on_decrement: Option<Box<dyn Fn(T) -> Event>>,
     // Triggered when the value is changed
-    on_change: Option<Box<dyn Fn(T) -> Event + Send>>,
+    on_change: Option<Box<dyn Fn(T) -> Event>>,
     // Triggered when the spinner value reaches max
     on_max: Option<Event>,
     // Triggered when the spinner value reaches min
@@ -67,7 +67,6 @@ where
         + Bounded
         + std::ops::AddAssign
         + std::ops::SubAssign
-        + Send,
 {
     pub fn new(initial_value: T) -> Self {
         // entity.set_text(state, "Test".to_string())
@@ -116,7 +115,7 @@ where
     pub fn on_increment<F>(mut self, message: F) -> Self
     where
         F: Fn(T) -> Event,
-        F: 'static + Send,
+        F: 'static,
     {
         self.on_increment = Some(Box::new(message));
         self
@@ -125,7 +124,7 @@ where
     pub fn on_decrement<F>(mut self, message: F) -> Self
     where
         F: Fn(T) -> Event,
-        F: 'static + Send,
+        F: 'static,
     {
         self.on_decrement = Some(Box::new(message));
         self
@@ -134,7 +133,7 @@ where
     pub fn on_change<F>(mut self, message: F) -> Self
     where
         F: Fn(T) -> Event,
-        F: 'static + Send,
+        F: 'static,
     {
         self.on_change = Some(Box::new(message));
         self
@@ -165,7 +164,6 @@ where
         + std::ops::AddAssign
         + std::ops::SubAssign
         + std::cmp::PartialOrd
-        + Send,
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
@@ -234,7 +232,6 @@ where
         + std::ops::AddAssign
         + std::ops::SubAssign
         + std::cmp::PartialOrd
-        + Send,
 {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         /*

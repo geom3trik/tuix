@@ -111,7 +111,7 @@ impl State {
 
     pub fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a>
     where
-        T: EventHandler + 'static + Send,
+        T: EventHandler + 'static,
     {
         self.event_handlers.insert(entity, Box::new(event_handler));
 
