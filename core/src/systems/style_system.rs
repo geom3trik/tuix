@@ -3,9 +3,6 @@ use crate::{Entity, Event, HierarchyTree, IntoParentIterator, State, WindowEvent
 use crate::hierarchy::*;
 use crate::state::animation::*;
 
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-
 pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
     //println!("Apply Clipping");
     for entity in hierarchy.into_iter() {

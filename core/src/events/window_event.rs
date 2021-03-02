@@ -27,6 +27,8 @@ pub enum WindowEvent {
     WindowClose,
     // Emitted when a window is opened
     WindowResize(f32, f32),
+    // Emitted when a mouse button is double clicked
+    MouseDoubleClick(MouseButton),
     // Emitted when a mouse button is pressed
     MouseDown(MouseButton),
     // Emitted when a mouse button is released

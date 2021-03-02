@@ -1,8 +1,4 @@
-use std::collections::HashMap;
-
-// use byteorder::{ByteOrder, LittleEndian};
-// use image::GenericImageView;
-
+#![allow(dead_code)]
 pub struct Image {
     pub width: usize,
     pub height: usize,
@@ -29,9 +25,9 @@ impl ResourceManager {
     }
 
     // TODO
-    pub(crate) fn add_image(&mut self, name: &str, path: &str) {}
+    pub(crate) fn add_image(&mut self, _name: &str, _path: &str) {}
 
-    pub(crate) fn add_font(&mut self, name: &str, path: &str) {}
+    pub(crate) fn add_font(&mut self, _name: &str, _path: &str) {}
     // pub fn add_stylesheet(&mut self, path: String) -> Result<(), std::io::Error> {
 
     //     let style_string = std::fs::read_to_string(path.clone())?;

@@ -116,7 +116,7 @@ impl EventHandler for ResizableVBox {
                     }
                 }
 
-                WindowEvent::MouseMove(x, y) => {
+                WindowEvent::MouseMove(x, _) => {
                     if self.resizing {
                         let distx = *x - state.mouse.left.pos_down.0;
                         entity.set_width(state, Length::Pixels(self.previous_width + distx));

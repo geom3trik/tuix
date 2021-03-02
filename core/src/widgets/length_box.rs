@@ -51,11 +51,11 @@ impl BuildHandler for LengthBox {
             })
             .2;
 
-        let auto = Item::new("auto", "-").build(state, self.unit, |builder| builder.class("item"));
-        let pixel = Item::new("px", "px").build(state, self.unit, |builder| builder.class("item"));
-        let percentage =
+        let _auto = Item::new("auto", "-").build(state, self.unit, |builder| builder.class("item"));
+        let _pixel = Item::new("px", "px").build(state, self.unit, |builder| builder.class("item"));
+        let _percentage =
             Item::new("%", "%").build(state, self.unit, |builder| builder.class("item"));
-        let initial =
+        let _initial =
             Item::new("initial", "-").build(state, self.unit, |builder| builder.class("item"));
 
         state.style.insert_element(entity, "length_box");
@@ -68,7 +68,7 @@ impl EventHandler for LengthBox {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             match dropdown_event {
-                DropdownEvent::SetText(text, proxy) => {
+                DropdownEvent::SetText(text, _proxy) => {
                     if text == "auto" {
                         self.value.set_text(state, text);
                         self.length_type = Length::Auto;

@@ -6,9 +6,7 @@ use crate::{AnimationState, BuildHandler, Event, EventHandler, Propagation, Wind
 use crate::{PropSet, State};
 
 use crate::state::style::*;
-use crate::widgets::{Button, Checkbox, CheckboxEvent, Element, HBox, Label, RadioList};
-
-use crate::state::hierarchy::HierarchyTree;
+use crate::widgets::{Element, Label};
 
 const ICON_DOWN_OPEN: &str = "\u{e75c}";
 
@@ -157,7 +155,8 @@ impl BuildHandler for Dropdown {
                 .set_flex_grow(1.0)
         });
 
-        let icon = Element::new().build(state, self.header, |builder| {
+        // Icon
+        Element::new().build(state, self.header, |builder| {
             builder
                 .set_font("icons")
                 .set_hoverability(false)
@@ -251,7 +250,7 @@ impl EventHandler for Dropdown {
         if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             //if event.target == entity {
             match dropdown_event {
-                DropdownEvent::SetText(text, proxy) => {
+                DropdownEvent::SetText(_text, proxy) => {
                     //println!("Set Text");
                     //Check here if it's an event from a child (TODO)
                     self.label.set_text(state, proxy);
@@ -270,8 +269,6 @@ impl EventHandler for Dropdown {
 
                     //return true;
                 }
-
-                _ => {}
             }
             //}
         }

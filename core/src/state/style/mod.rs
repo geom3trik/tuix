@@ -18,7 +18,7 @@ pub mod themes;
 pub mod theme;
 
 pub mod prop;
-pub use prop::PropSet;
+pub use prop::{PropSet, PropGet};
 
 pub mod flexbox;
 pub use flexbox::*;

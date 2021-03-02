@@ -1,12 +1,11 @@
-// use bimap::btree::IntoIter;
+#![allow(dead_code)]
+
 use prop::PropGet;
 
-use crate::{Entity, GeometryChanged, Propagation, State};
+use crate::{Entity, GeometryChanged, State, Event, WindowEvent, Propagation};
 
 use crate::hierarchy::*;
 use crate::style::*;
-
-use crate::{Event, WindowEvent};
 
 use crate::flexbox::AlignItems;
 
@@ -94,7 +93,7 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
         new_cross = state.data.get_child_sum(child);
     }
 
-    let child_position = child.get_position(state);
+    //let child_position = child.get_position(state);
 
     // Add padding
     if state.style.flex_grow.get(child).is_none() {
@@ -603,8 +602,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             let (
                 child_margin_main_before,
                 child_margin_main_after,
-                child_margin_cross_before,
-                child_margin_cross_after,
+                _child_margin_cross_before,
+                _child_margin_cross_after,
             ) = match parent_flex_direction {
                 FlexDirection::Row | FlexDirection::RowReverse => (
                     child_margin_left,
@@ -690,10 +689,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     continue;
                 }
 
-                let child_margin_left = child.get_margin_left(state).get_value(0.0);
-                let child_margin_right = child.get_margin_right(state).get_value(0.0);
-                let child_margin_top = child.get_margin_top(state).get_value(0.0);
-                let child_margin_bottom = child.get_margin_bottom(state).get_value(0.0);
+                let _child_margin_left = child.get_margin_left(state).get_value(0.0);
+                let _child_margin_right = child.get_margin_right(state).get_value(0.0);
+                let _child_margin_top = child.get_margin_top(state).get_value(0.0);
+                let _child_margin_bottom = child.get_margin_bottom(state).get_value(0.0);
 
                 let child_position = child.get_position(state);
 
@@ -702,7 +701,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                         //println!("Flexible Child: {}", child);
 
                         // Child size constraints
-                        let child_min_width = match child.get_min_width(state) {
+                        let _child_min_width = match child.get_min_width(state) {
                             Length::Pixels(val) => val,
                             _ => 0.0,
                         };
@@ -710,7 +709,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             Length::Pixels(val) => val,
                             _ => std::f32::INFINITY,
                         };
-                        let child_min_height = match child.get_min_height(state) {
+                        let _child_min_height = match child.get_min_height(state) {
                             Length::Pixels(val) => val,
                             _ => 0.0,
                         };
@@ -838,8 +837,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let position = child.get_position(state);
 
-            let mut new_posx = 0.0;
-            let mut new_posy = 0.0;
+            let mut new_posx ;
+            let mut new_posy ;
 
             match position {
                 Position::Relative => {

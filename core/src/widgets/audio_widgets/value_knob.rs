@@ -2,12 +2,10 @@ use crate::state::{Entity, State};
 
 use crate::events::{BuildHandler, Event, EventHandler, Propagation};
 
-use crate::widgets::{Button, ControlKnob, Label, SliderEvent, Textbox, TextboxEvent};
+use crate::widgets::{ControlKnob, Label, SliderEvent, Textbox, TextboxEvent};
 
 use crate::state::style::*;
 
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 // const VALUE_SLIDER_STYLE: &str = r#"
 
@@ -121,7 +119,7 @@ impl ValueKnob {
 impl BuildHandler for ValueKnob {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        let label = Label::new(&self.label).build(state, entity, |builder| {
+        Label::new(&self.label).build(state, entity, |builder| {
             builder
                 .set_height(Length::Pixels(25.0))
                 .set_text_justify(Justify::Center)
@@ -161,7 +159,7 @@ impl EventHandler for ValueKnob {
                 SliderEvent::ValueChanged(val) => {
                     //println!("Slider Value Changed: {} {}", self.label, val);
                     if event.target == self.knob {
-                        let val_str = format!("{:3}!", val);
+                        // let val_str = format!("{:3}!", val);
                         let freq_val: FreqValue = (*val).into();
                         //println!("val_str: {} {}", self.label, val_str);
                         state.insert_event(
@@ -189,8 +187,6 @@ impl EventHandler for ValueKnob {
                         );
                     }
                 }
-
-                _ => {}
             }
         }
 

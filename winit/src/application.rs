@@ -11,7 +11,7 @@ use tuix_core::{Entity, State};
 use tuix_core::{Length, Visibility};
 
 use tuix_core::state::style::prop::*;
-use tuix_core::systems::{apply_clipping, apply_styles, apply_visibility, apply_z_ordering};
+use tuix_core::systems::{apply_styles};
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
 type WEvent<'a, T> = winit::event::Event<'a, T>;
@@ -103,8 +103,7 @@ impl Application {
         }
     }
 
-    pub fn run(mut self) {
-        let mut pos: (f32, f32) = (0.0, 0.0);
+    pub fn run(self) {
 
         let mut state = self.state;
         let mut event_manager = self.event_manager;
@@ -509,8 +508,6 @@ impl Application {
                                         .target(state.hovered),
                                 );
                             }
-
-                            pos = (cursorx, cursory);
                         }
 
                         winit::event::WindowEvent::MouseInput {

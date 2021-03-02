@@ -7,7 +7,7 @@ use tuix::events::BuildHandler;
 
 use tuix::style::themes::DEFAULT_THEME;
 
-use tuix::style::{AlignItems, Color, JustifyContent, Length};
+use tuix::style::{AlignItems, Color, JustifyContent};
 
 // This example uses a custom theme defined in the 'custom_theme.css' stylesheet
 static CUSTOM_THEME: &'static str = include_str!("themes/custom_theme.css");

@@ -12,7 +12,7 @@ impl Element {
 
 impl BuildHandler for Element {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
 }

@@ -4,7 +4,7 @@ use crate::state::style::*;
 use crate::WindowEvent;
 use crate::{MouseButton, Propagation, State};
 
-use crate::widgets::{Button, Dropdown, DropdownEvent, Item, Textbox, TextboxEvent};
+use crate::widgets::{Dropdown, DropdownEvent, Textbox, TextboxEvent};
 use crate::AnimationState;
 
 const VEC_EDIT_STYLE: &str = r#"
@@ -213,10 +213,10 @@ where
             })
             .2;
 
-        let one = Dimension::new("1").build(state, self.dims, |builder| builder.class("item"));
-        let two = Dimension::new("2").build(state, self.dims, |builder| builder.class("item"));
-        let three = Dimension::new("3").build(state, self.dims, |builder| builder.class("item"));
-        let four = Dimension::new("4").build(state, self.dims, |builder| builder.class("item"));
+        Dimension::new("1").build(state, self.dims, |builder| builder.class("item"));
+        Dimension::new("2").build(state, self.dims, |builder| builder.class("item"));
+        Dimension::new("3").build(state, self.dims, |builder| builder.class("item"));
+        Dimension::new("4").build(state, self.dims, |builder| builder.class("item"));
 
         self.reveal = state.style.flex_grow.insert_animation(
             AnimationState::new()
@@ -419,8 +419,6 @@ where
 
                     _ => {}
                 },
-
-                _ => {}
             }
         }
 

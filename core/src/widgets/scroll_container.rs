@@ -220,13 +220,13 @@ impl EventHandler for ScrollContainerH {
                     //     scrollh = 1.0;
                     // }
 
-                    let current_scroll_top = state
+                    let _current_scroll_top = state
                         .style
                         .left
                         .get(self.horizontal_scroll)
                         .cloned()
                         .unwrap_or_default();
-                    let current_container_top = state
+                    let _current_container_top = state
                         .style
                         .left
                         .get(self.container)
@@ -309,7 +309,7 @@ impl EventHandler for ScrollContainerH {
                     _ => {}
                 },
 
-                WindowEvent::MouseMove(x, y) => {
+                WindowEvent::MouseMove(x, _) => {
                     if self.moving {
                         let dist_x = *x - self.pressedx;
                         let overflow = state.data.get_width(entity)
@@ -387,14 +387,14 @@ impl Container {
 
 impl BuildHandler for Container {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
 }
 
 impl EventHandler for Container {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        if let Some(window_event) = event.message.downcast::<WindowEvent>() {}
+    fn on_event(&mut self, _state: &mut State, _entity: Entity, event: &mut Event) {
+        if let Some(_window_event) = event.message.downcast::<WindowEvent>() {}
     }
 }
 
@@ -611,13 +611,13 @@ impl EventHandler for ScrollContainer {
                     //     scrollh = 1.0;
                     // }
 
-                    let current_scroll_top = state
+                    let _current_scroll_top = state
                         .style
                         .top
                         .get(self.vertical_scroll)
                         .cloned()
                         .unwrap_or_default();
-                    let current_container_top = state
+                    let _current_container_top = state
                         .style
                         .top
                         .get(self.container)

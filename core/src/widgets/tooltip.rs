@@ -1,7 +1,5 @@
 use crate::widgets::*;
 
-use crate::widgets::label::*;
-
 pub struct Tooltip {
     text: String,
 }

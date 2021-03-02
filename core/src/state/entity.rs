@@ -1,5 +1,4 @@
 use std::cmp::{Eq, PartialEq};
-use std::collections::VecDeque;
 use std::hash::Hash;
 
 // An entity is an id used to reference data in external storages.

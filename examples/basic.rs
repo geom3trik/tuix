@@ -6,7 +6,7 @@ use tuix::*;
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|win_desc, state, window| {
         match state.add_stylesheet("examples/themes/basic_theme.css") {
             Ok(_) => {}
             Err(e) => println!("Error loading stylesheet: {}", e),
@@ -23,7 +23,7 @@ fn main() {
         // let left_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         //let container = Element::new().build(state, window, |builder| builder.class("container"));
-        let one = Element::new().build(state, window, |builder| {
+        let _one = Element::new().build(state, window, |builder| {
             builder.class("one").set_background_gradient(
                 LinearGradient::new(Direction::TopToBottom)
                     .add_stop(GradientStop::new(Length::Pixels(0.0), Color::rgb(90,90,90)))

@@ -1,7 +1,7 @@
 
 
 
-use crate::{Entity, State, Hierarchy, HierarchyIterator, Event, WindowEvent, Length, Visibility, Propagation};
+use crate::{Entity, State, Event, WindowEvent, Length, Visibility};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {

@@ -1,13 +1,12 @@
 #![allow(deprecated)]
 
 use glutin::event_loop::{ControlFlow, EventLoop};
-use glutin::{dpi::*, window};
 
 use crate::keyboard::{scan_to_code, vk_to_key};
 
 use crate::window::Window;
 
-use tuix_core::{Color, Length, Visibility};
+use tuix_core::{Length};
 use tuix_core::{Entity, State};
 
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
@@ -22,7 +21,7 @@ use tuix_core::state::style::prop::*;
 
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
-use tuix_core::systems::{apply_clipping, apply_styles, apply_visibility, apply_z_ordering, apply_hover};
+use tuix_core::systems::{apply_styles, apply_hover};
 
 use glutin::event::VirtualKeyCode;
 
@@ -37,7 +36,7 @@ pub struct Application {
 
 impl Application {
     pub fn new<F: FnOnce(WindowDescription, &mut State, Entity) -> WindowDescription>(
-        mut app: F,
+        app: F,
     ) -> Self {
         let event_loop = EventLoop::new();
         let mut state = State::new();
@@ -114,7 +113,6 @@ impl Application {
     }
 
     pub fn run(self) {
-        let mut pos: (f32, f32) = (0.0, 0.0);
 
         let mut state = self.state;
         let mut event_manager = self.event_manager;
@@ -124,7 +122,6 @@ impl Application {
 
         //let hierarchy = state.hierarchy.clone();
 
-        let mut counter = 0;
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -161,7 +158,7 @@ impl Application {
                                 .origin(Entity::root()),
                         );
                         //state.insert_event(Event::new(WindowEvent::Redraw));
-                        event_loop_proxy.send_event(());
+                        event_loop_proxy.send_event(()).unwrap();
                         window.handle.window().request_redraw();
                     } else {
                         //println!("Wait");

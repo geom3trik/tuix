@@ -2,7 +2,7 @@ extern crate tuix;
 
 use tuix::*;
 
-use tuix::widgets::{Button, Menu, MenuPosition};
+use tuix::widgets::Button;
 
 static THEME: &'static str = include_str!("themes/menus_theme.css");
 
@@ -93,7 +93,7 @@ static THEME: &'static str = include_str!("themes/menus_theme.css");
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|win_desc, state, window| {
         state.add_theme(THEME);
 
         // let menu1 = Menu::new("Menu", MenuPosition::Down).build(state, window, |builder| {
@@ -152,7 +152,7 @@ fn main() {
                 .set_background_color(Color::green())
         });
 
-        let (container, menu) = ContextMenu::new().build(state, button, |builder| {
+        let (_container, menu) = ContextMenu::new().build(state, button, |builder| {
             builder
                 .set_width(Length::Percentage(1.0))
                 .set_height(Length::Percentage(1.0))

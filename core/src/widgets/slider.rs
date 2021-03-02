@@ -7,9 +7,8 @@ use crate::{PropSet, State};
 
 use crate::state::style::*;
 
-use crate::widgets::{Button, Element};
+use crate::widgets::Element;
 
-use crate::event::Message;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SliderEvent {
@@ -332,7 +331,7 @@ impl EventHandler for Slider {
                         let width = state.data.get_width(entity);
                         let thumb_width = state.data.get_width(self.thumb);
 
-                        let mut dx = (state.mouse.left.pos_down.0 - state.data.get_posx(entity));
+                        let mut dx = state.mouse.left.pos_down.0 - state.data.get_posx(entity);
 
                         if dx <= thumb_width / 2.0 {
                             dx = thumb_width / 2.0;

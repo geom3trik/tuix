@@ -10,10 +10,7 @@ use crate::style::{Display, Visibility};
 use crate::widgets::slider::SliderEvent;
 use crate::widgets::Element;
 
-use femtovg::{
-    renderer::OpenGl, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId, LineCap,
-    LineJoin, Paint, Path, Renderer, Solidity,
-};
+use femtovg::{renderer::OpenGl, Canvas, LineCap, Paint, Path, Solidity};
 
 use std::sync::{Arc, Mutex};
 
@@ -156,11 +153,11 @@ impl EventHandler for ControlKnob {
                             };
 
                             let new_val = if self.is_log {
-                                let t = self.temp.log10()
+                                let _t = self.temp.log10()
                                     + (self.max.log10() - self.min.log10()) * normalised;
                                 10.0f32.powf(
-                                    (self.temp.log10()
-                                        + (self.max.log10() - self.min.log10()) * normalised),
+                                    self.temp.log10()
+                                        + (self.max.log10() - self.min.log10()) * normalised,
                                 )
                             } else {
                                 self.temp + (self.max - self.min) * normalised
@@ -341,7 +338,7 @@ impl EventHandler for ControlKnob {
         // Draw knob
         let mut path = Path::new();
         path.circle(cx, cy, r0 + 1.0);
-        let mut paint = Paint::color(knob_color);
+        let paint = Paint::color(knob_color);
         canvas.fill_path(&mut path, paint);
 
         // Draw knob tick
@@ -351,7 +348,7 @@ impl EventHandler for ControlKnob {
 
         let mut path = Path::new();
         path.circle(0.0, r0 - 2.5, 2.0);
-        let mut paint = Paint::color(tick_color);
+        let paint = Paint::color(tick_color);
         canvas.fill_path(&mut path, paint);
 
         canvas.restore();

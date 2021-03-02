@@ -14,7 +14,7 @@ pub enum ButtonEvent {
     Release,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Button {
     pub id: Entity,
 
@@ -66,6 +66,7 @@ impl BuildHandler for Button {
 
 impl EventHandler for Button {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        
         if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
             match button_event {
                 ButtonEvent::Pressed => {
@@ -105,7 +106,6 @@ impl EventHandler for Button {
             match window_event {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
-                        //println!("entity: {} {:?}", entity, entity.is_disabled(state));
                         if entity == event.target && !entity.is_disabled(state) {
                             state.capture(entity);
                             state.insert_event(
@@ -121,7 +121,7 @@ impl EventHandler for Button {
 
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-                        if entity == event.target {
+                        if entity == event.target && state.mouse.left.pressed == entity {
                             state.release(entity);
                             entity.set_active(state, false);
                             if !entity.is_disabled(state) {

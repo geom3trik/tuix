@@ -1,12 +1,10 @@
 use crate::entity::Entity;
-use crate::mouse::*;
 use crate::State;
-use crate::{BuildHandler, Event, EventHandler, WindowEvent};
+use crate::{BuildHandler, Event, EventHandler};
 
-use crate::style::{Display, Length};
+use crate::style::Length;
 
 use crate::prop::PropSet;
-use crate::widgets::slider::SliderEvent;
 use crate::widgets::Element;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -45,7 +43,7 @@ impl BuildHandler for AudioLevelBar {
 }
 
 impl EventHandler for AudioLevelBar {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(audio_level_event) = event.message.downcast::<AudioLevelEvent>() {
             match audio_level_event {
                 AudioLevelEvent::SetLevel(val) => {
@@ -57,7 +55,3 @@ impl EventHandler for AudioLevelBar {
         }
     }
 }
-
-// pub struct AudioLevels {
-
-// }

@@ -1,5 +1,5 @@
 use crate::widgets::*;
-use crate::{Code, Key};
+use crate::Key;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ListboxEvent {
@@ -21,7 +21,7 @@ impl Listbox {
 
 impl BuildHandler for Listbox {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
 }

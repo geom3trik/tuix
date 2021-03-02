@@ -20,7 +20,7 @@ fn main() {
         let (tab_bar1, tab_viewport1) = TabManager::new().build(state, window, |builder| builder);
 
         // Add a tab to the tab bar
-        let first_tab = Tab::new("first")   
+        let first_tab = MovableTab::new("first")   
             .build(state, tab_bar1, |builder| {
                 builder.set_text("First").class("tab")
         });
@@ -33,7 +33,7 @@ fn main() {
         // Add a button to this container
         Button::with_label("First Button").build(state, first_container, |builder| builder.class("test"));
 
-        let second_tab = Tab::new("second")
+        let _second_tab = MovableTab::new("second")
             .build(state, tab_bar1, |builder| {
                 builder.set_text("Second").class("tab")
         });
@@ -42,6 +42,21 @@ fn main() {
         second_container.set_display(state, Display::None);
 
         Button::with_label("Second Button").build(state, second_container, |builder| builder.class("test"));
+
+        MovableTab::new("third")
+            .build(state, tab_bar1, |builder| {
+                builder.set_text("Third").class("tab")
+        });
+
+        MovableTab::new("fourth")
+            .build(state, tab_bar1, |builder| {
+                builder.set_text("Fourth").class("tab")
+        });
+
+        MovableTab::new("fifth")
+            .build(state, tab_bar1, |builder| {
+                builder.set_text("Fifth").class("tab")
+        });
 
         // I hear you like tabs, so I put some tabs in your tabs
         let more_tabs = Element::new().build(state, second_container, |builder|
@@ -72,7 +87,7 @@ fn main() {
         // Add a button to this container
         Button::with_label("First Button").build(state, first_container, |builder| builder.class("test"));
 
-        let second_tab = RadioButton::new()
+        let _second_tab = RadioButton::new()
             .on_checked(Event::new(TabEvent::SwitchTab("second".to_string())).propagate(Propagation::Up))
             .build(state, tab_bar2, |builder| {
                 builder.set_text("Second").class("tab")
