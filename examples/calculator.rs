@@ -4,8 +4,6 @@ use image::GenericImageView;
 
 use tuix::*;
 
-static LIGHT_THEME: &'static str = include_str!("themes/calculator_light_theme.css");
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum CalculatorEvent {
     Digit(char),
@@ -107,16 +105,14 @@ impl Calculator {
 impl BuildHandler for Calculator {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        let container = Button::new().build(state, entity, |builder| builder.class("container"));
+        let container = Element::new().build(state, entity, |builder| builder.class("container"));
 
         // Change to label that can be copied but not edited at some point
-        self.display = Button::new().build(state, container, |builder| {
-            builder.set_text("0").class("display")
-        });
+        self.display = Label::new("0").build(state, container, |builder| builder.class("display"));
 
         // Currently using flexbox to create the layout but would be good to use grid when working
 
-        let row1 = Button::new().build(state, container, |builder| builder.class("row"));
+        let row1 = HBox::new().build(state, container, |builder| builder);
 
         self.clear = Button::new()
             .on_press(Event::new(CalculatorEvent::Operator('C')))
@@ -143,7 +139,7 @@ impl BuildHandler for Calculator {
             });
 
         // Second Row
-        let row2 = Button::new().build(state, container, |builder| builder.class("row"));
+        let row2 = HBox::new().build(state, container, |builder| builder);
 
         // Digit Seven
         self.seven = Button::new()
@@ -168,7 +164,7 @@ impl BuildHandler for Calculator {
             });
 
         // Third Row
-        let row3 = Button::new().build(state, container, |builder| builder.class("row"));
+        let row3 = HBox::new().build(state, container, |builder| builder);
 
         // Digit Four
         self.four = Button::new()
@@ -193,7 +189,7 @@ impl BuildHandler for Calculator {
             });
 
         // Fourth Row
-        let row4 = Button::new().build(state, container, |builder| builder.class("row"));
+        let row4 = HBox::new().build(state, container, |builder| builder);
 
         // Digit One
         self.one = Button::new()
@@ -218,13 +214,13 @@ impl BuildHandler for Calculator {
             });
 
         // Fifth Row
-        let row5 = Button::new().build(state, container, |builder| builder.class("last_row"));
+        let row5 = HBox::new().build(state, container, |builder| builder.class("last"));
 
         // Digit Zero
         self.zero = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('0')))
             .build(state, row5, |builder| {
-                builder.set_text("0").set_flex_grow(2.0).class("digit")
+                builder.set_text("0").class("digit").class("zero")
             });
 
         // Decimal Point
@@ -241,6 +237,7 @@ impl BuildHandler for Calculator {
 
         state.focused = self.display;
 
+        // Define the focus order for the buttons
         self.display
             .set_focus_order(state, self.clear, self.decimal_point);
         self.clear
@@ -276,7 +273,7 @@ impl BuildHandler for Calculator {
 }
 
 impl EventHandler for Calculator {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(calculator_event) = event.message.downcast::<CalculatorEvent>() {
             match calculator_event {
                 CalculatorEvent::Digit(num) => {
@@ -388,94 +385,160 @@ impl EventHandler for Calculator {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::KeyDown(code, key) => {
+                WindowEvent::KeyDown(code, _) => match code {
+                    Code::Numpad0 | Code::Digit0 => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.zero));
+                    }
 
+                    Code::Numpad1 | Code::Digit1 => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.one));
+                    }
 
-                    match code {
+                    Code::Numpad2 | Code::Digit2 => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.two));
+                    }
 
-                        Code::Digit0 => {
-                            state.active = self.zero;
+                    Code::Numpad3 | Code::Digit3 => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.three));
+                    }
+
+                    Code::Numpad4 | Code::Digit4 => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.four));
+                    }
+
+                    Code::Numpad5 | Code::Digit5 => {
+                        if state.modifiers.shift {
                             state.insert_event(
-                                Event::new(CalculatorEvent::Digit('0')).target(entity),
+                                Event::new(ButtonEvent::Pressed).target(self.percent),
                             );
+                        } else {
+                            state.insert_event(Event::new(ButtonEvent::Pressed).target(self.five));
+                        }
+                    }
+
+                    Code::Numpad6 | Code::Digit6 => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.six));
+                    }
+
+                    Code::Numpad7 | Code::Digit7 => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.seven));
+                    }
+
+                    Code::Numpad8 | Code::Digit8 => {
+                        if state.modifiers.shift {
+                            state.insert_event(
+                                Event::new(ButtonEvent::Pressed).target(self.multiply),
+                            );
+                        } else {
+                            state.insert_event(Event::new(ButtonEvent::Pressed).target(self.eight));
+                        }
+                    }
+
+                    Code::Numpad9 | Code::Digit9 => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.nine));
+                    }
+
+                    Code::Escape => {
+                        state.active = self.clear;
+                        self.clear_all(state);
+                    }
+
+                    Code::NumpadMultiply => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.multiply));
+                    }
+
+                    Code::NumpadSubtract => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.subtract));
+                    }
+
+                    Code::NumpadAdd => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.add));
+                    }
+
+                    Code::NumpadDivide => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.divide));
+                    }
+
+                    Code::NumpadDecimal => {
+                        state.insert_event(
+                            Event::new(ButtonEvent::Pressed).target(self.decimal_point),
+                        );
+                    }
+
+                    Code::Equal => {
+                        if state.modifiers.shift {
+                            state.insert_event(Event::new(ButtonEvent::Pressed).target(self.add));
+                        } else {
+                            state
+                                .insert_event(Event::new(ButtonEvent::Pressed).target(self.equals));
+                        }
+                    }
+
+                    Code::NumpadEnter | Code::Enter => {
+                        state.insert_event(Event::new(ButtonEvent::Pressed).target(self.equals));
+                    }
+
+                    _ => {}
+                },
+
+                WindowEvent::KeyUp(code, _) => {
+                    match code {
+                        Code::Digit0 => {
+                            state.insert_event(Event::new(ButtonEvent::Released).target(self.zero));
                         }
 
                         Code::Digit1 => {
-                            state.active = self.one;
-                            state.insert_event(
-                                Event::new(CalculatorEvent::Digit('1')).target(entity),
-                            );
+                            state.insert_event(Event::new(ButtonEvent::Released).target(self.one));
                         }
 
                         Code::Digit2 => {
-                            state.active = self.two;
-                            state.insert_event(
-                                Event::new(CalculatorEvent::Digit('2')).target(entity),
-                            );
+                            state.insert_event(Event::new(ButtonEvent::Released).target(self.two));
                         }
 
                         Code::Digit3 => {
-                            state.active = self.three;
-                            state.insert_event(
-                                Event::new(CalculatorEvent::Digit('3')).target(entity),
-                            );
+                            state
+                                .insert_event(Event::new(ButtonEvent::Released).target(self.three));
                         }
 
                         Code::Digit4 => {
-                            state.active = self.four;
-                            state.insert_event(
-                                Event::new(CalculatorEvent::Digit('4')).target(entity),
-                            );
+                            state.insert_event(Event::new(ButtonEvent::Released).target(self.four));
                         }
 
                         Code::Digit5 => {
                             if state.modifiers.shift {
-                                state.active = self.percent;
                                 state.insert_event(
-                                    Event::new(CalculatorEvent::Digit('%')).target(entity),
+                                    Event::new(ButtonEvent::Released).target(self.percent),
                                 );
                             } else {
-                                state.active = self.five;
                                 state.insert_event(
-                                    Event::new(CalculatorEvent::Digit('5')).target(entity),
+                                    Event::new(ButtonEvent::Released).target(self.five),
                                 );
                             }
                         }
 
                         Code::Digit6 => {
-                            state.active = self.six;
-                            state.insert_event(
-                                Event::new(CalculatorEvent::Digit('6')).target(entity),
-                            );
+                            state.insert_event(Event::new(ButtonEvent::Released).target(self.six));
                         }
 
                         Code::Digit7 => {
-                            state.active = self.seven;
-                            state.insert_event(
-                                Event::new(CalculatorEvent::Digit('7')).target(entity),
-                            );
+                            state
+                                .insert_event(Event::new(ButtonEvent::Released).target(self.seven));
                         }
 
                         Code::Digit8 => {
                             if state.modifiers.shift {
-                                state.active = self.multiply;
                                 state.insert_event(
-                                    Event::new(CalculatorEvent::Operator('*'))
-                                        .target(entity),
+                                    Event::new(ButtonEvent::Released).target(self.multiply),
                                 );
                             } else {
-                                state.active = self.eight;
                                 state.insert_event(
-                                    Event::new(CalculatorEvent::Digit('8')).target(entity),
+                                    Event::new(ButtonEvent::Released).target(self.eight),
                                 );
                             }
                         }
 
                         Code::Digit9 => {
-                            state.active = self.nine;
-                            state.insert_event(
-                                Event::new(CalculatorEvent::Digit('9')).target(entity),
-                            );
+                            state.insert_event(Event::new(ButtonEvent::Released).target(self.nine));
                         }
 
                         Code::Escape => {
@@ -484,89 +547,73 @@ impl EventHandler for Calculator {
                         }
 
                         Code::NumpadMultiply => {
-                            state.active = self.multiply;
                             state.insert_event(
-                                Event::new(CalculatorEvent::Operator('*')).target(entity),
+                                Event::new(ButtonEvent::Released).target(self.multiply),
                             );
                         }
 
                         Code::NumpadSubtract => {
-                            state.active = self.subtract;
                             state.insert_event(
-                                Event::new(CalculatorEvent::Operator('-')).target(entity),
+                                Event::new(ButtonEvent::Released).target(self.subtract),
                             );
                         }
 
                         Code::NumpadAdd => {
-                            state.active = self.add;
-                            state.insert_event(
-                                Event::new(CalculatorEvent::Operator('+')).target(entity),
-                            );
+                            state.insert_event(Event::new(ButtonEvent::Released).target(self.add));
                         }
 
                         Code::NumpadDivide => {
-                            state.active = self.divide;
                             state.insert_event(
-                                Event::new(CalculatorEvent::Operator('/')).target(entity),
+                                Event::new(ButtonEvent::Released).target(self.divide),
                             );
                         }
 
                         Code::NumpadDecimal => {
-                            state.active = self.decimal_point;
                             state.insert_event(
-                                Event::new(CalculatorEvent::Digit('.')).target(entity),
+                                Event::new(ButtonEvent::Released).target(self.decimal_point),
                             );
                         }
 
                         Code::Equal => {
                             if state.modifiers.shift {
-                                state.active = self.add;
                                 state.insert_event(
-                                    Event::new(CalculatorEvent::Operator('+'))
-                                        .target(entity),
+                                    Event::new(ButtonEvent::Released).target(self.add),
                                 );
                             } else {
-                                state.active = self.equals;
                                 state.insert_event(
-                                    Event::new(CalculatorEvent::Operator('='))
-                                        .target(entity),
+                                    Event::new(ButtonEvent::Released).target(self.equals),
                                 );
                             }
                         }
 
                         Code::NumpadEnter | Code::Enter => {
-                            state.active = self.equals;
                             state.insert_event(
-                                Event::new(CalculatorEvent::Operator('=')).target(entity),
+                                Event::new(ButtonEvent::Released).target(self.equals),
                             );
                         }
 
                         _ => {}
                     }
 
-                    state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
-                        
-                }
-
-                WindowEvent::KeyUp(_,_) => {
-                    state.active = Entity::null();
-                    state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
+                    //state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
                 }
 
                 _ => {}
             }
         }
-
-        false
     }
 }
 
 pub fn main() {
-    // Replace this with icon loading using resource manager when working
-    let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
+    let app = Application::new(|win_desc, state, window| {
+        // Replace this with icon loading using resource manager when working
+        let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
-    let mut app = Application::new(|win_desc, state, window| {
-        state.insert_theme(LIGHT_THEME);
+        //state.add_theme(LIGHT_THEME);
+        match state.add_stylesheet("examples/themes/calculator_light_theme.css") {
+            Ok(_) => {}
+            Err(e) => println!("Error loading stylesheet: {}", e),
+        }
 
         Calculator::default().build(state, window, |builder| builder.class("calculator"));
 

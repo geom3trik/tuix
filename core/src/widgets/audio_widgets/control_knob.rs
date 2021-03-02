@@ -10,10 +10,9 @@ use crate::style::{Display, Visibility};
 use crate::widgets::slider::SliderEvent;
 use crate::widgets::Element;
 
-use femtovg::{
-    renderer::OpenGl, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId, LineCap,
-    LineJoin, Paint, Path, Renderer, Solidity,
-};
+use femtovg::{renderer::OpenGl, Canvas, LineCap, Paint, Path, Solidity};
+
+use std::sync::{Arc, Mutex};
 
 pub struct ControlKnob {
     sliding: bool, // Could replace this with a bool in state, maybe in mouse
@@ -27,10 +26,12 @@ pub struct ControlKnob {
     slider: Entity,
     tick: Entity,
 
-    min_value: f32,
-    max_value: f32,
+    min: f32,
+    max: f32,
 
-    is_log: bool,
+    pub is_log: bool,
+
+    pub on_change: Option<Arc<Mutex<dyn Fn(f32) -> Event + Send>>>,
 }
 
 impl ControlKnob {
@@ -47,17 +48,27 @@ impl ControlKnob {
             slider: Entity::null(),
             tick: Entity::null(),
 
-            min_value: min,
-            max_value: max,
+            min,
+            max,
 
             is_log: false,
+
+            on_change: None,
         }
     }
 
     pub fn with_log_scale(mut self) -> Self {
-
         self.is_log = true;
 
+        self
+    }
+
+    pub fn on_change<F>(mut self, message: F) -> Self
+    where
+        F: Fn(f32) -> Event,
+        F: 'static + Send,
+    {
+        self.on_change = Some(Arc::new(Mutex::new(message)));
         self
     }
 }
@@ -91,16 +102,16 @@ impl BuildHandler for ControlKnob {
 }
 
 impl EventHandler for ControlKnob {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
                 SliderEvent::SetValue(val) => {
                     if event.target == entity {
                         if event.target == entity {
-                            self.value = ((*val).min(self.max_value)).max(self.min_value);
+                            self.value = ((*val).min(self.max)).max(self.min);
 
                             state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
                             );
                         }
                     }
@@ -142,36 +153,42 @@ impl EventHandler for ControlKnob {
                             };
 
                             let new_val = if self.is_log {
-                                let t = self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised;
-                                10.0f32.powf((self.temp.log10() + (self.max_value.log10() - self.min_value.log10()) * normalised))
-                                
+                                let _t = self.temp.log10()
+                                    + (self.max.log10() - self.min.log10()) * normalised;
+                                10.0f32.powf(
+                                    self.temp.log10()
+                                        + (self.max.log10() - self.min.log10()) * normalised,
+                                )
                             } else {
-                                self.temp + (self.max_value - self.min_value) * normalised
+                                self.temp + (self.max - self.min) * normalised
                             };
 
-                            
-                                
-
-                            
-
-                            self.value = (new_val.min(self.max_value)).max(self.min_value);
+                            self.value = (new_val.min(self.max)).max(self.min);
 
                             //println!("val: {}", normalised);
 
+                            if let Some(on_change) = &self.on_change {
+                                let mut event = (on_change.lock().unwrap())(self.value);
+                                if !event.target {
+                                    event.target = entity;
+                                }
+
+                                event.origin = entity;
+                                state.insert_event(event);
+                            }
+
                             state.insert_event(
-                                Event::new(SliderEvent::ValueChanged(self.value))
-                                    .target(entity),
+                                Event::new(SliderEvent::ValueChanged(self.value)).target(entity),
                             );
 
                             state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::new(0, 0)),
+                                Event::new(WindowEvent::Redraw).target(Entity::root()),
                             );
                         }
                     }
                 }
 
                 WindowEvent::KeyDown(keycode, _) => {
-                   
                     if *keycode == keyboard_types::Code::ShiftLeft {
                         if !self.shift_pressed {
                             self.shift_pressed = true;
@@ -180,11 +197,9 @@ impl EventHandler for ControlKnob {
                         self.mouse_down_posy = state.mouse.cursory;
                         self.temp = self.value;
                     }
-                    
                 }
 
                 WindowEvent::KeyUp(keycode, _) => {
-                    
                     if *keycode == keyboard_types::Code::ShiftLeft {
                         if self.shift_pressed {
                             self.shift_pressed = false;
@@ -193,24 +208,19 @@ impl EventHandler for ControlKnob {
                         self.mouse_down_posy = state.mouse.cursory;
                         self.temp = self.value;
                     }
-                    
                 }
 
                 _ => {}
             }
         }
-
-        return false;
     }
 
-    
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
-
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        let opacity = state.transform.get_opacity(entity);
+        let opacity = state.data.get_opacity(entity);
 
         let mut knob_color: femtovg::Color = state
             .style
@@ -248,10 +258,10 @@ impl EventHandler for ControlKnob {
             .into();
         tick_color.set_alphaf(tick_color.a * opacity);
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         let cx = posx + 0.5 * width;
         let cy = posy + 0.5 * height;
@@ -263,20 +273,17 @@ impl EventHandler for ControlKnob {
         let end = PI / 4.0;
 
         let (min, max, value) = if self.is_log {
-            (self.min_value.log10(), self.max_value.log10(), self.value.log10())
-            //(self.min_value, self.max_value, self.value)
+            (self.min.log10(), self.max.log10(), self.value.log10())
+        //(self.min_value, self.max_value, self.value)
         } else {
-            (self.min_value, self.max_value, self.value)
+            (self.min, self.max, self.value)
         };
-
 
         let zero_position = if self.is_log {
             start
         } else {
             (-min / (max - min)) * (end - start) + start
         };
-        
-        
 
         let normalised = (value - min) / (max - min);
 
@@ -294,7 +301,6 @@ impl EventHandler for ControlKnob {
         // let mut paint = Paint::color(back_color);
         // canvas.fill_path(&mut path, paint);
 
-
         let mut path = Path::new();
         path.arc(cx, cy, r1 - 2.5, end, start, Solidity::Solid);
         let mut paint = Paint::color(back_color);
@@ -309,7 +315,7 @@ impl EventHandler for ControlKnob {
             } else {
                 path.arc(cx, cy, r1 - 2.5, zero_position, current, Solidity::Solid);
             }
-            
+
             let mut paint = Paint::color(slider_color);
             paint.set_line_width(5.0);
             paint.set_line_cap(LineCap::Round);
@@ -318,21 +324,21 @@ impl EventHandler for ControlKnob {
 
         // Draw outer arc fill
         //if current != start {
-            //let mut path = Path::new();
-            //path.arc(cx, cy, r0, start, current, Solidity::Hole);
-            //path.arc(cx, cy, r1, current, start, Solidity::Solid);
-            //path.close();
-            // path.arc(cx, cy, r1 - 2.5, end, start, Solidity::Solid);
-            // let mut paint = Paint::color(back_color);
-            // paint.set_line_width(5.0);
-            // paint.set_line_cap(LineCap::Round);
-            // canvas.fill_path(&mut path, paint);
+        //let mut path = Path::new();
+        //path.arc(cx, cy, r0, start, current, Solidity::Hole);
+        //path.arc(cx, cy, r1, current, start, Solidity::Solid);
+        //path.close();
+        // path.arc(cx, cy, r1 - 2.5, end, start, Solidity::Solid);
+        // let mut paint = Paint::color(back_color);
+        // paint.set_line_width(5.0);
+        // paint.set_line_cap(LineCap::Round);
+        // canvas.fill_path(&mut path, paint);
         //}
 
         // Draw knob
         let mut path = Path::new();
         path.circle(cx, cy, r0 + 1.0);
-        let mut paint = Paint::color(knob_color);
+        let paint = Paint::color(knob_color);
         canvas.fill_path(&mut path, paint);
 
         // Draw knob tick
@@ -342,11 +348,10 @@ impl EventHandler for ControlKnob {
 
         let mut path = Path::new();
         path.circle(0.0, r0 - 2.5, 2.0);
-        let mut paint = Paint::color(tick_color);
+        let paint = Paint::color(tick_color);
         canvas.fill_path(&mut path, paint);
 
         canvas.restore();
         canvas.restore();
     }
-    
 }

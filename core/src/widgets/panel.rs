@@ -4,7 +4,7 @@ use crate::{
     AnimationState, BuildHandler, Entity, Event, EventHandler, MouseButton, State, WindowEvent,
 };
 
-use crate::widgets::{Button, Element};
+use crate::widgets::Element;
 
 use crate::state::style::*;
 
@@ -73,7 +73,7 @@ impl BuildHandler for Panel {
         self.checkbox = Element::new().build(state, self.header, |builder| {
             builder
                 .set_text(ICON_DOWN_OPEN_BIG)
-                .set_font("Icons".to_string())
+                .set_font("icons")
                 .set_text_justify(Justify::Center)
                 .set_text_align(Align::Center)
                 .set_width(Length::Pixels(20.0))
@@ -102,13 +102,13 @@ impl BuildHandler for Panel {
                 // .set_top(Length::Percentage(1.0))
                 // .set_width(Length::Percentage(1.0))
                 //.set_height(Length::Pixels(200.0))
-                .class("container")
+                .class("container1")
         });
 
         self.other_container = Element::new().build(
             state,
             self.container,
-            |builder| builder, //.set_flex_grow(1.0).class("test")
+            |builder| builder.class("container2"), //.set_flex_grow(1.0).class("test")
         );
 
         //entity.set_checked(state, true);
@@ -127,7 +127,7 @@ impl BuildHandler for Panel {
 
         let container_collapse_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_delay(std::time::Duration::from_millis(150))
+            .with_delay(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
@@ -180,50 +180,15 @@ impl BuildHandler for Panel {
 }
 
 impl EventHandler for Panel {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         //if event.target == self.header {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                /*
-                WindowEvent::Relayout => {
-                    // Exclude relayout orginating from animations
-                    if event.origin != Entity::new(0, 0) {
-                        if !state.style.height.is_animating(self.container) {
-                            //let container_height = state.transform.get_height(self.container);
-                            let container_height = state.transform.get_child_sum(self.container);
-                            if container_height > 0.0 {
-                                self.container_height = container_height;
-
-                                if let Some(animation) =
-                                    state.style.height.get_animation_mut(self.expand_animation)
-                                {
-                                    animation.keyframes.last_mut().unwrap().1 =
-                                        Length::Pixels(self.container_height);
-                                }
-
-                                if let Some(animation) = state
-                                    .style
-                                    .height
-                                    .get_animation_mut(self.collapse_animation)
-                                {
-                                    animation.keyframes.first_mut().unwrap().1 =
-                                        Length::Pixels(self.container_height);
-                                }
-
-                                //println!("x: {}  y: {}  w: {}  h: {}", state.transform.get_posx(self.container), state.transform.get_posy(self.container), state.transform.get_width(self.container), state.transform.get_height(self.container));
-                                //println!("display: {:?}  visibility: {:?}  opacity: {:?}", state.style.display.get(self.container).cloned().unwrap_or_default(), state.transform.get_visibility(self.container), state.transform.get_opacity(self.container));
-                            }
-                        }
-                    }
-                }
-                */
-
-
-                WindowEvent::GeometryChanged => {
+                WindowEvent::GeometryChanged(_) => {
                     if event.target == entity {
                         if !state.style.height.is_animating(self.container) {
-                            //let container_height = state.transform.get_height(self.container);
-                            let container_height = state.transform.get_child_sum(self.container);
+                            //let container_height = state.data.get_height(self.container);
+                            let container_height = state.data.get_child_sum(self.container);
                             if container_height > 0.0 {
                                 self.container_height = container_height;
 
@@ -242,9 +207,6 @@ impl EventHandler for Panel {
                                     animation.keyframes.first_mut().unwrap().1 =
                                         Length::Pixels(self.container_height);
                                 }
-
-                                //println!("x: {}  y: {}  w: {}  h: {}", state.transform.get_posx(self.container), state.transform.get_posy(self.container), state.transform.get_width(self.container), state.transform.get_height(self.container));
-                                //println!("display: {:?}  visibility: {:?}  opacity: {:?}", state.style.display.get(self.container).cloned().unwrap_or_default(), state.transform.get_visibility(self.container), state.transform.get_opacity(self.container));
                             }
                         }
                     }
@@ -279,8 +241,7 @@ impl EventHandler for Panel {
                                 self.checkbox.set_rotate(state, 0.0);
                                 //self.container
                                 //    .set_height(state, Length::Pixels(self.container_height));
-                                self.container
-                                    .set_height(state, Length::Auto);
+                                self.container.set_height(state, Length::Auto);
                                 self.other_container.set_opacity(state, 1.0);
 
                             //self.container.set_display(state, Display::Flexbox);
@@ -314,15 +275,12 @@ impl EventHandler for Panel {
                             }
                         }
 
-                        return true;
+                        event.consume();
                     }
                 }
 
                 _ => {}
             }
         }
-        //}
-
-        false
     }
 }

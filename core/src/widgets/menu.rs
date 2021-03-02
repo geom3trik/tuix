@@ -2,9 +2,7 @@
 
 use crate::entity::Entity;
 use crate::mouse::*;
-use crate::{
-    BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WidgetEvent, WindowEvent,
-};
+use crate::{BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WindowEvent};
 use crate::{PropSet, State};
 
 use crate::state::style::*;
@@ -125,7 +123,7 @@ impl EventHandler for Menu {
     //     }
     // }
 
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(menu_event) = event.message.downcast::<MenuEvent>() {
             match menu_event {
                 MenuEvent::Open(_id) => {
@@ -140,7 +138,7 @@ impl EventHandler for Menu {
 
                 MenuEvent::Close(id) => {
                     if *id == entity {
-                        if entity.parent(&state.hierarchy).unwrap() == state.root {
+                        if entity.parent(&state.hierarchy).unwrap() == Entity::root() {
                             state.release(entity);
                         }
                         //state.style.checked.set(entity, false);
@@ -231,7 +229,7 @@ impl EventHandler for Menu {
                                                 .propagate(Propagation::Direct),
                                         );
 
-                                        return false;
+                                        return;
                                     }
                                 }
 
@@ -264,7 +262,7 @@ impl EventHandler for Menu {
                                         Event::new(MenuEvent::CloseAll(entity)).target(entity),
                                     );
 
-                                    return false;
+                                    return;
                                 }
                             }
 
@@ -292,7 +290,7 @@ impl EventHandler for Menu {
                                 .propagate(Propagation::Fall),
                         );
 
-                        return true;
+                        event.consume();
                     }
 
                     if event.origin == entity {
@@ -303,10 +301,9 @@ impl EventHandler for Menu {
                                     .propagate(Propagation::Fall),
                             );
 
-                            return true;
+                            event.consume();
                         }
                     } else if event.origin.is_descendant_of(&state.hierarchy, entity) {
-
                         //if event.target != self.container {
                         // state.insert_event(
                         //     Event::new(WindowEvent::MouseOver)
@@ -334,7 +331,7 @@ impl EventHandler for Menu {
                                 .propagate(Propagation::Fall),
                         );
 
-                        return true;
+                        event.consume();
                     }
 
                     //return true;
@@ -362,61 +359,5 @@ impl EventHandler for Menu {
                 _ => {}
             }
         }
-
-        if let Some(wentityget_event) = event.message.downcast::<WidgetEvent>() {
-            match wentityget_event {
-                WidgetEvent::MouseEnter(id) => {
-                    if *id == entity {
-                        // state.insert_event(
-                        //     Event::new(MenuEvent::Open(entity))
-                        //         .target(entity)
-                        //         .propagate(Propagation::None),
-                        // );
-
-                        // if let Some(visibility) = state.style.visibility.get(self.container) {
-                        //     match visibility {
-                        //         Visibility::Invisible => {
-                        //             state.insert_event(
-                        //                 Event::new(MenuEvent::Open(entity)).target(entity).propagate(false),
-                        //             );
-                        //         }
-
-                        //         Visibility::Visible => {
-                        //             state.insert_event(
-                        //                 Event::new(MenuEvent::Close(entity)).target(entity).propagate(false),
-                        //             );
-                        //         }
-                        //     }
-                        // }
-
-                        state.insert_event(Event::new(WindowEvent::Restyle));
-                    }
-                }
-
-                WidgetEvent::MouseLeave(id) => {
-                    if *id == entity {
-                        // for child in self.container.child_iter(&state.hierarchy) {
-                        //     if child == state.hovered {
-                        //         // Forward the mouse down event to the option that's hovered
-                        //         //state.insert_event(Event::new(WindowEvent::MouseDown(*button, *mods)).target(state.hovered).propagate(false));
-                        //         //state.insert_event(Event::new(StyleEvent::Restyle));
-                        //         //state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity));
-                        //         //state.captured = Entity::null();
-
-                        //         return false;
-                        //     }
-                        // }
-
-                        //state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity).propagate(false));
-                    }
-
-                    state.insert_event(Event::new(WindowEvent::Restyle));
-                }
-
-                _ => {}
-            }
-        }
-
-        false
     }
 }

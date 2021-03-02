@@ -1,51 +1,52 @@
-use crate::{events::{Event, EventManager, Message}, state};
+use crate::{
+    events::{Event, EventManager, Message},
+    state,
+};
 
-use crate::build_handler::Builder;
+use crate::builder::Builder;
 
 use crate::{Entity, Hierarchy, State};
 
 use std::collections::{HashMap, VecDeque};
 
 use femtovg::{
-    renderer::OpenGl, Align, Baseline, Canvas, FillRule, FontId, ImageFlags, ImageId, LineCap,
-    LineJoin, Paint, Path, Renderer, Solidity,
+    renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
+    Paint, Path, Renderer, Solidity,
 };
 
-use crate::style::{Justify, Length, Visibility};
+use crate::style::{Justify, Length, Visibility, Direction};
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum WidgetEvent {
-    AddChild(Entity, Entity),
-    MouseEnter(Entity),
-    MouseLeave(Entity),
-}
+use std::any::{Any, TypeId};
 
-pub trait EventHandler: Send {
+pub type Canvas = femtovg::Canvas<OpenGl>;
+
+pub trait EventHandler: Any + Send {
     // Called when events are flushed
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        false
-    }
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
     // Called when a redraw occurs
-    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
+    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+        //println!("Redraw");
+
+
         // Skip window
-        if entity == Entity::new(0, 0) {
+        if entity == Entity::root() {
             return;
         }
 
         // Skip invisible widgets
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        if state.transform.get_opacity(entity) == 0.0 {
+        if state.data.get_opacity(entity) == 0.0 {
             return;
         }
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         let padding_left = match state
             .style
@@ -82,8 +83,6 @@ pub trait EventHandler: Send {
             _ => &0.0,
         };
 
-
-
         let background_color = state
             .style
             .background_color
@@ -117,34 +116,58 @@ pub trait EventHandler: Send {
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 
-        let parent_width = state.transform.get_width(parent);
-        let parent_height = state.transform.get_height(parent);
+        let parent_width = state.data.get_width(parent);
+        let parent_height = state.data.get_height(parent);
 
-        let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_left = match state
+            .style
+            .border_radius_top_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_top_right = match state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_top_right = match state
+            .style
+            .border_radius_top_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_left = match state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_left = match state
+            .style
+            .border_radius_bottom_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let border_radius_bottom_right = match state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default() {
+        let border_radius_bottom_right = match state
+            .style
+            .border_radius_bottom_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let opacity = state.transform.get_opacity(entity);
+        let opacity = state.data.get_opacity(entity);
 
         let mut background_color: femtovg::Color = background_color.into();
         background_color.set_alphaf(background_color.a * opacity);
@@ -160,20 +183,18 @@ pub trait EventHandler: Send {
             .border_width
             .get(entity)
             .cloned()
-            .unwrap_or_default() 
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
-        
+
         // Skip widgets with no width or no height
-        if width + 2.0* border_width + padding_left + padding_right == 0.0 || height + 2.0 * border_width + padding_top + padding_bottom == 0.0 {
+        if width == 0.0 || height == 0.0 {
             return;
         }
 
-        
-        
         // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
@@ -183,52 +204,59 @@ pub trait EventHandler: Send {
         canvas.rotate(rotate.to_radians());
         canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
+        canvas.translate(posx,posy);
+
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
         // canvas.translate(pt.0, pt.1);
         // canvas.scale(1.0, scaley.0);
         // canvas.translate(-pt.0, -pt.1);
 
-
         // Apply Scissor
-        let clip_entity = state.transform.get_clip_widget(entity);
+        let clip_entity = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.transform.get_posx(clip_entity);
-        let clip_posy = state.transform.get_posy(clip_entity);
-        let clip_width = state.transform.get_width(clip_entity);
-        let clip_height = state.transform.get_height(clip_entity);
-        
-        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+        let clip_posx = state.data.get_posx(clip_entity);
+        let clip_posy = state.data.get_posy(clip_entity);
+        let clip_width = state.data.get_width(clip_entity);
+        let clip_height = state.data.get_height(clip_entity);
+
+        //canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
         //canvas.scissor(0.0, 0.0, 100.0, 100.0);
 
-
-        
         let shadow_h_offset = match state
             .style
             .shadow_h_offset
             .get(entity)
             .cloned()
-            .unwrap_or_default() {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => parent_width * val,
-                _=> 0.0
-            };
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
 
         let shadow_v_offset = match state
             .style
             .shadow_v_offset
             .get(entity)
             .cloned()
-            .unwrap_or_default() {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => parent_height * val,
-                _=> 0.0
-            };
-
-        let shadow_blur = match state.style.shadow_blur.get(entity).cloned().unwrap_or_default() {
+            .unwrap_or_default()
+        {
             Length::Pixels(val) => val,
-                Length::Percentage(val) => parent_height * val,
-                _=> 0.0
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let shadow_blur = match state
+            .style
+            .shadow_blur
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
         };
 
         let shadow_color = state
@@ -241,77 +269,110 @@ pub trait EventHandler: Send {
         let mut shadow_color: femtovg::Color = shadow_color.into();
         shadow_color.set_alphaf(shadow_color.a * opacity);
 
-        
-
         // Draw shadow (TODO)
         let mut path = Path::new();
         path.rect(
-            posx + (border_width / 2.0) - shadow_blur + shadow_h_offset,
-            posy + (border_width / 2.0) - shadow_blur + shadow_v_offset,
-            width - border_width + 2.0 * shadow_blur,
-            height - border_width + 2.0 * shadow_blur,
+            0.0 - shadow_blur + shadow_h_offset,
+            0.0 - shadow_blur + shadow_v_offset,
+            width + 2.0 * shadow_blur,
+            height + 2.0 * shadow_blur,
         );
-        // path.rounded_rect_varying(
-        //     posx + (border_width / 2.0),
-        //     posy + (border_width / 2.0),
-        //     width - border_width,
-        //     height - border_width,
-        //     border_radius_top_left,
-        //     border_radius_top_right,
-        //     border_radius_bottom_right,
-        //     border_radius_bottom_left,
-        // );
-        // path.solidity(Solidity::Hole);
-        //let mut paint = Paint::color(shadow_color);
-
-        
-
-        let mut paint = Paint::box_gradient(
-            posx + (border_width / 2.0) + shadow_h_offset, 
-            posy + (border_width / 2.0) + shadow_v_offset, 
-            width - border_width, 
-            height - border_width, 
-            border_radius_top_left, 
-            shadow_blur, 
-            shadow_color, 
-            femtovg::Color::rgba(0,0,0,0)
-        );
-        
-        canvas.fill_path(&mut path, paint);
-
-        // Draw rounded rect
-        let mut path = Path::new();
         path.rounded_rect_varying(
-            posx + (border_width / 2.0),
-            posy + (border_width / 2.0),
-            width - border_width,
-            height - border_width,
+            0.0,
+            0.0,
+            width,
+            height,
             border_radius_top_left,
             border_radius_top_right,
             border_radius_bottom_right,
             border_radius_bottom_left,
         );
-        let mut paint = Paint::color(background_color);
+        path.solidity(Solidity::Hole);
+        //let mut paint = Paint::color(shadow_color);
+
+        let mut paint = Paint::box_gradient(
+            0.0 + shadow_h_offset,
+            0.0 + shadow_v_offset,
+            width,
+            height,
+            border_radius_top_left,
+            shadow_blur,
+            shadow_color,
+            femtovg::Color::rgba(0, 0, 0, 0),
+        );
+
         canvas.fill_path(&mut path, paint);
 
+        let mut path = Path::new();
+
+        if border_radius_bottom_left == (width - 2.0 * border_width) / 2.0
+            && border_radius_bottom_right == (width - 2.0 * border_width) / 2.0
+            && border_radius_top_left == (width - 2.0 * border_width) / 2.0
+            && border_radius_top_right == (width - 2.0 * border_width) / 2.0
+        {
+            path.circle(
+                0.0 + (border_width / 2.0) + (width - border_width) / 2.0,
+                0.0 + (border_width / 2.0) + (height - border_width) / 2.0,
+                width / 2.0,
+            );
+        } else {
+            // Draw rounded rect
+            path.rounded_rect_varying(
+                0.0 + (border_width / 2.0),
+                0.0 + (border_width / 2.0),
+                width - border_width,
+                height - border_width,
+                border_radius_top_left,
+                border_radius_top_right,
+                border_radius_bottom_right,
+                border_radius_bottom_left,
+            );
+        }
         
+        
+        let mut paint = Paint::color(background_color);
+        
+        if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
+
+            let (start_x, start_y, end_x, end_y) = match background_gradient.direction {
+                Direction::LeftToRight => (0.0, 0.0, width, 0.0),
+                Direction::TopToBottom => (0.0, 0.0, 0.0, height),
+                _=> (0.0, 0.0, width, 0.0),
+            };
+
+            paint = Paint::linear_gradient_stops(start_x, start_y, end_x, end_y, 
+                background_gradient.get_stops(parent_width).iter().map(|stop| {
+                    let col: femtovg::Color = stop.1.into();
+                    (stop.0, col)
+                }).collect::<Vec<_>>().as_slice());
+        }
+
+        
+
+        canvas.fill_path(&mut path, paint);
 
         // Draw border
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
 
+        
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
             let font_id = match text.font.as_ref() {
-                "Sans" => state.fonts.regular.unwrap(),
-                "Icons" => state.fonts.icons.unwrap(),
+                "sans" => state.fonts.regular.unwrap(),
+                "icons" => state.fonts.icons.unwrap(),
+                "emoji" => state.fonts.emoji.unwrap(),
+
                 _ => state.fonts.regular.unwrap(),
             };
 
-            let mut x = posx + (border_width / 2.0);
-            let mut y = posy + (border_width / 2.0);
+            // let mut x = posx + (border_width / 2.0);
+            // let mut y = posy + (border_width / 2.0);
+
+            let mut x = 0.0;
+            let mut y = 0.0;
 
             let text_string = text.text.to_owned();
 
@@ -373,6 +434,7 @@ pub trait EventHandler: Send {
             canvas.fill_text(x, y, &text_string, paint);
         }
 
+        canvas.translate(-posx, -posy);
         canvas.restore();
 
         /*
@@ -758,3 +820,66 @@ pub trait EventHandler: Send {
         */
     }
 }
+
+impl dyn EventHandler {
+    // Check if a message is a certain type
+    pub fn is<T: EventHandler + 'static>(&self) -> bool {
+        // Get TypeId of the type this function is instantiated with
+        let t = TypeId::of::<T>();
+
+        // Get TypeId of the type in the trait object
+        let concrete = self.type_id();
+
+        // Compare both TypeIds on equality
+        t == concrete
+    }
+
+    // Casts a message to the specified type if the message is of that type
+    pub fn downcast<T>(&mut self) -> Option<&mut T>
+    where
+        T: EventHandler + 'static,
+    {
+        if self.is::<T>() {
+            unsafe { Some(&mut *(self as *mut dyn EventHandler as *mut T)) }
+        } else {
+            None
+        }
+    }
+}
+
+// pub trait AsAny: Any {
+//     fn as_any(&self) -> &dyn Any;
+// }
+
+// impl dyn AsAny {
+//     // Check if a message is a certain type
+//     pub fn is<T: AsAny>(&self) -> bool {
+//         // Get TypeId of the type this function is instantiated with
+//         let t = TypeId::of::<T>();
+
+//         // Get TypeId of the type in the trait object
+//         let concrete = self.type_id();
+
+//         // Compare both TypeIds on equality
+//         t == concrete
+//     }
+
+//     // Casts a message to the specified type if the message is of that type
+//     pub fn downcast<T>(&mut self) -> Option<&mut T>
+//     where
+//         T: AsAny,
+//     {
+//         if self.is::<T>() {
+//             unsafe { Some(&mut *(self as *mut dyn AsAny as *mut T)) }
+//         } else {
+//             None
+//         }
+//     }
+// }
+
+// impl<T: 'static> AsAny for T {
+//     fn as_any(&self) -> &dyn Any
+//     {
+//         self
+//     }
+// }

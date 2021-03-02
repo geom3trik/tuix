@@ -11,23 +11,23 @@ use crate::state::storage::animatable_storage::AnimatableStorage;
 use crate::state::storage::dense_storage::DenseStorage;
 use crate::state::storage::style_storage::StyleStorage;
 
-use crate::state::animator::AnimationState;
+use crate::state::animation::AnimationState;
 
 pub mod themes;
 
 pub mod theme;
 
 pub mod prop;
-pub use prop::PropSet;
+pub use prop::{PropSet, PropGet};
 
 pub mod flexbox;
 pub use flexbox::*;
 
-// pub mod grid;
-// pub use grid::*;
-
 pub mod layout;
 pub use layout::*;
+
+pub mod length;
+pub use length::*;
 
 pub mod shape;
 pub use shape::*;
@@ -41,9 +41,6 @@ pub use display::*;
 pub mod property;
 pub use property::*;
 
-// pub mod stylesheet;
-// pub use stylesheet::StyleSheet;
-
 pub mod selector;
 pub use selector::*;
 
@@ -56,10 +53,10 @@ pub use rule::*;
 pub mod color;
 pub use color::Color;
 
-pub mod trans;
-pub use trans::Scale;
+pub mod transform;
+pub use transform::Scale;
 
-use bimap::BiMap;
+// use bimap::BiMap;
 
 #[derive(Clone)]
 pub struct Style {
@@ -69,8 +66,7 @@ pub struct Style {
     pub rule_selectors: Vec<Vec<Selector>>,
 
     //pub ids: DenseStorage<u64>,
-
-    pub ids: BiMap<String, Entity>,
+    //pub ids: BiMap<String, Entity>,
 
     pub elements: DenseStorage<u64>,
 
@@ -146,7 +142,7 @@ pub struct Style {
     pub align_self: StyleStorage<AlignSelf>,
     pub flex_grow: AnimatableStorage<f32>,
     pub flex_shrink: AnimatableStorage<f32>,
-    pub flex_basis: AnimatableStorage<f32>,
+    pub flex_basis: AnimatableStorage<Length>,
 
     //pub grid_item: DenseStorage<GridItem>,
 
@@ -160,6 +156,7 @@ pub struct Style {
     // Background
     pub background_color: AnimatableStorage<Color>,
     pub background_image: StyleStorage<String>,
+    pub background_gradient: StyleStorage<LinearGradient>,
 
     // Box Shadow
     pub shadow_h_offset: AnimatableStorage<Length>,
@@ -169,6 +166,7 @@ pub struct Style {
 
     //Text Properties
     pub text: DenseStorage<Text>,
+    pub tooltip: DenseStorage<String>,
 
     pub font_color: AnimatableStorage<Color>,
     pub font_size: AnimatableStorage<f32>,
@@ -186,7 +184,7 @@ impl Style {
             rule_selectors: Vec::new(),
 
             //ids: DenseStorage::new(),
-            ids: BiMap::new(),
+            //ids: BiMap::new(),
             elements: DenseStorage::new(),
             classes: DenseStorage::new(),
             pseudo_classes: DenseStorage::new(),
@@ -270,6 +268,7 @@ impl Style {
 
             background_color: AnimatableStorage::new(),
             background_image: StyleStorage::new(),
+            background_gradient: StyleStorage::new(),
 
             //justification: DenseStorage::new(),
             //alignment: DenseStorage::new(),
@@ -282,6 +281,7 @@ impl Style {
             //grid_item: DenseStorage::new(),
             //size_constraints: DenseStorage::new(),
             text: DenseStorage::new(),
+            tooltip: DenseStorage::new(),
         }
     }
 
@@ -446,16 +446,13 @@ impl Style {
                         self.border_radius_top_right.insert_rule(rule_id, value);
                     }
 
-
                     Property::BorderBottomLeftRadius(value) => {
                         self.border_radius_bottom_left.insert_rule(rule_id, value);
                     }
 
-
                     Property::BorderBottomRightRadius(value) => {
                         self.border_radius_bottom_right.insert_rule(rule_id, value);
                     }
-
 
                     Property::FontSize(value) => {
                         self.font_size.insert_rule(rule_id, value);
@@ -508,11 +505,36 @@ impl Style {
                         self.z_order.insert_rule(rule_id, value);
                     }
 
+                    Property::BoxShadow(box_shadow) => {
+                        self.shadow_h_offset
+                            .insert_rule(rule_id, box_shadow.horizontal_offset);
+                        self.shadow_v_offset
+                            .insert_rule(rule_id, box_shadow.vertical_offset);
+                        self.shadow_blur
+                            .insert_rule(rule_id, box_shadow.blur_radius);
+                        self.shadow_color.insert_rule(rule_id, box_shadow.color);
+                    }
+
                     Property::Transition(transitions) => {
                         for transition in transitions {
                             match transition.property.as_ref() {
                                 "background-color" => {
                                     self.background_color.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "flex-basis" => {
+                                    self.flex_basis.insert_transition(
                                         rule_id,
                                         AnimationState::new()
                                             .with_duration(std::time::Duration::from_secs_f32(
@@ -541,8 +563,188 @@ impl Style {
                                     );
                                 }
 
+                                "top" => {
+                                    self.top.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "right" => {
+                                    self.right.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "bottom" => {
+                                    self.bottom.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
                                 "width" => {
                                     self.width.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "height" => {
+                                    self.height.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "margin-bottom" => {
+                                    self.margin_bottom.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "margin-top" => {
+                                    self.margin_top.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "margin-left" => {
+                                    self.margin_left.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "margin-right" => {
+                                    self.margin_right.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-left" => {
+                                    self.padding_left.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-right" => {
+                                    self.padding_right.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-top" => {
+                                    self.padding_top.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-bottom" => {
+                                    self.padding_bottom.insert_transition(
                                         rule_id,
                                         AnimationState::new()
                                             .with_duration(std::time::Duration::from_secs_f32(
@@ -581,6 +783,9 @@ impl Style {
         }
     }
 
+    // TODO
+    pub fn set_property(&mut self, entity: Entity, propert: Property) {}
+
     // Add style data to an entity
     pub fn add(&mut self, entity: Entity) {
         self.pseudo_classes.insert(entity, PseudoClasses::default());
@@ -608,7 +813,7 @@ impl Style {
         // id.hash(&mut s);
         // self.ids.insert(entity, s.finish());
 
-        self.ids.insert(id.to_string(), entity);
+        //self.ids.insert(id.to_string(), entity);
 
         self
     }

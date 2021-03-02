@@ -11,8 +11,8 @@ pub enum CounterMessage {
     Decrement,
 }
 
+#[derive(Default)]
 struct Counter {
-    // Local state
     value: i32,
     label: Entity,
 }
@@ -25,7 +25,7 @@ impl Counter {
         }
     }
 
-    pub fn set_value(mut self, val: i32) -> Self {
+    pub fn set_initial_value(mut self, val: i32) -> Self {
         self.value = val;
         self
     }
@@ -34,12 +34,7 @@ impl Counter {
 impl BuildHandler for Counter {
     type Ret = Entity;
 
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret
-    where
-        Self: std::marker::Sized + 'static,
-    {
-        state.style.insert_class(entity, "counter");
-
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Button::with_label("increment")
             .on_press(Event::new(CounterMessage::Increment))
             .build(state, entity, |builder| builder.class("increment"));
@@ -48,54 +43,43 @@ impl BuildHandler for Counter {
             .on_press(Event::new(CounterMessage::Decrement))
             .build(state, entity, |builder| builder.class("decrement"));
 
-        self.label = Button::with_label("50")
-            .on_press(Event::new(CounterMessage::Increment))
-            .build(state, entity, |builder| builder);
+        self.label = Label::new(&self.value.to_string()).build(state, entity, |builder| builder);
 
-        entity
+        entity.set_element(state, "counter")
     }
 }
 
 impl EventHandler for Counter {
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(counter_event) = event.message.downcast::<CounterMessage>() {
             match counter_event {
                 CounterMessage::Increment => {
                     self.value += 1;
                     self.label.set_text(state, &self.value.to_string());
-                    state.insert_event(Event::new(WindowEvent::Redraw));
-                    println!("Increment Value: {}", self.value);
                 }
 
                 CounterMessage::Decrement => {
                     self.value -= 1;
                     self.label.set_text(state, &self.value.to_string());
-                    state.insert_event(Event::new(WindowEvent::Redraw));
-                    println!("Decrement Value: {}", self.value);
                 }
             }
         }
-
-        false
     }
 }
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|win_desc, state, window| {
-        state.insert_theme(THEME);
+    let app = Application::new(|win_desc, state, window| {
+        state.add_theme(THEME);
 
         Counter::new()
             // Set local state
-            .set_value(50)
-            // Build the component
-            .build(state, window, |builder| {
-                builder
-                    .set_width(Length::Pixels(300.0))
-                    .set_height(Length::Pixels(50.0))
-            });
+            .set_initial_value(50)
+            // Build the widget
+            .build(state, window, |builder| builder);
 
-        win_desc.with_title("Counter")
+        // Set the window title
+        win_desc.with_title("Counter").with_inner_size(400, 100)
     });
 
     app.run();

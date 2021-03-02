@@ -1,33 +1,27 @@
 #![allow(dead_code)]
 
-use crate::entity::Entity;
-use crate::mouse::*;
-use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
-use crate::{PropSet, State};
+use crate::widgets::*;
+use crate::{BuildHandler, Event, EventHandler};
+use crate::{PropSet, State, Color};
 
 use crate::style::layout::{Align, Justify};
 
-use crate::widgets::radio::RadioEvent;
-
 const ICON_CHECK: &str = "\u{2713}";
-const ICON_DOWN_OPEN_BIG: &str = "\u{e764}";
-const ICON_RIGHT_OPEN_BIG: &str = "\u{e766}";
-const ICON_FLOPPY_DISK: &str = "\u{1f4be}";
-
-const ICON_DOWN_OPEN_MINI: &str = "\u{e760}";
-
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CheckboxEvent {
-    // Events received by the checkbox
     Check,
     Uncheck,
     Switch,
+    Checked,
+    Unchecked,
 }
 
-
-#[derive(Clone)]
+#[derive(Default)]
 pub struct Checkbox {
+
+    button: Button,
+
     checked: bool,
 
     icon_unchecked: Option<String>,
@@ -40,6 +34,8 @@ pub struct Checkbox {
 impl Checkbox {
     pub fn new(checked: bool) -> Self {
         Checkbox {
+
+            button: Button::new().on_release(Event::new(CheckboxEvent::Switch)),
             checked,
             icon_unchecked: Some(String::new()),
             icon_checked: Some(ICON_CHECK.to_string()),
@@ -73,14 +69,14 @@ impl Checkbox {
             if let Some(icon_unchecked) = &self.icon_unchecked {
                 entity.set_text(state, &icon_unchecked);
             }
-            
+
             entity.set_checked(state, false);
         } else {
             self.checked = true;
             if let Some(icon_checked) = &self.icon_checked {
                 entity.set_text(state, &icon_checked);
             }
-            
+
             entity.set_checked(state, true);
         }
     }
@@ -100,11 +96,9 @@ impl BuildHandler for Checkbox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_font(state, "Icons".to_string())
+            .set_font(state, "icons")
             .set_text_justify(state, Justify::Center)
             .set_text_align(state, Align::Center);
-
-        
 
         if self.checked {
             entity.set_checked(state, true);
@@ -112,14 +106,12 @@ impl BuildHandler for Checkbox {
             if let Some(icon_checked) = &self.icon_checked {
                 entity.set_text(state, &icon_checked);
             }
-
         } else {
             entity.set_checked(state, false);
 
             if let Some(icon_unchecked) = &self.icon_unchecked {
                 entity.set_text(state, &icon_unchecked);
             }
-
         }
 
         state.style.insert_element(entity, "checkbox");
@@ -129,101 +121,83 @@ impl BuildHandler for Checkbox {
 }
 
 impl EventHandler for Checkbox {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
+        self.button.on_event(state, entity, event);
+        
         if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
             match checkbox_event {
                 CheckboxEvent::Switch => {
-                    if !self.checked {
-                        // state.insert_event(
-                        //     Event::new(RadioEvent::Activate(entity, self.group_name.clone()))
-                        //         .target(entity)
-                        //         .propagate(Propagation::Up),
-                        // );
-                    }
-
                     if event.target == entity {
-                        self.switch(state, entity);
+                        //self.switch(state, entity);
+                        if self.checked {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Unchecked)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
+                        } else {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Checked)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
+                        }
                     }
                 }
 
                 CheckboxEvent::Check => {
-                    if event.target == entity {
-                        self.checked = true;
-                        if let Some(icon_checked) = &self.icon_checked {
-                            entity.set_text(state, &icon_checked);
-                        }
-                        
-                        entity.set_checked(state, true);
+                    self.checked = true;
+                    entity.set_checked(state, true);
+                    if let Some(icon_checked) = &self.icon_checked {
+                        entity.set_text(state, &icon_checked);
                     }
                 }
 
                 CheckboxEvent::Uncheck => {
-                    if event.target == entity {
-                        self.checked = false;
-                        if let Some(icon_unchecked) = &self.icon_unchecked {
-                            entity.set_text(state, &icon_unchecked);
-                        }
-                        entity.set_checked(state, false);
+                    self.checked = false;
+                    entity.set_checked(state, false);
+                    if let Some(icon_unchecked) = &self.icon_unchecked {
+                        entity.set_text(state, &icon_unchecked);
                     }
                 }
 
-                _ => {}
-            }
-        }
-
-        // if let Some(radio_event) = event.is_type::<RadioEvent>() {
-        //     match radio_event {
-        //         RadioEvent::Activate(radio, group) => {
-        //             if *radio != entity && group == &self.group_name {
-        //                 self.checked = false;
-        //                 entity.set_text(state, &self.icon_unchecked);
-        //                 entity.set_checked(state, false);
-        //             }
-        //         }
-        //     }
-        // }
-
-        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
-            match window_event {
-                WindowEvent::MouseUp(button) => match button {
-                    MouseButton::Left => {
-                        if entity == event.target {
-                            if self.checked {
-                                if let Some(mut on_checked) = self.on_checked.clone() {
-
-                                    if on_checked.target == Entity::null() {
-                                        on_checked.target = entity;
-                                    }
-
-                                    on_checked.origin = entity;
-
-                                    state.insert_event(on_checked);
-                                }
-                                
-                            } else {
-                                if let Some(mut on_unchecked) = self.on_unchecked.clone() {
-
-                                    if on_unchecked.target == Entity::null() {
-                                        on_unchecked.target = entity;
-                                    }
-
-                                    on_unchecked.origin = entity;
-
-                                    state.insert_event(on_unchecked);
-                                }
-                            }
-
-                            self.switch(state, entity);
-                        }
+                CheckboxEvent::Checked => {
+                    self.checked = true;
+                    if let Some(icon_checked) = &self.icon_checked {
+                        entity.set_text(state, &icon_checked);
                     }
 
-                    _ => {}
-                },
+                    entity.set_checked(state, true);
 
-                _ => {}
+                    if let Some(mut on_checked) = self.on_checked.clone() {
+                        if on_checked.target == Entity::null() {
+                            on_checked.target = entity;
+                        }
+
+                        on_checked.origin = entity;
+                        state.insert_event(on_checked);
+                    }
+                }
+
+                CheckboxEvent::Unchecked => {
+                    self.checked = false;
+                    if let Some(icon_unchecked) = &self.icon_unchecked {
+                        entity.set_text(state, &icon_unchecked);
+                    }
+                    entity.set_checked(state, false);
+
+                    if let Some(mut on_unchecked) = self.on_unchecked.clone() {
+                        if on_unchecked.target == Entity::null() {
+                            on_unchecked.target = entity;
+                        }
+
+                        on_unchecked.origin = entity;
+
+                        state.insert_event(on_unchecked);
+                    }
+                }
             }
         }
-
-        false
     }
 }

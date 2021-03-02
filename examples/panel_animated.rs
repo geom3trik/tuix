@@ -3,8 +3,8 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, Checkbox, Dimension, Dropdown, Spinner, Panel, RadioBox, RadioList, ResizableVBox,
-    ScrollContainer, Textbox, VectorEdit, VectorEditEvent,
+    Button, Checkbox, Dimension, Dropdown, Panel, RadioButton, RadioList, ResizableVBox,
+    ScrollContainer, Spinner, Textbox, VectorEdit, VectorEditEvent,
 };
 
 static THEME: &'static str = include_str!("themes/panel_animated_theme.css");
@@ -44,7 +44,7 @@ impl BuildHandler for ColorEdit {
         let test = Dropdown::new("RGB")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(40.0)
+                    .set_flex_basis(Length::Pixels(40.0))
                     .set_text_justify(Justify::End)
                     .class("dim")
             })
@@ -70,8 +70,8 @@ impl BuildHandler for ColorEdit {
 }
 
 impl EventHandler for ColorEdit {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        if let Some(vectoredit_event) = event.is_type::<VectorEditEvent<u8>>() {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(vectoredit_event) = event.message.downcast::<VectorEditEvent<u8>>() {
             match vectoredit_event {
                 VectorEditEvent::Dim1(val) => {
                     state.insert_event(
@@ -101,15 +101,13 @@ impl EventHandler for ColorEdit {
                 _ => {}
             }
         }
-
-        return false;
     }
 }
 
 fn main() {
     // Create the app
     let mut app = Application::new(|window, state, root| {
-        state.insert_theme(THEME);
+        state.add_theme(THEME);
 
         let rvbox = ResizableVBox::new().build(state, root, |builder| {
             builder
@@ -118,9 +116,9 @@ fn main() {
                 .set_background_color(Color::rgb(100, 50, 50))
         });
 
-        let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
+        //let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
 
-        let panel = Panel::new("Background Colour").build(state, scroll, |builder| builder);
+        let panel = Panel::new("Background Colour").build(state, rvbox, |builder| builder);
 
         let row = HBox::new().build(state, panel, |builder| builder);
 
@@ -161,13 +159,12 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
 
         Label::new("Radio").build(state, row, |builder| builder.class("label"));
-        let radio_list =
-            RadioList::new("First").build(state, row, |builder| builder.set_flex_grow(1.0));
+        let radio_list = RadioList::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
         });
-        RadioBox::new("First").build(state, hbox, |builder| {
+        RadioButton::new().build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
         Label::new("Option 1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
@@ -175,7 +172,7 @@ fn main() {
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
         });
-        RadioBox::new("First").build(state, hbox, |builder| {
+        RadioButton::new().build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
         Label::new("Option 2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
@@ -183,12 +180,12 @@ fn main() {
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
         });
-        RadioBox::new("First").build(state, hbox, |builder| {
+        RadioButton::new().build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
         Label::new("Option 3").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
-        let panel = Panel::new("Control Knobs").build(state, scroll, |builder| builder);
+        let panel = Panel::new("Control Knobs").build(state, rvbox, |builder| builder);
 
         let row = HBox::new().build(state, panel, |builder| {
             builder.set_justify_content(JustifyContent::SpaceEvenly)
@@ -206,7 +203,7 @@ fn main() {
             builder.set_width(Length::Pixels(50.0))
         });
 
-        let panel = Panel::new("Control Knobs").build(state, scroll, |builder| builder);
+        let panel = Panel::new("Control Knobs").build(state, rvbox, |builder| builder);
 
         let row = HBox::new().build(state, panel, |builder| {
             builder.set_justify_content(JustifyContent::SpaceEvenly)

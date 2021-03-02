@@ -1,21 +1,40 @@
 button {
     font-size: 16px;
-    text-align: center;
     text-justify: center;
-    flex-grow: 1.0;
+    border-radius: 5px;
+    width: 100px;
+    height: 30px;
 }
 
 button.increment {
     background-color: #326432;
 }
 
+button.increment:hover {
+    background-color: #3c773c;
+}
+
 button.decrement {
     background-color: #323e64;
 }
 
-.counter {
-    background-color: #008000;
-    display: flex;
-    align-items: stretch;
+button.decrement:hover {
+    background-color: #3c4a77;
+}
+
+label {
+    border-color: black;
+    border-width: 1px;
+    width: 100px;
+    height: 30px;
+    border-radius: 5px;
+    padding-left: 5px;
+}
+
+counter {
     flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-grow: 1.0;
+    padding: 5px;
 }

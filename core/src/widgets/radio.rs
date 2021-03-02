@@ -1,151 +1,191 @@
 #![allow(dead_code)]
 
-use crate::entity::Entity;
-use crate::mouse::*;
+const ICON_CHECK: &str = "\u{2713}";
 
-use crate::{BuildHandler, Event, EventHandler, Propagation, Visibility, WindowEvent};
-use crate::{JustifyContent, Length, PropSet, State};
+use crate::{Entity, HierarchyTree};
 
-use crate::widgets::Button;
+use crate::{BuildHandler, Event, EventHandler, Propagation};
+use crate::{PropSet, State};
 
-use crate::state::style::AlignItems;
+use crate::widgets::*;
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum RadioEvent {
-    Activate(Entity, String),
-}
-
-pub struct RadioList {
-    group_name: String,
-}
+#[derive(Default)]
+pub struct RadioList {}
 
 impl RadioList {
-    pub fn new(group_name: &str) -> Self {
-        RadioList {
-            group_name: group_name.to_string(),
-        }
+    pub fn new() -> Self {
+        RadioList {}
     }
 }
 
 impl BuildHandler for RadioList {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        state.style.insert_element(entity, "radio_list");
-
-        entity
+        entity.set_element(state, "radio_list")
     }
 }
 
 impl EventHandler for RadioList {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        let origin = event.origin;
-
-        if let Some(radio_event) = event.is_type::<RadioEvent>() {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(radio_event) = event.message.downcast::<CheckboxEvent>() {
             match radio_event {
-                RadioEvent::Activate(radio, group) => {
-                    if origin != entity {
-                        state.insert_event(
-                            Event::new(RadioEvent::Activate(*radio, group.clone()))
-                                .target(entity)
-                                .origin(entity)
-                                .propagate(Propagation::Fall),
-                        );
-
-                        return true;
+                CheckboxEvent::Unchecked => {
+                    if event.target != entity {
+                        event.consume();
                     }
                 }
-            }
-        }
 
-        false
-    }
-}
-
-pub struct RadioBox {
-    marker: Entity,
-    active: bool,
-    group_name: String,
-}
-
-impl RadioBox {
-    pub fn new(group_name: &str) -> Self {
-        RadioBox {
-            marker: Entity::null(),
-            active: false,
-            group_name: group_name.to_string(),
-        }
-    }
-}
-
-impl BuildHandler for RadioBox {
-    type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            //.set_border_radius(state, Length::Percentage(0.5))
-            .set_width(state, Length::Pixels(16.0))
-            .set_height(state, Length::Pixels(16.0))
-            .set_border_radius(state, Length::Percentage(0.5))
-            //.set_border_width(state, 2.0)
-            .set_align_items(state, AlignItems::Center)
-            .set_justify_content(state, JustifyContent::Center);
-
-        self.marker = Button::new().build(state, entity, |builder| {
-            builder
-                .set_width(Length::Pixels(8.0))
-                .set_height(Length::Pixels(8.0))
-                .set_border_radius(Length::Percentage(0.5))
-                .class("marker")
-        });
-
-        self.marker.set_visibility(state, Visibility::Invisible);
-
-        state.style.insert_element(entity, "radio");
-
-        entity
-    }
-}
-
-impl EventHandler for RadioBox {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        if let Some(system_event) = event.message.downcast::<WindowEvent>() {
-            match system_event {
-                WindowEvent::MouseDown(button) => match button {
-                    MouseButton::Left => {
-                        if entity == event.target {
-                            //state.focused = entity;
-                            if !self.active {
-                                self.active = true;
-                                self.marker.set_visibility(state, Visibility::Visible);
-                                state.insert_event(
-                                    Event::new(RadioEvent::Activate(
-                                        entity,
-                                        self.group_name.clone(),
-                                    ))
+                CheckboxEvent::Checked => {
+                    //println!("Received Radio Event: {}", event.target);
+                    if event.target.is_descendant_of(&state.hierarchy, entity) {
+                        if event.target != entity && event.origin != entity {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Unchecked)
                                     .target(entity)
-                                    .propagate(Propagation::Up),
-                                );
-                            }
+                                    .origin(event.target)
+                                    .propagate(Propagation::Fall),
+                            );
+
+                            event.consume();
+                        }
+
+                        if event.target != entity && event.origin != entity {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Checked)
+                                    .target(event.target)
+                                    .origin(entity)
+                                    .propagate(Propagation::Direct),
+                            );
+
+                            event.consume();
                         }
                     }
+                }
 
-                    _ => {}
-                },
+                CheckboxEvent::Check => {
+                    if event.target != entity {
+                        event.consume();
+                    }
 
+                    if event.target.is_descendant_of(&state.hierarchy, entity) {
+                        if event.target != entity && event.origin != entity {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Uncheck)
+                                    .target(entity)
+                                    .origin(event.target)
+                                    .propagate(Propagation::Fall),
+                            );
+
+                            event.consume();
+                        }
+
+                        if event.target != entity && event.origin != entity {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Check)
+                                    .target(event.target)
+                                    .origin(entity)
+                                    .propagate(Propagation::Direct),
+                            );
+
+                            event.consume();
+                        }
+                    }
+                }
+
+                CheckboxEvent::Uncheck => {
+                    if event.target != entity {
+                        event.consume();
+                    }
+                }
                 _ => {}
             }
         }
+    }
+}
 
-        if let Some(radio_event) = event.is_type::<RadioEvent>() {
-            match radio_event {
-                RadioEvent::Activate(radio, group) => {
-                    if *radio != entity && group == &self.group_name {
-                        self.active = false;
-                        self.marker.set_visibility(state, Visibility::Invisible);
-                    }
-                }
-            }
+#[derive(Default)]
+pub struct Radio {
+    marker: Entity,
+    checkbox: Checkbox,
+}
+
+impl Radio {
+    pub fn new() -> Self {
+        Self {
+            marker: Entity::null(),
+            checkbox: Checkbox::new(false).with_icon_checked("").with_icon_unchecked(""),
         }
+    }
 
-        false
+    pub fn on_checked(mut self, event: Event) -> Self {
+        self.checkbox = self.checkbox.on_checked(event);
+        self
+    }
+
+    pub fn on_unchecked(mut self, event: Event) -> Self {
+        self.checkbox = self.checkbox.on_unchecked(event);
+        self
+    }
+}
+
+impl BuildHandler for Radio {
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        self.marker = Element::new().build(state, entity, |builder| {
+            builder.set_hoverability(false).class("marker").set_hoverability(false)
+        });
+
+        entity.set_element(state, "radio")
+    }
+}
+
+impl EventHandler for Radio {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        self.checkbox.on_event(state, entity, event);
+    }
+}
+
+#[derive(Default)]
+pub struct RadioButton {
+    checkbox: Checkbox,
+}
+
+impl RadioButton {
+    pub fn new() -> Self {
+        Self {
+            checkbox: Checkbox::new(false).with_icon_checked("").with_icon_unchecked(""),
+        }
+    }
+
+    pub fn with_label(label: &str) -> Self {
+        Self {
+            checkbox: Checkbox::new(false).with_icon_checked(label).with_icon_unchecked(label),
+        }
+    }
+
+    pub fn on_checked(mut self, event: Event) -> Self {
+        self.checkbox = self.checkbox.on_checked(event);
+
+        self
+    }
+
+    pub fn on_unchecked(mut self, event: Event) -> Self {
+        self.checkbox = self.checkbox.on_unchecked(event);
+
+        self
+    }
+}
+
+impl BuildHandler for RadioButton {
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        self.checkbox.on_build(state, entity);
+        entity.set_element(state, "radio_button").set_font(state, "sans")
+    }
+}
+
+impl EventHandler for RadioButton {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        self.checkbox.on_event(state, entity, event);
     }
 }

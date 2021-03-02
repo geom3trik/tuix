@@ -5,20 +5,14 @@ use std::any::{Any, TypeId};
 use std::fmt::Debug;
 
 // Determines how the event propagates through the hierarchy
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Propagation {
     Down,
     Up,
     DownUp,
     Fall,
     Direct,
-}
-
-//TODO - Determines if the event can be cancelled
-#[derive(Debug, Clone)]
-pub enum Cancellable {
-    Yes,
-    No,
+    All,
 }
 
 // A message is a wrapper around an Any but with the added ability to Clone the message
@@ -55,6 +49,7 @@ impl Clone for Box<Message> {
 //impl<T> Message for T where T: 'static + Any + Clone {}
 
 impl dyn Message {
+    // Check if a message is a certain type
     pub fn is<T: Message>(&self) -> bool {
         // Get TypeId of the type this function is instantiated with
         let t = TypeId::of::<T>();
@@ -66,6 +61,7 @@ impl dyn Message {
         t == concrete
     }
 
+    // Casts a message to the specified type if the message is of that type
     pub fn downcast<T>(&mut self) -> Option<&mut T>
     where
         T: Message,
@@ -100,18 +96,24 @@ pub struct Event {
     pub target: Entity,
     // How the event propagates through the tree.
     pub propagation: Propagation,
-    // Whether the event can be cancelled (consumed?)
-    pub cancellable: bool,
+    // Whether the event can be consumed
+    pub consumable: bool,
+    // Determines whether the event should continue to be propagated
+    pub(crate) consumed: bool,
     // Whether the event is unique (only the latest copy can exist in a queue at a time)
     pub unique: bool,
+    // Specifies an order index which is used to sort the event queue
     pub order: i32,
-    // The event type
+    // The event message
     pub message: Box<dyn Message>,
 }
 
+// Allows events to be compared for equality
 impl PartialEq for Event {
     fn eq(&self, other: &Event) -> bool {
-        self.message.equals_a(&*other.message) && self.origin == other.origin && self.target == other.target
+        self.message.equals_a(&*other.message)
+            && self.origin == other.origin
+            && self.target == other.target
     }
 }
 
@@ -122,64 +124,44 @@ impl Event {
     {
         Event {
             origin: Entity::null(),
-            //target: Entity::new(0, 0),
             target: Entity::null(),
             propagation: Propagation::DownUp,
-            cancellable: true,
+            consumable: true,
+            consumed: false,
             unique: true,
             order: 0,
             message: Box::new(message),
         }
     }
 
-    pub fn is_type<T>(&mut self) -> Option<&mut T>
-    where
-        T: Message,
-    {
-        self.message.downcast::<T>()
-    }
-
+    // Sets the target of the event
     pub fn target(mut self, entity: Entity) -> Self {
         self.target = entity;
         self
     }
 
+    // Sets the origin of the event
     pub fn origin(mut self, entity: Entity) -> Self {
         self.origin = entity;
         self
     }
 
+    // Specifies that the event is unique
+    // (only one of this event type should exist in the event queue at once)
     pub fn unique(mut self) -> Self {
         self.unique = true;
         self
     }
 
+    // Sets the propagation of the event
     pub fn propagate(mut self, propagation: Propagation) -> Self {
         self.propagation = propagation;
 
         self
     }
 
-    pub fn get_propagate_up(&self) -> bool {
-        match self.propagation {
-            Propagation::Up => true,
-            Propagation::DownUp => true,
-            _ => false,
-        }
-    }
-
-    pub fn get_propagate_down(&self) -> bool {
-        match self.propagation {
-            Propagation::Down => true,
-            Propagation::DownUp => true,
-            _ => false,
-        }
-    }
-
-    pub fn get_propagate_fall(&self) -> bool {
-        match self.propagation {
-            Propagation::Fall => true,
-            _ => false,
-        }
+    /// Consume the event
+    pub fn consume(&mut self) {
+        self.consumed = true;
     }
 }

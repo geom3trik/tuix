@@ -5,14 +5,11 @@ pub struct Size {
 
 impl Size {
     pub fn new(width: u32, height: u32) -> Self {
-        Size {
-            width,
-            height,
-        }
+        Size { width, height }
     }
 }
 
-
+/// Passed to the window to set various window properties
 pub struct WindowDescription {
     pub title: String,
     pub inner_size: Size,

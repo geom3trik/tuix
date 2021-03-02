@@ -4,20 +4,24 @@ use crate::entity::Entity;
 use crate::mouse::*;
 
 use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
-use crate::{PropSet, State};
+use crate::{Code, PropSet, State};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ButtonEvent {
-    OnPress,
-    OnRelease,
+    Pressed,
+    Released,
+    Press,
+    Release,
 }
 
+
+#[derive(Default, Debug)]
 pub struct Button {
     pub id: Entity,
 
     on_press: Option<Event>,
     on_release: Option<Event>,
-    text: Option<String>,
+    pub text: Option<String>,
 }
 
 impl Button {
@@ -30,7 +34,6 @@ impl Button {
         }
     }
 
-    // Add text to be displayed on the button
     pub fn with_label(text: &str) -> Self {
         Button {
             id: Entity::default(),
@@ -54,42 +57,63 @@ impl Button {
 impl BuildHandler for Button {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        
         if let Some(text) = &self.text {
             entity.set_text(state, text);
         }
-        
-        state.style.insert_element(entity, "button");
 
-        entity
+        entity.set_element(state, "button")
     }
 }
 
 impl EventHandler for Button {
-
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         
+        if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
+            match button_event {
+                ButtonEvent::Pressed => {
+                    if let Some(mut on_press) = self.on_press.clone() {
+                        if on_press.target == Entity::null() {
+                            on_press.target = entity;
+                        }
+
+                        on_press.origin = entity;
+                        on_press.propagation = Propagation::Down;
+
+                        state.insert_event(on_press);
+                    }
+
+                    entity.set_active(state, true);
+                }
+
+                ButtonEvent::Released => {
+                    if let Some(mut on_release) = self.on_release.clone() {
+                        if on_release.target == Entity::default() {
+                            on_release.target = entity;
+                        }
+
+                        on_release.origin = entity;
+                        on_release.propagation = Propagation::Down;
+                        state.insert_event(on_release);
+                    }
+
+                    entity.set_active(state, false);
+                }
+
+                _ => {}
+            }
+        }
+
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                
-
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
-                        if entity == event.target {
-                            state.focused = entity;
-                            
-                            if let Some(mut on_press) = self.on_press.clone() {
-                                if on_press.target == Entity::null() {
-                                    on_press.target = entity;
-                                }
-                                
-                                on_press.origin = entity;
-                                on_press.propagation = Propagation::Down;
-                                state.insert_event(on_press);
-                            }
-
-                            state.insert_event(Event::new(ButtonEvent::OnPress).target(entity).origin(entity));
-                            
+                        if entity == event.target && !entity.is_disabled(state) {
+                            state.capture(entity);
+                            state.insert_event(
+                                Event::new(ButtonEvent::Pressed)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
                         }
                     }
 
@@ -98,19 +122,45 @@ impl EventHandler for Button {
 
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-                        if entity == event.target && entity == state.focused {
-                            if let Some(mut on_release) = self.on_release.clone() {
-                                if on_release.target == Entity::null() {
-                                    on_release.target = entity;
+                        if entity == event.target && state.mouse.left.pressed == entity {
+                            state.release(entity);
+                            entity.set_active(state, false);
+                            if !entity.is_disabled(state) {
+                                if state.hovered == entity {
+                                    state.insert_event(
+                                        Event::new(ButtonEvent::Released)
+                                            .target(entity)
+                                            .origin(entity),
+                                    );
                                 }
-                                
-                                on_release.origin = entity;
-                                on_release.propagation = Propagation::Down;
-                                state.insert_event(on_release);
                             }
-
-                            state.insert_event(Event::new(ButtonEvent::OnRelease).target(entity).origin(entity));
                         }
+                    }
+
+                    _ => {}
+                },
+
+                WindowEvent::KeyDown(code, _) => match code {
+                    Code::Space => {
+                        if state.focused == entity && !entity.is_disabled(state) {
+                            state.insert_event(
+                                Event::new(ButtonEvent::Pressed)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
+                        }
+                    }
+
+                    _ => {}
+                },
+
+                WindowEvent::KeyUp(code, _) => match code {
+                    Code::Space => {
+                        state.insert_event(
+                            Event::new(ButtonEvent::Released)
+                                .target(entity)
+                                .origin(entity),
+                        );
                     }
 
                     _ => {}
@@ -119,7 +169,5 @@ impl EventHandler for Button {
                 _ => {}
             }
         }
-
-        false
     }
 }

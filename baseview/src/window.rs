@@ -1,7 +1,7 @@
 use crate::{application::ApplicationRunner, Renderer};
-use baseview::{Event, Window, WindowHandler, WindowOpenOptions, WindowScalePolicy};
+use baseview::{Event, EventStatus, Window, WindowHandler, WindowOpenOptions, WindowScalePolicy};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use tuix_core::{WindowDescription, Entity, State};
+use tuix_core::{Entity, State, WindowDescription};
 
 /// Handles an tuix_baseview application
 pub(crate) struct TuixWindow {
@@ -33,15 +33,18 @@ impl TuixWindow {
     {
         let mut state = State::new();
 
-        let root = state.root;
-        state.hierarchy.add(state.root, None);
+        let root = Entity::root();
+        state.hierarchy.add(Entity::root(), None);
 
         let win_desc = WindowDescription::new();
         let win_desc = (app)(win_desc, &mut state, root);
 
         let window_settings = WindowOpenOptions {
             title: win_desc.title.clone(),
-            size: baseview::Size::new(win_desc.inner_size.width as f64, win_desc.inner_size.height as f64),
+            size: baseview::Size::new(
+                win_desc.inner_size.width as f64,
+                win_desc.inner_size.height as f64,
+            ),
             scale: WindowScalePolicy::SystemScaleFactor,
         };
 
@@ -64,15 +67,18 @@ impl TuixWindow {
     {
         let mut state = State::new();
 
-        let root = state.root;
-        state.hierarchy.add(state.root, None);
+        let root = Entity::root();
+        state.hierarchy.add(Entity::root(), None);
 
         let win_desc = WindowDescription::new();
         let win_desc = (app)(win_desc, &mut state, root);
 
         let window_settings = WindowOpenOptions {
             title: win_desc.title.clone(),
-            size: baseview::Size::new(win_desc.inner_size.width as f64, win_desc.inner_size.height as f64),
+            size: baseview::Size::new(
+                win_desc.inner_size.width as f64,
+                win_desc.inner_size.height as f64,
+            ),
             scale: WindowScalePolicy::SystemScaleFactor,
         };
 
@@ -94,15 +100,18 @@ impl TuixWindow {
     {
         let mut state = State::new();
 
-        let root = state.root;
-        state.hierarchy.add(state.root, None);
+        let root = Entity::root();
+        state.hierarchy.add(Entity::root(), None);
 
         let win_desc = WindowDescription::new();
         let win_desc = (app)(win_desc, &mut state, root);
 
         let window_settings = WindowOpenOptions {
             title: win_desc.title.clone(),
-            size: baseview::Size::new(win_desc.inner_size.width as f64, win_desc.inner_size.height as f64),
+            size: baseview::Size::new(
+                win_desc.inner_size.width as f64,
+                win_desc.inner_size.height as f64,
+            ),
             scale: WindowScalePolicy::SystemScaleFactor,
         };
 
@@ -116,7 +125,7 @@ impl TuixWindow {
 }
 
 impl WindowHandler for TuixWindow {
-    fn on_frame(&mut self) {
+    fn on_frame(&mut self, _window: &mut Window) {
         self.application.on_frame_update();
 
         self.context.make_current();
@@ -124,17 +133,19 @@ impl WindowHandler for TuixWindow {
         if self.application.render() {
             self.context.swap_buffers();
         }
-        
+
         self.context.make_not_current();
     }
 
-    fn on_event(&mut self, _window: &mut Window<'_>, event: Event) {
+    fn on_event(&mut self, _window: &mut Window<'_>, event: Event) -> EventStatus {
         let mut should_quit = false;
         self.application.handle_event(event, &mut should_quit);
 
         if should_quit {
             // TODO: Request close.
         }
+
+        EventStatus::Ignored
     }
 }
 
@@ -142,8 +153,7 @@ fn load_renderer(window: &Window) -> (Renderer, raw_gl_context::GlContext) {
     let mut config = raw_gl_context::GlConfig::default();
     config.vsync = true;
 
-    let context =
-        raw_gl_context::GlContext::create(window, config).unwrap();
+    let context = raw_gl_context::GlContext::create(window, config).unwrap();
 
     context.make_current();
 

@@ -1,5 +1,5 @@
 // Rename to Transform when I've come up with a better name for the current transform mod
-use crate::state::animator::Interpolator;
+use crate::state::animation::Interpolator;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Scale(pub f32);

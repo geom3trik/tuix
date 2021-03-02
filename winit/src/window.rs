@@ -1,10 +1,10 @@
-use winit::dpi::{PhysicalSize};
-use winit::window::WindowBuilder;
+use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
 use winit::window::Icon;
+use winit::window::WindowBuilder;
 
 use femtovg::{renderer::OpenGl, Canvas, Color};
-use raw_gl_context::{GlContext, GlConfig};
+use raw_gl_context::{GlConfig, GlContext};
 
 use tuix_core::WindowDescription;
 
@@ -18,8 +18,14 @@ impl Window {
     pub fn new(events_loop: &EventLoop<()>, window_description: &WindowDescription) -> Self {
         let window_builder = WindowBuilder::new()
             .with_title(&window_description.title)
-            .with_inner_size(PhysicalSize::new(window_description.inner_size.width, window_description.inner_size.height))
-            .with_min_inner_size(PhysicalSize::new(window_description.min_inner_size.width, window_description.min_inner_size.height))
+            .with_inner_size(PhysicalSize::new(
+                window_description.inner_size.width,
+                window_description.inner_size.height,
+            ))
+            .with_min_inner_size(PhysicalSize::new(
+                window_description.min_inner_size.width,
+                window_description.min_inner_size.height,
+            ))
             .with_window_icon(if let Some(icon) = &window_description.icon {
                 Some(
                     Icon::from_rgba(
@@ -33,12 +39,15 @@ impl Window {
                 None
             });
 
-        let window = window_builder.build(&events_loop).expect("Window creation failed");
+        let window = window_builder
+            .build(&events_loop)
+            .expect("Window creation failed");
 
         let mut gl_config = GlConfig::default();
         gl_config.vsync = true;
-        
-        let context = GlContext::create(&window, gl_config).expect("OpenGL context creation failed");
+
+        let context =
+            GlContext::create(&window, gl_config).expect("OpenGL context creation failed");
 
         context.make_current();
 

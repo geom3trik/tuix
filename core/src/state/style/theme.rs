@@ -10,7 +10,7 @@ use crate::layout::{Align, Justify};
 use crate::state::style::property::Property;
 use crate::state::style::selector::{Relation, Selector};
 
-use crate::state::animator::Transition;
+use crate::state::animation::Transition;
 use crate::state::style::StyleRule;
 
 use crate::state::style::*;
@@ -373,7 +373,7 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "align-self" => Property::AlignSelf(parse_align_self(input)?),
 
             // Flex Item
-            "flex-basis" => Property::FlexBasis(parse_length_or_percentage(input)?),
+            "flex-basis" => Property::FlexBasis(parse_length(input)?),
             "flex-grow" => Property::FlexGrow(parse_length_or_percentage(input)?),
             "flex-shrink" => Property::FlexShrink(parse_length_or_percentage(input)?),
 
@@ -384,8 +384,9 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
 
             "box-shadow" => Property::BoxShadow(parse_box_shadow(input)?),
 
-            "transition" => Property::Transition(input.parse_comma_separated(|F| parse_transition2(F))?),
-            
+            "transition" => {
+                Property::Transition(input.parse_comma_separated(|F| parse_transition2(F))?)
+            }
 
             "z-index" => Property::ZIndex(parse_z_index(input)?),
 
@@ -553,18 +554,84 @@ fn parse_z_index<'i, 't>(
 //     })
 // }
 
-
 //TODO
-fn parse_box_shadow<'i, 't>(input: &mut Parser<'i,'t>) -> Result<BoxShadow, ParseError<'i, CustomParseError>> {
+fn parse_box_shadow<'i, 't>(
+    input: &mut Parser<'i, 't>,
+) -> Result<BoxShadow, ParseError<'i, CustomParseError>> {
     let mut box_shadow = BoxShadow::default();
 
-    Ok(match input.next()? {
+    match parse_length2(input.next()?) {
+        Ok(length) => {
+            box_shadow.horizontal_offset = length;
+            match parse_length2(input.next()?) {
+                Ok(length) => {
+                    box_shadow.vertical_offset = length;
+                    let next_token = input.next()?;
+                    match parse_length2(next_token) {
+                        Ok(length) => {
+                            box_shadow.blur_radius = length;
 
-        Token::Number { value: x, ..} => {
-            box_shadow.horizontal_offset = Length::Pixels(*x);
-        
-            box_shadow
+                            let next_token = input.next()?;
+                            match parse_color2(next_token) {
+                                Ok(color) => box_shadow.color = color,
+
+                                _ => {}
+                            }
+                        }
+                        _ => {
+                            // Parse a color
+                            match parse_color2(next_token) {
+                                Ok(color) => box_shadow.color = color,
+
+                                _ => {}
+                            }
+                        }
+                    }
+                }
+                Err(error) => return Err(error),
+            }
         }
+
+        Err(error) => return Err(error),
+    }
+
+    Ok(box_shadow)
+
+    // match token {
+    //     Token::Number { value: x, .. } => {
+    //         box_shadow.horizontal_offset = Length::Pixels(*x);
+
+    //         match input.next()? {
+    //             Token::Number { value: x, .. } => {
+    //                 box_shadow.vertical_offset = Length::Pixels(*x);
+    //             }
+
+    //             t => {}
+    //         }
+    //     }
+
+    //     Token::Percentage { unit_value: x, .. } => Length::Percentage(*x as f32),
+
+    //     Token::Dimension { value: x, .. } => Length::Pixels(*x as f32),
+
+    //     t => {
+    //         let basic_error = BasicParseError {
+    //             kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
+    //             location: SourceLocation { line: 0, column: 0 },
+    //         };
+    //         return Err(basic_error.into());
+    //     }
+    // }
+
+    // Ok(box_shadow)
+}
+
+fn parse_length2<'i>(token: &Token<'i>) -> Result<Length, ParseError<'i, CustomParseError>> {
+    match token {
+        Token::Number { value: x, .. } => Ok(Length::Pixels(*x as f32)),
+        Token::Percentage { unit_value: x, .. } => Ok(Length::Percentage(*x as f32)),
+
+        Token::Dimension { value: x, .. } => Ok(Length::Pixels(*x as f32)),
         t => {
             let basic_error = BasicParseError {
                 kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
@@ -572,8 +639,7 @@ fn parse_box_shadow<'i, 't>(input: &mut Parser<'i,'t>) -> Result<BoxShadow, Pars
             };
             return Err(basic_error.into());
         }
-
-    })
+    }
 }
 
 fn parse_transition2<'i, 't>(
@@ -591,16 +657,15 @@ fn parse_transition2<'i, 't>(
 
                     match input.next()? {
                         Token::Number { value: x, .. } => {
-
                             transition.delay = *x;
                         }
 
                         t => {
-                            let basic_error = BasicParseError {
-                                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                                location: SourceLocation { line: 0, column: 0 },
-                            };
-                            return Err(basic_error.into());
+                            // let basic_error = BasicParseError {
+                            //     kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
+                            //     location: SourceLocation { line: 0, column: 0 },
+                            // };
+                            // return Err(basic_error.into());
                         }
                     }
                 }
@@ -818,6 +883,8 @@ fn parse_flex_direction<'i, 't>(
         Token::Ident(name) => match name.as_ref() {
             "row" => FlexDirection::Row,
             "column" => FlexDirection::Column,
+            "row-reverse" => FlexDirection::RowReverse,
+            "column-reverse" => FlexDirection::ColumnReverse,
 
             _ => {
                 return Err(
@@ -996,6 +1063,37 @@ fn parse_color<'i, 't>(
             return Err(basic_error.into());
         }
     })
+}
+
+fn parse_color2<'i>(token: &Token<'i>) -> Result<Color, ParseError<'i, CustomParseError>> {
+    match token {
+        Token::Ident(name) => {
+            // if input.try_parse(|input| input.expect_ident_matching("rgb")).is_ok() {
+            //     if input.expect_parenthesis_block().is_ok() {
+            //         input.parse_nested_block(parse: F)
+            //     }
+            // }
+
+            match css_color(&name) {
+                Some(color) => Ok(color),
+                None => {
+                    return Err(
+                        CustomParseError::InvalidColorName(name.to_owned().to_string()).into(),
+                    );
+                }
+            }
+        }
+
+        Token::IDHash(hash) | Token::Hash(hash) => Ok(Color::from(hash.to_owned().to_string())),
+
+        t => {
+            let basic_error = BasicParseError {
+                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
+                location: SourceLocation { line: 0, column: 0 },
+            };
+            return Err(basic_error.into());
+        }
+    }
 }
 
 fn parse_font_size<'i, 't>(

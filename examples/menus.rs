@@ -2,7 +2,7 @@ extern crate tuix;
 
 use tuix::*;
 
-use tuix::widgets::{Button, Menu, MenuPosition};
+use tuix::widgets::Button;
 
 static THEME: &'static str = include_str!("themes/menus_theme.css");
 
@@ -93,55 +93,90 @@ static THEME: &'static str = include_str!("themes/menus_theme.css");
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|win_desc, state, window| {
-        state.insert_theme(THEME);
+    let app = Application::new(|win_desc, state, window| {
+        state.add_theme(THEME);
 
-        let menu1 = Menu::new("Menu", MenuPosition::Down).build(state, window, |builder| {
+        // let menu1 = Menu::new("Menu", MenuPosition::Down).build(state, window, |builder| {
+        //     builder
+        //         .set_width(Length::Pixels(100.0))
+        //         .set_height(Length::Pixels(30.0))
+        //         .set_flex_grow(0.0)
+        //         .set_text_justify(Justify::Center)
+        //         .class("menu")
+        // });
+
+        // // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
+
+        // Button::with_label("Item 1").build(state, menu1, |builder| builder.class("item"));
+        // Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
+        // Button::with_label("Item 3")
+        //     .on_press(Event::new(WindowEvent::WindowClose))
+        //     .build(state, menu1, |builder| builder.class("item"));
+
+        // let spacer = Button::new().build(state, menu1, |builder| builder.class("spacer"));
+        // Button::new().build(state, spacer, |builder| builder.class("spacer1"));
+        // Button::new().build(state, spacer, |builder| builder.class("spacer2"));
+
+        // let menu2 = Menu::new("Submenu", MenuPosition::Right).build(state, menu1, |builder| {
+        //     builder.class("item").class("submenu")
+        // });
+
+        // Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
+
+        // // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
+
+        // Button::with_label("SubItem 1").build(state, menu2, |builder| builder.class("item"));
+        // Button::with_label("SubItem 2").build(state, menu2, |builder| builder.class("item"));
+        // Button::with_label("SubItem 3")
+        //     .on_press(Event::new(WindowEvent::WindowClose))
+        //     .build(state, menu2, |builder| builder.class("item"));
+
+        // Button::new().build(state, menu1, |builder| builder.class("spacer2"));
+
+        // let menu3 = Menu::new("SubSubMenu", MenuPosition::Right).build(state, menu2, |builder| {
+        //     builder.class("item").class("submenu")
+        // });
+
+        // Button::with_label("SubSubItem 1").build(state, menu3, |builder| builder.class("item"));
+        // Button::with_label("SubSubItem 2").build(state, menu3, |builder| builder.class("item"));
+        // Button::with_label("SubSubItem 3")
+        //     .on_press(Event::new(WindowEvent::WindowClose))
+        //     .build(state, menu3, |builder| builder.class("item"));
+
+        let button = Button::with_label("Right Click Me").build(state, window, |builder| {
             builder
-                .set_width(Length::Pixels(100.0))
+                .set_left(Length::Pixels(100.0))
+                .set_top(Length::Pixels(100.0))
+                .set_width(Length::Pixels(150.0))
                 .set_height(Length::Pixels(30.0))
-                .set_flex_grow(0.0)
-                .set_text_justify(Justify::Center)
-                .class("menu")
+                .set_background_color(Color::green())
         });
 
-        // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
-
-        Button::with_label("Item 1").build(state, menu1, |builder| builder.class("item"));
-        Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
-        Button::with_label("Item 3")
-            .on_press(Event::new(WindowEvent::WindowClose))
-            .build(state, menu1, |builder| builder.class("item"));
-
-        let spacer = Button::new().build(state, menu1, |builder| builder.class("spacer"));
-        Button::new().build(state, spacer, |builder| builder.class("spacer1"));
-        Button::new().build(state, spacer, |builder| builder.class("spacer2"));
-
-        let menu2 = Menu::new("Submenu", MenuPosition::Right).build(state, menu1, |builder| {
-            builder.class("item").class("submenu")
+        let (_container, menu) = ContextMenu::new().build(state, button, |builder| {
+            builder
+                .set_width(Length::Percentage(1.0))
+                .set_height(Length::Percentage(1.0))
         });
 
-        Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
+        menu.set_width(state, Length::Pixels(100.0));
 
-        // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
-
-        Button::with_label("SubItem 1").build(state, menu2, |builder| builder.class("item"));
-        Button::with_label("SubItem 2").build(state, menu2, |builder| builder.class("item"));
-        Button::with_label("SubItem 3")
-            .on_press(Event::new(WindowEvent::WindowClose))
-            .build(state, menu2, |builder| builder.class("item"));
-
-        Button::new().build(state, menu1, |builder| builder.class("spacer2"));
-
-        let menu3 = Menu::new("SubSubMenu", MenuPosition::Right).build(state, menu2, |builder| {
-            builder.class("item").class("submenu")
+        Button::with_label("Option 1").build(state, menu, |builder| {
+            builder
+                .set_height(Length::Pixels(30.0))
+                .set_background_color(Color::rgb(50, 50, 50))
         });
 
-        Button::with_label("SubSubItem 1").build(state, menu3, |builder| builder.class("item"));
-        Button::with_label("SubSubItem 2").build(state, menu3, |builder| builder.class("item"));
-        Button::with_label("SubSubItem 3")
-            .on_press(Event::new(WindowEvent::WindowClose))
-            .build(state, menu3, |builder| builder.class("item"));
+        Button::with_label("Option 2").build(state, menu, |builder| {
+            builder
+                .set_height(Length::Pixels(30.0))
+                .set_background_color(Color::rgb(50, 50, 50))
+        });
+
+        Button::with_label("Option 3").build(state, menu, |builder| {
+            builder
+                .set_height(Length::Pixels(30.0))
+                .set_background_color(Color::rgb(50, 50, 50))
+        });
 
         win_desc.with_title("Menus")
     });

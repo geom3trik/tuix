@@ -2,33 +2,9 @@ use crate::state::{Entity, State};
 
 use crate::events::{BuildHandler, Event, EventHandler, Propagation};
 
-use crate::widgets::{Button, Slider, SliderEvent, Textbox, TextboxEvent};
+use crate::widgets::{Button, ProgressBar, SliderEvent, Textbox, TextboxEvent};
 
 use crate::state::style::*;
-
-// const VALUE_SLIDER_STYLE: &str = r#"
-
-//     slider
-//     {
-//         background-color: #2E2E2E;
-//     }
-
-//     slider > .front {
-//         background-color: #494949;
-//     }
-
-//     slider > .front:hover {
-//         background-color: #6D6D6D;
-//     }
-
-//     slider:active > .front {
-//         background-color: #6D6D6D;
-//     }
-
-//     slider:hover > .front {
-//         background-color: #6D6D6D;
-//     }
-// "#;
 
 #[derive(Clone)]
 pub struct ValueSlider {
@@ -56,10 +32,10 @@ impl BuildHandler for ValueSlider {
             .set_display(state, Display::Flexbox)
             .set_flex_direction(state, FlexDirection::Row);
 
-        self.slider = Slider::new().build(state, entity, |builder| builder.set_flex_grow(1.0));
+        self.slider = ProgressBar::new().build(state, entity, |builder| builder.set_flex_grow(1.0));
         self.value = Textbox::new("0.5").build(state, entity, |builder| {
             builder
-                .set_flex_basis(50.0)
+                .set_flex_basis(Length::Pixels(50.0))
                 .set_margin_left(Length::Pixels(5.0))
         });
         self.label = Button::new().build(state, self.slider, |builder| {
@@ -79,7 +55,7 @@ impl BuildHandler for ValueSlider {
 }
 
 impl EventHandler for ValueSlider {
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
                 SliderEvent::ValueChanged(val) => {
@@ -135,7 +111,5 @@ impl EventHandler for ValueSlider {
                 _ => {}
             }
         }
-
-        false
     }
 }

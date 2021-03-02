@@ -10,11 +10,11 @@ pub use storage::*;
 pub mod style;
 pub use style::*;
 
-pub mod transform;
-pub use transform::*;
+pub mod data;
+pub use data::*;
 
-pub mod animator;
-pub use animator::*;
+pub mod animation;
+pub use animation::*;
 
 pub mod mouse;
 pub use mouse::*;
@@ -27,28 +27,28 @@ pub use crate::window_event::WindowEvent;
 
 use femtovg::FontId;
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 
 use fnv::FnvHashMap;
-
-use std::sync::{Arc, Mutex};
-
-use std::cell::RefCell;
 
 #[derive(Clone)]
 pub struct Fonts {
     pub regular: Option<FontId>,
     pub bold: Option<FontId>,
     pub icons: Option<FontId>,
+    pub emoji: Option<FontId>,
 }
 
-#[derive(Clone)]
+pub enum Command {
+    SetProperty(Entity, Property),
+}
+
 pub struct State {
     entity_manager: EntityManager, // Creates and destroys entities
     pub hierarchy: Hierarchy,      // The widget tree
     pub style: Style,              // The style properties for every widget
-    pub transform: Transform,      // Transform properties for all widgets
-    pub root: Entity,
+    pub data: Data,                // Computed data
+
     pub mouse: MouseState,
     pub modifiers: ModifiersState,
     pub hovered: Entity,
@@ -56,12 +56,13 @@ pub struct State {
     pub captured: Entity,
     pub focused: Entity,
 
-    pub event_handlers: FnvHashMap<Entity, Arc<Mutex<EventHandler>>>,
+    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub(crate) removed_entities: Vec<Entity>,
     pub event_queue: VecDeque<Event>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
-    pub resource_manager: ResourceManager, //TODO
+    resource_manager: ResourceManager, //TODO
 }
 
 impl State {
@@ -69,7 +70,7 @@ impl State {
         let mut entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
         let mut style = Style::new();
-        let mut transform = Transform::new();
+        let mut data = Data::new();
         let mouse = MouseState::default();
         let modifiers = ModifiersState::default();
 
@@ -77,7 +78,7 @@ impl State {
             .create_entity()
             .expect("Failed to create root");
 
-        transform.add(root);
+        data.add(root);
         style.add(root);
 
         style.clip_widget.set(root, root);
@@ -88,20 +89,21 @@ impl State {
             entity_manager,
             hierarchy,
             style,
-            transform,
-            root,
+            data,
             mouse,
             modifiers,
-            hovered: Entity::new(0, 0),
+            hovered: Entity::new(0),
             active: Entity::null(),
             captured: Entity::null(),
-            focused: Entity::new(0, 0),
+            focused: Entity::new(0),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
+            removed_entities: Vec::new(),
             fonts: Fonts {
                 regular: None,
                 bold: None,
                 icons: None,
+                emoji: None,
             },
             resource_manager: ResourceManager::new(),
         }
@@ -111,43 +113,56 @@ impl State {
     where
         T: EventHandler + 'static + Send,
     {
-        self.event_handlers.insert(entity, Arc::new(Mutex::new(event_handler)));
+        self.event_handlers.insert(entity, Box::new(event_handler));
 
         Builder::new(self, entity)
     }
 
-    
-    pub fn insert_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {
-
+    /// Adds a stylesheet to the application
+    ///
+    /// This function adds the stylesheet path to the application allowing for hot reloading of syles
+    /// while the application is running.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// state.add_stylesheet("path_to_stylesheet.css");
+    /// ```
+    pub fn add_stylesheet(&mut self, path: &str) -> Result<(), std::io::Error> {
         let style_string = std::fs::read_to_string(path.clone())?;
         self.resource_manager.stylesheets.push(path.to_owned());
-
-        // Parse the theme stylesheet
         self.style.parse_theme(&style_string);
-        // self.resource_manager.themes.push(style_string);
 
         Ok(())
     }
 
-    pub fn insert_theme(&mut self, theme: &str) {
+    pub fn add_theme(&mut self, theme: &str) {
         self.resource_manager.themes.push(theme.to_owned());
 
-        self.reload_styles();
-        // self.style.parse_theme(&overall_theme);
+        self.reload_styles().expect("Failed to reload styles");
+    }
+
+    //TODO
+    pub fn add_image(&mut self, _name: &str, _path: &str) {
+        println!("Add an image to resource manager");
+    }
+
+    //TODO
+    pub fn add_font(&mut self, _name: &str, _path: &str) {
+        println!("Add an font to resource manager");
     }
 
     // Removes all style data and then reloads the stylesheets
-    // TODO change the error type to allow for parsing errors 
+    // TODO change the error type to allow for parsing errors
     pub fn reload_styles(&mut self) -> Result<(), std::io::Error> {
-
         if self.resource_manager.themes.is_empty() && self.resource_manager.stylesheets.is_empty() {
-            return Ok(())
+            return Ok(());
         }
 
         // Remove all non-inline style data
         self.style.background_color.remove_styles();
         self.style.font_color.remove_styles();
-        
+
         // Position
         self.style.left.remove_styles();
         self.style.right.remove_styles();
@@ -156,6 +171,11 @@ impl State {
         // Size
         self.style.width.remove_styles();
         self.style.height.remove_styles();
+        // Size Constraints
+        self.style.min_width.remove_styles();
+        self.style.max_width.remove_styles();
+        self.style.min_height.remove_styles();
+        self.style.max_height.remove_styles();
         // Margins
         self.style.margin_left.remove_styles();
         self.style.margin_right.remove_styles();
@@ -204,19 +224,27 @@ impl State {
         for stylesheet in self.resource_manager.stylesheets.iter() {
             let theme = std::fs::read_to_string(stylesheet)?;
             overall_theme += &theme;
-            
         }
 
         self.style.parse_theme(&overall_theme);
 
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::null()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::null()));
+        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         Ok(())
     }
 
-    pub fn insert_event(&mut self, mut event: Event) {
+    /// Insert a new event into the application event queue
+    ///
+    /// Inserts a new event into the application event queue that will be processed on the next event loop.
+    /// If the event unique flag is set to true, only the most recent event of the same type will exist in the queue.
+    ///
+    /// # Examples
+    /// ```
+    /// state.insert_event(Event::new(WindowEvent::WindowClose));
+    /// ```
+    pub fn insert_event(&mut self, event: Event) {
         if event.unique {
             self.event_queue.retain(|e| e != &event);
         }
@@ -224,14 +252,14 @@ impl State {
         self.event_queue.push_back(event);
     }
 
-
-    pub fn id2entity(&self, id: &str) -> Option<Entity> {
-        self.style.ids.get_by_left(&id.to_string()).cloned()
-    }
+    // TODO
+    // pub fn id2entity(&self, id: &str) -> Option<Entity> {
+    //     self.style.ids.get_by_left(&id.to_string()).cloned()
+    // }
 
     // This should probably be moved to state.mouse
     pub fn capture(&mut self, id: Entity) {
-        if id != Entity::null() {
+        if id != Entity::null() && self.captured != id {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureEvent)
                     .target(id)
@@ -239,7 +267,7 @@ impl State {
             );
         }
 
-        if self.captured != Entity::null() {
+        if self.captured != Entity::null() && self.captured != id {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureOutEvent)
                     .target(self.captured)
@@ -264,15 +292,20 @@ impl State {
         }
     }
 
-    pub fn add(&mut self, parent: Entity) -> Entity {
+    // Adds a new entity with a specified parent
+    pub(crate) fn add(&mut self, parent: Entity) -> Entity {
         let entity = self
             .entity_manager
             .create_entity()
             .expect("Failed to create entity");
         self.hierarchy.add(entity, Some(parent));
-
-        self.transform.add(entity);
+        self.data.add(entity);
         self.style.add(entity);
+
+        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
 
         entity
     }
@@ -291,15 +324,33 @@ impl State {
     // }
 
     //  TODO
-    // pub fn remove(&mut self, entity: Entity) {
-    //     //self.hierarchy.remove(entity);
-    //     //self.transform.remove(entity);
-    //     //self.style.remove(entity);
-    //     //self.entity_manager.destroy_entity(entity);
-    // }
+    pub fn remove(&mut self, entity: Entity) {
 
+        let delete_list = entity.branch_iter(&self.hierarchy).collect::<Vec<_>>();
+
+        println!("Delete List: {:?}", delete_list);
+
+        for entity in delete_list.iter().rev() {
+            self.hierarchy.remove(*entity);
+            self.hierarchy.remove(*entity);
+            self.data.remove(*entity);
+            self.style.remove(*entity);
+            self.removed_entities.push(*entity);
+        }
+
+    
+        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+    }
+
+    // Run all pending animations
+    // This should probably be moved to style
     pub fn apply_animations(&mut self) -> bool {
-        self.style.background_color.animate(std::time::Instant::now());
+        self.style
+            .background_color
+            .animate(std::time::Instant::now());
         self.style.font_color.animate(std::time::Instant::now());
         self.style.border_color.animate(std::time::Instant::now());
 
@@ -322,10 +373,18 @@ impl State {
         self.style.padding_right.animate(std::time::Instant::now());
         self.style.padding_top.animate(std::time::Instant::now());
         self.style.padding_bottom.animate(std::time::Instant::now());
-        self.style.border_radius_top_left.animate(std::time::Instant::now());
-        self.style.border_radius_top_right.animate(std::time::Instant::now());
-        self.style.border_radius_bottom_left.animate(std::time::Instant::now());
-        self.style.border_radius_bottom_right.animate(std::time::Instant::now());
+        self.style
+            .border_radius_top_left
+            .animate(std::time::Instant::now());
+        self.style
+            .border_radius_top_right
+            .animate(std::time::Instant::now());
+        self.style
+            .border_radius_bottom_left
+            .animate(std::time::Instant::now());
+        self.style
+            .border_radius_bottom_right
+            .animate(std::time::Instant::now());
         self.style.border_width.animate(std::time::Instant::now());
         self.style.min_width.animate(std::time::Instant::now());
         self.style.max_width.animate(std::time::Instant::now());
@@ -363,9 +422,5 @@ impl State {
             || self.style.max_width.has_animations()
             || self.style.min_height.has_animations()
             || self.style.max_height.has_animations()
-    }
-
-    pub fn get_root(&self) -> Entity {
-        self.root
     }
 }

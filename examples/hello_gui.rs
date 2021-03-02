@@ -1,21 +1,13 @@
-extern crate tuix;
-
-use tuix::widgets::Button;
-use tuix::Application;
-
-use tuix::events::BuildHandler;
-
-use tuix::PropSet;
-
-use tuix::style::themes::DEFAULT_THEME;
+use tuix::*;
 
 fn main() {
     let app = Application::new(|win_desc, state, window| {
-
-        state.insert_theme(DEFAULT_THEME);
-
-        Button::new().build(state, window, |builder| {
-            builder.set_text("Button")
+        Button::with_label("Button").build(state, window, |builder| {
+            builder
+                .set_width(Length::Pixels(100.0))
+                .set_height(Length::Pixels(30.0))
+                .set_background_color(Color::from("#ff5e1a"))
+                .set_text_justify(Justify::Center)
         });
 
         win_desc.with_title("Hello GUI")

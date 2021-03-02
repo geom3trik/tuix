@@ -4,8 +4,22 @@ use crate::state::style::*;
 use crate::WindowEvent;
 use crate::{MouseButton, Propagation, State};
 
-use crate::widgets::{Button, Dropdown, DropdownEvent, Item, Textbox, TextboxEvent};
+use crate::widgets::{Dropdown, DropdownEvent, Textbox, TextboxEvent};
 use crate::AnimationState;
+
+const VEC_EDIT_STYLE: &str = r#"
+    vector_edit .icon {
+        display: none;
+    }
+
+    vector_edit .dim {
+        flex-grow: 0.0;
+    }
+
+    vector_edit .header>label {
+        text-justify: center;
+    }
+"#;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum VectorEditEvent<T> {
@@ -43,7 +57,7 @@ impl BuildHandler for Dimension {
 }
 
 impl EventHandler for Dimension {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
@@ -74,8 +88,6 @@ impl EventHandler for Dimension {
                 _ => {}
             }
         }
-
-        false
     }
 }
 
@@ -107,7 +119,7 @@ where
         + std::fmt::Display
         + Copy
         + PartialEq
-        + std::str::FromStr
+        + std::str::FromStr,
 {
     pub fn new() -> Self {
         VectorEdit {
@@ -165,10 +177,12 @@ where
         + Copy
         + PartialEq
         + std::str::FromStr
-        + Send
+        + Send,
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        state.add_theme(VEC_EDIT_STYLE);
+
         entity.set_flex_direction(state, FlexDirection::Row);
 
         self.x = Textbox::new(&self.xval.to_string())
@@ -192,17 +206,17 @@ where
         self.dims = Dropdown::new("4")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(30.0)
+                    .set_flex_basis(Length::Pixels(30.0))
                     .set_text_justify(Justify::End)
                     .set_margin_left(Length::Pixels(5.0))
                     .class("dim")
             })
             .2;
 
-        let one = Dimension::new("1").build(state, self.dims, |builder| builder.class("item"));
-        let two = Dimension::new("2").build(state, self.dims, |builder| builder.class("item"));
-        let three = Dimension::new("3").build(state, self.dims, |builder| builder.class("item"));
-        let four = Dimension::new("4").build(state, self.dims, |builder| builder.class("item"));
+        Dimension::new("1").build(state, self.dims, |builder| builder.class("item"));
+        Dimension::new("2").build(state, self.dims, |builder| builder.class("item"));
+        Dimension::new("3").build(state, self.dims, |builder| builder.class("item"));
+        Dimension::new("4").build(state, self.dims, |builder| builder.class("item"));
 
         self.reveal = state.style.flex_grow.insert_animation(
             AnimationState::new()
@@ -247,31 +261,30 @@ where
         + Copy
         + PartialEq
         + std::str::FromStr
-        + Send
+        + Send,
 {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         let target = event.target;
 
-        if let Some(dropdown_event) = event.is_type::<DropdownEvent>() {
+        if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             match dropdown_event {
                 DropdownEvent::SetText(text, _) => match text.as_ref() {
                     "1" => {
-
-                        if state.transform.get_width(self.x) == 0.0 {
+                        if state.data.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
 
-                        if state.transform.get_width(self.y) != 0.0 {
+                        if state.data.get_width(self.y) != 0.0 {
                             state.style.flex_grow.play_animation(self.y, self.hide);
                             state.style.margin_left.play_animation(self.y, self.shrink);
                         }
 
-                        if state.transform.get_width(self.z) != 0.0 {
+                        if state.data.get_width(self.z) != 0.0 {
                             state.style.flex_grow.play_animation(self.z, self.hide);
                             state.style.margin_left.play_animation(self.z, self.shrink);
                         }
 
-                        if state.transform.get_width(self.w) != 0.0 {
+                        if state.data.get_width(self.w) != 0.0 {
                             state.style.flex_grow.play_animation(self.w, self.hide);
                             state.style.margin_left.play_animation(self.w, self.shrink);
                         }
@@ -293,21 +306,21 @@ where
                     }
 
                     "2" => {
-                        if state.transform.get_width(self.x) == 0.0 {
+                        if state.data.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
 
-                        if state.transform.get_width(self.y) == 0.0 {
+                        if state.data.get_width(self.y) == 0.0 {
                             state.style.flex_grow.play_animation(self.y, self.reveal);
                             state.style.margin_left.play_animation(self.y, self.grow);
                         }
 
-                        if state.transform.get_width(self.z) != 0.0 {
+                        if state.data.get_width(self.z) != 0.0 {
                             state.style.flex_grow.play_animation(self.z, self.hide);
                             state.style.margin_left.play_animation(self.z, self.shrink);
                         }
 
-                        if state.transform.get_width(self.w) != 0.0 {
+                        if state.data.get_width(self.w) != 0.0 {
                             state.style.flex_grow.play_animation(self.w, self.hide);
                             state.style.margin_left.play_animation(self.w, self.shrink);
                         }
@@ -329,22 +342,21 @@ where
                     }
 
                     "3" => {
-
-                        if state.transform.get_width(self.x) == 0.0 {
+                        if state.data.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
 
-                        if state.transform.get_width(self.y) == 0.0 {
+                        if state.data.get_width(self.y) == 0.0 {
                             state.style.flex_grow.play_animation(self.y, self.reveal);
                             state.style.margin_left.play_animation(self.y, self.grow);
                         }
 
-                        if state.transform.get_width(self.z) == 0.0 {
+                        if state.data.get_width(self.z) == 0.0 {
                             state.style.flex_grow.play_animation(self.z, self.reveal);
                             state.style.margin_left.play_animation(self.z, self.grow);
                         }
 
-                        if state.transform.get_width(self.w) != 0.0 {
+                        if state.data.get_width(self.w) != 0.0 {
                             state.style.flex_grow.play_animation(self.w, self.hide);
                             state.style.margin_left.play_animation(self.w, self.shrink);
                         }
@@ -367,22 +379,21 @@ where
                     }
 
                     "4" => {
-
-                        if state.transform.get_width(self.x) == 0.0 {
+                        if state.data.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);
                         }
 
-                        if state.transform.get_width(self.y) == 0.0 {
+                        if state.data.get_width(self.y) == 0.0 {
                             state.style.flex_grow.play_animation(self.y, self.reveal);
                             state.style.margin_left.play_animation(self.y, self.grow);
                         }
 
-                        if state.transform.get_width(self.z) == 0.0 {
+                        if state.data.get_width(self.z) == 0.0 {
                             state.style.flex_grow.play_animation(self.z, self.reveal);
                             state.style.margin_left.play_animation(self.z, self.grow);
                         }
 
-                        if state.transform.get_width(self.w) == 0.0 {
+                        if state.data.get_width(self.w) == 0.0 {
                             state.style.flex_grow.play_animation(self.w, self.reveal);
                             state.style.margin_left.play_animation(self.w, self.grow);
                         }
@@ -408,12 +419,10 @@ where
 
                     _ => {}
                 },
-
-                _ => {}
             }
         }
 
-        if let Some(textbox_event) = event.is_type::<TextboxEvent>() {
+        if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
                 TextboxEvent::ValueChanged(text) => {
                     if let Ok(val) = text.clone().parse::<T>() {
@@ -461,7 +470,5 @@ where
                 _ => {}
             }
         }
-
-        false
     }
 }

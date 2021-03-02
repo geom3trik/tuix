@@ -18,17 +18,19 @@ where
     }
 
     pub fn insert(&mut self, entity: Entity, value: T) {
-        if entity.index() >= self.indices.len() {
-            self.indices.resize(entity.index() + 1, std::u32::MAX);
-            self.indices[entity.index()] = self.data.len() as u32;
-            self.data.push(value);
-        } else {
-            let data_index = self.indices[entity.index()] as usize;
-            if data_index >= self.data.len() {
-                self.indices[entity.index()] = self.data.len() as u32;
+        if let Some(index) = entity.index() {
+            if index >= self.indices.len() {
+                self.indices.resize(index + 1, std::u32::MAX);
+                self.indices[index] = self.data.len() as u32;
                 self.data.push(value);
             } else {
-                self.data[data_index] = value;
+                let data_index = self.indices[index] as usize;
+                if data_index >= self.data.len() {
+                    self.indices[index] = self.data.len() as u32;
+                    self.data.push(value);
+                } else {
+                    self.data[data_index] = value;
+                }
             }
         }
     }
@@ -36,11 +38,11 @@ where
     pub fn remove(&mut self, _entity: Entity) {}
 
     pub fn get(&self, entity: Entity) -> Option<&T> {
-        if entity.index() >= self.indices.len() {
+        if entity.index_unchecked() >= self.indices.len() {
             return None;
         }
 
-        let data_index = self.indices[entity.index()] as usize;
+        let data_index = self.indices[entity.index_unchecked()] as usize;
 
         if data_index >= self.data.len() {
             return None;
@@ -50,11 +52,11 @@ where
     }
 
     pub fn get_mut(&mut self, entity: Entity) -> Option<&mut T> {
-        if entity.index() >= self.indices.len() {
+        if entity.index_unchecked() >= self.indices.len() {
             return None;
         }
 
-        let data_index = self.indices[entity.index()] as usize;
+        let data_index = self.indices[entity.index_unchecked()] as usize;
 
         if data_index >= self.data.len() {
             return None;
@@ -64,19 +66,21 @@ where
     }
 
     pub fn set(&mut self, entity: Entity, value: T) {
-        if entity.index() >= self.indices.len() {
+        if entity.index_unchecked() >= self.indices.len() {
             self.insert(entity, value);
             return;
         }
 
-        let data_index = self.indices[entity.index()] as usize;
+        if let Some(index) = entity.index() {
+            let data_index = self.indices[index] as usize;
 
-        if data_index >= self.data.len() {
-            self.insert(entity, value);
-            return;
+            if data_index >= self.data.len() {
+                self.insert(entity, value);
+                return;
+            }
+
+            self.data[data_index] = value;
         }
-
-        self.data[data_index] = value;
     }
 
     pub fn size(&self) -> usize {

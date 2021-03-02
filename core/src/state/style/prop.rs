@@ -1,6 +1,6 @@
-use crate::entity::Entity;
 use crate::state::style::*;
 use crate::State;
+use crate::{entity::Entity, BuildHandler, Builder, EventHandler, Propagation};
 
 use crate::{Event, WindowEvent};
 
@@ -9,8 +9,10 @@ use crate::state::hierarchy::*;
 pub trait PropSet {
     //fn get_first_child(self, hierarchy: &Hierarchy) -> Option<Entity>;
 
+    /// Add a class name to an entity
     fn class(self, state: &mut State, class_name: &str) -> Self;
 
+    // TODO move to PropGet
     fn get_parent(self, state: &mut State) -> Option<Entity>;
 
     fn is_enabled(self, state: &mut State) -> bool;
@@ -66,7 +68,7 @@ pub trait PropSet {
     // Flex Item
     fn set_flex_grow(self, state: &mut State, value: f32) -> Self;
     fn set_flex_shrink(self, state: &mut State, value: f32) -> Self;
-    fn set_flex_basis(self, state: &mut State, value: f32) -> Self;
+    fn set_flex_basis(self, state: &mut State, value: Length) -> Self;
     fn set_align_self(self, state: &mut State, value: AlignSelf) -> Self;
 
     // Positioning
@@ -90,7 +92,7 @@ pub trait PropSet {
     fn set_text(self, state: &mut State, text: &str) -> Self;
 
     // Text Font
-    fn set_font(self, state: &mut State, font: String) -> Self;
+    fn set_font(self, state: &mut State, font: &str) -> Self;
     fn set_font_size(self, state: &mut State, size: f32) -> Self;
     fn set_font_color(self, state: &mut State, color: Color) -> Self;
 
@@ -98,8 +100,12 @@ pub trait PropSet {
     fn set_text_align(self, state: &mut State, align: Align) -> Self;
     fn set_text_justify(self, state: &mut State, justify: Justify) -> Self;
 
+    // Tooltip
+    fn set_tooltip(self, state: &mut State, text: &str) -> Self;
+
     // Background
     fn set_background_color(self, state: &mut State, value: Color) -> Self;
+    fn set_background_image(self, state: &mut State, value: String) -> Self;
 
     // Border
     fn set_border_width(self, state: &mut State, value: Length) -> Self;
@@ -134,17 +140,61 @@ pub trait PropSet {
     fn set_next_focus(self, state: &mut State, value: Entity) -> Self;
     fn set_prev_focus(self, state: &mut State, value: Entity) -> Self;
     fn set_focus_order(self, state: &mut State, next: Entity, prev: Entity) -> Self;
+
+    fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
+
+    fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
+
+    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
+        self,
+        state: &mut State,
+        mutator: F,
+    ) -> Self;
 }
 
 impl PropSet for Entity {
-
-    fn class(self, state: &mut State, class_name: &str) -> Self
+    fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>
+    where
+        Self: std::marker::Sized + 'static,
     {
-        state.style.insert_class(self, class_name);
+        let t = state.event_handlers.get_mut(&self).unwrap();
+
+        let t1 = t.downcast::<B>();
+
+        t1
+    }
+
+    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
+        self,
+        state: &mut State,
+        mut mutator: F,
+    ) -> Self
+    where
+        Self: std::marker::Sized + 'static,
+    {
+        let t = state.event_handlers.get_mut(&self).unwrap();
+
+        let t1 = t.downcast::<B>().expect("Failed to cast");
+
+        mutator(t1);
 
         self
     }
 
+    fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
+    where
+        F: FnMut(Builder) -> Builder,
+    {
+        builder(Builder::new(state, self));
+
+        self
+    }
+
+    fn class(self, state: &mut State, class_name: &str) -> Self {
+        state.style.insert_class(self, class_name);
+
+        self
+    }
 
     fn get_parent(self, state: &mut State) -> Option<Entity> {
         self.parent(&state.hierarchy)
@@ -200,8 +250,16 @@ impl PropSet for Entity {
             pseudo_classes.set_disabled(!value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -212,8 +270,16 @@ impl PropSet for Entity {
             pseudo_classes.set_enabled(!value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -223,8 +289,21 @@ impl PropSet for Entity {
             pseudo_classes.set_checked(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Relayout)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -234,8 +313,16 @@ impl PropSet for Entity {
             pseudo_classes.set_over(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -245,8 +332,16 @@ impl PropSet for Entity {
             pseudo_classes.set_active(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -256,8 +351,16 @@ impl PropSet for Entity {
             pseudo_classes.set_hover(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -267,8 +370,16 @@ impl PropSet for Entity {
             pseudo_classes.set_focus(value);
         }
 
-        state.insert_event(Event::new(WindowEvent::Restyle).origin(self));
-        state.insert_event(Event::new(WindowEvent::Redraw).origin(self));
+        state.insert_event(
+            Event::new(WindowEvent::Restyle)
+                .origin(self)
+                .target(Entity::root()),
+        );
+        state.insert_event(
+            Event::new(WindowEvent::Redraw)
+                .origin(self)
+                .target(Entity::root()),
+        );
 
         self
     }
@@ -298,10 +409,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -312,10 +423,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -326,10 +437,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -340,10 +451,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -354,10 +465,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -368,10 +479,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -390,10 +501,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -403,10 +514,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -416,10 +527,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -430,10 +541,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -443,23 +554,23 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
 
-    fn set_flex_basis(self, state: &mut State, value: f32) -> Self {
+    fn set_flex_basis(self, state: &mut State, value: Length) -> Self {
         state.style.flex_basis.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -469,10 +580,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -483,10 +594,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -496,10 +607,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -509,10 +620,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -522,10 +633,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -535,10 +646,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -549,10 +660,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -562,10 +673,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -576,10 +687,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -589,10 +700,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -602,10 +713,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -615,10 +726,17 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self
+    }
+
+    // Tooltip
+    fn set_tooltip(self, state: &mut State, value: &str) -> Self {
+        state.style.tooltip.insert(self, value.to_string());
 
         self
     }
@@ -639,23 +757,23 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
 
     // Text Font
-    fn set_font(self, state: &mut State, value: String) -> Self {
+    fn set_font(self, state: &mut State, value: &str) -> Self {
         if let Some(data) = state.style.text.get_mut(self) {
-            data.font = value;
+            data.font = value.to_string();
         } else {
             state.style.text.insert(
                 self,
                 Text {
-                    font: value,
+                    font: value.to_string(),
                     ..Default::default()
                 },
             );
@@ -663,24 +781,23 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
 
     fn set_font_size(self, state: &mut State, value: f32) -> Self {
-
         state.style.font_size.insert(self, value);
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -688,7 +805,7 @@ impl PropSet for Entity {
     fn set_font_color(self, state: &mut State, value: Color) -> Self {
         state.style.font_color.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -697,7 +814,7 @@ impl PropSet for Entity {
     fn set_text_justify(self, state: &mut State, value: Justify) -> Self {
         state.style.text_justify.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -705,7 +822,7 @@ impl PropSet for Entity {
     fn set_text_align(self, state: &mut State, value: Align) -> Self {
         state.style.text_align.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -714,7 +831,15 @@ impl PropSet for Entity {
     fn set_background_color(self, state: &mut State, value: Color) -> Self {
         state.style.background_color.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self
+    }
+
+    fn set_background_image(self, state: &mut State, value: String) -> Self {
+        state.style.background_image.insert(self, value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -725,10 +850,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -736,7 +861,7 @@ impl PropSet for Entity {
     fn set_border_color(self, state: &mut State, value: Color) -> Self {
         state.style.border_color.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -748,7 +873,7 @@ impl PropSet for Entity {
         state.style.border_radius_bottom_left.insert(self, value);
         state.style.border_radius_bottom_right.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -756,7 +881,7 @@ impl PropSet for Entity {
     fn set_border_radius_top_left(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_top_left.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -764,7 +889,7 @@ impl PropSet for Entity {
     fn set_border_radius_top_right(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_top_right.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -772,7 +897,7 @@ impl PropSet for Entity {
     fn set_border_radius_bottom_left(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_bottom_left.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -780,7 +905,7 @@ impl PropSet for Entity {
     fn set_border_radius_bottom_right(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_bottom_right.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -794,10 +919,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -807,10 +932,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -819,10 +944,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -831,10 +956,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -843,10 +968,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -860,10 +985,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -873,10 +998,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -885,10 +1010,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -897,10 +1022,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -909,10 +1034,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -923,10 +1048,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -936,10 +1061,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -959,10 +1084,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -982,10 +1107,10 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
     }
@@ -1003,11 +1128,276 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
-        state.insert_event(Event::new(WindowEvent::Redraw));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
+    }
+}
+
+pub trait PropGet {
+    // Display
+    fn get_display(&self, state: &mut State) -> Display;
+
+    // Position
+    fn get_position(&self, state: &mut State) -> Position;
+    fn get_left(&self, state: &mut State) -> Length;
+    fn get_right(&self, state: &mut State) -> Length;
+    fn get_top(&self, state: &mut State) -> Length;
+    fn get_bottom(&self, state: &mut State) -> Length;
+
+    // Size
+    fn get_width(&self, state: &mut State) -> Length;
+    fn get_height(&self, state: &mut State) -> Length;
+
+    // Size Constraints
+    fn get_min_width(&self, state: &mut State) -> Length;
+    fn get_max_width(&self, state: &mut State) -> Length;
+    fn get_min_height(&self, state: &mut State) -> Length;
+    fn get_max_height(&self, state: &mut State) -> Length;
+
+    // Margins
+    fn get_margin_left(&self, state: &mut State) -> Length;
+    fn get_margin_right(&self, state: &mut State) -> Length;
+    fn get_margin_top(&self, state: &mut State) -> Length;
+    fn get_margin_bottom(&self, state: &mut State) -> Length;
+
+    // Padding
+    fn get_padding_left(&self, state: &mut State) -> Length;
+    fn get_padding_right(&self, state: &mut State) -> Length;
+    fn get_padding_top(&self, state: &mut State) -> Length;
+    fn get_padding_bottom(&self, state: &mut State) -> Length;
+
+    // Border
+    fn get_border_width(&self, state: &mut State) -> Length;
+
+    // Flex Container
+    fn get_flex_direction(&self, state: &mut State) -> FlexDirection;
+    fn get_flex_basis(&self, state: &mut State) -> Length;
+    fn get_justify_content(&self, state: &mut State) -> JustifyContent;
+    fn get_align_items(&self, state: &mut State) -> AlignItems;
+
+    // Flex Item
+    fn get_flex_grow(&self, state: &mut State) -> f32;
+    fn get_flex_shrink(&self, state: &mut State) -> f32;
+    fn get_align_self(&self, state: &mut State) -> AlignSelf;
+}
+
+impl PropGet for Entity {
+    // Display
+    fn get_display(&self, state: &mut State) -> Display {
+        state.style.display.get(*self).cloned().unwrap_or_default()
+    }
+
+    // Position
+    fn get_position(&self, state: &mut State) -> Position {
+        state.style.position.get(*self).cloned().unwrap_or_default()
+    }
+    fn get_left(&self, state: &mut State) -> Length {
+        state.style.left.get(*self).cloned().unwrap_or_default()
+    }
+    fn get_right(&self, state: &mut State) -> Length {
+        state.style.right.get(*self).cloned().unwrap_or_default()
+    }
+    fn get_top(&self, state: &mut State) -> Length {
+        state.style.top.get(*self).cloned().unwrap_or_default()
+    }
+    fn get_bottom(&self, state: &mut State) -> Length {
+        state.style.bottom.get(*self).cloned().unwrap_or_default()
+    }
+
+    // Size
+    fn get_width(&self, state: &mut State) -> Length {
+        state.style.width.get(*self).cloned().unwrap_or_default()
+    }
+
+    fn get_height(&self, state: &mut State) -> Length {
+        state.style.height.get(*self).cloned().unwrap_or_default()
+    }
+
+    // Size Constraints
+    fn get_min_width(&self, state: &mut State) -> Length {
+        state
+            .style
+            .min_width
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_max_width(&self, state: &mut State) -> Length {
+        state
+            .style
+            .max_width
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_min_height(&self, state: &mut State) -> Length {
+        state
+            .style
+            .min_height
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_max_height(&self, state: &mut State) -> Length {
+        state
+            .style
+            .max_height
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Margins
+    fn get_margin_left(&self, state: &mut State) -> Length {
+        state
+            .style
+            .margin_left
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_margin_right(&self, state: &mut State) -> Length {
+        state
+            .style
+            .margin_right
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_margin_top(&self, state: &mut State) -> Length {
+        state
+            .style
+            .margin_top
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_margin_bottom(&self, state: &mut State) -> Length {
+        state
+            .style
+            .margin_bottom
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Padding
+    fn get_padding_left(&self, state: &mut State) -> Length {
+        state
+            .style
+            .padding_left
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_padding_right(&self, state: &mut State) -> Length {
+        state
+            .style
+            .padding_right
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+    fn get_padding_top(&self, state: &mut State) -> Length {
+        state
+            .style
+            .padding_top
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+    fn get_padding_bottom(&self, state: &mut State) -> Length {
+        state
+            .style
+            .padding_bottom
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Border
+    fn get_border_width(&self, state: &mut State) -> Length {
+        state
+            .style
+            .border_width
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Flex Container
+    fn get_flex_direction(&self, state: &mut State) -> FlexDirection {
+        state
+            .style
+            .flex_direction
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_flex_basis(&self, state: &mut State) -> Length {
+        state
+            .style
+            .flex_basis
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_justify_content(&self, state: &mut State) -> JustifyContent {
+        state
+            .style
+            .justify_content
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_align_items(&self, state: &mut State) -> AlignItems {
+        state
+            .style
+            .align_items
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    // Flex Item
+    fn get_flex_grow(&self, state: &mut State) -> f32 {
+        state
+            .style
+            .flex_grow
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_flex_shrink(&self, state: &mut State) -> f32 {
+        state
+            .style
+            .flex_shrink
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    fn get_align_self(&self, state: &mut State) -> AlignSelf {
+        state
+            .style
+            .align_self
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
     }
 }

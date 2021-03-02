@@ -1,12 +1,16 @@
 use crate::entity::Entity;
-use crate::mouse::*;
 use crate::State;
-use crate::{BuildHandler, Event, EventHandler, WindowEvent};
+use crate::{BuildHandler, Event, EventHandler};
 
-use crate::style::{Display, Length};
+use crate::style::Length;
 
-use crate::widgets::slider::SliderEvent;
+use crate::prop::PropSet;
 use crate::widgets::Element;
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum AudioLevelEvent {
+    SetLevel(f32),
+}
 
 pub struct AudioLevelBar {
     front: Entity,
@@ -28,7 +32,8 @@ impl BuildHandler for AudioLevelBar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.front = Element::new().build(state, entity, |builder| {
-            builder.set_height(Length::Percentage(0.5)).class("front")
+            builder.class("front")
+            //.set_height(Length::Percentage(1.0))
         });
 
         state.style.insert_element(entity, "level_bar");
@@ -38,11 +43,15 @@ impl BuildHandler for AudioLevelBar {
 }
 
 impl EventHandler for AudioLevelBar {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        return false;
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
+        if let Some(audio_level_event) = event.message.downcast::<AudioLevelEvent>() {
+            match audio_level_event {
+                AudioLevelEvent::SetLevel(val) => {
+                    self.level = *val;
+                    let level_db = 1.0 + (20.0 * self.level.abs().log10()).max(-60.0) / 60.0;
+                    self.front.set_height(state, Length::Percentage(level_db));
+                }
+            }
+        }
     }
 }
-
-// pub struct AudioLevels {
-
-// }

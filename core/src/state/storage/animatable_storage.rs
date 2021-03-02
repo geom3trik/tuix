@@ -1,4 +1,4 @@
-use crate::state::animator::{AnimationState, Interpolator};
+use crate::state::animation::{AnimationState, Interpolator};
 use crate::state::Entity;
 
 #[derive(Copy, Clone)]
@@ -219,33 +219,42 @@ where
 
     // Insert inline data
     pub fn insert(&mut self, entity: Entity, value: T) {
-        if entity.index() >= self.entity_indices.len() {
-            // Resize entity indices to include new entity
-            self.entity_indices
-                .resize(entity.index() + 1, Default::default());
-            // Set the data index to the data position
-            self.entity_indices[entity.index()].data_index =
-                Index::new(self.inline_data.len()).inherited(false).inline(true);
-            // Add the data
-            self.inline_data.push(value);
-        } else {
-            let data_index = self.entity_indices[entity.index()].data_index;
+        if let Some(index) = entity.index() {
+            if index >= self.entity_indices.len() {
+                // Resize entity indices to include new entity
+                self.entity_indices.resize(index + 1, Default::default());
+                // Set the data index to the data position
+                self.entity_indices[index].data_index = Index::new(self.inline_data.len())
+                    .inherited(false)
+                    .inline(true);
 
-            if data_index.index() >= self.inline_data.len() {
-                self.entity_indices[entity.index()].data_index =
-                    Index::new(self.inline_data.len()).inherited(false).inline(true);
-                //self.entity_indices[entity.index()].animation_index = AnimationIndex::default();
+                // Add the data
                 self.inline_data.push(value);
             } else {
-                self.entity_indices[entity.index()]
-                    .data_index
-                    .set_inherited(false)
-                    .set_inline(true);
-                //self.entity_indices[entity.index()].animation_index = AnimationIndex::default();
-                self.inline_data[data_index.index()] = value;
-            }
+                let data_index = self.entity_indices[index].data_index;
 
-            //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
+                if data_index.is_inline() {
+                    if data_index.index() >= self.inline_data.len() {
+                        self.entity_indices[index].data_index = Index::new(self.inline_data.len())
+                            .inherited(false)
+                            .inline(true);
+                        self.inline_data.push(value);
+                    } else {
+                        self.entity_indices[index]
+                            .data_index
+                            .set_inherited(false)
+                            .set_inline(true);
+                        self.inline_data[data_index.index()] = value;
+                    }
+                } else {
+                    self.entity_indices[index].data_index = Index::new(self.inline_data.len())
+                        .inherited(false)
+                        .inline(true);
+                    self.inline_data.push(value);
+                }
+
+                //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
+            }
         }
     }
 
@@ -259,45 +268,44 @@ where
     }
 
     pub fn play_animation(&mut self, entity: Entity, description_id: usize) {
-        // Check if animation exists
-        if description_id >= self.animations.len() {
-            return;
+        if let Some(index) = entity.index() {
+            // Check if animation exists
+            if description_id >= self.animations.len() {
+                return;
+            }
+
+            // Link the entity to the animation
+            if index >= self.entity_indices.len() {
+                self.entity_indices.resize(index + 1, Default::default());
+            }
+
+            let animation_index = self.entity_indices[index].animation_id;
+
+            if animation_index < self.active_animations.len() {
+                let animation = self.animations.get(description_id).unwrap();
+                self.active_animations[animation_index].t0 = 0.0;
+                self.active_animations[animation_index].active = true;
+                self.active_animations[animation_index].t = 0.0;
+                self.active_animations[animation_index].start_time = std::time::Instant::now();
+                self.active_animations[animation_index].duration = animation.duration;
+                self.active_animations[animation_index].delay = animation.delay;
+                self.active_animations[animation_index].keyframes = animation.keyframes.clone();
+                // FIX ME (Needed because sometimes drawing happens before animation for some reason. Stops output being null if accessed before animated)
+                self.active_animations[animation_index].output =
+                    Some(animation.keyframes.first().unwrap().1.clone());
+            } else {
+                let mut animation = self.animations[description_id].clone();
+                animation.active = true;
+                animation.t0 = 0.0;
+                animation.t = 0.0;
+                animation.start_time = std::time::Instant::now();
+                animation.entities.push(entity);
+
+                animation.output = Some(animation.keyframes.first().unwrap().1.clone());
+                self.entity_indices[index].animation_id = self.active_animations.len();
+                self.active_animations.push(animation);
+            }
         }
-
-        // Link the entity to the animation
-        if entity.index() >= self.entity_indices.len() {
-            self.entity_indices
-                .resize(entity.index() + 1, Default::default());
-        }
-
-        let animation_index = self.entity_indices[entity.index()].animation_id;
-
-        if animation_index < self.active_animations.len() {
-            let animation = self.animations.get(description_id).unwrap();
-            self.active_animations[animation_index].t0 = 0.0;
-            self.active_animations[animation_index].active = true;
-            self.active_animations[animation_index].t = 0.0;
-            self.active_animations[animation_index].start_time = std::time::Instant::now();
-            self.active_animations[animation_index].duration = animation.duration;
-            self.active_animations[animation_index].delay = animation.delay;
-            self.active_animations[animation_index].keyframes = animation.keyframes.clone();
-            // FIX ME (Needed because sometimes drawing happens before animation for some reason. Stops output being null if accessed before animated)
-            self.active_animations[animation_index].output =
-                Some(animation.keyframes.first().unwrap().1.clone());
-        } else {
-            let mut animation = self.animations[description_id].clone();
-            animation.active = true;
-            animation.t0 = 0.0;
-            animation.t = 0.0;
-            animation.start_time = std::time::Instant::now();
-            animation.entities.push(entity);
-
-            animation.output = Some(animation.keyframes.first().unwrap().1.clone());
-            self.entity_indices[entity.index()].animation_id = self.active_animations.len();
-            self.active_animations.push(animation);
-        }
-
-
     }
 
     pub fn animate(&mut self, current_time: std::time::Instant) {
@@ -345,7 +353,6 @@ where
     }
 
     pub fn remove_innactive_animations(&mut self) {
-
         // Create a list of finished animations
         let inactive: Vec<AnimationState<T>> = self
             .active_animations
@@ -356,17 +363,18 @@ where
 
         // Remove inactive animation states from active animations list
         // Retains persistent animations
-        self.active_animations.retain(|e| e.t0 < 1.0 || e.persistent);
+        self.active_animations
+            .retain(|e| e.t0 < 1.0 || e.persistent);
 
         for state in inactive.into_iter() {
             for entity in state.entities.iter() {
-                self.entity_indices[entity.index()].animation_id = std::usize::MAX;
+                self.entity_indices[entity.index_unchecked()].animation_id = std::usize::MAX;
             }
         }
 
         for (index, state) in self.active_animations.iter().enumerate() {
             for entity in state.entities.iter() {
-                self.entity_indices[entity.index()].animation_id = index;
+                self.entity_indices[entity.index_unchecked()].animation_id = index;
             }
         }
     }
@@ -400,85 +408,92 @@ where
     // specificity for an entity. The entity can be "linked" to the rule by pointing the
     // same computed property.
     pub fn link(&mut self, entity: Entity, rule: usize) -> LinkType {
-        // Check if rule exists
-        if rule >= self.rule_indices.len() {
-            return LinkType::NoRule;
-        }
-
-        let rule_data_index = self.rule_indices[rule].data_index.index();
-
-        // Check if the rule has any associated data
-        if rule_data_index >= self.data.len() {
-            return LinkType::NoData;
-        }
-
-        // Check if entity exists, else add the entity
-        if entity.index() >= self.entity_indices.len() {
-            self.entity_indices
-                .resize(entity.index() + 1, Default::default());
-        }
-
-        // Check if the entity is already linked to the rule
-        if self.entity_indices[entity.index()].data_index.index() == rule_data_index {
-            return LinkType::AlreadyLinked;
-        }
-
-        // Get the animation id for any transition on the rule
-        let rule_animation_id = self.rule_indices[rule].animation_id;
-
-        // Check if the entity is already animating with a transition
-        
-        let animation_index = self.entity_indices[entity.index()].animation_id;
-        if animation_index < self.active_animations.len() {
-            // Check here is the active animation belongs to the transition of the currently linked data
-            let from_rule = self.active_animations[animation_index].from_rule;
-            //let to_rule = self.active_animations[animation_index].to_rule;
-
-            // If the transition is already going from A to B and the request is to go to A, then reverse the transition.
-            if rule_data_index == from_rule {
-                let transition = self.active_animations.get_mut(animation_index).unwrap();
-
-                transition.from_rule = transition.to_rule;
-                transition.to_rule = rule_data_index;
-
-                *transition.keyframes.first_mut().unwrap() =
-                    (0.0, self.data[transition.from_rule].clone());
-                *transition.keyframes.last_mut().unwrap() =
-                    (1.0, self.data[transition.to_rule].clone());
-
-                //transition.duration = transition.duration.mul_f32(transition.t);
-                transition.delay = transition.t - 1.0;
-
-                transition.start_time = std::time::Instant::now();
+        if let Some(index) = entity.index() {
+            // Check if rule exists
+            if rule >= self.rule_indices.len() {
+                return LinkType::NoRule;
             }
+
+            let rule_data_index = self.rule_indices[rule].data_index.index();
+
+            // Check if the rule has any associated data
+            if rule_data_index >= self.data.len() {
+                return LinkType::NoData;
+            }
+
+            // Check if entity exists, else add the entity
+            if index >= self.entity_indices.len() {
+                self.entity_indices.resize(index + 1, Default::default());
+            }
+
+            // Check if the entity is already linked to the rule
+            if self.entity_indices[index].data_index.index() == rule_data_index {
+                return LinkType::AlreadyLinked;
+            }
+
+            // Get the animation id for any transition on the rule
+            let rule_animation_id = self.rule_indices[rule].animation_id;
+
+            // Check if the entity is already animating with a transition
+
+            let animation_index = self.entity_indices[index].animation_id;
+            if animation_index < self.active_animations.len() {
+                // Check here is the active animation belongs to the transition of the currently linked data
+                let from_rule = self.active_animations[animation_index].from_rule;
+                //let to_rule = self.active_animations[animation_index].to_rule;
+
+                // If the transition is already going from A to B and the request is to go to A, then reverse the transition.
+                if rule_data_index == from_rule {
+                    let transition = self.active_animations.get_mut(animation_index).unwrap();
+
+                    transition.from_rule = transition.to_rule;
+                    transition.to_rule = rule_data_index;
+
+                    *transition.keyframes.first_mut().unwrap() =
+                        (0.0, self.data[transition.from_rule].clone());
+                    *transition.keyframes.last_mut().unwrap() =
+                        (1.0, self.data[transition.to_rule].clone());
+
+                    //transition.duration = transition.duration.mul_f32(transition.t);
+                    transition.delay = transition.t - 1.0;
+
+                    transition.start_time = std::time::Instant::now();
+                }
+            } else {
+                if rule_animation_id < self.animations.len() {
+                    // Get the transition animation definition
+                    let transition = self.animations.get_mut(rule_animation_id).unwrap();
+                    let current_data_index = self.entity_indices[index].data_index.index();
+                    // let start = self
+                    //     .data
+                    //     .get(current_data_index)
+                    //     .cloned()
+                    //     .unwrap_or_default();
+                    let end = self.data.get(rule_data_index).cloned().unwrap_or_default();
+
+                    if let Some(start) = self.data.get(current_data_index) {
+                        *transition.keyframes.first_mut().unwrap() = (0.0, start.clone());
+                    } else {
+                        *transition.keyframes.first_mut().unwrap() = (0.0, end.clone());
+                    }
+
+                    *transition.keyframes.last_mut().unwrap() = (1.0, end);
+
+                    transition.from_rule = self.entity_indices[index].data_index.index();
+                    transition.to_rule = rule_data_index;
+
+                    // Play any transition animation
+                    self.play_animation(entity, rule_animation_id);
+                }
+            }
+
+            // Link the entity to the same data as the rule
+            self.entity_indices[index].data_index = Index::new(rule_data_index);
+
+            LinkType::NewLink
         } else {
-            if rule_animation_id < self.animations.len() {
-                // Get the transition animation definition
-                let transition = self.animations.get_mut(rule_animation_id).unwrap();
-                let current_data_index = self.entity_indices[entity.index()].data_index.index();
-                let start = self
-                    .data
-                    .get(current_data_index)
-                    .cloned()
-                    .unwrap_or_default();
-                let end = self.data.get(rule_data_index).cloned().unwrap_or_default();
-
-                *transition.keyframes.first_mut().unwrap() = (0.0, start);
-                *transition.keyframes.last_mut().unwrap() = (1.0, end);
-
-                transition.from_rule = self.entity_indices[entity.index()].data_index.index();
-                transition.to_rule = rule_data_index;
-
-                // Play any transition animation
-                self.play_animation(entity, rule_animation_id);
-            }
+            LinkType::NoRule
         }
-        
-
-        // Link the entity to the same data as the rule
-        self.entity_indices[entity.index()].data_index = Index::new(rule_data_index);
-
-        LinkType::NewLink
     }
 
     pub fn has_animations(&self) -> bool {
@@ -492,41 +507,56 @@ where
     }
 
     pub fn unlink(&mut self, entity: Entity) {
-        if entity.index() >= self.entity_indices.len() {
-            return;
-        }
+        if let Some(index) = entity.index() {
+            if index >= self.entity_indices.len() {
+                return;
+            }
 
-        self.entity_indices[entity.index()].data_index = Index::default();
+            self.entity_indices[index].data_index = Index::default();
+        }
     }
 
     pub fn link_rule(&mut self, entity: Entity, rule_list: &Vec<usize>) -> bool {
-        // Check if the entity already has an inline style. If so then rules don't affect it.
-        if entity.index() < self.entity_indices.len() {
-            if self.entity_indices[entity.index()].data_index.is_inline() {
-                return false;
-            }
-        }
-
-        for rule in rule_list {
-            match self.link(entity, *rule) {
-                LinkType::NewLink => {
-                    return true;
-                }
-
-                LinkType::AlreadyLinked => {
+        if let Some(index) = entity.index() {
+            // Check if the entity already has an inline style. If so then rules don't affect it.
+            if index < self.entity_indices.len() {
+                if self.entity_indices[index].data_index.is_inline() {
                     return false;
                 }
-
-                _ => {}
             }
+
+            for rule in rule_list {
+                match self.link(entity, *rule) {
+                    LinkType::NewLink => {
+                        return true;
+                    }
+
+                    LinkType::AlreadyLinked => {
+                        return false;
+                    }
+
+                    LinkType::NoRule => {
+                        self.unlink(entity);
+                        return true;
+                    }
+
+                    // LinkType::NoData => {
+                    //     self.unlink(entity);
+                    //     return true;
+                    // }
+                    _ => {}
+                }
+            }
+
+            // If none of the matching rules have a specified property then unlink the entity from any rules
+            // Cascading could happen here but would need to pass in the hierarchy
+
+            self.unlink(entity);
+
+            false
+        } else {
+            false
         }
-
-        // If none of the matching rules have a specified property then unlink the entity from any rules
-        // Cascading could happen here but would need to pass in the hierarchy
-
-        self.unlink(entity);
-
-        false
     }
 
     // Insert rule data
@@ -548,23 +578,32 @@ where
 
     // Links a rule to a transition animation
     pub fn insert_transition(&mut self, rule: usize, animation_state: AnimationState<T>) {
+        if rule >= self.rule_indices.len() {
+            self.rule_indices.resize(rule + 1, Default::default());
+            self.rule_indices[rule].data_index = Index::new(self.data.len());
+            self.data.push(Default::default());
+        }
         self.rule_indices[rule].animation_id = self.animations.len();
         self.animations.push(animation_state);
     }
 
     // Get the current value (either animation or data rule)
     pub fn get(&self, entity: Entity) -> Option<&T> {
-        if entity.index() >= self.entity_indices.len() {
+        if entity.index_unchecked() >= self.entity_indices.len() {
             return None;
         }
 
-        let animation_index = self.entity_indices[entity.index()].animation_id;
+        let animation_index = self.entity_indices[entity.index_unchecked()].animation_id;
+
+        // if entity == Entity::new(5) {
+        //     println!("Get Animation: {:?}", animation_index);
+        // }
 
         if animation_index < self.active_animations.len() {
             return self.active_animations[animation_index].get_output();
         }
 
-        let data_index = self.entity_indices[entity.index()].data_index;
+        let data_index = self.entity_indices[entity.index_unchecked()].data_index;
 
         if data_index.is_inline() {
             if data_index.index() >= self.inline_data.len() {
@@ -572,25 +611,22 @@ where
             }
 
             Some(&self.inline_data[data_index.index()])
-
         } else {
             if data_index.index() >= self.data.len() {
                 return None;
             }
 
-            Some(&self.data[data_index.index()])            
+            Some(&self.data[data_index.index()])
         }
-
-
     }
 
     // Returns true if the entity is linked to a currently active animation
     pub fn is_animating(&self, entity: Entity) -> bool {
-        if entity.index() >= self.entity_indices.len() {
+        if entity.index_unchecked() >= self.entity_indices.len() {
             return false;
         }
 
-        let animation_index = self.entity_indices[entity.index()].animation_id;
+        let animation_index = self.entity_indices[entity.index_unchecked()].animation_id;
 
         if animation_index >= self.active_animations.len() {
             return false;
@@ -654,23 +690,21 @@ where
     // // Removes data at data_index
     // pub remove_data(&mut self, data_index: usize) {
     //     // Unlink any entities from the data
-    //     // Remove any 
+    //     // Remove any
     // }
 
     // Removes css styles but leaves inline styles and animations
     pub fn remove_styles(&mut self) {
-
         // Remove rules
         self.rule_indices.clear();
         // Remove rule data
         self.data.clear();
-        
+
         // Unlink non-inline entities from the rules
         for entity in self.entity_indices.iter_mut() {
             if !entity.index().is_inline() {
                 entity.data_index = Index::default();
             }
         }
-    
     }
 }

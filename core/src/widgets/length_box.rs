@@ -45,17 +45,17 @@ impl BuildHandler for LengthBox {
         self.unit = Dropdown::new("-")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(30.0)
+                    .set_flex_basis(Length::Pixels(30.0))
                     .set_text_justify(Justify::End)
                     .class("unit")
             })
             .2;
 
-        let auto = Item::new("auto", "-").build(state, self.unit, |builder| builder.class("item"));
-        let pixel = Item::new("px", "px").build(state, self.unit, |builder| builder.class("item"));
-        let percentage =
+        let _auto = Item::new("auto", "-").build(state, self.unit, |builder| builder.class("item"));
+        let _pixel = Item::new("px", "px").build(state, self.unit, |builder| builder.class("item"));
+        let _percentage =
             Item::new("%", "%").build(state, self.unit, |builder| builder.class("item"));
-        let initial =
+        let _initial =
             Item::new("initial", "-").build(state, self.unit, |builder| builder.class("item"));
 
         state.style.insert_element(entity, "length_box");
@@ -65,10 +65,10 @@ impl BuildHandler for LengthBox {
 }
 
 impl EventHandler for LengthBox {
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) -> bool {
-        if let Some(dropdown_event) = event.is_type::<DropdownEvent>() {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
+        if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             match dropdown_event {
-                DropdownEvent::SetText(text, proxy) => {
+                DropdownEvent::SetText(text, _proxy) => {
                     if text == "auto" {
                         self.value.set_text(state, text);
                         self.length_type = Length::Auto;
@@ -92,26 +92,22 @@ impl EventHandler for LengthBox {
             }
         }
 
-        if let Some(textbox_event) = event.is_type::<TextboxEvent>() {
+        if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
-                TextboxEvent::ValueChanged(value) => {
-                    match self.length_type {
-                        Length::Pixels(_) => {
-                            self.pixels = value.parse::<f32>().unwrap();
-                        }
-
-                        Length::Percentage(_) => {
-                            self.percentage = value.parse::<f32>().unwrap();
-                        }
-
-                        _ => {}
+                TextboxEvent::ValueChanged(value) => match self.length_type {
+                    Length::Pixels(_) => {
+                        self.pixels = value.parse::<f32>().unwrap();
                     }
-                }
+
+                    Length::Percentage(_) => {
+                        self.percentage = value.parse::<f32>().unwrap();
+                    }
+
+                    _ => {}
+                },
 
                 _ => {}
             }
         }
-
-        false
     }
 }

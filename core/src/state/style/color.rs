@@ -1,5 +1,6 @@
 use std::fmt;
 
+// Describes a color
 #[derive(Copy, Clone)]
 #[repr(packed)]
 pub struct Color {
@@ -126,5 +127,31 @@ impl std::fmt::Debug for Color {
 impl Default for Color {
     fn default() -> Self {
         Color::rgba(0, 0, 0, 0)
+    }
+}
+
+impl Color {
+    pub fn black() -> Self {
+        Self { data: 0xFF000000 }
+    }
+
+    pub fn white() -> Self {
+        Self { data: 0xFFFFFFFF }
+    }
+
+    pub fn red() -> Self {
+        Self { data: 0xFFFF0000 }
+    }
+
+    pub fn green() -> Self {
+        Self { data: 0xFF00FF00 }
+    }
+
+    pub fn blue() -> Self {
+        Self { data: 0xFF0000FF }
+    }
+
+    pub fn yellow() -> Self {
+        Self { data: 0xFF00FFFF }
     }
 }

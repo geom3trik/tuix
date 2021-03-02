@@ -3,9 +3,9 @@ use crate::entity::Entity;
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum FlexDirection {
     Row,
-    //RowReverse,     //TODO
+    RowReverse, //TODO
     Column,
-    //ColumnReverse,  //TODO
+    ColumnReverse, //TODO
 }
 
 impl Default for FlexDirection {

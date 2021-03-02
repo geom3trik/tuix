@@ -12,6 +12,9 @@ pub use event_handler::*;
 pub mod build_handler;
 pub use build_handler::*;
 
+pub mod builder;
+pub use builder::*;
+
 pub mod window_event;
 pub use window_event::*;
 

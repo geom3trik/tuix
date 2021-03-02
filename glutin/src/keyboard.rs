@@ -1,5 +1,3 @@
-
-
 use glutin::event::VirtualKeyCode;
 use keyboard_types::{Code, Key};
 
@@ -170,7 +168,6 @@ pub fn vk_to_key(vk: VirtualKeyCode) -> Option<Key> {
         VirtualKeyCode::Down => Key::ArrowDown,
         VirtualKeyCode::MediaSelect => Key::Select,
         VirtualKeyCode::Snapshot => Key::Print,
-        VirtualKeyCode::Snapshot => Key::PrintScreen,
         VirtualKeyCode::Insert => Key::Insert,
         VirtualKeyCode::Delete => Key::Delete,
         VirtualKeyCode::LWin | VirtualKeyCode::RWin => Key::Meta,

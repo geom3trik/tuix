@@ -1,6 +1,6 @@
 //use crate::event_manager::EventManager;
-use crate::Renderer;
 use crate::window::TuixWindow;
+use crate::Renderer;
 use baseview::WindowScalePolicy;
 use femtovg::Canvas;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
@@ -10,14 +10,14 @@ use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 use tuix_core::state::Fonts;
 use tuix_core::window::WindowWidget;
 use tuix_core::{
-    Entity, State, WindowDescription, WindowEvent, Hierarchy,
-    PropSet, Length, Visibility, Size, EventManager
+    Entity, EventManager, Hierarchy, Length, PropSet, Size, State, Visibility, WindowDescription,
+    WindowEvent,
 };
 
 pub struct Application<F>
 where
     F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
-    F: 'static + Send
+    F: 'static + Send,
 {
     app: F,
 }
@@ -25,7 +25,7 @@ where
 impl<F> Application<F>
 where
     F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
-    F: 'static + Send
+    F: 'static + Send,
 {
     pub fn new(app: F) -> Self {
         Self { app }
@@ -100,11 +100,13 @@ impl ApplicationRunner {
         let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
         let icon_font = include_bytes!("../../resources/entypo.ttf");
+        let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
 
         let fonts = Fonts {
             regular: Some(canvas.add_font_mem(regular_font).expect("Cannot add font")),
             bold: Some(canvas.add_font_mem(bold_font).expect("Cannot add font")),
             icons: Some(canvas.add_font_mem(icon_font).expect("Cannot add font")),
+            emoji: Some(canvas.add_font_mem(emoji_font).expect("Cannot add font")),
         };
 
         state.fonts = fonts;
@@ -114,19 +116,19 @@ impl ApplicationRunner {
         state
             .style
             .width
-            .insert(state.root, Length::Pixels(logical_size.width as f32));
+            .insert(Entity::root(), Length::Pixels(logical_size.width as f32));
         state
             .style
             .height
-            .insert(state.root, Length::Pixels(logical_size.height as f32));
+            .insert(Entity::root(), Length::Pixels(logical_size.height as f32));
 
         state
-            .transform
-            .set_width(state.get_root(), physical_size.width as f32);
+            .data
+            .set_width(Entity::root(), physical_size.width as f32);
         state
-            .transform
-            .set_height(state.get_root(), physical_size.height as f32);
-        state.transform.set_opacity(state.get_root(), 1.0);
+            .data
+            .set_height(Entity::root(), physical_size.height as f32);
+        state.data.set_opacity(Entity::root(), 1.0);
 
         WindowWidget::new().build_window(&mut state);
 
@@ -151,7 +153,7 @@ impl ApplicationRunner {
 
     /*
     pub fn get_window(&self) -> Entity {
-        self.state.root
+        self.Entity::root()
     }
 
     pub fn get_state(&mut self) -> &mut State {
@@ -168,7 +170,7 @@ impl ApplicationRunner {
             self.state.insert_event(
                 Event::new(WindowEvent::Relayout)
                     .target(Entity::null())
-                    .origin(Entity::new(0, 0)),
+                    .origin(Entity::root()),
             );
             //self.state.insert_event(Event::new(WindowEvent::Redraw));
             self.should_redraw = true;
@@ -208,7 +210,7 @@ impl ApplicationRunner {
                     self.state.mouse.cursorx = cursorx;
                     self.state.mouse.cursory = cursory;
 
-                    let mut hovered_widget = Entity::new(0, 0);
+                    let mut hovered_widget = Entity::root();
 
                     // This only really needs to be computed when the hierarchy changes
                     // Can be optimised
@@ -216,21 +218,21 @@ impl ApplicationRunner {
                         self.state.hierarchy.into_iter().collect();
 
                     draw_hierarchy
-                        .sort_by_cached_key(|entity| self.state.transform.get_z_order(*entity));
+                        .sort_by_cached_key(|entity| self.state.data.get_z_order(*entity));
 
                     for widget in draw_hierarchy.into_iter() {
                         // Skip invisible widgets
-                        if self.state.transform.get_visibility(widget) == Visibility::Invisible {
+                        if self.state.data.get_visibility(widget) == Visibility::Invisible {
                             continue;
                         }
 
                         // This shouldn't be here but there's a bug if it isn't
-                        if self.state.transform.get_opacity(widget) == 0.0 {
+                        if self.state.data.get_opacity(widget) == 0.0 {
                             continue;
                         }
 
                         // Skip non-hoverable widgets
-                        if self.state.transform.get_hoverability(widget) != true {
+                        if self.state.data.get_hoverability(widget) != true {
                             continue;
                         }
 
@@ -247,17 +249,17 @@ impl ApplicationRunner {
                             _ => 0.0,
                         };
 
-                        let posx = self.state.transform.get_posx(widget) - (border_width / 2.0);
-                        let posy = self.state.transform.get_posy(widget) - (border_width / 2.0);
-                        let width = self.state.transform.get_width(widget) + (border_width);
-                        let height = self.state.transform.get_height(widget) + (border_width);
+                        let posx = self.state.data.get_posx(widget) - (border_width / 2.0);
+                        let posy = self.state.data.get_posy(widget) - (border_width / 2.0);
+                        let width = self.state.data.get_width(widget) + (border_width);
+                        let height = self.state.data.get_height(widget) + (border_width);
 
-                        let clip_widget = self.state.transform.get_clip_widget(widget);
+                        let clip_widget = self.state.data.get_clip_widget(widget);
 
-                        let clip_posx = self.state.transform.get_posx(clip_widget);
-                        let clip_posy = self.state.transform.get_posy(clip_widget);
-                        let clip_width = self.state.transform.get_width(clip_widget);
-                        let clip_height = self.state.transform.get_height(clip_widget);
+                        let clip_posx = self.state.data.get_posx(clip_widget);
+                        let clip_posy = self.state.data.get_posy(clip_widget);
+                        let clip_width = self.state.data.get_width(clip_widget);
+                        let clip_height = self.state.data.get_height(clip_widget);
 
                         if cursorx >= posx
                             && cursorx >= clip_posx
@@ -309,19 +311,23 @@ impl ApplicationRunner {
                             pseudo_classes.set_hover(false);
                         }
 
-                        self.state.insert_event(Event::new(WindowEvent::MouseOver).target(hovered_widget));
-                        self.state.insert_event(Event::new(WindowEvent::MouseOut).target(self.state.hovered));
+                        self.state.insert_event(
+                            Event::new(WindowEvent::MouseOver).target(hovered_widget),
+                        );
+                        self.state.insert_event(
+                            Event::new(WindowEvent::MouseOut).target(self.state.hovered),
+                        );
 
                         self.state
                             .insert_event(Event::new(WindowEvent::Restyle).origin(hovered_widget));
-                        self.state
-                            .insert_event(Event::new(WindowEvent::Restyle).origin(self.state.hovered));
-                        
+                        self.state.insert_event(
+                            Event::new(WindowEvent::Restyle).origin(self.state.hovered),
+                        );
+
                         self.state.hovered = hovered_widget;
                         self.state.active = Entity::null();
 
-                        self.state
-                            .insert_event(Event::new(WindowEvent::Redraw));
+                        self.state.insert_event(Event::new(WindowEvent::Redraw));
                     }
 
                     if self.state.captured != Entity::null() {
@@ -330,7 +336,7 @@ impl ApplicationRunner {
                                 .target(self.state.captured)
                                 .propagate(Propagation::Direct),
                         );
-                    } else if self.state.hovered != Entity::new(0, 0) {
+                    } else if self.state.hovered != Entity::root() {
                         self.state.insert_event(
                             Event::new(WindowEvent::MouseMove(cursorx, cursory))
                                 .target(self.state.hovered),
@@ -546,7 +552,7 @@ impl ApplicationRunner {
                             // TODO impliment reverse iterator for hierarchy
                             // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
                             //     Some(val) => val,
-                            //     None => state.root,
+                            //     None => Entity::root(),
                             // };
                         }
                     } else {
@@ -559,29 +565,38 @@ impl ApplicationRunner {
                             self.state.focused =
                                 match self.state.focused.into_iter(&self.hierarchy).next() {
                                     Some(val) => val,
-                                    None => self.state.root,
+                                    None => Entity::root(),
                                 };
                             self.state.focused.set_focus(&mut self.state, true);
                         }
                     }
 
-                    self.state
-                        .insert_event(Event::new(WindowEvent::Restyle).target(self.state.root).origin(self.state.root));
+                    self.state.insert_event(
+                        Event::new(WindowEvent::Restyle)
+                            .target(Entity::root())
+                            .origin(Entity::root()),
+                    );
                 }
 
                 match s {
                     MouseButtonState::Pressed => {
                         if self.state.focused != Entity::null() {
                             self.state.insert_event(
-                                Event::new(WindowEvent::KeyDown(event.code, Some(event.key.clone())))
-                                    .target(self.state.focused)
-                                    .propagate(Propagation::DownUp),
+                                Event::new(WindowEvent::KeyDown(
+                                    event.code,
+                                    Some(event.key.clone()),
+                                ))
+                                .target(self.state.focused)
+                                .propagate(Propagation::DownUp),
                             );
                         } else {
                             self.state.insert_event(
-                                Event::new(WindowEvent::KeyDown(event.code, Some(event.key.clone())))
-                                    .target(self.state.hovered)
-                                    .propagate(Propagation::DownUp),
+                                Event::new(WindowEvent::KeyDown(
+                                    event.code,
+                                    Some(event.key.clone()),
+                                ))
+                                .target(self.state.hovered)
+                                .propagate(Propagation::DownUp),
                             );
                         }
 
@@ -615,8 +630,11 @@ impl ApplicationRunner {
             }
             baseview::Event::Window(event) => match event {
                 baseview::WindowEvent::Focused => {
-                    self.state
-                        .insert_event(Event::new(WindowEvent::Restyle).target(self.state.root).origin(self.state.root));
+                    self.state.insert_event(
+                        Event::new(WindowEvent::Restyle)
+                            .target(Entity::root())
+                            .origin(Entity::root()),
+                    );
                 }
                 baseview::WindowEvent::Resized(window_info) => {
                     self.scale_factor = match self.scale_policy {
@@ -637,20 +655,21 @@ impl ApplicationRunner {
                     self.state
                         .style
                         .width
-                        .insert(self.state.root, Length::Pixels(logical_size.0 as f32));
+                        .insert(Entity::root(), Length::Pixels(logical_size.0 as f32));
                     self.state
                         .style
                         .height
-                        .insert(self.state.root, Length::Pixels(logical_size.1 as f32));
+                        .insert(Entity::root(), Length::Pixels(logical_size.1 as f32));
 
                     self.state
-                        .transform
-                        .set_width(self.state.root, physical_size.0 as f32);
+                        .data
+                        .set_width(Entity::root(), physical_size.0 as f32);
                     self.state
-                        .transform
-                        .set_height(self.state.root, physical_size.1 as f32);
+                        .data
+                        .set_height(Entity::root(), physical_size.1 as f32);
 
-                    self.state.insert_event(Event::new(WindowEvent::Restyle).origin(self.state.root));
+                    self.state
+                        .insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()));
                     self.state
                         .insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
                     self.state.insert_event(Event::new(WindowEvent::Redraw));

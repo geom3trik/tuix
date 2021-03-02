@@ -9,7 +9,7 @@ use crate::state::style::*;
 
 use crate::widgets::Button;
 
-pub enum Direction {
+pub enum ScrollDirection {
     Horizontal,
     Vertical,
 }
@@ -18,7 +18,7 @@ pub struct Scrollbar {
     entity: Entity,
 
     front: Entity,
-    direction: Direction,
+    direction: ScrollDirection,
 
     pub position: f32,
     pub pos_ratio: f32,
@@ -30,7 +30,7 @@ pub struct Scrollbar {
 }
 
 impl Scrollbar {
-    pub fn new(entity: Entity, direction: Direction) -> Self {
+    pub fn new(entity: Entity, direction: ScrollDirection) -> Self {
         Scrollbar {
             entity,
             front: Entity::null(),
@@ -66,7 +66,7 @@ impl BuildHandler for Scrollbar {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.front = Button::new().build(state, entity, |builder| builder.class("front"));
         match self.direction {
-            Direction::Horizontal => {
+            ScrollDirection::Horizontal => {
                 // entity
                 //     .set_width(state, Length::Pixels(100.0))
                 //     .set_height(state, Length::Pixels(10.0));
@@ -75,7 +75,7 @@ impl BuildHandler for Scrollbar {
                 //.set_background_color(state, Color::rgb(80, 50, 50));
             }
 
-            Direction::Vertical => {
+            ScrollDirection::Vertical => {
                 //entity
                 //    .set_height(state, 1.0);
                 //.set_flex_basis(state, 10.0)
@@ -98,7 +98,7 @@ impl BuildHandler for Scrollbar {
 }
 
 impl EventHandler for Scrollbar {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         /*
         if let Some(layout_event) = event.message.downcast::<LayoutEvent>() {
             match layout_event {
@@ -156,7 +156,7 @@ impl EventHandler for Scrollbar {
                         //state.style.enabled.set(entity, true);
                         entity.set_enabled(state, true);
                     }
-                    state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
+                    state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
                 }
 
                 WindowEvent::MouseScroll(_, y) => {
@@ -192,8 +192,9 @@ impl EventHandler for Scrollbar {
                             entity.set_enabled(state, true);
                         }
 
-                        state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
-                        state.insert_event(Event::new(WindowEvent::Relayout));
+                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                        state
+                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                         println!(
                             "Scroll: {}",
                             state
@@ -207,7 +208,7 @@ impl EventHandler for Scrollbar {
                     }
                     //println!("y: {}", y);
 
-                    //println!("Size: {}", state.transform.get_height(self.front));
+                    //println!("Size: {}", state.data.get_height(self.front));
                 }
 
                 WindowEvent::MouseDown(button) => match button {
@@ -239,8 +240,8 @@ impl EventHandler for Scrollbar {
                 WindowEvent::MouseMove(_, y) => {
                     if self.moving {
                         let dist_y = *y - self.pressed_y;
-                        let overflow = state.transform.get_height(entity)
-                            - state.transform.get_height(self.front);
+                        let overflow =
+                            state.data.get_height(entity) - state.data.get_height(self.front);
                         let ratio = dist_y / overflow;
                         let r = self.position + ratio;
                         if let Some(scroll) = state.style.scroll.get_mut(self.entity) {
@@ -264,8 +265,9 @@ impl EventHandler for Scrollbar {
                         self.front
                             .set_top(state, Length::Percentage(scroll.y * (1.0 - scroll.h)));
 
-                        state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
-                        state.insert_event(Event::new(WindowEvent::Relayout).target(state.root));
+                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                        state
+                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                         //println!("overflow: {}, dist: {}, ratio: {}", overflow, dist_y, r);
                     }
                 }
@@ -273,303 +275,5 @@ impl EventHandler for Scrollbar {
                 _ => {}
             }
         }
-
-        false
     }
-    // fn handle_event(
-    //     &mut self,
-    //     state: &mut State,
-    //     event: &WentitygetEvent,
-    //     event_handlers: &mut Vec<Box<EventHandler>>,
-    //     message_queue: &mut EventQueue<Message>,
-    // ) {
-    //     // let parent_wentityth = state.transform.get_global_wentityth(self.back);
-    //     // state
-    //     //     .transform
-    //     //     .set_local_x(self.front, self.pos_ratio * parent_wentityth);
-    //     // state
-    //     //     .transform
-    //     //     .set_local_wentityth(self.front, self.dim_ratio * parent_wentityth);
-
-    //     match event {
-    //         WentitygetEvent::MouseButton(button, action, mods) => match button {
-    //             MouseButton::Left => match action {
-    //                 MouseButtonState::Pressed => {
-    //                     if state.hovered == self.front || state.hovered == self.back {
-    //                         self.pressed_x =
-    //                             state.mouse.cursorx - state.transform.get_posx(self.front);
-    //                         self.pressed_y =
-    //                             state.mouse.cursory - state.transform.get_posy(self.front);
-    //                         self.moving = true;
-    //                     }
-    //                 }
-
-    //                 MouseButtonState::Released => {
-    //                     self.moving = false;
-    //                 }
-    //             },
-
-    //             _ => {}
-    //         },
-
-    //         WentitygetEvent::MouseMotion(x, y) => {
-    //             match self.direction {
-    //                 Direction::Vertical => {
-    //                     self.front.set_height(
-    //                         state,
-    //                         self.dim_ratio * state.transform.get_height(self.back),
-    //                     );
-    //                 }
-
-    //                 Direction::Horizontal => {
-    //                     self.front.set_wentityth(
-    //                         state,
-    //                         self.dim_ratio * state.transform.get_height(self.back),
-    //                     );
-    //                 }
-    //             }
-
-    //             if self.moving {
-    //                 let dx = x - self.pressed_x;
-    //                 let dy = y - self.pressed_y;
-
-    //                 match self.direction {
-    //                     Direction::Horizontal => {
-    //                         self.front.set_left(state, dx);
-    //                         self.pos_ratio = dx / state.transform.get_wentityth(self.back);
-
-    //                         let positioning = state
-    //                             .style
-    //                             .positioning
-    //                             .get(self.front)
-    //                             .cloned()
-    //                             .unwrap_or_default();
-    //                         let size = state
-    //                             .style
-    //                             .size
-    //                             .get(self.front)
-    //                             .cloned()
-    //                             .unwrap_or_default();
-
-    //                         if positioning.left <= 0.0 {
-    //                             self.front.set_left(state, 0.0);
-    //                         }
-
-    //                         if positioning.left + size.wentityth >= state.transform.get_wentityth(self.back)
-    //                         {
-    //                             self.front.set_left(
-    //                                 state,
-    //                                 state.transform.get_wentityth(self.back)
-    //                                     - state.transform.get_wentityth(self.front),
-    //                             );
-    //                         }
-
-    //                         self.pos_ratio = state.transform.get_posx(self.front)
-    //                             / state.transform.get_wentityth(self.back);
-
-    //                         // event_queue.push(self.signal_moved.clone(), WentitygetEvent::WentitygetValueChanged(
-    //                         //     self.back,
-    //                         //     "pos".to_string(),
-    //                         //     self.pos_ratio,
-    //                         // ))
-
-    //                         // let event = WentitygetEvent::WentitygetValueChanged(
-    //                         //     self.back,
-    //                         //     "pos".to_string(),
-    //                         //     self.pos_ratio,
-    //                         // );
-    //                         // event_queue.push(event);
-    //                     }
-
-    //                     Direction::Vertical => {
-    //                         self.front.set_top(state, dy);
-
-    //                         let space = state.transform.get_height(self.back)
-    //                             - state.transform.get_height(self.front);
-    //                         //self.pos_ratio = dy / space;
-
-    //                         let positioning = state
-    //                             .style
-    //                             .positioning
-    //                             .get(self.front)
-    //                             .cloned()
-    //                             .unwrap_or_default();
-    //                         let size = state
-    //                             .style
-    //                             .size
-    //                             .get(self.front)
-    //                             .cloned()
-    //                             .unwrap_or_default();
-
-    //                         if positioning.top <= 0.0 {
-    //                             self.front.set_top(state, 0.0);
-    //                         }
-
-    //                         if positioning.top + size.height
-    //                             >= state.transform.get_height(self.back)
-    //                         {
-    //                             self.front.set_top(
-    //                                 state,
-    //                                 state.transform.get_height(self.back)
-    //                                     - state.transform.get_height(self.front),
-    //                             );
-    //                         }
-
-    //                         //if space == 0.0 {
-    //                         //    self.pos_ratio = 0.0;
-    //                         //} else {
-    //                         self.pos_ratio = state.transform.get_posy(self.front)
-    //                             / state.transform.get_height(self.back);
-    //                         if let Some(on_scroll) = &self.on_scroll {
-    //                             message_queue.push((on_scroll)(self.pos_ratio));
-    //                         }
-
-    //                         //}
-
-    //                         // println!(
-    //                         //     "y: {}, h: {}, ratio: {}",
-    //                         //     state.transform.get_local_y(self.front),
-    //                         //     state.transform.get_global_height(self.back),
-    //                         //     self.pos_ratio
-    //                         // );
-
-    //                         // let event = WentitygetEvent::WentitygetValueChanged(
-    //                         //     self.back,
-    //                         //     "pos".to_string(),
-    //                         //     self.pos_ratio,
-    //                         // );
-    //                         //event_queue.push(event);
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         WentitygetEvent::MouseScroll(x, y) => {}
-
-    //         WentitygetEvent::WentitygetValueChanged(entity, name, value) => {
-    //             if *entity != self.back {
-    //                 if *name == "pos".to_string() {
-    //                     self.pos_ratio = *value;
-    //                 }
-    //                 if *name == "wentityth".to_string() {
-    //                     self.dim_ratio = *value;
-
-    //                     println!("Scrollbar Value Changed: {}", value);
-
-    //                     match self.direction {
-    //                         Direction::Horizontal => {
-    //                             let parent_wentityth = state.transform.get_wentityth(self.back);
-    //                             // state
-    //                             //     .transform
-    //                             //     .set_local_x(self.front, self.pos_ratio * parent_wentityth);
-    //                             state
-    //                                 .transform
-    //                                 .set_wentityth(self.front, self.dim_ratio * parent_wentityth);
-    //                         }
-
-    //                         Direction::Vertical => {
-    //                             let parent_height = state.transform.get_height(self.back);
-    //                             state
-    //                                 .transform
-    //                                 .set_posy(self.front, self.pos_ratio * parent_height);
-    //                             state
-    //                                 .transform
-    //                                 .set_height(self.front, self.dim_ratio * parent_height);
-
-    //                             if state.transform.get_posy(self.front) <= 0.0 {
-    //                                 state.transform.set_posy(self.front, 0.0);
-    //                             }
-
-    //                             if state.transform.get_posy(self.front)
-    //                                 + state.transform.get_height(self.front)
-    //                                 >= state.transform.get_height(self.back)
-    //                             {
-    //                                 state.transform.set_posy(
-    //                                     self.front,
-    //                                     state.transform.get_height(self.back)
-    //                                         - state.transform.get_height(self.front),
-    //                                 );
-    //                             }
-
-    //                             self.pos_ratio = state.transform.get_posy(self.front)
-    //                                 / state.transform.get_height(self.back);
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         WentitygetEvent::WentitygetSizeChanged(entity, wentityth, height) => {
-    //             if *entity == self.back {
-    //                 //let front_height =
-    //                 //    self.dim_ratio * state.transform.get_global_height(self.back);
-
-    //                 //let space = state.transform.get_global_height(self.back) - front_height;
-
-    //                 // if state.transform.get_local_y(self.front)
-    //                 //     + state.transform.get_local_height(self.front)
-    //                 //     >= state.transform.get_global_height(self.back)
-    //                 // {
-    //                 //     state.transform.set_local_y(
-    //                 //         self.front,
-    //                 //         state.transform.get_global_height(self.back)
-    //                 //             - state.transform.get_local_height(self.front),
-    //                 //     );
-
-    //                 //     self.pos_ratio = state.transform.get_local_y(self.front)
-    //                 //         / state.transform.get_global_height(self.back);
-
-    //                 // }
-
-    //                 // state.transform.set_local_y(
-    //                 //     self.front,
-    //                 //     self.pos_ratio * state.transform.get_global_height(self.back),
-    //                 // );
-
-    //                 //println!("new_pos: {}", front_height);
-
-    //                 // println!(
-    //                 //     "pos: {}, size: {}",
-    //                 //     state.transform.get_global_y(self.front),
-    //                 //     state.transform.get_global_height(self.front)
-    //                 // );
-
-    //                 // if state.transform.get_local_y(self.front) <= 0.0 {
-    //                 //     state.transform.set_local_y(self.front, 0.0);
-    //                 // }
-
-    //                 // if state.transform.get_local_y(self.front)
-    //                 //     + state.transform.get_local_height(self.front)
-    //                 //     >= state.transform.get_global_height(self.back)
-    //                 // {
-    //                 //     state.transform.set_local_y(
-    //                 //         self.front,
-    //                 //         state.transform.get_global_height(self.back)
-    //                 //             - state.transform.get_local_height(self.front),
-    //                 //     );
-    //                 // }
-
-    //                 // self.pos_ratio = state.transform.get_local_y(self.front)
-    //                 //     / state.transform.get_global_height(self.back);
-
-    //                 // if self.pos_ratio < 0.005 {
-    //                 //     self.pos_ratio = 0.0;
-    //                 // }
-
-    //                 //println!("pos_rat: {}", state.transform.get_local_y(self.front));
-
-    //                 // event_queue.push(
-    //                 //     self.signal_moved.clone(),
-    //                 //     WentitygetEvent::WentitygetValueChanged(
-    //                 //         self.back,
-    //                 //         "pos".to_string(),
-    //                 //         self.pos_ratio,
-    //                 //     ),
-    //                 // )
-    //             }
-    //         }
-
-    //         _ => {}
-    //     }
-    // }
 }

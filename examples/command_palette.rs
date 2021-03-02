@@ -2,8 +2,8 @@ extern crate tuix;
 
 use tuix::*;
 
-use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
+use fuzzy_matcher::FuzzyMatcher;
 
 use femtovg::{
     renderer::OpenGl, Align, Baseline, Canvas, FillRule, FontId, ImageFlags, ImageId, LineCap,
@@ -12,15 +12,14 @@ use femtovg::{
 
 fn main() {
     let app = Application::new(|win_desc, state, window| {
+        state.add_stylesheet("examples/themes/cmd_palette_theme.css");
 
-        state.insert_stylesheet("examples/themes/cmd_palette_theme.css");
-
-        CommandPalette::new().build(state, window, |builder| 
+        CommandPalette::new().build(state, window, |builder| {
             builder
-            .set_box_shadow_blur(Length::Pixels(10.0))
-            .set_box_shadow_v_offset(Length::Pixels(5.0))
-            .set_box_shadow_color(Color::rgba(0, 0, 0, 128))
-        );
+                .set_box_shadow_blur(Length::Pixels(10.0))
+                .set_box_shadow_v_offset(Length::Pixels(5.0))
+                .set_box_shadow_color(Color::rgba(0, 0, 0, 128))
+        });
 
         win_desc.with_title("Command Palette")
     });
@@ -33,7 +32,6 @@ pub enum SearchboxEvent {
     Changed(String),
 }
 
-
 pub struct CommandPalette {
     search_box: Entity,
     scroll_container: Entity,
@@ -44,24 +42,59 @@ pub struct CommandPalette {
 
 impl CommandPalette {
     pub fn new() -> Self {
-
         let mut commands: Vec<(String, String, i64)> = Default::default();
-        commands.push(("Toggle Full Screen Mode".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Toggle Second Window".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Toggle Session/Arrangement View".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Toggle Device/Clip View".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Hide/Show Detail View".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Toggle Hot-Swap Mode".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Toggle Drum Rack/last-selected Pad".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Hide/Show Info View".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Hide/Show Video Window".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Hide/Show Browser".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Hide/Show Overview".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Hide/Show In/Out".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Hide/Show Sends".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Hide/Show Mixer".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Open the Preferences".to_string(),"Shortcut".to_string(), 0));
-        commands.push(("Close Window/Dialog".to_string(),"Shortcut".to_string(), 0));
+        commands.push((
+            "Toggle Full Screen Mode".to_string(),
+            "Shortcut".to_string(),
+            0,
+        ));
+        commands.push((
+            "Toggle Second Window".to_string(),
+            "Shortcut".to_string(),
+            0,
+        ));
+        commands.push((
+            "Toggle Session/Arrangement View".to_string(),
+            "Shortcut".to_string(),
+            0,
+        ));
+        commands.push((
+            "Toggle Device/Clip View".to_string(),
+            "Shortcut".to_string(),
+            0,
+        ));
+        commands.push((
+            "Hide/Show Detail View".to_string(),
+            "Shortcut".to_string(),
+            0,
+        ));
+        commands.push((
+            "Toggle Hot-Swap Mode".to_string(),
+            "Shortcut".to_string(),
+            0,
+        ));
+        commands.push((
+            "Toggle Drum Rack/last-selected Pad".to_string(),
+            "Shortcut".to_string(),
+            0,
+        ));
+        commands.push(("Hide/Show Info View".to_string(), "Shortcut".to_string(), 0));
+        commands.push((
+            "Hide/Show Video Window".to_string(),
+            "Shortcut".to_string(),
+            0,
+        ));
+        commands.push(("Hide/Show Browser".to_string(), "Shortcut".to_string(), 0));
+        commands.push(("Hide/Show Overview".to_string(), "Shortcut".to_string(), 0));
+        commands.push(("Hide/Show In/Out".to_string(), "Shortcut".to_string(), 0));
+        commands.push(("Hide/Show Sends".to_string(), "Shortcut".to_string(), 0));
+        commands.push(("Hide/Show Mixer".to_string(), "Shortcut".to_string(), 0));
+        commands.push((
+            "Open the Preferences".to_string(),
+            "Shortcut".to_string(),
+            0,
+        ));
+        commands.push(("Close Window/Dialog".to_string(), "Shortcut".to_string(), 0));
 
         Self {
             search_box: Entity::null(),
@@ -76,37 +109,78 @@ impl CommandPalette {
 impl BuildHandler for CommandPalette {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         state.focused = entity;
 
         // Textbox for command searching
         self.search_box = Textbox::new("Type a command")
-            .on_change(move |val| Event::new(SearchboxEvent::Changed(val.to_string())).target(entity))
+            .on_change(move |val| {
+                Event::new(SearchboxEvent::Changed(val.to_string())).target(entity)
+            })
             .build(state, entity, |builder| builder.class("search"));
 
         //self.current_selection = self.search_box;
 
         self.scroll_container = ScrollContainer::new().build(state, entity, |builder| builder);
 
-        self.current_selection = SearchLabel::new("Toggle Full Screen Mode").build(state, self.scroll_container, |builder| builder.class("command").set_checked(true));
-        SearchLabel::new("Toggle Second Window").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Toggle Session/Arrangement View").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Toggle Device/Clip View").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Detail View").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Toggle Hot-Swap Mode").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Toggle Drum Rack/last-selected Pad").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Info View").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Video Window").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Browser").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Overview").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show In/Out").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Sends").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Hide/Show Mixer").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Open the Preferences").build(state, self.scroll_container, |builder| builder.class("command"));
-        SearchLabel::new("Close Window/Dialog").build(state, self.scroll_container, |builder| builder.class("command"));
+        self.current_selection = SearchLabel::new("Toggle Full Screen Mode").build(
+            state,
+            self.scroll_container,
+            |builder| builder.class("command").set_checked(true),
+        );
+        SearchLabel::new("Toggle Second Window").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Toggle Session/Arrangement View").build(
+            state,
+            self.scroll_container,
+            |builder| builder.class("command"),
+        );
+        SearchLabel::new("Toggle Device/Clip View").build(
+            state,
+            self.scroll_container,
+            |builder| builder.class("command"),
+        );
+        SearchLabel::new("Hide/Show Detail View").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Toggle Hot-Swap Mode").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Toggle Drum Rack/last-selected Pad").build(
+            state,
+            self.scroll_container,
+            |builder| builder.class("command"),
+        );
+        SearchLabel::new("Hide/Show Info View").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Hide/Show Video Window").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Hide/Show Browser").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Hide/Show Overview").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Hide/Show In/Out").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Hide/Show Sends").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Hide/Show Mixer").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Open the Preferences").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
+        SearchLabel::new("Close Window/Dialog").build(state, self.scroll_container, |builder| {
+            builder.class("command")
+        });
 
         // Command::new("Command 1","Shortcut").build(state, entity, |builder| builder);
-        // Command::new("Command 2","Shortcut").build(state, entity, |builder| builder);        
+        // Command::new("Command 2","Shortcut").build(state, entity, |builder| builder);
         // Command::new("Command 3","Shortcut").build(state, entity, |builder| builder);
         // Command::new("Command 4","Shortcut").build(state, entity, |builder| builder);
         // Command::new("Command 5","Shortcut").build(state, entity, |builder| builder);
@@ -131,27 +205,28 @@ impl BuildHandler for CommandPalette {
 }
 
 impl EventHandler for CommandPalette {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(searchbox_event) = event.message.downcast::<SearchboxEvent>() {
             match searchbox_event {
                 SearchboxEvent::Changed(val) => {
                     //println!("Value: {}", val);
-                    let matcher =  &self.matcher;
-                    
-                    
-                    self.commands.iter_mut().for_each(|(cmd, _, score)| *score = matcher.fuzzy_match(cmd, val).unwrap_or(0));
+                    let matcher = &self.matcher;
+
+                    self.commands.iter_mut().for_each(|(cmd, _, score)| {
+                        *score = matcher.fuzzy_match(cmd, val).unwrap_or(0)
+                    });
 
                     self.commands.sort_by_cached_key(|(_, _, score)| *score);
 
-                    for (index,cmd) in self.commands.iter().rev().enumerate() {
-                        
+                    for (index, cmd) in self.commands.iter().rev().enumerate() {
                         let score = cmd.2;
 
-                        let (_, indices) = matcher.fuzzy_indices(&cmd.0, val).unwrap_or((0, vec![]));
+                        let (_, indices) =
+                            matcher.fuzzy_indices(&cmd.0, val).unwrap_or((0, vec![]));
 
-                        if let Some(command_widget) = state.hierarchy.get_child(self.scroll_container, index + 1) {
-                            
+                        if let Some(command_widget) =
+                            state.hierarchy.get_child(self.scroll_container, index + 1)
+                        {
                             if val.is_empty() {
                                 command_widget.set_text(state, &cmd.0);
                                 command_widget.set_display(state, Display::Flexbox);
@@ -160,24 +235,22 @@ impl EventHandler for CommandPalette {
                                 if score > 0 {
                                     command_widget.set_text(state, &cmd.0);
                                     command_widget.set_display(state, Display::Flexbox);
-                                    state.insert_event(Event::new(SearchLabelEvent::Highlight(indices)));
+                                    state.insert_event(Event::new(SearchLabelEvent::Highlight(
+                                        indices,
+                                    )));
                                 } else {
                                     command_widget.set_text(state, "");
                                     command_widget.set_display(state, Display::None);
                                 }
                             }
-                            
-                            
-                            
                         }
-                        
+
                         state.insert_event(Event::new(WindowEvent::Redraw));
                     }
 
                     // if let Some((score, indices)) = self.matcher.fuzzy_indices("some kind of command", val) {
                     //     println!("Score: {}  Indices: {:?}", score, indices);
                     // }
-                    
                 }
             }
         }
@@ -185,35 +258,68 @@ impl EventHandler for CommandPalette {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::KeyDown(code, key) => {
-                    if *key == Some(Key::ArrowDown) {
-                        if let Some(next_item) = state.hierarchy.get_next_sibling(self.current_selection) {
-                            if state.transform.get_visibility(next_item) != Visibility::Invisible {
-                                self.current_selection.set_checked(state, false);
-                                self.current_selection = next_item;
-                                self.current_selection.set_checked(state, true);                                
-                            }
+                    match key {
+                        Some(Key::ArrowDown) => {
+                            if let Some(next_item) =
+                                state.hierarchy.get_next_sibling(self.current_selection)
+                            {
+                                if state.data.get_visibility(next_item) != Visibility::Invisible {
+                                    self.current_selection.set_checked(state, false);
+                                    self.current_selection = next_item;
+                                    self.current_selection.set_checked(state, true);
+                                }
 
-                            return true;
-                        }
-                    }
-
-                    if *key == Some(Key::ArrowUp) {
-                        if let Some(prev_item) = state.hierarchy.get_prev_sibling(self.current_selection) {
-                            if prev_item != self.search_box {
-                                self.current_selection.set_checked(state, false);
-                                self.current_selection = prev_item;
-                                self.current_selection.set_checked(state, true);   
-                                return true;                             
+                                event.consume();
                             }
                         }
+
+                        Some(Key::ArrowUp) => {
+                            if let Some(prev_item) =
+                                state.hierarchy.get_prev_sibling(self.current_selection)
+                            {
+                                if prev_item != self.search_box {
+                                    self.current_selection.set_checked(state, false);
+                                    self.current_selection = prev_item;
+                                    self.current_selection.set_checked(state, true);
+                                    event.consume();
+                                }
+                            }
+                        }
+
+                        _ => {}
                     }
+
+                    // if *key == Some(Key::ArrowDown) {
+                    //     if let Some(next_item) =
+                    //         state.hierarchy.get_next_sibling(self.current_selection)
+                    //     {
+                    //         if state.data.get_visibility(next_item) != Visibility::Invisible {
+                    //             self.current_selection.set_checked(state, false);
+                    //             self.current_selection = next_item;
+                    //             self.current_selection.set_checked(state, true);
+                    //         }
+
+                    //         event.consume();
+                    //     }
+                    // }
+
+                    // if *key == Some(Key::ArrowUp) {
+                    //     if let Some(prev_item) =
+                    //         state.hierarchy.get_prev_sibling(self.current_selection)
+                    //     {
+                    //         if prev_item != self.search_box {
+                    //             self.current_selection.set_checked(state, false);
+                    //             self.current_selection = prev_item;
+                    //             self.current_selection.set_checked(state, true);
+                    //             event.consume();
+                    //         }
+                    //     }
+                    // }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
-
-        false
     }
 }
 
@@ -234,11 +340,11 @@ impl Command {
 impl BuildHandler for Command {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         entity.set_flex_direction(state, FlexDirection::Row);
-        
+
         let label = Label::new(&self.label).build(state, entity, |builder| builder.class("search"));
-        let shortcut = Label::new(&self.shortcut).build(state, entity, |builder| builder.class("shortcut"));
+        let shortcut =
+            Label::new(&self.shortcut).build(state, entity, |builder| builder.class("shortcut"));
 
         entity.set_element(state, "command");
 
@@ -246,18 +352,12 @@ impl BuildHandler for Command {
     }
 }
 
-impl EventHandler for Command {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-        false
-    }
-}
-
+impl EventHandler for Command {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SearchLabelEvent {
     Highlight(Vec<usize>),
 }
-
 
 pub struct SearchLabel {
     text: String,
@@ -276,7 +376,6 @@ impl SearchLabel {
 impl BuildHandler for SearchLabel {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         entity.set_text(state, &self.text);
         //entity.set_element(state, "command");
         entity.class(state, "search_label");
@@ -286,8 +385,7 @@ impl BuildHandler for SearchLabel {
 }
 
 impl EventHandler for SearchLabel {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) -> bool {
-
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(search_label_event) = event.message.downcast::<SearchLabelEvent>() {
             match search_label_event {
                 SearchLabelEvent::Highlight(indices) => {
@@ -297,21 +395,18 @@ impl EventHandler for SearchLabel {
                 }
             }
         }
-
-        false
     }
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
-
         // Skip invisible widgets
-        if state.transform.get_visibility(entity) == Visibility::Invisible {
+        if state.data.get_visibility(entity) == Visibility::Invisible {
             return;
         }
 
-        let posx = state.transform.get_posx(entity);
-        let posy = state.transform.get_posy(entity);
-        let width = state.transform.get_width(entity);
-        let height = state.transform.get_height(entity);
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
 
         let padding_left = match state
             .style
@@ -348,8 +443,6 @@ impl EventHandler for SearchLabel {
             _ => &0.0,
         };
 
-
-
         let background_color = state
             .style
             .background_color
@@ -383,46 +476,70 @@ impl EventHandler for SearchLabel {
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 
-        let parent_width = state.transform.get_width(parent);
-        let parent_height = state.transform.get_height(parent);
+        let parent_width = state.data.get_width(parent);
+        let parent_height = state.data.get_height(parent);
 
-        let border_radius_top_left = match state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default() {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
-            _ => 0.0,
-        };
-
-        let border_radius_top_right = match state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default() {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
-            _ => 0.0,
-        };
-
-        let border_radius_bottom_left = match state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default() {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
-            _ => 0.0,
-        };
-
-        let border_radius_bottom_right = match state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default() {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
-            _ => 0.0,
-        };
-
-        let border_width = match state
-        .style
-        .border_width
-        .get(entity)
-        .cloned()
-        .unwrap_or_default() 
+        let border_radius_top_left = match state
+            .style
+            .border_radius_top_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
         {
             Length::Pixels(val) => val,
             Length::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
-        let opacity = state.transform.get_opacity(entity);
+        let border_radius_top_right = match state
+            .style
+            .border_radius_top_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let border_radius_bottom_left = match state
+            .style
+            .border_radius_bottom_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let border_radius_bottom_right = match state
+            .style
+            .border_radius_bottom_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let border_width = match state
+            .style
+            .border_width
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let opacity = state.data.get_opacity(entity);
 
         let mut background_color: femtovg::Color = background_color.into();
         background_color.set_alphaf(background_color.a * opacity);
@@ -436,14 +553,12 @@ impl EventHandler for SearchLabel {
         canvas.save();
 
         // Apply Scissor
-        let clip_entity = state.transform.get_clip_widget(entity);
+        let clip_entity = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.transform.get_posx(clip_entity);
-        let clip_posy = state.transform.get_posy(clip_entity);
-        let clip_width = state.transform.get_width(clip_entity);
-        let clip_height = state.transform.get_height(clip_entity);
-
-
+        let clip_posx = state.data.get_posx(clip_entity);
+        let clip_posy = state.data.get_posy(clip_entity);
+        let clip_width = state.data.get_width(clip_entity);
+        let clip_height = state.data.get_height(clip_entity);
 
         canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
 
@@ -468,12 +583,11 @@ impl EventHandler for SearchLabel {
         //paint.set_anti_alias(false);
         canvas.stroke_path(&mut path, paint);
 
-
         // Stupid way, draw each glyph seperately
         if let Some(text) = state.style.text.get_mut(entity) {
             let font_id = match text.font.as_ref() {
-                "Sans" => state.fonts.regular.unwrap(),
-                "Icons" => state.fonts.icons.unwrap(),
+                "sans" => state.fonts.regular.unwrap(),
+                "icons" => state.fonts.icons.unwrap(),
                 _ => state.fonts.regular.unwrap(),
             };
 
@@ -537,7 +651,7 @@ impl EventHandler for SearchLabel {
             paint.set_text_baseline(baseline);
             paint.set_anti_alias(false);
 
-            let mut paint_highlight = Paint::color(femtovg::Color::rgb(0,148,252));
+            let mut paint_highlight = Paint::color(femtovg::Color::rgb(0, 148, 252));
             paint_highlight.set_font_size(font_size);
             paint_highlight.set_font(&[font_id]);
             paint_highlight.set_text_align(align);
@@ -546,10 +660,14 @@ impl EventHandler for SearchLabel {
 
             let text_metrics = canvas.measure_text(x, y, &text_string, paint).unwrap();
 
+            let mut temp = [0; 4];
 
-            let mut temp = [0;4];
-
-            for ((index,c), glyph) in text.text.chars().enumerate().zip(text_metrics.glyphs.iter()) {
+            for ((index, c), glyph) in text
+                .text
+                .chars()
+                .enumerate()
+                .zip(text_metrics.glyphs.iter())
+            {
                 let px = glyph.x;
                 if self.indices.contains(&index) {
                     canvas.fill_text(px, y, c.encode_utf8(&mut temp), paint_highlight);
