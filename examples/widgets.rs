@@ -201,15 +201,17 @@ fn main() {
                 .set_flex_grow(1.0)
         });
 
-        RadioButton::new().build(state, radio_list, |builder| {
-            builder.set_text("A").class("first")
+        let a = RadioButton::with_label("A").build(state, radio_list, |builder| {
+            builder.class("first")
         });
-        RadioButton::new().build(state, radio_list, |builder| {
-            builder.set_text("B").class("button")
+        RadioButton::with_label("B").build(state, radio_list, |builder| {
+            builder.class("button")
         });
-        RadioButton::new().build(state, radio_list, |builder| {
-            builder.set_text("C").class("last")
+        RadioButton::with_label("C").build(state, radio_list, |builder| {
+            builder.class("last")
         });
+
+        a.set_checked(state, true);
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Radio List (V)").build(state, row, |builder| builder);
