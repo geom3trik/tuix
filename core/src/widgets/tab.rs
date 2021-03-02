@@ -251,12 +251,12 @@ impl EventHandler for TabBar2 {
         if let Some(movable_tab_event) = event.message.downcast::<MovableTabEvent>() {
             match movable_tab_event {
                 MovableTabEvent::StartMove(tab) => {
-                    println!("Moving a tab!");
+
                     self.tab_moving = true;
                     self.phantom_tab1.set_display(state, Display::Flexbox);
                     self.phantom_tab2.set_display(state, Display::Flexbox);
 
-                    state.hierarchy.set_prev_sibling(*tab,self.phantom_tab1).unwrap();
+                    state.hierarchy.set_prev_sibling(*tab,self.phantom_tab1);
 
 
                     let tab_width = tab.get_width(state);
@@ -271,11 +271,11 @@ impl EventHandler for TabBar2 {
                     // Move the tab to the end unless already at the end
                     if let Some(last_child) = state.hierarchy.get_last_child(entity) {
                         if last_child != *tab {
-                            state.hierarchy.set_next_sibling(last_child, *tab).unwrap();
+                            state.hierarchy.set_next_sibling(last_child, *tab);
                         }
                     }
 
-                    state.hierarchy.set_next_sibling(*tab,self.phantom_tab2).unwrap();
+                    state.hierarchy.set_next_sibling(*tab,self.phantom_tab2);
 
                     event.consume();
                 }
@@ -287,9 +287,9 @@ impl EventHandler for TabBar2 {
                     // need to check which one is active before moving the track before it.
                     // This can be done by checking which one has a non-zero width (for row)
                     if state.data.get_width(self.phantom_tab1) > 0.0 {
-                        state.hierarchy.set_prev_sibling(self.phantom_tab1, *tab).unwrap();
+                        state.hierarchy.set_prev_sibling(self.phantom_tab1, *tab);
                     } else if state.data.get_width(self.phantom_tab2) > 0.0 {
-                        state.hierarchy.set_prev_sibling(self.phantom_tab2, *tab).unwrap();
+                        state.hierarchy.set_prev_sibling(self.phantom_tab2, *tab);
                     }
 
                     self.phantom_tab1.set_display(state, Display::None);
@@ -301,9 +301,8 @@ impl EventHandler for TabBar2 {
                     if self.tab_moving {
                         if *position_state {
                             if state.hierarchy.get_next_sibling(event.target) == Some(self.phantom_tab1) {
-                                state.hierarchy.set_prev_sibling(event.target, self.phantom_tab2).unwrap();
+                                state.hierarchy.set_prev_sibling(event.target, self.phantom_tab2);
 
-                                println!("Play 1");
 
                                 state.style.width.play_animation(self.phantom_tab1, self.shrink_animation);
                                 state.style.width.play_animation(self.phantom_tab2, self.grow_animation);
@@ -311,9 +310,8 @@ impl EventHandler for TabBar2 {
                                 self.phantom_tab1.set_width(state, Length::Pixels(0.0));
                                 self.phantom_tab2.set_width(state, Length::Pixels(80.0));
                             } else if state.hierarchy.get_next_sibling(event.target) == Some(self.phantom_tab2) {
-                                state.hierarchy.set_prev_sibling(event.target, self.phantom_tab1).unwrap();
+                                state.hierarchy.set_prev_sibling(event.target, self.phantom_tab1);
 
-                                println!("Play 2");
 
                                 state.style.width.play_animation(self.phantom_tab2, self.shrink_animation);
                                 state.style.width.play_animation(self.phantom_tab1, self.grow_animation);
@@ -323,10 +321,8 @@ impl EventHandler for TabBar2 {
                             }
                         } else {
                             if state.hierarchy.get_prev_sibling(event.target) == Some(self.phantom_tab1) {
-                                state.hierarchy.set_next_sibling(event.target, self.phantom_tab2).unwrap();
+                                state.hierarchy.set_next_sibling(event.target, self.phantom_tab2);
 
-
-                                println!("Play 3");
 
                                 state.style.width.play_animation(self.phantom_tab1, self.shrink_animation);
                                 state.style.width.play_animation(self.phantom_tab2, self.grow_animation);
@@ -334,10 +330,8 @@ impl EventHandler for TabBar2 {
                                 self.phantom_tab1.set_width(state, Length::Pixels(0.0));
                                 self.phantom_tab2.set_width(state, Length::Pixels(80.0));
                             } else if state.hierarchy.get_prev_sibling(event.target) == Some(self.phantom_tab2) {
-                                state.hierarchy.set_next_sibling(event.target, self.phantom_tab1).unwrap();
+                                state.hierarchy.set_next_sibling(event.target, self.phantom_tab1);
 
-
-                                println!("Play 4");
 
                                 state.style.width.play_animation(self.phantom_tab2, self.shrink_animation);
                                 state.style.width.play_animation(self.phantom_tab1, self.grow_animation);
@@ -397,7 +391,6 @@ impl EventHandler for MovableTab {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {
                         self.moving = true;
-                        println!("Entity moving: {}", entity);
 
                         self.pos_down_x = state.data.get_posx(entity);
                         self.pos_down_y = state.data.get_posy(entity);
@@ -459,14 +452,12 @@ impl EventHandler for MovableTab {
                             if self.position_state {
                                 self.position_state = false;
                                 state.insert_event(Event::new(MovableTabEvent::Switch(self.position_state)).target(entity));
-                                println!("Move Left");
                             }
                             
                         } else {
                             if !self.position_state {
                                 self.position_state = true;
                                 state.insert_event(Event::new(MovableTabEvent::Switch(self.position_state)).target(entity));
-                                println!("Move Right");
                             }
                         }
                     }

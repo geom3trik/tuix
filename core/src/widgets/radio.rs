@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+const ICON_CHECK: &str = "\u{2713}";
+
 use crate::{Entity, HierarchyTree};
 
 use crate::{BuildHandler, Event, EventHandler, Propagation};
@@ -58,13 +60,6 @@ impl EventHandler for RadioList {
                             event.consume();
                         }
                     }
-
-                    // state.insert_event(
-                    //     Event::new(RadioEvent::Check)
-                    //         .target(entity)
-                    //         .origin(event.target)
-                    //         .propagate(Propagation::Fall),
-                    // );
                 }
 
                 CheckboxEvent::Check => {
@@ -112,8 +107,6 @@ impl EventHandler for RadioList {
 pub struct Radio {
     marker: Entity,
     checkbox: Checkbox,
-    //on_checked: Option<Event>,
-    //on_unchecked: Option<Event>,
 }
 
 impl Radio {
@@ -121,8 +114,6 @@ impl Radio {
         Self {
             marker: Entity::null(),
             checkbox: Checkbox::new(false).with_icon_checked("").with_icon_unchecked(""),
-            //on_checked: None,
-            //on_unchecked: None,
         }
     }
 
@@ -162,7 +153,13 @@ pub struct RadioButton {
 impl RadioButton {
     pub fn new() -> Self {
         Self {
-            checkbox: Checkbox::new(false),
+            checkbox: Checkbox::new(false).with_icon_checked("").with_icon_unchecked(""),
+        }
+    }
+
+    pub fn with_label(label: &str) -> Self {
+        Self {
+            checkbox: Checkbox::new(false).with_icon_checked(label).with_icon_unchecked(label),
         }
     }
 
@@ -182,7 +179,8 @@ impl RadioButton {
 impl BuildHandler for RadioButton {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_element(state, "radio_button")
+        self.checkbox.on_build(state, entity);
+        entity.set_element(state, "radio_button").set_font(state, "sans")
     }
 }
 

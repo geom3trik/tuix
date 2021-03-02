@@ -2,7 +2,7 @@
 
 use crate::widgets::*;
 use crate::{BuildHandler, Event, EventHandler};
-use crate::{PropSet, State};
+use crate::{PropSet, State, Color};
 
 use crate::style::layout::{Align, Justify};
 
