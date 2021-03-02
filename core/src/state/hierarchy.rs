@@ -489,26 +489,29 @@ impl<'a> Iterator for BranchIterator<'a> {
             if let Some(child) = self.hierarchy.first_child[current.index_unchecked()] {
                 self.current_node = Some(child);
             } else {
-                let mut temp = Some(current);
-                while temp.is_some() {
-                    if let Some(sibling) =
-                        self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
-                    {
-                        self.current_node = Some(sibling);
-                        return r;
-                    } else {
-                        temp = self.hierarchy.parent[temp.unwrap().index_unchecked()];
-                        if Some(self.start_node) == temp {
-                            self.current_node = None;
-                            temp = None;
+                if self.current_node != Some(self.start_node) {
+                    let mut temp = Some(current);
+                    while temp.is_some() {
+                        if let Some(sibling) =
+                            self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
+                        {
+                            self.current_node = Some(sibling);
+                            return r;
+                        } else {
+                            temp = self.hierarchy.parent[temp.unwrap().index_unchecked()];
+                            if Some(self.start_node) == temp {
+                                self.current_node = None;
+                                temp = None;
+                            }
                         }
-                    }
+                    }                    
                 }
+
 
                 self.current_node = None;
             }
         }
-
+        
         return r;
     }
 }

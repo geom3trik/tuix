@@ -328,6 +328,8 @@ impl State {
 
         let delete_list = entity.branch_iter(&self.hierarchy).collect::<Vec<_>>();
 
+        println!("Delete List: {:?}", delete_list);
+
         for entity in delete_list.iter().rev() {
             self.hierarchy.remove(*entity);
             self.hierarchy.remove(*entity);
