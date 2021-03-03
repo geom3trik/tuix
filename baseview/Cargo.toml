@@ -11,7 +11,7 @@ repository = "https://github.com/geom3trik/tuix"
 [dependencies]
 raw-gl-context = "0.1"
 tuix_core = { path = "../core" }
-baseview = { git = "https://github.com/RustAudio/baseview.git", rev = "36e4474c8aeb885137134daf1903555fab4e88e4"}
+baseview = { git = "https://github.com/RustAudio/baseview.git"}
 keyboard-types = { version = "0.5", default-features = false }
 raw-window-handle = "0.3"
 femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master", default-features = false }
