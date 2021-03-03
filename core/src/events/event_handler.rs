@@ -220,7 +220,7 @@ pub trait EventHandler: Any {
         let clip_width = state.data.get_width(clip_entity);
         let clip_height = state.data.get_height(clip_entity);
 
-        //canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
+        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
         //canvas.scissor(0.0, 0.0, 100.0, 100.0);
 
         let shadow_h_offset = match state
