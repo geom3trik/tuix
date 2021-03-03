@@ -52,6 +52,13 @@ impl Button {
         self.on_release = Some(event);
         self
     }
+
+    pub fn reset(mut self) -> Self {
+        self.on_press = None;
+        self.on_release = None;
+
+        self
+    }
 }
 
 impl BuildHandler for Button {

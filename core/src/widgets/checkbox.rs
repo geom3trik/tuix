@@ -2,7 +2,7 @@
 
 use crate::widgets::*;
 use crate::{BuildHandler, Event, EventHandler};
-use crate::{PropSet, State, Color};
+use crate::{PropSet, State};
 
 use crate::style::layout::{Align, Justify};
 
@@ -17,65 +17,41 @@ pub enum CheckboxEvent {
     Unchecked,
 }
 
-#[derive(Default)]
-pub struct Checkbox {
+pub struct Check {
 
     button: Button,
-
     checked: bool,
-
-    icon_unchecked: Option<String>,
-    icon_checked: Option<String>,
 
     on_checked: Option<Event>,
     on_unchecked: Option<Event>,
 }
 
-impl Checkbox {
+impl Check {
     pub fn new(checked: bool) -> Self {
-        Checkbox {
+        Self {
 
             button: Button::new().on_release(Event::new(CheckboxEvent::Switch)),
             checked,
-            icon_unchecked: Some(String::new()),
-            icon_checked: Some(ICON_CHECK.to_string()),
 
             on_checked: None,
             on_unchecked: None,
         }
     }
 
-    fn checked(mut self, flag: bool) -> Self {
-        self.checked = flag;
+    pub fn check_on_press(mut self) -> Self {
+        self.button = self.button.reset();
+        self.button = self.button.on_press(Event::new(CheckboxEvent::Switch));
 
         self
-    }
-
-    pub fn with_icon_checked(mut self, icon_checked: &str) -> Self {
-        self.icon_checked = Some(icon_checked.to_string());
-
-        self
-    }
-
-    pub fn with_icon_unchecked(mut self, icon_unchecked: &str) -> Self {
-        self.icon_unchecked = Some(icon_unchecked.to_string());
-
-        self
-    }
+    } 
 
     fn switch(&mut self, state: &mut State, entity: Entity) {
         if self.checked {
             self.checked = false;
-            if let Some(icon_unchecked) = &self.icon_unchecked {
-                entity.set_text(state, &icon_unchecked);
-            }
 
             entity.set_checked(state, false);
         } else {
             self.checked = true;
-            if let Some(icon_checked) = &self.icon_checked {
-                entity.set_text(state, &icon_checked);
-            }
 
             entity.set_checked(state, true);
         }
@@ -92,7 +68,7 @@ impl Checkbox {
     }
 }
 
-impl BuildHandler for Checkbox {
+impl BuildHandler for Check {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -102,25 +78,17 @@ impl BuildHandler for Checkbox {
 
         if self.checked {
             entity.set_checked(state, true);
-
-            if let Some(icon_checked) = &self.icon_checked {
-                entity.set_text(state, &icon_checked);
-            }
         } else {
             entity.set_checked(state, false);
-
-            if let Some(icon_unchecked) = &self.icon_unchecked {
-                entity.set_text(state, &icon_unchecked);
-            }
         }
 
-        state.style.insert_element(entity, "checkbox");
+        state.style.insert_element(entity, "check");
 
         entity
     }
 }
 
-impl EventHandler for Checkbox {
+impl EventHandler for Check {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
 
         self.button.on_event(state, entity, event);
@@ -149,24 +117,15 @@ impl EventHandler for Checkbox {
                 CheckboxEvent::Check => {
                     self.checked = true;
                     entity.set_checked(state, true);
-                    if let Some(icon_checked) = &self.icon_checked {
-                        entity.set_text(state, &icon_checked);
-                    }
                 }
 
                 CheckboxEvent::Uncheck => {
                     self.checked = false;
                     entity.set_checked(state, false);
-                    if let Some(icon_unchecked) = &self.icon_unchecked {
-                        entity.set_text(state, &icon_unchecked);
-                    }
                 }
 
                 CheckboxEvent::Checked => {
                     self.checked = true;
-                    if let Some(icon_checked) = &self.icon_checked {
-                        entity.set_text(state, &icon_checked);
-                    }
 
                     entity.set_checked(state, true);
 
@@ -182,9 +141,7 @@ impl EventHandler for Checkbox {
 
                 CheckboxEvent::Unchecked => {
                     self.checked = false;
-                    if let Some(icon_unchecked) = &self.icon_unchecked {
-                        entity.set_text(state, &icon_unchecked);
-                    }
+
                     entity.set_checked(state, false);
 
                     if let Some(mut on_unchecked) = self.on_unchecked.clone() {
@@ -197,6 +154,119 @@ impl EventHandler for Checkbox {
                         state.insert_event(on_unchecked);
                     }
                 }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+pub struct Checkbox {
+
+    check: Check,
+
+    icon_unchecked: Option<String>,
+    icon_checked: Option<String>,
+}
+
+impl Checkbox {
+    pub fn new(checked: bool) -> Self {
+        Self {
+
+            check: Check::new(checked),
+
+            icon_unchecked: Some(String::new()),
+            icon_checked: Some(ICON_CHECK.to_string()),
+        }
+    }
+
+    pub fn with_icon_checked(mut self, icon_checked: &str) -> Self {
+        self.icon_checked = Some(icon_checked.to_string());
+
+        self
+    }
+
+    pub fn with_icon_unchecked(mut self, icon_unchecked: &str) -> Self {
+        self.icon_unchecked = Some(icon_unchecked.to_string());
+
+        self
+    }
+
+    pub fn on_checked(mut self, event: Event) -> Self {
+        self.check = self.check.on_checked(event);
+        self
+    }
+
+    pub fn on_unchecked(mut self, event: Event) -> Self {
+        self.check = self.check.on_unchecked(event);
+        self
+    }
+}
+
+impl BuildHandler for Checkbox {
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        entity
+            .set_font(state, "icons")
+            .set_text_justify(state, Justify::Center)
+            .set_text_align(state, Align::Center);
+
+        if self.check.checked {
+            entity.set_checked(state, true);
+
+            if let Some(icon_checked) = &self.icon_checked {
+                entity.set_text(state, &icon_checked);
+            }
+        } else {
+            entity.set_checked(state, false);
+
+            if let Some(icon_unchecked) = &self.icon_unchecked {
+                entity.set_text(state, &icon_unchecked);
+            }
+        }
+
+        state.style.insert_element(entity, "checkbox");
+
+        entity
+    }
+}
+
+impl EventHandler for Checkbox {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
+        self.check.on_event(state, entity, event);
+        
+        if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
+            match checkbox_event {
+
+                CheckboxEvent::Check => {
+                    if let Some(icon_checked) = &self.icon_checked {
+                        entity.set_text(state, &icon_checked);
+                    }
+                }
+
+                CheckboxEvent::Uncheck => {
+                    if let Some(icon_unchecked) = &self.icon_unchecked {
+                        entity.set_text(state, &icon_unchecked);
+                    }
+                }
+
+                CheckboxEvent::Checked => {
+                    if let Some(icon_checked) = &self.icon_checked {
+                        entity.set_text(state, &icon_checked);
+                    }
+                }
+
+                CheckboxEvent::Unchecked => {
+                    if let Some(icon_unchecked) = &self.icon_unchecked {
+                        entity.set_text(state, &icon_unchecked);
+                    }
+                }
+
+                _=> {}
             }
         }
     }

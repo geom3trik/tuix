@@ -23,16 +23,16 @@ fn main() {
         // let left_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         //let container = Element::new().build(state, window, |builder| builder.class("container"));
-        let _one = Element::new().build(state, window, |builder| {
-            builder.class("one").set_background_gradient(
-                LinearGradient::new(Direction::TopToBottom)
-                    .add_stop(GradientStop::new(Length::Pixels(0.0), Color::rgb(90,90,90)))
-                    .add_stop(GradientStop::new(Length::Pixels(30.0), Color::rgb(50,50,50))),
-            ).set_text("Button")
-        });
+        // let _one = Element::new().build(state, window, |builder| {
+        //     builder.class("one").set_background_gradient(
+        //         LinearGradient::new(Direction::TopToBottom)
+        //             .add_stop(GradientStop::new(Length::Pixels(0.0), Color::rgb(90,90,90)))
+        //             .add_stop(GradientStop::new(Length::Pixels(30.0), Color::rgb(50,50,50))),
+        //     ).set_text("Button")
+        // });
 
-        // let two = Element::new().build(state, one, |builder| builder.class("two"));
-        // let three = Element::new().build(state, one, |builder| builder.class("three"));
+        let two = Element::new().build(state, window, |builder| builder.class("two"));
+        let three = Element::new().build(state, window, |builder| builder.class("three"));
         // let four = Element::new().build(state, one, |builder| builder.class("four"));
 
         // let test = VectorEdit::<f32>::new().build(state, window, |builder| builder

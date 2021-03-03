@@ -103,27 +103,26 @@ impl EventHandler for RadioList {
     }
 }
 
-#[derive(Default)]
 pub struct Radio {
     marker: Entity,
-    checkbox: Checkbox,
+    check: Check,
 }
 
 impl Radio {
     pub fn new() -> Self {
         Self {
             marker: Entity::null(),
-            checkbox: Checkbox::new(false).with_icon_checked("").with_icon_unchecked(""),
+            check: Check::new(false),
         }
     }
 
     pub fn on_checked(mut self, event: Event) -> Self {
-        self.checkbox = self.checkbox.on_checked(event);
+        self.check = self.check.on_checked(event);
         self
     }
 
     pub fn on_unchecked(mut self, event: Event) -> Self {
-        self.checkbox = self.checkbox.on_unchecked(event);
+        self.check = self.check.on_unchecked(event);
         self
     }
 }
@@ -141,36 +140,29 @@ impl BuildHandler for Radio {
 
 impl EventHandler for Radio {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        self.checkbox.on_event(state, entity, event);
+        self.check.on_event(state, entity, event);
     }
 }
 
-#[derive(Default)]
 pub struct RadioButton {
-    checkbox: Checkbox,
+    check: Check,
 }
 
 impl RadioButton {
     pub fn new() -> Self {
         Self {
-            checkbox: Checkbox::new(false).with_icon_checked("").with_icon_unchecked(""),
-        }
-    }
-
-    pub fn with_label(label: &str) -> Self {
-        Self {
-            checkbox: Checkbox::new(false).with_icon_checked(label).with_icon_unchecked(label),
+            check: Check::new(false),
         }
     }
 
     pub fn on_checked(mut self, event: Event) -> Self {
-        self.checkbox = self.checkbox.on_checked(event);
+        self.check = self.check.on_checked(event);
 
         self
     }
 
     pub fn on_unchecked(mut self, event: Event) -> Self {
-        self.checkbox = self.checkbox.on_unchecked(event);
+        self.check = self.check.on_unchecked(event);
 
         self
     }
@@ -179,13 +171,13 @@ impl RadioButton {
 impl BuildHandler for RadioButton {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.checkbox.on_build(state, entity);
+        self.check.on_build(state, entity);
         entity.set_element(state, "radio_button").set_font(state, "sans")
     }
 }
 
 impl EventHandler for RadioButton {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        self.checkbox.on_event(state, entity, event);
+        self.check.on_event(state, entity, event);
     }
 }

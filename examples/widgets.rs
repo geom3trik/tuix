@@ -201,14 +201,14 @@ fn main() {
                 .set_flex_grow(1.0)
         });
 
-        let a = RadioButton::with_label("A").build(state, radio_list, |builder| {
-            builder.class("first")
+        let a = RadioButton::new().build(state, radio_list, |builder| {
+            builder.set_text("A").class("first")
         });
-        RadioButton::with_label("B").build(state, radio_list, |builder| {
-            builder.class("button")
+        RadioButton::new().build(state, radio_list, |builder| {
+            builder.set_text("B").class("button")
         });
-        RadioButton::with_label("C").build(state, radio_list, |builder| {
-            builder.class("last")
+        RadioButton::new().build(state, radio_list, |builder| {
+            builder.set_text("C").class("last")
         });
 
         a.set_checked(state, true);

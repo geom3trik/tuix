@@ -51,14 +51,14 @@ impl EventHandler for TabBar {
 
 pub struct Tab {
     pub name: String,
-    radio: Radio,
+    check: Check,
 }
 
 impl Tab {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
-            radio: Radio::new().on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::Up)),
+            check: Check::new(false).check_on_press().on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::Up)),
         }
     }
 }
@@ -73,7 +73,7 @@ impl BuildHandler for Tab {
 
 impl EventHandler for Tab {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        self.radio.on_event(state, entity, event);
+        self.check.on_event(state, entity, event);
 
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
