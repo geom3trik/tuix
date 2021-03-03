@@ -214,11 +214,11 @@ impl BuildHandler for TabBar2 {
         self.phantom_tab1 = Tab::new("phantom1").build(state, entity, |builder| builder
             .set_display(Display::None)
             .set_width(Length::Pixels(30.0))
-            .set_background_color(Color::rgb(90,90,90))
+            //.set_background_color(Color::rgb(90,90,90))
         );
         self.phantom_tab2 = Tab::new("phantom2").build(state, entity, |builder| builder
             .set_display(Display::None)
-            .set_background_color(Color::rgb(90,90,90))
+            //.set_background_color(Color::rgb(90,90,90))
         );
 
         // Animation to shrink one of the phantom tracks

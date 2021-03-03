@@ -216,6 +216,32 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
         ),
     };
 
+    // Child margins
+    let child_margin_left = child.get_margin_left(state).get_value(parent_width);
+    let child_margin_right = child.get_margin_right(state).get_value(parent_width);
+    let child_margin_top = child.get_margin_top(state).get_value(parent_height);
+    let child_margin_bottom = child.get_margin_bottom(state).get_value(parent_height);
+
+    let (
+        child_margin_main_before,
+        child_margin_main_after,
+        child_margin_cross_before,
+        child_margin_cross_after,
+    ) = match parent_flex_direction {
+        FlexDirection::Row | FlexDirection::RowReverse => (
+            child_margin_left,
+            child_margin_right,
+            child_margin_top,
+            child_margin_bottom,
+        ),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (
+            child_margin_top,
+            child_margin_bottom,
+            child_margin_left,
+            child_margin_right,
+        ),
+    };
+
     let child_border_width = child.get_border_width(state).get_value(parent_width);
 
     // Child size constraints
@@ -297,11 +323,11 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
             // Align stretch overrides child max
             if let Some(child_align_self) = state.style.align_self.get(child) {
                 if *child_align_self == AlignSelf::Stretch {
-                    new_cross = parent_cross;
+                    new_cross = parent_cross - child_margin_cross_before - child_margin_cross_after;
                 }
             } else {
                 if parent_align_items == AlignItems::Stretch {
-                    new_cross = parent_cross;
+                    new_cross = parent_cross - child_margin_cross_before - child_margin_cross_after;
                 }
             }
 

@@ -31,22 +31,23 @@
 }
 
 .two {
-  width: 40px;
-  height: 80px;
-  margin: 20px;
+  width: 200px;
+  /* height: 80px; */
+  /* margin: 20px; */
   /* flex-grow: 1.0; */
   /* max-width: 100px; */
   /* max-height: 50px; */
   background-color: green;
   flex-direction: column;
-  padding: 10px;
-  border-color: black;
-  border-width: 10px;
+  /* padding: 10px; */
+  /* border-color: black; */
+  /* border-width: 10px; */
 }
 
 .three {
-  height: 40px;
-  flex-grow: 1.0;
+  flex-basis: 30px;
+  width: 50px;
+  /* flex-grow: 1.0; */
   /* min-width: 80px; */
   /* max-height: 50px; */
   /* flex-grow: 2.0; */
@@ -56,10 +57,20 @@
 }
 
 .four {
-  height: 50px;
+  flex-basis: 2px;
   background-color: yellow;
-  flex-grow: 1.0;
-  margin-right: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.five {
+  background-color: red;
+}
+
+.six {
+  height: 30px;
+  width: 30px;
+  background-color: #808080;
 }
 
 .test {

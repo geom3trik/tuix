@@ -14,8 +14,9 @@ fn main() {
 
         window
             .set_background_color(state, Color::rgb(255, 255, 255))
-            .set_flex_direction(state, FlexDirection::Row)
             .set_align_items(state, AlignItems::FlexStart);
+            // .set_flex_direction(state, FlexDirection::Row)
+            // .set_align_items(state, AlignItems::FlexStart);
 
         //window.set_flex_direction(state, FlexDirection::Row);
         // let levels = HBox::new().build(state, window, |builder| builder.set_width(Length::Pixels(50.0)).set_background_color(Color::red()));
@@ -32,7 +33,10 @@ fn main() {
         // });
 
         let two = Element::new().build(state, window, |builder| builder.class("two"));
-        let three = Element::new().build(state, window, |builder| builder.class("three"));
+        Element::new().build(state, two, |builder| builder.class("three"));
+        Element::new().build(state, two, |builder| builder.class("four"));
+        let three = Element::new().build(state, two, |builder| builder.class("five"));
+        Element::new().build(state, three, |builder| builder.class("six"));
         // let four = Element::new().build(state, one, |builder| builder.class("four"));
 
         // let test = VectorEdit::<f32>::new().build(state, window, |builder| builder
