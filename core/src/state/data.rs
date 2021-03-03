@@ -47,9 +47,10 @@ pub struct Data {
     // Holds the child_width_sum and then the free_width_space
     pub(crate) child_sum: Vec<f32>, // Sum of child widths
     pub(crate) child_max: Vec<f32>, // Max child width
-    pub(crate) child_pos: Vec<f32>,
-    pub(crate) child_grow_sum: Vec<f32>,
-    pub(crate) child_shrink_sum: Vec<f32>,
+    pub(crate) prev_size: Vec<Pos>,
+    // pub(crate) child_pos: Vec<f32>,
+    // pub(crate) child_grow_sum: Vec<f32>,
+    // pub(crate) child_shrink_sum: Vec<f32>,
 }
 
 impl Data {
@@ -61,9 +62,10 @@ impl Data {
             hoverability: Vec::new(),
             child_sum: Vec::new(),
             child_max: Vec::new(),
-            child_pos: Vec::new(),
-            child_grow_sum: Vec::new(),
-            child_shrink_sum: Vec::new(),
+            prev_size: Vec::new(),
+            // child_pos: Vec::new(),
+            // child_grow_sum: Vec::new(),
+            // child_shrink_sum: Vec::new(),
             opacity: Vec::new(),
             z_order: Vec::new(),
             clip_widget: Vec::new(),
@@ -80,9 +82,10 @@ impl Data {
             self.hoverability.resize(key + 1, true);
             self.child_sum.resize(key + 1, 0.0);
             self.child_max.resize(key + 1, 0.0);
-            self.child_pos.resize(key + 1, 0.0);
-            self.child_grow_sum.resize(key + 1, 0.0);
-            self.child_shrink_sum.resize(key + 1, 0.0);
+            self.prev_size.resize(key + 1, Default::default());
+            // self.child_pos.resize(key + 1, 0.0);
+            // self.child_grow_sum.resize(key + 1, 0.0);
+            // self.child_shrink_sum.resize(key + 1, 0.0);
             self.opacity.resize(key + 1, 0.0);
             self.z_order.resize(key + 1, 0);
             self.clip_widget.resize(key + 1, Entity::new(0));
@@ -132,26 +135,26 @@ impl Data {
             .unwrap()
     }
 
-    pub fn get_child_pos(&self, entity: Entity) -> f32 {
-        self.child_pos
-            .get(entity.index_unchecked())
-            .cloned()
-            .unwrap()
-    }
+    // pub fn get_child_pos(&self, entity: Entity) -> f32 {
+    //     self.child_pos
+    //         .get(entity.index_unchecked())
+    //         .cloned()
+    //         .unwrap()
+    // }
 
-    pub fn get_child_grow_sum(&self, entity: Entity) -> f32 {
-        self.child_grow_sum
-            .get(entity.index_unchecked())
-            .cloned()
-            .unwrap()
-    }
+    // pub fn get_child_grow_sum(&self, entity: Entity) -> f32 {
+    //     self.child_grow_sum
+    //         .get(entity.index_unchecked())
+    //         .cloned()
+    //         .unwrap()
+    // }
 
-    pub fn get_child_shrink_sum(&self, entity: Entity) -> f32 {
-        self.child_shrink_sum
-            .get(entity.index_unchecked())
-            .cloned()
-            .unwrap()
-    }
+    // pub fn get_child_shrink_sum(&self, entity: Entity) -> f32 {
+    //     self.child_shrink_sum
+    //         .get(entity.index_unchecked())
+    //         .cloned()
+    //         .unwrap()
+    // }
 
     pub fn get_posx(&self, entity: Entity) -> f32 {
         self.position
@@ -179,6 +182,23 @@ impl Data {
 
     pub fn get_height(&self, entity: Entity) -> f32 {
         self.size
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap_or_default()
+            .y
+    }
+
+
+    pub(crate) fn get_prev_width(&self, entity: Entity) -> f32 {
+        self.prev_size
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap_or_default()
+            .x
+    }
+
+    pub(crate) fn get_prev_height(&self, entity: Entity) -> f32 {
+        self.prev_size
             .get(entity.index_unchecked())
             .cloned()
             .unwrap_or_default()
@@ -215,23 +235,23 @@ impl Data {
         }
     }
 
-    pub fn set_child_pos(&mut self, entity: Entity, val: f32) {
-        if let Some(child_pos) = self.child_pos.get_mut(entity.index_unchecked()) {
-            *child_pos = val;
-        }
-    }
+    // pub fn set_child_pos(&mut self, entity: Entity, val: f32) {
+    //     if let Some(child_pos) = self.child_pos.get_mut(entity.index_unchecked()) {
+    //         *child_pos = val;
+    //     }
+    // }
 
-    pub fn set_child_grow_sum(&mut self, entity: Entity, val: f32) {
-        if let Some(child_grow_sum) = self.child_grow_sum.get_mut(entity.index_unchecked()) {
-            *child_grow_sum = val;
-        }
-    }
+    // pub fn set_child_grow_sum(&mut self, entity: Entity, val: f32) {
+    //     if let Some(child_grow_sum) = self.child_grow_sum.get_mut(entity.index_unchecked()) {
+    //         *child_grow_sum = val;
+    //     }
+    // }
 
-    pub fn set_child_shrink_sum(&mut self, entity: Entity, val: f32) {
-        if let Some(child_shrink_sum) = self.child_shrink_sum.get_mut(entity.index_unchecked()) {
-            *child_shrink_sum = val;
-        }
-    }
+    // pub fn set_child_shrink_sum(&mut self, entity: Entity, val: f32) {
+    //     if let Some(child_shrink_sum) = self.child_shrink_sum.get_mut(entity.index_unchecked()) {
+    //         *child_shrink_sum = val;
+    //     }
+    // }
 
     pub fn set_posx(&mut self, entity: Entity, val: f32) {
         if let Some(position) = self.position.get_mut(entity.index_unchecked()) {
@@ -253,6 +273,18 @@ impl Data {
 
     pub fn set_height(&mut self, entity: Entity, val: f32) {
         if let Some(size) = self.size.get_mut(entity.index_unchecked()) {
+            size.y = val;
+        }
+    }
+
+    pub(crate) fn set_prev_width(&mut self, entity: Entity, val: f32) {
+        if let Some(size) = self.prev_size.get_mut(entity.index_unchecked()) {
+            size.x = val;
+        }
+    }
+
+    pub(crate) fn set_prev_height(&mut self, entity: Entity, val: f32) {
+        if let Some(size) = self.prev_size.get_mut(entity.index_unchecked()) {
             size.y = val;
         }
     }

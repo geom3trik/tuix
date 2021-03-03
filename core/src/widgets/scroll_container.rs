@@ -505,8 +505,10 @@ impl EventHandler for ScrollContainer {
             match window_event {
                 WindowEvent::GeometryChanged(geometry_changed) => {
                     //println!("Geometry Changed");
+                    
                     if event.target == self.container || event.target == entity {
                         if geometry_changed.width || geometry_changed.height {
+                            //println!("Geometry Changed");
                             let mut scrollh = state.data.get_height(entity)
                                 / state.data.get_height(self.container);
 
@@ -565,6 +567,7 @@ impl EventHandler for ScrollContainer {
                             state.insert_event(Event::new(WindowEvent::Relayout).origin(entity));
                         }
                     }
+                    
                 }
 
                 WindowEvent::MouseScroll(_, y) => {

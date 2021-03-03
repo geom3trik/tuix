@@ -591,22 +591,12 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 continue;
             }
 
+            state.data.set_prev_width(child, state.data.get_width(child));
+            state.data.set_prev_height(child, state.data.get_height(child));
+
             let (new_main, new_cross) = calculate_down(state, child);
 
             //println!("DOWN: {} -> new_main: {} new_cross: {}", child, new_main, new_cross);
-
-            let mut geometry_changed = GeometryChanged::default();
-
-            geometry_changed.width = true;
-            geometry_changed.height = true;
-
-            if geometry_changed.width || geometry_changed.height {
-                state.insert_event(
-                    Event::new(WindowEvent::GeometryChanged(geometry_changed))
-                        .target(child)
-                        .propagate(Propagation::Down),
-                );
-            }
 
             match parent_flex_direction {
                 FlexDirection::Row | FlexDirection::RowReverse => {
@@ -779,10 +769,37 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                     _ => {}
                 }
+
+                let mut geometry_changed = GeometryChanged::default();
+
+                let prev_width = state.data.get_prev_width(*child);
+                let prev_height = state.data.get_prev_height(*child);
+                let new_width = state.data.get_width(*child);
+                let new_height = state.data.get_height(*child);
+    
+                if new_width != prev_width {
+                    geometry_changed.width = true;
+                }
+                if new_height != prev_height {
+                    geometry_changed.height = true;
+                    println!("Prev: {} New: {}", prev_height, new_height);
+                }
+                
+    
+                if geometry_changed.width || geometry_changed.height {
+                    state.insert_event(
+                        Event::new(WindowEvent::GeometryChanged(geometry_changed))
+                            .target(*child)
+                            .propagate(Propagation::Down),
+                    );
+                }
+
             }
         } else if free_space < 0.0 && flex_shrink_sum > 0.0 {
             // Do some flex shrinking
         }
+
+        
 
         ///////////////////////
         // Position Entities //
