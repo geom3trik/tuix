@@ -782,7 +782,6 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 }
                 if new_height != prev_height {
                     geometry_changed.height = true;
-                    println!("Prev: {} New: {}", prev_height, new_height);
                 }
                 
     
