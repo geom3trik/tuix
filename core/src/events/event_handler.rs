@@ -215,8 +215,8 @@ pub trait EventHandler: Any {
         // Apply Scissor
         let clip_entity = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.data.get_posx(clip_entity);
-        let clip_posy = state.data.get_posy(clip_entity);
+        let clip_posx = state.data.get_posx(clip_entity) - posx;
+        let clip_posy = state.data.get_posy(clip_entity) - posy;
         let clip_width = state.data.get_width(clip_entity);
         let clip_height = state.data.get_height(clip_entity);
 
