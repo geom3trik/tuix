@@ -308,8 +308,8 @@ impl BuildHandler for Slider {
         );
 
         // TEMP
-        self.thumb.set_left(state, Length::Pixels(80.0));
-        self.active.set_width(state, Length::Percentage(1.0));
+        // self.thumb.set_left(state, Length::Pixels(80.0));
+        // self.active.set_width(state, Length::Percentage(1.0));
 
         state.style.insert_element(entity, "slider");
 
