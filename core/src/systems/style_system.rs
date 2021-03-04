@@ -1,4 +1,4 @@
-use crate::{Entity, Event, HierarchyTree, IntoParentIterator, State, WindowEvent};
+use crate::{BoundingBox, Entity, Event, HierarchyTree, IntoParentIterator, State, WindowEvent};
 
 use crate::hierarchy::*;
 use crate::state::animation::*;
@@ -12,12 +12,44 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent = hierarchy.get_parent(entity).unwrap();
 
+        let parent_clip_region = state.data.get_clip_region(parent);
+        //println!("Entity: {} Parent Clip Regions: {:?}", entity, parent_clip_region);
+
         if let Some(clip_widget) = state.style.clip_widget.get(entity) {
-            state.data.set_clip_widget(entity, *clip_widget);
+            //state.data.set_clip_widget(entity, *clip_widget);
+            
+            let clip_x = state.data.get_posx(*clip_widget);
+            let clip_y = state.data.get_posy(*clip_widget);
+            let clip_w = state.data.get_width(*clip_widget);
+            let clip_h = state.data.get_height(*clip_widget);
+
+            let mut intersection = BoundingBox::default();
+            intersection.x = clip_x.max(parent_clip_region.x);
+            intersection.y = clip_y.max(parent_clip_region.y);
+
+            intersection.w = if clip_x + clip_w < parent_clip_region.x + parent_clip_region.w {
+                clip_x + clip_w - intersection.x
+            } else {
+                parent_clip_region.x + parent_clip_region.w -  - intersection.x
+            };
+
+            intersection.h = if clip_y + clip_h < parent_clip_region.y + parent_clip_region.h {
+                clip_y + clip_h - intersection.y
+            } else {
+                parent_clip_region.y + parent_clip_region.h -  - intersection.y
+            };
+
+
+            state.data.set_clip_region(entity, intersection);
+
         } else {
-            let parent_clip_widget = state.data.get_clip_widget(parent);
-            state.data.set_clip_widget(entity, parent_clip_widget);
+            state.data.set_clip_region(entity, parent_clip_region);
         }
+        
+        // else {
+        //     let parent_clip_widget = state.data.get_clip_widget(parent);
+        //     state.data.set_clip_widget(entity, parent_clip_widget);
+        // }
     }
 }
 

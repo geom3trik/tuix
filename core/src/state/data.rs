@@ -35,6 +35,25 @@ impl std::ops::Add for Pos {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct BoundingBox {
+    pub x: f32,
+    pub y: f32,
+    pub w: f32,
+    pub h: f32,
+}
+
+impl Default for BoundingBox {
+    fn default() -> Self {
+        Self {
+            x: 0.0,
+            y: 0.0,
+            w: std::f32::MAX,
+            h: std::f32::MAX,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Data {
     pub position: Vec<Pos>,
@@ -48,6 +67,7 @@ pub struct Data {
     pub(crate) child_sum: Vec<f32>, // Sum of child widths
     pub(crate) child_max: Vec<f32>, // Max child width
     pub(crate) prev_size: Vec<Pos>,
+    pub clip_region: Vec<BoundingBox>,
     // pub(crate) child_pos: Vec<f32>,
     // pub(crate) child_grow_sum: Vec<f32>,
     // pub(crate) child_shrink_sum: Vec<f32>,
@@ -69,6 +89,7 @@ impl Data {
             opacity: Vec::new(),
             z_order: Vec::new(),
             clip_widget: Vec::new(),
+            clip_region: Vec::new(),
         }
     }
 
@@ -89,20 +110,21 @@ impl Data {
             self.opacity.resize(key + 1, 0.0);
             self.z_order.resize(key + 1, 0);
             self.clip_widget.resize(key + 1, Entity::new(0));
+            self.clip_region.resize(key + 1, Default::default());
         }
 
         // Are these needed?
-        if let Some(stored) = self.size.get_mut(key) {
-            *stored = Default::default();
-        }
+        // if let Some(stored) = self.size.get_mut(key) {
+        //     *stored = Default::default();
+        // }
 
-        if let Some(stored) = self.position.get_mut(key) {
-            *stored = Default::default();
-        }
+        // if let Some(stored) = self.position.get_mut(key) {
+        //     *stored = Default::default();
+        // }
 
-        if let Some(stored) = self.visibility.get_mut(key) {
-            *stored = Default::default();
-        }
+        // if let Some(stored) = self.visibility.get_mut(key) {
+        //     *stored = Default::default();
+        // }
     }
 
     pub fn remove(&mut self, _entity: Entity) {}
@@ -112,6 +134,13 @@ impl Data {
 
     pub fn get_clip_widget(&self, entity: Entity) -> Entity {
         self.clip_widget
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
+    }
+
+    pub fn get_clip_region(&self, entity: Entity) -> BoundingBox {
+        self.clip_region
             .get(entity.index_unchecked())
             .cloned()
             .unwrap()
@@ -214,6 +243,12 @@ impl Data {
     pub fn set_clip_widget(&mut self, entity: Entity, val: Entity) {
         if let Some(clip_widget) = self.clip_widget.get_mut(entity.index_unchecked()) {
             *clip_widget = val;
+        }
+    }
+
+    pub fn set_clip_region(&mut self, entity: Entity, val: BoundingBox) {
+        if let Some(clip_region) = self.clip_region.get_mut(entity.index_unchecked()) {
+            *clip_region = val;
         }
     }
 

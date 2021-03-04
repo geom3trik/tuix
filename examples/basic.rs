@@ -33,10 +33,14 @@ fn main() {
         // });
 
         let two = Element::new().build(state, window, |builder| builder.class("two"));
-        Element::new().build(state, two, |builder| builder.class("three"));
-        Element::new().build(state, two, |builder| builder.class("four"));
-        let three = Element::new().build(state, two, |builder| builder.class("five"));
-        Element::new().build(state, three, |builder| builder.class("six"));
+        let three = Element::new().build(state, two, |builder| builder.class("three"));
+        let four = Element::new().build(state, three, |builder| builder.class("four"));
+
+        three.set_clip_widget(state, two);
+        four.set_clip_widget(state, three);
+        //Element::new().build(state, two, |builder| builder.class("four"));
+        //let three = Element::new().build(state, two, |builder| builder.class("five"));
+        //Element::new().build(state, three, |builder| builder.class("six"));
         // let four = Element::new().build(state, one, |builder| builder.class("four"));
 
         // let test = VectorEdit::<f32>::new().build(state, window, |builder| builder

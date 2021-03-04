@@ -31,8 +31,8 @@
 }
 
 .two {
-  width: 200px;
-  /* height: 80px; */
+  width: 50px;
+  height: 50px;
   /* margin: 20px; */
   /* flex-grow: 1.0; */
   /* max-width: 100px; */
@@ -45,8 +45,11 @@
 }
 
 .three {
-  flex-basis: 30px;
-  width: 50px;
+  /* flex-basis: 30px; */
+  /* left: 80px; */
+  /* top: 50px; */
+  width: 200px;
+  height: 200px;
   /* flex-grow: 1.0; */
   /* min-width: 80px; */
   /* max-height: 50px; */
@@ -57,10 +60,12 @@
 }
 
 .four {
-  flex-basis: 2px;
+  width: 300px;
+  height: 300px;
   background-color: yellow;
+  /* flex-basis: 2px;
   margin-top: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 10px; */
 }
 
 .five {

@@ -575,14 +575,9 @@ impl EventHandler for Textbox {
         canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let clip_entity = state.data.get_clip_widget(entity);
+        let mut clip_region = state.data.get_clip_region(entity);
+        canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
 
-        let clip_posx = state.data.get_posx(clip_entity);
-        let clip_posy = state.data.get_posy(clip_entity);
-        let clip_width = state.data.get_width(clip_entity);
-        let clip_height = state.data.get_height(clip_entity);
-
-        canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
 
         let _shadow_h_offset = state
             .style

@@ -6,7 +6,7 @@ use crate::keyboard::{scan_to_code, vk_to_key};
 
 use crate::window::Window;
 
-use tuix_core::{Length};
+use tuix_core::{BoundingBox, Length};
 use tuix_core::{Entity, State};
 
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
@@ -101,6 +101,12 @@ impl Application {
             .data
             .set_height(Entity::root(), window_description.inner_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
+
+        let mut bounding_box = BoundingBox::default();
+        bounding_box.w = window_description.inner_size.width as f32;
+        bounding_box.h = window_description.inner_size.height as f32;
+
+        state.data.set_clip_region(Entity::root(), bounding_box);
 
         WindowWidget::new().build_window(&mut state);
 
@@ -394,6 +400,12 @@ impl Application {
                             state
                                 .data
                                 .set_height(Entity::root(), physical_size.height as f32);
+
+                            let mut bounding_box = BoundingBox::default();
+                            bounding_box.w = physical_size.width as f32;
+                            bounding_box.h = physical_size.height as f32;
+                    
+                            state.data.set_clip_region(Entity::root(), bounding_box);
 
                             state.insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()).target(Entity::root()));
                             state.insert_event(

@@ -53,18 +53,16 @@ impl BuildHandler for ScrollContainerH {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_flex_direction(state, FlexDirection::Column)
-            .set_width(state, Length::Percentage(1.0))
-            .set_height(state, Length::Percentage(1.0));
+            .set_flex_direction(state, FlexDirection::Column);
 
         self.container = Button::new().build(state, entity, |builder| {
             builder
                 .set_position(Position::Absolute)
                 // .set_left(Length::Percentage(0.0))
                 // .set_align_self(AlignSelf::FlexStart)
-                .set_background_color(Color::rgb(200, 70, 70))
+                //.set_background_color(Color::rgb(200, 70, 70))
                 .class("container")
-                .set_hoverability(false)
+                //.set_hoverability(false)
         });
 
         state.style.clip_widget.insert(self.container, entity);
@@ -76,7 +74,7 @@ impl BuildHandler for ScrollContainerH {
                 //.set_height(Length::Pixels(10.0))
                 // .set_width(Length::Percentage(0.0))
                 // .set_align_self(AlignSelf::FlexStart)
-                .set_background_color(Color::rgb(70, 70, 200))
+                //.set_background_color(Color::rgb(70, 70, 200))
                 //.set_right(Length::Pixels(0.0))
                 .class("scrollbar")
 
@@ -84,6 +82,7 @@ impl BuildHandler for ScrollContainerH {
         });
 
         self.horizontal_scroll.set_disabled(state, true);
+        self.horizontal_scroll.set_enabled(state, false);
 
         state.style.insert_element(entity, "scroll_containerh");
 
