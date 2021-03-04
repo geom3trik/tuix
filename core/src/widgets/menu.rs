@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::{Checkbox, Element, entity::Entity};
+use crate::{Checkbox, Element, Message, entity::Entity};
 use crate::mouse::*;
 use crate::{BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WindowEvent};
 use crate::{PropSet, State};
@@ -19,6 +19,7 @@ use crate::state::hierarchy::IntoChildIterator;
 pub enum MenuEvent {
     Open(Entity),
     Close(Entity),
+    Hover(Entity),
     CloseAll(Entity),
     OpenHover(bool),
 }
@@ -36,7 +37,7 @@ pub struct Menu {
 }
 
 impl Menu {
-    pub fn new(text: &str, menu_position: MenuPosition) -> Self {
+    pub fn new() -> Self {
         Menu {
             container: Entity::default(),
             open: false,
@@ -65,32 +66,55 @@ impl BuildHandler for Menu {
 impl EventHandler for Menu {
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
+
+        if let Some(menu_event) = event.message.downcast::<MenuEvent>() {
+            match menu_event {
+                MenuEvent::Open(menu) => {
+                    if *menu == entity {
+                        entity.set_checked(state, true);
+                        state.capture(entity);
+                        self.open = true;
+                    }
+                }
+
+                MenuEvent::Close(menu) => {
+                    if *menu == entity {
+                        entity.set_checked(state, false);
+                        state.release(entity);
+                        self.open = false;                        
+                    }
+                }
+
+                _=> {}
+            }
+        }
+
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {
                         if state.hovered == entity {
                             if !self.open {
-                                entity.set_checked(state, true);
-                                state.capture(entity);
-                                self.open = true;
+                                state.insert_event(Event::new(MenuEvent::Open(entity)).target(entity));
                             } else {
-                                entity.set_checked(state, false);
-                                state.release(entity);
-                                self.open = false;
-                            }
-                            
+                                state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity));
+                            }      
                         } else {
 
+                            if state.hovered.is_descendant_of(&state.hierarchy, entity) {
+                                state.insert_event(Event::new(WindowEvent::MouseDown(*button)).target(state.hovered));
+                            }
 
-                            // if state.hovered.is_descendant_of(&state.hierarchy, entity) {
-                            //     state.insert_event(Event::new(WindowEvent::MouseUp()))
-                            // }
+                            state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity));
 
-                            entity.set_checked(state, false);
-                            state.release(entity);
-                            self.open = false;
                         }
+                    }
+                }
+
+                WindowEvent::MouseOver => {
+                    if event.target == entity {
+                        state.insert_event(Event::new(MenuEvent::Hover(entity)).target(entity));
                     }
                 }
 
@@ -101,4 +125,53 @@ impl EventHandler for Menu {
         }
 
     }
+}
+
+
+pub struct MenuBar {
+    open_menu: Entity,
+}
+
+impl MenuBar {
+    pub fn new() -> Self {
+        Self {
+            open_menu: Entity::default(),
+        }
+    }
+}
+
+impl BuildHandler for MenuBar {
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        entity
+    }
+}
+
+impl EventHandler for MenuBar {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(menu_event) = event.message.downcast::<MenuEvent>() {
+            match menu_event {
+                MenuEvent::Open(menu) => {
+                    self.open_menu = *menu;
+                }
+
+                MenuEvent::Close(menu) => {
+                    self.open_menu = Entity::default();
+                }
+
+                MenuEvent::Hover(menu) => {
+                    if self.open_menu != Entity::default() {
+                        state.insert_event(Event::new(MenuEvent::Close(self.open_menu)).target(entity).propagate(Propagation::Fall));
+                        state.insert_event(Event::new(MenuEvent::Open(*menu)).target(entity).propagate(Propagation::Fall));
+                        
+                        self.open_menu = *menu;
+
+                    }
+                }
+
+                _=> {}
+            }
+        }
+    }
+    
 }

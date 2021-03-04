@@ -73,12 +73,16 @@ fn main() {
             builder.class("vertical")
         );
 
-
-        let first_tab = RadioButton::new()
-            .on_checked(Event::new(TabEvent::SwitchTab("first".to_string())).propagate(Propagation::Up))
+        let first_tab = Tab::new("first")
             .build(state, tab_bar2, |builder| {
                 builder.set_text("First").class("tab")
         });
+
+        // let first_tab = RadioButton::new()
+        //     .on_checked(Event::new(TabEvent::SwitchTab("first".to_string())).propagate(Propagation::Up))
+        //     .build(state, tab_bar2, |builder| {
+        //         builder.set_text("First").class("tab")
+        // });
 
         first_tab.set_checked(state, true);
 
@@ -87,11 +91,16 @@ fn main() {
         // Add a button to this container
         Button::with_label("First Button").build(state, first_container, |builder| builder.class("test"));
 
-        let _second_tab = RadioButton::new()
-            .on_checked(Event::new(TabEvent::SwitchTab("second".to_string())).propagate(Propagation::Up))
+        let _second_tab = Tab::new("second")
             .build(state, tab_bar2, |builder| {
                 builder.set_text("Second").class("tab")
         });
+
+        // let _second_tab = RadioButton::new()
+        //     .on_checked(Event::new(TabEvent::SwitchTab("second".to_string())).propagate(Propagation::Up))
+        //     .build(state, tab_bar2, |builder| {
+        //         builder.set_text("Second").class("tab")
+        // });
 
         let second_container = TabContainer::new("second").build(state, tab_viewport2, |builder| builder.class("second"));
         second_container.set_display(state, Display::None);

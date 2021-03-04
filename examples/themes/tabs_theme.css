@@ -21,6 +21,7 @@ tab_bar>.tab {
 tab_bar>.tab:checked {
     margin-bottom: 0px;
     background-color: #383838;
+    /* background-color: red; */
 }
 
 /* Styles for a vertical tab bar */

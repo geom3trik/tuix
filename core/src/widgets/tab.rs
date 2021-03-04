@@ -122,12 +122,12 @@ impl BuildHandler for TabManager {
 }
 
 impl EventHandler for TabManager {
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
                 TabEvent::SwitchTab(name) => {
                     if event.origin.is_descendant_of(&state.hierarchy, self.tab_bar) || event.target == self.tab_bar {
-                        state.insert_event(Event::new(TabEvent::SwitchTab(name.clone())).target(self.viewport).propagate(Propagation::Fall).origin(event.origin));
+                        state.insert_event(Event::new(TabEvent::SwitchTab(name.clone())).target(entity).propagate(Propagation::Fall).origin(event.origin));
                     }          
                     
                     event.consume();
@@ -259,13 +259,16 @@ impl EventHandler for TabBar2 {
                     state.hierarchy.set_prev_sibling(*tab,self.phantom_tab1);
 
 
-                    let tab_width = tab.get_width(state);
-                    let tab_height = tab.get_height(state);
+                    //let tab_width = tab.get_width(state);
+                    //let tab_height = tab.get_height(state);
 
-                    self.phantom_tab1.set_height(state, tab_height);
-                    self.phantom_tab1.set_width(state, tab_width);
+                    let tab_width = state.data.get_width(*tab) + tab.get_margin_left(state).get_value(0.0) + tab.get_margin_right(state).get_value(0.0);
+                    let tab_height = state.data.get_width(*tab) + tab.get_margin_top(state).get_value(0.0) + tab.get_margin_bottom(state).get_value(0.0);
 
-                    self.phantom_tab2.set_height(state, tab_height);
+                    self.phantom_tab1.set_height(state, Length::Pixels(tab_height));
+                    self.phantom_tab1.set_width(state, Length::Pixels(tab_width));
+
+                    self.phantom_tab2.set_height(state, Length::Pixels(tab_height));
                     self.phantom_tab2.set_width(state, Length::Pixels(0.0));
 
                     // Move the tab to the end unless already at the end
@@ -353,6 +356,7 @@ impl EventHandler for TabBar2 {
 
 pub struct MovableTab {
     moving: bool,
+    dragging: bool,
     pos_down_x: f32,
     pos_down_y: f32,
     previous_height: Length,
@@ -365,6 +369,7 @@ impl MovableTab {
     pub fn new(name: &str) -> Self {
         Self {
             moving: false,
+            dragging: false,
             pos_down_x: 0.0,
             pos_down_y: 0.0,
             previous_height: Length::default(),
@@ -386,6 +391,7 @@ impl EventHandler for MovableTab {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.tab.on_event(state, entity, event);
 
+    
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
@@ -420,6 +426,7 @@ impl EventHandler for MovableTab {
                 WindowEvent::MouseUp(button) => {
                     if *button == MouseButton::Left {
                         self.moving = false;
+                        self.dragging = false;
                         entity.set_height(state, self.previous_height);
                         entity.set_width(state, self.previous_width);
                         entity.set_position(state, Position::Relative);
@@ -441,8 +448,20 @@ impl EventHandler for MovableTab {
                         let parent_posx = state.data.get_posx(parent);
                         let parent_posy = state.data.get_posy(parent);
 
-                        entity.set_left(state, Length::Pixels(self.pos_down_x - parent_posx + (*x - state.mouse.left.pos_down.0)));
-                        entity.set_top(state, Length::Pixels(self.pos_down_y - parent_posy + (*y - state.mouse.left.pos_down.1)));
+                        let dist = *x - state.mouse.left.pos_down.0;
+
+                        //println!("dist: {}", dist);
+
+                        if dist.abs() > 5.0 {
+                            self.dragging = true;
+                        }
+
+                        if self.dragging {
+                            entity.set_left(state, Length::Pixels(self.pos_down_x - parent_posx + dist));
+                            //entity.set_top(state, Length::Pixels(self.pos_down_y - parent_posy + (*y - state.mouse.left.pos_down.1)));                            
+                        }
+
+                        
 
                         state.insert_event(Event::new(WindowEvent::MouseMove(*x,*y)).target(state.hovered));
 
@@ -466,5 +485,6 @@ impl EventHandler for MovableTab {
                 _=> {}
             }
         }
+    
     }
 }

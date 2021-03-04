@@ -96,7 +96,12 @@ fn main() {
     let app = Application::new(|win_desc, state, window| {
         state.add_theme(THEME);
 
-        let menu1 = Menu::new("Menu", MenuPosition::Down).build(state, window, |builder| {
+        let menu_bar = MenuBar::new().build(state, window, |builder| 
+            builder
+                .set_flex_direction(FlexDirection::Row)
+        );
+
+        let menu1 = Menu::new().build(state, menu_bar, |builder| {
             builder
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
@@ -105,23 +110,29 @@ fn main() {
                 .class("menu")
         });
 
-        // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
+        Button::with_label("Item 1").build(state, menu1, |builder| builder.class("item"));
+        Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
+        Button::with_label("Item 3")
+            .on_press(Event::new(WindowEvent::WindowClose))
+            .build(state, menu1, |builder| builder.class("item"));
+        Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
+
+        let menu1 = Menu::new().build(state, menu_bar, |builder| {
+            builder
+                .set_width(Length::Pixels(100.0))
+                .set_height(Length::Pixels(30.0))
+                .set_flex_grow(0.0)
+                .set_text_justify(Justify::Center)
+                .class("menu")
+        });
 
         Button::with_label("Item 1").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 3")
             .on_press(Event::new(WindowEvent::WindowClose))
             .build(state, menu1, |builder| builder.class("item"));
-
-        // let spacer = Button::new().build(state, menu1, |builder| builder.class("spacer"));
-        // Button::new().build(state, spacer, |builder| builder.class("spacer1"));
-        // Button::new().build(state, spacer, |builder| builder.class("spacer2"));
-
-        // let menu2 = Menu::new("Submenu", MenuPosition::Right).build(state, menu1, |builder| {
-        //     builder.class("item").class("submenu")
-        // });
-
         Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
+
 
         // // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
 
