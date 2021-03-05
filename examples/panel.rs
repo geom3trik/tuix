@@ -9,6 +9,11 @@ const STYLE: &str = r#"
     panel>.container1 {
         background-color: white;
     }
+
+    panel>.container2 {
+        padding: 10px;
+        align-items: center;
+    }
 "#;
 
 fn main() {
