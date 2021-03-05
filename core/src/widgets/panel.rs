@@ -199,9 +199,7 @@ impl EventHandler for Panel {
                                     animation.keyframes.last_mut().unwrap().1 =
                                         Length::Pixels(self.container_height);
                                 }
-
-                                println!("Container Height: {}", container_height);
-
+                                
                                 if let Some(animation) = state
                                     .style
                                     .height
