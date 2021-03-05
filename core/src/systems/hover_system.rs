@@ -1,7 +1,7 @@
 
 
 
-use crate::{Entity, State, Event, WindowEvent, Length, Visibility};
+use crate::{Entity, State, Event, WindowEvent, Length, Visibility, Display, PropGet};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
@@ -24,6 +24,10 @@ pub fn apply_hover(state: &mut State) {
 
         // This shouldn't be here but there's a bug if it isn't
         if state.data.get_opacity(entity) == 0.0 {
+            continue;
+        }
+
+        if entity.get_display(state) == Display::None {
             continue;
         }
 
