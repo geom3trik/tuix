@@ -78,32 +78,38 @@ impl EventHandler for Button {
         if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
             match button_event {
                 ButtonEvent::Pressed => {
-                    if let Some(mut on_press) = self.on_press.clone() {
-                        if on_press.target == Entity::null() {
-                            on_press.target = entity;
+                    if event.target == entity {
+                        if let Some(mut on_press) = self.on_press.clone() {
+                            if on_press.target == Entity::null() {
+                                on_press.target = entity;
+                            }
+
+                            on_press.origin = entity;
+                            on_press.propagation = Propagation::Down;
+
+                            state.insert_event(on_press);
                         }
 
-                        on_press.origin = entity;
-                        on_press.propagation = Propagation::Down;
-
-                        state.insert_event(on_press);
+                        entity.set_active(state, true);                        
                     }
 
-                    entity.set_active(state, true);
                 }
 
                 ButtonEvent::Released => {
-                    if let Some(mut on_release) = self.on_release.clone() {
-                        if on_release.target == Entity::default() {
-                            on_release.target = entity;
+                    if event.target == entity {
+                        if let Some(mut on_release) = self.on_release.clone() {
+                            if on_release.target == Entity::default() {
+                                on_release.target = entity;
+                            }
+
+                            on_release.origin = entity;
+                            on_release.propagation = Propagation::Down;
+                            state.insert_event(on_release);
                         }
 
-                        on_release.origin = entity;
-                        on_release.propagation = Propagation::Down;
-                        state.insert_event(on_release);
+                        entity.set_active(state, false);                        
                     }
 
-                    entity.set_active(state, false);
                 }
 
                 _ => {}
@@ -115,6 +121,7 @@ impl EventHandler for Button {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if entity == event.target && !entity.is_disabled(state) {
+                            
                             state.capture(entity);
                             state.insert_event(
                                 Event::new(ButtonEvent::Pressed)

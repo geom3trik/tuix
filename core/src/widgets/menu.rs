@@ -101,13 +101,14 @@ impl EventHandler for Menu {
                                 state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity));
                             }      
                         } else {
+                            if self.open {
+                                if state.hovered.is_descendant_of(&state.hierarchy, entity) {
+                                    state.insert_event(Event::new(WindowEvent::MouseDown(*button)).target(state.hovered));
+                                    self.open = false;
+                                }
 
-                            if state.hovered.is_descendant_of(&state.hierarchy, entity) {
-                                state.insert_event(Event::new(WindowEvent::MouseDown(*button)).target(state.hovered));
+                                state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity));                                
                             }
-
-                            state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity));
-
                         }
                     }
                 }

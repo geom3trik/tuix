@@ -15,6 +15,7 @@ use crate::state::style::*;
 #[derive(Clone, Debug, PartialEq)]
 pub enum TabEvent {
     SwitchTab(String),
+    CloseTab(String),
 }
 
 pub struct TabBar {
@@ -58,7 +59,7 @@ impl Tab {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
-            check: Check::new(false).check_on_press().on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::Up)),
+            check: Check::new(false).check_on_press().on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::DownUp)),
         }
     }
 }
@@ -84,6 +85,12 @@ impl EventHandler for Tab {
                                 .target(entity)
                                 .origin(entity),
                         );
+                    }
+                }
+
+                TabEvent::CloseTab(name) => {
+                    if name == &self.name {
+                        state.remove(entity);
                     }
                 }
             }
@@ -132,6 +139,14 @@ impl EventHandler for TabManager {
                     
                     event.consume();
                 }
+
+                TabEvent::CloseTab(name) => {
+                    if event.origin.is_descendant_of(&state.hierarchy, self.tab_bar) || event.target == self.tab_bar {
+                        state.insert_event(Event::new(TabEvent::CloseTab(name.clone())).target(entity).propagate(Propagation::Fall).origin(event.origin));
+                    }
+
+                    event.consume();
+                }
             }
         }
     }
@@ -166,6 +181,12 @@ impl EventHandler for TabContainer {
                         entity.set_display(state, Display::Flexbox);
                     } else {
                         entity.set_display(state, Display::None);
+                    }
+                }
+
+                TabEvent::CloseTab(name) => {
+                    if name == &self.name {
+                        state.remove(entity);
                     }
                 }
             }
@@ -224,7 +245,7 @@ impl BuildHandler for TabBar2 {
         // Animation to shrink one of the phantom tracks
         let shrink_animation_state = AnimationState::new()
         .with_duration(std::time::Duration::from_millis(100))
-        .with_keyframe((0.0, Length::Pixels(80.0)))
+        .with_keyframe((0.0, Length::Pixels(100.0)))
         .with_keyframe((1.0, Length::Pixels(0.0)));
 
         self.shrink_animation = state.style.width.insert_animation(shrink_animation_state);
@@ -233,7 +254,7 @@ impl BuildHandler for TabBar2 {
         let grow_animation_state = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(80.0)));
+            .with_keyframe((1.0, Length::Pixels(100.0)));
 
         self.grow_animation = state.style.width.insert_animation(grow_animation_state);
 
@@ -311,7 +332,7 @@ impl EventHandler for TabBar2 {
                                 state.style.width.play_animation(self.phantom_tab2, self.grow_animation);
 
                                 self.phantom_tab1.set_width(state, Length::Pixels(0.0));
-                                self.phantom_tab2.set_width(state, Length::Pixels(80.0));
+                                self.phantom_tab2.set_width(state, Length::Pixels(100.0));
                             } else if state.hierarchy.get_next_sibling(event.target) == Some(self.phantom_tab2) {
                                 state.hierarchy.set_prev_sibling(event.target, self.phantom_tab1);
 
@@ -320,7 +341,7 @@ impl EventHandler for TabBar2 {
                                 state.style.width.play_animation(self.phantom_tab1, self.grow_animation);
 
                                 self.phantom_tab2.set_width(state, Length::Pixels(0.0));
-                                self.phantom_tab1.set_width(state, Length::Pixels(80.0));
+                                self.phantom_tab1.set_width(state, Length::Pixels(100.0));
                             }
                         } else {
                             if state.hierarchy.get_prev_sibling(event.target) == Some(self.phantom_tab1) {
@@ -331,7 +352,7 @@ impl EventHandler for TabBar2 {
                                 state.style.width.play_animation(self.phantom_tab2, self.grow_animation);
 
                                 self.phantom_tab1.set_width(state, Length::Pixels(0.0));
-                                self.phantom_tab2.set_width(state, Length::Pixels(80.0));
+                                self.phantom_tab2.set_width(state, Length::Pixels(100.0));
                             } else if state.hierarchy.get_prev_sibling(event.target) == Some(self.phantom_tab2) {
                                 state.hierarchy.set_next_sibling(event.target, self.phantom_tab1);
 
@@ -340,7 +361,7 @@ impl EventHandler for TabBar2 {
                                 state.style.width.play_animation(self.phantom_tab1, self.grow_animation);
 
                                 self.phantom_tab2.set_width(state, Length::Pixels(0.0));
-                                self.phantom_tab1.set_width(state, Length::Pixels(80.0));
+                                self.phantom_tab1.set_width(state, Length::Pixels(100.0));
                             }
                         }                        
                     }
@@ -406,6 +427,8 @@ impl EventHandler for MovableTab {
                         self.previous_height = entity.get_height(state);
                         self.previous_width = entity.get_width(state);
 
+                        
+
                         entity.set_height(state, Length::Pixels(state.data.get_height(entity)));
                         entity.set_width(state, Length::Pixels(state.data.get_width(entity)));
 
@@ -462,8 +485,10 @@ impl EventHandler for MovableTab {
                         }
 
                         
-
-                        state.insert_event(Event::new(WindowEvent::MouseMove(*x,*y)).target(state.hovered));
+                        if !state.hovered.is_descendant_of(&state.hierarchy, entity) {
+                            state.insert_event(Event::new(WindowEvent::MouseMove(*x,*y)).target(state.hovered));
+                        }
+                        
 
                     } else {
                         //println!("Entity Hovered: {}", entity);
