@@ -1,19 +1,28 @@
 #![allow(deprecated)]
 
 use glutin::event_loop::{ControlFlow, EventLoop};
-use glutin::{dpi::*, window};
-use glutin::ContextBuilder;
 
 use crate::keyboard::{scan_to_code, vk_to_key};
 use crate::window::WindowWidget;
 
 use crate::window::Window;
 
-use femtovg::{renderer::OpenGl, Canvas, Color};
-use tuix_core::*;
-use glutin::event::VirtualKeyCode;
-use glutin::window::WindowBuilder;
+use tuix_core::{BoundingBox, Length};
+use tuix_core::{Entity, State};
 
+use tuix_core::state::mouse::{MouseButton, MouseButtonState};
+
+use tuix_core::events::{Event, EventManager, Propagation};
+
+use tuix_core::state::hierarchy::IntoHierarchyIterator;
+
+use tuix_core::state::Fonts;
+
+use tuix_core::state::style::prop::*;
+
+use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
+
+use tuix_core::systems::{apply_styles, apply_hover};
 
 use std::collections::hash_map::HashMap;
 
@@ -705,6 +714,13 @@ impl Application {
         state.data.set_opacity(Entity::root(), 1.0);
 
         let main_window = handle.window().id();
+        let mut bounding_box = BoundingBox::default();
+        bounding_box.w = window_description.inner_size.width as f32;
+        bounding_box.h = window_description.inner_size.height as f32;
+
+        state.data.set_clip_region(Entity::root(), bounding_box);
+
+        WindowWidget::new().build_window(&mut state);
 
         let mut windows = HashMap::new();
         windows.insert(handle.window().id(), Entity::root());
@@ -713,6 +729,7 @@ impl Application {
         window_widget.handle = Some(handle);
         window_widget.build_window(&mut state);
         contexts.insert(Entity::root(), canvas);
+    pub fn run(self) {
 
 
 
@@ -1003,6 +1020,13 @@ impl Application {
                                 .data
                                 .set_height(*window_entity, physical_size.height as f32);
 
+                            let mut bounding_box = BoundingBox::default();
+                            bounding_box.w = physical_size.width as f32;
+                            bounding_box.h = physical_size.height as f32;
+                    
+                            state.data.set_clip_region(Entity::root(), bounding_box);
+
+                            state.insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()).target(Entity::root()));
                             state.insert_event(
                                 Event::new(WindowEvent::Restyle).target(*window_entity),
                             );

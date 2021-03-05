@@ -7,9 +7,8 @@ use crate::{PropSet, State};
 
 use crate::state::style::*;
 
-use crate::widgets::{Button, Element};
+use crate::widgets::Element;
 
-use crate::event::Message;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SliderEvent {
@@ -20,7 +19,7 @@ pub enum SliderEvent {
 /*
 pub struct ProgressBar {
     front: Entity,
-    on_change: Option<Box<dyn Fn(f32) -> Event + Send>>,
+    on_change: Option<Box<dyn Fn(f32) -> Event>>,
     value: f32,
     temp: f32,
     sliding: bool,
@@ -41,7 +40,7 @@ impl ProgressBar {
 
     pub fn on_change<F>(mut self, message: F) -> Self
     where
-        F: 'static + Send + Fn(f32) -> Event,
+        F: 'static + Fn(f32) -> Event,
     {
         self.on_change = Some(Box::new(message));
         self
@@ -332,7 +331,7 @@ impl EventHandler for Slider {
                         let width = state.data.get_width(entity);
                         let thumb_width = state.data.get_width(self.thumb);
 
-                        let mut dx = (state.mouse.left.pos_down.0 - state.data.get_posx(entity));
+                        let mut dx = state.mouse.left.pos_down.0 - state.data.get_posx(entity);
 
                         if dx <= thumb_width / 2.0 {
                             dx = thumb_width / 2.0;

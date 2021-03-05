@@ -440,7 +440,7 @@ impl PropSet for Entity {
 
         state.insert_event(
             Event::new(WindowEvent::Relayout)
-                .target(Entity::null())
+                .target(Entity::root())
                 .origin(self),
         );
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));

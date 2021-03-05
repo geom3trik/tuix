@@ -4,7 +4,7 @@ use tuix::*;
 static THEME: &'static str = include_str!("themes/animation_theme.css");
 
 fn main() {
-    let mut app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|win_desc, state, window| {
         state.style.parse_theme(THEME);
 
         Animations::new().build(state, window, |builder| builder);
@@ -249,7 +249,7 @@ impl BuildHandler for Animations {
 }
 
 impl EventHandler for Animations {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(animations_event) = event.message.downcast::<AnimationsEvent>() {
             match animations_event {
                 AnimationsEvent::Play => {
@@ -360,8 +360,6 @@ impl EventHandler for Animations {
                         self.border_radius_button.set_checked(state, false);
                     }
                 }
-
-                _ => {}
             }
         }
     }

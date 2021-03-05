@@ -4,8 +4,6 @@ use image::GenericImageView;
 
 use tuix::*;
 
-static LIGHT_THEME: &'static str = include_str!("themes/calculator_light_theme.css");
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum CalculatorEvent {
     Digit(char),
@@ -275,7 +273,7 @@ impl BuildHandler for Calculator {
 }
 
 impl EventHandler for Calculator {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(calculator_event) = event.message.downcast::<CalculatorEvent>() {
             match calculator_event {
                 CalculatorEvent::Digit(num) => {
@@ -387,7 +385,7 @@ impl EventHandler for Calculator {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::KeyDown(code, key) => match code {
+                WindowEvent::KeyDown(code, _) => match code {
                     Code::Numpad0 | Code::Digit0 => {
                         state.insert_event(Event::new(ButtonEvent::Pressed).target(self.zero));
                     }
@@ -483,7 +481,7 @@ impl EventHandler for Calculator {
                     _ => {}
                 },
 
-                WindowEvent::KeyUp(code, key) => {
+                WindowEvent::KeyUp(code, _) => {
                     match code {
                         Code::Digit0 => {
                             state.insert_event(Event::new(ButtonEvent::Released).target(self.zero));
@@ -607,7 +605,7 @@ impl EventHandler for Calculator {
 }
 
 pub fn main() {
-    let mut app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|win_desc, state, window| {
         // Replace this with icon loading using resource manager when working
         let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 

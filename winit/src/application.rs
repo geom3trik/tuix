@@ -247,6 +247,7 @@ impl Application {
         window_widget.handle = Some(handle);
         window_widget.build_window(&mut state);
         contexts.insert(Entity::root(), (context, canvas));
+    pub fn run(self) {
 
 
 
@@ -718,8 +719,6 @@ impl Application {
                                         .target(state.hovered),
                                 );
                             }
-
-                            pos = (cursorx, cursory);
                         }
 
                         winit::event::WindowEvent::MouseInput {

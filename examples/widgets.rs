@@ -8,11 +8,6 @@ use tuix::style::themes::DEFAULT_THEME;
 
 static THEME: &'static str = include_str!("themes/widgets_theme.css");
 
-#[derive(Debug, Clone, PartialEq)]
-enum TestEvent {
-    SomethingChanged(f32),
-}
-
 fn main() {
     Application::new(|win_desc, state, window| {
         state.add_theme(DEFAULT_THEME);
@@ -40,7 +35,7 @@ fn main() {
         // BUTTON
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Button").build(state, row, |builder| builder);
-        let button = Button::with_label("Press Me").build(state, row, |builder| {
+        Button::with_label("Press Me").build(state, row, |builder| {
             builder
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
@@ -101,26 +96,26 @@ fn main() {
         // PROGRESS BAR
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Progress Bar").build(state, row, |builder| builder);
-        let progress = ProgressBar::new()
+        ProgressBar::new()
             .with_value(0.5)
             .build(state, row, |builder| builder.set_flex_grow(1.0));
 
         // SLIDER 1
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Slider").build(state, row, |builder| builder);
-        let slider = Slider::new().build(state, row, |builder| builder.set_flex_grow(1.0));
+        Slider::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
         // SLIDER 2
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Slider").build(state, row, |builder| builder);
-        let slider = Slider::new().build(state, row, |builder| {
+        Slider::new().build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("custom1")
         });
 
         // SLIDER 3
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Slider").build(state, row, |builder| builder);
-        let slider = Slider::new().build(state, row, |builder| {
+        Slider::new().build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("custom2")
         });
 
@@ -206,7 +201,7 @@ fn main() {
                 .set_flex_grow(1.0)
         });
 
-        let first = RadioButton::new().build(state, radio_list, |builder| {
+        let a = RadioButton::new().build(state, radio_list, |builder| {
             builder.set_text("A").class("first")
         });
         RadioButton::new().build(state, radio_list, |builder| {
@@ -215,6 +210,8 @@ fn main() {
         RadioButton::new().build(state, radio_list, |builder| {
             builder.set_text("C").class("last")
         });
+
+        a.set_checked(state, true);
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Radio List (V)").build(state, row, |builder| builder);
@@ -225,7 +222,7 @@ fn main() {
         });
 
         let item = HBox::new().build(state, radio_list, |builder| builder);
-        let first = Checkbox::new(true)
+        Checkbox::new(true)
             .on_checked(Event::new(WindowEvent::WindowClose).target(Entity::root()))
             .build(state, item, |builder| builder);
         Label::new("Option 1").build(state, item, |builder| {

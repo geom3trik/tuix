@@ -29,7 +29,7 @@ impl TuixWindow {
     where
         P: HasRawWindowHandle,
         F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
-        F: 'static + Send,
+        F: 'static,
     {
         let mut state = State::new();
 
@@ -63,7 +63,7 @@ impl TuixWindow {
     pub fn open_as_if_parented<F>(mut app: F) -> RawWindowHandle
     where
         F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
-        F: 'static + Send,
+        F: 'static,
     {
         let mut state = State::new();
 
@@ -96,7 +96,7 @@ impl TuixWindow {
     pub fn open_blocking<F>(mut app: F)
     where
         F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
-        F: 'static + Send,
+        F: 'static,
     {
         let mut state = State::new();
 
@@ -125,7 +125,7 @@ impl TuixWindow {
 }
 
 impl WindowHandler for TuixWindow {
-    fn on_frame(&mut self, window: &mut Window) {
+    fn on_frame(&mut self, _window: &mut Window) {
         self.application.on_frame_update();
 
         self.context.make_current();

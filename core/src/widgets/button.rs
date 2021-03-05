@@ -14,7 +14,8 @@ pub enum ButtonEvent {
     Release,
 }
 
-#[derive(Default)]
+
+#[derive(Default, Debug)]
 pub struct Button {
     pub id: Entity,
 
@@ -51,6 +52,13 @@ impl Button {
         self.on_release = Some(event);
         self
     }
+
+    pub fn reset(mut self) -> Self {
+        self.on_press = None;
+        self.on_release = None;
+
+        self
+    }
 }
 
 impl BuildHandler for Button {
@@ -66,35 +74,42 @@ impl BuildHandler for Button {
 
 impl EventHandler for Button {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        
         if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
             match button_event {
                 ButtonEvent::Pressed => {
-                    if let Some(mut on_press) = self.on_press.clone() {
-                        if on_press.target == Entity::null() {
-                            on_press.target = entity;
+                    if event.target == entity {
+                        if let Some(mut on_press) = self.on_press.clone() {
+                            if on_press.target == Entity::null() {
+                                on_press.target = entity;
+                            }
+
+                            on_press.origin = entity;
+                            on_press.propagation = Propagation::Down;
+
+                            state.insert_event(on_press);
                         }
 
-                        on_press.origin = entity;
-                        on_press.propagation = Propagation::Down;
-
-                        state.insert_event(on_press);
+                        entity.set_active(state, true);                        
                     }
 
-                    entity.set_active(state, true);
                 }
 
                 ButtonEvent::Released => {
-                    if let Some(mut on_release) = self.on_release.clone() {
-                        if on_release.target == Entity::default() {
-                            on_release.target = entity;
+                    if event.target == entity {
+                        if let Some(mut on_release) = self.on_release.clone() {
+                            if on_release.target == Entity::default() {
+                                on_release.target = entity;
+                            }
+
+                            on_release.origin = entity;
+                            on_release.propagation = Propagation::Down;
+                            state.insert_event(on_release);
                         }
 
-                        on_release.origin = entity;
-                        on_release.propagation = Propagation::Down;
-                        state.insert_event(on_release);
+                        entity.set_active(state, false);                        
                     }
 
-                    entity.set_active(state, false);
                 }
 
                 _ => {}
@@ -105,8 +120,8 @@ impl EventHandler for Button {
             match window_event {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
-                        //println!("entity: {} {:?}", entity, entity.is_disabled(state));
                         if entity == event.target && !entity.is_disabled(state) {
+                            
                             state.capture(entity);
                             state.insert_event(
                                 Event::new(ButtonEvent::Pressed)
@@ -121,7 +136,7 @@ impl EventHandler for Button {
 
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-                        if entity == event.target {
+                        if entity == event.target && state.mouse.left.pressed == entity {
                             state.release(entity);
                             entity.set_active(state, false);
                             if !entity.is_disabled(state) {

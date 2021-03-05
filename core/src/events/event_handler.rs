@@ -215,15 +215,9 @@ pub trait EventHandler: Any {
         // canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let clip_entity = state.data.get_clip_widget(entity);
+        let mut clip_region = state.data.get_clip_region(entity);
+        canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
 
-        let clip_posx = state.data.get_posx(clip_entity);
-        let clip_posy = state.data.get_posy(clip_entity);
-        let clip_width = state.data.get_width(clip_entity);
-        let clip_height = state.data.get_height(clip_entity);
-
-        //canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
-        //canvas.scissor(0.0, 0.0, 100.0, 100.0);
 
         let shadow_h_offset = match state
             .style

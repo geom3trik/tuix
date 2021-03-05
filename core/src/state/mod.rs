@@ -139,14 +139,16 @@ impl State {
     pub fn add_theme(&mut self, theme: &str) {
         self.resource_manager.themes.push(theme.to_owned());
 
-        self.reload_styles();
+        self.reload_styles().expect("Failed to reload styles");
     }
 
-    pub fn add_image(&mut self, name: &str, path: &str) {
+    //TODO
+    pub fn add_image(&mut self, _name: &str, _path: &str) {
         println!("Add an image to resource manager");
     }
 
-    pub fn add_font(&mut self, name: &str, path: &str) {
+    //TODO
+    pub fn add_font(&mut self, _name: &str, _path: &str) {
         println!("Add an font to resource manager");
     }
 
@@ -242,7 +244,7 @@ impl State {
     /// ```
     /// state.insert_event(Event::new(WindowEvent::WindowClose));
     /// ```
-    pub fn insert_event(&mut self, mut event: Event) {
+    pub fn insert_event(&mut self, event: Event) {
         if event.unique {
             self.event_queue.retain(|e| e != &event);
         }
@@ -331,12 +333,13 @@ impl State {
 
         let delete_list = entity.branch_iter(&self.hierarchy).collect::<Vec<_>>();
 
+        println!("Delete List: {:?}", delete_list);
+
         for entity in delete_list.iter().rev() {
             self.hierarchy.remove(*entity);
             self.hierarchy.remove(*entity);
             self.data.remove(*entity);
             self.style.remove(*entity);
-            self.entity_manager.destroy_entity(*entity);
             self.removed_entities.push(*entity);
         }
 

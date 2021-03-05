@@ -53,18 +53,16 @@ impl BuildHandler for ScrollContainerH {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_flex_direction(state, FlexDirection::Column)
-            .set_width(state, Length::Percentage(1.0))
-            .set_height(state, Length::Percentage(1.0));
+            .set_flex_direction(state, FlexDirection::Column);
 
         self.container = Button::new().build(state, entity, |builder| {
             builder
                 .set_position(Position::Absolute)
                 // .set_left(Length::Percentage(0.0))
                 // .set_align_self(AlignSelf::FlexStart)
-                .set_background_color(Color::rgb(200, 70, 70))
+                //.set_background_color(Color::rgb(200, 70, 70))
                 .class("container")
-                .set_hoverability(false)
+                //.set_hoverability(false)
         });
 
         state.style.clip_widget.insert(self.container, entity);
@@ -76,7 +74,7 @@ impl BuildHandler for ScrollContainerH {
                 //.set_height(Length::Pixels(10.0))
                 // .set_width(Length::Percentage(0.0))
                 // .set_align_self(AlignSelf::FlexStart)
-                .set_background_color(Color::rgb(70, 70, 200))
+                //.set_background_color(Color::rgb(70, 70, 200))
                 //.set_right(Length::Pixels(0.0))
                 .class("scrollbar")
 
@@ -84,6 +82,7 @@ impl BuildHandler for ScrollContainerH {
         });
 
         self.horizontal_scroll.set_disabled(state, true);
+        self.horizontal_scroll.set_enabled(state, false);
 
         state.style.insert_element(entity, "scroll_containerh");
 
@@ -220,13 +219,13 @@ impl EventHandler for ScrollContainerH {
                     //     scrollh = 1.0;
                     // }
 
-                    let current_scroll_top = state
+                    let _current_scroll_top = state
                         .style
                         .left
                         .get(self.horizontal_scroll)
                         .cloned()
                         .unwrap_or_default();
-                    let current_container_top = state
+                    let _current_container_top = state
                         .style
                         .left
                         .get(self.container)
@@ -309,7 +308,7 @@ impl EventHandler for ScrollContainerH {
                     _ => {}
                 },
 
-                WindowEvent::MouseMove(x, y) => {
+                WindowEvent::MouseMove(x, _) => {
                     if self.moving {
                         let dist_x = *x - self.pressedx;
                         let overflow = state.data.get_width(entity)
@@ -387,14 +386,14 @@ impl Container {
 
 impl BuildHandler for Container {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
 }
 
 impl EventHandler for Container {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        if let Some(window_event) = event.message.downcast::<WindowEvent>() {}
+    fn on_event(&mut self, _state: &mut State, _entity: Entity, event: &mut Event) {
+        if let Some(_window_event) = event.message.downcast::<WindowEvent>() {}
     }
 }
 
@@ -505,8 +504,10 @@ impl EventHandler for ScrollContainer {
             match window_event {
                 WindowEvent::GeometryChanged(geometry_changed) => {
                     //println!("Geometry Changed");
+                    
                     if event.target == self.container || event.target == entity {
                         if geometry_changed.width || geometry_changed.height {
+                            //println!("Geometry Changed");
                             let mut scrollh = state.data.get_height(entity)
                                 / state.data.get_height(self.container);
 
@@ -565,6 +566,7 @@ impl EventHandler for ScrollContainer {
                             state.insert_event(Event::new(WindowEvent::Relayout).origin(entity));
                         }
                     }
+                    
                 }
 
                 WindowEvent::MouseScroll(_, y) => {
@@ -611,13 +613,13 @@ impl EventHandler for ScrollContainer {
                     //     scrollh = 1.0;
                     // }
 
-                    let current_scroll_top = state
+                    let _current_scroll_top = state
                         .style
                         .top
                         .get(self.vertical_scroll)
                         .cloned()
                         .unwrap_or_default();
-                    let current_container_top = state
+                    let _current_container_top = state
                         .style
                         .top
                         .get(self.container)

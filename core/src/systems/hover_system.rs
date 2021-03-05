@@ -1,7 +1,7 @@
 
 
 
-use crate::{Entity, State, Hierarchy, HierarchyIterator, Event, WindowEvent, Length, Visibility, Propagation};
+use crate::{Entity, State, Event, WindowEvent, Length, Visibility, Display, PropGet};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
@@ -27,6 +27,10 @@ pub fn apply_hover(state: &mut State) {
             continue;
         }
 
+        if entity.get_display(state) == Display::None {
+            continue;
+        }
+
         // Skip non-hoverable widgets
         if state.data.get_hoverability(entity) != true {
             continue;
@@ -49,21 +53,23 @@ pub fn apply_hover(state: &mut State) {
         let width = state.data.get_width(entity) + (border_width);
         let height = state.data.get_height(entity) + (border_width);
 
-        let clip_widget = state.data.get_clip_widget(entity);
+        //let clip_widget = state.data.get_clip_widget(entity);
 
-        let clip_posx = state.data.get_posx(clip_widget);
-        let clip_posy = state.data.get_posy(clip_widget);
-        let clip_width = state.data.get_width(clip_widget);
-        let clip_height = state.data.get_height(clip_widget);
+        let clip_region = state.data.get_clip_region(entity);
+
+        // let clip_posx = state.data.get_posx(clip_widget);
+        // let clip_posy = state.data.get_posy(clip_widget);
+        // let clip_width = state.data.get_width(clip_widget);
+        // let clip_height = state.data.get_height(clip_widget);
 
         if cursorx >= posx
-            && cursorx >= clip_posx
+            && cursorx >= clip_region.x
             && cursorx < (posx + width)
-            && cursorx < (clip_posx + clip_width)
+            && cursorx < (clip_region.x + clip_region.w)
             && cursory >= posy
-            && cursory >= clip_posy
+            && cursory >= clip_region.y
             && cursory < (posy + height)
-            && cursory < (clip_posy + clip_height)
+            && cursory < (clip_region.y + clip_region.h)
         {
             hovered_widget = entity;
             if let Some(pseudo_classes) =

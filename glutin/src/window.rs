@@ -206,8 +206,8 @@ impl Window {
             Color::rgb(255, 80, 80),
         );
 
-        let height = size.height as f32;
-        let width = size.width as f32;
+        // let height = size.height as f32;
+        // let width = size.width as f32;
 
         Window { handle, canvas }
     }

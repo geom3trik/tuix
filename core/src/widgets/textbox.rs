@@ -2,13 +2,9 @@
 
 use crate::entity::Entity;
 use crate::events::*;
-use crate::mouse::*;
 use crate::{BuildHandler, Justify, Length, PropSet, State, Visibility, WindowEvent};
 
-use femtovg::{
-    renderer::OpenGl, Align, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId,
-    LineCap, LineJoin, Paint, Path, Renderer, Solidity,
-};
+use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path};
 
 use crate::Key;
 
@@ -207,7 +203,7 @@ impl EventHandler for Textbox {
                     self.hitx = -1.0;
                 }
 
-                WindowEvent::KeyDown(code, key) => {
+                WindowEvent::KeyDown(_, key) => {
                     //println!("Code: {:?} Key: {:?}", code, key);
                     if *key == Some(Key::ArrowLeft) {
                         if self.edit {
@@ -560,8 +556,8 @@ impl EventHandler for Textbox {
             return;
         }
 
-        // Apply dataations
-        let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
+        // Apply trandformations
+        let _rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
         canvas.save();
@@ -579,16 +575,11 @@ impl EventHandler for Textbox {
         canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let clip_entity = state.data.get_clip_widget(entity);
+        let mut clip_region = state.data.get_clip_region(entity);
+        canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
 
-        let clip_posx = state.data.get_posx(clip_entity);
-        let clip_posy = state.data.get_posy(clip_entity);
-        let clip_width = state.data.get_width(clip_entity);
-        let clip_height = state.data.get_height(clip_entity);
 
-        //canvas.scissor(clip_posx, clip_posy, clip_width, clip_height);
-
-        let shadow_h_offset = state
+        let _shadow_h_offset = state
             .style
             .shadow_h_offset
             .get(entity)
@@ -613,7 +604,7 @@ impl EventHandler for Textbox {
             border_radius_bottom_right,
             border_radius_bottom_left,
         );
-        let mut paint = Paint::color(background_color);
+        let paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
 
         // Draw border

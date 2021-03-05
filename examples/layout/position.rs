@@ -2,7 +2,7 @@ use tuix::*;
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|win_desc, state, window| {
         window.set_background_color(state, Color::white());
 
         Element::new().build(state, window, |builder| {

@@ -50,7 +50,7 @@ impl BuildHandler for Counter {
 }
 
 impl EventHandler for Counter {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(counter_event) = event.message.downcast::<CounterMessage>() {
             match counter_event {
                 CounterMessage::Increment => {
@@ -72,7 +72,7 @@ fn main() {
     let app = Application::new(|win_desc, state, window| {
         state.add_theme(THEME);
 
-        Counter::default()
+        Counter::new()
             // Set local state
             .set_initial_value(50)
             // Build the widget
