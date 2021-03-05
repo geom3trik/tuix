@@ -19,68 +19,7 @@ impl WindowWidget {
     pub fn id(&self) -> winit::window::WindowId {
         self.handle.as_ref().unwrap().id()
     }
-    /*
-    pub fn new(events_loop: &EventLoop<()>, window_description: &WindowDescription) -> Self {
-        let window_builder = WindowBuilder::new()
-            .with_title(&window_description.title)
-            .with_inner_size(PhysicalSize::new(
-                window_description.inner_size.width,
-                window_description.inner_size.height,
-            ))
-            .with_min_inner_size(PhysicalSize::new(
-                window_description.min_inner_size.width,
-                window_description.min_inner_size.height,
-            ))
-            .with_window_icon(if let Some(icon) = &window_description.icon {
-                Some(
-                    Icon::from_rgba(
-                        icon.clone(),
-                        window_description.icon_width,
-                        window_description.icon_height,
-                    )
-                    .unwrap(),
-                )
-            } else {
-                None
-            });
 
-        let handle = window_builder
-            .build(&events_loop)
-            .expect("Window creation failed");
-
-        let mut gl_config = GlConfig::default();
-        gl_config.vsync = true;
-
-        let context =
-            GlContext::create(&handle, gl_config).expect("OpenGL context creation failed");
-
-        context.make_current();
-
-        let renderer = OpenGl::new(|s| context.get_proc_address(s) as *const _)
-            .expect("Cannot create renderer");
-        let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
-
-        let dpi_factor = handle.scale_factor();
-        let size = handle.inner_size();
-
-        canvas.set_size(size.width as u32, size.height as u32, dpi_factor as f32);
-        canvas.clear_rect(
-            0,
-            0,
-            size.width as u32,
-            size.height as u32,
-            Color::rgb(80, 80, 255),
-        );
-
-        context.make_not_current();
-
-        WindowWidget2 {
-            context: Some(context),
-            canvas: Some(canvas),
-            handle: Some(handle),
-        }
-    }
-    */
     pub fn build_window(self, state: &mut State) {
         state.build(Entity::root(), self);
     }

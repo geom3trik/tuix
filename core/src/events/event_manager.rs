@@ -406,7 +406,11 @@ impl EventManager {
         return needs_redraw;
     }
 
-    pub fn draw(&mut self, state: &mut State, _: &Hierarchy, window: Entity, canvas: &mut Canvas<OpenGl>) {
+    pub fn draw<H: FnOnce(&mut FnvHashMap<Entity, Box<dyn EventHandler>>, &mut AppEvent)>(&mut self, state: &mut State, _: &Hierarchy, window: Entity, canvas: &mut Canvas<OpenGl>, handler: H) { 
+        
+    }
+
+    pub fn draw2(&mut self, state: &mut State, _: &Hierarchy, window: Entity, canvas: &mut Canvas<OpenGl>) {
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
 
