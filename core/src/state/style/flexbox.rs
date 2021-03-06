@@ -1,16 +1,22 @@
-use crate::entity::Entity;
+use crate::{Interpolator, entity::Entity};
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum FlexDirection {
     Row,
-    RowReverse, //TODO
+    RowReverse,
     Column,
-    ColumnReverse, //TODO
+    ColumnReverse,
 }
 
 impl Default for FlexDirection {
     fn default() -> Self {
         FlexDirection::Column
+    }
+}
+
+impl Interpolator for FlexDirection {
+    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
+        return *end;
     }
 }
 
@@ -46,7 +52,6 @@ impl Default for JustifyContent {
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum AlignItems {
-    //None,
     FlexStart,
     FlexEnd,
     Center,

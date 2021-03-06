@@ -1,19 +1,21 @@
-use crate::{Entity, EventHandler, State};
 
+
+use crate::{Entity, EventHandler, State};
 use crate::state::style::*;
 
-// Contains an entity id and a mutable reference to state and can be used to set properties
+/// Contains an entity id and a mutable reference to state and can be used to set properties
 pub struct Builder<'a> {
     pub entity: Entity,
     pub state: &'a mut State,
 }
 
 impl<'a> Builder<'a> {
+    /// Creates a new Builder
     pub fn new(state: &'a mut State, entity: Entity) -> Self {
         Builder { entity, state }
     }
 
-    pub fn build<T>(mut self, event_handler: T) -> Entity
+    pub(crate) fn build<T>(mut self, event_handler: T) -> Entity
     where
         T: EventHandler + 'static + Sized,
     {
@@ -24,31 +26,37 @@ impl<'a> Builder<'a> {
         self.entity
     }
 
+    /// Returns a mutable reference to the State
     pub fn state(&mut self) -> &mut State {
         self.state
     }
 
+    /// Returns the entity id contained within the builder
     pub fn entity(&self) -> Entity {
         self.entity
     }
 
+    /// Adds a class name to the entity
     pub fn class(mut self, class: &str) -> Self {
         self.state.style.insert_class(self.entity, class);
 
         self
     }
 
+    /// Sets the element name of the entity
     pub fn set_element(mut self, element: &str) -> Self {
         self.state.style.insert_element(self.entity, element);
 
         self
     }
 
+    /// Sets the id of the entity
     pub fn set_id(mut self, id: &str) -> Self {
         self.state.style.insert_id(self.entity, id);
 
         self
     }
+
 
     pub fn set_hoverability(mut self, val: bool) -> Self {
         self.state.data.set_hoverability(self.entity, val);
@@ -56,6 +64,7 @@ impl<'a> Builder<'a> {
         self
     }
 
+    /// Sets the opacity of the entity
     pub fn set_opacity(mut self, val: f32) -> Self {
         self.state.style.opacity.insert(self.entity, Opacity(val));
 

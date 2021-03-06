@@ -105,14 +105,14 @@ impl EventHandler for RadioList {
 
 pub struct Radio {
     marker: Entity,
-    check: Check,
+    check: Checkable,
 }
 
 impl Radio {
     pub fn new() -> Self {
         Self {
             marker: Entity::null(),
-            check: Check::new(false),
+            check: Checkable::new(false),
         }
     }
 
@@ -145,13 +145,13 @@ impl EventHandler for Radio {
 }
 
 pub struct RadioButton {
-    check: Check,
+    check: Checkable,
 }
 
 impl RadioButton {
     pub fn new() -> Self {
         Self {
-            check: Check::new(false),
+            check: Checkable::new(false),
         }
     }
 

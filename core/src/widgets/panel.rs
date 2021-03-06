@@ -1,10 +1,8 @@
 #![allow(dead_code)]
 
-use crate::{
-    AnimationState, BuildHandler, Entity, Event, EventHandler, MouseButton, State, WindowEvent,
-};
+use crate::{AnimationState, BuildHandler, Entity, Event, EventHandler, MouseButton, PropGet, State, WindowEvent};
 
-use crate::widgets::Element;
+use crate::widgets::{Element, Label};
 
 use crate::state::style::*;
 
@@ -19,43 +17,50 @@ pub enum PanelEvent {
 
 pub struct Panel {
     header: Entity,
-    container: Entity,
-    other_container: Entity,
-    checkbox: Entity,
+    container1: Entity,
+    container2: Entity,
+    arrow: Entity,
     collapsed: bool,
     title: String,
-    //num_items: u32,
+
     container_height: f32,
+    container_width: f32,
 
-    expand_animation: usize,
+    expand_height_animation: usize,
+    collapse_height_animation: usize,
+    expand_width_animation: usize,
+    collapse_width_animation: usize,
+
     fade_in_animation: usize,
-
-    collapse_animation: usize,
     fade_out_animation: usize,
 
-    arrow_expand_animation: usize,
-    arrow_collapse_animation: usize,
+    arrow_cw_animation: usize,
+    arrow_ccw_animation: usize,
 }
 
 impl Panel {
     pub fn new(title: &str) -> Self {
         Panel {
-            header: Entity::null(),
-            container: Entity::null(),
-            other_container: Entity::null(),
-            checkbox: Entity::null(),
+            header: Entity::default(),
+            container1: Entity::default(),
+            container2: Entity::default(),
+            arrow: Entity::default(),
             title: title.to_string(),
             collapsed: false,
-            //num_items,
-            container_height: 0.0,
 
-            expand_animation: std::usize::MAX,
+            container_height: 0.0,
+            container_width: 0.0,
+
+            expand_height_animation: std::usize::MAX,
+            collapse_height_animation: std::usize::MAX,  
+            expand_width_animation: std::usize::MAX,
+            collapse_width_animation: std::usize::MAX,  
+
             fade_in_animation: std::usize::MAX,
-            collapse_animation: std::usize::MAX,
             fade_out_animation: std::usize::MAX,
 
-            arrow_expand_animation: std::usize::MAX,
-            arrow_collapse_animation: std::usize::MAX,
+            arrow_cw_animation: std::usize::MAX,
+            arrow_ccw_animation: std::usize::MAX,
         }
     }
 }
@@ -65,65 +70,52 @@ impl BuildHandler for Panel {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.header = Element::new().build(state, entity, |builder| {
             builder
-                .set_flex_direction(FlexDirection::Row)
-                //.set_height(Length::Pixels(30.0))
+                //.set_flex_direction(FlexDirection::Row)
                 .class("header")
         });
 
-        self.checkbox = Element::new().build(state, self.header, |builder| {
+        self.arrow = Element::new().build(state, self.header, |builder| {
             builder
                 .set_text(ICON_DOWN_OPEN_BIG)
                 .set_font("icons")
                 .set_text_justify(Justify::Center)
                 .set_text_align(Align::Center)
-                .set_width(Length::Pixels(20.0))
-                .set_height(Length::Percentage(1.0))
+                .set_flex_basis(Length::Pixels(20.0))
                 .set_hoverability(false)
                 .class("arrow")
         });
 
-        // self.checkbox = Checkbox::new(true, ICON_DOWN_OPEN_BIG, ICON_RIGHT_OPEN_BIG).build(state, self.header, |builder| {
-        //     builder
-        //         .set_width(Length::Pixels(20.0))
-        //         .set_height(Length::Percentage(1.0))
-        //         .set_hoverability(false)
-        // });
-
-        Element::new().build(state, self.header, |builder| {
+        // Label
+        Label::new(&self.title).build(state, self.header, |builder| {
             builder
-                .set_text(&self.title)
                 .set_flex_grow(1.0)
                 .set_hoverability(false)
         });
 
-        self.container = Element::new().build(state, entity, |builder| {
-            builder
-                // .set_position(Position::Absolute)
-                // .set_top(Length::Percentage(1.0))
-                // .set_width(Length::Percentage(1.0))
-                //.set_height(Length::Pixels(200.0))
-                .class("container1")
+        self.container1 = Element::new().build(state, entity, |builder| {
+            builder.class("container1")
         });
 
-        self.other_container = Element::new().build(
-            state,
-            self.container,
-            |builder| builder.class("container2"), //.set_flex_grow(1.0).class("test")
-        );
-
-        //entity.set_checked(state, true);
+        self.container2 = Element::new().build(state,self.container1,|builder| builder.class("container2"));
 
         state.style.insert_element(entity, "panel");
 
+
+        // Animations
         let container_expand_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
-        self.expand_animation = state
+        self.expand_height_animation = state
             .style
             .height
-            .insert_animation(container_expand_animation);
+            .insert_animation(container_expand_animation.clone());
+        
+        self.expand_width_animation = state
+            .style
+            .width
+            .insert_animation(container_expand_animation.clone());
 
         let container_collapse_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
@@ -131,10 +123,15 @@ impl BuildHandler for Panel {
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
-        self.collapse_animation = state
+        self.collapse_height_animation = state
             .style
             .height
-            .insert_animation(container_collapse_animation);
+            .insert_animation(container_collapse_animation.clone());
+
+        self.collapse_width_animation = state
+            .style
+            .width
+            .insert_animation(container_collapse_animation.clone());
 
         let container_fade_in_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
@@ -157,25 +154,24 @@ impl BuildHandler for Panel {
             .opacity
             .insert_animation(container_fade_out_animation);
 
-        let arrow_expand_animation = AnimationState::new()
+        let arrow_cw_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, -90.0))
             .with_keyframe((1.0, 0.0));
 
-        self.arrow_expand_animation = state.style.rotate.insert_animation(arrow_expand_animation);
+        self.arrow_cw_animation = state.style.rotate.insert_animation(arrow_cw_animation);
 
-        let arrow_collapse_animation = AnimationState::new()
+        let arrow_ccw_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_delay(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, 0.0))
             .with_keyframe((1.0, -90.0));
 
-        self.arrow_collapse_animation = state
+        self.arrow_ccw_animation = state
             .style
             .rotate
-            .insert_animation(arrow_collapse_animation);
+            .insert_animation(arrow_ccw_animation);
 
-        self.other_container
+        self.container2
     }
 }
 
@@ -184,32 +180,66 @@ impl EventHandler for Panel {
         //if event.target == self.header {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::GeometryChanged(geo) => {
-                    if event.target == self.container || event.target == self.other_container {
-                        if !state.style.height.is_animating(self.container) {
-                           
-                            //let container_height = state.data.get_height(self.container);
-                            let container_height = state.data.get_child_sum(self.container);
-                            if container_height > 0.0 {
-                                self.container_height = container_height;
+                WindowEvent::GeometryChanged(_) => {
+                    if event.target == self.container2 {
 
-                                if let Some(animation) =
-                                    state.style.height.get_animation_mut(self.expand_animation)
-                                {
-                                    animation.keyframes.last_mut().unwrap().1 =
-                                        Length::Pixels(self.container_height);
-                                }
+                        match entity.get_flex_direction(state) {
+                            FlexDirection::Column | FlexDirection::ColumnReverse => {
+                                if !state.style.height.is_animating(self.container1) {
                                 
-                                if let Some(animation) = state
-                                    .style
-                                    .height
-                                    .get_animation_mut(self.collapse_animation)
-                                {
-                                    animation.keyframes.first_mut().unwrap().1 =
-                                        Length::Pixels(self.container_height);
+                                    let container_height = state.data.get_height(self.container1);
+                                    if container_height > 0.0 {
+                                        //self.container_height = container_height;
+
+                                        if let Some(animation) =
+                                            state.style.height.get_animation_mut(self.expand_height_animation)
+                                        {
+                                            animation.keyframes.last_mut().unwrap().1 =
+                                                Length::Pixels(container_height);
+                                        }
+                                        
+                                        if let Some(animation) = state
+                                            .style
+                                            .height
+                                            .get_animation_mut(self.collapse_height_animation)
+                                        {
+                                            animation.keyframes.first_mut().unwrap().1 =
+                                                Length::Pixels(container_height);
+                                        }
+                                    }
+                                }                                
+                            }
+
+                            FlexDirection::Row | FlexDirection::RowReverse => {
+
+                                self.arrow.set_rotate(state, -90.0);
+
+                                if !state.style.width.is_animating(self.container1) {
+                                
+                                    let container_width = state.data.get_width(self.container1);
+                                    if container_width > 0.0 {
+
+                                        if let Some(animation) =
+                                            state.style.width.get_animation_mut(self.expand_width_animation)
+                                        {
+                                            animation.keyframes.last_mut().unwrap().1 =
+                                                Length::Pixels(container_width);
+                                        }
+                                        
+                                        if let Some(animation) = state
+                                            .style
+                                            .width
+                                            .get_animation_mut(self.collapse_width_animation)
+                                        {
+                                            animation.keyframes.first_mut().unwrap().1 =
+                                                Length::Pixels(container_width);
+                                        }
+                                    }
                                 }
                             }
                         }
+
+
                     }
                 }
 
@@ -217,62 +247,129 @@ impl EventHandler for Panel {
                     if event.target == self.header && state.mouse.left.pressed == self.header {
                         if *button == MouseButton::Left {
                             if self.collapsed {
-                                //self.container.set_visibility(state, Visibility::Visible);
-                                //self.checkbox.set_text(state, ICON_DOWN_OPEN_BIG);
+
                                 self.collapsed = false;
-                                //state.style.checked.set(entity, true);
+
                                 entity.set_checked(state, true);
                                 state.insert_event(
                                     Event::new(PanelEvent::Open(entity)).target(entity),
                                 );
 
-                                state
-                                    .style
-                                    .height
-                                    .play_animation(self.container, self.expand_animation);
+                                match entity.get_flex_direction(state) {
+                                    FlexDirection::Column | FlexDirection::ColumnReverse => {
+                                        state
+                                            .style
+                                            .height
+                                            .play_animation(self.container1, self.expand_height_animation);
+                                        
+                                        self.container1.set_height(state, Length::Auto);
+
+                                        if let Some(animation) =
+                                            state.style.rotate.get_animation_mut(self.arrow_cw_animation)
+                                        {
+                                            animation.set_delay(std::time::Duration::from_millis(0));
+                                        }
+
+                                        if let Some(animation) =
+                                            state.style.rotate.get_animation_mut(self.arrow_ccw_animation)
+                                        {
+                                            animation.set_delay(std::time::Duration::from_millis(100));
+                                        }
+
+                                        state
+                                            .style
+                                            .rotate
+                                            .play_animation(self.arrow, self.arrow_cw_animation);
+                                        self.arrow.set_rotate(state, 0.0);
+                                    }
+
+                                    FlexDirection::Row | FlexDirection::RowReverse => {
+                                        state
+                                            .style
+                                            .width
+                                            .play_animation(self.container1, self.expand_width_animation);
+                                        
+                                        self.container1.set_width(state, Length::Auto);
+
+                                        if let Some(animation) =
+                                            state.style.rotate.get_animation_mut(self.arrow_cw_animation)
+                                        {
+                                            animation.set_delay(std::time::Duration::from_millis(100));
+                                        }
+
+                                        if let Some(animation) =
+                                            state.style.rotate.get_animation_mut(self.arrow_ccw_animation)
+                                        {
+                                            animation.set_delay(std::time::Duration::from_millis(0));
+                                        }
+
+                                        state
+                                            .style
+                                            .rotate
+                                            .play_animation(self.arrow, self.arrow_ccw_animation);
+
+                                        self.arrow.set_rotate(state, -90.0);
+
+
+                                    }
+                                }
+                                
                                 state
                                     .style
                                     .opacity
-                                    .play_animation(self.other_container, self.fade_in_animation);
-                                state
-                                    .style
-                                    .rotate
-                                    .play_animation(self.checkbox, self.arrow_expand_animation);
+                                    .play_animation(self.container2, self.fade_in_animation);
+                                
 
-                                self.checkbox.set_rotate(state, 0.0);
-                                //self.container
-                                //    .set_height(state, Length::Pixels(self.container_height));
-                                self.container.set_height(state, Length::Auto);
-                                self.other_container.set_opacity(state, 1.0);
-
-                            //self.container.set_display(state, Display::Flexbox);
+                                
+                                self.container2.set_opacity(state, 1.0);
                             } else {
-                                //self.container.set_visibility(state, Visibility::Invisible);
-                                //self.checkbox.set_text(state, ICON_RIGHT_OPEN_BIG);
                                 self.collapsed = true;
-                                //state.style.checked.set(entity, false);
+
                                 entity.set_checked(state, false);
+
                                 state.insert_event(
                                     Event::new(PanelEvent::Close(entity)).target(entity),
                                 );
 
-                                state
-                                    .style
-                                    .height
-                                    .play_animation(self.container, self.collapse_animation);
+                                match entity.get_flex_direction(state) {
+                                    FlexDirection::Column | FlexDirection::ColumnReverse => {
+                                        state
+                                            .style
+                                            .height
+                                            .play_animation(self.container1, self.collapse_height_animation);
+                                        
+                                        self.container1.set_height(state, Length::Pixels(0.0));
+
+                                        state
+                                            .style
+                                            .rotate
+                                            .play_animation(self.arrow, self.arrow_ccw_animation);
+
+                                        self.arrow.set_rotate(state, -90.0);
+                                    }
+
+                                    FlexDirection::Row | FlexDirection::RowReverse => {
+                                        state
+                                            .style
+                                            .width
+                                            .play_animation(self.container1, self.collapse_width_animation);
+                                        
+                                        self.container1.set_width(state, Length::Pixels(0.0));
+
+                                        state
+                                            .style
+                                            .rotate
+                                            .play_animation(self.arrow, self.arrow_cw_animation);
+                                        self.arrow.set_rotate(state, 0.0);
+                                    }
+                                }
+
                                 state
                                     .style
                                     .opacity
-                                    .play_animation(self.other_container, self.fade_out_animation);
-                                state
-                                    .style
-                                    .rotate
-                                    .play_animation(self.checkbox, self.arrow_collapse_animation);
-
-                                self.checkbox.set_rotate(state, -90.0);
-                                self.container.set_height(state, Length::Pixels(0.0));
-                                self.other_container.set_opacity(state, 0.0);
-                                //self.container.set_display(state, Display::None);
+                                    .play_animation(self.container2, self.fade_out_animation);
+                                
+                                self.container2.set_opacity(state, 0.0);
                             }
                         }
 

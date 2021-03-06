@@ -1,5 +1,4 @@
-use crate::entity::Entity;
-use crate::state::*;
+use crate::{State, Entity};
 
 use std::any::{Any, TypeId};
 use std::fmt::Debug;
@@ -16,11 +15,11 @@ pub enum Propagation {
 }
 
 // A message is a wrapper around an Any but with the added ability to Clone the message
-pub trait Message: Any + MessageClone + Debug {
+pub trait Message: Any + MessageClone {
     // An &Any can be cast to a reference to a concrete type.
     fn as_any(&self) -> &dyn Any;
 
-    // Perform the test.
+    // Perform the test
     fn equals_a(&self, _: &dyn Message) -> bool;
 }
 
@@ -39,14 +38,12 @@ where
     }
 }
 
-// an implementation of clone for boxed messages
+// An implementation of clone for boxed messages
 impl Clone for Box<Message> {
     fn clone(&self) -> Box<Message> {
         self.clone_message()
     }
 }
-
-//impl<T> Message for T where T: 'static + Any + Clone {}
 
 impl dyn Message {
     // Check if a message is a certain type
@@ -74,8 +71,8 @@ impl dyn Message {
     }
 }
 
-// Implements message for any static type that implements PartialEq, Debug and Clone
-impl<S: 'static + PartialEq + std::fmt::Debug + Clone> Message for S {
+// Implements message for any static type that implements Clone
+impl<S: 'static + PartialEq + Clone> Message for S {
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -88,7 +85,7 @@ impl<S: 'static + PartialEq + std::fmt::Debug + Clone> Message for S {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Event {
     // The entity that produced the event. Entity::null() for OS events or unspecified.
     pub origin: Entity,
@@ -118,6 +115,7 @@ impl PartialEq for Event {
 }
 
 impl Event {
+    /// Creates a new event with a specified message
     pub fn new<M>(message: M) -> Self
     where
         M: Message,
@@ -134,33 +132,34 @@ impl Event {
         }
     }
 
-    // Sets the target of the event
+    /// Sets the target of the event
     pub fn target(mut self, entity: Entity) -> Self {
         self.target = entity;
         self
     }
 
-    // Sets the origin of the event
+    /// Sets the origin of the event
     pub fn origin(mut self, entity: Entity) -> Self {
         self.origin = entity;
         self
     }
 
-    // Specifies that the event is unique
-    // (only one of this event type should exist in the event queue at once)
+    /// Specifies that the event is unique
+    /// (only one of this event type should exist in the event queue at once)
     pub fn unique(mut self) -> Self {
         self.unique = true;
         self
     }
 
-    // Sets the propagation of the event
+    /// Sets the propagation of the event
     pub fn propagate(mut self, propagation: Propagation) -> Self {
         self.propagation = propagation;
 
         self
     }
 
-    /// Consume the event
+    /// Consumes the event
+    /// (prevents the event from continuing on its propagation path)
     pub fn consume(&mut self) {
         self.consumed = true;
     }

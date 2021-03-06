@@ -11,8 +11,9 @@ impl DebugContainer {
 }
 
 impl BuildHandler for DebugContainer {
-    fn on_build(&mut self, state: &mut State, entity: Entity) {
-        
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        entity
     }
 }
 

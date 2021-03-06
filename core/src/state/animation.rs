@@ -99,6 +99,12 @@ where
         self
     }
 
+    pub fn set_delay(&mut self, delay: Duration) -> &mut Self {
+        self.delay = delay.as_secs_f32() / self.duration.as_secs_f32();
+
+        self
+    }
+
     pub fn with_keyframe(mut self, key: (f32, Prop)) -> Self {
         self.keyframes.push(key);
 

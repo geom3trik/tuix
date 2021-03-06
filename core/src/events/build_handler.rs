@@ -1,18 +1,15 @@
-use crate::{entity, Entity, EventHandler, EventManager, Selector, State};
 
-use crate::{Align, Display, FlexDirection, Hierarchy, Justify};
-
-use super::builder::Builder;
-use crate::state::style::flexbox::{AlignContent, AlignItems, AlignSelf};
-use crate::style::*;
+use crate::{State, Entity, EventHandler};
+use crate::builder::Builder;
 
 // Inherited by all widgets
 pub trait BuildHandler: EventHandler {
     type Ret;
 
+    /// A method which is called when a widget is built using `.build()`
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret;
 
-    // Adds the widget into state and returns Ret - an entity id or a tuple of entity ids
+    /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
     fn build<F>(mut self, state: &mut State, parent: Entity, mut builder: F) -> Self::Ret
     where
         F: FnMut(Builder) -> Builder,

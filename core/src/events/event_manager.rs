@@ -40,10 +40,6 @@ impl EventManager {
         }
     }
 
-    // pub fn insert_event(&mut self, event: Event) {
-    //     self.event_queue.push_back(event);
-    // }
-
     pub fn flush_events(&mut self, state: &mut State) -> bool {
 
         let mut needs_redraw = false;
@@ -89,30 +85,6 @@ impl EventManager {
                         needs_redraw = true;
                     }
 
-                    /*
-                    WindowEvent::SetCursor(cursor_icon) => match cursor_icon {
-                        CursorIcon::Arrow => {
-                            window
-                                .handle
-                                .window()
-                                .set_cursor_icon(glutin::window::CursorIcon::Arrow);
-                        }
-
-                        CursorIcon::NResize => {
-                            window
-                                .handle
-                                .window()
-                                .set_cursor_icon(glutin::window::CursorIcon::NResize);
-                        }
-
-                        CursorIcon::EResize => {
-                            window
-                                .handle
-                                .window()
-                                .set_cursor_icon(glutin::window::CursorIcon::EResize);
-                        }
-                    },
-                    */
                     _ => {}
                 }
             }

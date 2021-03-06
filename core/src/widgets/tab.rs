@@ -52,14 +52,14 @@ impl EventHandler for TabBar {
 
 pub struct Tab {
     pub name: String,
-    check: Check,
+    check: Checkable,
 }
 
 impl Tab {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
-            check: Check::new(false).check_on_press().on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::DownUp)),
+            check: Checkable::new(false).check_on_press().on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::DownUp)),
         }
     }
 }

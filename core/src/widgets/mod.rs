@@ -1,10 +1,12 @@
 pub mod element;
 pub use element::Element;
-// pub mod button;
+
 pub mod button;
 pub use button::*;
-// pub mod button3;
-// pub mod menu;
+
+pub mod checkable;
+pub use checkable::*;
+
 
 pub mod scrollbar;
 pub use scrollbar::*;
@@ -79,4 +81,6 @@ pub use audio_widgets::*;
 pub use crate::entity::Entity;
 pub use crate::events::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
 pub use crate::state::State;
-pub use crate::PropSet;
+pub use crate::{PropSet, PropGet};
+pub use crate::mouse::*;
+pub use crate::{Key, Code};

@@ -3,14 +3,18 @@ use crate::state::animation::Interpolator;
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Display {
     None,
-    //Normal,
     Flexbox,
-    //Grid,
 }
 
 impl Default for Display {
     fn default() -> Self {
         Display::Flexbox
+    }
+}
+
+impl Interpolator for Display {
+    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
+        return *end;
     }
 }
 
@@ -23,6 +27,12 @@ pub enum Visibility {
 impl Default for Visibility {
     fn default() -> Self {
         Visibility::Visible
+    }
+}
+
+impl Interpolator for Visibility {
+    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
+        return *end;
     }
 }
 

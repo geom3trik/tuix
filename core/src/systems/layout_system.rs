@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+#[allow(dead_code)]
 
 use prop::PropGet;
 
@@ -223,8 +223,8 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     let child_margin_bottom = child.get_margin_bottom(state).get_value(parent_height);
 
     let (
-        child_margin_main_before,
-        child_margin_main_after,
+        _child_margin_main_before,
+        _child_margin_main_after,
         child_margin_cross_before,
         child_margin_cross_after,
     ) = match parent_flex_direction {

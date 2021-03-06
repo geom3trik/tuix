@@ -1,58 +1,61 @@
 #![allow(dead_code)]
 
-use crate::entity::Entity;
-use crate::mouse::*;
 
-use crate::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};
-use crate::{Code, PropSet, State};
+use crate::widgets::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ButtonEvent {
+    // Emitted by a button when the button is pressed
     Pressed,
+    // Emitted by a button when the button is released
     Released,
+    // Received by the button and triggers the on_press event to be emitted
     Press,
+    // Received by the button and triggers the on_release event to be emitted
     Release,
 }
 
 
-#[derive(Default, Debug)]
+#[derive(Default)]
+// A component that can be pressed and released and may emit an event on_press and on_release
 pub struct Button {
-    pub id: Entity,
-
     on_press: Option<Event>,
     on_release: Option<Event>,
     pub text: Option<String>,
 }
 
 impl Button {
+    /// Create a new button component
     pub fn new() -> Self {
         Button {
-            id: Entity::default(),
             on_press: None,
             on_release: None,
             text: None,
         }
     }
 
+    /// Create a new button component with a specified text label
     pub fn with_label(text: &str) -> Self {
         Button {
-            id: Entity::default(),
             on_press: None,
             on_release: None,
             text: Some(text.to_string()),
         }
     }
 
+    /// Specifies the event that should be emitted when the button is pressed
     pub fn on_press(mut self, event: Event) -> Self {
         self.on_press = Some(event);
         self
     }
 
+    /// Specifies the event that should be emitted when the button is released
     pub fn on_release(mut self, event: Event) -> Self {
         self.on_release = Some(event);
         self
     }
 
+    /// Resets the stored events
     pub fn reset(mut self) -> Self {
         self.on_press = None;
         self.on_release = None;
@@ -64,10 +67,13 @@ impl Button {
 impl BuildHandler for Button {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+
+        // If there is a specified label then set the text of the button entity to this
         if let Some(text) = &self.text {
             entity.set_text(state, text);
         }
 
+        // Set the element name to 'button'
         entity.set_element(state, "button")
     }
 }
@@ -110,6 +116,14 @@ impl EventHandler for Button {
                         entity.set_active(state, false);                        
                     }
 
+                }
+
+                ButtonEvent::Press => {
+                    state.insert_event(Event::new(ButtonEvent::Pressed).target(entity).propagate(Propagation::Direct));
+                }
+
+                ButtonEvent::Release => {
+                    state.insert_event(Event::new(ButtonEvent::Released).target(entity).propagate(Propagation::Direct));
                 }
 
                 _ => {}

@@ -100,7 +100,10 @@ impl BuildHandler for Animations {
                 .set_background_color(Color::rgb(50, 100, 50))
         });
 
-        let container = Element::new().build(state, hbox, |builder| builder.set_flex_grow(4.0));
+        let container = Element::new().build(state, hbox, |builder|
+            builder
+                .set_flex_grow(4.0)
+        );
 
         self.element = Element::new().build(state, container, |builder| {
             builder
@@ -109,7 +112,7 @@ impl BuildHandler for Animations {
                 .set_text_align(Align::Start)
         });
 
-        Element::new().build(state, self.element, |builder| builder.class("subelement"));
+        //Element::new().build(state, self.element, |builder| builder.class("subelement"));
 
         // Background Color Animation
         let background_color_animation_state = AnimationState::new()

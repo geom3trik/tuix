@@ -27,6 +27,7 @@ panel>.container1 {
 }
 
 panel>.header {
+    flex-direction: row;
     background-color: #ff5e1a;
     height: 30px;
 }

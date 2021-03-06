@@ -39,6 +39,7 @@ pub trait EventHandler: Any {
             return;
         }
 
+        // Skip widgets that have 0 opacity
         if state.data.get_opacity(entity) == 0.0 {
             return;
         }
@@ -263,7 +264,7 @@ pub trait EventHandler: Any {
         let mut shadow_color: femtovg::Color = shadow_color.into();
         shadow_color.set_alphaf(shadow_color.a * opacity);
 
-        // Draw shadow (TODO)
+        // Draw shadow
         let mut path = Path::new();
         path.rect(
             0.0 - shadow_blur + shadow_h_offset,
@@ -282,7 +283,6 @@ pub trait EventHandler: Any {
             border_radius_bottom_left,
         );
         path.solidity(Solidity::Hole);
-        //let mut paint = Paint::color(shadow_color);
 
         let mut paint = Paint::box_gradient(
             0.0 + shadow_h_offset,
@@ -323,9 +323,10 @@ pub trait EventHandler: Any {
             );
         }
         
-        
+        // Fill with background color
         let mut paint = Paint::color(background_color);
         
+        // Gradient overrides background color
         if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
 
             let (start_x, start_y, end_x, end_y) = match background_gradient.direction {
@@ -341,8 +342,7 @@ pub trait EventHandler: Any {
                 }).collect::<Vec<_>>().as_slice());
         }
 
-        
-
+        // Fill the quad
         canvas.fill_path(&mut path, paint);
 
         // Draw border
@@ -385,7 +385,7 @@ pub trait EventHandler: Any {
 
             let align = match text_justify {
                 Justify::Start => {
-                    x += padding_left;
+                    x += padding_left + border_width;
                     Align::Left
                 }
                 Justify::Center => {
@@ -393,14 +393,14 @@ pub trait EventHandler: Any {
                     Align::Center
                 }
                 Justify::End => {
-                    x += width - padding_right;
+                    x += width - padding_right - border_width;
                     Align::Right
                 }
             };
 
             let baseline = match text_align {
                 crate::Align::Start => {
-                    y += padding_top;
+                    y += padding_top + border_width;
                     Baseline::Top
                 }
                 crate::Align::Center => {
@@ -408,7 +408,7 @@ pub trait EventHandler: Any {
                     Baseline::Middle
                 }
                 crate::Align::End => {
-                    y += height - padding_bottom;
+                    y += height - padding_bottom - border_width;
                     Baseline::Bottom
                 }
             };

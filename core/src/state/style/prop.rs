@@ -7,20 +7,12 @@ use crate::{Event, WindowEvent};
 use crate::state::hierarchy::*;
 
 pub trait PropSet {
-    //fn get_first_child(self, hierarchy: &Hierarchy) -> Option<Entity>;
 
     /// Add a class name to an entity
     fn class(self, state: &mut State, class_name: &str) -> Self;
 
     // TODO move to PropGet
     fn get_parent(self, state: &mut State) -> Option<Entity>;
-
-    fn is_enabled(self, state: &mut State) -> bool;
-    fn is_disabled(self, state: &mut State) -> bool;
-    fn is_checked(self, state: &mut State) -> bool;
-    fn is_over(self, state: &mut State) -> bool;
-    fn is_active(self, state: &mut State) -> bool;
-    fn is_focused(self, state: &mut State) -> bool;
 
     // Pseudoclass
     fn set_enabled(self, state: &mut State, value: bool) -> Self;
@@ -198,49 +190,6 @@ impl PropSet for Entity {
 
     fn get_parent(self, state: &mut State) -> Option<Entity> {
         self.parent(&state.hierarchy)
-    }
-
-    fn is_enabled(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_enabled()
-        } else {
-            false
-        }
-    }
-    fn is_disabled(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_disabled()
-        } else {
-            false
-        }
-    }
-    fn is_checked(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_checked()
-        } else {
-            false
-        }
-    }
-    fn is_over(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_over()
-        } else {
-            false
-        }
-    }
-    fn is_active(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_active()
-        } else {
-            false
-        }
-    }
-    fn is_focused(self, state: &mut State) -> bool {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_focus()
-        } else {
-            false
-        }
     }
 
     // PseudoClass
@@ -1138,6 +1087,15 @@ impl PropSet for Entity {
 }
 
 pub trait PropGet {
+
+
+    fn is_enabled(self, state: &mut State) -> bool;
+    fn is_disabled(self, state: &mut State) -> bool;
+    fn is_checked(self, state: &mut State) -> bool;
+    fn is_over(self, state: &mut State) -> bool;
+    fn is_active(self, state: &mut State) -> bool;
+    fn is_focused(self, state: &mut State) -> bool;
+
     // Display
     fn get_display(&self, state: &mut State) -> Display;
 
@@ -1186,6 +1144,51 @@ pub trait PropGet {
 }
 
 impl PropGet for Entity {
+
+    fn is_enabled(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_enabled()
+        } else {
+            false
+        }
+    }
+    fn is_disabled(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_disabled()
+        } else {
+            false
+        }
+    }
+    fn is_checked(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_checked()
+        } else {
+            false
+        }
+    }
+    fn is_over(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_over()
+        } else {
+            false
+        }
+    }
+    fn is_active(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_active()
+        } else {
+            false
+        }
+    }
+    fn is_focused(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.get_focus()
+        } else {
+            false
+        }
+    }
+
+    
     // Display
     fn get_display(&self, state: &mut State) -> Display {
         state.style.display.get(*self).cloned().unwrap_or_default()
