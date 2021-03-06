@@ -1,13 +1,20 @@
 #![allow(deprecated)]
 
-use glutin::event_loop::{ControlFlow, EventLoop};
+use glutin::{event_loop::{ControlFlow, EventLoop}, window};
+use glutin::dpi::*;
+use glutin::window::Icon;
+use glutin::window::{WindowBuilder};
+use glutin::ContextBuilder;
+use glutin::event::VirtualKeyCode;
+
+use femtovg::{renderer::OpenGl, Canvas, Color};
 
 use crate::keyboard::{scan_to_code, vk_to_key};
 use crate::window::WindowWidget;
 
 use crate::window::Window;
 
-use tuix_core::{BoundingBox, Length};
+use tuix_core::{BoundingBox, Length, Visibility, AppEvent};
 use tuix_core::{Entity, State};
 
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
@@ -20,7 +27,7 @@ use tuix_core::state::Fonts;
 
 use tuix_core::state::style::prop::*;
 
-use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
+use tuix_core::{WindowDescription, WindowEvent};
 
 use tuix_core::systems::{apply_styles, apply_hover};
 
@@ -720,8 +727,6 @@ impl Application {
 
         state.data.set_clip_region(Entity::root(), bounding_box);
 
-        WindowWidget::new().build_window(&mut state);
-
         let mut windows = HashMap::new();
         windows.insert(handle.window().id(), Entity::root());
 
@@ -729,9 +734,6 @@ impl Application {
         window_widget.handle = Some(handle);
         window_widget.build_window(&mut state);
         contexts.insert(Entity::root(), canvas);
-    pub fn run(self) {
-
-
 
         //let event_loop = EventLoop::new();
 
@@ -810,16 +812,28 @@ impl Application {
                     let hierarchy = state.hierarchy.clone();
                     
                     for (window, canvas) in contexts.iter_mut() {
-                        
-                        window.testy2(event_handlers, |window_widget: &mut WindowWidget| {
-                            
+
+                        window.testy2(&mut event_manager.event_handlers, |window_widget: &mut WindowWidget| {
+                            if let Some(handle) = window_widget.handle.as_mut() {
+                                window_widget.make_current();
+                            }
+                        });
+
+                        event_manager.draw(&mut state, &hierarchy, *window, canvas, |event_handlers| {
+                            window.testy2(event_handlers, |window_widget: &mut WindowWidget| {
+                                if let Some(handle) = window_widget.handle.as_ref() {
+                                    handle.swap_buffers();
+                                }
+                            });
                         });
                         
                         
-                        context.make_current();
-                        event_manager.draw(&mut state, &hierarchy, *window, canvas);
-                        context.swap_buffers();
-                        context.make_not_current();
+                        
+                        
+                        // context.make_current();
+                        // event_manager.draw(&mut state, &hierarchy, *window, canvas);
+                        // context.swap_buffers();
+                        // context.make_not_current();
                     }
                 }
 

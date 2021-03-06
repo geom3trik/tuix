@@ -247,9 +247,6 @@ impl Application {
         window_widget.handle = Some(handle);
         window_widget.build_window(&mut state);
         contexts.insert(Entity::root(), (context, canvas));
-    pub fn run(self) {
-
-
 
         //let event_loop = EventLoop::new();
 
@@ -326,10 +323,11 @@ impl Application {
                 // REDRAW
                 WEvent::RedrawRequested(_) => {
                     let hierarchy = state.hierarchy.clone();
+
                     
                     for (window, (context, canvas)) in contexts.iter_mut() {
                         context.make_current();
-                        event_manager.draw(&mut state, &hierarchy, *window, canvas);
+                        event_manager.draw2(&mut state, &hierarchy, *window, canvas);
                         context.swap_buffers();
                         context.make_not_current();
                     }

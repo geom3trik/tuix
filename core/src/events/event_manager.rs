@@ -406,8 +406,11 @@ impl EventManager {
         return needs_redraw;
     }
 
-    pub fn draw<H: FnOnce(&mut FnvHashMap<Entity, Box<dyn EventHandler>>, &mut AppEvent)>(&mut self, state: &mut State, _: &Hierarchy, window: Entity, canvas: &mut Canvas<OpenGl>, handler: H) { 
+    pub fn draw<H: FnOnce(&mut FnvHashMap<Entity, Box<dyn EventHandler>>)>(&mut self, state: &mut State, hierarchy: &Hierarchy, window: Entity, canvas: &mut Canvas<OpenGl>, handler: H) { 
         
+        self.draw2(state, hierarchy, window, canvas);
+        
+        handler(&mut self.event_handlers);
     }
 
     pub fn draw2(&mut self, state: &mut State, _: &Hierarchy, window: Entity, canvas: &mut Canvas<OpenGl>) {

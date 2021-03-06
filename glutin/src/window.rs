@@ -13,8 +13,16 @@ pub struct WindowWidget {
 }
 
 impl WindowWidget {
+
     pub fn id(&self) -> WindowId {
         self.handle.as_ref().unwrap().window().id()
+    }
+
+    pub fn make_current(&mut self) {
+
+        let old_handle = self.handle.take().unwrap();
+        self.handle = Some(unsafe{old_handle.make_current().unwrap()});
+        
     }
 
     pub fn build_window(self, state: &mut State) {
