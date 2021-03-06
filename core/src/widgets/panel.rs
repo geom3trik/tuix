@@ -184,9 +184,10 @@ impl EventHandler for Panel {
         //if event.target == self.header {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::GeometryChanged(_) => {
-                    if event.target == entity {
+                WindowEvent::GeometryChanged(geo) => {
+                    if event.target == self.container || event.target == self.other_container {
                         if !state.style.height.is_animating(self.container) {
+                           
                             //let container_height = state.data.get_height(self.container);
                             let container_height = state.data.get_child_sum(self.container);
                             if container_height > 0.0 {
@@ -198,7 +199,7 @@ impl EventHandler for Panel {
                                     animation.keyframes.last_mut().unwrap().1 =
                                         Length::Pixels(self.container_height);
                                 }
-
+                                
                                 if let Some(animation) = state
                                     .style
                                     .height

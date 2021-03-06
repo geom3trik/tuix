@@ -201,7 +201,7 @@ fn main() {
                 .set_flex_grow(1.0)
         });
 
-        let a = RadioButton::new().build(state, radio_list, |builder| {
+        RadioButton::new().build(state, radio_list, |builder| {
             builder.set_text("A").class("first")
         });
         RadioButton::new().build(state, radio_list, |builder| {
@@ -210,8 +210,6 @@ fn main() {
         RadioButton::new().build(state, radio_list, |builder| {
             builder.set_text("C").class("last")
         });
-
-        a.set_checked(state, true);
 
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Radio List (V)").build(state, row, |builder| builder);
@@ -249,15 +247,6 @@ fn main() {
                 .set_width(Length::Pixels(50.0))
                 .set_margin_left(Length::Pixels(5.0))
         });
-
-        // Tabs
-        // let (tab_bar, tab_container) = TabContainer::new().build(state, window, |builder| builder);
-
-        // Button::with_label("First")
-        // .on_press(Event::new(TabEvent::SwitchTab(0)))
-        // .build(state, tab_bar, |builder| builder.set_checked(true));
-        // let first = Button::new().build(state, tab_container, |builder| builder.class("item1"));
-        // Button::with_label("First Button").build(state, first, |builder| builder.class("test"));
 
         win_desc
     })
