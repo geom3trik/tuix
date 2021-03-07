@@ -1,5 +1,6 @@
 use crate::widgets::*;
 
+// Todo - rename to CheckEvent
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CheckboxEvent {
     Check,

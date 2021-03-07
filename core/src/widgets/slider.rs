@@ -214,7 +214,6 @@ impl EventHandler for Slider {
                             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
                         
                         self.value = v;
-                        println!("value: {}", self.value);
                         if let Some(on_change) = &self.on_change {
                             let mut event = (on_change)(v);
                             event.origin = entity;

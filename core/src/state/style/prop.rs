@@ -1141,6 +1141,9 @@ pub trait PropGet {
     fn get_flex_grow(&self, state: &mut State) -> f32;
     fn get_flex_shrink(&self, state: &mut State) -> f32;
     fn get_align_self(&self, state: &mut State) -> AlignSelf;
+
+    // Tooltip
+    fn get_tooltip(&self, state: &mut State) -> String;
 }
 
 impl PropGet for Entity {
@@ -1402,5 +1405,10 @@ impl PropGet for Entity {
             .get(*self)
             .cloned()
             .unwrap_or_default()
+    }
+
+    // Tooltip
+    fn get_tooltip(&self, state: &mut State) -> String {
+        state.style.tooltip.get(*self).cloned().unwrap_or_default()
     }
 }
