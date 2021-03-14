@@ -2,7 +2,7 @@ use crate::state::{Entity, State};
 
 use crate::events::{BuildHandler, Event, EventHandler, Propagation};
 
-use crate::widgets::{Button, ProgressBar, SliderEvent, Textbox, TextboxEvent};
+use crate::widgets::{Label, Slider, SliderEvent, Textbox, TextboxEvent};
 
 use crate::state::style::*;
 
@@ -32,13 +32,14 @@ impl BuildHandler for ValueSlider {
             .set_display(state, Display::Flexbox)
             .set_flex_direction(state, FlexDirection::Row);
 
-        self.slider = ProgressBar::new().build(state, entity, |builder| builder.set_flex_grow(1.0));
+        self.slider = Slider::new().build(state, entity, |builder| builder.set_flex_grow(1.0).class("custom2"));
         self.value = Textbox::new("0.5").build(state, entity, |builder| {
             builder
+                .set_flex_grow(0.0)
                 .set_flex_basis(Length::Pixels(50.0))
                 .set_margin_left(Length::Pixels(5.0))
         });
-        self.label = Button::new().build(state, self.slider, |builder| {
+        self.label = Label::new(&self.label_text).build(state, self.slider, |builder| {
             builder
                 .set_width(Length::Percentage(1.0))
                 .set_height(Length::Percentage(1.0))

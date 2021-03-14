@@ -1,25 +1,30 @@
 
-
+* {
+    color: black;
+}
 
 button {
-    color: white;
-    background-color: #ff5e1a;
-    border-radius: 3px;
+    color: black;
+    background-color: #dfdfdf;
     text-justify: center;
 }
 
 button:hover {
-    background-color: #ff7033;
+    background-color: #ebebeb;
+}
+
+button:active {
+    background-color: #d0d0d0;
 }
 
 /* .menu_bar {
     background-color: #646464;
 } */
 
+
 panel>.container1>.container2>hbox {
     padding: 10px;
     align-items: center;
-    /* background-color: #ffffff; */
 }
 
 panel>.container1 {
@@ -30,6 +35,15 @@ panel>.header {
     flex-direction: row;
     background-color: #ff5e1a;
     height: 30px;
+    color: white;
+}
+
+panel>.header>.icon {
+    color: white;
+}
+
+panel>.header>.label {
+    color: white;
 }
 
 panel .container2>hbox>label {
@@ -39,36 +53,86 @@ panel .container2>hbox>label {
     padding-left: 5px;
 }
 
-
-
 checkbox {
     width: 20px;
     height: 20px;
     background-color: white;
     border-width: 1px;
+    border-color: #757575;
+    color: black;
+}
+
+list {
+    border-width: 1px;
+    border-color: #999999;
+    /* padding: 5px; */
+}
+
+check_button {
+    color: black;
+    background-color:white;
+}
+
+check_button:checked {
+    background-color: #d0d0d0;
+}
+
+check_button:hover {
+    background-color: #999999;
+}
+
+check_button:focus {
     border-color: black;
-    border-radius: 3px;
+    border-width: 1px;
+}
+
+dropdown {
+    color: black;
+    background-color: #d2d2d2;
+}
+
+dropdown label {
+    color: black;
+    padding-left: 5px;
+}
+
+dropdown .icon {
+    text-justify: center;
+    color: #ff5e1a;
+    width: 30px;
+}
+
+dropdown>.container {
+    top: 100%;
+    width: 100%;
+    /* margin-top: 5px;
+    background-color: white;
+    border-color: black;
+    border-width: 1px; */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 128);
+}
+
+/* dropdown>.container>.item {
+    height: 30px;
+    color: black;
+    padding-left: 10px;
+    background-color: white;
     transition: background-color 0.1 0.0;
 }
 
-checkbox:checked {
-    background-color: #ff5e1a;
-    border-color: #ff5e1a;
+dropdown>.container>.item:hover {
+    height: 30px;
     color: white;
+    background-color: #ff5e1a;
     transition: background-color 0.1 0.0;
-}
+} */
 
-
-switch {
+/* switch {
     width: 36px;
     height: 20px;
     background-color: #646464;
     flex-direction: row;
     padding: 2px;
-    /* padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 2.5px;
-    padding-right: 2.5px; */
     transition: background-color 0.1 0.0;
     border-radius: 9.5px;
 }
@@ -115,12 +179,9 @@ spinner>textbox {
     border-bottom-left-radius: 3;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    /* margin: 0px;*/
     margin-right: -1;
     text-align: center;
     text-justify: center;
-    /* height: 28px; */
-    /* width: 78px; */
 }
 
 spinner>.arrow_container {
@@ -140,57 +201,10 @@ textbox {
     text-justify: center;
 }
 
-dropdown {
-    /* background-color: red; */
-    flex-grow: 1.0;
-    height: 30px;
-    color: black;
-    border-width: 1px;
-    border-color: black;
-    border-radius: 3;
-    text-justify: center;
-}
-
-dropdown label {
-    color: black;
-    text-justify: center;
-}
-
-dropdown .icon {
-    text-justify: center;
-    color: #ff5e1a;
-    width: 30px;
-}
-
-dropdown>.container {
-    top: 100%;
-    width: 100%;
-    margin-top: 5px;
-    background-color: white;
-    border-color: black;
-    border-width: 1px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 128);
-}
-
-dropdown>.container>.item {
-    height: 30px;
-    color: black;
-    padding-left: 10px;
-    background-color: white;
-    transition: background-color 0.1 0.0;
-}
-
-dropdown>.container>.item:hover {
-    height: 30px;
-    color: white;
-    background-color: #ff5e1a;
-    transition: background-color 0.1 0.0;
-}
-
 slider {
     height: 4px;
     border-radius: 2px;
-    background-color: #646464;
+    background-color: #dfdfdf;
     align-items: center;
 }
 
@@ -200,10 +214,12 @@ slider>.active {
 }
 
 slider>.thumb {
-    background-color:#ff5e1a;
+    background-color: white;
     width: 20px;
     height: 20px;
     border-radius: 9.5px;
+    border-color: #757575;
+    border-width: 1px;
 }
 
 radio {
@@ -237,7 +253,7 @@ radio:checked>.marker {
     display: flex;
 }
 
-radio_button {
+check_button {
     background-color: #646464;
     height: 30px;
     color: white;
@@ -248,17 +264,17 @@ radio_button {
     margin-right: 1px;
 }
 
-radio_button:checked {
+check_button:checked {
     background-color: #ff5e1a;
     color: white;
 }
 
-radio_button.first {
+check_button.first {
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
 }
 
-radio_button.last {
+check_button.last {
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
     margin-right: 0px;
@@ -291,4 +307,4 @@ progress_bar {
 progress_bar>.front {
     background-color: #ff5e1a;
     border-radius: 3px;
-}
+} */

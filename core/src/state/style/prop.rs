@@ -199,16 +199,7 @@ impl PropSet for Entity {
             pseudo_classes.set_disabled(!value);
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Restyle)
-                .origin(self)
-                .target(Entity::root()),
-        );
-        state.insert_event(
-            Event::new(WindowEvent::Redraw)
-                .origin(self)
-                .target(Entity::root()),
-        );
+        state.needs_restyle = true;
 
         self
     }
@@ -219,16 +210,7 @@ impl PropSet for Entity {
             pseudo_classes.set_enabled(!value);
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Restyle)
-                .origin(self)
-                .target(Entity::root()),
-        );
-        state.insert_event(
-            Event::new(WindowEvent::Redraw)
-                .origin(self)
-                .target(Entity::root()),
-        );
+        state.needs_restyle = true;
 
         self
     }
@@ -238,21 +220,9 @@ impl PropSet for Entity {
             pseudo_classes.set_checked(value);
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Restyle)
-                .origin(self)
-                .target(Entity::root()),
-        );
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .origin(self)
-                .target(Entity::root()),
-        );
-        state.insert_event(
-            Event::new(WindowEvent::Redraw)
-                .origin(self)
-                .target(Entity::root()),
-        );
+        state.needs_restyle = true;
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -262,16 +232,7 @@ impl PropSet for Entity {
             pseudo_classes.set_over(value);
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Restyle)
-                .origin(self)
-                .target(Entity::root()),
-        );
-        state.insert_event(
-            Event::new(WindowEvent::Redraw)
-                .origin(self)
-                .target(Entity::root()),
-        );
+        state.needs_restyle = true;
 
         self
     }
@@ -281,16 +242,7 @@ impl PropSet for Entity {
             pseudo_classes.set_active(value);
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Restyle)
-                .origin(self)
-                .target(Entity::root()),
-        );
-        state.insert_event(
-            Event::new(WindowEvent::Redraw)
-                .origin(self)
-                .target(Entity::root()),
-        );
+        state.needs_restyle = true;
 
         self
     }
@@ -300,16 +252,7 @@ impl PropSet for Entity {
             pseudo_classes.set_hover(value);
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Restyle)
-                .origin(self)
-                .target(Entity::root()),
-        );
-        state.insert_event(
-            Event::new(WindowEvent::Redraw)
-                .origin(self)
-                .target(Entity::root()),
-        );
+        state.needs_restyle = true;
 
         self
     }
@@ -319,16 +262,7 @@ impl PropSet for Entity {
             pseudo_classes.set_focus(value);
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Restyle)
-                .origin(self)
-                .target(Entity::root()),
-        );
-        state.insert_event(
-            Event::new(WindowEvent::Redraw)
-                .origin(self)
-                .target(Entity::root()),
-        );
+        state.needs_restyle = true;
 
         self
     }
@@ -356,12 +290,8 @@ impl PropSet for Entity {
     fn set_visibility(self, state: &mut State, value: Visibility) -> Self {
         state.style.visibility.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -370,12 +300,9 @@ impl PropSet for Entity {
     fn set_overflow(self, state: &mut State, value: Overflow) -> Self {
         state.style.overflow.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -384,12 +311,8 @@ impl PropSet for Entity {
     fn set_display(self, state: &mut State, value: Display) -> Self {
         state.style.display.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -398,12 +321,8 @@ impl PropSet for Entity {
     fn set_opacity(self, state: &mut State, value: f32) -> Self {
         state.style.opacity.insert(self, Opacity(value));
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -412,12 +331,8 @@ impl PropSet for Entity {
     fn set_rotate(self, state: &mut State, value: f32) -> Self {
         state.style.rotate.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -426,12 +341,8 @@ impl PropSet for Entity {
     fn set_flex_direction(self, state: &mut State, value: FlexDirection) -> Self {
         state.style.flex_direction.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -448,12 +359,8 @@ impl PropSet for Entity {
     fn set_justify_content(self, state: &mut State, value: JustifyContent) -> Self {
         state.style.justify_content.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -461,12 +368,8 @@ impl PropSet for Entity {
     fn set_align_content(self, state: &mut State, value: AlignContent) -> Self {
         state.style.align_content.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -474,12 +377,8 @@ impl PropSet for Entity {
     fn set_align_items(self, state: &mut State, value: AlignItems) -> Self {
         state.style.align_items.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -488,12 +387,8 @@ impl PropSet for Entity {
     fn set_flex_grow(self, state: &mut State, value: f32) -> Self {
         state.style.flex_grow.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -501,12 +396,8 @@ impl PropSet for Entity {
     fn set_flex_shrink(self, state: &mut State, value: f32) -> Self {
         state.style.flex_shrink.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -514,12 +405,8 @@ impl PropSet for Entity {
     fn set_flex_basis(self, state: &mut State, value: Length) -> Self {
         state.style.flex_basis.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -527,12 +414,8 @@ impl PropSet for Entity {
     fn set_align_self(self, state: &mut State, value: AlignSelf) -> Self {
         state.style.align_self.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -541,12 +424,8 @@ impl PropSet for Entity {
     fn set_position(self, state: &mut State, value: Position) -> Self {
         state.style.position.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -554,12 +433,8 @@ impl PropSet for Entity {
     fn set_left(self, state: &mut State, value: Length) -> Self {
         state.style.left.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -567,12 +442,8 @@ impl PropSet for Entity {
     fn set_right(self, state: &mut State, value: Length) -> Self {
         state.style.right.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -580,12 +451,8 @@ impl PropSet for Entity {
     fn set_top(self, state: &mut State, value: Length) -> Self {
         state.style.top.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -593,12 +460,8 @@ impl PropSet for Entity {
     fn set_bottom(self, state: &mut State, value: Length) -> Self {
         state.style.bottom.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -607,12 +470,8 @@ impl PropSet for Entity {
     fn set_width(self, state: &mut State, value: Length) -> Self {
         state.style.width.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -620,12 +479,8 @@ impl PropSet for Entity {
     fn set_height(self, state: &mut State, value: Length) -> Self {
         state.style.height.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -634,12 +489,8 @@ impl PropSet for Entity {
     fn set_min_width(self, state: &mut State, value: Length) -> Self {
         state.style.min_width.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -647,12 +498,8 @@ impl PropSet for Entity {
     fn set_max_width(self, state: &mut State, value: Length) -> Self {
         state.style.max_width.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -660,12 +507,8 @@ impl PropSet for Entity {
     fn set_min_height(self, state: &mut State, value: Length) -> Self {
         state.style.min_height.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -673,12 +516,8 @@ impl PropSet for Entity {
     fn set_max_height(self, state: &mut State, value: Length) -> Self {
         state.style.max_height.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -704,12 +543,8 @@ impl PropSet for Entity {
             );
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -728,12 +563,8 @@ impl PropSet for Entity {
             );
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -741,12 +572,8 @@ impl PropSet for Entity {
     fn set_font_size(self, state: &mut State, value: f32) -> Self {
         state.style.font_size.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -754,7 +581,7 @@ impl PropSet for Entity {
     fn set_font_color(self, state: &mut State, value: Color) -> Self {
         state.style.font_color.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -763,7 +590,7 @@ impl PropSet for Entity {
     fn set_text_justify(self, state: &mut State, value: Justify) -> Self {
         state.style.text_justify.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -771,7 +598,7 @@ impl PropSet for Entity {
     fn set_text_align(self, state: &mut State, value: Align) -> Self {
         state.style.text_align.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -780,7 +607,7 @@ impl PropSet for Entity {
     fn set_background_color(self, state: &mut State, value: Color) -> Self {
         state.style.background_color.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -788,7 +615,7 @@ impl PropSet for Entity {
     fn set_background_image(self, state: &mut State, value: String) -> Self {
         state.style.background_image.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -797,12 +624,8 @@ impl PropSet for Entity {
     fn set_border_width(self, state: &mut State, value: Length) -> Self {
         state.style.border_width.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -810,7 +633,8 @@ impl PropSet for Entity {
     fn set_border_color(self, state: &mut State, value: Color) -> Self {
         state.style.border_color.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        state.needs_redraw = true;
 
         self
     }
@@ -822,7 +646,7 @@ impl PropSet for Entity {
         state.style.border_radius_bottom_left.insert(self, value);
         state.style.border_radius_bottom_right.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -830,7 +654,7 @@ impl PropSet for Entity {
     fn set_border_radius_top_left(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_top_left.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -838,7 +662,7 @@ impl PropSet for Entity {
     fn set_border_radius_top_right(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_top_right.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -846,7 +670,7 @@ impl PropSet for Entity {
     fn set_border_radius_bottom_left(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_bottom_left.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -854,7 +678,7 @@ impl PropSet for Entity {
     fn set_border_radius_bottom_right(self, state: &mut State, value: Length) -> Self {
         state.style.border_radius_bottom_right.insert(self, value);
 
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_redraw = true;
 
         self
     }
@@ -866,12 +690,8 @@ impl PropSet for Entity {
         state.style.margin_top.insert(self, value);
         state.style.margin_bottom.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -879,48 +699,32 @@ impl PropSet for Entity {
     fn set_margin_left(self, state: &mut State, value: Length) -> Self {
         state.style.margin_left.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
     fn set_margin_right(self, state: &mut State, value: Length) -> Self {
         state.style.margin_right.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
     fn set_margin_top(self, state: &mut State, value: Length) -> Self {
         state.style.margin_top.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
     fn set_margin_bottom(self, state: &mut State, value: Length) -> Self {
         state.style.margin_bottom.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -932,12 +736,8 @@ impl PropSet for Entity {
         state.style.padding_top.insert(self, value);
         state.style.padding_bottom.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -945,48 +745,32 @@ impl PropSet for Entity {
     fn set_padding_left(self, state: &mut State, value: Length) -> Self {
         state.style.padding_left.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
     fn set_padding_right(self, state: &mut State, value: Length) -> Self {
         state.style.padding_right.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
     fn set_padding_top(self, state: &mut State, value: Length) -> Self {
         state.style.padding_top.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
     fn set_padding_bottom(self, state: &mut State, value: Length) -> Self {
         state.style.padding_bottom.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -995,12 +779,8 @@ impl PropSet for Entity {
     fn set_clip_widget(self, state: &mut State, value: Entity) -> Self {
         state.style.clip_widget.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -1008,12 +788,8 @@ impl PropSet for Entity {
     fn set_z_order(self, state: &mut State, value: i32) -> Self {
         state.style.z_order.insert(self, value);
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -1031,12 +807,8 @@ impl PropSet for Entity {
             );
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -1054,12 +826,8 @@ impl PropSet for Entity {
             );
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -1075,12 +843,8 @@ impl PropSet for Entity {
                 .insert(self, FocusOrder { next, prev });
         }
 
-        state.insert_event(
-            Event::new(WindowEvent::Relayout)
-                .target(Entity::root())
-                .origin(self),
-        );
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self
     }
@@ -1144,6 +908,9 @@ pub trait PropGet {
 
     // Tooltip
     fn get_tooltip(&self, state: &mut State) -> String;
+
+    // Text
+    fn get_text(&self, state: &mut State) -> String;
 }
 
 impl PropGet for Entity {
@@ -1410,5 +1177,10 @@ impl PropGet for Entity {
     // Tooltip
     fn get_tooltip(&self, state: &mut State) -> String {
         state.style.tooltip.get(*self).cloned().unwrap_or_default()
+    }
+
+    // Text
+    fn get_text(&self, state: &mut State) -> String {
+        state.style.text.get(*self).cloned().unwrap_or_default().text
     }
 }

@@ -13,6 +13,10 @@ pub enum ButtonEvent {
     Press,
     // Received by the button and triggers the on_release event to be emitted
     Release,
+    //
+    Checked,
+
+    Unchecked,
 }
 
 
@@ -21,7 +25,11 @@ pub enum ButtonEvent {
 pub struct Button {
     on_press: Option<Event>,
     on_release: Option<Event>,
+    on_checked: Option<Event>,
+    on_unchecked: Option<Event>,
     pub text: Option<String>,
+
+    on_test: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }
 
 impl Button {
@@ -30,8 +38,20 @@ impl Button {
         Button {
             on_press: None,
             on_release: None,
+            on_checked: None,
+            on_unchecked: None,
             text: None,
+
+            on_test: None,
         }
+    }
+
+    pub fn on_test<F>(mut self, message: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {  
+        self.on_test = Some(Box::new(message));
+        self
     }
 
     /// Create a new button component with a specified text label
@@ -39,7 +59,10 @@ impl Button {
         Button {
             on_press: None,
             on_release: None,
+            on_checked: None,
+            on_unchecked: None,
             text: Some(text.to_string()),
+            on_test: None,
         }
     }
 
@@ -96,6 +119,12 @@ impl EventHandler for Button {
                             state.insert_event(on_press);
                         }
 
+
+                        if let Some(on_test) = self.on_test.take() {
+                            (on_test)(self, state, entity);
+                            self.on_test = Some(on_test);
+                        }
+
                         entity.set_active(state, true);                        
                     }
 
@@ -110,6 +139,7 @@ impl EventHandler for Button {
 
                             on_release.origin = entity;
                             on_release.propagation = Propagation::Down;
+
                             state.insert_event(on_release);
                         }
 

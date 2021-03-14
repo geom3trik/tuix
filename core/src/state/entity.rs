@@ -1,12 +1,16 @@
 use std::cmp::{Eq, PartialEq};
 use std::hash::Hash;
+use std::collections::VecDeque;
 
 // An entity is an id used to reference data in external storages.
 // Rather than having widgets own their data, all state is stored in a single database and
 // is stored and loaded using the entities.
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub struct Entity(u32);
+pub struct Entity {
+    index: u32,    
+    generation: u32,
+}
 
 impl Default for Entity {
     fn default() -> Self {
@@ -22,19 +26,25 @@ impl std::fmt::Display for Entity {
 
 impl Entity {
     pub fn null() -> Entity {
-        Entity(std::u32::MAX)
+        Entity {
+            index: std::u32::MAX,            
+            generation: std::u32::MAX,
+        }
     }
 
     pub fn default() -> Entity {
-        Entity(std::u32::MAX)
+        Entity::null()
     }
 
-    pub fn new(index: u32) -> Entity {
-        Entity(index)
+    pub fn new(index: u32, generation: u32) -> Entity {
+        Entity {
+            index,            
+            generation,
+        }
     }
 
     pub fn is_null(&self) -> bool {
-        if self.0 == std::u32::MAX {
+        if self.index == std::u32::MAX {
             true
         } else {
             false
@@ -46,19 +56,22 @@ impl Entity {
     // }
 
     pub fn index(&self) -> Option<usize> {
-        if self.0 < std::u32::MAX - 1 {
-            Some(self.0 as usize)
+        if self.index < std::u32::MAX {
+            Some(self.index as usize)
         } else {
             None
         }
     }
 
     pub(crate) fn index_unchecked(&self) -> usize {
-        self.0 as usize
+        self.index as usize
     }
 
     pub fn root() -> Entity {
-        Entity(0)
+        Entity {
+            index: 0,            
+            generation: 0,
+        }
     }
 }
 
@@ -76,23 +89,36 @@ impl std::ops::Not for Entity {
 // }
 
 #[derive(Clone)]
-pub(crate) struct EntityManager {
-
-    count: usize,
+pub struct EntityManager {
+    count: u32,
+    free_list: VecDeque<Entity>,
 }
 
 impl EntityManager {
-    pub(crate) fn new() -> EntityManager {
+    pub fn new() -> EntityManager {
         EntityManager {
             count: 0,
+            free_list: VecDeque::with_capacity(1024),
         }
     }
 
-    pub(crate) fn create_entity(&mut self) -> Option<Entity> {
-        let index = self.count as u32;
-        self.count += 1;
-        
-        return Some(Entity::new(index));
+    pub fn create_entity(&mut self) -> Option<Entity> {
+        if self.free_list.len() > 1024 {
+            if let Some(mut entity) = self.free_list.pop_front() {
+                entity.generation += 1;
+                Some(entity)
+            } else {
+                None
+            }
+        } else {
+            self.count += 1;
+            Some(Entity::new(self.count, 0))
+        }
+    }
+
+    pub fn destroy_entity(&mut self, entity: Entity) {
+        println!("Destroy Entity");
+        self.free_list.push_back(entity);
     }
 
     // Destroy an entity.
@@ -103,3 +129,4 @@ impl EntityManager {
     //     }
     // }
 }
+

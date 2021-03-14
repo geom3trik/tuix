@@ -2,7 +2,7 @@
 
 use std::usize;
 
-use crate::{CheckboxEvent, Entity, HierarchyTree, MouseButton, Propagation, Radio, RadioList, State, PropGet, AnimationState};
+use crate::{CheckboxEvent, Entity, HierarchyTree, MouseButton, Propagation, Radio, List, State, PropGet, AnimationState};
 
 use crate::events::{BuildHandler, Event, EventHandler};
 
@@ -19,13 +19,13 @@ pub enum TabEvent {
 }
 
 pub struct TabBar {
-    list: RadioList,
+    list: List,
 }
 
 impl TabBar {
     pub fn new() -> Self {
         Self { 
-            list: RadioList::new(),
+            list: List::new(),
         }
     }
 }
@@ -59,7 +59,8 @@ impl Tab {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
-            check: Checkable::new(false).check_on_press().on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::DownUp)),
+            check: Checkable::new(false).on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::DownUp)),
+            //.check_on_press()
         }
     }
 }
@@ -210,7 +211,7 @@ pub struct TabBar2 {
     shrink_animation: usize,
     grow_animation: usize,
     tab_moving: bool,
-    list: RadioList,
+    list: List,
 }
 
 impl TabBar2 {
@@ -221,7 +222,7 @@ impl TabBar2 {
             shrink_animation: std::usize::MAX,
             grow_animation: std::usize::MAX,
             tab_moving: false,
-            list: RadioList::new(),
+            list: List::new(),
         }
     }
 }

@@ -28,17 +28,17 @@ impl EventHandler for WindowWidget {
                 WindowEvent::Restyle => {
                     //println!("Restyle");
                     //apply_styles2(state, &state.hierarchy.clone(), event.origin);
-                    apply_styles(state, &state.hierarchy.clone());
-                    apply_visibility(state, &state.hierarchy.clone());
+                    // apply_styles(state, &state.hierarchy.clone());
+                    // apply_visibility(state, &state.hierarchy.clone());
                 }
 
                 WindowEvent::Relayout => {
                     //println!("Relayout");
-                    apply_z_ordering(state, &state.hierarchy.clone());
-                    apply_visibility(state, &state.hierarchy.clone());
-                    apply_clipping(state, &state.hierarchy.clone());
-                    apply_layout(state, &state.hierarchy.clone());
-                    apply_hover(state);
+                    // apply_z_ordering(state, &state.hierarchy.clone());
+                    // apply_visibility(state, &state.hierarchy.clone());
+                    // apply_clipping(state, &state.hierarchy.clone());
+                    // apply_layout(state, &state.hierarchy.clone());
+                    // apply_hover(state);
                 }
 
                 WindowEvent::Redraw => {}

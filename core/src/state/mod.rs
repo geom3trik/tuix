@@ -4,6 +4,9 @@ pub use entity::*;
 pub mod hierarchy;
 pub use hierarchy::*;
 
+pub mod hierarchy2;
+pub use hierarchy2::*;
+
 pub mod storage;
 pub use storage::*;
 
@@ -63,6 +66,10 @@ pub struct State {
     pub fonts: Fonts, //TODO - Replace with resource manager
 
     resource_manager: ResourceManager, //TODO
+
+    pub needs_restyle: bool,
+    pub needs_relayout: bool,
+    pub needs_redraw: bool,
 }
 
 impl State {
@@ -74,9 +81,7 @@ impl State {
         let mouse = MouseState::default();
         let modifiers = ModifiersState::default();
 
-        let root = entity_manager
-            .create_entity()
-            .expect("Failed to create root");
+        let root = Entity::root();
 
         data.add(root);
         style.add(root);
@@ -92,10 +97,10 @@ impl State {
             data,
             mouse,
             modifiers,
-            hovered: Entity::new(0),
+            hovered: Entity::root(),
             active: Entity::null(),
             captured: Entity::null(),
-            focused: Entity::new(0),
+            focused: Entity::root(),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             removed_entities: Vec::new(),
@@ -106,6 +111,9 @@ impl State {
                 emoji: None,
             },
             resource_manager: ResourceManager::new(),
+            needs_restyle: false,
+            needs_relayout: false,
+            needs_redraw: false,
         }
     }
 
@@ -336,6 +344,7 @@ impl State {
             self.data.remove(*entity);
             self.style.remove(*entity);
             self.removed_entities.push(*entity);
+            self.entity_manager.destroy_entity(*entity);
         }
 
     

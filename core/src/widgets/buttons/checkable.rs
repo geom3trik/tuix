@@ -12,8 +12,6 @@ pub enum CheckboxEvent {
 
 // A component that can be in a checked or unchecked state
 pub struct Checkable {
-
-    button: Button,
     checked: bool,
 
     on_checked: Option<Event>,
@@ -23,20 +21,11 @@ pub struct Checkable {
 impl Checkable {
     pub fn new(checked: bool) -> Self {
         Self {
-
-            button: Button::new().on_release(Event::new(CheckboxEvent::Switch)),
             checked,
 
             on_checked: None,
             on_unchecked: None,
         }
-    }
-
-    pub fn check_on_press(mut self) -> Self {
-        self.button = self.button.reset();
-        self.button = self.button.on_press(Event::new(CheckboxEvent::Switch));
-
-        self
     } 
 
     pub fn is_checked(&self) -> bool {
@@ -71,20 +60,24 @@ impl BuildHandler for Checkable {
 impl EventHandler for Checkable {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
 
-        self.button.on_event(state, entity, event);
-        
         if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
             match checkbox_event {
                 CheckboxEvent::Switch => {
                     if event.target == entity {
                         //self.switch(state, entity);
                         if self.checked {
+                            println!("Send unchecked");
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)
                                     .target(entity)
                                     .origin(entity),
                             );
                         } else {
+                            
+                            let check_event = Event::new(CheckboxEvent::Checked)
+                            .target(entity)
+                            .origin(entity);
+                            println!("Send checked: {:?}", check_event);
                             state.insert_event(
                                 Event::new(CheckboxEvent::Checked)
                                     .target(entity)

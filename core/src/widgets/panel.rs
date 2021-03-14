@@ -82,7 +82,7 @@ impl BuildHandler for Panel {
                 .set_text_align(Align::Center)
                 .set_flex_basis(Length::Pixels(20.0))
                 .set_hoverability(false)
-                .class("arrow")
+                .class("icon")
         });
 
         // Label
@@ -90,6 +90,7 @@ impl BuildHandler for Panel {
             builder
                 .set_flex_grow(1.0)
                 .set_hoverability(false)
+                .class("label")
         });
 
         self.container1 = Element::new().build(state, entity, |builder| {

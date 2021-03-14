@@ -197,19 +197,12 @@ impl EventHandler for Slider {
                             dx = width - thumb_width / 2.0;
                         }
 
-                        // if dx <= 0.0 {
-                        //     dx = 0.0;
-                        // } if dx >= width - thumb_width {
-                        //     dx = width - thumb_width;
-                        // }
-
-                        // let nx = (dx - thumb_width/2.0) / (width - thumb_width);
                         let nx = (dx - thumb_width / 2.0) / (width - thumb_width);
 
                         let v = self.min + nx * (self.max - self.min);
 
                         self.active.set_width(state, Length::Percentage(nx));
-                        //self.thumb.set_left(state, Length::Pixels(dx - thumb_width/2.0));
+                        
                         self.thumb
                             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
                         

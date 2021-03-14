@@ -1,24 +1,21 @@
 pub mod element;
 pub use element::Element;
 
-pub mod button;
-pub use button::*;
+pub mod buttons;
+pub use buttons::*;
 
-pub mod checkable;
-pub use checkable::*;
+pub mod inputs;
+pub use inputs::*;
+
 
 
 pub mod scrollbar;
 pub use scrollbar::*;
 
-pub mod slider;
-pub use slider::*;
 
 pub mod progress;
 pub use progress::*;
 
-pub mod checkbox;
-pub use checkbox::*;
 
 pub mod switch;
 pub use switch::*;
@@ -41,9 +38,6 @@ pub use menu::*;
 pub mod scroll_container;
 pub use scroll_container::*;
 
-pub mod spinner;
-pub use spinner::*;
-
 pub mod value_slider;
 pub use value_slider::ValueSlider;
 
@@ -52,9 +46,6 @@ pub use length_box::LengthBox;
 
 pub mod panel;
 pub use panel::*;
-
-pub mod radio;
-pub use radio::*;
 
 pub mod label;
 pub use label::*;
@@ -68,15 +59,15 @@ pub use vector_edit::*;
 pub mod window;
 pub use window::WindowWidget;
 
-pub mod listbox;
-pub use listbox::*;
-
 pub mod tooltip;
 pub use tooltip::*;
 
 // Audio Widgets
 pub mod audio_widgets;
 pub use audio_widgets::*;
+
+pub mod debug_container;
+pub use debug_container::*;
 
 pub use crate::entity::Entity;
 pub use crate::events::{BuildHandler, Event, EventHandler, Propagation, WindowEvent};

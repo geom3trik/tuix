@@ -3,7 +3,7 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, Checkbox, Dimension, Dropdown, Panel, RadioButton, RadioList, ResizableVBox,
+    Button, Checkbox, Dimension, Dropdown, Panel, CheckButton, RadioList, ResizableVBox,
     ScrollContainer, Spinner, Textbox, VectorEdit, VectorEditEvent,
 };
 
@@ -164,7 +164,7 @@ fn main() {
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
         });
-        RadioButton::new().build(state, hbox, |builder| {
+        CheckButton::new(true).build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
         Label::new("Option 1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
@@ -172,7 +172,7 @@ fn main() {
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
         });
-        RadioButton::new().build(state, hbox, |builder| {
+        CheckButton::new(false).build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
         Label::new("Option 2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
@@ -180,7 +180,7 @@ fn main() {
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
         });
-        RadioButton::new().build(state, hbox, |builder| {
+        CheckButton::new(false).build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
         Label::new("Option 3").build(state, hbox, |builder| builder.set_flex_grow(1.0));

@@ -109,7 +109,7 @@ impl Data {
             // self.child_shrink_sum.resize(key + 1, 0.0);
             self.opacity.resize(key + 1, 0.0);
             self.z_order.resize(key + 1, 0);
-            self.clip_widget.resize(key + 1, Entity::new(0));
+            self.clip_widget.resize(key + 1, Entity::root());
             self.clip_region.resize(key + 1, Default::default());
         }
 

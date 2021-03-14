@@ -98,9 +98,10 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     // Add padding
     if state.style.flex_grow.get(child).is_none() {
         new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
-        new_cross +=
-            child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
     }
+
+    new_cross +=
+        child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;    
 
     //println!("New Main: {}, New Cross: {}", new_main, new_cross);
 
@@ -157,6 +158,8 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     // Main and Cross should be at least as big as padding + border
     // new_main = new_main.max(child_padding_main_before + child_padding_main_after + 2.0 * child_border_width);
     // new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width);
+
+    //println!("Child: {} {} {} {}", child, new_main, new_cross, child_padding_bottom);
 
     (new_main, new_cross)
 }
@@ -285,9 +288,11 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     // Add padding
     if state.style.flex_grow.get(child).is_none() {
         new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
-        new_cross +=
-            child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
     }
+
+    new_cross +=
+        child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
+
 
     let child_position = child.get_position(state);
 

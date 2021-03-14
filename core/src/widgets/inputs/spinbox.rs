@@ -29,7 +29,7 @@ use num_traits::{Bounded, Num, One};
 
 //impl Message for NumEditEvent {}
 
-pub struct Spinner<T> {
+pub struct Spinbox<T> {
     pub value: T,
     pub textbox: Entity,
     pub increment: Entity,
@@ -53,7 +53,7 @@ pub struct Spinner<T> {
     on_min: Option<Event>,
 }
 
-impl<T> Spinner<T>
+impl<T> Spinbox<T>
 where
     T: 'static
         + Default
@@ -72,7 +72,7 @@ where
         // entity.set_text(state, "Test".to_string())
         //     .set_background(state, nanovg::Color::from_rgb(100, 50, 50));
 
-        Spinner {
+        Spinbox {
             value: initial_value,
             increment_value: T::one(),
             decrement_value: T::one(),
@@ -150,7 +150,7 @@ where
     }
 }
 
-impl<T> BuildHandler for Spinner<T>
+impl<T> BuildHandler for Spinbox<T>
 where
     T: 'static
         + Default
@@ -219,7 +219,7 @@ where
     }
 }
 
-impl<T> EventHandler for Spinner<T>
+impl<T> EventHandler for Spinbox<T>
 where
     T: 'static
         + Default

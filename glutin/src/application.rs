@@ -21,7 +21,7 @@ use tuix_core::state::style::prop::*;
 
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
-use tuix_core::systems::{apply_styles, apply_hover};
+use tuix_core::systems::*;
 
 use glutin::event::VirtualKeyCode;
 
@@ -129,12 +129,14 @@ impl Application {
         //let hierarchy = state.hierarchy.clone();
 
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        // state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        // state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
 
         let event_loop_proxy = self.event_loop.create_proxy();
 
-        let mut first_time = true;
+        state.needs_restyle = true;
+        state.needs_relayout = true;
+        state.needs_redraw = true;
 
         self.event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
@@ -143,58 +145,55 @@ impl Application {
                 GEvent::LoopDestroyed => return,
 
                 GEvent::UserEvent(_) => {
+                    //println!("User Event");
                     window.handle.window().request_redraw();
                 }
 
                 GEvent::MainEventsCleared => {
 
-                    let mut needs_redraw = false;
+                    event_loop_proxy.send_event(()).unwrap();
+
                     while !state.event_queue.is_empty() {
-                        if event_manager.flush_events(&mut state) {
-                            needs_redraw = true;
-                        }
+                        event_manager.flush_events(&mut state);
                     }
 
+                    //println!("Main Events Cleared");
                     if state.apply_animations() {
                         //println!("Animate");
                         *control_flow = ControlFlow::Poll;
-                        state.insert_event(
-                            Event::new(WindowEvent::Relayout)
-                                .target(Entity::root())
-                                .origin(Entity::root()),
-                        );
-                        //state.insert_event(Event::new(WindowEvent::Redraw));
+
+                        state.needs_restyle = true;
+                        state.needs_relayout = true;
+                        state.needs_redraw = true;
+
                         event_loop_proxy.send_event(()).unwrap();
                         window.handle.window().request_redraw();
                     } else {
-                        //println!("Wait");
                         *control_flow = ControlFlow::Wait;
                     }
 
-                    if first_time {
-                        let hierarchy = state.hierarchy.clone();
+                    let hierarchy = state.hierarchy.clone();
+
+                    if state.needs_restyle {
+                        
                         apply_styles(&mut state, &hierarchy);
-                        first_time = false;
                     }
 
-                    if needs_redraw {
+                    if state.needs_relayout {
+                        apply_z_ordering(&mut state, &hierarchy);
+                        apply_visibility(&mut state, &hierarchy);
+                        apply_clipping(&mut state, &hierarchy);
+                        apply_layout(&mut state, &hierarchy);
+                        apply_hover(&mut state);
+                    }
+
+                    if state.needs_redraw {
                         window.handle.window().request_redraw();
                     }
 
-                    //
-
-                    // event_manager.flush_events(&mut state);
-
-                    // apply_z_ordering(&mut state, &hierarchy);
-                    // apply_visibility(&mut state, &hierarchy);
-                    // apply_clipping(&mut state, &hierarchy);
-                    // layout_fun(&mut state, &hierarchy);
-
-                    // event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
-                    // window
-                    //     .handle
-                    //     .swap_buffers()
-                    //     .expect("Failed to swap buffers");
+                    state.needs_restyle = false;
+                    state.needs_relayout = false;
+                    state.needs_redraw = false;
                 }
 
                 // REDRAW
@@ -237,18 +236,23 @@ impl Application {
                         // Focused Window //
                         ////////////////////
                         glutin::event::WindowEvent::Focused(_) => {
-                            state.insert_event(
-                                Event::new(WindowEvent::Restyle)
-                                    .target(Entity::root())
-                                    .origin(Entity::root()),
-                            );
-                            state.insert_event(
-                                Event::new(WindowEvent::Relayout)
-                                    .target(Entity::root())
-                                    .origin(Entity::root()),
-                            );
+                            // state.insert_event(
+                            //     Event::new(WindowEvent::Restyle)
+                            //         .target(Entity::root())
+                            //         .origin(Entity::root()),
+                            // );
+                            // state.insert_event(
+                            //     Event::new(WindowEvent::Relayout)
+                            //         .target(Entity::root())
+                            //         .origin(Entity::root()),
+                            // );
 
-                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                            // state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+
+                            state.needs_restyle = true;
+                            state.needs_relayout = true;
+                            state.needs_redraw = true;
                         }
 
                         ////////////////////
@@ -324,14 +328,21 @@ impl Application {
                                         }
                                     } else {
                                         let hierarchy = state.hierarchy.clone();
+
+                                        let mut iter =  state.focused.into_iter(&hierarchy);
+                                        iter.next();
+                                        let next = iter.next();
+
+                                        
                                         if next_focus != Entity::null() {
                                             state.focused.set_focus(&mut state, false);
                                             state.focused = next_focus;
                                             state.focused.set_focus(&mut state, true);
                                         } else {
+
                                             state.focused.set_focus(&mut state, false);
                                             state.focused =
-                                                match state.focused.into_iter(&hierarchy).next() {
+                                                match next {
                                                     Some(val) => val,
                                                     None => Entity::root(),
                                                 };
@@ -339,11 +350,17 @@ impl Application {
                                         }
                                     }
 
-                                    state.insert_event(
-                                        Event::new(WindowEvent::Restyle)
-                                            .target(Entity::root())
-                                            .origin(Entity::root()),
-                                    );
+                                    
+
+                                    // state.insert_event(
+                                    //     Event::new(WindowEvent::Restyle)
+                                    //         .target(Entity::root())
+                                    //         .origin(Entity::root()),
+                                    // );
+
+                                    state.needs_restyle = true;
+                                    state.needs_relayout = true;
+                                    state.needs_redraw = true;
                                 }
                             }
 
@@ -407,11 +424,15 @@ impl Application {
                     
                             state.data.set_clip_region(Entity::root(), bounding_box);
 
-                            state.insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()).target(Entity::root()));
-                            state.insert_event(
-                                Event::new(WindowEvent::Relayout).target(Entity::root()),
-                            );
-                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                            // state.insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()).target(Entity::root()));
+                            // state.insert_event(
+                            //     Event::new(WindowEvent::Relayout).target(Entity::root()),
+                            // );
+                            // state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+                            state.needs_restyle = true;
+                            state.needs_relayout = true;
+                            state.needs_redraw = true;
                         }
 
                         glutin::event::WindowEvent::CursorMoved {
@@ -482,6 +503,7 @@ impl Application {
                                     {
                                         state.active = state.hovered;
                                         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                                        state.needs_restyle = true;
                                     }
 
                                     if state.captured != Entity::null() {
@@ -522,7 +544,8 @@ impl Application {
 
                                 MouseButtonState::Released => {
                                     state.active = Entity::null();
-                                    state.insert_event(Event::new(WindowEvent::Restyle));
+                                    //state.insert_event(Event::new(WindowEvent::Restyle));
+                                    state.needs_restyle = true;
 
                                     if state.captured != Entity::null() {
                                         state.insert_event(

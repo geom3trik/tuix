@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::entity::Entity;
+use crate::{CheckboxEvent, List, entity::Entity};
 use crate::mouse::*;
 use crate::{AnimationState, BuildHandler, Event, EventHandler, Propagation, WindowEvent};
 use crate::{PropSet, State};
@@ -101,6 +101,8 @@ pub struct Dropdown {
 
     open: bool,
 
+    multi: bool,
+
     //other_container: Entity,
     expand_animation: usize,
     fade_in_animation: usize,
@@ -119,6 +121,7 @@ impl Dropdown {
             //options: Vec::new(),
             text: text.to_string(),
             open: false,
+            multi: false,
             //other_container: Entity::null(),
             expand_animation: std::usize::MAX,
             fade_in_animation: std::usize::MAX,
@@ -126,6 +129,11 @@ impl Dropdown {
             fade_out_animation: std::usize::MAX,
             //container_height: 0.0,
         }
+    }
+
+    pub fn set_multi(mut self) -> Self {
+        self.multi = true;
+        self
     }
 
     // pub fn add_item(mut self, name: &str, proxy: &str) -> Self {
@@ -167,19 +175,37 @@ impl BuildHandler for Dropdown {
                 .class("icon")
         });
 
-        self.container = Element::new().build(state, entity, |builder| {
-            builder
-                .set_position(Position::Absolute)
-                //.set_top(Length::Percentage(1.0))
-                //.set_width(Length::Percentage(1.0))
-                //.set_height(Length::Pixels(0.0))
-                .set_opacity(0.0)
-                .set_z_order(1)
-                .set_clip_widget(Entity::root())
-                //.set_visibility(Visibility::Invisible)
-                //.set_background_color(Color::rgb(100, 50, 50))
-                .class("container")
-        });
+        // self.container = Element::new().build(state, entity, |builder| {
+        //     builder
+        //         .set_position(Position::Absolute)
+        //         //.set_top(Length::Percentage(1.0))
+        //         //.set_width(Length::Percentage(1.0))
+        //         //.set_height(Length::Pixels(0.0))
+        //         .set_opacity(0.0)
+        //         .set_z_order(1)
+        //         .set_clip_widget(Entity::root())
+        //         //.set_visibility(Visibility::Invisible)
+        //         //.set_background_color(Color::rgb(100, 50, 50))
+        //         .class("container")
+        // });
+        if self.multi {
+            self.container = List::new().set_multi().build(state, entity, |builder|
+                builder
+                    .set_position(Position::Absolute)
+                    .set_opacity(0.0)
+                    .set_z_order(1)
+                    .class("container")
+            );
+        } else {
+            self.container = List::new().build(state, entity, |builder|
+                builder
+                    .set_position(Position::Absolute)
+                    .set_opacity(0.0)
+                    .set_z_order(1)
+                    .class("container")
+            );
+        }
+
 
         //self.other_container = Button::new().build(state, self.container, |builder| builder.set_flex_grow(1.0).set_opacity(0.0).class("other"));
 
@@ -247,6 +273,20 @@ impl BuildHandler for Dropdown {
 
 impl EventHandler for Dropdown {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        
+        if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
+            match checkbox_event {
+                CheckboxEvent::Checked => {
+                    if !self.multi {
+                        let label_text = event.target.get_text(state);
+                        self.label.set_text(state, &label_text);
+                    }
+                }
+
+                _=> {}
+            }
+        }
+        
         if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             //if event.target == entity {
             match dropdown_event {
@@ -280,13 +320,13 @@ impl EventHandler for Dropdown {
                         if event.target == entity || event.target == self.header {
             
                             //if state.hovered.is_child_of(&state.hierarchy, self.container) {
-                            if state.hovered != entity {
-                                state.insert_event(
-                                    Event::new(WindowEvent::MouseDown(*button))
-                                        .target(state.hovered)
-                                        .propagate(Propagation::Direct),
-                                );
-                            }
+                            // if state.hovered != entity {
+                            //     state.insert_event(
+                            //         Event::new(WindowEvent::MouseDown(*button))
+                            //             .target(state.hovered)
+                            //             .propagate(Propagation::Direct),
+                            //     );
+                            // }
 
                             //}
 

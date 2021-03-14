@@ -129,7 +129,7 @@ fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
 }
 
 pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
-    //println!("Restyle");
+    //println!("RESTYLE");
     // Loop through all entities
     for entity in hierarchy.into_iter() {
 
@@ -207,15 +207,18 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 
         // Display
         if state.style.display.link_rule(entity, &matched_rules) {
+            //println!("1");
             should_relayout = true;
             should_redraw = true;
         }
         if state.style.visibility.link_rule(entity, &matched_rules) {
+            //println!("2");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.z_order.link_rule(entity, &matched_rules) {
+            //println!("3");
             should_relayout = true;
             should_redraw = true;
         }
@@ -225,117 +228,139 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 
         // Opacity
         if state.style.opacity.link_rule(entity, &matched_rules) {
+            //println!("4");
             should_relayout = true;
             should_redraw = true;
         }
 
         // Positioning
         if state.style.position.link_rule(entity, &matched_rules) {
+            //println!("5");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.left.link_rule(entity, &matched_rules) {
+            //println!("6");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.right.link_rule(entity, &matched_rules) {
+            //println!("7");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.top.link_rule(entity, &matched_rules) {
+            //println!("8");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.bottom.link_rule(entity, &matched_rules) {
+            //println!("9");
             should_relayout = true;
             should_redraw = true;
         }
 
         // Size
         if state.style.width.link_rule(entity, &matched_rules) {
+            //println!("10");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.height.link_rule(entity, &matched_rules) {
+            //println!("11");
             should_relayout = true;
             should_redraw = true;
         }
 
         // Size Constraints
         if state.style.max_width.link_rule(entity, &matched_rules) {
+            //println!("12");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.min_width.link_rule(entity, &matched_rules) {
+            //println!("13");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.max_height.link_rule(entity, &matched_rules) {
+            //println!("14");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.min_height.link_rule(entity, &matched_rules) {
+            //println!("15");
             should_relayout = true;
             should_redraw = true;
         }
 
         // Margin
         if state.style.margin_left.link_rule(entity, &matched_rules) {
+            //println!("16");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.margin_right.link_rule(entity, &matched_rules) {
+            //println!("17");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.margin_top.link_rule(entity, &matched_rules) {
+            //println!("18");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.margin_bottom.link_rule(entity, &matched_rules) {
+            //println!("19");
             should_relayout = true;
             should_redraw = true;
         }
 
         // Padding
         if state.style.padding_left.link_rule(entity, &matched_rules) {
+            //println!("20");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.padding_right.link_rule(entity, &matched_rules) {
+            //println!("21");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.padding_top.link_rule(entity, &matched_rules) {
+            //println!("22");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.padding_bottom.link_rule(entity, &matched_rules) {
+            //println!("23");
             should_relayout = true;
             should_redraw = true;
         }
 
         // Border
         if state.style.border_width.link_rule(entity, &matched_rules) {
+            //println!("24");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.border_color.link_rule(entity, &matched_rules) {
+            //println!("25");
             should_redraw = true;
         }
 
@@ -344,6 +369,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .border_radius_top_left
             .link_rule(entity, &matched_rules)
         {
+            //println!("26");
             should_redraw = true;
         }
 
@@ -352,6 +378,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .border_radius_top_right
             .link_rule(entity, &matched_rules)
         {
+            //println!("27");
             should_redraw = true;
         }
 
@@ -360,6 +387,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .border_radius_bottom_left
             .link_rule(entity, &matched_rules)
         {
+            //println!("28");
             should_redraw = true;
         }
 
@@ -368,11 +396,13 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .border_radius_bottom_right
             .link_rule(entity, &matched_rules)
         {
+            //println!("29");
             should_redraw = true;
         }
 
         // Flex Container
         if state.style.flex_direction.link_rule(entity, &matched_rules) {
+            //println!("30");
             should_relayout = true;
             should_redraw = true;
         }
@@ -382,52 +412,62 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .justify_content
             .link_rule(entity, &matched_rules)
         {
+            //println!("31");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.align_content.link_rule(entity, &matched_rules) {
+            //println!("32");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.align_items.link_rule(entity, &matched_rules) {
+            //println!("33");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.align_self.link_rule(entity, &matched_rules) {
+            //println!("34");
             should_relayout = true;
             should_redraw = true;
         }
 
         // Flex Item
         if state.style.flex_basis.link_rule(entity, &matched_rules) {
+            //println!("35");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.flex_grow.link_rule(entity, &matched_rules) {
+            //println!("36");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.flex_shrink.link_rule(entity, &matched_rules) {
+            //println!("37");
             should_relayout = true;
             should_redraw = true;
         }
 
         if state.style.align_self.link_rule(entity, &matched_rules) {
+            //println!("38");
             should_relayout = true;
             should_redraw = true;
         }
 
         // Text Alignment
         if state.style.text_align.link_rule(entity, &matched_rules) {
+            //println!("39");
             should_redraw = true;
         }
 
         if state.style.text_justify.link_rule(entity, &matched_rules) {
+            //println!("40");
             should_redraw = true;
         }
 
@@ -437,6 +477,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .background_color
             .link_rule(entity, &matched_rules)
         {
+            //println!("41");
             should_redraw = true;
         }
 
@@ -445,15 +486,18 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .background_image
             .link_rule(entity, &matched_rules)
         {
+            //println!("42");
             should_redraw = true;
         }
 
         // Font
         if state.style.font_color.link_rule(entity, &matched_rules) {
+            //println!("43");
             should_redraw = true;
         }
 
         if state.style.font_size.link_rule(entity, &matched_rules) {
+            //println!("44");
             should_redraw = true;
         }
 
@@ -463,6 +507,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .shadow_h_offset
             .link_rule(entity, &matched_rules)
         {
+            //println!("45");
             should_redraw = true;
         }
 
@@ -471,23 +516,30 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             .shadow_v_offset
             .link_rule(entity, &matched_rules)
         {
+            //println!("46");
             should_redraw = true;
         }
 
         if state.style.shadow_blur.link_rule(entity, &matched_rules) {
+            //println!("47");
             should_redraw = true;
         }
 
         if state.style.shadow_color.link_rule(entity, &matched_rules) {
+            //println!("48");
             should_redraw = true;
         }
 
+
+
         if should_relayout {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            state.needs_relayout = true;
         }
 
         if should_redraw {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            state.needs_redraw = true;
         }
     }
 }

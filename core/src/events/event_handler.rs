@@ -26,7 +26,6 @@ pub trait EventHandler: Any {
 
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
-        //println!("Redraw");
 
 
         // Skip window

@@ -30,7 +30,7 @@ const CHECKBOX_STYLE: &str = r#"
 // A checkable with an added icon
 pub struct Checkbox {
 
-    checkable: Checkable,
+    checkbutton: CheckButton,
 
     icon_unchecked: Option<String>,
     icon_checked: Option<String>,
@@ -40,7 +40,7 @@ impl Checkbox {
     pub fn new(checked: bool) -> Self {
         Self {
 
-            checkable: Checkable::new(checked),
+            checkbutton: CheckButton::new(checked),
 
             icon_unchecked: Some(String::new()),
             icon_checked: Some(ICON_CHECK.to_string()),
@@ -60,12 +60,12 @@ impl Checkbox {
     }
 
     pub fn on_checked(mut self, event: Event) -> Self {
-        self.checkable = self.checkable.on_checked(event);
+        self.checkbutton = self.checkbutton.on_checked(event);
         self
     }
 
     pub fn on_unchecked(mut self, event: Event) -> Self {
-        self.checkable = self.checkable.on_unchecked(event);
+        self.checkbutton = self.checkbutton.on_unchecked(event);
         self
     }
 }
@@ -78,7 +78,7 @@ impl BuildHandler for Checkbox {
             .set_text_justify(state, Justify::Center)
             .set_text_align(state, Align::Center);
 
-        if self.checkable.is_checked() {
+        if self.checkbutton.is_checked() {
             entity.set_checked(state, true);
 
             if let Some(icon_checked) = &self.icon_checked {
@@ -102,10 +102,10 @@ impl EventHandler for Checkbox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
 
         // Inherit chackable behaviour
-        self.checkable.on_event(state, entity, event);
+        self.checkbutton.on_event(state, entity, event);
 
 
-        if self.checkable.is_checked() {
+        if self.checkbutton.is_checked() {
             if let Some(icon_checked) = &self.icon_checked {
                 entity.set_text(state, &icon_checked);
             }
@@ -114,37 +114,49 @@ impl EventHandler for Checkbox {
                 entity.set_text(state, &icon_unchecked);
             }
         }
-        
-        // // Add additional behaviour 
-        // if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
-        //     match checkbox_event {
-
-        //         CheckboxEvent::Check => {
-        //             if let Some(icon_checked) = &self.icon_checked {
-        //                 entity.set_text(state, &icon_checked);
-        //             }
-        //         }
-
-        //         CheckboxEvent::Uncheck => {
-        //             if let Some(icon_unchecked) = &self.icon_unchecked {
-        //                 entity.set_text(state, &icon_unchecked);
-        //             }
-        //         }
-
-        //         CheckboxEvent::Checked => {
-        //             if let Some(icon_checked) = &self.icon_checked {
-        //                 entity.set_text(state, &icon_checked);
-        //             }
-        //         }
-
-        //         CheckboxEvent::Unchecked => {
-        //             if let Some(icon_unchecked) = &self.icon_unchecked {
-        //                 entity.set_text(state, &icon_unchecked);
-        //             }
-        //         }
-
-        //         _=> {}
-        //     }
-        // }
     }
+}
+
+pub struct CheckItem {
+    name: String,
+    checked: bool,
+
+    checkmark: Entity,
+    label: Entity,
+}
+
+impl CheckItem {
+    pub fn new(label: &str, checked: bool) -> Self {
+        Self {
+            name: label.to_string(),
+            checked,
+
+            checkmark: Entity::null(),
+            label: Entity::null(),
+        }
+    }
+}
+
+impl BuildHandler for CheckItem {
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        
+        Checkbox::new(self.checked).build(state, entity, |builder| builder);
+        Label::new(&self.name).build(state, entity, |builder| 
+            builder
+            .set_flex_grow(1.0)
+            //.set_background_color(Color::red())
+            .set_align_self(AlignSelf::Stretch)
+            .set_margin_left(Length::Pixels(5.0))
+        
+        );
+        
+        entity.set_flex_direction(state, FlexDirection::Row).set_align_items(state, AlignItems::Center);
+
+        entity.set_element(state, "check_item")
+    }
+}
+
+impl EventHandler for CheckItem {
+
 }

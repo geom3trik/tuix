@@ -110,7 +110,7 @@ fn main() {
 
         // DROPDOWN
         let (_, _, dropdown_container) = Dropdown::new("Select Tab").build(state, controls, |builder| builder);
-        let list = RadioList::new().build(state, dropdown_container, |builder| builder);
+        let list = List::new().build(state, dropdown_container, |builder| builder);
         Button::new()
             .on_press(Event::new(TabEvent::SwitchTab("first".to_string())).target(tab_bar1))   
             .build(state, list, |builder| builder.set_text("First").class("item"));
