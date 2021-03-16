@@ -153,7 +153,8 @@ impl Application {
 
                 GEvent::MainEventsCleared => {
 
-                    event_loop_proxy.send_event(()).unwrap();
+                    //println!("Flush");
+                    //event_loop_proxy.send_event(()).unwrap();
 
                     while !state.event_queue.is_empty() {
                         event_manager.flush_events(&mut state);
@@ -176,20 +177,22 @@ impl Application {
 
                     let hierarchy = state.hierarchy.clone();
 
-                    if state.needs_restyle {
-                        
-                        apply_styles(&mut state, &hierarchy);
-                    }
+                    // if state.needs_restyle {
+                    //     println!("Restyle");
+                    //     apply_styles(&mut state, &hierarchy);
+                    // }
 
-                    if state.needs_relayout {
-                        apply_z_ordering(&mut state, &hierarchy);
-                        apply_visibility(&mut state, &hierarchy);
-                        apply_clipping(&mut state, &hierarchy);
-                        apply_layout(&mut state, &hierarchy);
-                        apply_hover(&mut state);
-                    }
+                    // if state.needs_relayout {
+                    //     println!("Relayout");
+                    //     apply_z_ordering(&mut state, &hierarchy);
+                    //     apply_visibility(&mut state, &hierarchy);
+                    //     apply_layout(&mut state, &hierarchy);
+                    //     apply_hover(&mut state);
+                    // }
 
                     if state.needs_redraw {
+                        println!("Redraw");
+                        apply_clipping(&mut state, &hierarchy);
                         window.handle.window().request_redraw();
                     }
 
@@ -201,6 +204,7 @@ impl Application {
                 // REDRAW
 
                 GEvent::RedrawRequested(_) => {
+                    //println!("Actually Redraw");
                     let hierarchy = state.hierarchy.clone();
                     event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
                     // Swap buffers
@@ -293,9 +297,24 @@ impl Application {
                                 if virtual_keycode == VirtualKeyCode::H && s == MouseButtonState::Pressed {
                                     println!("Hierarchy");
                                     for entity in state.hierarchy.into_iter() {
-                                        println!("Entity: {}  Parent: {:?} FC: {:?} NS: {:?}", entity, state.hierarchy.get_parent(entity), state.hierarchy.get_first_child(entity), state.hierarchy.get_next_sibling(entity));
-
+                                        //println!("Entity: {}  Parent: {:?} FC: {:?} NS: {:?}", entity, state.hierarchy.get_parent(entity), state.hierarchy.get_first_child(entity), state.hierarchy.get_next_sibling(entity));
+                                        println!("Entity: {} posx: {} posy: {} width: {} height: {} visibility: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.data.get_visibility(entity));
                                     }
+                                }
+
+                                if virtual_keycode == VirtualKeyCode::R && s == MouseButtonState::Pressed {
+                                    println!("Manual Redraw");
+
+                                    state.needs_restyle = true;
+                                    state.needs_relayout = true;
+                                    // let hierarchy = state.hierarchy.clone();
+                                    // apply_z_ordering(&mut state, &hierarchy);
+                                    // apply_visibility(&mut state, &hierarchy);
+                                    // apply_clipping(&mut state, &hierarchy);
+                                    // apply_layout(&mut state, &hierarchy);
+                                    //apply_hover(&mut state);
+                                    state.needs_redraw = true;
+                                    state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::Tab

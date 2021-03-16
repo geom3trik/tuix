@@ -533,13 +533,13 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 
 
         if should_relayout {
-            //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-            state.needs_relayout = true;
+            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            //state.needs_relayout = true;
         }
 
         if should_redraw {
-            //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-            state.needs_redraw = true;
+            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            //state.needs_redraw = true;
         }
     }
 }

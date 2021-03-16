@@ -28,6 +28,8 @@ pub trait EventHandler: Any {
     fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
 
 
+
+
         // Skip window
         if entity == Entity::root() {
             return;
@@ -35,13 +37,17 @@ pub trait EventHandler: Any {
 
         // Skip invisible widgets
         if state.data.get_visibility(entity) == Visibility::Invisible {
+            //println!("Invisible: {}", entity);
             return;
         }
 
         // Skip widgets that have 0 opacity
         if state.data.get_opacity(entity) == 0.0 {
+            //println!("Zero Opacity: {}", entity);
             return;
         }
+
+        
 
         let posx = state.data.get_posx(entity);
         let posy = state.data.get_posy(entity);
@@ -214,8 +220,9 @@ pub trait EventHandler: Any {
 
         // Apply Scissor
         let mut clip_region = state.data.get_clip_region(entity);
-        canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
+        //canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
 
+        //println!("Draw: {}", entity);
 
         let shadow_h_offset = match state
             .style

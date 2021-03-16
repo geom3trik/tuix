@@ -32,22 +32,34 @@ impl Widget for WindowWidget {
                 }
 
                 WindowEvent::Restyle => {
+                    //state.needs_restyle = true;
                     //println!("Restyle");
                     //apply_styles2(state, &state.hierarchy.clone(), event.origin);
                     // apply_styles(state, &state.hierarchy.clone());
                     // apply_visibility(state, &state.hierarchy.clone());
+                    let hierarchy = state.hierarchy.clone();
+                    apply_styles(state, &hierarchy);
                 }
 
                 WindowEvent::Relayout => {
+                    //state.needs_relayout = true;
+                    let hierarchy = state.hierarchy.clone();
+                    state.needs_redraw = true;
                     //println!("Relayout");
                     // apply_z_ordering(state, &state.hierarchy.clone());
                     // apply_visibility(state, &state.hierarchy.clone());
                     // apply_clipping(state, &state.hierarchy.clone());
                     // apply_layout(state, &state.hierarchy.clone());
                     // apply_hover(state);
+                    apply_z_ordering(state, &hierarchy);
+                    apply_visibility(state, &hierarchy);
+                    apply_layout(state, &hierarchy);
+                    apply_hover(state);
                 }
 
-                WindowEvent::Redraw => {}
+                WindowEvent::Redraw => {
+                    state.needs_redraw = true;
+                }
 
                 _ => {}
             }

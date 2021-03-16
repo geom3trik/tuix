@@ -43,17 +43,17 @@ fn main() {
 
         Button::with_label("Second Button").build(state, second_container, |builder| builder.class("test"));
 
-        MovableTab::new("third")
+        Tab::new("third")
             .build(state, tab_bar1, |builder| {
                 builder.set_text("Third").class("tab")
         });
 
-        MovableTab::new("fourth")
+        Tab::new("fourth")
             .build(state, tab_bar1, |builder| {
                 builder.set_text("Fourth").class("tab")
         });
 
-        MovableTab::new("fifth")
+        Tab::new("fifth")
             .build(state, tab_bar1, |builder| {
                 builder.set_text("Fifth").class("tab")
         });

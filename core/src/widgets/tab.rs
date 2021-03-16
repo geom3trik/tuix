@@ -4,7 +4,7 @@ use std::usize;
 
 use crate::{CheckboxEvent, Entity, HierarchyTree, MouseButton, Propagation, Radio, List, State, PropGet, AnimationState};
 
-use crate::events::{BuildHandler, Event, EventHandler};
+use crate::events::{BuildHandler, Event};
 
 use crate::widgets::Element;
 
@@ -50,6 +50,7 @@ impl Widget for TabBar {
 
 pub struct Tab {
     pub name: String,
+    button: Button,
     check: Checkable,
 }
 
@@ -57,7 +58,9 @@ impl Tab {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
-            check: Checkable::new(false).on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::DownUp)),
+            button: Button::new().on_press(Event::new(CheckboxEvent::Switch)),
+            check: Checkable::new(false).on_checked(Event::new(TabEvent::SwitchTab(name.to_string()))),
+            
             //.check_on_press()
         }
     }
@@ -71,6 +74,7 @@ impl Widget for Tab {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        self.button.on_event(state, entity, event);
         self.check.on_event(state, entity, event);
 
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
@@ -171,6 +175,7 @@ impl Widget for TabContainer {
             match tab_event {
                 TabEvent::SwitchTab(name) => {
                     if name == &self.name {
+                        println!("Switch Tab");
                         entity.set_display(state, Display::Flexbox);
                     } else {
                         entity.set_display(state, Display::None);

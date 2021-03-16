@@ -24,9 +24,10 @@ pub struct AbstractButton {
     pub pressed: bool,
     pub text: String,
 
-    pub on_pressed: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
-    pub on_released: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
-    pub on_toggled: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    pub on_pressed: Vec<Event>,
+    pub on_released: Vec<Event>,
+    pub on_checked: Vec<Event>,
+    pub on_unchecked: Vec<Event>,
 }
 
 impl AbstractButton {
@@ -39,20 +40,33 @@ impl AbstractButton {
             pressed: false,
             text: String::new(),
 
-            on_pressed: None,
-            on_released: None,
-            on_toggled: None,
+            on_pressed: Vec::new(),
+            on_released: Vec::new(),
+            on_checked: Vec::new(),
+            on_unchecked: Vec::new(),
         }
     }
 
-    pub fn on_pressed<F: Fn(&mut Self, &mut State, Entity) + 'static>(mut self, handler: F) -> Self {
-        self.on_pressed = Some(Box::new(handler));
+    pub fn on_pressed(mut self, event: Event) -> Self {
+        self.on_pressed.push(event);
 
         self
     }
 
-    pub fn on_released<F: Fn(&mut Self, &mut State, Entity) + 'static>(mut self, handler: F) -> Self {
-        self.on_released = Some(Box::new(handler));
+    pub fn on_released(mut self, event: event) -> Self {
+        self.on_released.push(event);
+
+        self
+    }
+
+    pub fn on_checked(mut self, event: event) -> Self {
+        self.on_checked.push(event);
+
+        self
+    }
+
+    pub fn on_unchecked(mut self, event: event) -> Self {
+        self.on_unchecked.push(event);
 
         self
     }
@@ -72,7 +86,14 @@ impl Widget for AbstractButton {
                         MouseButton::Left => {
                             if event.target == entity {
                                 state.capture(entity);
-                                
+                                state.insert_event(
+                                    Event::new(ButtonEvent::Pressed)
+                                        .target(entity)
+                                        .origin(entity),
+                                );
+                                if self.checkable {
+                                    
+                                }
                             }
                         }
 

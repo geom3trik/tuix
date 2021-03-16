@@ -45,6 +45,8 @@ pub trait Widget: std::marker::Sized + 'static {
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
 
 
+        
+
         // Skip window
         if entity == Entity::root() {
             return;
@@ -59,6 +61,8 @@ pub trait Widget: std::marker::Sized + 'static {
         if state.data.get_opacity(entity) == 0.0 {
             return;
         }
+
+        
 
         let posx = state.data.get_posx(entity);
         let posy = state.data.get_posy(entity);
@@ -216,12 +220,14 @@ pub trait Widget: std::marker::Sized + 'static {
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
-        canvas.save();
-        canvas.translate(posx + width / 2.0, posy + height / 2.0);
-        canvas.rotate(rotate.to_radians());
-        canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+        // canvas.save();
+        // canvas.translate(posx + width / 2.0, posy + height / 2.0);
+        // canvas.rotate(rotate.to_radians());
+        // canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+        // canvas.restore();
 
-        canvas.translate(posx,posy);
+        //canvas.save();
+        //canvas.translate(posx,posy);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
@@ -231,8 +237,10 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Apply Scissor
         let mut clip_region = state.data.get_clip_region(entity);
-        canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
+        //canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
 
+
+        //println!("Widget Draw: {} {} {} {} {} {} {:?}", entity, posx, posy, width, height, opacity, background_color);
 
         let shadow_h_offset = match state
             .style
@@ -283,14 +291,14 @@ pub trait Widget: std::marker::Sized + 'static {
         // Draw shadow
         let mut path = Path::new();
         path.rect(
-            0.0 - shadow_blur + shadow_h_offset,
-            0.0 - shadow_blur + shadow_v_offset,
+            posx - shadow_blur + shadow_h_offset,
+            posy - shadow_blur + shadow_v_offset,
             width + 2.0 * shadow_blur,
             height + 2.0 * shadow_blur,
         );
         path.rounded_rect_varying(
-            0.0,
-            0.0,
+            posx,
+            posy,
             width,
             height,
             border_radius_top_left,
@@ -301,8 +309,8 @@ pub trait Widget: std::marker::Sized + 'static {
         path.solidity(Solidity::Hole);
 
         let mut paint = Paint::box_gradient(
-            0.0 + shadow_h_offset,
-            0.0 + shadow_v_offset,
+            posx + shadow_h_offset,
+            posy + shadow_v_offset,
             width,
             height,
             border_radius_top_left,
@@ -321,15 +329,15 @@ pub trait Widget: std::marker::Sized + 'static {
             && border_radius_top_right == (width - 2.0 * border_width) / 2.0
         {
             path.circle(
-                0.0 + (border_width / 2.0) + (width - border_width) / 2.0,
-                0.0 + (border_width / 2.0) + (height - border_width) / 2.0,
+                posx + (border_width / 2.0) + (width - border_width) / 2.0,
+                posy + (border_width / 2.0) + (height - border_width) / 2.0,
                 width / 2.0,
             );
         } else {
             // Draw rounded rect
             path.rounded_rect_varying(
-                0.0 + (border_width / 2.0),
-                0.0 + (border_width / 2.0),
+                posx + (border_width / 2.0),
+                posy + (border_width / 2.0),
                 width - border_width,
                 height - border_width,
                 border_radius_top_left,
@@ -444,8 +452,8 @@ pub trait Widget: std::marker::Sized + 'static {
             canvas.fill_text(x, y, &text_string, paint);
         }
 
-        canvas.translate(-posx, -posy);
-        canvas.restore();
+        //canvas.translate(-posx, -posy);
+        //canvas.restore();
     }
 }
 
