@@ -6,7 +6,7 @@ use crate::{MouseButton, WindowEvent};
 use crate::{PropSet, State};
 
 use crate::state::style::*;
-
+use crate::widgets::*;
 use crate::widgets::Button;
 
 pub enum ScrollDirection {
@@ -61,7 +61,7 @@ impl Scrollbar {
     // }
 }
 
-impl BuildHandler for Scrollbar {
+impl Widget for Scrollbar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.front = Button::new().build(state, entity, |builder| builder.class("front"));
@@ -95,9 +95,7 @@ impl BuildHandler for Scrollbar {
 
         entity
     }
-}
 
-impl EventHandler for Scrollbar {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         /*
         if let Some(layout_event) = event.message.downcast::<LayoutEvent>() {

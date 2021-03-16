@@ -25,7 +25,7 @@ pub use mouse::*;
 pub mod resource;
 pub use resource::*;
 
-pub use crate::events::{Builder, Event, EventHandler, Propagation};
+pub use crate::events::{Builder, Event, EventHandler, Propagation, Widget};
 pub use crate::window_event::WindowEvent;
 
 use femtovg::FontId;
@@ -33,6 +33,9 @@ use femtovg::FontId;
 use std::collections::VecDeque;
 
 use fnv::FnvHashMap;
+
+use std::rc::Rc;
+use std::cell::RefCell;
 
 #[derive(Clone)]
 pub struct Fonts {
@@ -60,6 +63,7 @@ pub struct State {
     pub focused: Entity,
 
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    
     pub(crate) removed_entities: Vec<Entity>,
     pub event_queue: VecDeque<Event>,
 

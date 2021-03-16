@@ -30,6 +30,8 @@ pub trait PropSet {
 
     // Visibility
     fn set_visibility(self, state: &mut State, value: Visibility) -> Self;
+    fn set_hoverability(self, state: &mut State, value: bool) -> Self;
+    fn set_focusability(self, state: &mut State, value: bool) -> Self;
 
     // Overflow
     fn set_overflow(self, state: &mut State, value: Overflow) -> Self;
@@ -135,43 +137,43 @@ pub trait PropSet {
 
     fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
 
-    fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
+    // fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
 
-    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
-        self,
-        state: &mut State,
-        mutator: F,
-    ) -> Self;
+    // fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
+    //     self,
+    //     state: &mut State,
+    //     mutator: F,
+    // ) -> Self;
 }
 
 impl PropSet for Entity {
-    fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>
-    where
-        Self: std::marker::Sized + 'static,
-    {
-        let t = state.event_handlers.get_mut(&self).unwrap();
+    // fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>
+    // where
+    //     Self: std::marker::Sized + 'static,
+    // {
+    //     let t = state.event_handlers.get_mut(&self).unwrap().borrow_mut();
 
-        let t1 = t.downcast::<B>();
+    //     let t1 = t.downcast::<B>();
 
-        t1
-    }
+    //     t1
+    // }
 
-    fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
-        self,
-        state: &mut State,
-        mut mutator: F,
-    ) -> Self
-    where
-        Self: std::marker::Sized + 'static,
-    {
-        let t = state.event_handlers.get_mut(&self).unwrap();
+    // fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
+    //     self,
+    //     state: &mut State,
+    //     mut mutator: F,
+    // ) -> Self
+    // where
+    //     Self: std::marker::Sized + 'static,
+    // {
+    //     let t = state.event_handlers.get_mut(&self).unwrap().borrow_mut();
 
-        let t1 = t.downcast::<B>().expect("Failed to cast");
+    //     let t1 = t.downcast::<B>().expect("Failed to cast");
 
-        mutator(t1);
+    //     mutator(t1);
 
-        self
-    }
+    //     self
+    // }
 
     fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
     where
@@ -292,6 +294,18 @@ impl PropSet for Entity {
 
         state.needs_relayout = true;
         state.needs_redraw = true;
+
+        self
+    }
+
+    fn set_hoverability(self, state: &mut State, value: bool) -> Self {
+        state.data.set_hoverability(self, value);
+
+        self
+    }
+
+    fn set_focusability(self, state: &mut State, value: bool) -> Self {
+        state.data.set_focusability(self, value);
 
         self
     }

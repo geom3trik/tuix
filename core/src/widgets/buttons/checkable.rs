@@ -10,7 +10,7 @@ pub enum CheckboxEvent {
     Unchecked,
 }
 
-// A component that can be in a checked or unchecked state
+// A Widget that can be in a checked or unchecked state
 pub struct Checkable {
     checked: bool,
 
@@ -43,7 +43,7 @@ impl Checkable {
     }
 }
 
-impl BuildHandler for Checkable {
+impl Widget for Checkable {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
     
@@ -55,9 +55,7 @@ impl BuildHandler for Checkable {
 
         entity.set_element(state, "checkable")
     }
-}
 
-impl EventHandler for Checkable {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
 
         if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {

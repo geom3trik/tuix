@@ -7,6 +7,7 @@ use crate::{BuildHandler, Event, EventHandler, WindowEvent};
 
 use crate::style::{Display, Visibility};
 
+use crate::widgets::*;
 use crate::widgets::slider::SliderEvent;
 use crate::widgets::Element;
 
@@ -73,7 +74,7 @@ impl ControlKnob {
     }
 }
 
-impl BuildHandler for ControlKnob {
+impl Widget for ControlKnob {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.back = Element::new().build(state, entity, |builder| {
@@ -99,9 +100,7 @@ impl BuildHandler for ControlKnob {
 
         entity
     }
-}
 
-impl EventHandler for ControlKnob {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {

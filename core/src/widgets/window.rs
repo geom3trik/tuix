@@ -1,4 +1,4 @@
-use crate::{Entity, Event, EventHandler, State, WindowEvent, apply_hover};
+use crate::{Entity, Event, Widget, State, WindowEvent, apply_hover};
 
 use crate::systems::{
     apply_clipping, apply_layout, apply_styles, apply_visibility, apply_z_ordering,
@@ -17,7 +17,13 @@ impl WindowWidget {
     }
 }
 
-impl EventHandler for WindowWidget {
+impl Widget for WindowWidget {
+    type Ret = Entity;
+
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        entity
+    }
+
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

@@ -523,6 +523,30 @@ pub struct HierarchyIterator<'a> {
     //current_back: Option<Entity>,
 }
 
+impl<'a> HierarchyIterator<'a> {
+    /// Skip to next branch
+    pub fn next_branch(&mut self) -> Option<Entity> {
+        let r = self.current_node;
+        if let Some(current) = self.current_node {
+            let mut temp = Some(current);
+            while temp.is_some() {
+                if let Some(sibling) =
+                    self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
+                {
+                    self.current_node = Some(sibling);
+                    return r;
+                } else {
+                    temp = self.hierarchy.parent[temp.unwrap().index_unchecked()];
+                }
+            }
+        } else {
+            self.current_node = None;
+        }
+
+        return None;
+    }
+}
+
 impl<'a> Iterator for HierarchyIterator<'a> {
     type Item = Entity;
     fn next(&mut self) -> Option<Entity> {

@@ -23,7 +23,7 @@ impl ProgressBar {
     }
 }
 
-impl BuildHandler for ProgressBar {
+impl Widget for ProgressBar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
@@ -34,9 +34,7 @@ impl BuildHandler for ProgressBar {
 
         entity.set_element(state, "progress_bar")
     }
-}
 
-impl EventHandler for ProgressBar {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {

@@ -5,6 +5,7 @@ use crate::{BuildHandler, Event, EventHandler};
 use crate::style::Length;
 
 use crate::prop::PropSet;
+use crate::widgets::*;
 use crate::widgets::Element;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -28,7 +29,7 @@ impl AudioLevelBar {
     }
 }
 
-impl BuildHandler for AudioLevelBar {
+impl Widget for AudioLevelBar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.front = Element::new().build(state, entity, |builder| {
@@ -40,9 +41,7 @@ impl BuildHandler for AudioLevelBar {
 
         entity
     }
-}
 
-impl EventHandler for AudioLevelBar {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(audio_level_event) = event.message.downcast::<AudioLevelEvent>() {
             match audio_level_event {

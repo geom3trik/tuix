@@ -41,7 +41,7 @@ impl RangeSlider {
     }
 }
 
-impl BuildHandler for RangeSlider {
+impl Widget for RangeSlider {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
@@ -62,9 +62,7 @@ impl BuildHandler for RangeSlider {
 
         entity
     }
-}
 
-impl EventHandler for RangeSlider {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

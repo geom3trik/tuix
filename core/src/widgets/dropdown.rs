@@ -1,11 +1,12 @@
 #![allow(dead_code)]
 
-use crate::{CheckboxEvent, List, entity::Entity};
+use crate::{ButtonEvent, CheckboxEvent, List, entity::Entity};
 use crate::mouse::*;
-use crate::{AnimationState, BuildHandler, Event, EventHandler, Propagation, WindowEvent};
+use crate::{AnimationState, BuildHandler, Event, Propagation, WindowEvent};
 use crate::{PropSet, State};
 
 use crate::state::style::*;
+use crate::widgets::*;
 use crate::widgets::{Element, Label};
 
 const ICON_DOWN_OPEN: &str = "\u{e75c}";
@@ -14,7 +15,7 @@ const ICON_DOWN_DIR: &str = "\u{25be}";
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DropdownEvent {
-    SetText(String, String),
+    SetText(String),
 }
 
 pub struct Item {
@@ -35,7 +36,7 @@ impl Item {
     }
 }
 
-impl BuildHandler for Item {
+impl Widget for Item {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -50,10 +51,10 @@ impl BuildHandler for Item {
 
         entity
     }
-}
 
-impl EventHandler for Item {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
+        
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
@@ -77,7 +78,6 @@ impl EventHandler for Item {
                             state.insert_event(
                                 Event::new(DropdownEvent::SetText(
                                     self.text.clone(),
-                                    self.proxy.clone(),
                                 ))
                                 .target(entity)
                                 .propagate(Propagation::Up),
@@ -93,6 +93,9 @@ impl EventHandler for Item {
 }
 
 pub struct Dropdown {
+
+    button: Button,
+
     pub container: Entity,
     pub header: Entity,
     pub label: Entity,
@@ -115,6 +118,7 @@ pub struct Dropdown {
 impl Dropdown {
     pub fn new(text: &str) -> Self {
         Dropdown {
+            button: Button::default(),
             container: Entity::null(),
             header: Entity::null(),
             label: Entity::null(),
@@ -144,13 +148,16 @@ impl Dropdown {
     // }
 }
 
-impl BuildHandler for Dropdown {
+impl Widget for Dropdown {
     type Ret = (Entity, Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.header = Element::new().build(state, entity, |builder| {
+        
+        self.header = Element::new()
+        .build(state, entity, |builder| {
             builder
                 //.set_background_color(Color::rgb(100,100,50))
                 .set_hoverability(false)
+                .set_focusability(false)
                 .set_flex_direction(FlexDirection::Row)
                 .set_flex_grow(1.0)
                 .class("header")
@@ -160,6 +167,7 @@ impl BuildHandler for Dropdown {
             builder
                 //.set_background_color(Color::rgb(100,50,50))
                 .set_hoverability(false)
+                .set_focusability(false)
                 .set_flex_grow(1.0)
         });
 
@@ -168,6 +176,7 @@ impl BuildHandler for Dropdown {
             builder
                 .set_font("icons")
                 .set_hoverability(false)
+                .set_focusability(false)
                 //.set_background_color(Color::rgb(100,100,100))
                 .set_text(ICON_DOWN_DIR)
                 //.set_width(Length::Pixels(20.0))
@@ -175,21 +184,8 @@ impl BuildHandler for Dropdown {
                 .class("icon")
         });
 
-        // self.container = Element::new().build(state, entity, |builder| {
-        //     builder
-        //         .set_position(Position::Absolute)
-        //         //.set_top(Length::Percentage(1.0))
-        //         //.set_width(Length::Percentage(1.0))
-        //         //.set_height(Length::Pixels(0.0))
-        //         .set_opacity(0.0)
-        //         .set_z_order(1)
-        //         .set_clip_widget(Entity::root())
-        //         //.set_visibility(Visibility::Invisible)
-        //         //.set_background_color(Color::rgb(100, 50, 50))
-        //         .class("container")
-        // });
         if self.multi {
-            self.container = List::new().set_multi().build(state, entity, |builder|
+            self.container = Popup::new().build(state, entity, |builder|
                 builder
                     .set_position(Position::Absolute)
                     .set_opacity(0.0)
@@ -197,7 +193,7 @@ impl BuildHandler for Dropdown {
                     .class("container")
             );
         } else {
-            self.container = List::new().build(state, entity, |builder|
+            self.container = Popup::new().build(state, entity, |builder|
                 builder
                     .set_position(Position::Absolute)
                     .set_opacity(0.0)
@@ -206,43 +202,7 @@ impl BuildHandler for Dropdown {
             );
         }
 
-
-        //self.other_container = Button::new().build(state, self.container, |builder| builder.set_flex_grow(1.0).set_opacity(0.0).class("other"));
-
-        // self.container = RadioList::new("").build(state, entity, |builder| {
-        //     builder
-        //         .set_position(Position::Absolute)
-        //         .set_top(Length::Percentage(1.0))
-        //         //.set_flex_grow(1.0)
-        //         //.set_width(Length::Percentage(1.0))
-        //         //.set_height(Length::Pixels(0.0))
-        //         .set_opacity(0.0)
-        //         .set_z_order(1)
-        //         .set_clip_widget(Entity::new(0, 0))
-        //         //.set_background_color(Color::rgb(100, 50, 50))
-        //         .class("container")
-        // });
-
-        // for (id, name, proxy) in self.options.iter_mut() {
-        //     *id = Item::new(name, proxy).build(state, self.other_container, |builder| builder.set_flex_direction(FlexDirection::Row).class("item").class("other"));
-        // }
-
         state.style.insert_element(entity, "dropdown");
-
-        // let container_expand_animation = AnimationState::new()
-        //     .with_duration(std::time::Duration::from_millis(100))
-        //     .with_keyframe((0.0, Length::Pixels(0.0)))
-        //     .with_keyframe((1.0, Length::Pixels(200.0)));
-
-        // self.expand_animation = state.style.height.insert_animation(container_expand_animation);
-
-        // let container_collapse_animation = AnimationState::new()
-        //     .with_duration(std::time::Duration::from_millis(100))
-        //     .with_delay(std::time::Duration::from_millis(100))
-        //     .with_keyframe((0.0, Length::Pixels(200.0)))
-        //     .with_keyframe((1.0, Length::Pixels(0.0)));
-
-        // self.collapse_animation = state.style.height.insert_animation(container_collapse_animation);
 
         let container_fade_in_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
@@ -267,128 +227,98 @@ impl BuildHandler for Dropdown {
 
         // (entity, self.header, self.container)
 
+        self.button = Button::new().on_release(Event::new(PopupEvent::Open).target(self.container));
+
         (entity, self.header, self.container)
     }
-}
 
-impl EventHandler for Dropdown {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        
-        if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
-            match checkbox_event {
-                CheckboxEvent::Checked => {
-                    if !self.multi {
-                        let label_text = event.target.get_text(state);
-                        self.label.set_text(state, &label_text);
-                    }
-                }
 
-                _=> {}
-            }
-        }
+        self.button.on_event(state, entity, event);
         
         if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             //if event.target == entity {
             match dropdown_event {
-                DropdownEvent::SetText(_text, proxy) => {
-                    //println!("Set Text");
-                    //Check here if it's an event from a child (TODO)
-                    self.label.set_text(state, proxy);
-                    //self.container.set_visibility(state, Visibility::Invisible);
+                DropdownEvent::SetText(text) => {
+                    self.label.set_text(state, text);
                     self.open = false;
-                    //state.style.height.play_animation(self.container, self.collapse_animation);
-                    //state.style.opacity.play_animation(self.other_container, self.fade_out_animation);
-                    // Temp until persistent animations work
-
-                    //self.container.set_height(state, Length::Pixels(0.0));
-                    //self.other_container.set_opacity(state, 0.0);
-                    //println!("Dropedown release");
-                    //state.release(entity);
-                    //state.insert_event(Event::new(WindowEvent::Restyle));
-                    //state.insert_event(Event::new(WindowEvent::Redraw));
-
-                    //return true;
                 }
             }
-            //}
         }
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::MouseDown(button) => match button {
-                    MouseButton::Left => {
-                        if event.target == entity || event.target == self.header {
+                // WindowEvent::MouseDown(button) => match button {
+                //     MouseButton::Left => {
+                //         if event.target == entity || event.target == self.header {
             
-                            //if state.hovered.is_child_of(&state.hierarchy, self.container) {
-                            // if state.hovered != entity {
-                            //     state.insert_event(
-                            //         Event::new(WindowEvent::MouseDown(*button))
-                            //             .target(state.hovered)
-                            //             .propagate(Propagation::Direct),
-                            //     );
-                            // }
+                //         }
+                //     }
+                //     _ => {}
+                // },
 
-                            //}
-
-                            //return true;
-                        }
-                    }
-                    _ => {}
-                },
-
-                WindowEvent::MouseCaptureOutEvent => {
+                // WindowEvent::MouseCaptureOutEvent => {
    
-                    self.open = false;
+                //     self.open = false;
 
-                    self.header.set_disabled(state, true);
+                //     self.header.set_disabled(state, true);
 
-                    state
-                        .style
-                        .opacity
-                        .play_animation(self.container, self.fade_out_animation);
+                //     state
+                //         .style
+                //         .opacity
+                //         .play_animation(self.container, self.fade_out_animation);
 
-                    self.container.set_opacity(state, 0.0);
-                }
+                //     self.container.set_opacity(state, 0.0);
+                // }
 
-                WindowEvent::MouseCaptureEvent => {
-                    self.open = true;
+                // WindowEvent::MouseCaptureEvent => {
+                //     self.open = true;
 
-                    self.header.set_enabled(state, true);
+                //     self.header.set_enabled(state, true);
 
-                    state
-                        .style
-                        .opacity
-                        .play_animation(self.container, self.fade_in_animation);
+                //     state
+                //         .style
+                //         .opacity
+                //         .play_animation(self.container, self.fade_in_animation);
 
-                    self.container.set_opacity(state, 1.0);
-                    // Shouldn't need to do this but it's required for some reason. TODO: Investigate
-                    self.container.set_z_order(state, 1);
-                }
+                //     self.container.set_opacity(state, 1.0);
+                //     // Shouldn't need to do this but it's required for some reason. TODO: Investigate
+                //     self.container.set_z_order(state, 1);
+                // }
 
-                WindowEvent::MouseUp(button) => match button {
-                    MouseButton::Left => {
-                        if (event.target == entity || event.target == self.header)
-                            && event.origin != entity
-                        {
-                            if state.mouse.left.pressed == state.hovered {
-                                if !self.open {
-                                    state.capture(entity);
-                                } else {
-                                    state.release(entity);
-                                }
+                // WindowEvent::MouseUp(button) => match button {
+                //     MouseButton::Left => {
+                //         if (event.target == entity || event.target == self.header)
+                //             && event.origin != entity
+                //         {
+                //             if state.mouse.left.pressed == state.hovered {
+                //                 if !self.open {
+                //                     state.capture(entity);
+                //                 } else {
+                //                     state.release(entity);
+                //                 }
 
-                                state.insert_event(
-                                    Event::new(WindowEvent::MouseUp(*button))
-                                        .target(state.hovered)
-                                        .origin(entity)
-                                        .propagate(Propagation::Direct),
-                                );
-                            }
+                //                 state.insert_event(
+                //                     Event::new(WindowEvent::MouseUp(*button))
+                //                         .target(state.hovered)
+                //                         .origin(entity)
+                //                         .propagate(Propagation::Direct),
+                //                 );
+                //             }
+                //         }
+                //     }
+
+                //     _ => {}
+                // },
+
+                WindowEvent::KeyDown(code, key) => {
+                    match code {
+                        Code::Escape => {
+                            state.insert_event(Event::new(WindowEvent::KeyDown(*code,key.clone())).target(self.container).propagate(Propagation::Direct));
                         }
+                        _=> {}
                     }
-
-                    _ => {}
-                },
+                }
 
                 _ => {}
             }

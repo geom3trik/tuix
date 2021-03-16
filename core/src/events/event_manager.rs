@@ -96,7 +96,7 @@ impl EventManager {
             if event.propagation == Propagation::All {
                 for entity in hierarchy.into_iter() {
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        event_handler.on_event(state, entity, event);
+                        event_handler.on_event_(state, entity, event);
 
                         if event.consumed {
                             break;
@@ -128,7 +128,7 @@ impl EventManager {
 
                     // Send event to all ancestors before the target
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        event_handler.on_event(state, *entity, event);
+                        event_handler.on_event_(state, *entity, event);
 
                         // Skip to the next event if the current event is consumed
                         if event.consumed {
@@ -141,7 +141,7 @@ impl EventManager {
             if event.propagation != Propagation::Fall {
                 // Send event to target
                 if let Some(event_handler) = self.event_handlers.get_mut(&event.target) {
-                    event_handler.on_event(state, event.target, event);
+                    event_handler.on_event_(state, event.target, event);
 
                     if event.consumed {
                         continue 'events;
@@ -160,7 +160,7 @@ impl EventManager {
 
                     // Send event to all entities before the target
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        event_handler.on_event(state, entity, event);
+                        event_handler.on_event_(state, entity, event);
 
                         // Skip to the next event if the current event is consumed
                         if event.consumed {
@@ -181,7 +181,7 @@ impl EventManager {
 
                     // Send event to all entities after the target on the same branch
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
-                        event_handler.on_event(state, entity, event);
+                        event_handler.on_event_(state, entity, event);
 
                         // Skip to the next event if the current event is consumed
                         if event.consumed {
@@ -234,7 +234,7 @@ impl EventManager {
         // Call the on_draw() method for each widget
         for widget in draw_hierarchy.into_iter() {
             if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
-                event_handler.on_draw(state, widget, canvas);
+                event_handler.on_draw_(state, widget, canvas);
             }
         }
 

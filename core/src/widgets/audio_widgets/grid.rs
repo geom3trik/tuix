@@ -1,6 +1,6 @@
-use crate::entity::Entity;
-use crate::State;
-use crate::{BuildHandler, Event, EventHandler};
+
+
+use crate::widgets::*;
 
 use femtovg::{renderer::OpenGl, Canvas};
 
@@ -12,14 +12,12 @@ impl Grid {
     }
 }
 
-impl BuildHandler for Grid {
+impl Widget for Grid {
     type Ret = Entity;
     fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
-}
 
-impl EventHandler for Grid {
     fn on_event(&mut self, _state: &mut State, _entity: Entity, _event: &mut Event) {}
 
     fn on_draw(&mut self, _state: &mut State, _entity: Entity, _canvas: &mut Canvas<OpenGl>) {

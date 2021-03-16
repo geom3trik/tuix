@@ -23,7 +23,7 @@ impl DebugContainer {
     }
 }
 
-impl BuildHandler for DebugContainer {
+impl Widget for DebugContainer {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
@@ -43,9 +43,7 @@ impl BuildHandler for DebugContainer {
 
         left
     }
-}
 
-impl EventHandler for DebugContainer {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             

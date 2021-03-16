@@ -17,6 +17,8 @@ use tuix_core::state::hierarchy::IntoHierarchyIterator;
 
 use tuix_core::state::Fonts;
 
+use tuix_core::style::{Visibility, Display};
+
 use tuix_core::state::style::prop::*;
 
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
@@ -329,9 +331,12 @@ impl Application {
                                     } else {
                                         let hierarchy = state.hierarchy.clone();
 
-                                        let mut iter =  state.focused.into_iter(&hierarchy);
-                                        iter.next();
-                                        let next = iter.next();
+                                        
+                                        //let next = iter.next();
+
+                                        println!("Focused: {}", state.focused);
+
+                                        
 
                                         
                                         if next_focus != Entity::null() {
@@ -341,11 +346,30 @@ impl Application {
                                         } else {
 
                                             state.focused.set_focus(&mut state, false);
-                                            state.focused =
-                                                match next {
-                                                    Some(val) => val,
-                                                    None => Entity::root(),
-                                                };
+
+                                            let mut iter =  state.focused.into_iter(&hierarchy);
+                                            iter.next();
+
+
+                                            state.focused = if let Some(mut temp) = iter.next() {
+                                                while !state.data.get_focusability(temp) 
+                                                    || state.data.get_visibility(temp) == Visibility::Invisible 
+                                                    || state.data.get_opacity(temp) == 0.0
+                                                    || state.style.display.get(temp) == Some(&Display::None)
+                                                {
+                                                    temp = match iter.next() {
+                                                        Some(e) => e,
+                                                        None => {
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                temp                               
+                                            } else {
+                                                Entity::root()
+                                            };
+
                                             state.focused.set_focus(&mut state, true);
                                         }
                                     }

@@ -1,5 +1,6 @@
 
 use crate::widgets::*;
+use crate::widgets::button::Button;
 
 // An element that switches between checked and unchecked when pressed / released
 
@@ -11,7 +12,7 @@ pub struct CheckButton {
 impl CheckButton {
     pub fn new(checked: bool) -> Self {
         Self {
-            button: Button::new().on_release(Event::new(CheckboxEvent::Switch)),
+            button: Button::new(),
             checkable: Checkable::new(checked),
         }
     }
@@ -32,17 +33,23 @@ impl CheckButton {
     }
 }
 
-impl BuildHandler for CheckButton {
+impl Widget for CheckButton {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        
+        self.button = Button::new().on_release(Event::new(CheckboxEvent::Switch).target(entity));
+        // self.button = Button::new().on_release(|button, state, entity| {
+        //     state.insert_event(Event::new(CheckboxEvent::Switch).target(entity));
+        //     let label_text = entity.get_text(state);
+        //     state.insert_event(Event::new(DropdownEvent::SetText(label_text)).target(entity));
+        // });
+
         self.button.on_build(state, entity);
         self.checkable.on_build(state, entity);
 
         entity.set_element(state, "check_button")
     }
-}
 
-impl EventHandler for CheckButton {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.button.on_event(state, entity, event);
         self.checkable.on_event(state, entity, event);

@@ -60,7 +60,10 @@ pub struct Data {
     pub size: Vec<Pos>,
     pub visibility: Vec<Visibility>,
     pub opacity: Vec<f32>,
+    // TODO - combine hoverability and focusability with a bitflag
     pub hoverability: Vec<bool>,
+    pub focusability: Vec<bool>,
+
     pub z_order: Vec<i32>,
     pub clip_widget: Vec<Entity>,
     // Holds the child_width_sum and then the free_width_space
@@ -80,6 +83,7 @@ impl Data {
             size: Vec::new(),
             visibility: Vec::new(),
             hoverability: Vec::new(),
+            focusability: Vec::new(),
             child_sum: Vec::new(),
             child_max: Vec::new(),
             prev_size: Vec::new(),
@@ -101,6 +105,7 @@ impl Data {
             self.size.resize(key + 1, Default::default());
             self.visibility.resize(key + 1, Default::default());
             self.hoverability.resize(key + 1, true);
+            self.focusability.resize(key + 1, true);
             self.child_sum.resize(key + 1, 0.0);
             self.child_max.resize(key + 1, 0.0);
             self.prev_size.resize(key + 1, Default::default());
@@ -344,9 +349,22 @@ impl Data {
             .unwrap()
     }
 
+    pub fn get_focusability(&self, entity: Entity) -> bool {
+        self.focusability
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
+    }
+
     pub fn set_hoverability(&mut self, entity: Entity, val: bool) {
         if let Some(hoverability) = self.hoverability.get_mut(entity.index_unchecked()) {
             *hoverability = val;
+        }
+    }
+
+    pub fn set_focusability(&mut self, entity: Entity, val: bool) {
+        if let Some(focusability) = self.focusability.get_mut(entity.index_unchecked()) {
+            *focusability = val;
         }
     }
 

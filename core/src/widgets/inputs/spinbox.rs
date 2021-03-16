@@ -150,7 +150,7 @@ where
     }
 }
 
-impl<T> BuildHandler for Spinbox<T>
+impl<T> Widget for Spinbox<T>
 where
     T: 'static
         + Default
@@ -217,22 +217,7 @@ where
 
         entity
     }
-}
 
-impl<T> EventHandler for Spinbox<T>
-where
-    T: 'static
-        + Default
-        + std::fmt::Debug
-        + std::fmt::Display
-        + Copy
-        + PartialEq
-        + std::str::FromStr
-        + Num
-        + std::ops::AddAssign
-        + std::ops::SubAssign
-        + std::cmp::PartialOrd
-{
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         /*
         if let Some(numedit_event) = event.message.downcast::<SpinnerEvent>() {

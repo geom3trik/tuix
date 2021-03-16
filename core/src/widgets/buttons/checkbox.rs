@@ -70,7 +70,7 @@ impl Checkbox {
     }
 }
 
-impl BuildHandler for Checkbox {
+impl Widget for Checkbox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -96,9 +96,7 @@ impl BuildHandler for Checkbox {
 
         entity
     }
-}
 
-impl EventHandler for Checkbox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
 
         // Inherit chackable behaviour
@@ -121,7 +119,9 @@ pub struct CheckItem {
     name: String,
     checked: bool,
 
-    checkmark: Entity,
+    button: Button,
+
+    checkbox: Entity,
     label: Entity,
 }
 
@@ -131,32 +131,47 @@ impl CheckItem {
             name: label.to_string(),
             checked,
 
-            checkmark: Entity::null(),
+            button: Button::default(),
+
+            checkbox: Entity::null(),
             label: Entity::null(),
         }
     }
 }
 
-impl BuildHandler for CheckItem {
+impl Widget for CheckItem {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         
-        Checkbox::new(self.checked).build(state, entity, |builder| builder);
-        Label::new(&self.name).build(state, entity, |builder| 
+        self.checkbox = Checkbox::new(self.checked).build(state, entity, |builder| 
+            builder
+                .set_hoverability(false)
+                .set_focusability(false)
+        );
+        self.label = Label::new(&self.name).build(state, entity, |builder| 
             builder
             .set_flex_grow(1.0)
-            //.set_background_color(Color::red())
+            .set_hoverability(false)
+            .set_focusability(false)
             .set_align_self(AlignSelf::Stretch)
             .set_margin_left(Length::Pixels(5.0))
         
         );
+
+        self.button = Button::new().on_release(Event::new(CheckboxEvent::Switch).target(self.checkbox));
+
+        //let checkbox = self.checkbox;
+        // self.button.on_test(move |button, state, entity| {
+        //     println!("Send message to checkbox");
+        //     state.insert_event(Event::new(CheckboxEvent::Switch).target(checkbox))
+        // });
         
         entity.set_flex_direction(state, FlexDirection::Row).set_align_items(state, AlignItems::Center);
 
         entity.set_element(state, "check_item")
     }
-}
 
-impl EventHandler for CheckItem {
-
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        self.button.on_event(state, entity, event);
+    }
 }

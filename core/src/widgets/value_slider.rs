@@ -1,7 +1,6 @@
-use crate::state::{Entity, State};
 
-use crate::events::{BuildHandler, Event, EventHandler, Propagation};
 
+use crate::widgets::*;
 use crate::widgets::{Label, Slider, SliderEvent, Textbox, TextboxEvent};
 
 use crate::state::style::*;
@@ -25,7 +24,7 @@ impl ValueSlider {
     }
 }
 
-impl BuildHandler for ValueSlider {
+impl Widget for ValueSlider {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -53,9 +52,7 @@ impl BuildHandler for ValueSlider {
 
         entity
     }
-}
 
-impl EventHandler for ValueSlider {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {

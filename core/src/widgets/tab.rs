@@ -30,7 +30,7 @@ impl TabBar {
     }
 }
 
-impl BuildHandler for TabBar {
+impl Widget for TabBar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
@@ -42,9 +42,7 @@ impl BuildHandler for TabBar {
 
         entity
     }
-}
 
-impl EventHandler for TabBar {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.list.on_event(state, entity, event);
     }
@@ -65,15 +63,13 @@ impl Tab {
     }
 }
 
-impl BuildHandler for Tab {
+impl Widget for Tab {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         entity.set_element(state, "tab")
     }
-}
 
-impl EventHandler for Tab {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.check.on_event(state, entity, event);
 
@@ -115,7 +111,7 @@ impl TabManager {
     }
 }
 
-impl BuildHandler for TabManager {
+impl Widget for TabManager {
     type Ret = (Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
@@ -127,9 +123,7 @@ impl BuildHandler for TabManager {
 
         (self.tab_bar, self.viewport)
     }
-}
 
-impl EventHandler for TabManager {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
@@ -166,14 +160,12 @@ impl TabContainer {
     }
 }
 
-impl BuildHandler for TabContainer {
+impl Widget for TabContainer {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_element(state, "tab_container")
     }
-}
 
-impl EventHandler for TabContainer {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
@@ -227,7 +219,7 @@ impl TabBar2 {
     }
 }
 
-impl BuildHandler for TabBar2 {
+impl Widget for TabBar2 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
@@ -263,9 +255,7 @@ impl BuildHandler for TabBar2 {
 
         entity.set_element(state, "tab_bar")
     }
-}
 
-impl EventHandler for TabBar2 {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
 
         self.list.on_event(state, entity, event);
@@ -402,14 +392,12 @@ impl MovableTab {
     }
 }
 
-impl BuildHandler for MovableTab {
+impl Widget for MovableTab {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.tab.on_build(state, entity)
     }
-}
 
-impl EventHandler for MovableTab {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.tab.on_event(state, entity, event);
 

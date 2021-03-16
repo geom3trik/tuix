@@ -33,7 +33,7 @@ impl Radio {
     }
 }
 
-impl BuildHandler for Radio {
+impl Widget for Radio {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.marker = Element::new().build(state, entity, |builder| {
@@ -42,48 +42,8 @@ impl BuildHandler for Radio {
 
         entity.set_element(state, "radio")
     }
-}
 
-impl EventHandler for Radio {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.check.on_event(state, entity, event);
     }
 }
-
-// pub struct RadioButton {
-//     check: CheckButton,
-// }
-
-// impl RadioButton {
-//     pub fn new() -> Self {
-//         Self {
-//             check: CheckButton::new(false),
-//         }
-//     }
-
-//     pub fn on_checked(mut self, event: Event) -> Self {
-//         self.check = self.check.on_checked(event);
-
-//         self
-//     }
-
-//     pub fn on_unchecked(mut self, event: Event) -> Self {
-//         self.check = self.check.on_unchecked(event);
-
-//         self
-//     }
-// }
-
-// impl BuildHandler for RadioButton {
-//     type Ret = Entity;
-//     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-//         self.check.on_build(state, entity);
-//         entity.set_element(state, "radio_button").set_font(state, "sans")
-//     }
-// }
-
-// impl EventHandler for RadioButton {
-//     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-//         self.check.on_event(state, entity, event);
-//     }
-// }

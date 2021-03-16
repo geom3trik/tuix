@@ -1,7 +1,10 @@
 
 
-use crate::{Entity, EventHandler, State};
+use crate::{Entity, EventHandler, State, Widget};
 use crate::state::style::*;
+
+use std::rc::Rc;
+use std::cell::RefCell;
 
 /// Contains an entity id and a mutable reference to state and can be used to set properties
 pub struct Builder<'a> {
@@ -60,6 +63,12 @@ impl<'a> Builder<'a> {
 
     pub fn set_hoverability(mut self, val: bool) -> Self {
         self.state.data.set_hoverability(self.entity, val);
+
+        self
+    }
+
+    pub fn set_focusability(mut self, val: bool) -> Self {
+        self.state.data.set_focusability(self.entity, val);
 
         self
     }

@@ -83,7 +83,7 @@ fn main() {
         // LISTS PANEL
         let panel = Panel::new("Check Button Lists").build(state, rvbox, |builder| builder);
 
-        // LISTBOX
+        // LIST
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("List").build(state, row, |builder| builder);
         let list = List::new().build(state, row, |builder| builder.set_flex_grow(1.0));
@@ -106,7 +106,7 @@ fn main() {
                 .set_padding_left(Length::Pixels(5.0))
         );
 
-        // LISTBOX
+        // MULTILIST
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Multilist").build(state, row, |builder| builder);
         let list = List::new().set_multi().build(state, row, |builder| builder.set_flex_grow(1.0));
@@ -130,16 +130,17 @@ fn main() {
         );
 
         // LISTS PANEL
-        let panel = Panel::new("More Lists").build(state, rvbox, |builder| builder);
+        let panel = Panel::new("Dropdown Lists").build(state, rvbox, |builder| builder);
 
-        // DROPDOWN
+        // DROPDOWN LIST
         let row = HBox::new().build(state, panel, |builder| builder);
-        Label::new("Dropdown").build(state, row, |builder| builder);
-        let (_, _, list) = Dropdown::new("Dropdown").build(state, row, |builder| 
+        Label::new("List").build(state, row, |builder| builder);
+        let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| 
             builder
                 .set_height(Length::Pixels(30.0))
                 .set_flex_grow(1.0)
         );
+        let list = List::new().build(state, popup, |builder| builder.set_flex_grow(1.0));
         CheckButton::new(true).build(state, list, |builder| 
             builder
                 .set_text("Option 1")
@@ -159,14 +160,15 @@ fn main() {
                 .set_padding_left(Length::Pixels(5.0))
         );
 
-        // DROPDOWN
+        // DROPDOWN MULTILIST
         let row = HBox::new().build(state, panel, |builder| builder);
-        Label::new("Dropdown").build(state, row, |builder| builder);
-        let (_, _, list) = Dropdown::new("Dropdown").set_multi().build(state, row, |builder| 
+        Label::new("Multilist").build(state, row, |builder| builder);
+        let (_, _, popup) = Dropdown::new("Dropdown").set_multi().build(state, row, |builder| 
             builder
                 .set_height(Length::Pixels(30.0))
                 .set_flex_grow(1.0)
         );
+        let list = List::new().set_multi().build(state, popup, |builder| builder.set_flex_grow(1.0));
         CheckButton::new(true).build(state, list, |builder| 
             builder
                 .set_text("Option 1")
@@ -182,6 +184,56 @@ fn main() {
         CheckButton::new(false).build(state, list, |builder| 
             builder
                 .set_text("Option 3")
+                .set_flex_basis(Length::Pixels(30.0))
+                .set_padding_left(Length::Pixels(5.0))
+        );
+
+        // DROPDOWN CHECKITEM LIST
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("List").build(state, row, |builder| builder);
+        let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| 
+            builder
+                .set_height(Length::Pixels(30.0))
+                .set_flex_grow(1.0)
+        );
+        let list = List::new().build(state, popup, |builder| builder.set_flex_grow(1.0));
+        CheckItem::new("Option 1",true).build(state, list, |builder| 
+            builder
+                .set_flex_basis(Length::Pixels(30.0))
+                .set_padding_left(Length::Pixels(5.0))
+        );
+        CheckItem::new("Option2",false).build(state, list, |builder| 
+            builder
+                .set_flex_basis(Length::Pixels(30.0))
+                .set_padding_left(Length::Pixels(5.0))
+        );
+        CheckItem::new("Option3", false).build(state, list, |builder| 
+            builder
+                .set_flex_basis(Length::Pixels(30.0))
+                .set_padding_left(Length::Pixels(5.0))
+        );
+
+        // DROPDOWN CHECK MULTILIST
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Multilist").build(state, row, |builder| builder);
+        let (_, _, popup) = Dropdown::new("Dropdown").set_multi().build(state, row, |builder| 
+            builder
+                .set_height(Length::Pixels(30.0))
+                .set_flex_grow(1.0)
+        );
+        let list = List::new().set_multi().build(state, popup, |builder| builder.set_flex_grow(1.0));
+        CheckItem::new("Option 1",true).build(state, list, |builder| 
+            builder
+                .set_flex_basis(Length::Pixels(30.0))
+                .set_padding_left(Length::Pixels(5.0))
+        );
+        CheckItem::new("Option2",false).build(state, list, |builder| 
+            builder
+                .set_flex_basis(Length::Pixels(30.0))
+                .set_padding_left(Length::Pixels(5.0))
+        );
+        CheckItem::new("Option3", false).build(state, list, |builder| 
+            builder
                 .set_flex_basis(Length::Pixels(30.0))
                 .set_padding_left(Length::Pixels(5.0))
         );

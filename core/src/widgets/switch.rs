@@ -1,11 +1,8 @@
 #![allow(dead_code)]
 
-use crate::entity::Entity;
 
-use crate::{BuildHandler, Event, EventHandler};
+
 use crate::widgets::*;
-
-
 use crate::widgets::{Element, Checkbox};
 
 pub struct Switch {
@@ -22,7 +19,7 @@ impl Switch {
     }
 }
 
-impl BuildHandler for Switch {
+impl Widget for Switch {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
@@ -37,9 +34,7 @@ impl BuildHandler for Switch {
 
         entity
     }
-}
 
-impl EventHandler for Switch {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.checkbox.on_event(state, entity, event);
     }

@@ -17,52 +17,52 @@ pub enum ButtonEvent {
     Checked,
 
     Unchecked,
+
+    SetLabel(String),
 }
 
 
 #[derive(Default)]
-// A component that can be pressed and released and may emit an event on_press and on_release
+// A Widget that can be pressed and released and may emit an event on_press and on_release
 pub struct Button {
     on_press: Option<Event>,
     on_release: Option<Event>,
-    on_checked: Option<Event>,
-    on_unchecked: Option<Event>,
+    
+    //pub on_press: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    //pub on_release: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     pub text: Option<String>,
 
-    on_test: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    //on_test: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }
 
 impl Button {
-    /// Create a new button component
+    /// Create a new button Widget
     pub fn new() -> Self {
         Button {
             on_press: None,
             on_release: None,
-            on_checked: None,
-            on_unchecked: None,
             text: None,
 
-            on_test: None,
+            //on_test: None,
         }
     }
 
-    pub fn on_test<F>(mut self, message: F) -> Self 
-    where
-        F: 'static + Fn(&mut Self, &mut State, Entity)
-    {  
-        self.on_test = Some(Box::new(message));
-        self
-    }
+    // pub fn on_test<F>(&mut self, message: F) -> &mut Self 
+    // where
+    //     F: 'static + Fn(&mut Self, &mut State, Entity)
+    // {  
+    //     self.on_test = Some(Box::new(message));
 
-    /// Create a new button component with a specified text label
+    //     self
+    // }
+
+    /// Create a new button Widget with a specified text label
     pub fn with_label(text: &str) -> Self {
         Button {
             on_press: None,
             on_release: None,
-            on_checked: None,
-            on_unchecked: None,
             text: Some(text.to_string()),
-            on_test: None,
+            // on_test: None,
         }
     }
 
@@ -87,7 +87,7 @@ impl Button {
     }
 }
 
-impl BuildHandler for Button {
+impl Widget for Button {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
@@ -99,13 +99,16 @@ impl BuildHandler for Button {
         // Set the element name to 'button'
         entity.set_element(state, "button")
     }
-}
 
-impl EventHandler for Button {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        
+
         if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
             match button_event {
+                ButtonEvent::SetLabel(label) => {
+                    println!("Set Label: {}", label);
+                    entity.set_text(state, label);
+                }
+
                 ButtonEvent::Pressed => {
                     if event.target == entity {
                         if let Some(mut on_press) = self.on_press.clone() {
@@ -117,12 +120,8 @@ impl EventHandler for Button {
                             on_press.propagation = Propagation::Down;
 
                             state.insert_event(on_press);
-                        }
-
-
-                        if let Some(on_test) = self.on_test.take() {
-                            (on_test)(self, state, entity);
-                            self.on_test = Some(on_test);
+                            //(on_press)(self, state, entity);
+                            //self.on_press = Some(on_press);
                         }
 
                         entity.set_active(state, true);                        
@@ -140,7 +139,11 @@ impl EventHandler for Button {
                             on_release.origin = entity;
                             on_release.propagation = Propagation::Down;
 
+                            println!("Send Event: {:?}", on_release);
+
                             state.insert_event(on_release);
+                            // (on_release)(self, state, entity);
+                            // self.on_release = Some(on_release);
                         }
 
                         entity.set_active(state, false);                        
@@ -156,9 +159,24 @@ impl EventHandler for Button {
                     state.insert_event(Event::new(ButtonEvent::Released).target(entity).propagate(Propagation::Direct));
                 }
 
-                _ => {}
+                _=> {}
             }
         }
+        
+        // if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
+        //     match button_event {
+
+
+        //         ButtonEvent::SetLabel(label) => {
+        //             println!("Set Label: {}", label);
+        //             entity.set_text(state, label);
+        //         }
+
+
+
+        //         _ => {}
+        //     }
+        // }
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

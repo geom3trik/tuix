@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 
-use crate::{AnimationState, BuildHandler, Entity, Event, EventHandler, MouseButton, PropGet, State, WindowEvent};
+use crate::{AnimationState, BuildHandler, Entity, Event, EventHandler, MouseButton, PropGet, State, WindowEvent, EventWrapper};
 
+use crate::widgets::*;
 use crate::widgets::{Element, Label};
 
 use crate::state::style::*;
@@ -11,8 +12,8 @@ const ICON_RIGHT_OPEN_BIG: &str = "\u{e75e}";
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PanelEvent {
-    Open(Entity),
-    Close(Entity),
+    Open,
+    Close,
 }
 
 pub struct Panel {
@@ -65,10 +66,15 @@ impl Panel {
     }
 }
 
-impl BuildHandler for Panel {
+impl Widget for Panel {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.header = Element::new().build(state, entity, |builder| {
+
+        entity.set_focusability(state, false);
+
+        self.header = Button::new()
+        .on_release(Event::new(PanelEvent::Open).target(entity))
+        .build(state, entity, |builder| {
             builder
                 //.set_flex_direction(FlexDirection::Row)
                 .class("header")
@@ -82,6 +88,7 @@ impl BuildHandler for Panel {
                 .set_text_align(Align::Center)
                 .set_flex_basis(Length::Pixels(20.0))
                 .set_hoverability(false)
+                .set_focusability(false)
                 .class("icon")
         });
 
@@ -90,14 +97,15 @@ impl BuildHandler for Panel {
             builder
                 .set_flex_grow(1.0)
                 .set_hoverability(false)
+                .set_focusability(false)
                 .class("label")
         });
 
         self.container1 = Element::new().build(state, entity, |builder| {
-            builder.class("container1")
+            builder.class("container1").set_focusability(false)
         });
 
-        self.container2 = Element::new().build(state,self.container1,|builder| builder.class("container2"));
+        self.container2 = Element::new().build(state,self.container1,|builder| builder.class("container2").set_focusability(false));
 
         state.style.insert_element(entity, "panel");
 
@@ -174,10 +182,151 @@ impl BuildHandler for Panel {
 
         self.container2
     }
-}
 
-impl EventHandler for Panel {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
+        event.process2(|panel_event: &mut EventWrapper<PanelEvent>|{
+            match panel_event.message {
+                PanelEvent::Open => {
+
+                }
+
+                _=> {}
+            }
+        });
+
+        if let Some(panel_event) = event.message.downcast::<PanelEvent>() {
+            match panel_event {
+                PanelEvent::Open | PanelEvent::Close => {
+                    if self.collapsed {
+
+                        self.collapsed = false;
+
+                        entity.set_checked(state, true);
+                        // state.insert_event(
+                        //     Event::new(PanelEvent::Open).target(entity),
+                        // );
+
+                        match entity.get_flex_direction(state) {
+                            FlexDirection::Column | FlexDirection::ColumnReverse => {
+                                state
+                                    .style
+                                    .height
+                                    .play_animation(self.container1, self.expand_height_animation);
+                                
+                                self.container1.set_height(state, Length::Auto);
+
+                                if let Some(animation) =
+                                    state.style.rotate.get_animation_mut(self.arrow_cw_animation)
+                                {
+                                    animation.set_delay(std::time::Duration::from_millis(0));
+                                }
+
+                                if let Some(animation) =
+                                    state.style.rotate.get_animation_mut(self.arrow_ccw_animation)
+                                {
+                                    animation.set_delay(std::time::Duration::from_millis(100));
+                                }
+
+                                state
+                                    .style
+                                    .rotate
+                                    .play_animation(self.arrow, self.arrow_cw_animation);
+                                self.arrow.set_rotate(state, 0.0);
+                            }
+
+                            FlexDirection::Row | FlexDirection::RowReverse => {
+                                state
+                                    .style
+                                    .width
+                                    .play_animation(self.container1, self.expand_width_animation);
+                                
+                                self.container1.set_width(state, Length::Auto);
+
+                                if let Some(animation) =
+                                    state.style.rotate.get_animation_mut(self.arrow_cw_animation)
+                                {
+                                    animation.set_delay(std::time::Duration::from_millis(100));
+                                }
+
+                                if let Some(animation) =
+                                    state.style.rotate.get_animation_mut(self.arrow_ccw_animation)
+                                {
+                                    animation.set_delay(std::time::Duration::from_millis(0));
+                                }
+
+                                state
+                                    .style
+                                    .rotate
+                                    .play_animation(self.arrow, self.arrow_ccw_animation);
+
+                                self.arrow.set_rotate(state, -90.0);
+
+
+                            }
+                        }
+                        
+                        state
+                            .style
+                            .opacity
+                            .play_animation(self.container2, self.fade_in_animation);
+                        
+
+                        
+                        self.container2.set_opacity(state, 1.0);
+                    } else {
+                        self.collapsed = true;
+
+                        entity.set_checked(state, false);
+
+                        // state.insert_event(
+                        //     Event::new(PanelEvent::Close).target(entity),
+                        // );
+
+                        match entity.get_flex_direction(state) {
+                            FlexDirection::Column | FlexDirection::ColumnReverse => {
+                                state
+                                    .style
+                                    .height
+                                    .play_animation(self.container1, self.collapse_height_animation);
+                                
+                                self.container1.set_height(state, Length::Pixels(0.0));
+
+                                state
+                                    .style
+                                    .rotate
+                                    .play_animation(self.arrow, self.arrow_ccw_animation);
+
+                                self.arrow.set_rotate(state, -90.0);
+                            }
+
+                            FlexDirection::Row | FlexDirection::RowReverse => {
+                                state
+                                    .style
+                                    .width
+                                    .play_animation(self.container1, self.collapse_width_animation);
+                                
+                                self.container1.set_width(state, Length::Pixels(0.0));
+
+                                state
+                                    .style
+                                    .rotate
+                                    .play_animation(self.arrow, self.arrow_cw_animation);
+                                self.arrow.set_rotate(state, 0.0);
+                            }
+                        }
+
+                        state
+                            .style
+                            .opacity
+                            .play_animation(self.container2, self.fade_out_animation);
+                        
+                        self.container2.set_opacity(state, 0.0);
+                    }
+                }
+            }
+        }
+
         //if event.target == self.header {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
@@ -244,139 +393,15 @@ impl EventHandler for Panel {
                     }
                 }
 
-                WindowEvent::MouseUp(button) => {
-                    if event.target == self.header && state.mouse.left.pressed == self.header {
-                        if *button == MouseButton::Left {
-                            if self.collapsed {
+                // WindowEvent::MouseUp(button) => {
+                //     if event.target == self.header && state.mouse.left.pressed == self.header {
+                //         if *button == MouseButton::Left {
+                            
+                //         }
 
-                                self.collapsed = false;
-
-                                entity.set_checked(state, true);
-                                state.insert_event(
-                                    Event::new(PanelEvent::Open(entity)).target(entity),
-                                );
-
-                                match entity.get_flex_direction(state) {
-                                    FlexDirection::Column | FlexDirection::ColumnReverse => {
-                                        state
-                                            .style
-                                            .height
-                                            .play_animation(self.container1, self.expand_height_animation);
-                                        
-                                        self.container1.set_height(state, Length::Auto);
-
-                                        if let Some(animation) =
-                                            state.style.rotate.get_animation_mut(self.arrow_cw_animation)
-                                        {
-                                            animation.set_delay(std::time::Duration::from_millis(0));
-                                        }
-
-                                        if let Some(animation) =
-                                            state.style.rotate.get_animation_mut(self.arrow_ccw_animation)
-                                        {
-                                            animation.set_delay(std::time::Duration::from_millis(100));
-                                        }
-
-                                        state
-                                            .style
-                                            .rotate
-                                            .play_animation(self.arrow, self.arrow_cw_animation);
-                                        self.arrow.set_rotate(state, 0.0);
-                                    }
-
-                                    FlexDirection::Row | FlexDirection::RowReverse => {
-                                        state
-                                            .style
-                                            .width
-                                            .play_animation(self.container1, self.expand_width_animation);
-                                        
-                                        self.container1.set_width(state, Length::Auto);
-
-                                        if let Some(animation) =
-                                            state.style.rotate.get_animation_mut(self.arrow_cw_animation)
-                                        {
-                                            animation.set_delay(std::time::Duration::from_millis(100));
-                                        }
-
-                                        if let Some(animation) =
-                                            state.style.rotate.get_animation_mut(self.arrow_ccw_animation)
-                                        {
-                                            animation.set_delay(std::time::Duration::from_millis(0));
-                                        }
-
-                                        state
-                                            .style
-                                            .rotate
-                                            .play_animation(self.arrow, self.arrow_ccw_animation);
-
-                                        self.arrow.set_rotate(state, -90.0);
-
-
-                                    }
-                                }
-                                
-                                state
-                                    .style
-                                    .opacity
-                                    .play_animation(self.container2, self.fade_in_animation);
-                                
-
-                                
-                                self.container2.set_opacity(state, 1.0);
-                            } else {
-                                self.collapsed = true;
-
-                                entity.set_checked(state, false);
-
-                                state.insert_event(
-                                    Event::new(PanelEvent::Close(entity)).target(entity),
-                                );
-
-                                match entity.get_flex_direction(state) {
-                                    FlexDirection::Column | FlexDirection::ColumnReverse => {
-                                        state
-                                            .style
-                                            .height
-                                            .play_animation(self.container1, self.collapse_height_animation);
-                                        
-                                        self.container1.set_height(state, Length::Pixels(0.0));
-
-                                        state
-                                            .style
-                                            .rotate
-                                            .play_animation(self.arrow, self.arrow_ccw_animation);
-
-                                        self.arrow.set_rotate(state, -90.0);
-                                    }
-
-                                    FlexDirection::Row | FlexDirection::RowReverse => {
-                                        state
-                                            .style
-                                            .width
-                                            .play_animation(self.container1, self.collapse_width_animation);
-                                        
-                                        self.container1.set_width(state, Length::Pixels(0.0));
-
-                                        state
-                                            .style
-                                            .rotate
-                                            .play_animation(self.arrow, self.arrow_cw_animation);
-                                        self.arrow.set_rotate(state, 0.0);
-                                    }
-                                }
-
-                                state
-                                    .style
-                                    .opacity
-                                    .play_animation(self.container2, self.fade_out_animation);
-                                
-                                self.container2.set_opacity(state, 0.0);
-                            }
-                        }
-
-                        event.consume();
-                    }
-                }
+                //         event.consume();
+                //     }
+                // }
 
                 _ => {}
             }

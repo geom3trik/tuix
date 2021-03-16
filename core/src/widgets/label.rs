@@ -20,6 +20,7 @@ impl BuildHandler for Label {
         entity
             .set_text(state, &self.text)
             .set_element(state, "label")
+            .set_focusability(state, false)
     }
 }
 

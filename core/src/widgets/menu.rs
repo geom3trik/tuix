@@ -5,8 +5,8 @@ use crate::mouse::*;
 use crate::{BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WindowEvent};
 use crate::{PropSet, State};
 
-use crate::state::style::*;
-use crate::widgets::Button;
+use crate::style::*;
+use crate::widgets::*;
 
 use crate::state::hierarchy::IntoChildIterator;
 
@@ -45,7 +45,7 @@ impl Menu {
     }
 }
 
-impl BuildHandler for Menu {
+impl Widget for Menu {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Column);
@@ -61,9 +61,6 @@ impl BuildHandler for Menu {
 
         self.container
     }
-}
-
-impl EventHandler for Menu {
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
 
@@ -141,14 +138,12 @@ impl MenuBar {
     }
 }
 
-impl BuildHandler for MenuBar {
+impl Widget for MenuBar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
-}
 
-impl EventHandler for MenuBar {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(menu_event) = event.message.downcast::<MenuEvent>() {
             match menu_event {

@@ -7,7 +7,7 @@ use crate::{PropSet, State};
 
 use crate::state::style::*;
 
-use crate::widgets::Element;
+use crate::widgets::*;
 
 
 #[derive(Debug, Clone, PartialEq)]
@@ -74,7 +74,7 @@ impl Slider {
     }
 }
 
-impl BuildHandler for Slider {
+impl Widget for Slider {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         
@@ -111,9 +111,7 @@ impl BuildHandler for Slider {
 
         entity
     }
-}
 
-impl EventHandler for Slider {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

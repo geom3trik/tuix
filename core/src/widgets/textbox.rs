@@ -90,7 +90,7 @@ impl Textbox {
     // }
 }
 
-impl BuildHandler for Textbox {
+impl Widget for Textbox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &(self.text.to_owned() + &self.units));
@@ -101,9 +101,7 @@ impl BuildHandler for Textbox {
 
         entity
     }
-}
 
-impl EventHandler for Textbox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {

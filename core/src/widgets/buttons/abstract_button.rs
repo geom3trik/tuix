@@ -13,6 +13,7 @@ pub enum ButtonEvent {
     Pressed,
     Released,
     Toggled,
+    SetLabel(String),
 }
 
 pub struct AbstractButton {
@@ -43,16 +44,26 @@ impl AbstractButton {
             on_toggled: None,
         }
     }
+
+    pub fn on_pressed<F: Fn(&mut Self, &mut State, Entity) + 'static>(mut self, handler: F) -> Self {
+        self.on_pressed = Some(Box::new(handler));
+
+        self
+    }
+
+    pub fn on_released<F: Fn(&mut Self, &mut State, Entity) + 'static>(mut self, handler: F) -> Self {
+        self.on_released = Some(Box::new(handler));
+
+        self
+    }
 }
 
-impl BuildHandler for AbstractButton {
+impl Widget for AbstractButton {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
-}
 
-impl EventHandler for AbstractButton {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

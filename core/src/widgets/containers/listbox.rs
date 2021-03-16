@@ -29,15 +29,14 @@ impl List {
     }
 }
 
-impl BuildHandler for List {
+impl Widget for List {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        state.focused = entity;
+        //state.focused = entity;
+        entity.set_focusability(state, false);
         entity.set_element(state, "list")
     }
-}
 
-impl EventHandler for List {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
@@ -155,51 +154,51 @@ impl EventHandler for List {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum ListboxEvent {
-    Next(Entity),
-    Prev(Entity),
-}
+// #[derive(Debug, Clone, PartialEq)]
+// pub enum ListboxEvent {
+//     Next(Entity),
+//     Prev(Entity),
+// }
 
-pub struct ListboxItem {}
+// pub struct ListboxItem {}
 
-impl ListboxItem {}
+// impl ListboxItem {}
 
-pub struct Listbox {}
+// pub struct Listbox {}
 
-impl Listbox {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
+// impl Listbox {
+//     pub fn new() -> Self {
+//         Self {}
+//     }
+// }
 
-impl BuildHandler for Listbox {
-    type Ret = Entity;
-    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-    }
-}
+// impl BuildHandler for Listbox {
+//     type Ret = Entity;
+//     fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
+//         entity
+//     }
+// }
 
-impl EventHandler for Listbox {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
-            match window_event {
-                WindowEvent::KeyDown(_, key) => match key {
-                    Some(Key::ArrowDown) => {
+// impl EventHandler for Listbox {
+//     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+//         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+//             match window_event {
+//                 WindowEvent::KeyDown(_, key) => match key {
+//                     Some(Key::ArrowDown) => {
 
-                    }
+//                     }
 
-                    Some(Key::ArrowUp) => {
+//                     Some(Key::ArrowUp) => {
 
-                    }
+//                     }
 
-                    _ => {}
-                },
+//                     _ => {}
+//                 },
 
           
 
-                _ => {}
-            }
-        }
-    }
-}
+//                 _ => {}
+//             }
+//         }
+//     }
+// }

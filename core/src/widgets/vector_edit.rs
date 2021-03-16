@@ -4,6 +4,7 @@ use crate::state::style::*;
 use crate::WindowEvent;
 use crate::{MouseButton, Propagation, State};
 
+use crate::widgets::*;
 use crate::widgets::{Dropdown, DropdownEvent, Textbox, TextboxEvent};
 use crate::AnimationState;
 
@@ -44,7 +45,7 @@ impl Dimension {
     }
 }
 
-impl BuildHandler for Dimension {
+impl Widget for Dimension {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -54,9 +55,7 @@ impl BuildHandler for Dimension {
 
         entity
     }
-}
 
-impl EventHandler for Dimension {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
@@ -75,7 +74,6 @@ impl EventHandler for Dimension {
                             //self.checkbox.set_checked(state, true);
                             state.insert_event(
                                 Event::new(DropdownEvent::SetText(
-                                    self.text.clone(),
                                     self.text.clone(),
                                 ))
                                 .target(entity)
@@ -168,7 +166,7 @@ where
     }
 }
 
-impl<T> BuildHandler for VectorEdit<T>
+impl<T> Widget for VectorEdit<T>
 where
     T: 'static
         + Default
@@ -249,24 +247,13 @@ where
 
         entity
     }
-}
 
-impl<T> EventHandler for VectorEdit<T>
-where
-    T: 'static
-        + Default
-        + std::fmt::Debug
-        + std::fmt::Display
-        + Copy
-        + PartialEq
-        + std::str::FromStr
-{
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         let target = event.target;
 
         if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             match dropdown_event {
-                DropdownEvent::SetText(text, _) => match text.as_ref() {
+                DropdownEvent::SetText(text) => match text.as_ref() {
                     "1" => {
                         if state.data.get_width(self.x) == 0.0 {
                             state.style.flex_grow.play_animation(self.x, self.reveal);

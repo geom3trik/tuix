@@ -1,7 +1,6 @@
 use crate::state::{Entity, State};
 
-use crate::events::{BuildHandler, Event, EventHandler};
-
+use crate::widgets::*;
 use crate::widgets::{Dropdown, DropdownEvent, Item, Textbox, TextboxEvent};
 
 use crate::state::style::*;
@@ -27,7 +26,7 @@ impl LengthBox {
     }
 }
 
-impl BuildHandler for LengthBox {
+impl Widget for LengthBox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
@@ -62,13 +61,11 @@ impl BuildHandler for LengthBox {
 
         self.value
     }
-}
 
-impl EventHandler for LengthBox {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             match dropdown_event {
-                DropdownEvent::SetText(text, _proxy) => {
+                DropdownEvent::SetText(text) => {
                     if text == "auto" {
                         self.value.set_text(state, text);
                         self.length_type = Length::Auto;

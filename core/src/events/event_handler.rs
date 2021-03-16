@@ -22,10 +22,10 @@ pub type Canvas = femtovg::Canvas<OpenGl>;
 
 pub trait EventHandler: Any {
     // Called when events are flushed
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
+    fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
     // Called when a redraw occurs
-    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+    fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
 
 
         // Skip window
@@ -834,6 +834,16 @@ impl dyn EventHandler {
     {
         if self.is::<T>() {
             unsafe { Some(&mut *(self as *mut dyn EventHandler as *mut T)) }
+        } else {
+            None
+        }
+    }
+
+    pub fn downcast_ref<T>(&self) -> Option<&T> 
+    where T: EventHandler + 'static
+    {
+        if self.is::<T>() {
+            unsafe { Some( &*(self as *const dyn EventHandler as *const T)) }
         } else {
             None
         }

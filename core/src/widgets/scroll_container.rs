@@ -1,11 +1,10 @@
 #![allow(dead_code)]
 
-use crate::entity::Entity;
-use crate::events::{BuildHandler, Event, EventHandler};
 use crate::state::style::*;
-use crate::WindowEvent;
+
 use crate::{MouseButton, State};
 
+use crate::widgets::*;
 use crate::widgets::{Button, Element, HBox, VBox};
 use crate::AnimationState;
 
@@ -49,7 +48,7 @@ impl ScrollContainerH {
     }
 }
 
-impl BuildHandler for ScrollContainerH {
+impl Widget for ScrollContainerH {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -106,9 +105,7 @@ impl BuildHandler for ScrollContainerH {
 
         self.container
     }
-}
 
-impl EventHandler for ScrollContainerH {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
@@ -374,29 +371,6 @@ impl EventHandler for ScrollContainerH {
     }
 }
 
-///
-
-struct Container {}
-
-impl Container {
-    pub fn new() -> Self {
-        Container {}
-    }
-}
-
-impl BuildHandler for Container {
-    type Ret = Entity;
-    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-    }
-}
-
-impl EventHandler for Container {
-    fn on_event(&mut self, _state: &mut State, _entity: Entity, event: &mut Event) {
-        if let Some(_window_event) = event.message.downcast::<WindowEvent>() {}
-    }
-}
-
 pub struct ScrollContainer {
     container: Entity,
     horizontal_scroll: Entity,
@@ -431,7 +405,7 @@ impl ScrollContainer {
     }
 }
 
-impl BuildHandler for ScrollContainer {
+impl Widget for ScrollContainer {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
@@ -496,9 +470,7 @@ impl BuildHandler for ScrollContainer {
 
         self.container
     }
-}
 
-impl EventHandler for ScrollContainer {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
@@ -806,7 +778,7 @@ impl ScrollContainerHV {
     }
 }
 
-impl BuildHandler for ScrollContainerHV {
+impl Widget for ScrollContainerHV {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -875,9 +847,7 @@ impl BuildHandler for ScrollContainerHV {
 
         self.container
     }
-}
 
-impl EventHandler for ScrollContainerHV {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

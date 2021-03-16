@@ -14,18 +14,16 @@ impl HBox {
     }
 }
 
-impl BuildHandler for HBox {
+impl Widget for HBox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
-
+        entity.set_focusability(state, false);
         entity.set_element(state, "hbox");
 
         entity
     }
 }
-
-impl EventHandler for HBox {}
 
 pub struct VBox {}
 
@@ -35,18 +33,16 @@ impl VBox {
     }
 }
 
-impl BuildHandler for VBox {
+impl Widget for VBox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Column);
-
+        entity.set_focusability(state, false);
         entity.set_element(state, "vbox");
 
         entity
     }
 }
-
-impl EventHandler for VBox {}
 
 pub struct ResizableVBox {
     resizing: bool,
@@ -62,7 +58,7 @@ impl ResizableVBox {
     }
 }
 
-impl BuildHandler for ResizableVBox {
+impl Widget for ResizableVBox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -73,9 +69,7 @@ impl BuildHandler for ResizableVBox {
 
         entity
     }
-}
 
-impl EventHandler for ResizableVBox {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

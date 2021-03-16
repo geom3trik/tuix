@@ -16,7 +16,7 @@ impl ContextMenu {
     }
 }
 
-impl BuildHandler for ContextMenu {
+impl Widget for ContextMenu {
     type Ret = (Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.context_menu = Element::new().build(state, entity, |builder| {
@@ -26,9 +26,7 @@ impl BuildHandler for ContextMenu {
         });
         (entity, self.context_menu)
     }
-}
 
-impl EventHandler for ContextMenu {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

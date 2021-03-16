@@ -2,6 +2,7 @@ use crate::state::{Entity, State};
 
 use crate::events::{BuildHandler, Event, EventHandler, Propagation};
 
+use crate::widgets::*;
 use crate::widgets::{ControlKnob, Label, SliderEvent, Textbox, TextboxEvent};
 
 use crate::state::style::*;
@@ -116,7 +117,7 @@ impl ValueKnob {
     }
 }
 
-impl BuildHandler for ValueKnob {
+impl Widget for ValueKnob {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Label::new(&self.label).build(state, entity, |builder| {
@@ -150,9 +151,7 @@ impl BuildHandler for ValueKnob {
 
         self.knob
     }
-}
 
-impl EventHandler for ValueKnob {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(slider_event) = event.message.downcast::<SliderEvent>() {
             match slider_event {
