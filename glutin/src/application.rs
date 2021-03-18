@@ -131,13 +131,11 @@ impl Application {
         //let hierarchy = state.hierarchy.clone();
 
 
-        // state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        // state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
 
         let event_loop_proxy = self.event_loop.create_proxy();
 
-        state.needs_restyle = true;
-        state.needs_relayout = true;
         state.needs_redraw = true;
 
         self.event_loop.run(move |event, _, control_flow| {
@@ -165,9 +163,11 @@ impl Application {
                         //println!("Animate");
                         *control_flow = ControlFlow::Poll;
 
-                        state.needs_restyle = true;
-                        state.needs_relayout = true;
-                        state.needs_redraw = true;
+                        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+
+                        // state.needs_restyle = true;
+                        // state.needs_relayout = true;
+                        //state.needs_redraw = true;
 
                         event_loop_proxy.send_event(()).unwrap();
                         window.handle.window().request_redraw();
@@ -177,28 +177,13 @@ impl Application {
 
                     let hierarchy = state.hierarchy.clone();
 
-                    // if state.needs_restyle {
-                    //     println!("Restyle");
-                    //     apply_styles(&mut state, &hierarchy);
-                    // }
-
-                    // if state.needs_relayout {
-                    //     println!("Relayout");
-                    //     apply_z_ordering(&mut state, &hierarchy);
-                    //     apply_visibility(&mut state, &hierarchy);
-                    //     apply_layout(&mut state, &hierarchy);
-                    //     apply_hover(&mut state);
-                    // }
-
                     if state.needs_redraw {
-                        println!("Redraw");
                         apply_clipping(&mut state, &hierarchy);
                         window.handle.window().request_redraw();
+                        state.needs_redraw = false;
                     }
 
-                    state.needs_restyle = false;
-                    state.needs_relayout = false;
-                    state.needs_redraw = false;
+                    
                 }
 
                 // REDRAW
@@ -218,6 +203,7 @@ impl Application {
                     event,
                     window_id: _,
                 } => {
+
                     match event {
                         //////////////////
                         // Close Window //
@@ -253,12 +239,9 @@ impl Application {
                             //         .origin(Entity::root()),
                             // );
 
-                            // state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-
-                            state.needs_restyle = true;
-                            state.needs_relayout = true;
-                            state.needs_redraw = true;
+                            state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                         }
 
                         ////////////////////
@@ -300,21 +283,6 @@ impl Application {
                                         //println!("Entity: {}  Parent: {:?} FC: {:?} NS: {:?}", entity, state.hierarchy.get_parent(entity), state.hierarchy.get_first_child(entity), state.hierarchy.get_next_sibling(entity));
                                         println!("Entity: {} posx: {} posy: {} width: {} height: {} visibility: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.data.get_visibility(entity));
                                     }
-                                }
-
-                                if virtual_keycode == VirtualKeyCode::R && s == MouseButtonState::Pressed {
-                                    println!("Manual Redraw");
-
-                                    state.needs_restyle = true;
-                                    state.needs_relayout = true;
-                                    // let hierarchy = state.hierarchy.clone();
-                                    // apply_z_ordering(&mut state, &hierarchy);
-                                    // apply_visibility(&mut state, &hierarchy);
-                                    // apply_clipping(&mut state, &hierarchy);
-                                    // apply_layout(&mut state, &hierarchy);
-                                    //apply_hover(&mut state);
-                                    state.needs_redraw = true;
-                                    state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::Tab
@@ -395,15 +363,12 @@ impl Application {
 
                                     
 
-                                    // state.insert_event(
-                                    //     Event::new(WindowEvent::Restyle)
-                                    //         .target(Entity::root())
-                                    //         .origin(Entity::root()),
-                                    // );
+                                    state.insert_event(
+                                        Event::new(WindowEvent::Restyle)
+                                            .target(Entity::root())
+                                            .origin(Entity::root()),
+                                    );
 
-                                    state.needs_restyle = true;
-                                    state.needs_relayout = true;
-                                    state.needs_redraw = true;
                                 }
                             }
 
@@ -471,11 +436,10 @@ impl Application {
                             // state.insert_event(
                             //     Event::new(WindowEvent::Relayout).target(Entity::root()),
                             // );
-                            // state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                            state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
-                            state.needs_restyle = true;
-                            state.needs_relayout = true;
-                            state.needs_redraw = true;
                         }
 
                         glutin::event::WindowEvent::CursorMoved {

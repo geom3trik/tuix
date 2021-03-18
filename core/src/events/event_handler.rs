@@ -28,8 +28,6 @@ pub trait EventHandler: Any {
     fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
 
 
-
-
         // Skip window
         if entity == Entity::root() {
             return;
@@ -110,13 +108,6 @@ pub trait EventHandler: Any {
             .cloned()
             .unwrap_or_default();
 
-        let shadow_color = state
-            .style
-            .shadow_color
-            .get(entity)
-            .cloned()
-            .unwrap_or_default();
-
         let parent = state
             .hierarchy
             .get_parent(entity)
@@ -181,9 +172,6 @@ pub trait EventHandler: Any {
         let mut border_color: femtovg::Color = border_color.into();
         border_color.set_alphaf(border_color.a * opacity);
 
-        let mut shadow_color: femtovg::Color = shadow_color.into();
-        shadow_color.set_alphaf(shadow_color.a * opacity);
-
         let border_width = match state
             .style
             .border_width
@@ -220,13 +208,12 @@ pub trait EventHandler: Any {
 
         // Apply Scissor
         let mut clip_region = state.data.get_clip_region(entity);
-        //canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
+        canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
 
-        //println!("Draw: {}", entity);
 
-        let shadow_h_offset = match state
+        let outer_shadow_h_offset = match state
             .style
-            .shadow_h_offset
+            .outer_shadow_h_offset
             .get(entity)
             .cloned()
             .unwrap_or_default()
@@ -236,9 +223,9 @@ pub trait EventHandler: Any {
             _ => 0.0,
         };
 
-        let shadow_v_offset = match state
+        let outer_shadow_v_offset = match state
             .style
-            .shadow_v_offset
+            .outer_shadow_v_offset
             .get(entity)
             .cloned()
             .unwrap_or_default()
@@ -248,9 +235,9 @@ pub trait EventHandler: Any {
             _ => 0.0,
         };
 
-        let shadow_blur = match state
+        let outer_shadow_blur = match state
             .style
-            .shadow_blur
+            .outer_shadow_blur
             .get(entity)
             .cloned()
             .unwrap_or_default()
@@ -260,23 +247,73 @@ pub trait EventHandler: Any {
             _ => 0.0,
         };
 
-        let shadow_color = state
+        let outer_shadow_color = state
             .style
-            .shadow_color
+            .outer_shadow_color
             .get(entity)
             .cloned()
             .unwrap_or_default();
 
-        let mut shadow_color: femtovg::Color = shadow_color.into();
-        shadow_color.set_alphaf(shadow_color.a * opacity);
+        let mut outer_shadow_color: femtovg::Color = outer_shadow_color.into();
+        outer_shadow_color.set_alphaf(outer_shadow_color.a * opacity);
 
-        // Draw shadow
+        let inner_shadow_h_offset = match state
+            .style
+            .inner_shadow_h_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let inner_shadow_v_offset = match state
+            .style
+            .inner_shadow_v_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let inner_shadow_blur = match state
+            .style
+            .inner_shadow_blur
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let inner_shadow_color = state
+            .style
+            .inner_shadow_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let mut inner_shadow_color: femtovg::Color = inner_shadow_color.into();
+        inner_shadow_color.set_alphaf(inner_shadow_color.a * opacity);
+
+        // Draw outer shadow
         let mut path = Path::new();
-        path.rect(
-            0.0 - shadow_blur + shadow_h_offset,
-            0.0 - shadow_blur + shadow_v_offset,
-            width + 2.0 * shadow_blur,
-            height + 2.0 * shadow_blur,
+        path.rounded_rect_varying(
+            0.0 - outer_shadow_blur + outer_shadow_h_offset,
+            0.0 - outer_shadow_blur + outer_shadow_v_offset,
+            width + 2.0 * outer_shadow_blur,
+            height + 2.0 * outer_shadow_blur,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left
         );
         path.rounded_rect_varying(
             0.0,
@@ -291,13 +328,13 @@ pub trait EventHandler: Any {
         path.solidity(Solidity::Hole);
 
         let mut paint = Paint::box_gradient(
-            0.0 + shadow_h_offset,
-            0.0 + shadow_v_offset,
+            0.0 + outer_shadow_h_offset,
+            0.0 + outer_shadow_v_offset,
             width,
             height,
-            border_radius_top_left,
-            shadow_blur,
-            shadow_color,
+            border_radius_top_left.max(border_radius_top_right).max(border_radius_bottom_left).max(border_radius_bottom_right),
+            outer_shadow_blur,
+            outer_shadow_color,
             femtovg::Color::rgba(0, 0, 0, 0),
         );
 
@@ -355,6 +392,33 @@ pub trait EventHandler: Any {
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
+
+
+        // Draw inner shadow
+        let mut path = Path::new();
+        path.rounded_rect_varying(
+            0.0 + border_width,
+            0.0 + border_width,
+            width - border_width * 2.0,
+            height - border_width * 2.0,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left,
+        );
+
+        let mut paint = Paint::box_gradient(
+            0.0 + inner_shadow_h_offset + border_width,
+            0.0 + inner_shadow_v_offset + border_width,
+            width - border_width * 2.0,
+            height - border_width * 2.0,
+            border_radius_top_left.max(border_radius_top_right).max(border_radius_bottom_left).max(border_radius_bottom_right),
+            inner_shadow_blur,
+            femtovg::Color::rgba(0, 0, 0, 0),            
+            inner_shadow_color,
+
+        );
+        canvas.fill_path(&mut path, paint);
 
         
 

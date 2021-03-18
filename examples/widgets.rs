@@ -287,6 +287,8 @@ fn main() {
                 .set_padding_left(Length::Pixels(5.0))
         );
 
+        //
+
         // // SLIDERS PANEL
         // let panel = Panel::new("Sliders").build(state, rvbox, |builder| builder);
 

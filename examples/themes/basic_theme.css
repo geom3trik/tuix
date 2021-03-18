@@ -15,8 +15,9 @@
   width: 100px;
   /* flex-basis: 200px; */
   height: 30px;
-  /* border-radius: 3px; */
-  box-shadow: 10px 10px 5px rgba(0,0,0,128);
+  border-radius: 10px;
+  /* outer-shadow: 10px 10px 5px #20000000; */
+  inner-shadow: 0.5px 0.5px 2px #FF0000;
   text-justify: center;
   /* background-color: red; */
   /* max-width: 100px; */

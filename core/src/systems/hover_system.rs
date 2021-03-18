@@ -132,16 +132,16 @@ pub fn apply_hover(state: &mut State) {
             Event::new(WindowEvent::MouseOut).target(state.hovered),
         );
 
-        // state.insert_event(
-        //     Event::new(WindowEvent::Restyle).target(Entity::root()),
-        // );
+        state.insert_event(
+            Event::new(WindowEvent::Restyle).target(Entity::root()),
+        );
 
         state.hovered = hovered_widget;
         state.active = Entity::null();
 
         //state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
-        state.needs_restyle = true;
+        //state.needs_restyle = true;
         // state.needs_redraw = true;
     }
 }

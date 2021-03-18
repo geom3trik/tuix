@@ -96,9 +96,9 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     //let child_position = child.get_position(state);
 
     // Add padding
-    if state.style.flex_grow.get(child).is_none() {
+    //if state.style.flex_grow.get(child).is_none() {
         new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
-    }
+    //}
 
     new_cross +=
         child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;    

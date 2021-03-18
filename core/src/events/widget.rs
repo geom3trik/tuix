@@ -45,8 +45,6 @@ pub trait Widget: std::marker::Sized + 'static {
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
 
 
-        
-
         // Skip window
         if entity == Entity::root() {
             return;
@@ -54,15 +52,17 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Skip invisible widgets
         if state.data.get_visibility(entity) == Visibility::Invisible {
+            //println!("Invisible: {}", entity);
             return;
         }
 
         // Skip widgets that have 0 opacity
         if state.data.get_opacity(entity) == 0.0 {
+            //println!("Zero Opacity: {}", entity);
             return;
         }
 
-        
+
 
         let posx = state.data.get_posx(entity);
         let posy = state.data.get_posy(entity);
@@ -121,13 +121,6 @@ pub trait Widget: std::marker::Sized + 'static {
         let border_color = state
             .style
             .border_color
-            .get(entity)
-            .cloned()
-            .unwrap_or_default();
-
-        let shadow_color = state
-            .style
-            .shadow_color
             .get(entity)
             .cloned()
             .unwrap_or_default();
@@ -196,9 +189,6 @@ pub trait Widget: std::marker::Sized + 'static {
         let mut border_color: femtovg::Color = border_color.into();
         border_color.set_alphaf(border_color.a * opacity);
 
-        let mut shadow_color: femtovg::Color = shadow_color.into();
-        shadow_color.set_alphaf(shadow_color.a * opacity);
-
         let border_width = match state
             .style
             .border_width
@@ -220,14 +210,12 @@ pub trait Widget: std::marker::Sized + 'static {
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
-        // canvas.save();
-        // canvas.translate(posx + width / 2.0, posy + height / 2.0);
-        // canvas.rotate(rotate.to_radians());
-        // canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
-        // canvas.restore();
+        canvas.save();
+        canvas.translate(posx + width / 2.0, posy + height / 2.0);
+        canvas.rotate(rotate.to_radians());
+        canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
-        //canvas.save();
-        //canvas.translate(posx,posy);
+        canvas.translate(posx,posy);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
@@ -237,14 +225,12 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Apply Scissor
         let mut clip_region = state.data.get_clip_region(entity);
-        //canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
+        canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
 
 
-        //println!("Widget Draw: {} {} {} {} {} {} {:?}", entity, posx, posy, width, height, opacity, background_color);
-
-        let shadow_h_offset = match state
+        let outer_shadow_h_offset = match state
             .style
-            .shadow_h_offset
+            .outer_shadow_h_offset
             .get(entity)
             .cloned()
             .unwrap_or_default()
@@ -254,9 +240,9 @@ pub trait Widget: std::marker::Sized + 'static {
             _ => 0.0,
         };
 
-        let shadow_v_offset = match state
+        let outer_shadow_v_offset = match state
             .style
-            .shadow_v_offset
+            .outer_shadow_v_offset
             .get(entity)
             .cloned()
             .unwrap_or_default()
@@ -266,9 +252,9 @@ pub trait Widget: std::marker::Sized + 'static {
             _ => 0.0,
         };
 
-        let shadow_blur = match state
+        let outer_shadow_blur = match state
             .style
-            .shadow_blur
+            .outer_shadow_blur
             .get(entity)
             .cloned()
             .unwrap_or_default()
@@ -278,27 +264,77 @@ pub trait Widget: std::marker::Sized + 'static {
             _ => 0.0,
         };
 
-        let shadow_color = state
+        let outer_shadow_color = state
             .style
-            .shadow_color
+            .outer_shadow_color
             .get(entity)
             .cloned()
             .unwrap_or_default();
 
-        let mut shadow_color: femtovg::Color = shadow_color.into();
-        shadow_color.set_alphaf(shadow_color.a * opacity);
+        let mut outer_shadow_color: femtovg::Color = outer_shadow_color.into();
+        outer_shadow_color.set_alphaf(outer_shadow_color.a * opacity);
 
-        // Draw shadow
+        let inner_shadow_h_offset = match state
+            .style
+            .inner_shadow_h_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let inner_shadow_v_offset = match state
+            .style
+            .inner_shadow_v_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let inner_shadow_blur = match state
+            .style
+            .inner_shadow_blur
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let inner_shadow_color = state
+            .style
+            .inner_shadow_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let mut inner_shadow_color: femtovg::Color = inner_shadow_color.into();
+        inner_shadow_color.set_alphaf(inner_shadow_color.a * opacity);
+
+        // Draw outer shadow
         let mut path = Path::new();
-        path.rect(
-            posx - shadow_blur + shadow_h_offset,
-            posy - shadow_blur + shadow_v_offset,
-            width + 2.0 * shadow_blur,
-            height + 2.0 * shadow_blur,
+        path.rounded_rect_varying(
+            0.0 - outer_shadow_blur + outer_shadow_h_offset,
+            0.0 - outer_shadow_blur + outer_shadow_v_offset,
+            width + 2.0 * outer_shadow_blur,
+            height + 2.0 * outer_shadow_blur,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left
         );
         path.rounded_rect_varying(
-            posx,
-            posy,
+            0.0,
+            0.0,
             width,
             height,
             border_radius_top_left,
@@ -309,13 +345,13 @@ pub trait Widget: std::marker::Sized + 'static {
         path.solidity(Solidity::Hole);
 
         let mut paint = Paint::box_gradient(
-            posx + shadow_h_offset,
-            posy + shadow_v_offset,
+            0.0 + outer_shadow_h_offset,
+            0.0 + outer_shadow_v_offset,
             width,
             height,
-            border_radius_top_left,
-            shadow_blur,
-            shadow_color,
+            border_radius_top_left.max(border_radius_top_right).max(border_radius_bottom_left).max(border_radius_bottom_right),
+            outer_shadow_blur,
+            outer_shadow_color,
             femtovg::Color::rgba(0, 0, 0, 0),
         );
 
@@ -329,15 +365,15 @@ pub trait Widget: std::marker::Sized + 'static {
             && border_radius_top_right == (width - 2.0 * border_width) / 2.0
         {
             path.circle(
-                posx + (border_width / 2.0) + (width - border_width) / 2.0,
-                posy + (border_width / 2.0) + (height - border_width) / 2.0,
+                0.0 + (border_width / 2.0) + (width - border_width) / 2.0,
+                0.0 + (border_width / 2.0) + (height - border_width) / 2.0,
                 width / 2.0,
             );
         } else {
             // Draw rounded rect
             path.rounded_rect_varying(
-                posx + (border_width / 2.0),
-                posy + (border_width / 2.0),
+                0.0 + (border_width / 2.0),
+                0.0 + (border_width / 2.0),
                 width - border_width,
                 height - border_width,
                 border_radius_top_left,
@@ -346,10 +382,10 @@ pub trait Widget: std::marker::Sized + 'static {
                 border_radius_bottom_left,
             );
         }
-        
+
         // Fill with background color
         let mut paint = Paint::color(background_color);
-        
+
         // Gradient overrides background color
         if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
 
@@ -373,6 +409,33 @@ pub trait Widget: std::marker::Sized + 'static {
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
+
+
+        // Draw inner shadow
+        let mut path = Path::new();
+        path.rounded_rect_varying(
+            0.0 + border_width,
+            0.0 + border_width,
+            width - border_width * 2.0,
+            height - border_width * 2.0,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_right,
+            border_radius_bottom_left,
+        );
+
+        let mut paint = Paint::box_gradient(
+            0.0 + inner_shadow_h_offset + border_width,
+            0.0 + inner_shadow_v_offset + border_width,
+            width - border_width * 2.0,
+            height - border_width * 2.0,
+            border_radius_top_left.max(border_radius_top_right).max(border_radius_bottom_left).max(border_radius_bottom_right),
+            inner_shadow_blur,
+            femtovg::Color::rgba(0, 0, 0, 0),            
+            inner_shadow_color,
+
+        );
+        canvas.fill_path(&mut path, paint);
 
         
 
@@ -452,8 +515,8 @@ pub trait Widget: std::marker::Sized + 'static {
             canvas.fill_text(x, y, &text_string, paint);
         }
 
-        //canvas.translate(-posx, -posy);
-        //canvas.restore();
+        canvas.translate(-posx, -posy);
+        canvas.restore();
     }
 }
 

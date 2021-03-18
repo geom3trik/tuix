@@ -12,7 +12,14 @@ pub struct CheckButton {
 impl CheckButton {
     pub fn new(checked: bool) -> Self {
         Self {
-            button: Button::new(),
+            button: Button::new().on_release(Event::new(CheckboxEvent::Switch)),
+            checkable: Checkable::new(checked),
+        }
+    }
+
+    pub fn with_label(name: &str, checked: bool) -> Self {
+        Self {
+            button: Button::with_label(name).on_release(Event::new(CheckboxEvent::Switch)),
             checkable: Checkable::new(checked),
         }
     }
@@ -37,13 +44,6 @@ impl Widget for CheckButton {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         
-        self.button = Button::new().on_release(Event::new(CheckboxEvent::Switch).target(entity));
-        // self.button = Button::new().on_release(|button, state, entity| {
-        //     state.insert_event(Event::new(CheckboxEvent::Switch).target(entity));
-        //     let label_text = entity.get_text(state);
-        //     state.insert_event(Event::new(DropdownEvent::SetText(label_text)).target(entity));
-        // });
-
         self.button.on_build(state, entity);
         self.checkable.on_build(state, entity);
 

@@ -2,9 +2,9 @@
 
 use crate::entity::Entity;
 use crate::events::*;
-use crate::{BuildHandler, Justify, Length, PropSet, PropGet, State, Visibility, WindowEvent};
+use crate::{BuildHandler, Justify, Length, PropSet, PropGet, State, Visibility, WindowEvent, Direction};
 
-use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path};
+use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
 
 use crate::Key;
 
@@ -79,6 +79,14 @@ impl Textbox {
         self
     }
 
+    pub fn on_submit<F>(mut self, on_submit: F) -> Self
+    where
+        F: 'static + Fn(&str) -> Event,
+    {
+        self.on_submit = Some(Box::new(on_submit));
+
+        self
+    }
     // pub fn set_enabled(&self, state: &mut WidgetState, val: bool) {
     //     if val {
     //         self.id
@@ -294,6 +302,18 @@ impl Widget for Textbox {
                                     .target(entity),
                             );
 
+                            if let Some(on_submit) = &self.on_submit {
+                                let mut event = (on_submit)(&text_data.text.clone());
+
+                                if !event.target {
+                                    event.target = entity;
+                                }
+
+                                event.origin = entity;
+
+                                state.insert_event(event);
+                            }
+
                             self.edit = false;
                             entity.set_active(state, false);
                             state.focused = Entity::root();
@@ -392,19 +412,22 @@ impl Widget for Textbox {
 
         // Skip invisible widgets
         if state.data.get_visibility(entity) == Visibility::Invisible {
+            //println!("Invisible: {}", entity);
             return;
         }
 
+        // Skip widgets that have 0 opacity
         if state.data.get_opacity(entity) == 0.0 {
+            //println!("Zero Opacity: {}", entity);
             return;
         }
+
+        
 
         let posx = state.data.get_posx(entity);
         let posy = state.data.get_posy(entity);
         let width = state.data.get_width(entity);
         let height = state.data.get_height(entity);
-
-        //println!("entity: {} posx: {} posy: {} width: {} height: {}", entity, posx, posy, width, height);
 
         let padding_left = match state
             .style
@@ -462,19 +485,13 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default();
 
-        let shadow_color = state
-            .style
-            .shadow_color
-            .get(entity)
-            .cloned()
-            .unwrap_or_default();
-
         let parent = state
             .hierarchy
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 
         let parent_width = state.data.get_width(parent);
+        let parent_height = state.data.get_height(parent);
 
         let border_radius_top_left = match state
             .style
@@ -532,9 +549,6 @@ impl Widget for Textbox {
         let mut border_color: femtovg::Color = border_color.into();
         border_color.set_alphaf(border_color.a * opacity);
 
-        let mut shadow_color: femtovg::Color = shadow_color.into();
-        shadow_color.set_alphaf(shadow_color.a * opacity);
-
         let border_width = match state
             .style
             .border_width
@@ -547,73 +561,246 @@ impl Widget for Textbox {
             _ => 0.0,
         };
 
-        //println!("Border Width: {}", border_width);
-
         // Skip widgets with no width or no height
         if width == 0.0 || height == 0.0 {
             return;
         }
 
-        // Apply trandformations
-        let _rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
+        // Apply transformations
+        let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
         canvas.save();
-        // canvas.translate(posx + width / 2.0, posy + height / 2.0);
-        // canvas.rotate(rotate.to_radians());
-        // canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+        canvas.translate(posx + width / 2.0, posy + height / 2.0);
+        canvas.rotate(rotate.to_radians());
+        canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
-        let pt = canvas
-            .transform()
-            .inversed()
-            .transform_point(posx + width / 2.0, posy + height / 2.0);
+        canvas.translate(posx,posy);
+
+        //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
-        canvas.translate(pt.0, pt.1);
-        canvas.scale(1.0, scaley.0);
-        canvas.translate(-pt.0, -pt.1);
+        // canvas.translate(pt.0, pt.1);
+        // canvas.scale(1.0, scaley.0);
+        // canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
         let mut clip_region = state.data.get_clip_region(entity);
-        canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
+        canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
 
 
-        let _shadow_h_offset = state
+        let outer_shadow_h_offset = match state
             .style
-            .shadow_h_offset
+            .outer_shadow_h_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let outer_shadow_v_offset = match state
+            .style
+            .outer_shadow_v_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let outer_shadow_blur = match state
+            .style
+            .outer_shadow_blur
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let outer_shadow_color = state
+            .style
+            .outer_shadow_color
             .get(entity)
             .cloned()
             .unwrap_or_default();
 
-        // Draw shadow
-        // let mut path = Path::new();
-        // path.rounded_rect_varying(posx, posy, width, height, border_radius_top_left, border_radius_top_right, border_radius_bottom_right, border_radius_bottom_left);
-        // let mut paint = Paint::color(background_color);
-        // canvas.fill_path(&mut path, paint);
+        let mut outer_shadow_color: femtovg::Color = outer_shadow_color.into();
+        outer_shadow_color.set_alphaf(outer_shadow_color.a * opacity);
 
-        // Draw rounded rect
+        let inner_shadow_h_offset = match state
+            .style
+            .inner_shadow_h_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_width * val,
+            _ => 0.0,
+        };
+
+        let inner_shadow_v_offset = match state
+            .style
+            .inner_shadow_v_offset
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let inner_shadow_blur = match state
+            .style
+            .inner_shadow_blur
+            .get(entity)
+            .cloned()
+            .unwrap_or_default()
+        {
+            Length::Pixels(val) => val,
+            Length::Percentage(val) => parent_height * val,
+            _ => 0.0,
+        };
+
+        let inner_shadow_color = state
+            .style
+            .inner_shadow_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let mut inner_shadow_color: femtovg::Color = inner_shadow_color.into();
+        inner_shadow_color.set_alphaf(inner_shadow_color.a * opacity);
+
+        // Draw outer shadow
         let mut path = Path::new();
+        path.rect(
+            0.0 - outer_shadow_blur + outer_shadow_h_offset,
+            0.0 - outer_shadow_blur + outer_shadow_v_offset,
+            width + 2.0 * outer_shadow_blur,
+            height + 2.0 * outer_shadow_blur,
+        );
         path.rounded_rect_varying(
-            posx + (border_width / 2.0),
-            posy + (border_width / 2.0),
-            width - border_width,
-            height - border_width,
+            0.0,
+            0.0,
+            width,
+            height,
             border_radius_top_left,
             border_radius_top_right,
             border_radius_bottom_right,
             border_radius_bottom_left,
         );
-        let paint = Paint::color(background_color);
+        path.solidity(Solidity::Hole);
+
+        let mut paint = Paint::box_gradient(
+            0.0 + outer_shadow_h_offset,
+            0.0 + outer_shadow_v_offset,
+            width,
+            height,
+            border_radius_top_left,
+            outer_shadow_blur,
+            outer_shadow_color,
+            femtovg::Color::rgba(0, 0, 0, 0),
+        );
+
+        canvas.fill_path(&mut path, paint);
+
+        let mut path = Path::new();
+
+        if border_radius_bottom_left == (width - 2.0 * border_width) / 2.0
+            && border_radius_bottom_right == (width - 2.0 * border_width) / 2.0
+            && border_radius_top_left == (width - 2.0 * border_width) / 2.0
+            && border_radius_top_right == (width - 2.0 * border_width) / 2.0
+        {
+            path.circle(
+                0.0 + (border_width / 2.0) + (width - border_width) / 2.0,
+                0.0 + (border_width / 2.0) + (height - border_width) / 2.0,
+                width / 2.0,
+            );
+        } else {
+            // Draw rounded rect
+            path.rounded_rect_varying(
+                0.0 + (border_width / 2.0),
+                0.0 + (border_width / 2.0),
+                width - border_width,
+                height - border_width,
+                border_radius_top_left,
+                border_radius_top_right,
+                border_radius_bottom_right,
+                border_radius_bottom_left,
+            );
+        }
+        
+        // Fill with background color
+        let mut paint = Paint::color(background_color);
+        
+        // Gradient overrides background color
+        if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
+
+            let (start_x, start_y, end_x, end_y) = match background_gradient.direction {
+                Direction::LeftToRight => (0.0, 0.0, width, 0.0),
+                Direction::TopToBottom => (0.0, 0.0, 0.0, height),
+                _=> (0.0, 0.0, width, 0.0),
+            };
+
+            paint = Paint::linear_gradient_stops(start_x, start_y, end_x, end_y, 
+                background_gradient.get_stops(parent_width).iter().map(|stop| {
+                    let col: femtovg::Color = stop.1.into();
+                    (stop.0, col)
+                }).collect::<Vec<_>>().as_slice());
+        }
+
+        // Fill the quad
         canvas.fill_path(&mut path, paint);
 
         // Draw border
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
-        //paint.set_anti_alias(false);
         canvas.stroke_path(&mut path, paint);
-        //println!("posx: {}", posx);
+
+
+        // Draw inner shadow
+        let mut path = Path::new();
+        path.rounded_rect_varying(
+            0.0,
+            0.0,
+            width,
+            height,
+            border_radius_top_left,
+            border_radius_top_right,
+            border_radius_bottom_left,
+            border_radius_bottom_right,
+        );
+
+        let mut paint = Paint::box_gradient(
+            0.0 + inner_shadow_h_offset,
+            0.0 + inner_shadow_v_offset,
+            width,
+            height,
+            border_radius_top_left,
+            inner_shadow_blur,
+            femtovg::Color::rgba(0, 0, 0, 0),            
+            inner_shadow_color,
+
+        );
+        canvas.fill_path(&mut path, paint);
+
 
         let mut font_color: femtovg::Color = font_color.into();
         font_color.set_alphaf(font_color.a * opacity);
+
+        canvas.translate(-posx, -posy);
+        canvas.restore();
+
+        canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
 
         if let Some(text) = state.style.text.get_mut(entity) {
             let font_id = match text.font.as_ref() {
@@ -694,7 +881,7 @@ impl Widget for Textbox {
                     let startx = if let Some(first_glyph) = res.glyphs.first() {
                         first_glyph.x
                     } else {
-                        posx + padding_right
+                        0.0 + padding_right
                     };
                     //let startx = x - text_width / 2.0;
                     let endx = startx + text_width;
@@ -823,6 +1010,7 @@ impl Widget for Textbox {
                     // canvas.fill_path(&mut path, Paint::color(Color::rgba(255, 0, 0, 255)));
                 }
             }
+    
         }
     }
 }

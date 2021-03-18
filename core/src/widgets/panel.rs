@@ -35,6 +35,9 @@ pub struct Panel {
     fade_in_animation: usize,
     fade_out_animation: usize,
 
+    move_up_animation: usize,
+    move_down_animation: usize,
+
     arrow_cw_animation: usize,
     arrow_ccw_animation: usize,
 }
@@ -59,6 +62,9 @@ impl Panel {
 
             fade_in_animation: std::usize::MAX,
             fade_out_animation: std::usize::MAX,
+
+            move_up_animation: std::usize::MAX,
+            move_down_animation: std::usize::MAX,
 
             arrow_cw_animation: std::usize::MAX,
             arrow_ccw_animation: std::usize::MAX,
@@ -105,7 +111,9 @@ impl Widget for Panel {
             builder.class("container1").set_focusability(false)
         });
 
-        self.container2 = Element::new().build(state,self.container1,|builder| builder.class("container2").set_focusability(false));
+        self.container2 = Element::new().build(state,self.container1,|builder| 
+            builder.class("container2").set_focusability(false).set_clip_widget(self.container1)
+        );
 
         state.style.insert_element(entity, "panel");
 
@@ -147,6 +155,22 @@ impl Widget for Panel {
             .with_delay(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Opacity(0.0)))
             .with_keyframe((1.0, Opacity(1.0)));
+
+        let container_move_up_animation = AnimationState::new()
+            .with_duration(std::time::Duration::from_millis(100))
+            .with_delay(std::time::Duration::from_millis(100))
+            .with_keyframe((0.0, Length::Pixels(0.0)))
+            .with_keyframe((1.0, Length::Pixels(0.0)));
+        
+        self.move_up_animation = state.style.top.insert_animation(container_move_up_animation);
+
+
+        let container_move_down_animation = AnimationState::new()
+            .with_duration(std::time::Duration::from_millis(100))
+            .with_keyframe((0.0, Length::Pixels(0.0)))
+            .with_keyframe((1.0, Length::Pixels(0.0)));
+    
+        self.move_down_animation = state.style.top.insert_animation(container_move_down_animation); 
 
         self.fade_in_animation = state
             .style
@@ -266,14 +290,20 @@ impl Widget for Panel {
                             }
                         }
                         
+                        // state
+                        //     .style
+                        //     .opacity
+                        //     .play_animation(self.container2, self.fade_in_animation);
+
+                            
                         state
                             .style
-                            .opacity
-                            .play_animation(self.container2, self.fade_in_animation);
-                        
+                            .top
+                            .play_animation(self.container2, self.move_down_animation);
 
                         
-                        self.container2.set_opacity(state, 1.0);
+                        //self.container2.set_opacity(state, 1.0);
+
                     } else {
                         self.collapsed = true;
 
@@ -316,12 +346,17 @@ impl Widget for Panel {
                             }
                         }
 
+                        // state
+                        //     .style
+                        //     .opacity
+                        //     .play_animation(self.container2, self.fade_out_animation);
+
                         state
                             .style
-                            .opacity
-                            .play_animation(self.container2, self.fade_out_animation);
+                            .top
+                            .play_animation(self.container2, self.move_up_animation);
                         
-                        self.container2.set_opacity(state, 0.0);
+                        //self.container2.set_opacity(state, 0.0);
                     }
                 }
             }
@@ -356,6 +391,24 @@ impl Widget for Panel {
                                             animation.keyframes.first_mut().unwrap().1 =
                                                 Length::Pixels(container_height);
                                         }
+
+                                        if let Some(animation) = state
+                                            .style
+                                            .top
+                                            .get_animation_mut(self.move_down_animation)
+                                        {
+                                            animation.keyframes.first_mut().unwrap().1 =
+                                                Length::Pixels(-container_height);
+                                        }
+
+                                        if let Some(animation) =
+                                            state.style.top.get_animation_mut(self.move_up_animation)
+                                        {
+                                            animation.keyframes.last_mut().unwrap().1 =
+                                                Length::Pixels(-container_height);
+                                        }
+
+
                                     }
                                 }                                
                             }

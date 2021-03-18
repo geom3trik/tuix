@@ -147,11 +147,17 @@ pub struct Style {
     pub background_image: StyleStorage<String>,
     pub background_gradient: StyleStorage<LinearGradient>,
 
-    // Box Shadow
-    pub shadow_h_offset: AnimatableStorage<Length>,
-    pub shadow_v_offset: AnimatableStorage<Length>,
-    pub shadow_blur: AnimatableStorage<Length>,
-    pub shadow_color: AnimatableStorage<Color>,
+    // Outer Shadow
+    pub outer_shadow_h_offset: AnimatableStorage<Length>,
+    pub outer_shadow_v_offset: AnimatableStorage<Length>,
+    pub outer_shadow_blur: AnimatableStorage<Length>,
+    pub outer_shadow_color: AnimatableStorage<Color>,
+
+    // Inner Shadow
+    pub inner_shadow_h_offset: AnimatableStorage<Length>,
+    pub inner_shadow_v_offset: AnimatableStorage<Length>,
+    pub inner_shadow_blur: AnimatableStorage<Length>,
+    pub inner_shadow_color: AnimatableStorage<Color>,
 
     //Text Properties
     pub text: DenseStorage<Text>,
@@ -261,11 +267,17 @@ impl Style {
             // Focus
             focus_order: DenseStorage::new(),
 
-            // Box Shadow
-            shadow_h_offset: AnimatableStorage::new(),
-            shadow_v_offset: AnimatableStorage::new(),
-            shadow_blur: AnimatableStorage::new(),
-            shadow_color: AnimatableStorage::new(),
+            // Outer Shadow
+            outer_shadow_h_offset: AnimatableStorage::new(),
+            outer_shadow_v_offset: AnimatableStorage::new(),
+            outer_shadow_blur: AnimatableStorage::new(),
+            outer_shadow_color: AnimatableStorage::new(),
+
+            // Inner Shadow
+            inner_shadow_h_offset: AnimatableStorage::new(),
+            inner_shadow_v_offset: AnimatableStorage::new(),
+            inner_shadow_blur: AnimatableStorage::new(),
+            inner_shadow_color: AnimatableStorage::new(),
 
             // Background
             background_color: AnimatableStorage::new(),
@@ -502,14 +514,24 @@ impl Style {
                         self.z_order.insert_rule(rule_id, value);
                     }
 
-                    Property::BoxShadow(box_shadow) => {
-                        self.shadow_h_offset
+                    Property::OuterShadow(box_shadow) => {
+                        self.outer_shadow_h_offset
                             .insert_rule(rule_id, box_shadow.horizontal_offset);
-                        self.shadow_v_offset
+                        self.outer_shadow_v_offset
                             .insert_rule(rule_id, box_shadow.vertical_offset);
-                        self.shadow_blur
+                        self.outer_shadow_blur
                             .insert_rule(rule_id, box_shadow.blur_radius);
-                        self.shadow_color.insert_rule(rule_id, box_shadow.color);
+                        self.outer_shadow_color.insert_rule(rule_id, box_shadow.color);
+                    }
+
+                    Property::InnerShadow(box_shadow) => {
+                        self.inner_shadow_h_offset
+                            .insert_rule(rule_id, box_shadow.horizontal_offset);
+                        self.inner_shadow_v_offset
+                            .insert_rule(rule_id, box_shadow.vertical_offset);
+                        self.inner_shadow_blur
+                            .insert_rule(rule_id, box_shadow.blur_radius);
+                        self.inner_shadow_color.insert_rule(rule_id, box_shadow.color);
                     }
 
                     Property::Transition(transitions) => {

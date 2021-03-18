@@ -120,7 +120,7 @@ dropdown>.container {
     background-color: white;
     border-color: black;
     border-width: 1px; */
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 128);
+    outer-shadow: 2px 2px 5px #80000000;
 }
 
 check_item:focus {

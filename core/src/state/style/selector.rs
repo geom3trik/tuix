@@ -190,7 +190,13 @@ impl Selector {
     pub fn matches(&self, entity_selector: &Selector) -> bool {
         // Universal selector always matches
         if self.asterisk {
-            return true;
+            if self.pseudo_classes.0 != 0
+                && (self.pseudo_classes.0 & entity_selector.pseudo_classes.0) == 0
+            {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         if self.id.is_some() && self.id != entity_selector.id {

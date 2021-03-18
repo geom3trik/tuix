@@ -501,10 +501,10 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
-        // Shadow
+        // Outer Shadow
         if state
             .style
-            .shadow_h_offset
+            .outer_shadow_h_offset
             .link_rule(entity, &matched_rules)
         {
             //println!("45");
@@ -513,23 +513,51 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 
         if state
             .style
-            .shadow_v_offset
+            .outer_shadow_v_offset
             .link_rule(entity, &matched_rules)
         {
             //println!("46");
             should_redraw = true;
         }
 
-        if state.style.shadow_blur.link_rule(entity, &matched_rules) {
+        if state.style.outer_shadow_blur.link_rule(entity, &matched_rules) {
             //println!("47");
             should_redraw = true;
         }
 
-        if state.style.shadow_color.link_rule(entity, &matched_rules) {
+        if state.style.outer_shadow_color.link_rule(entity, &matched_rules) {
             //println!("48");
             should_redraw = true;
         }
 
+        // Inner Shadow
+        if state
+            .style
+            .inner_shadow_h_offset
+            .link_rule(entity, &matched_rules)
+        {
+            //println!("45");
+            should_redraw = true;
+        }
+
+        if state
+            .style
+            .inner_shadow_v_offset
+            .link_rule(entity, &matched_rules)
+        {
+            //println!("46");
+            should_redraw = true;
+        }
+
+        if state.style.inner_shadow_blur.link_rule(entity, &matched_rules) {
+            //println!("47");
+            should_redraw = true;
+        }
+
+        if state.style.inner_shadow_color.link_rule(entity, &matched_rules) {
+            //println!("48");
+            should_redraw = true;
+        }
 
 
         if should_relayout {

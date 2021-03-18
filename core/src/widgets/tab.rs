@@ -59,7 +59,7 @@ impl Tab {
         Self {
             name: name.to_string(),
             button: Button::new().on_press(Event::new(CheckboxEvent::Switch)),
-            check: Checkable::new(false).on_checked(Event::new(TabEvent::SwitchTab(name.to_string()))),
+            check: Checkable::new(false).on_checked(Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::Up)),
             
             //.check_on_press()
         }
