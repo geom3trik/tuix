@@ -1,15 +1,12 @@
 #![allow(dead_code)]
 
-use crate::entity::Entity;
-use crate::mouse::*;
-use crate::State;
-use crate::{BuildHandler, Event, EventHandler, WindowEvent};
 
-use crate::style::{Display, Visibility};
 
 use crate::widgets::*;
+use crate::style::*;
+
 use crate::widgets::slider::SliderEvent;
-use crate::widgets::Element;
+
 
 use femtovg::{renderer::OpenGl, Canvas, LineCap, Paint, Path, Solidity};
 

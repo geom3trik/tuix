@@ -1,8 +1,11 @@
 use crate::{
-    BuildHandler, Builder, CursorIcon, Entity, Event, EventHandler, Hierarchy, HierarchyTree,
+    Builder, CursorIcon, Entity, Event, Hierarchy, HierarchyTree,
     IntoBranchIterator, IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State,
     WindowEvent,
 };
+
+use crate::EventHandler;
+
 use std::{
     collections::{HashMap, VecDeque},
     println,
@@ -18,7 +21,7 @@ use femtovg::{
 use fnv::FnvHashMap;
 
 pub struct EventManager {
-    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
 
     // Queue of events to be processed
     pub event_queue: Vec<Event>,

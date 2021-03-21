@@ -1,9 +1,8 @@
 #![allow(dead_code)]
 
-use crate::{AnimationState, BuildHandler, Entity, Event, EventHandler, MouseButton, PropGet, State, WindowEvent, EventWrapper};
-
 use crate::widgets::*;
 use crate::widgets::{Element, Label};
+use crate::AnimationState;
 
 use crate::state::style::*;
 
@@ -208,17 +207,6 @@ impl Widget for Panel {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
-        event.process2(|panel_event: &mut EventWrapper<PanelEvent>|{
-            match panel_event.message {
-                PanelEvent::Open => {
-
-                }
-
-                _=> {}
-            }
-        });
-
         if let Some(panel_event) = event.message.downcast::<PanelEvent>() {
             match panel_event {
                 PanelEvent::Open | PanelEvent::Close => {

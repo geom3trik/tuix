@@ -518,6 +518,7 @@ pub trait Widget: std::marker::Sized + 'static {
         canvas.translate(-posx, -posy);
         canvas.restore();
     }
+    
 }
 
 impl<T> EventHandler for T 

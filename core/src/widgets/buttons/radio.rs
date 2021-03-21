@@ -2,12 +2,8 @@
 
 const ICON_CHECK: &str = "\u{2713}";
 
-use crate::{Entity, HierarchyTree};
-
-use crate::{BuildHandler, Event, EventHandler, Propagation};
-use crate::{PropSet, State};
-
 use crate::widgets::*;
+use crate::style::*;
 
 pub struct Radio {
     marker: Entity,

@@ -72,7 +72,7 @@ pub mod debug_container;
 pub use debug_container::*;
 
 pub use crate::entity::Entity;
-pub use crate::events::{Widget, BuildHandler, Event, EventHandler, Propagation, WindowEvent};
+pub use crate::events::{Widget, Event, Propagation, WindowEvent};
 pub use crate::state::State;
 pub use crate::{PropSet, PropGet};
 pub use crate::mouse::*;

@@ -25,8 +25,10 @@ pub use mouse::*;
 pub mod resource;
 pub use resource::*;
 
-pub use crate::events::{Builder, Event, EventHandler, Propagation, Widget};
+pub use crate::events::{Builder, Event, Propagation, Widget};
 pub use crate::window_event::WindowEvent;
+
+use crate::EventHandler;
 
 use femtovg::FontId;
 
@@ -62,7 +64,7 @@ pub struct State {
     pub captured: Entity,
     pub focused: Entity,
 
-    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub(crate) event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
     
     pub(crate) removed_entities: Vec<Entity>,
     pub event_queue: VecDeque<Event>,
@@ -121,7 +123,7 @@ impl State {
         }
     }
 
-    pub fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a>
+    pub(crate) fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a>
     where
         T: EventHandler + 'static,
     {

@@ -12,7 +12,7 @@ impl Tooltip {
     }
 }
 
-impl BuildHandler for Tooltip {
+impl Widget for Tooltip {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
@@ -22,5 +22,3 @@ impl BuildHandler for Tooltip {
             .set_element(state, "tooltip")
     }
 }
-
-impl EventHandler for Tooltip {}

@@ -14,7 +14,7 @@ impl Label {
     }
 }
 
-impl BuildHandler for Label {
+impl Widget for Label {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -23,5 +23,3 @@ impl BuildHandler for Label {
             .set_focusability(state, false)
     }
 }
-
-impl EventHandler for Label {}

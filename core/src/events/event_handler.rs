@@ -20,11 +20,14 @@ use std::any::{Any, TypeId};
 
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
-pub trait EventHandler: Any {
+pub(crate) trait EventHandler: Any {
     // Called when events are flushed
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
+
+    //fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas);
     // Called when a redraw occurs
+    
     fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
 
 
@@ -883,6 +886,8 @@ pub trait EventHandler: Any {
         );
         */
     }
+
+
 }
 
 impl dyn EventHandler {
@@ -919,41 +924,5 @@ impl dyn EventHandler {
             None
         }
     }
+    
 }
-
-// pub trait AsAny: Any {
-//     fn as_any(&self) -> &dyn Any;
-// }
-
-// impl dyn AsAny {
-//     // Check if a message is a certain type
-//     pub fn is<T: AsAny>(&self) -> bool {
-//         // Get TypeId of the type this function is instantiated with
-//         let t = TypeId::of::<T>();
-
-//         // Get TypeId of the type in the trait object
-//         let concrete = self.type_id();
-
-//         // Compare both TypeIds on equality
-//         t == concrete
-//     }
-
-//     // Casts a message to the specified type if the message is of that type
-//     pub fn downcast<T>(&mut self) -> Option<&mut T>
-//     where
-//         T: AsAny,
-//     {
-//         if self.is::<T>() {
-//             unsafe { Some(&mut *(self as *mut dyn AsAny as *mut T)) }
-//         } else {
-//             None
-//         }
-//     }
-// }
-
-// impl<T: 'static> AsAny for T {
-//     fn as_any(&self) -> &dyn Any
-//     {
-//         self
-//     }
-// }

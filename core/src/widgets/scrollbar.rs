@@ -1,12 +1,8 @@
 #![allow(dead_code)]
 
-use crate::entity::Entity;
-use crate::events::{BuildHandler, Event, EventHandler};
-use crate::{MouseButton, WindowEvent};
-use crate::{PropSet, State};
 
-use crate::state::style::*;
 use crate::widgets::*;
+use crate::state::style::*;
 use crate::widgets::Button;
 
 pub enum ScrollDirection {

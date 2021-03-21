@@ -2,7 +2,7 @@
 
 use crate::{ButtonEvent, CheckboxEvent, List, entity::Entity};
 use crate::mouse::*;
-use crate::{AnimationState, BuildHandler, Event, Propagation, WindowEvent};
+use crate::{AnimationState, Event, Propagation, WindowEvent};
 use crate::{PropSet, State};
 
 use crate::state::style::*;
@@ -190,6 +190,7 @@ impl Widget for Dropdown {
                     .set_position(Position::Absolute)
                     .set_opacity(0.0)
                     .set_z_order(1)
+                    .set_clip_widget(Entity::root())
                     .class("container")
             );
         } else {
@@ -198,6 +199,7 @@ impl Widget for Dropdown {
                     .set_position(Position::Absolute)
                     .set_opacity(0.0)
                     .set_z_order(1)
+                    .set_clip_widget(Entity::root())
                     .class("container")
             );
         }

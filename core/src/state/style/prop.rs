@@ -1,6 +1,6 @@
 use crate::state::style::*;
 use crate::State;
-use crate::{entity::Entity, BuildHandler, Builder, EventHandler, Propagation};
+use crate::{entity::Entity, Builder, EventHandler, Propagation};
 
 use crate::{Event, WindowEvent};
 

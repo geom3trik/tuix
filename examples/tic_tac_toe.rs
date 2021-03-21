@@ -62,7 +62,7 @@ impl Board {
 }
 
 // Add the squares and the post-game overlay
-impl BuildHandler for Board {
+impl Widget for Board {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // Create three rows each with 3 buttons
@@ -86,10 +86,8 @@ impl BuildHandler for Board {
 
         entity.set_element(state, "board")
     }
-}
 
-// React to the various game events
-impl EventHandler for Board {
+    // React to the various game events
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(game_event) = event.message.downcast::<GameEvent>() {
             match game_event {
@@ -169,15 +167,13 @@ impl Square {
 }
 
 // Inherits from button
-impl BuildHandler for Square {
+impl Widget for Square {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.button.on_build(state, entity)
     }
-}
 
-// Inherits button behaviour and adds new behaviour by reacting to a restart event
-impl EventHandler for Square {
+    // Inherits button behaviour and adds new behaviour by reacting to a restart event
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.button.on_event(state, entity, event);
 

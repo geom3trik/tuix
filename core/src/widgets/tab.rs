@@ -1,16 +1,9 @@
 #![allow(dead_code)]
 
-use std::usize;
-
-use crate::{CheckboxEvent, Entity, HierarchyTree, MouseButton, Propagation, Radio, List, State, PropGet, AnimationState};
-
-use crate::events::{BuildHandler, Event};
-
-use crate::widgets::Element;
-
 use crate::widgets::*;
-
+use crate::hierarchy::*;
 use crate::state::style::*;
+use crate::AnimationState;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum TabEvent {
@@ -133,15 +126,22 @@ impl Widget for TabManager {
             match tab_event {
                 TabEvent::SwitchTab(name) => {
                     if event.origin.is_descendant_of(&state.hierarchy, self.tab_bar) || event.target == self.tab_bar {
-                        state.insert_event(Event::new(TabEvent::SwitchTab(name.clone())).target(entity).propagate(Propagation::Fall).origin(event.origin));
+                        println!("Received request to switch tab: {}", name);
+                        for child in self.viewport.child_iter(&state.hierarchy.clone()) {
+                            state.insert_event(Event::new(TabEvent::SwitchTab(name.clone())).target(child).propagate(Propagation::Direct).origin(event.origin));
+                        }
+                        
+                        event.consume();
                     }          
                     
-                    event.consume();
+                    
                 }
 
                 TabEvent::CloseTab(name) => {
                     if event.origin.is_descendant_of(&state.hierarchy, self.tab_bar) || event.target == self.tab_bar {
-                        state.insert_event(Event::new(TabEvent::CloseTab(name.clone())).target(entity).propagate(Propagation::Fall).origin(event.origin));
+                        for child in self.viewport.child_iter(&state.hierarchy.clone()) {
+                            state.insert_event(Event::new(TabEvent::CloseTab(name.clone())).target(child).propagate(Propagation::Direct).origin(event.origin));
+                        }
                     }
 
                     event.consume();
@@ -174,12 +174,15 @@ impl Widget for TabContainer {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
                 TabEvent::SwitchTab(name) => {
+                    println!("Switch Tab: {}", name);
+    
                     if name == &self.name {
-                        println!("Switch Tab");
+                        
                         entity.set_display(state, Display::Flexbox);
                     } else {
                         entity.set_display(state, Display::None);
-                    }
+                    }                        
+
                 }
 
                 TabEvent::CloseTab(name) => {

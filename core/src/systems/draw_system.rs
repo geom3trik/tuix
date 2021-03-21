@@ -122,8 +122,15 @@ pub fn draw_text(state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>)
 }
 
 // Applies a clipping scissor to the widget
-pub fn apply_scissor(state: &mut State, entity: Entity, canvas: Canvas<OpenGl>) {
-
+pub fn apply_scissor(state: &mut State, entity: Entity, canvas: &mut Canvas<OpenGl>) {
+    
+    let posx = state.data.get_posx(entity);
+    let posy = state.data.get_posy(entity);
+    let width = state.data.get_width(entity);
+    let height = state.data.get_height(entity);
+    
+    let mut clip_region = state.data.get_clip_region(entity);
+    canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
 }
 
 // Converts from widget coordinates to screen coordinates

@@ -2,7 +2,7 @@
 
 use crate::entity::Entity;
 use crate::events::*;
-use crate::{BuildHandler, Justify, Length, PropSet, PropGet, State, Visibility, WindowEvent, Direction};
+use crate::{Justify, Length, PropSet, PropGet, State, Visibility, WindowEvent, Direction};
 
 use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
 

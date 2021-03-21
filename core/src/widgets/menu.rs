@@ -1,12 +1,8 @@
 #![allow(dead_code)]
 
-use crate::{Checkbox, Element, Message, entity::Entity};
-use crate::mouse::*;
-use crate::{BuildHandler, Event, EventHandler, HierarchyTree, Propagation, WindowEvent};
-use crate::{PropSet, State};
-
 use crate::style::*;
 use crate::widgets::*;
+use crate::hierarchy::*;
 
 use crate::state::hierarchy::IntoChildIterator;
 

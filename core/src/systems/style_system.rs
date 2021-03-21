@@ -13,6 +13,7 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
         let parent = hierarchy.get_parent(entity).unwrap();
 
         let parent_clip_region = state.data.get_clip_region(parent);
+        let root_clip_region = state.data.get_clip_region(Entity::root());
 
         if let Some(clip_widget) = state.style.clip_widget.get(entity) {
 

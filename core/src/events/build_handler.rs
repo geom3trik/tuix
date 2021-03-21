@@ -3,7 +3,7 @@ use crate::{State, Entity, EventHandler};
 use crate::builder::Builder;
 
 // Inherited by all widgets
-pub trait BuildHandler: EventHandler {
+trait BuildHandler: EventHandler {
     type Ret;
 
     /// A method which is called when a widget is built using `.build()`

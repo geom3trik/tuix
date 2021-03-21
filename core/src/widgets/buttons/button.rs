@@ -32,7 +32,7 @@ pub struct Button {
     //pub on_release: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     pub text: Option<String>,
 
-    //on_test: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    on_test: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }
 
 impl Button {
@@ -43,18 +43,18 @@ impl Button {
             on_release: None,
             text: None,
 
-            //on_test: None,
+            on_test: None,
         }
     }
 
-    // pub fn on_test<F>(&mut self, message: F) -> &mut Self 
-    // where
-    //     F: 'static + Fn(&mut Self, &mut State, Entity)
-    // {  
-    //     self.on_test = Some(Box::new(message));
+    pub fn on_test<F>(mut self, message: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {  
+        self.on_test = Some(Box::new(message));
 
-    //     self
-    // }
+        self
+    }
 
     /// Create a new button Widget with a specified text label
     pub fn with_label(text: &str) -> Self {
@@ -62,7 +62,7 @@ impl Button {
             on_press: None,
             on_release: None,
             text: Some(text.to_string()),
-            // on_test: None,
+            on_test: None,
         }
     }
 
@@ -122,6 +122,11 @@ impl Widget for Button {
                             state.insert_event(on_press);
                             //(on_press)(self, state, entity);
                             //self.on_press = Some(on_press);
+                        }
+
+                        if let Some(on_test) = self.on_test.take() {
+                            (on_test)(self, state, entity);
+                            self.on_test = Some(on_test);
                         }
 
                         entity.set_active(state, true);                        

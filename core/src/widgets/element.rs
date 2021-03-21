@@ -1,7 +1,5 @@
-use crate::entity::Entity;
 
-use crate::{BuildHandler, EventHandler, State};
-
+use crate::widgets::*;
 pub struct Element {}
 
 impl Element {
@@ -10,11 +8,9 @@ impl Element {
     }
 }
 
-impl BuildHandler for Element {
+impl Widget for Element {
     type Ret = Entity;
     fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
 }
-
-impl EventHandler for Element {}

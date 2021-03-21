@@ -1,9 +1,5 @@
-use crate::entity::Entity;
-use crate::events::{BuildHandler, Event, EventHandler};
-use crate::state::style::*;
-use crate::WindowEvent;
-use crate::{MouseButton, Propagation, State};
 
+use crate::state::style::*;
 use crate::widgets::*;
 use crate::widgets::{Dropdown, DropdownEvent, Textbox, TextboxEvent};
 use crate::AnimationState;

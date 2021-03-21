@@ -27,6 +27,9 @@ pub struct ScrollContainerH {
 
     vertical_scroll_animation: usize,
     vertical_container_animation: usize,
+
+    scrollbar: bool,
+    scroll_wheel: bool,
 }
 
 impl ScrollContainerH {
@@ -44,7 +47,24 @@ impl ScrollContainerH {
 
             vertical_scroll_animation: std::usize::MAX,
             vertical_container_animation: std::usize::MAX,
+
+            scrollbar: true,
+            scroll_wheel: true,
+
+            
         }
+    }
+
+    pub fn disable_scrollbar(mut self) -> Self {
+        self.scrollbar = false;
+
+        self
+    }
+
+    pub fn disable_scroll_wheel(mut self) -> Self {
+        self.scroll_wheel = false;
+
+        self
     }
 }
 
@@ -66,19 +86,22 @@ impl Widget for ScrollContainerH {
 
         state.style.clip_widget.insert(self.container, entity);
 
-        self.horizontal_scroll = Element::new().build(state, entity, |builder| {
-            builder
-                .set_position(Position::Absolute)
-                // .set_left(Length::Percentage(0.0))
-                //.set_height(Length::Pixels(10.0))
-                // .set_width(Length::Percentage(0.0))
-                // .set_align_self(AlignSelf::FlexStart)
-                //.set_background_color(Color::rgb(70, 70, 200))
-                //.set_right(Length::Pixels(0.0))
-                .class("scrollbar")
+        if self.scrollbar {
+            self.horizontal_scroll = Element::new().build(state, entity, |builder| {
+                builder
+                    .set_position(Position::Absolute)
+                    // .set_left(Length::Percentage(0.0))
+                    //.set_height(Length::Pixels(10.0))
+                    // .set_width(Length::Percentage(0.0))
+                    // .set_align_self(AlignSelf::FlexStart)
+                    //.set_background_color(Color::rgb(70, 70, 200))
+                    //.set_right(Length::Pixels(0.0))
+                    .class("scrollbar")
 
-            //
-        });
+                //
+            });            
+        }
+
 
         self.horizontal_scroll.set_disabled(state, true);
         self.horizontal_scroll.set_enabled(state, false);
@@ -173,93 +196,59 @@ impl Widget for ScrollContainerH {
                 }
 
                 WindowEvent::MouseScroll(_, y) => {
-                    //println!("Mouse Scroll Event");
-                    // Forward mouse scroll event to the scrollbar
-                    // state.insert_event(
-                    //     Event::new(WindowEvent::MouseScroll(*x, *y))
-                    //         .target(self.vertical_scroll)
-                    //         .propagate(Propagation::None),
-                    // );
 
-                    //if event.target == entity {
+                    if self.scroll_wheel {
+                        let overflow = state.data.get_height(entity)
+                            - state.data.get_width(self.horizontal_scroll);
 
-                    //println!("Height: {}", state.data.get_height(entity));
+                        if overflow == 0.0 {
+                            return;
+                        }
 
-                    let overflow = state.data.get_height(entity)
-                        - state.data.get_width(self.horizontal_scroll);
+                        // Need better names for these
+                        let overflow =
+                            1.0 - (state.data.get_width(self.container) / state.data.get_width(entity));
+                        let overflow2 =
+                            1.0 - (state.data.get_width(entity) / state.data.get_width(self.container));
 
-                    if overflow == 0.0 {
-                        return;
+                        
+                        self.scrolly += (30.0 * *y) / (state.data.get_width(entity) * overflow);
+
+                        if self.scrolly < 0.0 {
+                            self.scrolly = 0.0;
+                        }
+
+                        if self.scrolly > 1.0 {
+                            self.scrolly = 1.0;
+                        }
+
+                        let _current_scroll_top = state
+                            .style
+                            .left
+                            .get(self.horizontal_scroll)
+                            .cloned()
+                            .unwrap_or_default();
+                        let _current_container_top = state
+                            .style
+                            .left
+                            .get(self.container)
+                            .cloned()
+                            .unwrap_or_default();
+
+                        self.container
+                            .set_left(state, Length::Percentage(self.scrolly * overflow));
+                        self.horizontal_scroll
+                            .set_left(state, Length::Percentage(self.scrolly * overflow2));
+
+                        state.insert_event(
+                            Event::new(ScrollEvent::ScrollV(self.scrolly * overflow)).target(entity),
+                        );
+
+                        // Capture the event to stop it triggering twice
+                        event.consume();
                     }
 
-                    // Need better names for these
-                    let overflow =
-                        1.0 - (state.data.get_width(self.container) / state.data.get_width(entity));
-                    let overflow2 =
-                        1.0 - (state.data.get_width(entity) / state.data.get_width(self.container));
 
-                    // TODO - Need a way to configure this
-                    self.scrolly += (30.0 * *y) / (state.data.get_width(entity) * overflow);
-
-                    if self.scrolly < 0.0 {
-                        self.scrolly = 0.0;
-                    }
-
-                    if self.scrolly > 1.0 {
-                        self.scrolly = 1.0;
-                    }
-
-                    //println!("Scroll: {}", self.scrolly);
-
-                    // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);
-                    // if scrollh > 1.0 {
-                    //     scrollh = 1.0;
-                    // }
-
-                    let _current_scroll_top = state
-                        .style
-                        .left
-                        .get(self.horizontal_scroll)
-                        .cloned()
-                        .unwrap_or_default();
-                    let _current_container_top = state
-                        .style
-                        .left
-                        .get(self.container)
-                        .cloned()
-                        .unwrap_or_default();
-
-                    self.container
-                        .set_left(state, Length::Percentage(self.scrolly * overflow));
-                    self.horizontal_scroll
-                        .set_left(state, Length::Percentage(self.scrolly * overflow2));
-
-                    state.insert_event(
-                        Event::new(ScrollEvent::ScrollV(self.scrolly * overflow)).target(entity),
-                    );
-
-                    /*
-                    if let Some(animation) = state.style.top.get_animation_mut(self.vertical_scroll_animation) {
-                        *animation.keyframes.first_mut().unwrap() = (0.0, current_scroll_top);
-                        *animation.keyframes.last_mut().unwrap() = (1.0, Length::Percentage(self.scrolly * overflow2));
-                    }
-
-                    state.style.top.play_animation(self.vertical_scroll, self.vertical_scroll_animation);
-
-
-
-
-
-                    if let Some(animation) = state.style.top.get_animation_mut(self.vertical_container_animation) {
-                        *animation.keyframes.first_mut().unwrap() = (0.0, current_container_top);
-                        *animation.keyframes.last_mut().unwrap() = (1.0, Length::Percentage(self.scrolly * overflow));
-                    }
-
-                    state.style.top.play_animation(self.container, self.vertical_container_animation);
-                    */
-
-                    // Capture the event to stop it triggering twice
-                    event.consume();
                 }
 
                 WindowEvent::WindowResize(_, _) => {
