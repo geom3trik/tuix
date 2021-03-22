@@ -15,8 +15,8 @@ fn main() {
         window
             .set_background_color(state, Color::rgb(255, 255, 255))
             .set_align_items(state, AlignItems::FlexStart);
-            // .set_flex_direction(state, FlexDirection::Row)
-            // .set_align_items(state, AlignItems::FlexStart);
+        // .set_flex_direction(state, FlexDirection::Row)
+        // .set_align_items(state, AlignItems::FlexStart);
 
         //window.set_flex_direction(state, FlexDirection::Row);
         // let levels = HBox::new().build(state, window, |builder| builder.set_width(Length::Pixels(50.0)).set_background_color(Color::red()));
@@ -25,11 +25,20 @@ fn main() {
         // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         //let container = Element::new().build(state, window, |builder| builder.class("container"));
         let _one = Element::new().build(state, window, |builder| {
-            builder.class("one").set_background_gradient(
-                LinearGradient::new(Direction::TopToBottom)
-                    .add_stop(GradientStop::new(Length::Pixels(0.0), Color::rgb(90,90,90)))
-                    .add_stop(GradientStop::new(Length::Pixels(30.0), Color::rgb(50,50,50))),
-            ).set_text("Button")
+            builder
+                .class("one")
+                .set_background_gradient(
+                    LinearGradient::new(Direction::TopToBottom)
+                        .add_stop(GradientStop::new(
+                            Length::Pixels(0.0),
+                            Color::rgb(90, 90, 90),
+                        ))
+                        .add_stop(GradientStop::new(
+                            Length::Pixels(30.0),
+                            Color::rgb(50, 50, 50),
+                        )),
+                )
+                .set_text("Button")
         });
 
         // let two = Element::new().build(state, window, |builder| builder.class("two"));

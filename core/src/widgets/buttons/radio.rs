@@ -2,8 +2,8 @@
 
 const ICON_CHECK: &str = "\u{2713}";
 
-use crate::widgets::*;
 use crate::style::*;
+use crate::widgets::*;
 
 pub struct Radio {
     marker: Entity,
@@ -33,7 +33,10 @@ impl Widget for Radio {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.marker = Element::new().build(state, entity, |builder| {
-            builder.set_hoverability(false).class("marker").set_hoverability(false)
+            builder
+                .set_hoverability(false)
+                .class("marker")
+                .set_hoverability(false)
         });
 
         entity.set_element(state, "radio")

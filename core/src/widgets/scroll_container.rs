@@ -50,8 +50,6 @@ impl ScrollContainerH {
 
             scrollbar: true,
             scroll_wheel: true,
-
-            
         }
     }
 
@@ -71,8 +69,7 @@ impl ScrollContainerH {
 impl Widget for ScrollContainerH {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            .set_flex_direction(state, FlexDirection::Column);
+        entity.set_flex_direction(state, FlexDirection::Column);
 
         self.container = Button::new().build(state, entity, |builder| {
             builder
@@ -81,7 +78,7 @@ impl Widget for ScrollContainerH {
                 // .set_align_self(AlignSelf::FlexStart)
                 //.set_background_color(Color::rgb(200, 70, 70))
                 .class("container")
-                //.set_hoverability(false)
+            //.set_hoverability(false)
         });
 
         state.style.clip_widget.insert(self.container, entity);
@@ -99,9 +96,8 @@ impl Widget for ScrollContainerH {
                     .class("scrollbar")
 
                 //
-            });            
+            });
         }
-
 
         self.horizontal_scroll.set_disabled(state, true);
         self.horizontal_scroll.set_enabled(state, false);
@@ -196,7 +192,6 @@ impl Widget for ScrollContainerH {
                 }
 
                 WindowEvent::MouseScroll(_, y) => {
-
                     if self.scroll_wheel {
                         let overflow = state.data.get_height(entity)
                             - state.data.get_width(self.horizontal_scroll);
@@ -206,12 +201,11 @@ impl Widget for ScrollContainerH {
                         }
 
                         // Need better names for these
-                        let overflow =
-                            1.0 - (state.data.get_width(self.container) / state.data.get_width(entity));
-                        let overflow2 =
-                            1.0 - (state.data.get_width(entity) / state.data.get_width(self.container));
+                        let overflow = 1.0
+                            - (state.data.get_width(self.container) / state.data.get_width(entity));
+                        let overflow2 = 1.0
+                            - (state.data.get_width(entity) / state.data.get_width(self.container));
 
-                        
                         self.scrolly += (30.0 * *y) / (state.data.get_width(entity) * overflow);
 
                         if self.scrolly < 0.0 {
@@ -241,14 +235,13 @@ impl Widget for ScrollContainerH {
                             .set_left(state, Length::Percentage(self.scrolly * overflow2));
 
                         state.insert_event(
-                            Event::new(ScrollEvent::ScrollV(self.scrolly * overflow)).target(entity),
+                            Event::new(ScrollEvent::ScrollV(self.scrolly * overflow))
+                                .target(entity),
                         );
 
                         // Capture the event to stop it triggering twice
                         event.consume();
                     }
-
-
                 }
 
                 WindowEvent::WindowResize(_, _) => {
@@ -465,7 +458,7 @@ impl Widget for ScrollContainer {
             match window_event {
                 WindowEvent::GeometryChanged(geometry_changed) => {
                     //println!("Geometry Changed");
-                    
+
                     if event.target == self.container || event.target == entity {
                         if geometry_changed.width || geometry_changed.height {
                             //println!("Geometry Changed");
@@ -524,10 +517,13 @@ impl Widget for ScrollContainer {
                                 Length::Percentage(self.scrolly * overflow2),
                             );
 
-                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()).origin(entity));
+                            state.insert_event(
+                                Event::new(WindowEvent::Relayout)
+                                    .target(Entity::root())
+                                    .origin(entity),
+                            );
                         }
                     }
-                    
                 }
 
                 WindowEvent::MouseScroll(_, y) => {

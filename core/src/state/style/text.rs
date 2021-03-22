@@ -8,9 +8,6 @@ use crate::style::Color;
 pub struct Text {
     pub text: String,
     pub font: String,
-    //pub font_size: f32,
-    //pub font_color: Color,
-    //pub indent: f32,
 }
 
 impl Default for Text {
@@ -18,9 +15,6 @@ impl Default for Text {
         Text {
             text: "".to_string(),
             font: "sans".to_string(),
-            //font_size: 16.0,
-            //font_color: Color::rgba(255, 255, 255, 255),
-            //indent: 0.0,
         }
     }
 }

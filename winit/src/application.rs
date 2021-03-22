@@ -11,7 +11,7 @@ use tuix_core::{Entity, State};
 use tuix_core::{Length, Visibility};
 
 use tuix_core::state::style::prop::*;
-use tuix_core::systems::{apply_styles};
+use tuix_core::systems::apply_styles;
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
 type WEvent<'a, T> = winit::event::Event<'a, T>;
@@ -104,7 +104,6 @@ impl Application {
     }
 
     pub fn run(self) {
-
         let mut state = self.state;
         let mut event_manager = self.event_manager;
         let mut window = self.window;

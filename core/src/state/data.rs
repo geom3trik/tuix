@@ -65,7 +65,7 @@ pub struct Data {
     pub focusability: Vec<bool>,
 
     pub z_order: Vec<i32>,
-    pub clip_widget: Vec<Entity>,
+    //pub clip_widget: Vec<Entity>,
     // Holds the child_width_sum and then the free_width_space
     pub(crate) child_sum: Vec<f32>, // Sum of child widths
     pub(crate) child_max: Vec<f32>, // Max child width
@@ -92,7 +92,7 @@ impl Data {
             // child_shrink_sum: Vec::new(),
             opacity: Vec::new(),
             z_order: Vec::new(),
-            clip_widget: Vec::new(),
+            //clip_widget: Vec::new(),
             clip_region: Vec::new(),
         }
     }
@@ -114,7 +114,7 @@ impl Data {
             // self.child_shrink_sum.resize(key + 1, 0.0);
             self.opacity.resize(key + 1, 0.0);
             self.z_order.resize(key + 1, 0);
-            self.clip_widget.resize(key + 1, Entity::root());
+            //self.clip_widget.resize(key + 1, Entity::root());
             self.clip_region.resize(key + 1, Default::default());
         }
 
@@ -137,12 +137,12 @@ impl Data {
     // For getters and setters it's safe to use unwrap because every entity must have a position and size.
     // Event if the position and size are 0.0, or the entity is invisible.
 
-    pub fn get_clip_widget(&self, entity: Entity) -> Entity {
-        self.clip_widget
-            .get(entity.index_unchecked())
-            .cloned()
-            .unwrap()
-    }
+    // pub fn get_clip_widget(&self, entity: Entity) -> Entity {
+    //     self.clip_widget
+    //         .get(entity.index_unchecked())
+    //         .cloned()
+    //         .unwrap()
+    // }
 
     pub fn get_clip_region(&self, entity: Entity) -> BoundingBox {
         self.clip_region
@@ -168,27 +168,6 @@ impl Data {
             .cloned()
             .unwrap()
     }
-
-    // pub fn get_child_pos(&self, entity: Entity) -> f32 {
-    //     self.child_pos
-    //         .get(entity.index_unchecked())
-    //         .cloned()
-    //         .unwrap()
-    // }
-
-    // pub fn get_child_grow_sum(&self, entity: Entity) -> f32 {
-    //     self.child_grow_sum
-    //         .get(entity.index_unchecked())
-    //         .cloned()
-    //         .unwrap()
-    // }
-
-    // pub fn get_child_shrink_sum(&self, entity: Entity) -> f32 {
-    //     self.child_shrink_sum
-    //         .get(entity.index_unchecked())
-    //         .cloned()
-    //         .unwrap()
-    // }
 
     pub fn get_posx(&self, entity: Entity) -> f32 {
         self.position
@@ -222,7 +201,6 @@ impl Data {
             .y
     }
 
-
     pub(crate) fn get_prev_width(&self, entity: Entity) -> f32 {
         self.prev_size
             .get(entity.index_unchecked())
@@ -245,11 +223,11 @@ impl Data {
 
     // SETTERS
 
-    pub fn set_clip_widget(&mut self, entity: Entity, val: Entity) {
-        if let Some(clip_widget) = self.clip_widget.get_mut(entity.index_unchecked()) {
-            *clip_widget = val;
-        }
-    }
+    // pub fn set_clip_widget(&mut self, entity: Entity, val: Entity) {
+    //     if let Some(clip_widget) = self.clip_widget.get_mut(entity.index_unchecked()) {
+    //         *clip_widget = val;
+    //     }
+    // }
 
     pub fn set_clip_region(&mut self, entity: Entity, val: BoundingBox) {
         if let Some(clip_region) = self.clip_region.get_mut(entity.index_unchecked()) {
@@ -274,24 +252,6 @@ impl Data {
             *child_max = val;
         }
     }
-
-    // pub fn set_child_pos(&mut self, entity: Entity, val: f32) {
-    //     if let Some(child_pos) = self.child_pos.get_mut(entity.index_unchecked()) {
-    //         *child_pos = val;
-    //     }
-    // }
-
-    // pub fn set_child_grow_sum(&mut self, entity: Entity, val: f32) {
-    //     if let Some(child_grow_sum) = self.child_grow_sum.get_mut(entity.index_unchecked()) {
-    //         *child_grow_sum = val;
-    //     }
-    // }
-
-    // pub fn set_child_shrink_sum(&mut self, entity: Entity, val: f32) {
-    //     if let Some(child_shrink_sum) = self.child_shrink_sum.get_mut(entity.index_unchecked()) {
-    //         *child_shrink_sum = val;
-    //     }
-    // }
 
     pub fn set_posx(&mut self, entity: Entity, val: f32) {
         if let Some(position) = self.position.get_mut(entity.index_unchecked()) {

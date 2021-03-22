@@ -1,8 +1,4 @@
-
-
-
-use tuix::{EntityManager, Entity, Hierarchy2};
-
+use tuix::{Entity, EntityManager, Hierarchy2};
 
 fn main() {
     let mut entity_manager = EntityManager::new();
@@ -29,7 +25,6 @@ fn main() {
 
     // let entity6 = entity_manager.create_entity().unwrap();
     // hierarchy.insert(entity6, entity2);
-
 
     println!("{:?}", hierarchy.meta);
     //println!("{:?}", hierarchy.entities);

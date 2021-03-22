@@ -1,4 +1,4 @@
-use crate::{Interpolator, entity::Entity};
+use crate::{entity::Entity, Interpolator};
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum FlexDirection {

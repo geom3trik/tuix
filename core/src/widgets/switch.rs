@@ -1,9 +1,7 @@
 #![allow(dead_code)]
 
-
-
 use crate::widgets::*;
-use crate::widgets::{Element, Checkbox};
+use crate::widgets::{Checkbox, Element};
 
 pub struct Switch {
     front: Entity,
@@ -14,7 +12,9 @@ impl Switch {
     pub fn new(checked: bool) -> Self {
         Switch {
             front: Entity::null(),
-            checkbox: Checkbox::new(checked).with_icon_checked("").with_icon_unchecked(""),
+            checkbox: Checkbox::new(checked)
+                .with_icon_checked("")
+                .with_icon_unchecked(""),
         }
     }
 }
@@ -22,8 +22,6 @@ impl Switch {
 impl Widget for Switch {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
-
         self.checkbox.on_build(state, entity);
 
         self.front = Element::new().build(state, entity, |builder| {

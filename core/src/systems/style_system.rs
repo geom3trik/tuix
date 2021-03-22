@@ -13,16 +13,12 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
         let parent = hierarchy.get_parent(entity).unwrap();
 
         let parent_clip_region = state.data.get_clip_region(parent);
-        let root_clip_region = state.data.get_clip_region(Entity::root());
 
         if let Some(clip_widget) = state.style.clip_widget.get(entity) {
-
             let clip_x = state.data.get_posx(*clip_widget);
             let clip_y = state.data.get_posy(*clip_widget);
             let clip_w = state.data.get_width(*clip_widget);
             let clip_h = state.data.get_height(*clip_widget);
-
-            
 
             let mut intersection = BoundingBox::default();
             intersection.x = clip_x.max(parent_clip_region.x);
@@ -31,7 +27,7 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
             intersection.w = if clip_x + clip_w < parent_clip_region.x + parent_clip_region.w {
                 clip_x + clip_w - intersection.x
             } else {
-                parent_clip_region.x + parent_clip_region.w -  - intersection.x
+                parent_clip_region.x + parent_clip_region.w - -intersection.x
             };
 
             intersection.h = if clip_y + clip_h < parent_clip_region.y + parent_clip_region.h {
@@ -40,13 +36,10 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
                 parent_clip_region.y + parent_clip_region.h - intersection.y
             };
 
-
             state.data.set_clip_region(entity, intersection);
-
         } else {
             state.data.set_clip_region(entity, parent_clip_region);
         }
-
     }
 }
 
@@ -133,7 +126,6 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
     //println!("RESTYLE");
     // Loop through all entities
     for entity in hierarchy.into_iter() {
-
         // Skip the root
         if entity == Entity::root() {
             continue;
@@ -143,11 +135,11 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
         let mut matched_rules: Vec<usize> = Vec::new();
 
         // Loop through all of the style rules
-        'rule_loop: for (index, selectors) in state.style.rule_selectors.iter().enumerate() {
+        'rule_loop: for (index, rule) in state.style.rules.iter().enumerate() {
             let mut relation_entity = entity;
             // Loop through selectors (Should be from right to left)
             // All the selectors need to match for the rule to apply
-            'selector_loop: for rule_selector in selectors.iter().rev() {
+            'selector_loop: for rule_selector in rule.selectors.iter().rev() {
                 // Get the relation of the selector
                 match rule_selector.relation {
                     Relation::None => {
@@ -521,12 +513,20 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
-        if state.style.outer_shadow_blur.link_rule(entity, &matched_rules) {
+        if state
+            .style
+            .outer_shadow_blur
+            .link_rule(entity, &matched_rules)
+        {
             //println!("47");
             should_redraw = true;
         }
 
-        if state.style.outer_shadow_color.link_rule(entity, &matched_rules) {
+        if state
+            .style
+            .outer_shadow_color
+            .link_rule(entity, &matched_rules)
+        {
             //println!("48");
             should_redraw = true;
         }
@@ -550,16 +550,23 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
-        if state.style.inner_shadow_blur.link_rule(entity, &matched_rules) {
+        if state
+            .style
+            .inner_shadow_blur
+            .link_rule(entity, &matched_rules)
+        {
             //println!("47");
             should_redraw = true;
         }
 
-        if state.style.inner_shadow_color.link_rule(entity, &matched_rules) {
+        if state
+            .style
+            .inner_shadow_color
+            .link_rule(entity, &matched_rules)
+        {
             //println!("48");
             should_redraw = true;
         }
-
 
         if should_relayout {
             state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));

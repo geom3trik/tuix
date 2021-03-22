@@ -10,7 +10,7 @@ use crate::state::style::Color;
 
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Transition {
     // List of properties affected by transition
     pub property: String,

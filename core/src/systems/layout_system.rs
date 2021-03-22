@@ -1,8 +1,7 @@
 #[allow(dead_code)]
-
 use prop::PropGet;
 
-use crate::{Entity, GeometryChanged, State, Event, WindowEvent, Propagation};
+use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};
 
 use crate::hierarchy::*;
 use crate::style::*;
@@ -97,11 +96,10 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
 
     // Add padding
     //if state.style.flex_grow.get(child).is_none() {
-        new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
+    new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
     //}
 
-    new_cross +=
-        child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;    
+    new_cross += child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
 
     //println!("New Main: {}, New Cross: {}", new_main, new_cross);
 
@@ -290,9 +288,7 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
         new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
     }
 
-    new_cross +=
-        child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
-
+    new_cross += child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
 
     let child_position = child.get_position(state);
 
@@ -596,8 +592,12 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 continue;
             }
 
-            state.data.set_prev_width(child, state.data.get_width(child));
-            state.data.set_prev_height(child, state.data.get_height(child));
+            state
+                .data
+                .set_prev_width(child, state.data.get_width(child));
+            state
+                .data
+                .set_prev_height(child, state.data.get_height(child));
 
             let (new_main, new_cross) = calculate_down(state, child);
 
@@ -781,15 +781,14 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                 let prev_height = state.data.get_prev_height(*child);
                 let new_width = state.data.get_width(*child);
                 let new_height = state.data.get_height(*child);
-    
+
                 if new_width != prev_width {
                     geometry_changed.width = true;
                 }
                 if new_height != prev_height {
                     geometry_changed.height = true;
                 }
-                
-    
+
                 if geometry_changed.width || geometry_changed.height {
                     state.insert_event(
                         Event::new(WindowEvent::GeometryChanged(geometry_changed))
@@ -797,13 +796,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                             .propagate(Propagation::Down),
                     );
                 }
-
             }
         } else if free_space < 0.0 && flex_shrink_sum > 0.0 {
             // Do some flex shrinking
         }
-
-        
 
         ///////////////////////
         // Position Entities //
@@ -884,8 +880,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let position = child.get_position(state);
 
-            let mut new_posx ;
-            let mut new_posy ;
+            let mut new_posx;
+            let mut new_posy;
 
             match position {
                 Position::Relative => {

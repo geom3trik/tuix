@@ -1,11 +1,7 @@
-
-
-
-use crate::{Entity, State, Event, WindowEvent, Length, Visibility, Display, PropGet};
+use crate::{Display, Entity, Event, Length, PropGet, State, Visibility, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
-
     let mut draw_hierarchy: Vec<Entity> = state.hierarchy.into_iter().collect();
 
     // This should be cached somewhere
@@ -72,15 +68,11 @@ pub fn apply_hover(state: &mut State) {
             && cursory < (clip_region.y + clip_region.h)
         {
             hovered_widget = entity;
-            if let Some(pseudo_classes) =
-                state.style.pseudo_classes.get_mut(hovered_widget)
-            {
+            if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
                 pseudo_classes.set_over(true);
             }
         } else {
-            if let Some(pseudo_classes) =
-                state.style.pseudo_classes.get_mut(hovered_widget)
-            {
+            if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
                 pseudo_classes.set_over(false);
             }
         }
@@ -100,15 +92,11 @@ pub fn apply_hover(state: &mut State) {
         //     state.data.get_z_order(hovered_widget),
         // );
 
-        if let Some(pseudo_classes) =
-            state.style.pseudo_classes.get_mut(hovered_widget)
-        {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
             pseudo_classes.set_hover(true);
         }
 
-        if let Some(pseudo_classes) =
-            state.style.pseudo_classes.get_mut(state.hovered)
-        {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(state.hovered) {
             pseudo_classes.set_hover(false);
         }
 
@@ -125,16 +113,10 @@ pub fn apply_hover(state: &mut State) {
         //     );
         // }
 
-        state.insert_event(
-            Event::new(WindowEvent::MouseOver).target(hovered_widget),
-        );
-        state.insert_event(
-            Event::new(WindowEvent::MouseOut).target(state.hovered),
-        );
+        state.insert_event(Event::new(WindowEvent::MouseOver).target(hovered_widget));
+        state.insert_event(Event::new(WindowEvent::MouseOut).target(state.hovered));
 
-        state.insert_event(
-            Event::new(WindowEvent::Restyle).target(Entity::root()),
-        );
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
 
         state.hovered = hovered_widget;
         state.active = Entity::null();

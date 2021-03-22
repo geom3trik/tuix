@@ -38,23 +38,19 @@ cargo run --example example_name --no-default-features --features "baseview"
 Since it's probably best to learn by example, here is the "hello world" of GUI applications in tuix:
 
 ```Rust
-use tuix::widgets::Button;
-use tuix::Application;
-
-use tuix::events::BuildHandler;
-
+use tuix::*;
 use tuix::style::themes::DEFAULT_THEME;
 
 fn main() {
-    let mut app = Application::new(|win_desc, state, window| {
+    let mut app = Application::new(|window, state, root| {
 
         state.insert_theme(DEFAULT_THEME);
 
-        Button::new().build(state, window, |builder| {
+        Button::new().build(state, root, |builder| {
             builder.set_text("Button")
         });
 
-        win_desc.with_title("Hello GUI")
+        window.with_title("Hello GUI")
     });
 
     app.run();

@@ -1,9 +1,8 @@
 #![allow(dead_code)]
 
-
-use crate::widgets::*;
 use crate::state::style::*;
 use crate::widgets::Button;
+use crate::widgets::*;
 
 pub enum ScrollDirection {
     Horizontal,

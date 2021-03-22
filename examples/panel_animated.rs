@@ -3,7 +3,7 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, Checkbox, Dimension, Dropdown, Panel, CheckButton, RadioList, ResizableVBox,
+    Button, CheckButton, Checkbox, Dimension, Dropdown, Panel, RadioList, ResizableVBox,
     ScrollContainer, Spinner, Textbox, VectorEdit, VectorEditEvent,
 };
 
@@ -36,7 +36,7 @@ impl ColorEdit {
     }
 }
 
-impl BuildHandler for ColorEdit {
+impl Widget for ColorEdit {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
@@ -67,9 +67,7 @@ impl BuildHandler for ColorEdit {
 
         entity
     }
-}
 
-impl EventHandler for ColorEdit {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(vectoredit_event) = event.message.downcast::<VectorEditEvent<u8>>() {
             match vectoredit_event {

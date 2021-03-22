@@ -56,7 +56,7 @@ impl Widget for Counter {
                     self.label.set_text(state, &self.value.to_string());
                 }
             }
-        }  
+        }
     }
 }
 

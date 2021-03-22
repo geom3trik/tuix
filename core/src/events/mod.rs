@@ -9,9 +9,6 @@ pub use event::*;
 pub mod event_handler;
 pub use event_handler::*;
 
-pub mod build_handler;
-pub use build_handler::*;
-
 pub mod builder;
 pub use builder::*;
 

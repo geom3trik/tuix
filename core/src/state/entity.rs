@@ -1,6 +1,6 @@
 use std::cmp::{Eq, PartialEq};
-use std::hash::Hash;
 use std::collections::VecDeque;
+use std::hash::Hash;
 
 // An entity is an id used to reference data in external storages.
 // Rather than having widgets own their data, all state is stored in a single database and
@@ -8,7 +8,7 @@ use std::collections::VecDeque;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Entity {
-    index: u32,    
+    index: u32,
     generation: u32,
 }
 
@@ -27,7 +27,7 @@ impl std::fmt::Display for Entity {
 impl Entity {
     pub fn null() -> Entity {
         Entity {
-            index: std::u32::MAX,            
+            index: std::u32::MAX,
             generation: std::u32::MAX,
         }
     }
@@ -37,10 +37,7 @@ impl Entity {
     }
 
     pub fn new(index: u32, generation: u32) -> Entity {
-        Entity {
-            index,            
-            generation,
-        }
+        Entity { index, generation }
     }
 
     pub fn is_null(&self) -> bool {
@@ -69,7 +66,7 @@ impl Entity {
 
     pub fn root() -> Entity {
         Entity {
-            index: 0,            
+            index: 0,
             generation: 0,
         }
     }
@@ -129,4 +126,3 @@ impl EntityManager {
     //     }
     // }
 }
-

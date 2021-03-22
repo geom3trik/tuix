@@ -1,10 +1,7 @@
 #![allow(dead_code)]
 
-
-
 use crate::state::style::*;
 use crate::widgets::*;
-
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SliderEvent {
@@ -73,7 +70,6 @@ impl Slider {
 impl Widget for Slider {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        
         entity.set_flex_direction(state, FlexDirection::Row);
 
         self.active = Element::new().build(state, entity, |builder| {
@@ -111,13 +107,12 @@ impl Widget for Slider {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-
                 WindowEvent::GeometryChanged(_) => {
                     if event.target == entity {
                         let width = state.data.get_width(entity);
                         let thumb_width = state.data.get_width(self.thumb);
 
-                        let mut dx = self.value * (width - thumb_width) + thumb_width/2.0;
+                        let mut dx = self.value * (width - thumb_width) + thumb_width / 2.0;
 
                         if dx <= thumb_width / 2.0 {
                             dx = thumb_width / 2.0;
@@ -125,7 +120,6 @@ impl Widget for Slider {
                         if dx >= width - thumb_width / 2.0 {
                             dx = width - thumb_width / 2.0;
                         }
-
 
                         self.thumb
                             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
@@ -196,10 +190,10 @@ impl Widget for Slider {
                         let v = self.min + nx * (self.max - self.min);
 
                         self.active.set_width(state, Length::Percentage(nx));
-                        
+
                         self.thumb
                             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
-                        
+
                         self.value = v;
                         if let Some(on_change) = &self.on_change {
                             let mut event = (on_change)(v);

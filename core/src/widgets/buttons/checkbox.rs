@@ -1,9 +1,7 @@
 #![allow(dead_code)]
 
-use crate::widgets::*;
 use crate::style::*;
-
-use crate::widgets::checkable::*;
+use crate::widgets::*;
 
 const ICON_CHECK: &str = "\u{2713}";
 
@@ -29,7 +27,6 @@ const CHECKBOX_STYLE: &str = r#"
 
 // A checkable with an added icon
 pub struct Checkbox {
-
     checkbutton: CheckButton,
 
     icon_unchecked: Option<String>,
@@ -39,7 +36,6 @@ pub struct Checkbox {
 impl Checkbox {
     pub fn new(checked: bool) -> Self {
         Self {
-
             checkbutton: CheckButton::new(checked),
 
             icon_unchecked: Some(String::new()),
@@ -98,10 +94,8 @@ impl Widget for Checkbox {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
         // Inherit chackable behaviour
         self.checkbutton.on_event(state, entity, event);
-
 
         if self.checkbutton.is_checked() {
             if let Some(icon_checked) = &self.icon_checked {
@@ -142,31 +136,30 @@ impl CheckItem {
 impl Widget for CheckItem {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        
-        self.checkbox = Checkbox::new(self.checked).build(state, entity, |builder| 
+        self.checkbox = Checkbox::new(self.checked).build(state, entity, |builder| {
+            builder.set_hoverability(false).set_focusability(false)
+        });
+        self.label = Label::new(&self.name).build(state, entity, |builder| {
             builder
+                .set_flex_grow(1.0)
                 .set_hoverability(false)
                 .set_focusability(false)
-        );
-        self.label = Label::new(&self.name).build(state, entity, |builder| 
-            builder
-            .set_flex_grow(1.0)
-            .set_hoverability(false)
-            .set_focusability(false)
-            .set_align_self(AlignSelf::Stretch)
-            .set_margin_left(Length::Pixels(5.0))
-        
-        );
+                .set_align_self(AlignSelf::Stretch)
+                .set_margin_left(Length::Pixels(5.0))
+        });
 
-        self.button = Button::new().on_release(Event::new(CheckboxEvent::Switch).target(self.checkbox));
+        self.button =
+            Button::new().on_release(Event::new(CheckboxEvent::Switch).target(self.checkbox));
 
         //let checkbox = self.checkbox;
         // self.button.on_test(move |button, state, entity| {
         //     println!("Send message to checkbox");
         //     state.insert_event(Event::new(CheckboxEvent::Switch).target(checkbox))
         // });
-        
-        entity.set_flex_direction(state, FlexDirection::Row).set_align_items(state, AlignItems::Center);
+
+        entity
+            .set_flex_direction(state, FlexDirection::Row)
+            .set_align_items(state, AlignItems::Center);
 
         entity.set_element(state, "check_item")
     }

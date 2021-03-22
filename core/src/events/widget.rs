@@ -1,13 +1,11 @@
-
-
-use crate::{EventHandler, builder::Builder};
+use crate::{builder::Builder, EventHandler};
 use crate::{Entity, Hierarchy, State};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
 };
 
-use crate::style::{Justify, Length, Visibility, Direction};
+use crate::style::{Direction, Justify, Length, Visibility};
 use crate::{Event, EventManager, Message};
 
 pub type Canvas = femtovg::Canvas<OpenGl>;
@@ -43,8 +41,6 @@ pub trait Widget: std::marker::Sized + 'static {
 
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
-
-
         // Skip window
         if entity == Entity::root() {
             return;
@@ -61,8 +57,6 @@ pub trait Widget: std::marker::Sized + 'static {
             //println!("Zero Opacity: {}", entity);
             return;
         }
-
-
 
         let posx = state.data.get_posx(entity);
         let posy = state.data.get_posy(entity);
@@ -215,7 +209,7 @@ pub trait Widget: std::marker::Sized + 'static {
         canvas.rotate(rotate.to_radians());
         canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
-        canvas.translate(posx,posy);
+        canvas.translate(posx, posy);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
@@ -225,8 +219,12 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Apply Scissor
         let mut clip_region = state.data.get_clip_region(entity);
-        canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
-
+        canvas.scissor(
+            clip_region.x - posx,
+            clip_region.y - posy,
+            clip_region.w,
+            clip_region.h,
+        );
 
         let outer_shadow_h_offset = match state
             .style
@@ -330,7 +328,7 @@ pub trait Widget: std::marker::Sized + 'static {
             border_radius_top_left,
             border_radius_top_right,
             border_radius_bottom_right,
-            border_radius_bottom_left
+            border_radius_bottom_left,
         );
         path.rounded_rect_varying(
             0.0,
@@ -349,7 +347,10 @@ pub trait Widget: std::marker::Sized + 'static {
             0.0 + outer_shadow_v_offset,
             width,
             height,
-            border_radius_top_left.max(border_radius_top_right).max(border_radius_bottom_left).max(border_radius_bottom_right),
+            border_radius_top_left
+                .max(border_radius_top_right)
+                .max(border_radius_bottom_left)
+                .max(border_radius_bottom_right),
             outer_shadow_blur,
             outer_shadow_color,
             femtovg::Color::rgba(0, 0, 0, 0),
@@ -388,18 +389,27 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Gradient overrides background color
         if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
-
             let (start_x, start_y, end_x, end_y) = match background_gradient.direction {
                 Direction::LeftToRight => (0.0, 0.0, width, 0.0),
                 Direction::TopToBottom => (0.0, 0.0, 0.0, height),
-                _=> (0.0, 0.0, width, 0.0),
+                _ => (0.0, 0.0, width, 0.0),
             };
 
-            paint = Paint::linear_gradient_stops(start_x, start_y, end_x, end_y, 
-                background_gradient.get_stops(parent_width).iter().map(|stop| {
-                    let col: femtovg::Color = stop.1.into();
-                    (stop.0, col)
-                }).collect::<Vec<_>>().as_slice());
+            paint = Paint::linear_gradient_stops(
+                start_x,
+                start_y,
+                end_x,
+                end_y,
+                background_gradient
+                    .get_stops(parent_width)
+                    .iter()
+                    .map(|stop| {
+                        let col: femtovg::Color = stop.1.into();
+                        (stop.0, col)
+                    })
+                    .collect::<Vec<_>>()
+                    .as_slice(),
+            );
         }
 
         // Fill the quad
@@ -409,7 +419,6 @@ pub trait Widget: std::marker::Sized + 'static {
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
-
 
         // Draw inner shadow
         let mut path = Path::new();
@@ -429,15 +438,15 @@ pub trait Widget: std::marker::Sized + 'static {
             0.0 + inner_shadow_v_offset + border_width,
             width - border_width * 2.0,
             height - border_width * 2.0,
-            border_radius_top_left.max(border_radius_top_right).max(border_radius_bottom_left).max(border_radius_bottom_right),
+            border_radius_top_left
+                .max(border_radius_top_right)
+                .max(border_radius_bottom_left)
+                .max(border_radius_bottom_right),
             inner_shadow_blur,
-            femtovg::Color::rgba(0, 0, 0, 0),            
+            femtovg::Color::rgba(0, 0, 0, 0),
             inner_shadow_color,
-
         );
         canvas.fill_path(&mut path, paint);
-
-        
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
@@ -518,11 +527,11 @@ pub trait Widget: std::marker::Sized + 'static {
         canvas.translate(-posx, -posy);
         canvas.restore();
     }
-    
 }
 
-impl<T> EventHandler for T 
-where T: Widget + 'static
+impl<T> EventHandler for T
+where
+    T: Widget + 'static,
 {
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         <T as Widget>::on_event(self, state, entity, event);

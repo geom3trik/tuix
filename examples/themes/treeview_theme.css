@@ -45,6 +45,7 @@ scroll_container>.scrollbar:disabled {
 panel>.header {
     height: 30px;
     background-color: #383838;
+    flex-direction: row;
 }
 
 panel.level1>.header {

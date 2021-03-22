@@ -1,5 +1,4 @@
-
-use tuix_core::{Entity, State, WindowDescription, EventManager};
+use tuix_core::{Entity, EventManager, State, WindowDescription};
 
 pub struct Application2 {
     state: State,
@@ -8,13 +7,11 @@ pub struct Application2 {
 }
 
 impl Application2 {
-    pub fn new<F>() -> Self 
-    where F: FnMut(WindowDescription, )
+    pub fn new<F>() -> Self
+    where
+        F: FnMut(WindowDescription),
     {
-
     }
 
-    pub fn parented() -> Self {
-        
-    }
-}   
+    pub fn parented() -> Self {}
+}

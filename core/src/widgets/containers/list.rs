@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use crate::widgets::*;
 use crate::style::*;
+use crate::widgets::*;
 use crate::CursorIcon;
 
 pub struct HBox {}

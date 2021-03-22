@@ -60,7 +60,7 @@ impl Interpolator for BorderRadius {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct BoxShadow {
     pub horizontal_offset: Length,
     pub vertical_offset: Length,
@@ -127,7 +127,6 @@ impl GradientStop {
     }
 }
 
-
 #[derive(Debug, Clone)]
 pub enum Direction {
     LeftToRight,
@@ -165,6 +164,9 @@ impl LinearGradient {
     }
 
     pub fn get_stops(&mut self, parent_length: f32) -> Vec<(f32, Color)> {
-        self.stops.iter().map(|stop| (stop.position.get_value(parent_length), stop.color)).collect::<Vec<_>>()
+        self.stops
+            .iter()
+            .map(|stop| (stop.position.get_value(parent_length), stop.color))
+            .collect::<Vec<_>>()
     }
 }

@@ -96,10 +96,9 @@ fn main() {
     let app = Application::new(|win_desc, state, window| {
         state.add_theme(THEME);
 
-        let menu_bar = MenuBar::new().build(state, window, |builder| 
-            builder
-                .set_flex_direction(FlexDirection::Row)
-        );
+        let menu_bar = MenuBar::new().build(state, window, |builder| {
+            builder.set_flex_direction(FlexDirection::Row)
+        });
 
         let menu1 = Menu::new().build(state, menu_bar, |builder| {
             builder
@@ -132,7 +131,6 @@ fn main() {
             .on_press(Event::new(WindowEvent::WindowClose))
             .build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
-
 
         // // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
 

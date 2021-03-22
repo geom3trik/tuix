@@ -1,4 +1,3 @@
-
 use crate::state::style::*;
 use crate::widgets::*;
 use crate::widgets::{Dropdown, DropdownEvent, Textbox, TextboxEvent};
@@ -69,11 +68,9 @@ impl Widget for Dimension {
                             self.pressed = false;
                             //self.checkbox.set_checked(state, true);
                             state.insert_event(
-                                Event::new(DropdownEvent::SetText(
-                                    self.text.clone(),
-                                ))
-                                .target(entity)
-                                .propagate(Propagation::Up),
+                                Event::new(DropdownEvent::SetText(self.text.clone()))
+                                    .target(entity)
+                                    .propagate(Propagation::Up),
                             );
                         }
                     }
@@ -170,7 +167,7 @@ where
         + std::fmt::Display
         + Copy
         + PartialEq
-        + std::str::FromStr
+        + std::str::FromStr,
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {

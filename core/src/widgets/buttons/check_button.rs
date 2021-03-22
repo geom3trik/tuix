@@ -1,6 +1,5 @@
-
-use crate::widgets::*;
 use crate::widgets::button::Button;
+use crate::widgets::*;
 
 // An element that switches between checked and unchecked when pressed / released
 
@@ -28,7 +27,6 @@ impl CheckButton {
         self.checkable.is_checked()
     }
 
-    
     pub fn on_checked(mut self, event: Event) -> Self {
         self.checkable = self.checkable.on_checked(event);
         self
@@ -43,7 +41,6 @@ impl CheckButton {
 impl Widget for CheckButton {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        
         self.button.on_build(state, entity);
         self.checkable.on_build(state, entity);
 

@@ -1,7 +1,5 @@
-
-
-use crate::widgets::*;
 use crate::style::*;
+use crate::widgets::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum AudioLevelEvent {

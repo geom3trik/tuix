@@ -18,7 +18,7 @@ pub mod themes;
 pub mod theme;
 
 pub mod prop;
-pub use prop::{PropSet, PropGet};
+pub use prop::{PropGet, PropSet};
 
 pub mod flexbox;
 pub use flexbox::*;
@@ -60,14 +60,11 @@ pub use transform::Scale;
 
 #[derive(Clone)]
 pub struct Style {
-
-    pub rule_selectors: Vec<Vec<Selector>>,
-
-
+    pub(crate) rules: Vec<StyleRule>,
+    //pub rule_selectors: Vec<Vec<Selector>>,
     pub elements: DenseStorage<u64>,
     pub classes: DenseStorage<HashSet<String>>,
     pub pseudo_classes: DenseStorage<PseudoClasses>,
-
 
     pub z_order: StyleStorage<i32>,
 
@@ -82,7 +79,7 @@ pub struct Style {
     pub opacity: AnimatableStorage<Opacity>,
 
     pub overflow: StyleStorage<Overflow>, // TODO
-    pub scroll: DenseStorage<Scroll>, // TODO
+    pub scroll: DenseStorage<Scroll>,     // TODO
 
     // Positioning
     pub position: StyleStorage<Position>,
@@ -173,10 +170,10 @@ pub struct Style {
 impl Style {
     pub fn new() -> Self {
         Style {
-            //style_rules: Vec::new(),
+            rules: Vec::new(),
 
             //rules: Vec::new(),
-            rule_selectors: Vec::new(),
+            //rule_selectors: Vec::new(),
 
             //ids: DenseStorage::new(),
             //ids: BiMap::new(),
@@ -289,12 +286,542 @@ impl Style {
             flex_grow: AnimatableStorage::new(),
             flex_shrink: AnimatableStorage::new(),
             flex_basis: AnimatableStorage::new(),
-
-
         }
     }
 
+    pub fn add_rule(&mut self, style_rule: StyleRule) {
+        if !self.rules.contains(&style_rule) {
+            self.rules.push(style_rule);
+            //self.rules.sort_by_key(|rule| rule.specificity());
+            //self.rules.reverse();
+        }
+
+        self.set_style_properties();
+    }
+
     pub fn parse_theme(&mut self, stylesheet: &str) {
+        let mut input = ParserInput::new(stylesheet);
+        let mut parser = Parser::new(&mut input);
+        let rule_parser = theme::RuleParser::new();
+
+        let rules = {
+            let rule_list_parser =
+                cssparser::RuleListParser::new_for_stylesheet(&mut parser, rule_parser);
+            rule_list_parser.collect::<Vec<_>>()
+        };
+
+        let mut rule_list: Vec<StyleRule> =
+            rules.into_iter().filter_map(|rule| rule.ok()).collect();
+
+        //rule_list.append(&mut self.rules);
+        //self.rules = rule_list;
+
+        rule_list.sort_by_key(|rule| rule.specificity());
+        rule_list.reverse();
+
+        self.rules.append(&mut rule_list);
+
+        // for rule in self.rules.iter() {
+        //     println!("Rule: {:?}  {:?}", rule, rule.specificity());
+        // }
+
+        self.set_style_properties();
+    }
+
+    fn set_style_properties(&mut self) {
+        for (rule_id, rule) in self.rules.iter().enumerate() {
+            //let rule_id = self.rules.len();
+
+            for property in rule.properties.clone() {
+                match property {
+                    Property::Display(value) => {
+                        self.display.insert_rule(rule_id, value);
+                    }
+
+                    Property::Visibility(value) => {
+                        self.visibility.insert_rule(rule_id, value);
+                    }
+
+                    Property::Opacity(value) => {
+                        self.opacity.insert_rule(rule_id, Opacity(value));
+                    }
+
+                    Property::Overflow(value) => {
+                        self.overflow.insert_rule(rule_id, value);
+                    }
+
+                    Property::TextAlign(value) => {
+                        self.text_align.insert_rule(rule_id, value);
+                    }
+
+                    Property::TextJustify(value) => {
+                        self.text_justify.insert_rule(rule_id, value);
+                    }
+
+                    Property::Position(value) => {
+                        self.position.insert_rule(rule_id, value);
+                    }
+
+                    Property::Left(value) => {
+                        self.left.insert_rule(rule_id, value);
+                    }
+
+                    Property::Right(value) => {
+                        self.right.insert_rule(rule_id, value);
+                    }
+
+                    Property::Top(value) => {
+                        self.top.insert_rule(rule_id, value);
+                    }
+
+                    Property::Bottom(value) => {
+                        self.bottom.insert_rule(rule_id, value);
+                    }
+
+                    Property::Width(value) => {
+                        self.width.insert_rule(rule_id, value);
+                    }
+
+                    Property::Height(value) => {
+                        self.height.insert_rule(rule_id, value);
+                    }
+
+                    Property::MaxWidth(value) => {
+                        self.max_width.insert_rule(rule_id, value);
+                    }
+
+                    Property::MinWidth(value) => {
+                        self.min_width.insert_rule(rule_id, value);
+                    }
+
+                    Property::MaxHeight(value) => {
+                        self.max_height.insert_rule(rule_id, value);
+                    }
+
+                    Property::MinHeight(value) => {
+                        self.min_height.insert_rule(rule_id, value);
+                    }
+
+                    Property::Margin(value) => {
+                        self.margin_left.insert_rule(rule_id, value);
+                        self.margin_right.insert_rule(rule_id, value);
+                        self.margin_top.insert_rule(rule_id, value);
+                        self.margin_bottom.insert_rule(rule_id, value);
+                    }
+
+                    Property::MarginLeft(value) => {
+                        self.margin_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::MarginRight(value) => {
+                        self.margin_right.insert_rule(rule_id, value);
+                    }
+
+                    Property::MarginTop(value) => {
+                        self.margin_top.insert_rule(rule_id, value);
+                    }
+
+                    Property::MarginBottom(value) => {
+                        self.margin_bottom.insert_rule(rule_id, value);
+                    }
+
+                    Property::Padding(value) => {
+                        self.padding_left.insert_rule(rule_id, value);
+                        self.padding_right.insert_rule(rule_id, value);
+                        self.padding_top.insert_rule(rule_id, value);
+                        self.padding_bottom.insert_rule(rule_id, value);
+                    }
+
+                    Property::PaddingLeft(value) => {
+                        self.padding_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::PaddingRight(value) => {
+                        self.padding_right.insert_rule(rule_id, value);
+                    }
+
+                    Property::PaddingTop(value) => {
+                        self.padding_top.insert_rule(rule_id, value);
+                    }
+
+                    Property::PaddingBottom(value) => {
+                        self.padding_bottom.insert_rule(rule_id, value);
+                    }
+
+                    // Border
+                    Property::BorderWidth(value) => {
+                        self.border_width.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderColor(value) => {
+                        self.border_color.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderRadius(value) => {
+                        self.border_radius_top_left.insert_rule(rule_id, value);
+                        self.border_radius_top_right.insert_rule(rule_id, value);
+                        self.border_radius_bottom_left.insert_rule(rule_id, value);
+                        self.border_radius_bottom_right.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderTopLeftRadius(value) => {
+                        self.border_radius_top_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderTopRightRadius(value) => {
+                        self.border_radius_top_right.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderBottomLeftRadius(value) => {
+                        self.border_radius_bottom_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderBottomRightRadius(value) => {
+                        self.border_radius_bottom_right.insert_rule(rule_id, value);
+                    }
+
+                    Property::FontSize(value) => {
+                        self.font_size.insert_rule(rule_id, value);
+                    }
+
+                    Property::FontColor(value) => {
+                        self.font_color.insert_rule(rule_id, value);
+                    }
+
+                    Property::BackgroundColor(value) => {
+                        self.background_color.insert_rule(rule_id, value);
+                    }
+
+                    Property::BackgroundImage(value) => {
+                        self.background_image.insert_rule(rule_id, value);
+                    }
+
+                    // Flex Container
+                    Property::FlexDirection(value) => {
+                        self.flex_direction.insert_rule(rule_id, value);
+                    }
+                    Property::JustifyContent(value) => {
+                        self.justify_content.insert_rule(rule_id, value);
+                    }
+                    Property::AlignContent(value) => {
+                        self.align_content.insert_rule(rule_id, value);
+                    }
+                    Property::AlignItems(value) => {
+                        self.align_items.insert_rule(rule_id, value);
+                    }
+
+                    Property::AlignSelf(value) => {
+                        self.align_self.insert_rule(rule_id, value);
+                    }
+
+                    // Flex Item
+                    Property::FlexGrow(value) => {
+                        self.flex_grow.insert_rule(rule_id, value);
+                    }
+
+                    Property::FlexShrink(value) => {
+                        self.flex_shrink.insert_rule(rule_id, value);
+                    }
+
+                    Property::FlexBasis(value) => {
+                        self.flex_basis.insert_rule(rule_id, value);
+                    }
+
+                    Property::ZIndex(value) => {
+                        self.z_order.insert_rule(rule_id, value);
+                    }
+
+                    Property::OuterShadow(box_shadow) => {
+                        self.outer_shadow_h_offset
+                            .insert_rule(rule_id, box_shadow.horizontal_offset);
+                        self.outer_shadow_v_offset
+                            .insert_rule(rule_id, box_shadow.vertical_offset);
+                        self.outer_shadow_blur
+                            .insert_rule(rule_id, box_shadow.blur_radius);
+                        self.outer_shadow_color
+                            .insert_rule(rule_id, box_shadow.color);
+                    }
+
+                    Property::InnerShadow(box_shadow) => {
+                        self.inner_shadow_h_offset
+                            .insert_rule(rule_id, box_shadow.horizontal_offset);
+                        self.inner_shadow_v_offset
+                            .insert_rule(rule_id, box_shadow.vertical_offset);
+                        self.inner_shadow_blur
+                            .insert_rule(rule_id, box_shadow.blur_radius);
+                        self.inner_shadow_color
+                            .insert_rule(rule_id, box_shadow.color);
+                    }
+
+                    Property::Transition(transitions) => {
+                        for transition in transitions {
+                            match transition.property.as_ref() {
+                                "background-color" => {
+                                    self.background_color.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "flex-basis" => {
+                                    self.flex_basis.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "left" => {
+                                    self.left.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "top" => {
+                                    self.top.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "right" => {
+                                    self.right.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "bottom" => {
+                                    self.bottom.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "width" => {
+                                    self.width.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "height" => {
+                                    self.height.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "margin-bottom" => {
+                                    self.margin_bottom.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "margin-top" => {
+                                    self.margin_top.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "margin-left" => {
+                                    self.margin_left.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "margin-right" => {
+                                    self.margin_right.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-left" => {
+                                    self.padding_left.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-right" => {
+                                    self.padding_right.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-top" => {
+                                    self.padding_top.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "padding-bottom" => {
+                                    self.padding_bottom.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                "opacity" => {
+                                    self.opacity.insert_transition(
+                                        rule_id,
+                                        AnimationState::new()
+                                            .with_duration(std::time::Duration::from_secs_f32(
+                                                transition.duration,
+                                            ))
+                                            .with_delay(std::time::Duration::from_secs_f32(
+                                                transition.delay,
+                                            ))
+                                            .with_keyframe((0.0, Default::default()))
+                                            .with_keyframe((1.0, Default::default())),
+                                    );
+                                }
+
+                                _ => {}
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    pub fn parse_theme2(&mut self, stylesheet: &str) {
         let mut input = ParserInput::new(stylesheet);
         let mut parser = Parser::new(&mut input);
         let rule_parser = theme::RuleParser::new();
@@ -311,9 +838,10 @@ impl Style {
         rule_list.reverse();
 
         for rule in rule_list.iter() {
-            let rule_id = self.rule_selectors.len();
+            let rule_id = self.rules.len();
             //println!("Rule: {}, Specificity: {:?}, rule: {:?}", rule_id, rule.specificity(), rule);
-            self.rule_selectors.push(rule.selectors.clone());
+            //self.rule_selectors.push(rule.selectors.clone());
+            self.rules.push(rule.clone());
             //self.rules.push(rule_id);
             for property in rule.properties.clone() {
                 match property {
@@ -521,7 +1049,8 @@ impl Style {
                             .insert_rule(rule_id, box_shadow.vertical_offset);
                         self.outer_shadow_blur
                             .insert_rule(rule_id, box_shadow.blur_radius);
-                        self.outer_shadow_color.insert_rule(rule_id, box_shadow.color);
+                        self.outer_shadow_color
+                            .insert_rule(rule_id, box_shadow.color);
                     }
 
                     Property::InnerShadow(box_shadow) => {
@@ -531,7 +1060,8 @@ impl Style {
                             .insert_rule(rule_id, box_shadow.vertical_offset);
                         self.inner_shadow_blur
                             .insert_rule(rule_id, box_shadow.blur_radius);
-                        self.inner_shadow_color.insert_rule(rule_id, box_shadow.color);
+                        self.inner_shadow_color
+                            .insert_rule(rule_id, box_shadow.color);
                     }
 
                     Property::Transition(transitions) => {
@@ -819,7 +1349,6 @@ impl Style {
     }
 
     pub fn remove(&mut self, entity: Entity) {}
-
 
     pub(crate) fn insert_id(&mut self, entity: Entity, id: &str) -> &mut Self {
         // let mut s = DefaultHasher::new();

@@ -6,7 +6,7 @@ use crate::state::storage::dense_storage::DenseStorage;
 
 use crate::style::{Relation, Selector, Specificity};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct StyleRule {
     pub selectors: Vec<Selector>,
     pub properties: Vec<Property>,

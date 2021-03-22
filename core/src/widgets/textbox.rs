@@ -2,7 +2,7 @@
 
 use crate::entity::Entity;
 use crate::events::*;
-use crate::{Justify, Length, PropSet, PropGet, State, Visibility, WindowEvent, Direction};
+use crate::{Direction, Justify, Length, PropGet, PropSet, State, Visibility, WindowEvent};
 
 use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
 
@@ -422,8 +422,6 @@ impl Widget for Textbox {
             return;
         }
 
-        
-
         let posx = state.data.get_posx(entity);
         let posy = state.data.get_posy(entity);
         let width = state.data.get_width(entity);
@@ -575,7 +573,7 @@ impl Widget for Textbox {
         canvas.rotate(rotate.to_radians());
         canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
 
-        canvas.translate(posx,posy);
+        canvas.translate(posx, posy);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
@@ -585,8 +583,12 @@ impl Widget for Textbox {
 
         // Apply Scissor
         let mut clip_region = state.data.get_clip_region(entity);
-        canvas.scissor(clip_region.x - posx, clip_region.y - posy, clip_region.w, clip_region.h);
-
+        canvas.scissor(
+            clip_region.x - posx,
+            clip_region.y - posy,
+            clip_region.w,
+            clip_region.h,
+        );
 
         let outer_shadow_h_offset = match state
             .style
@@ -738,24 +740,33 @@ impl Widget for Textbox {
                 border_radius_bottom_left,
             );
         }
-        
+
         // Fill with background color
         let mut paint = Paint::color(background_color);
-        
+
         // Gradient overrides background color
         if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
-
             let (start_x, start_y, end_x, end_y) = match background_gradient.direction {
                 Direction::LeftToRight => (0.0, 0.0, width, 0.0),
                 Direction::TopToBottom => (0.0, 0.0, 0.0, height),
-                _=> (0.0, 0.0, width, 0.0),
+                _ => (0.0, 0.0, width, 0.0),
             };
 
-            paint = Paint::linear_gradient_stops(start_x, start_y, end_x, end_y, 
-                background_gradient.get_stops(parent_width).iter().map(|stop| {
-                    let col: femtovg::Color = stop.1.into();
-                    (stop.0, col)
-                }).collect::<Vec<_>>().as_slice());
+            paint = Paint::linear_gradient_stops(
+                start_x,
+                start_y,
+                end_x,
+                end_y,
+                background_gradient
+                    .get_stops(parent_width)
+                    .iter()
+                    .map(|stop| {
+                        let col: femtovg::Color = stop.1.into();
+                        (stop.0, col)
+                    })
+                    .collect::<Vec<_>>()
+                    .as_slice(),
+            );
         }
 
         // Fill the quad
@@ -765,7 +776,6 @@ impl Widget for Textbox {
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
-
 
         // Draw inner shadow
         let mut path = Path::new();
@@ -787,12 +797,10 @@ impl Widget for Textbox {
             height,
             border_radius_top_left,
             inner_shadow_blur,
-            femtovg::Color::rgba(0, 0, 0, 0),            
+            femtovg::Color::rgba(0, 0, 0, 0),
             inner_shadow_color,
-
         );
         canvas.fill_path(&mut path, paint);
-
 
         let mut font_color: femtovg::Color = font_color.into();
         font_color.set_alphaf(font_color.a * opacity);
@@ -1010,7 +1018,6 @@ impl Widget for Textbox {
                     // canvas.fill_path(&mut path, Paint::color(Color::rgba(255, 0, 0, 255)));
                 }
             }
-    
         }
     }
 }

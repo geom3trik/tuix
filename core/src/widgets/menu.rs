@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
+use crate::hierarchy::*;
 use crate::style::*;
 use crate::widgets::*;
-use crate::hierarchy::*;
 
 use crate::state::hierarchy::IntoChildIterator;
 
@@ -59,8 +59,6 @@ impl Widget for Menu {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
-
         if let Some(menu_event) = event.message.downcast::<MenuEvent>() {
             match menu_event {
                 MenuEvent::Open(menu) => {
@@ -75,11 +73,11 @@ impl Widget for Menu {
                     if *menu == entity {
                         entity.set_checked(state, false);
                         state.release(entity);
-                        self.open = false;                        
+                        self.open = false;
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
 
@@ -89,18 +87,27 @@ impl Widget for Menu {
                     if *button == MouseButton::Left {
                         if state.hovered == entity {
                             if !self.open {
-                                state.insert_event(Event::new(MenuEvent::Open(entity)).target(entity));
+                                state.insert_event(
+                                    Event::new(MenuEvent::Open(entity)).target(entity),
+                                );
                             } else {
-                                state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity));
-                            }      
+                                state.insert_event(
+                                    Event::new(MenuEvent::Close(entity)).target(entity),
+                                );
+                            }
                         } else {
                             if self.open {
                                 if state.hovered.is_descendant_of(&state.hierarchy, entity) {
-                                    state.insert_event(Event::new(WindowEvent::MouseDown(*button)).target(state.hovered));
+                                    state.insert_event(
+                                        Event::new(WindowEvent::MouseDown(*button))
+                                            .target(state.hovered),
+                                    );
                                     self.open = false;
                                 }
 
-                                state.insert_event(Event::new(MenuEvent::Close(entity)).target(entity));                                
+                                state.insert_event(
+                                    Event::new(MenuEvent::Close(entity)).target(entity),
+                                );
                             }
                         }
                     }
@@ -112,15 +119,11 @@ impl Widget for Menu {
                     }
                 }
 
-                _=> {}
-
-
+                _ => {}
             }
         }
-
     }
 }
-
 
 pub struct MenuBar {
     open_menu: Entity,
@@ -153,17 +156,23 @@ impl Widget for MenuBar {
 
                 MenuEvent::Hover(menu) => {
                     if self.open_menu != Entity::default() {
-                        state.insert_event(Event::new(MenuEvent::Close(self.open_menu)).target(entity).propagate(Propagation::Fall));
-                        state.insert_event(Event::new(MenuEvent::Open(*menu)).target(entity).propagate(Propagation::Fall));
-                        
-                        self.open_menu = *menu;
+                        state.insert_event(
+                            Event::new(MenuEvent::Close(self.open_menu))
+                                .target(entity)
+                                .propagate(Propagation::Fall),
+                        );
+                        state.insert_event(
+                            Event::new(MenuEvent::Open(*menu))
+                                .target(entity)
+                                .propagate(Propagation::Fall),
+                        );
 
+                        self.open_menu = *menu;
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
     }
-    
 }

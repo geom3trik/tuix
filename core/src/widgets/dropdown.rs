@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use crate::{ButtonEvent, CheckboxEvent, List, entity::Entity};
 use crate::mouse::*;
+use crate::{entity::Entity, ButtonEvent, CheckboxEvent, List};
 use crate::{AnimationState, Event, Propagation, WindowEvent};
 use crate::{PropSet, State};
 
@@ -53,8 +53,6 @@ impl Widget for Item {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
-        
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
@@ -76,11 +74,9 @@ impl Widget for Item {
                             //         .propagate(Propagation::Direct),
                             // );
                             state.insert_event(
-                                Event::new(DropdownEvent::SetText(
-                                    self.text.clone(),
-                                ))
-                                .target(entity)
-                                .propagate(Propagation::Up),
+                                Event::new(DropdownEvent::SetText(self.text.clone()))
+                                    .target(entity)
+                                    .propagate(Propagation::Up),
                             );
                         }
                     }
@@ -93,7 +89,6 @@ impl Widget for Item {
 }
 
 pub struct Dropdown {
-
     button: Button,
 
     pub container: Entity,
@@ -151,9 +146,7 @@ impl Dropdown {
 impl Widget for Dropdown {
     type Ret = (Entity, Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        
-        self.header = Element::new()
-        .build(state, entity, |builder| {
+        self.header = Element::new().build(state, entity, |builder| {
             builder
                 //.set_background_color(Color::rgb(100,100,50))
                 .set_hoverability(false)
@@ -185,23 +178,23 @@ impl Widget for Dropdown {
         });
 
         if self.multi {
-            self.container = Popup::new().build(state, entity, |builder|
+            self.container = Popup::new().build(state, entity, |builder| {
                 builder
                     .set_position(Position::Absolute)
                     .set_opacity(0.0)
                     .set_z_order(1)
                     .set_clip_widget(Entity::root())
                     .class("container")
-            );
+            });
         } else {
-            self.container = Popup::new().build(state, entity, |builder|
+            self.container = Popup::new().build(state, entity, |builder| {
                 builder
                     .set_position(Position::Absolute)
                     .set_opacity(0.0)
                     .set_z_order(1)
                     .set_clip_widget(Entity::root())
                     .class("container")
-            );
+            });
         }
 
         state.style.insert_element(entity, "dropdown");
@@ -235,9 +228,8 @@ impl Widget for Dropdown {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
         self.button.on_event(state, entity, event);
-        
+
         if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
             //if event.target == entity {
             match dropdown_event {
@@ -253,14 +245,14 @@ impl Widget for Dropdown {
                 // WindowEvent::MouseDown(button) => match button {
                 //     MouseButton::Left => {
                 //         if event.target == entity || event.target == self.header {
-            
+
                 //         }
                 //     }
                 //     _ => {}
                 // },
 
                 // WindowEvent::MouseCaptureOutEvent => {
-   
+
                 //     self.open = false;
 
                 //     self.header.set_disabled(state, true);
@@ -312,15 +304,16 @@ impl Widget for Dropdown {
 
                 //     _ => {}
                 // },
-
-                WindowEvent::KeyDown(code, key) => {
-                    match code {
-                        Code::Escape => {
-                            state.insert_event(Event::new(WindowEvent::KeyDown(*code,key.clone())).target(self.container).propagate(Propagation::Direct));
-                        }
-                        _=> {}
+                WindowEvent::KeyDown(code, key) => match code {
+                    Code::Escape => {
+                        state.insert_event(
+                            Event::new(WindowEvent::KeyDown(*code, key.clone()))
+                                .target(self.container)
+                                .propagate(Propagation::Direct),
+                        );
                     }
-                }
+                    _ => {}
+                },
 
                 _ => {}
             }

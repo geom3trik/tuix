@@ -172,7 +172,7 @@ impl Selector {
         }
     }
 
-    pub fn from(element: &str) -> Self {
+    pub fn element(element: &str) -> Self {
         let mut s = DefaultHasher::new();
         element.hash(&mut s);
 

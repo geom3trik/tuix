@@ -537,19 +537,18 @@ where
 
                     LinkType::NoRule => {
                         self.unlink(entity);
-                        return false;
+                        return true;
                     }
 
-                    // LinkType::NoData => {
-                    //     self.unlink(entity);
-                    //     return true;
-                    // }
+                    //LinkType::NoData => {
+                    //self.unlink(entity);
+                    //return false;
+                    //}
                     _ => {}
                 }
             }
 
             // If none of the matching rules have a specified property then unlink the entity from any rules
-            // Cascading could happen here but would need to pass in the hierarchy
 
             self.unlink(entity);
 

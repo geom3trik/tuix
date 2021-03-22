@@ -25,6 +25,14 @@ path = "examples/layout/align_items.rs"
 name = "flex_grow"
 path = "examples/layout/flex_grow.rs"
 
+[[example]]
+name = "inline"
+path = "examples/styling/inline.rs"
+
+[[example]]
+name = "rule"
+path = "examples/styling/rule.rs"
+
 [workspace]
 members = [
     "winit",

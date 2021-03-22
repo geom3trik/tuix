@@ -1,10 +1,8 @@
-
-
-use crate::{Entity, EventHandler, State, Widget};
 use crate::state::style::*;
+use crate::{Entity, EventHandler, State, Widget};
 
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
 
 /// Contains an entity id and a mutable reference to state and can be used to set properties
 pub struct Builder<'a> {
@@ -59,7 +57,6 @@ impl<'a> Builder<'a> {
 
         self
     }
-
 
     pub fn set_hoverability(mut self, val: bool) -> Self {
         self.state.data.set_hoverability(self.entity, val);
@@ -153,20 +150,29 @@ impl<'a> Builder<'a> {
     }
 
     pub fn set_background_gradient(mut self, val: LinearGradient) -> Self {
-        self.state.style.background_gradient.insert(self.entity, val);
+        self.state
+            .style
+            .background_gradient
+            .insert(self.entity, val);
 
         self
     }
 
     // Outer Shadow
     pub fn set_outer_shadow_h_offset(mut self, val: Length) -> Self {
-        self.state.style.outer_shadow_h_offset.insert(self.entity, val);
+        self.state
+            .style
+            .outer_shadow_h_offset
+            .insert(self.entity, val);
 
         self
     }
 
     pub fn set_outer_shadow_v_offset(mut self, val: Length) -> Self {
-        self.state.style.outer_shadow_v_offset.insert(self.entity, val);
+        self.state
+            .style
+            .outer_shadow_v_offset
+            .insert(self.entity, val);
 
         self
     }
@@ -185,13 +191,19 @@ impl<'a> Builder<'a> {
 
     // Inner Shadow
     pub fn set_inner_shadow_h_offset(mut self, val: Length) -> Self {
-        self.state.style.inner_shadow_h_offset.insert(self.entity, val);
+        self.state
+            .style
+            .inner_shadow_h_offset
+            .insert(self.entity, val);
 
         self
     }
 
     pub fn set_inner_shadow_v_offset(mut self, val: Length) -> Self {
-        self.state.style.inner_shadow_v_offset.insert(self.entity, val);
+        self.state
+            .style
+            .inner_shadow_v_offset
+            .insert(self.entity, val);
 
         self
     }

@@ -66,7 +66,7 @@ where
         + One
         + Bounded
         + std::ops::AddAssign
-        + std::ops::SubAssign
+        + std::ops::SubAssign,
 {
     pub fn new(initial_value: T) -> Self {
         // entity.set_text(state, "Test".to_string())
@@ -163,7 +163,7 @@ where
         + One
         + std::ops::AddAssign
         + std::ops::SubAssign
-        + std::cmp::PartialOrd
+        + std::cmp::PartialOrd,
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {

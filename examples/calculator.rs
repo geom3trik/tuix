@@ -102,7 +102,7 @@ impl Calculator {
     }
 }
 
-impl BuildHandler for Calculator {
+impl Widget for Calculator {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         let container = Element::new().build(state, entity, |builder| builder.class("container"));
@@ -270,9 +270,7 @@ impl BuildHandler for Calculator {
 
         entity
     }
-}
 
-impl EventHandler for Calculator {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(calculator_event) = event.message.downcast::<CalculatorEvent>() {
             match calculator_event {

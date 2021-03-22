@@ -3,8 +3,6 @@ extern crate tuix;
 use tuix::widgets::Button;
 use tuix::Application;
 
-use tuix::events::BuildHandler;
-
 use tuix::style::themes::DEFAULT_THEME;
 
 use tuix::style::Length;

@@ -1,5 +1,3 @@
-
-
 use crate::widgets::*;
 use crate::widgets::{Label, Slider, SliderEvent, Textbox, TextboxEvent};
 
@@ -31,7 +29,9 @@ impl Widget for ValueSlider {
             .set_display(state, Display::Flexbox)
             .set_flex_direction(state, FlexDirection::Row);
 
-        self.slider = Slider::new().build(state, entity, |builder| builder.set_flex_grow(1.0).class("custom2"));
+        self.slider = Slider::new().build(state, entity, |builder| {
+            builder.set_flex_grow(1.0).class("custom2")
+        });
         self.value = Textbox::new("0.5").build(state, entity, |builder| {
             builder
                 .set_flex_grow(0.0)

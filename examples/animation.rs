@@ -84,7 +84,7 @@ impl Animations {
     }
 }
 
-impl BuildHandler for Animations {
+impl Widget for Animations {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_grow(state, 1.0);
@@ -100,10 +100,7 @@ impl BuildHandler for Animations {
                 .set_background_color(Color::rgb(50, 100, 50))
         });
 
-        let container = Element::new().build(state, hbox, |builder|
-            builder
-                .set_flex_grow(4.0)
-        );
+        let container = Element::new().build(state, hbox, |builder| builder.set_flex_grow(4.0));
 
         self.element = Element::new().build(state, container, |builder| {
             builder
@@ -249,9 +246,7 @@ impl BuildHandler for Animations {
 
         entity
     }
-}
 
-impl EventHandler for Animations {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(animations_event) = event.message.downcast::<AnimationsEvent>() {
             match animations_event {

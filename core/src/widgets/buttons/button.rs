@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-
 use crate::widgets::*;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -21,13 +20,12 @@ pub enum ButtonEvent {
     SetLabel(String),
 }
 
-
 #[derive(Default)]
 // A Widget that can be pressed and released and may emit an event on_press and on_release
 pub struct Button {
     on_press: Option<Event>,
     on_release: Option<Event>,
-    
+
     //pub on_press: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     //pub on_release: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     pub text: Option<String>,
@@ -47,10 +45,10 @@ impl Button {
         }
     }
 
-    pub fn on_test<F>(mut self, message: F) -> Self 
+    pub fn on_test<F>(mut self, message: F) -> Self
     where
-        F: 'static + Fn(&mut Self, &mut State, Entity)
-    {  
+        F: 'static + Fn(&mut Self, &mut State, Entity),
+    {
         self.on_test = Some(Box::new(message));
 
         self
@@ -90,7 +88,6 @@ impl Button {
 impl Widget for Button {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         // If there is a specified label then set the text of the button entity to this
         if let Some(text) = &self.text {
             entity.set_text(state, text);
@@ -101,7 +98,6 @@ impl Widget for Button {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
         if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
             match button_event {
                 ButtonEvent::SetLabel(label) => {
@@ -129,9 +125,8 @@ impl Widget for Button {
                             self.on_test = Some(on_test);
                         }
 
-                        entity.set_active(state, true);                        
+                        entity.set_active(state, true);
                     }
-
                 }
 
                 ButtonEvent::Released => {
@@ -144,40 +139,42 @@ impl Widget for Button {
                             on_release.origin = entity;
                             on_release.propagation = Propagation::Down;
 
-                            println!("Send Event: {:?}", on_release);
-
                             state.insert_event(on_release);
                             // (on_release)(self, state, entity);
                             // self.on_release = Some(on_release);
                         }
 
-                        entity.set_active(state, false);                        
+                        entity.set_active(state, false);
                     }
-
                 }
 
                 ButtonEvent::Press => {
-                    state.insert_event(Event::new(ButtonEvent::Pressed).target(entity).propagate(Propagation::Direct));
+                    state.insert_event(
+                        Event::new(ButtonEvent::Pressed)
+                            .target(entity)
+                            .propagate(Propagation::Direct),
+                    );
                 }
 
                 ButtonEvent::Release => {
-                    state.insert_event(Event::new(ButtonEvent::Released).target(entity).propagate(Propagation::Direct));
+                    state.insert_event(
+                        Event::new(ButtonEvent::Released)
+                            .target(entity)
+                            .propagate(Propagation::Direct),
+                    );
                 }
 
-                _=> {}
+                _ => {}
             }
         }
-        
+
         // if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
         //     match button_event {
-
 
         //         ButtonEvent::SetLabel(label) => {
         //             println!("Set Label: {}", label);
         //             entity.set_text(state, label);
         //         }
-
-
 
         //         _ => {}
         //     }
@@ -188,7 +185,6 @@ impl Widget for Button {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if entity == event.target && !entity.is_disabled(state) {
-                            
                             state.capture(entity);
                             state.insert_event(
                                 Event::new(ButtonEvent::Pressed)

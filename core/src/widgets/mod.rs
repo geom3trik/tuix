@@ -10,14 +10,11 @@ pub use inputs::*;
 pub mod popups;
 pub use popups::*;
 
-
 pub mod scrollbar;
 pub use scrollbar::*;
 
-
 pub mod progress;
 pub use progress::*;
-
 
 pub mod switch;
 pub use switch::*;
@@ -72,8 +69,8 @@ pub mod debug_container;
 pub use debug_container::*;
 
 pub use crate::entity::Entity;
-pub use crate::events::{Widget, Event, Propagation, WindowEvent};
-pub use crate::state::State;
-pub use crate::{PropSet, PropGet};
+pub use crate::events::{Event, Propagation, Widget, WindowEvent};
 pub use crate::mouse::*;
-pub use crate::{Key, Code};
+pub use crate::state::State;
+pub use crate::{Code, Key};
+pub use crate::{PropGet, PropSet};

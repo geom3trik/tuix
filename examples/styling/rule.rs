@@ -1,18 +1,27 @@
 use tuix::*;
 
-const style_rule: StyleRule = StyleRule::new().selector(Selector::new().element("button")).property(Property::Width(Length::Pixels(200.0)));
+
 
 fn main() {
     let app = Application::new(|win_desc, state, window| {
 
+        let style_rule: StyleRule = StyleRule::new()
+            .selector(Selector::element("button"))
+            .property(Property::Width(Length::Pixels(100.0)))
+            .property(Property::Height(Length::Pixels(30.0)))
+            .property(Property::BackgroundColor(Color::from("#ff5e1a")))
+            .property(Property::Margin(Length::Pixels(5.0)));
+
+
         state.add_style_rule(style_rule);
 
-        Button::with_label("Button")
-        .build(state, window, |builder| {
+        Button::with_label("Button 1").build(state, window, |builder| {
             builder
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::from("#ff5e1a"))
+                .set_text_justify(Justify::Center)
+        });
+
+        Button::with_label("Button 2").build(state, window, |builder| {
+            builder
                 .set_text_justify(Justify::Center)
         });
 

@@ -14,7 +14,6 @@ fn main() {
             FlexDirection::Row | FlexDirection::RowReverse => FlexDirection::Column,
         };
 
-
         // Flex Start
         let container = Element::new().build(state, window, |builder| {
             builder
@@ -45,8 +44,6 @@ fn main() {
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 50, 200))
         });
-
-
 
         // Flex End
         let container = Element::new().build(state, window, |builder| {
@@ -79,7 +76,6 @@ fn main() {
                 .set_background_color(Color::rgb(50, 200, 50))
         });
 
-
         // Center
         let container = Element::new().build(state, window, |builder| {
             builder
@@ -110,8 +106,6 @@ fn main() {
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(200, 50, 50))
         });
-
-
 
         // Space Around
         let container = Element::new().build(state, window, |builder| {
@@ -144,7 +138,6 @@ fn main() {
                 .set_background_color(Color::rgb(200, 120, 50))
         });
 
-
         // Space Between
         let container = Element::new().build(state, window, |builder| {
             builder
@@ -175,7 +168,6 @@ fn main() {
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(200, 50, 200))
         });
-
 
         // Space Evenly
         let container = Element::new().build(state, window, |builder| {

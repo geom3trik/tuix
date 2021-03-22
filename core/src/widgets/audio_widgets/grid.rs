@@ -1,5 +1,3 @@
-
-
 use crate::widgets::*;
 
 use femtovg::{renderer::OpenGl, Canvas};

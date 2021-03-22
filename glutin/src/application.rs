@@ -17,7 +17,7 @@ use tuix_core::state::hierarchy::IntoHierarchyIterator;
 
 use tuix_core::state::Fonts;
 
-use tuix_core::style::{Visibility, Display};
+use tuix_core::style::{Display, Visibility};
 
 use tuix_core::state::style::prop::*;
 
@@ -121,7 +121,6 @@ impl Application {
     }
 
     pub fn run(self) {
-
         let mut state = self.state;
         let mut event_manager = self.event_manager;
 
@@ -129,7 +128,6 @@ impl Application {
         let mut should_quit = false;
 
         //let hierarchy = state.hierarchy.clone();
-
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -145,29 +143,20 @@ impl Application {
                 GEvent::LoopDestroyed => return,
 
                 GEvent::UserEvent(_) => {
-                    //println!("User Event");
                     window.handle.window().request_redraw();
                 }
 
                 GEvent::MainEventsCleared => {
 
-                    //println!("Flush");
-                    //event_loop_proxy.send_event(()).unwrap();
-
                     while !state.event_queue.is_empty() {
                         event_manager.flush_events(&mut state);
                     }
 
-                    //println!("Main Events Cleared");
                     if state.apply_animations() {
-                        //println!("Animate");
+
                         *control_flow = ControlFlow::Poll;
 
                         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-
-                        // state.needs_restyle = true;
-                        // state.needs_relayout = true;
-                        //state.needs_redraw = true;
 
                         event_loop_proxy.send_event(()).unwrap();
                         window.handle.window().request_redraw();
@@ -189,7 +178,6 @@ impl Application {
                 // REDRAW
 
                 GEvent::RedrawRequested(_) => {
-                    //println!("Actually Redraw");
                     let hierarchy = state.hierarchy.clone();
                     event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
                     // Swap buffers

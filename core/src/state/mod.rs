@@ -4,9 +4,6 @@ pub use entity::*;
 pub mod hierarchy;
 pub use hierarchy::*;
 
-pub mod hierarchy2;
-pub use hierarchy2::*;
-
 pub mod storage;
 pub use storage::*;
 
@@ -36,19 +33,12 @@ use std::collections::VecDeque;
 
 use fnv::FnvHashMap;
 
-use std::rc::Rc;
-use std::cell::RefCell;
-
 #[derive(Clone)]
 pub struct Fonts {
     pub regular: Option<FontId>,
     pub bold: Option<FontId>,
     pub icons: Option<FontId>,
     pub emoji: Option<FontId>,
-}
-
-pub enum Command {
-    SetProperty(Entity, Property),
 }
 
 pub struct State {
@@ -65,7 +55,7 @@ pub struct State {
     pub focused: Entity,
 
     pub(crate) event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
-    
+
     pub(crate) removed_entities: Vec<Entity>,
     pub event_queue: VecDeque<Event>,
 
@@ -80,7 +70,7 @@ pub struct State {
 
 impl State {
     pub fn new() -> Self {
-        let mut entity_manager = EntityManager::new();
+        let entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
         let mut style = Style::new();
         let mut data = Data::new();
@@ -154,6 +144,19 @@ impl State {
         self.resource_manager.themes.push(theme.to_owned());
 
         self.reload_styles().expect("Failed to reload styles");
+    }
+
+    /// Adds a style rule to the application
+    ///
+    /// This function adds a style rule to the application allowing for multiple entites to share the same style properties based on the rule selector.
+    ///
+    /// # Examples
+    /// Adds a style rule which sets the flex-grow properties of all 'button' elements to 1.0:
+    /// ```
+    /// state.add_style_rule(StyleRule::new(Selector::element("button")).property(Property::FlexGrow(1.0)))
+    /// ```
+    pub fn add_style_rule(&mut self, style_rule: StyleRule) {
+        self.style.add_rule(style_rule);
     }
 
     //TODO
@@ -320,7 +323,6 @@ impl State {
         self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
-
         entity
     }
 
@@ -339,7 +341,6 @@ impl State {
 
     //  TODO
     pub fn remove(&mut self, entity: Entity) {
-
         let delete_list = entity.branch_iter(&self.hierarchy).collect::<Vec<_>>();
 
         println!("Delete List: {:?}", delete_list);
@@ -353,11 +354,9 @@ impl State {
             self.entity_manager.destroy_entity(*entity);
         }
 
-    
         self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
     }
 
     // Run all pending animations

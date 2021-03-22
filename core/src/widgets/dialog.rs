@@ -2,7 +2,7 @@
 
 use crate::entity::Entity;
 use crate::mouse::*;
-use crate::{BuildHandler, Event, EventHandler, Length, WindowEvent};
+use crate::{Event, EventHandler, Length, WindowEvent};
 use crate::{PropSet, State};
 
 use crate::state::style::*;
@@ -22,10 +22,7 @@ impl Dialogue {
     }
 }
 
-impl BuildHandler for Dialogue {
+impl Widget for Dialogue {
 
 }
 
-impl EventHandler for Dialogue {
-    
-}

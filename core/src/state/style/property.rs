@@ -7,7 +7,7 @@ use crate::state::style::*;
 
 use crate::state::animation::Transition;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Property {
     None,
 

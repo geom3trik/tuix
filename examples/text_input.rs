@@ -6,15 +6,15 @@ fn main() {
             .set_justify_content(state, JustifyContent::Center)
             .set_align_items(state, AlignItems::Center);
 
-        Textbox::new("Some text").build(state, window, |builder| 
+        Textbox::new("Some text").build(state, window, |builder| {
             builder
                 .set_font("emoji")
                 .set_font_size(20.0)
                 .set_text_justify(Justify::Center)
                 .set_width(Length::Pixels(200.0))
                 .set_height(Length::Pixels(100.0))
-                .set_background_color(Color::rgb(50,50,50))
-        );
+                .set_background_color(Color::rgb(50, 50, 50))
+        });
 
         // Label::new("Hello 👍").build(state, window, |builder| {
         //     builder

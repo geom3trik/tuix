@@ -7,7 +7,6 @@ use crate::{Event, WindowEvent};
 use crate::state::hierarchy::*;
 
 pub trait PropSet {
-
     /// Add a class name to an entity
     fn class(self, state: &mut State, class_name: &str) -> Self;
 
@@ -313,7 +312,6 @@ impl PropSet for Entity {
     // Overflow
     fn set_overflow(self, state: &mut State, value: Overflow) -> Self {
         state.style.overflow.insert(self, value);
-
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -648,7 +646,6 @@ impl PropSet for Entity {
     fn set_border_color(self, state: &mut State, value: Color) -> Self {
         state.style.border_color.insert(self, value);
 
-
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
@@ -866,8 +863,6 @@ impl PropSet for Entity {
 }
 
 pub trait PropGet {
-
-
     fn is_enabled(self, state: &mut State) -> bool;
     fn is_disabled(self, state: &mut State) -> bool;
     fn is_checked(self, state: &mut State) -> bool;
@@ -929,7 +924,6 @@ pub trait PropGet {
 }
 
 impl PropGet for Entity {
-
     fn is_enabled(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
             pseudo_classes.get_enabled()
@@ -973,7 +967,6 @@ impl PropGet for Entity {
         }
     }
 
-    
     // Display
     fn get_display(&self, state: &mut State) -> Display {
         state.style.display.get(*self).cloned().unwrap_or_default()
@@ -1196,6 +1189,12 @@ impl PropGet for Entity {
 
     // Text
     fn get_text(&self, state: &mut State) -> String {
-        state.style.text.get(*self).cloned().unwrap_or_default().text
+        state
+            .style
+            .text
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
+            .text
     }
 }

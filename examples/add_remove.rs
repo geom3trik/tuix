@@ -3,7 +3,6 @@ use tuix::*;
 use tuix::style::themes::DEFAULT_THEME;
 // An example for demonstrating the addition and removal of entities
 
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AddRemoveEvent {
     Add,
@@ -11,39 +10,31 @@ pub enum AddRemoveEvent {
 }
 
 #[derive(Default)]
-struct Counter {
-
-}
+struct Counter {}
 
 impl Counter {
     pub fn new() -> Self {
-        Counter {
-
-        }
+        Counter {}
     }
 }
 
-impl BuildHandler for Counter {
+impl Widget for Counter {
     type Ret = Entity;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         println!("Entity Index: {}", entity);
 
         state.focused = entity;
         entity.set_flex_grow(state, 1.0)
     }
-}
 
-impl EventHandler for Counter {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(counter_event) = event.message.downcast::<AddRemoveEvent>() {
             match counter_event {
                 AddRemoveEvent::Add => {
-                    Button::new().build(state, entity, |builder| 
-                        builder
-                            .set_height(Length::Pixels(30.0))
-                    );
+                    Button::new().build(state, entity, |builder| {
+                        builder.set_height(Length::Pixels(30.0))
+                    });
                 }
 
                 AddRemoveEvent::Remove => {
@@ -66,7 +57,7 @@ impl EventHandler for Counter {
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
     }

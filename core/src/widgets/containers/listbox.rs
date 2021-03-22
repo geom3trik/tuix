@@ -1,8 +1,7 @@
-use crate::{IntoBranchIterator, widgets::*};
 use crate::Key;
+use crate::{widgets::*, IntoBranchIterator};
 
-use crate::{HierarchyTree};
-
+use crate::HierarchyTree;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ListEvent {
@@ -38,38 +37,57 @@ impl Widget for List {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::KeyDown(code, key) => {
-                    match key {
-                        Some(Key::ArrowDown) | Some(Key::ArrowRight) => {
-                            if let Some(next_entity) = state.hierarchy.get_next_sibling(self.checked_entity) {
+                WindowEvent::KeyDown(code, key) => match key {
+                    Some(Key::ArrowDown) | Some(Key::ArrowRight) => {
+                        if let Some(next_entity) =
+                            state.hierarchy.get_next_sibling(self.checked_entity)
+                        {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Unchecked)
+                                    .target(self.checked_entity)
+                                    .origin(entity)
+                                    .propagate(Propagation::Direct),
+                            );
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Checked)
+                                    .target(next_entity)
+                                    .origin(entity)
+                                    .propagate(Propagation::Direct),
+                            );
+                            self.checked_entity = next_entity;
 
-                                state.insert_event(Event::new(CheckboxEvent::Unchecked).target(self.checked_entity).origin(entity).propagate(Propagation::Direct));
-                                state.insert_event(Event::new(CheckboxEvent::Checked).target(next_entity).origin(entity).propagate(Propagation::Direct));
-                                self.checked_entity = next_entity;
-
-                                event.consume();
-                            }
+                            event.consume();
                         }
-
-                        Some(Key::ArrowUp) | Some(Key::ArrowLeft) => {
-                            if let Some(prev_entity) = state.hierarchy.get_prev_sibling(self.checked_entity) {
-
-                                state.insert_event(Event::new(CheckboxEvent::Unchecked).target(self.checked_entity).origin(entity).propagate(Propagation::Direct));
-                                state.insert_event(Event::new(CheckboxEvent::Checked).target(prev_entity).origin(entity).propagate(Propagation::Direct));
-                                self.checked_entity = prev_entity;
-
-                                event.consume();
-                            }
-                        }
-
-                        _=> {}
                     }
-                }
 
-                _=> {}
+                    Some(Key::ArrowUp) | Some(Key::ArrowLeft) => {
+                        if let Some(prev_entity) =
+                            state.hierarchy.get_prev_sibling(self.checked_entity)
+                        {
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Unchecked)
+                                    .target(self.checked_entity)
+                                    .origin(entity)
+                                    .propagate(Propagation::Direct),
+                            );
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Checked)
+                                    .target(prev_entity)
+                                    .origin(entity)
+                                    .propagate(Propagation::Direct),
+                            );
+                            self.checked_entity = prev_entity;
+
+                            event.consume();
+                        }
+                    }
+
+                    _ => {}
+                },
+
+                _ => {}
             }
         }
 
@@ -79,7 +97,7 @@ impl Widget for List {
                     if self.single {
                         if event.target != entity {
                             event.consume();
-                        }                        
+                        }
                     }
                 }
 
@@ -109,7 +127,7 @@ impl Widget for List {
                             }
 
                             self.checked_entity = event.target;
-                        }                        
+                        }
                     }
                 }
 
@@ -194,8 +212,6 @@ impl Widget for List {
 
 //                     _ => {}
 //                 },
-
-          
 
 //                 _ => {}
 //             }

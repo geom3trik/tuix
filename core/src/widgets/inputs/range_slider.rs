@@ -1,9 +1,5 @@
-
-
-use crate::widgets::*;
 use crate::style::*;
-
-
+use crate::widgets::*;
 
 pub struct RangeSlider {
     first: Entity,
@@ -18,8 +14,6 @@ pub struct RangeSlider {
     second_value: f32,
 
     sliding: bool,
-
-
 }
 
 impl RangeSlider {
@@ -44,21 +38,11 @@ impl RangeSlider {
 impl Widget for RangeSlider {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        self.active = Element::new().build(state, entity, |builder| builder.class("active"));
 
-        self.active = Element::new().build(state, entity, |builder| 
-            builder
-                .class("active")
-        );
+        self.first = Element::new().build(state, entity, |builder| builder.class("first"));
 
-        self.first = Element::new().build(state, entity, |builder| 
-            builder
-                .class("first")
-        );
-
-        self.first = Element::new().build(state, entity, |builder| 
-            builder
-                .class("second")
-        );
+        self.first = Element::new().build(state, entity, |builder| builder.class("second"));
 
         entity
     }
@@ -66,7 +50,6 @@ impl Widget for RangeSlider {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-
                 // WindowEvent::GeometryChanged(_) => {
                 //     if event.target == entity {
                 //         let width = state.data.get_width(entity);
@@ -81,12 +64,10 @@ impl Widget for RangeSlider {
                 //             dx = width - thumb_width / 2.0;
                 //         }
 
-
                 //         self.thumb
                 //             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
                 //     }
                 // }
-
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left && event.target == entity
                         || event.target == self.first
@@ -151,10 +132,10 @@ impl Widget for RangeSlider {
                         let v = self.min + nx * (self.max - self.min);
 
                         self.active.set_width(state, Length::Percentage(nx));
-                        
+
                         self.first
                             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
-                        
+
                         //self.value = v;
                         // if let Some(on_change) = &self.on_change {
                         //     let mut event = (on_change)(v);

@@ -161,7 +161,6 @@ impl Hierarchy {
     }
 
     pub fn remove(&mut self, entity: Entity) {
-
         // if let Some(first_child) = self.get_first_child(entity) {
         //     self.recursive_remove(first_child);
         // }
@@ -504,14 +503,13 @@ impl<'a> Iterator for BranchIterator<'a> {
                                 temp = None;
                             }
                         }
-                    }                    
+                    }
                 }
-
 
                 self.current_node = None;
             }
         }
-        
+
         return r;
     }
 }
@@ -530,8 +528,7 @@ impl<'a> HierarchyIterator<'a> {
         if let Some(current) = self.current_node {
             let mut temp = Some(current);
             while temp.is_some() {
-                if let Some(sibling) =
-                    self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
+                if let Some(sibling) = self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
                 {
                     self.current_node = Some(sibling);
                     return r;

@@ -26,7 +26,7 @@ impl Checkable {
             on_checked: None,
             on_unchecked: None,
         }
-    } 
+    }
 
     pub fn is_checked(&self) -> bool {
         self.checked
@@ -46,7 +46,6 @@ impl Checkable {
 impl Widget for Checkable {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-    
         if self.checked {
             entity.set_checked(state, true);
         } else {
@@ -57,7 +56,6 @@ impl Widget for Checkable {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
         if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
             match checkbox_event {
                 CheckboxEvent::Switch => {
@@ -71,10 +69,9 @@ impl Widget for Checkable {
                                     .origin(entity),
                             );
                         } else {
-                            
                             let check_event = Event::new(CheckboxEvent::Checked)
-                            .target(entity)
-                            .origin(entity);
+                                .target(entity)
+                                .origin(entity);
                             println!("Send checked: {:?}", check_event);
                             state.insert_event(
                                 Event::new(CheckboxEvent::Checked)

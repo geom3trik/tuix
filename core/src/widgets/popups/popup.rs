@@ -1,5 +1,3 @@
-
-
 use crate::widgets::*;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -8,23 +6,22 @@ pub enum PopupEvent {
     Close,
 }
 
-
 pub struct Popup {
     open: bool,
 }
 
 impl Popup {
     pub fn new() -> Self {
-        Self {
-            open: false,
-        }
+        Self { open: false }
     }
 }
 
 impl Widget for Popup {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_focusability(state, false).set_element(state, "popup")
+        entity
+            .set_focusability(state, false)
+            .set_element(state, "popup")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -48,9 +45,7 @@ impl Widget for Popup {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-
                 WindowEvent::MouseCaptureOutEvent => {
-
                     // state
                     //     .style
                     //     .opacity
@@ -60,7 +55,6 @@ impl Widget for Popup {
                 }
 
                 WindowEvent::MouseCaptureEvent => {
-
                     // state
                     //     .style
                     //     .opacity
@@ -73,8 +67,7 @@ impl Widget for Popup {
 
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
-                        if event.target == entity && event.origin != entity
-                        {
+                        if event.target == entity && event.origin != entity {
                             if state.mouse.left.pressed == state.hovered {
                                 if !self.open {
                                     state.capture(entity);
@@ -92,20 +85,18 @@ impl Widget for Popup {
                         }
                     }
 
-                    _=> {}
-                }
+                    _ => {}
+                },
 
-                WindowEvent::KeyDown(code, key) => {
-                    match code {
-                        Code::Escape => {
-                            state.insert_event(Event::new(PopupEvent::Close).target(entity));
-                        }
-
-                        _=> {}
+                WindowEvent::KeyDown(code, key) => match code {
+                    Code::Escape => {
+                        state.insert_event(Event::new(PopupEvent::Close).target(entity));
                     }
-                }
 
-                _=> {}
+                    _ => {}
+                },
+
+                _ => {}
             }
         }
     }

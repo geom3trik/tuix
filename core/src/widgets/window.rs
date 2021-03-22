@@ -1,4 +1,4 @@
-use crate::{Entity, Event, Widget, State, WindowEvent, apply_hover};
+use crate::{apply_hover, Entity, Event, State, Widget, WindowEvent};
 
 use crate::systems::{
     apply_clipping, apply_layout, apply_styles, apply_visibility, apply_z_ordering,
