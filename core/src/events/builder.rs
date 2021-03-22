@@ -459,6 +459,44 @@ impl<'a> Builder<'a> {
         self
     }
 
+    pub fn set_border_radius_top_left(mut self, val: Length) -> Self {
+        self.state
+            .style
+            .border_radius_top_left
+            .insert(self.entity, val);
+
+        self
+    }
+
+    pub fn set_border_radius_top_right(mut self, val: Length) -> Self {
+        self.state
+            .style
+            .border_radius_top_right
+            .insert(self.entity, val);
+        
+        self
+    }
+
+    pub fn set_border_radius_bottom_left(mut self, val: Length) -> Self {
+        self.state
+            .style
+            .border_radius_bottom_left
+            .insert(self.entity, val);
+
+        self
+    }
+
+    pub fn set_border_radius_bottom_right(mut self, val: Length) -> Self {
+        self.state
+            .style
+            .border_radius_bottom_right
+            .insert(self.entity, val);
+
+        self
+    }
+
+
+
     pub fn set_font(mut self, value: &str) -> Self {
         if let Some(data) = self.state.style.text.get_mut(self.entity) {
             data.font = value.to_string();

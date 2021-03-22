@@ -299,7 +299,7 @@ impl Style {
         self.set_style_properties();
     }
 
-    pub fn parse_theme(&mut self, stylesheet: &str) {
+    pub fn parse_theme2(&mut self, stylesheet: &str) {
         let mut input = ParserInput::new(stylesheet);
         let mut parser = Parser::new(&mut input);
         let rule_parser = theme::RuleParser::new();
@@ -821,7 +821,7 @@ impl Style {
         }
     }
 
-    pub fn parse_theme2(&mut self, stylesheet: &str) {
+    pub fn parse_theme(&mut self, stylesheet: &str) {
         let mut input = ParserInput::new(stylesheet);
         let mut parser = Parser::new(&mut input);
         let rule_parser = theme::RuleParser::new();
