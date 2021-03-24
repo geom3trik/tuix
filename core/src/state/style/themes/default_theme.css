@@ -160,6 +160,27 @@ spinbox>.arrow_container {
     border-color: #757575;
 }
 
+slider {
+    height: 4px;
+    border-radius: 2px;
+    background-color: #dfdfdf;
+    align-items: center;
+}
+
+slider>.active {
+    background-color: #f74c00;
+    border-radius: 2px;
+}
+
+slider>.thumb {
+    background-color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 9.5px;
+    border-color: #757575;
+    border-width: 1px;
+}
+
 
 /* dropdown>.container>.item {
     height: 30px;
@@ -250,26 +271,7 @@ textbox {
     text-justify: center;
 }
 
-slider {
-    height: 4px;
-    border-radius: 2px;
-    background-color: #dfdfdf;
-    align-items: center;
-}
 
-slider>.active {
-    background-color: #f74c00;
-    border-radius: 2px;
-}
-
-slider>.thumb {
-    background-color: white;
-    width: 20px;
-    height: 20px;
-    border-radius: 9.5px;
-    border-color: #757575;
-    border-width: 1px;
-}
 
 radio {
     border-color: black;

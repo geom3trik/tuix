@@ -101,7 +101,6 @@ impl Widget for Button {
         if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
             match button_event {
                 ButtonEvent::SetLabel(label) => {
-                    println!("Set Label: {}", label);
                     entity.set_text(state, label);
                 }
 
@@ -116,8 +115,6 @@ impl Widget for Button {
                             on_press.propagation = Propagation::Down;
 
                             state.insert_event(on_press);
-                            //(on_press)(self, state, entity);
-                            //self.on_press = Some(on_press);
                         }
 
                         if let Some(on_test) = self.on_test.take() {
@@ -140,8 +137,6 @@ impl Widget for Button {
                             on_release.propagation = Propagation::Down;
 
                             state.insert_event(on_release);
-                            // (on_release)(self, state, entity);
-                            // self.on_release = Some(on_release);
                         }
 
                         entity.set_active(state, false);
@@ -167,18 +162,6 @@ impl Widget for Button {
                 _ => {}
             }
         }
-
-        // if let Some(button_event) = event.message.downcast::<ButtonEvent>() {
-        //     match button_event {
-
-        //         ButtonEvent::SetLabel(label) => {
-        //             println!("Set Label: {}", label);
-        //             entity.set_text(state, label);
-        //         }
-
-        //         _ => {}
-        //     }
-        // }
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

@@ -22,19 +22,24 @@ pub struct Slider {
     div: f32,
 }
 
-impl Slider {
-    pub fn new() -> Self {
+impl Default for Slider {
+    fn default() -> Self {
         Self {
-            thumb: Entity::null(),
-            active: Entity::null(),
+            thumb: Entity::default(),
+            active: Entity::default(),
             sliding: false,
             on_change: None,
-
+            value: 0.0,
             min: 0.0,
             max: 1.0,
-            div: 0.0,
-            value: 0.0,
+            div: 0.01,
         }
+    }
+}
+
+impl Slider {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn on_change<F>(mut self, message: F) -> Self
@@ -97,7 +102,7 @@ impl Widget for Slider {
 
         // TEMP
         self.thumb.set_left(state, Length::Percentage(0.0));
-        self.active.set_width(state, Length::Percentage(0.0));
+        self.active.set_width(state, Length::Percentage(self.value));
 
         state.style.insert_element(entity, "slider");
 
@@ -195,6 +200,7 @@ impl Widget for Slider {
                             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
 
                         self.value = v;
+
                         if let Some(on_change) = &self.on_change {
                             let mut event = (on_change)(v);
                             event.origin = entity;

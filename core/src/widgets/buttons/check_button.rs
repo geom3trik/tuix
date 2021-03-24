@@ -3,6 +3,7 @@ use crate::widgets::*;
 
 // An element that switches between checked and unchecked when pressed / released
 
+#[derive(Default)]
 pub struct CheckButton {
     button: Button,
     checkable: Checkable,

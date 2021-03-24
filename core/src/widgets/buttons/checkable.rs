@@ -11,6 +11,7 @@ pub enum CheckboxEvent {
 }
 
 // A Widget that can be in a checked or unchecked state
+#[derive(Default)]
 pub struct Checkable {
     checked: bool,
 
@@ -60,19 +61,16 @@ impl Widget for Checkable {
             match checkbox_event {
                 CheckboxEvent::Switch => {
                     if event.target == entity {
-                        //self.switch(state, entity);
+
                         if self.checked {
-                            println!("Send unchecked");
+
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)
                                     .target(entity)
                                     .origin(entity),
                             );
                         } else {
-                            let check_event = Event::new(CheckboxEvent::Checked)
-                                .target(entity)
-                                .origin(entity);
-                            println!("Send checked: {:?}", check_event);
+
                             state.insert_event(
                                 Event::new(CheckboxEvent::Checked)
                                     .target(entity)

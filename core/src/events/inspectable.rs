@@ -32,3 +32,13 @@ impl Inspectable for i32 {
              .build(state, row, |builder| builder.set_flex_grow(1.0))
     }
 }
+
+impl Inspectable for f32 {
+    fn widget(&self, state: &mut State, parent: Entity, name: &str) -> Entity {
+        let row = HBox::new().build(state, parent, |builder| builder);
+        let label = Label::new(name).build(state, row, |builder| builder);
+        Slider::new()
+            .with_initial_value(*self)
+            .build(state, row, |builder| builder.set_flex_grow(1.0))
+    }
+}

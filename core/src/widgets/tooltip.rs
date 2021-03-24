@@ -14,6 +14,8 @@ impl Widget for Tooltip {
         let tooltip = entity.get_tooltip(state);
         entity
             .set_text(state, &tooltip)
+            .set_hoverability(state, false)
+            .set_focusability(state, false)
             .set_element(state, "tooltip")
     }
 }

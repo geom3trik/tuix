@@ -26,6 +26,7 @@ const CHECKBOX_STYLE: &str = r#"
 "#;
 
 // A checkable with an added icon
+#[derive(Default)]
 pub struct Checkbox {
     checkbutton: CheckButton,
 

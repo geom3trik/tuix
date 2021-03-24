@@ -7,8 +7,10 @@ use tuix::style::themes::DEFAULT_THEME;
 pub struct MyData {
     value: String,
     flag: bool,
-    #[inspectable(label = "Custom Label", min = 99, max = 101)]
+    #[inspectable(label = "Custom i32")]
     value2: i32,
+    #[inspectable(label = "Custom f32", widget = Slider)]
+    value3: f32,
 }
 
 #[derive(Inspectable, Default, Clone)]
@@ -61,6 +63,7 @@ fn main() {
                 value: "one".to_string(),
                 flag: true,
                 value2: 100,
+                value3: 0.5,
             },
         };
 

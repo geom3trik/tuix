@@ -25,21 +25,38 @@ fn expand_struct(derive_input: &syn::DeriveInput, data: &syn::DataStruct) -> Tok
             .partition(InspectableAttribute::is_builtin);
 
         let mut custom_label = None;
+        let mut custom_widget = None;
         for builtin_attribute in builtin_attributes {
             match builtin_attribute {
                 InspectableAttribute::Assignment(ident, expr) if ident == "label" => custom_label = Some(expr),
+                InspectableAttribute::Assignment(ident, expr) if ident == "widget" => custom_widget = Some(expr),
                 InspectableAttribute::Tag(name) | InspectableAttribute::Assignment(name, _) => panic!("unknown attributes '{}'", name),
             }
         }
+
         let field_label  = match custom_label {
             Some(label) => label.to_token_stream(),
             None => quote! { #field_label },
         };
 
+        let widget = match custom_widget {
+            Some(widget) => quote!{
+                let row = HBox::new().build(state, panel, |builder| builder);
+                let label = Label::new(#field_label).build(state, row, |builder| builder);
+                #widget::default().build(state, row, |builder| builder.set_flex_grow(1.0));
+            },
+            None => quote!{<#ty as tuix_core::Inspectable>::widget(&self.#accessor, state, panel, #field_label);},
+        };
+
         let ui = quote! {
+            #widget
+            //if let Some(widget) = custom_widget {
+            //    widget.to_token_stream()::new().build(state, panel, |builder| builder.set_flex_grow(1.0));
+            //} else {
+                //<#ty as tuix_core::Inspectable>::widget(&self.#accessor, state, panel, #field_label);
+            //}
             //let row = HBox::new().build(state, panel, |builder| builder);
             //let label = Label::new(#field_label).build(state, row, |builder| builder);
-            <#ty as tuix_core::Inspectable>::widget(&self.#accessor, state, panel, #field_label);
         };
 
         quote! {
@@ -105,7 +122,7 @@ impl InspectableAttribute {
 
     pub fn is_builtin(&self) -> bool {
         let ident = self.ident();
-        ident == "label" || ident == "collapse"
+        ident == "label" || ident == "widget"
     }
 }
 
