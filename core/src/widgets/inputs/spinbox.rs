@@ -213,7 +213,7 @@ where
                     .class("decrement")
             });
 
-        state.style.insert_element(entity, "spinner");
+        state.style.insert_element(entity, "spinbox");
 
         entity
     }

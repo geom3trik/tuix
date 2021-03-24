@@ -3,7 +3,7 @@ use crate::{menu, Entity, State};
 use std::any::{Any, TypeId};
 use std::fmt::Debug;
 
-// Determines how the event propagates through the hierarchy
+/// Determines how the event propagates through the hierarchy
 #[derive(Debug, Clone, PartialEq)]
 pub enum Propagation {
     Down,
@@ -163,39 +163,4 @@ impl Event {
     pub fn consume(&mut self) {
         self.consumed = true;
     }
-
-    pub fn process<T: Message, F: FnMut(&mut T, Entity, Entity, &mut bool)>(
-        &mut self,
-        mut handler: F,
-    ) {
-        if let Some(message) = self.message.downcast::<T>() {
-            let mut consume = false;
-            (handler)(message, self.target, self.origin, &mut consume);
-            if consume {
-                self.consume();
-            }
-        }
-    }
-
-    pub fn process2<T: Message + Clone, F: FnMut(&mut EventWrapper<T>)>(&mut self, mut handler: F) {
-        if let Some(message) = self.message.downcast::<T>() {
-            let mut event_wrapper = EventWrapper {
-                message: (*message).clone(),
-                target: self.target,
-                origin: self.origin,
-                consumed: false,
-            };
-
-            (handler)(&mut event_wrapper);
-
-            self.consumed = event_wrapper.consumed;
-        }
-    }
-}
-
-pub struct EventWrapper<T: Message> {
-    pub message: T,
-    pub target: Entity,
-    pub origin: Entity,
-    consumed: bool,
 }

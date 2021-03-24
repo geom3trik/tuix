@@ -2,20 +2,85 @@ use tuix::*;
 
 use tuix::style::themes::DEFAULT_THEME;
 
+
+#[derive(Inspectable, Default, Clone)]
+pub struct MyData {
+    value: String,
+    flag: bool,
+    #[inspectable(label = "Custom Label", min = 99, max = 101)]
+    value2: i32,
+}
+
+#[derive(Inspectable, Default, Clone)]
+pub struct SomeData {
+    name: String,
+    other: String,
+    more_data: MyData,
+}
+
+pub struct Inspector<T: Inspectable> {
+    data: T,
+}
+
+impl<T: Inspectable> Inspector<T> {
+    pub fn new(data: T) -> Self {
+        Self {
+            data,
+        }
+    }
+}
+
+impl<T> Widget for Inspector<T> 
+where T: 'static + Inspectable
+{
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        
+        self.data.widget(state, entity, "");
+
+        entity
+    }
+}
+
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    
+    
+
+    let app = Application::new(move |window, state, root| {
         state.add_theme(DEFAULT_THEME);
-        let debug_container = DebugContainer::new().build(state, window, |builder| builder);
 
-        Button::with_label("Button").build(state, debug_container, |builder| {
+        // let data = SomeData {
+        //     name: "Testy Test".to_string(),
+        // };
+
+        //let data: String = "Testy Test".to_string(); 
+        let data = SomeData {
+            name: "Test Name".to_string(),
+            other: "Other Test Name".to_string(),
+            more_data: MyData {
+                value: "one".to_string(),
+                flag: true,
+                value2: 100,
+            },
+        };
+
+        Inspector::new(data.clone()).build(state, root, |builder| 
             builder
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::from("#ff5e1a"))
-                .set_text_justify(Justify::Center)
-        });
+                .set_width(Length::Pixels(300.0))
+                .set_flex_grow(1.0)
+                .set_background_color(Color::rgb(50,50,50))
+                .set_padding(Length::Pixels(10.0))
+        );
 
-        win_desc.with_title("Hello GUI")
+        // Button::with_label("Button").build(state, root, |builder| {
+        //     builder
+        //         .set_width(Length::Pixels(100.0))
+        //         .set_height(Length::Pixels(30.0))
+        //         .set_background_color(Color::from("#ff5e1a"))
+        //         .set_text_justify(Justify::Center)
+        // });
+
+        window.with_title("Inspector Test")
     });
 
     app.run();

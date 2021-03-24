@@ -1,4 +1,5 @@
 use crate::widgets::*;
+use crate::style::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PopupEvent {
@@ -22,6 +23,7 @@ impl Widget for Popup {
         entity
             .set_focusability(state, false)
             .set_element(state, "popup")
+            .set_overflow(state, Overflow::Visible)
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

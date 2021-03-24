@@ -58,12 +58,15 @@ impl<'a> Builder<'a> {
         self
     }
 
+    /// Sets whether the entity can be hovered
     pub fn set_hoverability(mut self, val: bool) -> Self {
         self.state.data.set_hoverability(self.entity, val);
 
         self
     }
 
+
+    /// Sets whether the entity can be focused
     pub fn set_focusability(mut self, val: bool) -> Self {
         self.state.data.set_focusability(self.entity, val);
 
@@ -77,6 +80,7 @@ impl<'a> Builder<'a> {
         self
     }
 
+    /// Sets the checked state of the entity
     pub fn set_checked(mut self, val: bool) -> Self {
         if let Some(pseudo_classes) = self.state.style.pseudo_classes.get_mut(self.entity) {
             pseudo_classes.set_checked(val);
@@ -85,6 +89,7 @@ impl<'a> Builder<'a> {
         self
     }
 
+    /// Sets the z-order of the entity
     pub fn set_z_order(mut self, val: i32) -> Self {
         self.state.style.z_order.insert(self.entity, val);
 

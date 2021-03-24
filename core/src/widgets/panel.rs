@@ -224,6 +224,8 @@ impl Widget for Panel {
 
                             match entity.get_flex_direction(state) {
                                 FlexDirection::Column | FlexDirection::ColumnReverse => {
+                                
+
                                     state.style.height.play_animation(
                                         self.container1,
                                         self.expand_height_animation,
@@ -307,6 +309,54 @@ impl Widget for Panel {
                             //     Event::new(PanelEvent::Close).target(entity),
                             // );
 
+                            println!("Test");
+                            if !state.style.height.is_animating(self.container1) {
+                                let container_height = state.data.get_height(self.container1);
+                                println!("Container Height: {} {}", self.container1, container_height);
+                                
+                                if container_height != self.container_height {
+                                    //self.container_height = container_height;
+
+                                    if let Some(animation) = state
+                                        .style
+                                        .height
+                                        .get_animation_mut(self.expand_height_animation)
+                                    {
+                                        animation.keyframes.last_mut().unwrap().1 =
+                                            Length::Pixels(container_height);
+                                    }
+
+                                    if let Some(animation) = state
+                                        .style
+                                        .height
+                                        .get_animation_mut(self.collapse_height_animation)
+                                    {
+                                        animation.keyframes.first_mut().unwrap().1 =
+                                            Length::Pixels(container_height);
+                                    }
+
+                                    if let Some(animation) = state
+                                        .style
+                                        .top
+                                        .get_animation_mut(self.move_down_animation)
+                                    {
+                                        animation.keyframes.first_mut().unwrap().1 =
+                                            Length::Pixels(-container_height);
+                                    }
+
+                                    if let Some(animation) = state
+                                        .style
+                                        .top
+                                        .get_animation_mut(self.move_up_animation)
+                                    {
+                                        animation.keyframes.last_mut().unwrap().1 =
+                                            Length::Pixels(-container_height);
+                                    }
+
+                                    self.container_height = container_height;
+                                }
+                            }
+
                             match entity.get_flex_direction(state) {
                                 FlexDirection::Column | FlexDirection::ColumnReverse => {
                                     state.style.height.play_animation(
@@ -360,12 +410,17 @@ impl Widget for Panel {
         //if event.target == self.header {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
+                /*
                 WindowEvent::GeometryChanged(_) => {
-                    if event.target == self.container2 {
+                    println!("Test: {}", event.target);
+                    if event.target == self.container1 {
+                       //println!("Test: {}", self.container1);
                         match entity.get_flex_direction(state) {
                             FlexDirection::Column | FlexDirection::ColumnReverse => {
                                 if !state.style.height.is_animating(self.container1) {
                                     let container_height = state.data.get_height(self.container1);
+                                    println!("Container Height: {} {}", self.container1, container_height);
+                                    
                                     if container_height > 0.0 {
                                         //self.container_height = container_height;
 
@@ -435,8 +490,13 @@ impl Widget for Panel {
                                 }
                             }
                         }
+
+                        event.consume();
                     }
+
+                    
                 }
+                */
 
                 // WindowEvent::MouseUp(button) => {
                 //     if event.target == self.header && state.mouse.left.pressed == self.header {

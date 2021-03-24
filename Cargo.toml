@@ -53,7 +53,8 @@ tuix_winit = { version = "0.1.0", path = "winit", optional = true }
 tuix_glutin = { version = "0.1.0", path = "glutin", optional = true }
 tuix_baseview = { version = "0.1.0", path = "baseview", optional = true }
 
+tuix_inspector_derive = {path = "inspector-derive"}
+
 [dev-dependencies]
 femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master", default-features = false }
 image = "0.23.12"
-fuzzy-matcher = "0.3.7"

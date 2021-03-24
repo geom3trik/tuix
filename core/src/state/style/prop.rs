@@ -870,6 +870,9 @@ pub trait PropGet {
     fn is_active(self, state: &mut State) -> bool;
     fn is_focused(self, state: &mut State) -> bool;
 
+    //
+    fn get_overflow(&self, state: &mut State) -> Overflow;
+
     // Display
     fn get_display(&self, state: &mut State) -> Display;
 
@@ -965,6 +968,10 @@ impl PropGet for Entity {
         } else {
             false
         }
+    }
+
+    fn get_overflow(&self, state: &mut State) -> Overflow {
+        state.style.overflow.get(*self).cloned().unwrap_or_default()
     }
 
     // Display
