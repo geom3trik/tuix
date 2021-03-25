@@ -115,7 +115,7 @@ impl Widget for TabManager {
         (self.tab_bar, self.viewport)
     }
 
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
                 TabEvent::SwitchTab(name) => {
@@ -215,8 +215,8 @@ pub enum MovableTabEvent {
 pub struct TabBar2 {
     phantom_tab1: Entity,
     phantom_tab2: Entity,
-    shrink_animation: usize,
-    grow_animation: usize,
+    shrink_animation: Animation,
+    grow_animation: Animation,
     tab_moving: bool,
     list: List,
 }
@@ -226,8 +226,8 @@ impl TabBar2 {
         Self {
             phantom_tab1: Entity::default(),
             phantom_tab2: Entity::default(),
-            shrink_animation: std::usize::MAX,
-            grow_animation: std::usize::MAX,
+            shrink_animation: Animation::default(),
+            grow_animation: Animation::default(),
             tab_moving: false,
             list: List::new(),
         }
@@ -283,7 +283,7 @@ impl Widget for TabBar2 {
                     self.phantom_tab1.set_display(state, Display::Flexbox);
                     self.phantom_tab2.set_display(state, Display::Flexbox);
 
-                    state.hierarchy.set_prev_sibling(*tab, self.phantom_tab1);
+                    state.hierarchy.set_prev_sibling(*tab, self.phantom_tab1).unwrap();
 
                     //let tab_width = tab.get_width(state);
                     //let tab_height = tab.get_height(state);
@@ -307,11 +307,11 @@ impl Widget for TabBar2 {
                     // Move the tab to the end unless already at the end
                     if let Some(last_child) = state.hierarchy.get_last_child(entity) {
                         if last_child != *tab {
-                            state.hierarchy.set_next_sibling(last_child, *tab);
+                            state.hierarchy.set_next_sibling(last_child, *tab).unwrap();
                         }
                     }
 
-                    state.hierarchy.set_next_sibling(*tab, self.phantom_tab2);
+                    state.hierarchy.set_next_sibling(*tab, self.phantom_tab2).unwrap();
 
                     event.consume();
                 }
@@ -322,9 +322,9 @@ impl Widget for TabBar2 {
                     // need to check which one is active before moving the track before it.
                     // This can be done by checking which one has a non-zero width (for row)
                     if state.data.get_width(self.phantom_tab1) > 0.0 {
-                        state.hierarchy.set_prev_sibling(self.phantom_tab1, *tab);
+                        state.hierarchy.set_prev_sibling(self.phantom_tab1, *tab).unwrap();
                     } else if state.data.get_width(self.phantom_tab2) > 0.0 {
-                        state.hierarchy.set_prev_sibling(self.phantom_tab2, *tab);
+                        state.hierarchy.set_prev_sibling(self.phantom_tab2, *tab).unwrap();
                     }
 
                     self.phantom_tab1.set_display(state, Display::None);
@@ -340,7 +340,7 @@ impl Widget for TabBar2 {
                             {
                                 state
                                     .hierarchy
-                                    .set_prev_sibling(event.target, self.phantom_tab2);
+                                    .set_prev_sibling(event.target, self.phantom_tab2).unwrap();
 
                                 state
                                     .style
@@ -358,7 +358,7 @@ impl Widget for TabBar2 {
                             {
                                 state
                                     .hierarchy
-                                    .set_prev_sibling(event.target, self.phantom_tab1);
+                                    .set_prev_sibling(event.target, self.phantom_tab1).unwrap();
 
                                 state
                                     .style
@@ -378,7 +378,7 @@ impl Widget for TabBar2 {
                             {
                                 state
                                     .hierarchy
-                                    .set_next_sibling(event.target, self.phantom_tab2);
+                                    .set_next_sibling(event.target, self.phantom_tab2).unwrap();
 
                                 state
                                     .style
@@ -396,7 +396,7 @@ impl Widget for TabBar2 {
                             {
                                 state
                                     .hierarchy
-                                    .set_next_sibling(event.target, self.phantom_tab1);
+                                    .set_next_sibling(event.target, self.phantom_tab1).unwrap();
 
                                 state
                                     .style
@@ -512,7 +512,7 @@ impl Widget for MovableTab {
                     if self.moving {
                         let parent = state.hierarchy.get_parent(entity).unwrap();
                         let parent_posx = state.data.get_posx(parent);
-                        let parent_posy = state.data.get_posy(parent);
+                        //let parent_posy = state.data.get_posy(parent);
 
                         let dist = *x - state.mouse.left.pos_down.0;
 

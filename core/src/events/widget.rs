@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler};
-use crate::{Entity, Hierarchy, State};
+use crate::{Entity, Hierarchy, State, AsEntity};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -22,7 +22,7 @@ pub trait Widget: std::marker::Sized + 'static {
         Self: std::marker::Sized + 'static,
     {
         // Create a new entity
-        let entity = state.add(parent);
+        let entity = state.add(parent.entity());
 
         // Call the on_build function of the widget
         let ret = self.on_build(state, entity);

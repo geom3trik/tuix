@@ -1,4 +1,4 @@
-use crate::state::animation::{AnimationState, Interpolator};
+use crate::state::animation::{AnimationState, Interpolator, Animation};
 use crate::state::Entity;
 
 #[derive(Copy, Clone)]
@@ -259,16 +259,19 @@ where
     }
 
     // Insert an animation definition
-    pub fn insert_animation(&mut self, animation_state: AnimationState<T>) -> usize {
+    pub fn insert_animation(&mut self, animation_state: AnimationState<T>) -> Animation {
         let animation_id = self.animations.len();
 
         self.animations.push(animation_state);
 
-        return animation_id;
+        return Animation::new(animation_id);
     }
 
-    pub fn play_animation(&mut self, entity: Entity, description_id: usize) {
+    pub fn play_animation(&mut self, entity: Entity, animation: Animation) {
         if let Some(index) = entity.index() {
+
+            let description_id = animation.get_id();
+
             // Check if animation exists
             if description_id >= self.animations.len() {
                 return;
@@ -483,7 +486,7 @@ where
                     transition.to_rule = rule_data_index;
 
                     // Play any transition animation
-                    self.play_animation(entity, rule_animation_id);
+                    self.play_animation(entity, Animation::new(rule_animation_id));
                 }
             }
 
@@ -678,7 +681,10 @@ where
         true
     }
 
-    pub fn get_animation_mut(&mut self, animation_id: usize) -> Option<&mut AnimationState<T>> {
+    pub fn get_animation_mut(&mut self, animation: Animation) -> Option<&mut AnimationState<T>> {
+        
+        let animation_id = animation.get_id();
+        
         if animation_id >= self.animations.len() {
             return None;
         }

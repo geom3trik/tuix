@@ -25,8 +25,8 @@ pub struct ScrollContainerH {
     moving: bool,
     position: f32,
 
-    vertical_scroll_animation: usize,
-    vertical_container_animation: usize,
+    vertical_scroll_animation: Animation,
+    vertical_container_animation: Animation,
 
     scrollbar: bool,
     scroll_wheel: bool,
@@ -45,8 +45,8 @@ impl ScrollContainerH {
             moving: false,
             position: 0.0,
 
-            vertical_scroll_animation: std::usize::MAX,
-            vertical_container_animation: std::usize::MAX,
+            vertical_scroll_animation: Animation::default(),
+            vertical_container_animation: Animation::default(),
 
             scrollbar: true,
             scroll_wheel: true,
@@ -364,8 +364,8 @@ pub struct ScrollContainer {
     moving: bool,
     position: f32,
 
-    vertical_scroll_animation: usize,
-    vertical_container_animation: usize,
+    vertical_scroll_animation: Animation,
+    vertical_container_animation: Animation,
 }
 
 impl ScrollContainer {
@@ -381,8 +381,8 @@ impl ScrollContainer {
             moving: false,
             position: 0.0,
 
-            vertical_scroll_animation: std::usize::MAX,
-            vertical_container_animation: std::usize::MAX,
+            vertical_scroll_animation: Animation::default(),
+            vertical_container_animation: Animation::default(),
         }
     }
 }

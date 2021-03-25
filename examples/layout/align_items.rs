@@ -1,12 +1,13 @@
 use tuix::*;
 
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         let window_flex_direction = FlexDirection::Row;
 
         window
-            .set_background_color(state, Color::white())
-            .set_flex_direction(state, window_flex_direction);
+            .set_title("Align Items");
+            // .set_background_color(state, Color::white())
+            // .set_flex_direction(state, window_flex_direction);
 
         let container_flex_direction = match window_flex_direction {
             FlexDirection::Column | FlexDirection::ColumnReverse => FlexDirection::Row,
@@ -15,7 +16,7 @@ fn main() {
         };
 
         // Flex Start
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(50, 50, 50))
@@ -135,7 +136,7 @@ fn main() {
                 .set_background_color(Color::rgb(200, 120, 50))
         });
 
-        win_desc.with_title("Align Items")
+        //win_desc.with_title("Align Items")
     });
 
     app.run();

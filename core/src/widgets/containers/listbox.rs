@@ -1,5 +1,5 @@
-use crate::Key;
-use crate::{widgets::*, IntoBranchIterator};
+
+use crate::widgets::*;
 
 use crate::HierarchyTree;
 
@@ -39,7 +39,7 @@ impl Widget for List {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                WindowEvent::KeyDown(code, key) => match key {
+                WindowEvent::KeyDown(_, key) => match key {
                     Some(Key::ArrowDown) | Some(Key::ArrowRight) => {
                         if let Some(next_entity) =
                             state.hierarchy.get_next_sibling(self.checked_entity)

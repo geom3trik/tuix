@@ -126,3 +126,13 @@ impl EntityManager {
     //     }
     // }
 }
+
+pub trait AsEntity {
+    fn entity(&self) -> Entity;
+}
+
+impl AsEntity for Entity {
+    fn entity(&self) -> Entity {
+        *self
+    }
+}

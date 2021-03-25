@@ -82,9 +82,9 @@ check_button:checked {
     background-color: #d0d0d0;
 }
 
-check_button:hover {
+/* check_button:hover {
     background-color: #999999;
-}
+} */
 
 check_button:focus {
     border-color: black;

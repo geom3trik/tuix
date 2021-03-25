@@ -59,8 +59,10 @@ const STYLE: &str = r#"
 "#;
 
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         state.add_theme(STYLE);
+
+        window.with_title("Panel");
 
         let panel = Panel::new("Panel").build(state, window, |builder| builder.class("one"));
 
@@ -80,7 +82,7 @@ fn main() {
                 .set_text_justify(Justify::Center)
         });
 
-        win_desc.with_title("Panel")
+        
     });
 
     app.run();

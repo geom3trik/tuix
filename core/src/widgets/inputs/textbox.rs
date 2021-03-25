@@ -566,7 +566,7 @@ impl Widget for Textbox {
 
         // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
-        let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
+        //let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
         canvas.save();
         canvas.translate(posx + width / 2.0, posy + height / 2.0);
@@ -582,7 +582,7 @@ impl Widget for Textbox {
         // canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let mut clip_region = state.data.get_clip_region(entity);
+        let clip_region = state.data.get_clip_region(entity);
         canvas.scissor(
             clip_region.x - posx,
             clip_region.y - posy,
@@ -702,7 +702,7 @@ impl Widget for Textbox {
         );
         path.solidity(Solidity::Hole);
 
-        let mut paint = Paint::box_gradient(
+        let paint = Paint::box_gradient(
             0.0 + outer_shadow_h_offset,
             0.0 + outer_shadow_v_offset,
             width,
@@ -790,7 +790,7 @@ impl Widget for Textbox {
             border_radius_bottom_right,
         );
 
-        let mut paint = Paint::box_gradient(
+        let paint = Paint::box_gradient(
             0.0 + inner_shadow_h_offset,
             0.0 + inner_shadow_v_offset,
             width,

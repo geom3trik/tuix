@@ -4,7 +4,6 @@ use crate::hierarchy::*;
 use crate::style::*;
 use crate::widgets::*;
 
-use crate::state::hierarchy::IntoChildIterator;
 
 // Notes:
 // When user clicks menu, the container should appear
@@ -139,7 +138,7 @@ impl MenuBar {
 
 impl Widget for MenuBar {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
 
@@ -150,7 +149,7 @@ impl Widget for MenuBar {
                     self.open_menu = *menu;
                 }
 
-                MenuEvent::Close(menu) => {
+                MenuEvent::Close(_) => {
                     self.open_menu = Entity::default();
                 }
 

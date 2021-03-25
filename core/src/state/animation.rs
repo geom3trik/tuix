@@ -10,6 +10,29 @@ use crate::state::style::Color;
 
 use std::collections::HashMap;
 
+#[derive(Debug,Clone,Copy,PartialEq,Hash)]
+pub struct Animation(usize);
+
+impl Animation {
+    pub(crate) fn new(id: usize) -> Self {
+        Self(id)
+    }
+
+    pub fn null() -> Self {
+        Self(std::usize::MAX)
+    }    
+
+    pub fn get_id(&self) -> usize {
+        self.0
+    }
+}
+
+impl Default for Animation {
+    fn default() -> Self {
+        Self::null()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Transition {
     // List of properties affected by transition

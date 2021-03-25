@@ -1,10 +1,7 @@
 #![allow(dead_code)]
 
 use crate::widgets::*;
-use crate::widgets::{Element, Label};
-use crate::AnimationState;
-
-use crate::state::style::*;
+use crate::style::*;
 
 const ICON_DOWN_OPEN_BIG: &str = "\u{e75c}";
 const ICON_RIGHT_OPEN_BIG: &str = "\u{e75e}";
@@ -26,19 +23,21 @@ pub struct Panel {
     container_height: f32,
     container_width: f32,
 
-    expand_height_animation: usize,
-    collapse_height_animation: usize,
-    expand_width_animation: usize,
-    collapse_width_animation: usize,
+    expand_height_animation: Animation,
+    collapse_height_animation: Animation,
+    expand_width_animation: Animation,
+    collapse_width_animation: Animation,
 
-    fade_in_animation: usize,
-    fade_out_animation: usize,
+    fade_in_animation: Animation,
+    fade_out_animation: Animation,
 
-    move_up_animation: usize,
-    move_down_animation: usize,
+    move_up_animation: Animation,
+    move_down_animation: Animation,
+    move_left_animation: Animation,
+    move_right_animation: Animation,
 
-    arrow_cw_animation: usize,
-    arrow_ccw_animation: usize,
+    arrow_cw_animation: Animation,
+    arrow_ccw_animation: Animation,
 }
 
 impl Panel {
@@ -54,19 +53,21 @@ impl Panel {
             container_height: 0.0,
             container_width: 0.0,
 
-            expand_height_animation: std::usize::MAX,
-            collapse_height_animation: std::usize::MAX,
-            expand_width_animation: std::usize::MAX,
-            collapse_width_animation: std::usize::MAX,
+            expand_height_animation: Animation::default(),
+            collapse_height_animation: Animation::default(),
+            expand_width_animation: Animation::default(),
+            collapse_width_animation: Animation::default(),
 
-            fade_in_animation: std::usize::MAX,
-            fade_out_animation: std::usize::MAX,
+            fade_in_animation: Animation::default(),
+            fade_out_animation: Animation::default(),
 
-            move_up_animation: std::usize::MAX,
-            move_down_animation: std::usize::MAX,
+            move_up_animation: Animation::default(),
+            move_down_animation: Animation::default(),
+            move_left_animation: Animation::default(),
+            move_right_animation: Animation::default(),
 
-            arrow_cw_animation: std::usize::MAX,
-            arrow_ccw_animation: std::usize::MAX,
+            arrow_cw_animation: Animation::default(),
+            arrow_ccw_animation: Animation::default(),
         }
     }
 }
@@ -136,7 +137,6 @@ impl Widget for Panel {
 
         let container_collapse_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_delay(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
@@ -151,23 +151,26 @@ impl Widget for Panel {
             .insert_animation(container_collapse_animation.clone());
 
         let container_fade_in_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_delay(std::time::Duration::from_millis(100))
+            .with_duration(std::time::Duration::from_millis(1))
             .with_keyframe((0.0, Opacity(0.0)))
             .with_keyframe((1.0, Opacity(1.0)));
 
-        let container_move_up_animation = AnimationState::new()
+        let container_hide_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_delay(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
         self.move_up_animation = state
             .style
             .top
-            .insert_animation(container_move_up_animation);
+            .insert_animation(container_hide_animation.clone());
 
-        let container_move_down_animation = AnimationState::new()
+        self.move_left_animation = state
+            .style
+            .left
+            .insert_animation(container_hide_animation.clone());
+
+        let container_reveal_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
@@ -175,7 +178,12 @@ impl Widget for Panel {
         self.move_down_animation = state
             .style
             .top
-            .insert_animation(container_move_down_animation);
+            .insert_animation(container_reveal_animation.clone());
+
+        self.move_right_animation = state
+            .style
+            .left
+            .insert_animation(container_reveal_animation.clone());
 
         self.fade_in_animation = state
             .style
@@ -184,6 +192,7 @@ impl Widget for Panel {
 
         let container_fade_out_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
+            .with_delay(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, Opacity(1.0)))
             .with_keyframe((1.0, Opacity(0.0)));
 
@@ -218,9 +227,6 @@ impl Widget for Panel {
                             self.collapsed = false;
 
                             entity.set_checked(state, true);
-                            // state.insert_event(
-                            //     Event::new(PanelEvent::Open).target(entity),
-                            // );
 
                             match entity.get_flex_direction(state) {
                                 FlexDirection::Column | FlexDirection::ColumnReverse => {
@@ -232,22 +238,6 @@ impl Widget for Panel {
                                     );
 
                                     self.container1.set_height(state, Length::Auto);
-
-                                    if let Some(animation) = state
-                                        .style
-                                        .rotate
-                                        .get_animation_mut(self.arrow_cw_animation)
-                                    {
-                                        animation.set_delay(std::time::Duration::from_millis(0));
-                                    }
-
-                                    if let Some(animation) = state
-                                        .style
-                                        .rotate
-                                        .get_animation_mut(self.arrow_ccw_animation)
-                                    {
-                                        animation.set_delay(std::time::Duration::from_millis(100));
-                                    }
 
                                     state
                                         .style
@@ -264,22 +254,6 @@ impl Widget for Panel {
 
                                     self.container1.set_width(state, Length::Auto);
 
-                                    if let Some(animation) = state
-                                        .style
-                                        .rotate
-                                        .get_animation_mut(self.arrow_cw_animation)
-                                    {
-                                        animation.set_delay(std::time::Duration::from_millis(100));
-                                    }
-
-                                    if let Some(animation) = state
-                                        .style
-                                        .rotate
-                                        .get_animation_mut(self.arrow_ccw_animation)
-                                    {
-                                        animation.set_delay(std::time::Duration::from_millis(0));
-                                    }
-
                                     state
                                         .style
                                         .rotate
@@ -289,76 +263,68 @@ impl Widget for Panel {
                                 }
                             }
 
-                            // state
-                            //     .style
-                            //     .opacity
-                            //     .play_animation(self.container2, self.fade_in_animation);
-
                             state
                                 .style
                                 .top
                                 .play_animation(self.container2, self.move_down_animation);
 
-                            //self.container2.set_opacity(state, 1.0);
+                            self.container2.set_opacity(state, 1.0);
                         } else {
                             self.collapsed = true;
 
                             entity.set_checked(state, false);
-
-                            // state.insert_event(
-                            //     Event::new(PanelEvent::Close).target(entity),
-                            // );
-
-                            println!("Test");
-                            if !state.style.height.is_animating(self.container1) {
-                                let container_height = state.data.get_height(self.container1);
-                                println!("Container Height: {} {}", self.container1, container_height);
-                                
-                                if container_height != self.container_height {
-                                    //self.container_height = container_height;
-
-                                    if let Some(animation) = state
-                                        .style
-                                        .height
-                                        .get_animation_mut(self.expand_height_animation)
-                                    {
-                                        animation.keyframes.last_mut().unwrap().1 =
-                                            Length::Pixels(container_height);
-                                    }
-
-                                    if let Some(animation) = state
-                                        .style
-                                        .height
-                                        .get_animation_mut(self.collapse_height_animation)
-                                    {
-                                        animation.keyframes.first_mut().unwrap().1 =
-                                            Length::Pixels(container_height);
-                                    }
-
-                                    if let Some(animation) = state
-                                        .style
-                                        .top
-                                        .get_animation_mut(self.move_down_animation)
-                                    {
-                                        animation.keyframes.first_mut().unwrap().1 =
-                                            Length::Pixels(-container_height);
-                                    }
-
-                                    if let Some(animation) = state
-                                        .style
-                                        .top
-                                        .get_animation_mut(self.move_up_animation)
-                                    {
-                                        animation.keyframes.last_mut().unwrap().1 =
-                                            Length::Pixels(-container_height);
-                                    }
-
-                                    self.container_height = container_height;
-                                }
-                            }
-
+                            
                             match entity.get_flex_direction(state) {
                                 FlexDirection::Column | FlexDirection::ColumnReverse => {
+
+                                    if !state.style.height.is_animating(self.container1) {
+                                        let container_height = state.data.get_height(self.container1);
+                                        println!("Container Height: {} {}", self.container1, container_height);
+                                        
+                                        if container_height != self.container_height {
+                                            //self.container_height = container_height;
+        
+                                            if let Some(animation) = state
+                                                .style
+                                                .height
+                                                .get_animation_mut(self.expand_height_animation)
+                                            {
+                                                animation.keyframes.last_mut().unwrap().1 =
+                                                    Length::Pixels(container_height);
+                                            }
+        
+                                            if let Some(animation) = state
+                                                .style
+                                                .height
+                                                .get_animation_mut(self.collapse_height_animation)
+                                            {
+                                                animation.keyframes.first_mut().unwrap().1 =
+                                                    Length::Pixels(container_height);
+                                            }
+        
+                                            if let Some(animation) = state
+                                                .style
+                                                .top
+                                                .get_animation_mut(self.move_down_animation)
+                                            {
+                                                animation.keyframes.first_mut().unwrap().1 =
+                                                    Length::Pixels(-container_height);
+                                            }
+        
+                                            if let Some(animation) = state
+                                                .style
+                                                .top
+                                                .get_animation_mut(self.move_up_animation)
+                                            {
+                                                animation.keyframes.last_mut().unwrap().1 =
+                                                    Length::Pixels(-container_height);
+                                            }
+        
+                                            self.container_height = container_height;
+                                        }
+                                    }
+
+
                                     state.style.height.play_animation(
                                         self.container1,
                                         self.collapse_height_animation,
@@ -375,6 +341,54 @@ impl Widget for Panel {
                                 }
 
                                 FlexDirection::Row | FlexDirection::RowReverse => {
+
+
+                                    if !state.style.height.is_animating(self.container1) {
+                                        let container_width = state.data.get_width(self.container1);
+         
+                                        if container_width != self.container_width {
+                                            //self.container_height = container_height;
+        
+                                            if let Some(animation) = state
+                                                .style
+                                                .width
+                                                .get_animation_mut(self.expand_width_animation)
+                                            {
+                                                animation.keyframes.last_mut().unwrap().1 =
+                                                    Length::Pixels(container_width);
+                                            }
+        
+                                            if let Some(animation) = state
+                                                .style
+                                                .width
+                                                .get_animation_mut(self.collapse_width_animation)
+                                            {
+                                                animation.keyframes.first_mut().unwrap().1 =
+                                                    Length::Pixels(container_width);
+                                            }
+        
+                                            if let Some(animation) = state
+                                                .style
+                                                .left
+                                                .get_animation_mut(self.move_left_animation)
+                                            {
+                                                animation.keyframes.first_mut().unwrap().1 =
+                                                    Length::Pixels(-container_width);
+                                            }
+        
+                                            if let Some(animation) = state
+                                                .style
+                                                .left
+                                                .get_animation_mut(self.move_right_animation)
+                                            {
+                                                animation.keyframes.last_mut().unwrap().1 =
+                                                    Length::Pixels(-container_width);
+                                            }
+        
+                                            self.container_height = container_width;
+                                        }
+                                    }
+
                                     state.style.width.play_animation(
                                         self.container1,
                                         self.collapse_width_animation,
@@ -390,10 +404,10 @@ impl Widget for Panel {
                                 }
                             }
 
-                            // state
-                            //     .style
-                            //     .opacity
-                            //     .play_animation(self.container2, self.fade_out_animation);
+                            state
+                                .style
+                                .opacity
+                                .play_animation(self.container2, self.fade_out_animation);
 
                             state
                                 .style
@@ -407,88 +421,18 @@ impl Widget for Panel {
             }
         }
 
-        //if event.target == self.header {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                /*
+                
                 WindowEvent::GeometryChanged(_) => {
-                    println!("Test: {}", event.target);
                     if event.target == self.container1 {
-                       //println!("Test: {}", self.container1);
                         match entity.get_flex_direction(state) {
-                            FlexDirection::Column | FlexDirection::ColumnReverse => {
-                                if !state.style.height.is_animating(self.container1) {
-                                    let container_height = state.data.get_height(self.container1);
-                                    println!("Container Height: {} {}", self.container1, container_height);
-                                    
-                                    if container_height > 0.0 {
-                                        //self.container_height = container_height;
-
-                                        if let Some(animation) = state
-                                            .style
-                                            .height
-                                            .get_animation_mut(self.expand_height_animation)
-                                        {
-                                            animation.keyframes.last_mut().unwrap().1 =
-                                                Length::Pixels(container_height);
-                                        }
-
-                                        if let Some(animation) = state
-                                            .style
-                                            .height
-                                            .get_animation_mut(self.collapse_height_animation)
-                                        {
-                                            animation.keyframes.first_mut().unwrap().1 =
-                                                Length::Pixels(container_height);
-                                        }
-
-                                        if let Some(animation) = state
-                                            .style
-                                            .top
-                                            .get_animation_mut(self.move_down_animation)
-                                        {
-                                            animation.keyframes.first_mut().unwrap().1 =
-                                                Length::Pixels(-container_height);
-                                        }
-
-                                        if let Some(animation) = state
-                                            .style
-                                            .top
-                                            .get_animation_mut(self.move_up_animation)
-                                        {
-                                            animation.keyframes.last_mut().unwrap().1 =
-                                                Length::Pixels(-container_height);
-                                        }
-                                    }
-                                }
-                            }
-
+                        
                             FlexDirection::Row | FlexDirection::RowReverse => {
                                 self.arrow.set_rotate(state, -90.0);
-
-                                if !state.style.width.is_animating(self.container1) {
-                                    let container_width = state.data.get_width(self.container1);
-                                    if container_width > 0.0 {
-                                        if let Some(animation) = state
-                                            .style
-                                            .width
-                                            .get_animation_mut(self.expand_width_animation)
-                                        {
-                                            animation.keyframes.last_mut().unwrap().1 =
-                                                Length::Pixels(container_width);
-                                        }
-
-                                        if let Some(animation) = state
-                                            .style
-                                            .width
-                                            .get_animation_mut(self.collapse_width_animation)
-                                        {
-                                            animation.keyframes.first_mut().unwrap().1 =
-                                                Length::Pixels(container_width);
-                                        }
-                                    }
-                                }
                             }
+
+                            _=> {}
                         }
 
                         event.consume();
@@ -496,17 +440,6 @@ impl Widget for Panel {
 
                     
                 }
-                */
-
-                // WindowEvent::MouseUp(button) => {
-                //     if event.target == self.header && state.mouse.left.pressed == self.header {
-                //         if *button == MouseButton::Left {
-
-                //         }
-
-                //         event.consume();
-                //     }
-                // }
                 _ => {}
             }
         }

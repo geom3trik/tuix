@@ -1,7 +1,7 @@
 use crate::{apply_hover, Entity, Event, State, Widget, WindowEvent};
 
 use crate::systems::{
-    apply_clipping, apply_layout, apply_styles, apply_visibility, apply_z_ordering,
+    apply_layout, apply_styles, apply_visibility, apply_z_ordering,
 };
 
 #[derive(Clone)]
@@ -20,7 +20,7 @@ impl WindowWidget {
 impl Widget for WindowWidget {
     type Ret = Entity;
 
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
 

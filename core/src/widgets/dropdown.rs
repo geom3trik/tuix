@@ -1,13 +1,8 @@
 #![allow(dead_code)]
 
-use crate::mouse::*;
-use crate::{entity::Entity, ButtonEvent, CheckboxEvent, List};
-use crate::{AnimationState, Event, Propagation, WindowEvent};
-use crate::{PropSet, State};
 
 use crate::state::style::*;
 use crate::widgets::*;
-use crate::widgets::{Element, Label};
 
 const ICON_DOWN_OPEN: &str = "\u{e75c}";
 
@@ -102,11 +97,11 @@ pub struct Dropdown {
     multi: bool,
 
     //other_container: Entity,
-    expand_animation: usize,
-    fade_in_animation: usize,
+    expand_animation: Animation,
+    fade_in_animation: Animation,
 
-    collapse_animation: usize,
-    fade_out_animation: usize,
+    collapse_animation: Animation,
+    fade_out_animation: Animation,
     //container_height: f32,
 }
 
@@ -122,10 +117,10 @@ impl Dropdown {
             open: false,
             multi: false,
             //other_container: Entity::null(),
-            expand_animation: std::usize::MAX,
-            fade_in_animation: std::usize::MAX,
-            collapse_animation: std::usize::MAX,
-            fade_out_animation: std::usize::MAX,
+            expand_animation: Animation::default(),
+            fade_in_animation: Animation::default(),
+            collapse_animation: Animation::default(),
+            fade_out_animation: Animation::default(),
             //container_height: 0.0,
         }
     }

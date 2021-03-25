@@ -30,14 +30,12 @@ impl Widget for Popup {
         if let Some(popup_event) = event.message.downcast::<PopupEvent>() {
             match popup_event {
                 PopupEvent::Open => {
-                    println!("Received Open Event");
                     self.open = true;
                     state.capture(entity);
                     entity.set_opacity(state, 1.0);
                 }
 
                 PopupEvent::Close => {
-                    println!("Received Close Event");
                     self.open = false;
                     state.release(entity);
                     entity.set_opacity(state, 0.0);
@@ -90,7 +88,7 @@ impl Widget for Popup {
                     _ => {}
                 },
 
-                WindowEvent::KeyDown(code, key) => match code {
+                WindowEvent::KeyDown(code, _) => match code {
                     Code::Escape => {
                         state.insert_event(Event::new(PopupEvent::Close).target(entity));
                     }

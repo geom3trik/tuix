@@ -66,4 +66,4 @@ pub use crate::events::{Event, Propagation, Widget, WindowEvent};
 pub use crate::mouse::*;
 pub use crate::state::State;
 pub use crate::{Code, Key};
-pub use crate::{PropGet, PropSet};
+pub use crate::{PropGet, PropSet, Animation, AnimationState};

@@ -71,7 +71,7 @@ pub struct Counter {
     label: Entity,
 }
 ```
-Inside our counter widget we have a field for the value of the counter and a field which will store the `Entity` of the label widget that will display the value. An `Entity` is an id which is used to modify `State`, a sort of database for the state of the app. 
+Inside our counter widget we have a field for the value of the counter and a field which will store the `Entity` of the label widget that will display the value. An `Entity` is an id which is used to modify `State`, a sort of database for the gui state of the app. 
 
 While `State` stores the data for the GUI, like style properties and events, the data inside the widgets, like our `value` is application data defined by the user. Once the the widget is built into the app this data can only be accessed by the widget at three different stages:
 
@@ -106,10 +106,10 @@ pub enum CounterMessage {
 }
 ```
 
-Now, to make our counter struct an actual widget it needs to implement two traits: `BuildHandler` and `EventHandler`. The first is the `BuildHandler` which has a single function called `on_build` which will describe how our widget is constructed with all of its sub-widgets:
+Now, to make our counter struct an actual widget it needs to implement the `Widget` trait. Within the `Widget` trait is a method called `on_build` which will describe how our widget is constructed with all of its sub-widgets:
 
 ```Rust
-impl BuildHandler for Counter {
+impl Widget for Counter {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Button::with_label("increment")
@@ -133,24 +133,22 @@ Inside this method we create two buttons and a label. The first button is our in
 
 We repeat this process for the decrement button, but this time with an event message of `Decrement` and a class name of "decrement". Then, we construct the label and set the text to the intial value stored in the `Counter` instance, which may have been initialised with the `with_initial_value` method. Lastly we set the element name of our counter widget to "counter", so we can use this name to style the entire widget.
 
-With the building part done we can now implement the `EventHandler` trait so that our counter can react to the events sent by our buttons:
+With the building part done we can now move on to event handling. The `Widget` trait has a another method called `on_event()`, which we can specify so that our counter can react to the events sent by our buttons:
 
 ```Rust
-impl EventHandler for Counter {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        if let Some(counter_event) = event.message.downcast::<CounterMessage>() {
-            match counter_event {
-                CounterMessage::Increment => {
-                    self.value += 1;
-                    self.label.set_text(state, &self.value.to_string());
-                    event.consume();
-                }
+fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+    if let Some(counter_event) = event.message.downcast::<CounterMessage>() {
+        match counter_event {
+            CounterMessage::Increment => {
+                self.value += 1;
+                self.label.set_text(state, &self.value.to_string());
+                event.consume();
+            }
 
-                CounterMessage::Decrement => {
-                    self.value -= 1;
-                    self.label.set_text(state, &self.value.to_string());
-                    event.consume();
-                }
+            CounterMessage::Decrement => {
+                self.value -= 1;
+                self.label.set_text(state, &self.value.to_string());
+                event.consume();
             }
         }
     }
@@ -200,143 +198,11 @@ You can find the full code for this example in the examples folder under the nam
 cargo run --example counter
 ```
 
-# How tuix works
+# Tuix Guide
 
-Tuix can be thought of as 5 seperate processes which happen in order:
+You can find a guide to getting started with Tuix here: [Guide](https://geom3trik.github.io)
 
-- Building
-- Events
-- Styling
-- Layout
-- Drawing
-
-## Building
-Building is the process of creating the widgets in the application. This can be done before the application loop begins, or in response to an event. The `hello_gui` example shown above demonstrates how to create and then build a button widget. The `build()` function takes three parameters: a mutable reference to `State`, the `Entity` id of the parent widget, and a closure which provides a builder which can be used to set inline style properties on the button. 
-
-More information about building widgets can be found on the [Building Widgets](https://github.com/geom3trik/tuix/wiki/Building-Widgets) wiki page.
-
-## Event Handling
-Tuix uses an event queue to pass custom messages between widgets.
-
-[Events](https://github.com/geom3trik/tuix/wiki/Events)
-
-
-## Styling
-Tuix uses a modified subset of CSS properties to perform styling of widgets. The `hello_gui` example uses the `DEFAULT_THEME` provided within the tuix crate. The `custom_styling` example shows how to style the button with a custom theme provided by a stylesheet in a css file, as well as inline styling using setter functions on the builder.
-
-```Rust
-extern crate tuix;
-
-use tuix::widgets::Button;
-use tuix::Application;
-
-use tuix::events::BuildHandler;
-
-use tuix::style::themes::DEFAULT_THEME;
-
-use tuix::style::Length;
-
-// This example uses a custom theme defined in the 'custom_theme.css' stylesheet
-static CUSTOM_THEME: &'static str = include_str!("themes/custom_theme.css");
-
-fn main() {
-    let app = Application::new(|win_desc, state, window| {
-
-        state.insert_theme(DEFAULT_THEME);
-
-        // Properties defined in CUSTOM_THEME override the same properties defined in DEFAULT_THEME
-        state.insert_theme(CUSTOM_THEME);
-
-        Button::new().build(state, window, |builder| {
-            builder
-                // These are inline properties which cannot be overriden by a theme
-                .set_left(Length::Pixels(100.0))    
-                .set_top(Length::Pixels(50.0))
-                .set_text("Button")
-        });
-
-        win_desc.with_title("Hello GUI")
-    });
-
-    app.run();
-}
-```
-
-More information about styling can be found on the [Styling Widgets](https://github.com/geom3trik/tuix/wiki/Styling-Widgets) wiki page.
-
-## Layout
-Tuix uses a flexbox model to perform layout. The layout process positions the widgets based on the style properties you give them. Users should also be familiar with the [css box model](https://www.w3schools.com/css/css_boxmodel.asp).
-
-The example `flexible_layout` shows how to create three flexible elements with their own inline properties as well as showing how to center a button widget within another element. By default, the flex direction of elements, including the window, is set to column.
-
-```Rust
-extern crate tuix;
-
-use tuix::widgets::{Element, Button};
-use tuix::Application;
-
-use tuix::events::BuildHandler;
-
-use tuix::style::themes::DEFAULT_THEME;
-
-use tuix::style::{Length, Color, JustifyContent, AlignItems};
-
-// This example uses a custom theme defined in the 'custom_theme.css' stylesheet
-static CUSTOM_THEME: &'static str = include_str!("themes/custom_theme.css");
-
-fn main() {
-    let app = Application::new(|win_desc, state, window| {
-
-        state.insert_theme(DEFAULT_THEME);
-
-        // Properties defined in CUSTOM_THEME override the same properties defined in DEFAULT_THEME
-        state.insert_theme(CUSTOM_THEME);
-
-        // An element is the simplest widget. It has no built in styling and doesn't handle any events.
-        let first = Element::new().build(state, window, |builder| 
-            builder
-                // Allow the element to grow in size to fill the parent (in height)
-                .set_flex_grow(1.0)
-                // The flexbox way of centering the child elements
-                .set_justify_content(JustifyContent::Center)
-                .set_align_items(AlignItems::Center)
-                
-                .set_background_color(Color::rgb(100,50,50))
-        );
-
-        Element::new().build(state, window, |builder| 
-            builder
-                // A flex-grow of 2 rsults in a twice as large element in this case
-                .set_flex_grow(2.0)
-                .set_background_color(Color::rgb(50,100,50))
-        );
-
-        Element::new().build(state, window, |builder| 
-            builder
-                .set_flex_grow(1.0)
-                .set_background_color(Color::rgb(50,50,100))
-        );
-
-        // The button is now a child of the first element instead of the window
-        Button::new().build(state, first, |builder| {
-            builder.set_text("Button")
-        });
-
-        win_desc.with_title("Flexible Layout")
-    });
-
-    app.run();
-}
-```
-
-More information about how widgets are psoitioned can be found on the [Layout Widgets](https://github.com/geom3trik/tuix/wiki/Layout-Widgets) wiki page.
-
-## Drawing
-After styling, the widgets are drawn to the window. The visual look of the widgets is determined by the style propeties set on them, but it's also possible to override this with a custom drawing function for your own custom widgets.
-
-[Rendering Widgets](https://github.com/geom3trik/tuix/wiki/Rendering-Widgets)
-
-## Building a simple synth
+# Building a Simple Synth
 
 ![alt text](https://github.com/geom3trik/tuix_audio_synth/blob/main/screenshot.png?raw=true)
 

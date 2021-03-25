@@ -1,11 +1,9 @@
-extern crate tuix;
 
-use tuix::widgets::{Button, Element};
-use tuix::Application;
+
+use tuix::*;
 
 use tuix::style::themes::DEFAULT_THEME;
 
-use tuix::style::{AlignItems, Color, JustifyContent};
 
 // This example uses a custom theme defined in the 'custom_theme.css' stylesheet
 static CUSTOM_THEME: &'static str = include_str!("themes/custom_theme.css");

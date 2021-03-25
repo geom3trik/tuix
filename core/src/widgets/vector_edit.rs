@@ -90,10 +90,10 @@ pub struct VectorEdit<T> {
     dims: Entity,
 
     // Animations
-    reveal: usize,
-    hide: usize,
-    grow: usize,
-    shrink: usize,
+    reveal: Animation,
+    hide: Animation,
+    grow: Animation,
+    shrink: Animation,
 
     xval: T,
     yval: T,
@@ -120,10 +120,10 @@ where
             w: Entity::null(),
             dims: Entity::null(),
 
-            reveal: std::usize::MAX,
-            hide: std::usize::MAX,
-            grow: std::usize::MAX,
-            shrink: std::usize::MAX,
+            reveal: Animation::default(),
+            hide: Animation::default(),
+            grow: Animation::default(),
+            shrink: Animation::default(),
 
             xval: T::default(),
             yval: T::default(),

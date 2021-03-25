@@ -21,7 +21,7 @@ use tuix_core::style::{Display, Visibility};
 
 use tuix_core::state::style::prop::*;
 
-use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
+use tuix_core::{WindowEvent, WindowWidget, WindowBuilder};
 
 use tuix_core::systems::*;
 
@@ -37,7 +37,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new<F: FnOnce(WindowDescription, &mut State, Entity) -> WindowDescription>(
+    pub fn new<F: FnOnce(&mut State, &mut WindowBuilder)>(
         app: F,
     ) -> Self {
         let event_loop = EventLoop::new();
@@ -49,9 +49,11 @@ impl Application {
         state.hierarchy.add(Entity::root(), None);
 
         //let window_description = win(WindowDescription::new());
-        let window_description = app(WindowDescription::new(), &mut state, root);
+        let mut window_builder = WindowBuilder::new(root);
+        app(&mut state, &mut window_builder);
+        let window_description = window_builder.get_window_description();
 
-        let mut window = Window::new(&event_loop, &window_description);
+        let mut window = Window::new(&event_loop, window_description);
 
         let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");

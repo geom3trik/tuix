@@ -3,8 +3,8 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, CheckButton, Checkbox, Dimension, Dropdown, Panel, RadioList, ResizableVBox,
-    ScrollContainer, Spinner, Textbox, VectorEdit, VectorEditEvent,
+    Button, CheckButton, Checkbox, Dimension, Dropdown, Panel, List, ResizableVBox,
+    ScrollContainer, Spinbox, Textbox, VectorEdit, VectorEditEvent,
 };
 
 static THEME: &'static str = include_str!("themes/panel_animated_theme.css");

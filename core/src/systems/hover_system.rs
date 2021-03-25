@@ -81,16 +81,16 @@ pub fn apply_hover(state: &mut State) {
     if hovered_widget != state.hovered {
         // Useful for debugging
 
-        println!(
-            "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-            hovered_widget,
-            state.hierarchy.get_parent(hovered_widget),
-            state.data.get_posx(hovered_widget),
-            state.data.get_posy(hovered_widget),
-            state.data.get_width(hovered_widget),
-            state.data.get_height(hovered_widget),
-            state.data.get_z_order(hovered_widget),
-        );
+        // println!(
+        //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+        //     hovered_widget,
+        //     state.hierarchy.get_parent(hovered_widget),
+        //     state.data.get_posx(hovered_widget),
+        //     state.data.get_posy(hovered_widget),
+        //     state.data.get_width(hovered_widget),
+        //     state.data.get_height(hovered_widget),
+        //     state.data.get_z_order(hovered_widget),
+        // );
 
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
             pseudo_classes.set_hover(true);
