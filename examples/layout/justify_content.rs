@@ -1,10 +1,12 @@
 use tuix::*;
 
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
+        
         let window_flex_direction = FlexDirection::Column;
 
         window
+            .set_title("Justify Content")
             .set_background_color(state, Color::white())
             .set_flex_direction(state, window_flex_direction);
 
@@ -15,7 +17,7 @@ fn main() {
         };
 
         // Flex Start
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(50, 50, 50))
@@ -46,7 +48,7 @@ fn main() {
         });
 
         // Flex End
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(70, 70, 70))
@@ -77,7 +79,7 @@ fn main() {
         });
 
         // Center
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(50, 50, 50))
@@ -108,7 +110,7 @@ fn main() {
         });
 
         // Space Around
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(70, 70, 70))
@@ -139,7 +141,7 @@ fn main() {
         });
 
         // Space Between
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(50, 50, 50))
@@ -170,7 +172,7 @@ fn main() {
         });
 
         // Space Evenly
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(70, 70, 70))
@@ -200,7 +202,6 @@ fn main() {
                 .set_background_color(Color::rgb(50, 200, 200))
         });
 
-        win_desc.with_title("Justify Content")
     });
 
     app.run();

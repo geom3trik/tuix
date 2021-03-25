@@ -1,8 +1,11 @@
 use tuix::*;
 
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
-        Button::with_label("Button").build(state, window, |builder| {
+    let app = Application::new(|state, window| {
+        
+        window.with_title("Hello GUI");
+
+        Button::with_label("Button").build(state, window.entity(), |builder| {
             builder
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
@@ -10,7 +13,7 @@ fn main() {
                 .set_text_justify(Justify::Center)
         });
 
-        win_desc.with_title("Hello GUI")
+        
     });
 
     app.run();

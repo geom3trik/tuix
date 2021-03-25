@@ -3,7 +3,7 @@ use tuix::*;
 
 
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
 
         let style_rule: StyleRule = StyleRule::new()
             .selector(Selector::element("button"))

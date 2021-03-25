@@ -93,10 +93,10 @@ static THEME: &'static str = include_str!("themes/menus_theme.css");
 
 fn main() {
     // Create the app
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         state.add_theme(THEME);
 
-        let menu_bar = MenuBar::new().build(state, window, |builder| {
+        let menu_bar = MenuBar::new().build(state, window.entity(), |builder| {
             builder.set_flex_direction(FlexDirection::Row)
         });
 

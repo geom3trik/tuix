@@ -22,7 +22,7 @@ pub trait Widget: std::marker::Sized + 'static {
         Self: std::marker::Sized + 'static,
     {
         // Create a new entity
-        let entity = state.add(parent.entity());
+        let entity = state.add(parent);
 
         // Call the on_build function of the widget
         let ret = self.on_build(state, entity);

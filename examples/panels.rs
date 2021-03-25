@@ -62,9 +62,9 @@ fn main() {
     let app = Application::new(|state, window| {
         state.add_theme(STYLE);
 
-        window.with_title("Panel");
+        window.set_title("Panels");
 
-        let panel = Panel::new("Panel").build(state, window, |builder| builder.class("one"));
+        let panel = Panel::new("Panel 1").build(state, window.entity(), |builder| builder.class("one"));
 
         Button::with_label("Button").build(state, panel, |builder| {
             builder
@@ -73,7 +73,7 @@ fn main() {
                 .set_text_justify(Justify::Center)
         });
 
-        let panel = Panel::new("Panel").build(state, window, |builder| builder.class("two"));
+        let panel = Panel::new("Panel 2").build(state, window.entity(), |builder| builder.class("two"));
 
         Button::with_label("Button").build(state, panel, |builder| {
             builder

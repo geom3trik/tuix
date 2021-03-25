@@ -47,7 +47,7 @@ fn main() {
         });
 
         // Flex End
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(70, 70, 70))
@@ -78,7 +78,7 @@ fn main() {
         });
 
         // Center
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(50, 50, 50))
@@ -109,7 +109,7 @@ fn main() {
         });
 
         // Stretch
-        let container = Element::new().build(state, window, |builder| {
+        let container = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(70, 70, 70))

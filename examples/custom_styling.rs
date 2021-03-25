@@ -8,13 +8,13 @@ use tuix::style::themes::DEFAULT_THEME;
 static CUSTOM_THEME: &'static str = include_str!("themes/custom_theme.css");
 
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         state.add_theme(DEFAULT_THEME);
 
         // Properties defined in CUSTOM_THEME override the same properties defined in DEFAULT_THEME
         state.add_theme(CUSTOM_THEME);
 
-        Button::new().build(state, window, |builder| {
+        Button::new().build(state, window.entity(), |builder| {
             builder
                 // These are inline properties which cannot be overriden by a theme
                 .set_left(Length::Pixels(100.0))

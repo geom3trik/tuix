@@ -603,9 +603,16 @@ impl Widget for Calculator {
 }
 
 pub fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         // Replace this with icon loading using resource manager when working
         let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
+
+
+        window
+            .set_title("Calculator")
+            .set_inner_size(300, 400)
+            .set_min_inner_size(200, 300)
+            .set_icon(icon.to_bytes(), icon.width(), icon.height());
 
         //state.add_theme(LIGHT_THEME);
         match state.add_stylesheet("examples/themes/calculator_light_theme.css") {
@@ -613,13 +620,9 @@ pub fn main() {
             Err(e) => println!("Error loading stylesheet: {}", e),
         }
 
-        Calculator::default().build(state, window, |builder| builder.class("calculator"));
+        Calculator::default().build(state, window.entity(), |builder| builder.class("calculator"));
 
-        win_desc
-            .with_title("Calculator")
-            .with_inner_size(300, 400)
-            .with_min_inner_size(200, 300)
-            .with_icon(icon.to_bytes(), icon.width(), icon.height())
+
     });
 
     app.run();

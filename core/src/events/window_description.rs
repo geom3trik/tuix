@@ -99,6 +99,12 @@ impl WindowBuilder {
         self
     }
 
+    pub fn with_title(mut self, title: &str) -> Self {
+        self.window_description.title = title.to_string();
+
+        self
+    }
+
     pub fn set_inner_size(&mut self, width: u32, height: u32) -> &mut Self {
         self.window_description.inner_size = Size::new(width, height);
 
@@ -134,6 +140,12 @@ impl WindowBuilder {
 // }
 
 // impl AsEntity for &mut WindowBuilder {
+//     fn entity(&self) -> Entity {
+//         self.entity
+//     }
+// }
+
+// impl AsEntity for &&mut WindowBuilder {
 //     fn entity(&self) -> Entity {
 //         self.entity
 //     }
