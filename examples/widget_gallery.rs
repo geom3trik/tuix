@@ -36,10 +36,16 @@ impl Widget for Header {
 
 
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|window, state, root| {
         state.add_theme(DEFAULT_THEME);
 
         window.set_background_color(state, Color::white());
+
+        (tab_bar, tab_view) = TabManager::new().build(state, root, |builder| 
+            builder
+                .set_flex_grow(1.0)
+                .set_flex_basis(Length::Pixels(30.0))
+        );
 
         Header::new().build(state, window, |builder| builder);
 

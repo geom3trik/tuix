@@ -10,6 +10,9 @@ pub use inputs::*;
 pub mod popups;
 pub use popups::*;
 
+pub mod menus;
+pub use menus::*;
+
 pub mod scrollbar;
 pub use scrollbar::*;
 
