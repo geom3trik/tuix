@@ -72,19 +72,19 @@ impl dyn Message {
 }
 
 // Implements message for any static type that implements Clone
-impl<S: 'static + Clone + Debug> Message for S {
+impl<S: 'static + PartialEq + Clone + Debug> Message for S {
     fn as_any(&self) -> &dyn Any {
         self
     }
 
     fn equals_a(&self, other: &dyn Message) -> bool {
 
-        other.as_any().type_id() == self.as_any().type_id()
+        //other.as_any().type_id() == self.as_any().type_id()
 
-        // other
-        //     .as_any()
-        //     .downcast_ref::<S>()
-        //     .map_or(false, |a| self == a)
+        other
+            .as_any()
+            .downcast_ref::<S>()
+            .map_or(false, |a| self == a)
     }
 }
 
