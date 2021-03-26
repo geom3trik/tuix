@@ -9,7 +9,7 @@ use tuix::style::themes::DEFAULT_THEME;
 static THEME: &'static str = include_str!("themes/widgets_theme.css");
 
 fn main() {
-    Application::new(|win_desc, state, window| {
+    Application::new(|state, window| {
         state.add_theme(DEFAULT_THEME);
         state.add_theme(THEME);
 
@@ -19,7 +19,7 @@ fn main() {
         // });
 
         // Horizontal Container
-        let hbox = HBox::new().build(state, window, |builder| builder.set_flex_grow(1.0));
+        let hbox = HBox::new().build(state, window.entity(), |builder| builder.set_flex_grow(1.0));
 
         // Resizable Vertical Container
         let rvbox = ResizableVBox::new().build(state, hbox, |builder| {
@@ -459,8 +459,6 @@ fn main() {
         //         .set_width(Length::Pixels(50.0))
         //         .set_margin_left(Length::Pixels(5.0))
         // });
-
-        win_desc
     })
     .run();
 }

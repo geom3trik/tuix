@@ -279,7 +279,7 @@ impl Widget for Panel {
 
                                     if !state.style.height.is_animating(self.container1) {
                                         let container_height = state.data.get_height(self.container1);
-                                        println!("Container Height: {} {}", self.container1, container_height);
+                                        //println!("Container Height: {} {}", self.container1, container_height);
                                         
                                         if container_height != self.container_height {
                                             //self.container_height = container_height;
