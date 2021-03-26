@@ -10,7 +10,7 @@ fn main() {
         window.set_title("Hello GUI");
 
         Button::with_label("Button")
-            .build(state, window, |builder| {
+            .build(state, window.entity(), |builder| {
                 builder
                     .set_width(Length::Pixels(100.0))
                     .set_height(Length::Pixels(30.0))

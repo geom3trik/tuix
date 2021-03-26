@@ -96,6 +96,8 @@ fn main() {
     let app = Application::new(|state, window| {
         state.add_theme(THEME);
 
+        window.set_title("Menus");
+
         let menu_bar = MenuBar::new().build(state, window.entity(), |builder| {
             builder.set_flex_direction(FlexDirection::Row)
         });
@@ -187,7 +189,7 @@ fn main() {
         //         .set_background_color(Color::rgb(50, 50, 50))
         // });
 
-        win_desc.with_title("Menus")
+        
     });
 
     app.run();

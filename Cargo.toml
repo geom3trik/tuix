@@ -30,8 +30,8 @@ name = "inline"
 path = "examples/styling/inline.rs"
 
 [[example]]
-name = "rule"
-path = "examples/styling/rule.rs"
+name = "shared"
+path = "examples/styling/shared.rs"
 
 [workspace]
 members = [
@@ -53,7 +53,7 @@ tuix_winit = { version = "0.1.0", path = "winit", optional = true }
 tuix_glutin = { version = "0.1.0", path = "glutin", optional = true }
 tuix_baseview = { version = "0.1.0", path = "baseview", optional = true }
 
-# tuix_inspector_derive = {path = "inspector-derive"}
+tuix_inspector_derive = {path = "inspector-derive"}
 
 [dev-dependencies]
 femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master", default-features = false }

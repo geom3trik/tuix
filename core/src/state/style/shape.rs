@@ -113,7 +113,7 @@ impl Default for FocusOrder {
     }
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq)]
 pub struct GradientStop {
     // Position of the gradient stop
     pub position: Length,
@@ -127,7 +127,7 @@ impl GradientStop {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Direction {
     LeftToRight,
     RightToLeft,
@@ -141,7 +141,7 @@ impl Default for Direction {
     }
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq)]
 pub struct LinearGradient {
     // Direction of the gradient
     pub direction: Direction,

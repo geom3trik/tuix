@@ -6,13 +6,14 @@ use tuix::*;
 
 fn main() {
     // Create the app
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         match state.add_stylesheet("examples/themes/basic_theme.css") {
             Ok(_) => {}
             Err(e) => println!("Error loading stylesheet: {}", e),
         }
 
         window
+            .set_title("basic")
             .set_background_color(state, Color::rgb(255, 255, 255))
             .set_align_items(state, AlignItems::FlexStart);
         // .set_flex_direction(state, FlexDirection::Row)
@@ -24,7 +25,7 @@ fn main() {
         // let left_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         //let container = Element::new().build(state, window, |builder| builder.class("container"));
-        let _one = Element::new().build(state, window, |builder| {
+        let _one = Element::new().build(state, window.entity(), |builder| {
             builder
                 .class("one")
                 .set_background_gradient(
@@ -117,7 +118,7 @@ fn main() {
         //let inner = Element::new().build(state, outer, |builder| builder.class("inner2"));
         // let _innerinner = Element::new().build(state, outer, |builder| builder.class("inner2"));
 
-        win_desc.with_title("basic")
+       
     });
 
     app.run();

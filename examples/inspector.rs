@@ -48,12 +48,14 @@ fn main() {
     
     
 
-    let app = Application::new(move |window, state, root| {
+    let app = Application::new(move |state, window| {
         state.add_theme(DEFAULT_THEME);
 
         // let data = SomeData {
         //     name: "Testy Test".to_string(),
         // };
+
+        window.set_title("Inspector Test");
 
         //let data: String = "Testy Test".to_string(); 
         let data = SomeData {
@@ -67,7 +69,7 @@ fn main() {
             },
         };
 
-        Inspector::new(data.clone()).build(state, root, |builder| 
+        Inspector::new(data.clone()).build(state, window.entity(), |builder| 
             builder
                 .set_width(Length::Pixels(300.0))
                 .set_flex_grow(1.0)
@@ -83,7 +85,7 @@ fn main() {
         //         .set_text_justify(Justify::Center)
         // });
 
-        window.with_title("Inspector Test")
+        
     });
 
     app.run();

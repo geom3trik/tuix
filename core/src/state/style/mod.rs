@@ -299,7 +299,7 @@ impl Style {
         self.set_style_properties();
     }
 
-    pub fn parse_theme2(&mut self, stylesheet: &str) {
+    pub fn parse_theme(&mut self, stylesheet: &str) {
         let mut input = ParserInput::new(stylesheet);
         let mut parser = Parser::new(&mut input);
         let rule_parser = theme::RuleParser::new();
@@ -316,15 +316,20 @@ impl Style {
         //rule_list.append(&mut self.rules);
         //self.rules = rule_list;
 
-        rule_list.sort_by_key(|rule| rule.specificity());
-        rule_list.reverse();
+        //rule_list.sort_by_key(|rule| rule.specificity());
+        //rule_list.reverse();
 
         self.rules.append(&mut rule_list);
+
+        self.rules.sort_by_key(|rule| rule.specificity());
+        self.rules.reverse();
+
+        //self.rules = rule_list;
 
         // for rule in self.rules.iter() {
         //     println!("Rule: {:?}  {:?}", rule, rule.specificity());
         // }
-
+        self.remove_all();
         self.set_style_properties();
     }
 
@@ -821,7 +826,7 @@ impl Style {
         }
     }
 
-    pub fn parse_theme(&mut self, stylesheet: &str) {
+    pub fn parse_theme2(&mut self, stylesheet: &str) {
         let mut input = ParserInput::new(stylesheet);
         let mut parser = Parser::new(&mut input);
         let rule_parser = theme::RuleParser::new();
@@ -1348,7 +1353,73 @@ impl Style {
         self.focus_order.insert(entity, Default::default());
     }
 
-    pub fn remove(&mut self, entity: Entity) {}
+    pub fn remove(&mut self, entity: Entity) {
+    }
+
+    pub fn remove_all(&mut self) {
+        // Remove all non-inline style data
+        self.background_color.remove_styles();
+        self.font_color.remove_styles();
+
+        // Position
+        self.left.remove_styles();
+        self.right.remove_styles();
+        self.top.remove_styles();
+        self.bottom.remove_styles();
+        // Size
+        self.width.remove_styles();
+        self.height.remove_styles();
+        // Size Constraints
+        self.min_width.remove_styles();
+        self.max_width.remove_styles();
+        self.min_height.remove_styles();
+        self.max_height.remove_styles();
+        // Margins
+        self.margin_left.remove_styles();
+        self.margin_right.remove_styles();
+        self.margin_top.remove_styles();
+        self.margin_bottom.remove_styles();
+        // Padding
+        self.padding_left.remove_styles();
+        self.padding_right.remove_styles();
+        self.padding_top.remove_styles();
+        self.padding_bottom.remove_styles();
+        // Border
+        self.border_width.remove_styles();
+        self.border_color.remove_styles();
+        // Border Radius
+        self.border_radius_top_left.remove_styles();
+        self.border_radius_top_right.remove_styles();
+        self.border_radius_bottom_left.remove_styles();
+        self.border_radius_bottom_right.remove_styles();
+        // Flexbox
+        self.flex_grow.remove_styles();
+        self.flex_shrink.remove_styles();
+        self.flex_basis.remove_styles();
+        self.align_self.remove_styles();
+        self.align_content.remove_styles();
+        // Flex Container
+        self.align_items.remove_styles();
+        self.justify_content.remove_styles();
+        self.flex_direction.remove_styles();
+        // Display
+        self.display.remove_styles();
+        self.visibility.remove_styles();
+        self.opacity.remove_styles();
+        // Text Alignment
+        self.text_align.remove_styles();
+        self.text_justify.remove_styles();
+
+        self.inner_shadow_h_offset.remove_styles();
+        self.inner_shadow_v_offset.remove_styles();
+        self.inner_shadow_blur.remove_styles();
+        self.inner_shadow_color.remove_styles();
+
+        self.outer_shadow_h_offset.remove_styles();
+        self.outer_shadow_v_offset.remove_styles();
+        self.outer_shadow_blur.remove_styles();
+        self.outer_shadow_color.remove_styles();
+    }
 
     pub(crate) fn insert_id(&mut self, entity: Entity, id: &str) -> &mut Self {
         // let mut s = DefaultHasher::new();

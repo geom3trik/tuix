@@ -2,6 +2,7 @@ use crate::style;
 use crate::style::Display;
 
 use crate::style::color::Color;
+use crate::style::LinearGradient;
 
 use crate::state::style::*;
 
@@ -75,6 +76,7 @@ pub enum Property {
     // Background
     BackgroundColor(Color),
     BackgroundImage(String),
+    BackgroundGradient(LinearGradient),
 
     TextJustify(Justify),
     TextAlign(Align),

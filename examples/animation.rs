@@ -4,12 +4,14 @@ use tuix::*;
 static THEME: &'static str = include_str!("themes/animation_theme.css");
 
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         state.style.parse_theme(THEME);
 
-        Animations::new().build(state, window, |builder| builder);
+        window.set_title("Animation");
+        
+        Animations::new().build(state, window.entity(), |builder| builder);
 
-        win_desc.with_title("Animation")
+        
     });
 
     app.run();

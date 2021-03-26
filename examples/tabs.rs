@@ -5,19 +5,19 @@ use tuix::*;
 static THEME: &'static str = include_str!("themes/tabs_theme.css");
 
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         state.add_theme(THEME);
 
-        window.set_flex_direction(state, FlexDirection::Row);
+        window.set_title("Text Input").set_flex_direction(state, FlexDirection::Row);
 
-        let controls = Element::new().build(state, window, |builder| {
+        let controls = Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_flex_basis(Length::Pixels(200.0))
                 .set_padding(Length::Pixels(10.0))
         });
 
         // Create a tab manager
-        let (tab_bar1, tab_viewport1) = TabManager::new().build(state, window, |builder| builder);
+        let (tab_bar1, tab_viewport1) = TabManager::new().build(state, window.entity(), |builder| builder);
 
         // Add a tab to the tab bar
         let first_tab = MovableTab::new("first").build(state, tab_bar1, |builder| {
@@ -110,7 +110,6 @@ fn main() {
                 builder.set_text("Second").class("item")
             });
 
-        win_desc.with_title("Text Input")
     });
 
     app.run()

@@ -157,6 +157,9 @@ impl State {
     /// ```
     pub fn add_style_rule(&mut self, style_rule: StyleRule) {
         self.style.add_rule(style_rule);
+        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
     }
 
     //TODO
@@ -176,58 +179,7 @@ impl State {
             return Ok(());
         }
 
-        // Remove all non-inline style data
-        self.style.background_color.remove_styles();
-        self.style.font_color.remove_styles();
-
-        // Position
-        self.style.left.remove_styles();
-        self.style.right.remove_styles();
-        self.style.top.remove_styles();
-        self.style.bottom.remove_styles();
-        // Size
-        self.style.width.remove_styles();
-        self.style.height.remove_styles();
-        // Size Constraints
-        self.style.min_width.remove_styles();
-        self.style.max_width.remove_styles();
-        self.style.min_height.remove_styles();
-        self.style.max_height.remove_styles();
-        // Margins
-        self.style.margin_left.remove_styles();
-        self.style.margin_right.remove_styles();
-        self.style.margin_top.remove_styles();
-        self.style.margin_bottom.remove_styles();
-        // Padding
-        self.style.padding_left.remove_styles();
-        self.style.padding_right.remove_styles();
-        self.style.padding_top.remove_styles();
-        self.style.padding_bottom.remove_styles();
-        // Border
-        self.style.border_width.remove_styles();
-        self.style.border_color.remove_styles();
-        // Border Radius
-        self.style.border_radius_top_left.remove_styles();
-        self.style.border_radius_top_right.remove_styles();
-        self.style.border_radius_bottom_left.remove_styles();
-        self.style.border_radius_bottom_right.remove_styles();
-        // Flexbox
-        self.style.flex_grow.remove_styles();
-        self.style.flex_shrink.remove_styles();
-        self.style.flex_basis.remove_styles();
-        self.style.align_self.remove_styles();
-        self.style.align_content.remove_styles();
-        // Flex Container
-        self.style.align_items.remove_styles();
-        self.style.justify_content.remove_styles();
-        self.style.flex_direction.remove_styles();
-        // Display
-        self.style.display.remove_styles();
-        self.style.visibility.remove_styles();
-        self.style.opacity.remove_styles();
-        // Text Alignment
-        self.style.text_align.remove_styles();
-        self.style.text_justify.remove_styles();
+        self.style.remove_all();
 
         let mut overall_theme = String::new();
 

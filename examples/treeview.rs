@@ -12,10 +12,12 @@ fn main() {
     //let window = Window::new(&event_loop, WindowDescription::new().with_title("Panels").with_inner_size(800, 600));
 
     // Create the app
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         state.add_theme(THEME);
 
-        let rvbox = ResizableVBox::new().build(state, window, |builder| {
+        window.set_title("Panels").set_inner_size(800, 600);
+
+        let rvbox = ResizableVBox::new().build(state, window.entity(), |builder| {
             builder
                 .set_width(Length::Pixels(300.0))
                 .set_height(Length::Percentage(1.0))
@@ -54,7 +56,6 @@ fn main() {
         let _three_one_one_two =
             Label::new("Level 4").build(state, three_one_one, |builder| builder.class("level4"));
 
-        win_desc.with_title("Panels").with_inner_size(800, 600)
     });
 
     app.run();

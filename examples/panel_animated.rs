@@ -104,10 +104,12 @@ impl Widget for ColorEdit {
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|window, state, root| {
+    let mut app = Application::new(|state, window| {
         state.add_theme(THEME);
 
-        let rvbox = ResizableVBox::new().build(state, root, |builder| {
+        window.set_title("Panels").set_inner_size(800, 600);
+
+        let rvbox = ResizableVBox::new().build(state, window.entity(), |builder| {
             builder
                 .set_width(Length::Pixels(300.0))
                 .set_height(Length::Percentage(1.0))
@@ -140,7 +142,7 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
 
         Label::new("Number").build(state, row, |builder| builder.class("label"));
-        Spinner::new(100.0).build(state, row, |builder| {
+        Spinbox::new(100.0).build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("item")
         });
 
@@ -157,7 +159,7 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
 
         Label::new("Radio").build(state, row, |builder| builder.class("label"));
-        let radio_list = RadioList::new().build(state, row, |builder| builder.set_flex_grow(1.0));
+        let radio_list = List::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
         let hbox = HBox::new().build(state, radio_list, |builder| {
             builder.set_height(Length::Pixels(30.0))
@@ -219,7 +221,7 @@ fn main() {
             builder.set_width(Length::Pixels(50.0))
         });
 
-        window.with_title("Panels").with_inner_size(800, 600)
+        
     });
 
     // Get the state from the window

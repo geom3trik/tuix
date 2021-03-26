@@ -190,14 +190,16 @@ impl Widget for Square {
 }
 // Run the app
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         state
             .add_stylesheet("examples/themes/tic_tac_toe_theme.css")
             .expect("Failed to load stylesheet");
 
-        Board::new().build(state, window, |builder| builder);
+        window.set_inner_size(300, 300).set_title("Tic Tac Toe");
 
-        win_desc.with_inner_size(300, 300).with_title("Tic Tac Toe")
+        Board::new().build(state, window.entity(), |builder| builder);
+
+        
     });
 
     app.run();

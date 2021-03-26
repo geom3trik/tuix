@@ -65,13 +65,14 @@ impl Widget for Counter {
 
 fn main() {
     // Create the app
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         state.add_theme(DEFAULT_THEME);
 
-        Counter::new().build(state, window, |builder| builder);
 
-        // Set the window title
-        win_desc.with_title("Counter").with_inner_size(400, 100)
+        window.set_title("Counter").set_inner_size(400, 100);
+
+        Counter::new().build(state, window.entity(), |builder| builder);
+        
     });
 
     app.run();

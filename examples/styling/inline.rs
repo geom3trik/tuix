@@ -3,7 +3,7 @@ use tuix::*;
 fn main() {
     let app = Application::new(|state, window| {
         
-        window.with_title("Hello GUI");
+        window.set_title("Hello GUI");
 
         Button::with_label("Button").build(state, window.entity(), |builder| {
             builder
