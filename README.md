@@ -41,17 +41,18 @@ Since it's probably best to learn by example, here is the "hello world" of GUI a
 use tuix::*;
 
 fn main() {
-    let app = Application::new(|window, state, root| {
+    let app = Application::new(|state, window| {
+        
+        window.set_title("Hello GUI");
+        
         Button::with_label("Button")
-            .build(state, root, |builder| {
+            .build(state, window.entity(), |builder| {
                 builder
                     .set_width(Length::Pixels(100.0))
                     .set_height(Length::Pixels(30.0))
                     .set_background_color(Color::from("#ff5e1a"))
                     .set_text_justify(Justify::Center)
             });
-
-        window.with_title("Hello GUI")
     });
 
     app.run();
@@ -172,14 +173,15 @@ static THEME: &'static str = include_str!("themes/counter_theme.css");
 
 fn main() {
     // Create the app
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(|state, window| {
         state.add_theme(THEME);
+        
+        window.set_title("Counter").set_inner_size(400, 100);
 
         Counter::new()
             .with_initial_value(50)
-            .build(state, window, |builder| builder);
-            
-        win_desc.with_title("Counter").with_inner_size(400, 100)
+            .build(state, window.entity(), |builder| builder);
+  
     });
 
     app.run();
@@ -198,15 +200,8 @@ You can find the full code for this example in the examples folder under the nam
 cargo run --example counter
 ```
 
-# Tuix Guide
+# Tuix Guide (In Development)
 
 You can find a guide to getting started with Tuix here: [Guide](https://geom3trik.github.io)
-
-# Building a Simple Synth
-
-![alt text](https://github.com/geom3trik/tuix_audio_synth/blob/main/screenshot.png?raw=true)
-
-You can find a more complex example application and a tutorial for building a simple synth with a tuix gui here: https://github.com/geom3trik/tuix_audio_synth
-
 
 
