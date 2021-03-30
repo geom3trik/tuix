@@ -33,18 +33,17 @@ impl Item {
 
 impl Widget for Item {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            .set_flex_grow(state, 1.0)
-            .set_text(state, &self.text)
-            .class(state, "item");
+    fn on_build(&mut self, builder: Builder) -> Self::Ret {
+        builder
+            .set_flex_grow(1.0)
+            .set_text(&self.text)
+            .class("item")
+            .entity()
 
         //self.checkbox = Checkbox::new(false).build(state, entity, |builder| builder.set_hoverability(false));
         // Element::new().build(state, entity, |builder| {
         //     builder.set_text(&self.text).set_flex_grow(1.0).set_hoverability(false)
         // });
-
-        entity
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -139,29 +138,26 @@ impl Dropdown {
 }
 
 impl Widget for Dropdown {
-    type Ret = (Entity, Entity, Entity);
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.header = Element::new().build(state, entity, |builder| {
-            builder
-                //.set_background_color(Color::rgb(100,100,50))
-                .set_hoverability(false)
-                .set_focusability(false)
-                .set_flex_direction(FlexDirection::Row)
-                .set_flex_grow(1.0)
-                .class("header")
-        });
+    type Ret = Entity;
+    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+        self.header = Element::new().build(&mut builder)
+            //.set_background_color(Color::rgb(100,100,50))
+            .set_hoverability(false)
+            .set_focusability(false)
+            .set_flex_direction(FlexDirection::Row)
+            .set_flex_grow(1.0)
+            .class("header")
+            .entity();
 
-        self.label = Label::new(&self.text).build(state, self.header, |builder| {
-            builder
+        self.label = Label::new(&self.text).build(&mut builder)
                 //.set_background_color(Color::rgb(100,50,50))
                 .set_hoverability(false)
                 .set_focusability(false)
                 .set_flex_grow(1.0)
-        });
+                .entity();
 
         // Icon
-        Element::new().build(state, self.header, |builder| {
-            builder
+        Element::new().build(&mut builder)
                 .set_font("icons")
                 .set_hoverability(false)
                 .set_focusability(false)
@@ -169,30 +165,27 @@ impl Widget for Dropdown {
                 .set_text(ICON_DOWN_DIR)
                 //.set_width(Length::Pixels(20.0))
                 .set_text_justify(Justify::Center)
-                .class("icon")
-        });
+                .class("icon");
 
         if self.multi {
-            self.container = Popup::new().build(state, entity, |builder| {
-                builder
-                    .set_position(Position::Absolute)
-                    .set_opacity(0.0)
-                    .set_z_order(1)
-                    .set_clip_widget(Entity::root())
-                    .class("container")
-            });
+            self.container = Popup::new().build(&mut builder)
+                .set_position(Position::Absolute)
+                .set_opacity(0.0)
+                .set_z_order(1)
+                .set_clip_widget(Entity::root())
+                .class("container")
+                .entity();
         } else {
-            self.container = Popup::new().build(state, entity, |builder| {
-                builder
-                    .set_position(Position::Absolute)
-                    .set_opacity(0.0)
-                    .set_z_order(1)
-                    .set_clip_widget(Entity::root())
-                    .class("container")
-            });
+            self.container = Popup::new().build(&mut builder)
+                .set_position(Position::Absolute)
+                .set_opacity(0.0)
+                .set_z_order(1)
+                .set_clip_widget(Entity::root())
+                .class("container")
+                .entity();
         }
 
-        state.style.insert_element(entity, "dropdown");
+        builder = builder.set_element("dropdown");
 
         let container_fade_in_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
@@ -200,7 +193,7 @@ impl Widget for Dropdown {
             .with_keyframe((0.0, Opacity(0.0)))
             .with_keyframe((1.0, Opacity(1.0)));
 
-        self.fade_in_animation = state
+        self.fade_in_animation = builder.state()
             .style
             .opacity
             .insert_animation(container_fade_in_animation);
@@ -210,7 +203,7 @@ impl Widget for Dropdown {
             .with_keyframe((0.0, Opacity(1.0)))
             .with_keyframe((1.0, Opacity(0.0)));
 
-        self.fade_out_animation = state
+        self.fade_out_animation = builder.state()
             .style
             .opacity
             .insert_animation(container_fade_out_animation);
@@ -219,7 +212,7 @@ impl Widget for Dropdown {
 
         self.button = Button::new().on_release(Event::new(PopupEvent::Open).target(self.container));
 
-        (entity, self.header, self.container)
+        self.container
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

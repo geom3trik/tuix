@@ -28,12 +28,12 @@ impl LengthBox {
 
 impl Widget for LengthBox {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row);
+    fn on_build(&mut self, builder: Builder) -> Self::Ret {
+        builder.set_flex_direction(FlexDirection::Row);
 
-        self.value = Textbox::new("0.0").build(state, entity, |builder| {
-            builder.set_flex_grow(1.0).class("value")
-        });
+        self.value = Textbox::new("0.0").build(&mut builder)
+            .set_flex_grow(1.0).class("value")
+            .entity();
         // self.unit = Dropdown::new("-")
         //     .add_item("Auto", "-")
         //     .add_item("px", "px")
@@ -41,17 +41,16 @@ impl Widget for LengthBox {
         //     .add_item("Initial", "-")
         //     .build(state, entity, |builder| builder.set_flex_basis(30.0).set_text_justify(Justify::End).class("unit")).1;
 
+        // FIX THIS - ENTITY IS WRONG
         self.unit = Dropdown::new("-")
-            .build(state, entity, |builder| {
-                builder
-                    .set_flex_basis(Length::Pixels(30.0))
-                    .set_text_justify(Justify::End)
-                    .class("unit")
-            })
-            .2;
+            .build(&mut builder)
+            .set_flex_basis(Length::Pixels(30.0))
+            .set_text_justify(Justify::End)
+            .class("unit")
+            .entity();
 
-        let _auto = Item::new("auto", "-").build(state, self.unit, |builder| builder.class("item"));
-        let _pixel = Item::new("px", "px").build(state, self.unit, |builder| builder.class("item"));
+        let _auto = Item::new("auto", "-").build(&mut builder).class("item");
+        let _pixel = Item::new("px", "px").build(&mut builder).class("item");
         let _percentage =
             Item::new("%", "%").build(state, self.unit, |builder| builder.class("item"));
         let _initial =

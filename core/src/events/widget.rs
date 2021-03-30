@@ -10,28 +10,35 @@ use crate::{Event, EventManager, Message};
 
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
-use std::any::Any;
+use std::{any::Any};
+
+
 pub trait Widget: std::marker::Sized + 'static {
-    type Ret;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret;
+    type Ret: AsEntity + Clone;
+    fn on_build(&mut self, state: Builder<'_>) -> Self::Ret;
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
-    fn build<F>(mut self, state: &mut State, parent: Entity, mut builder: F) -> Self::Ret
+    fn build<'a: 'b, 'b, T: AsEntity + Clone>(mut self, context: &'b mut Builder<'a, T>) -> Builder<'b, Self::Ret>
     where
-        F: FnMut(Builder) -> Builder,
         Self: std::marker::Sized + 'static,
+        Self::Ret: AsEntity,
     {
-        // Create a new entity
-        let entity = state.add(parent);
+        let entity = context.state.add(context.data.get_override(context.entity));
+        //let mut new_context = context.borrow(entity);
+        let mut erased_context = Builder {data: (), entity, state: context.state()};
+        
+        //new_context.data = self.on_build(new_context.borrow(new_context.entity));
+        let new_context = Builder {
+            data: self.on_build(erased_context),
+            entity,
+            state: context.state(),
+        };
 
-        // Call the on_build function of the widget
-        let ret = self.on_build(state, entity);
+        new_context.state
+            .event_handlers
+            .insert(new_context.entity, Box::new(self));
 
-        // Call the builder closure
-        builder(Builder::new(state, entity)).build(self);
-
-        // Return the entity or entities returned by the on_build method
-        ret
+        new_context
     }
 
     // Called when events are flushed

@@ -166,7 +166,7 @@ where
         + std::cmp::PartialOrd,
 {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
         if self.value <= self.min {
             self.value = self.min;
         }
@@ -175,47 +175,44 @@ where
             self.value = self.max;
         }
 
-        entity
-            .set_display(state, Display::Flexbox)
-            .set_flex_direction(state, FlexDirection::Row);
+
 
         self.textbox = Textbox::new(&self.value.to_string())
-            .build(state, entity, |builder| builder.set_flex_grow(1.0));
+            .build(&mut builder).set_flex_grow(1.0).entity();
 
-        let arrow_container = Element::new().build(state, entity, |builder| {
-            builder
+        let arrow_container = Element::new().build(&mut builder)
                 .set_width(Length::Pixels(20.0))
                 .set_flex_grow(0.0)
                 .class("arrow_container")
-        });
+                .entity();
 
         self.increment = Element::new()
             //.on_press(Event::new(SpinnerEvent::Increase))
-            .build(state, arrow_container, |builder| {
-                builder
+            .build(&mut builder)
                     .set_font("icons")
                     .set_text_justify(Justify::Center)
                     .set_text_align(Align::Center)
                     .set_text(ICON_UP_OPEN_MINI)
                     .set_flex_grow(1.0)
                     .class("increment")
-            });
+                    .entity();
 
         self.decrement = Element::new()
             //.on_press(Event::new(SpinnerEvent::Decrease))
-            .build(state, arrow_container, |builder| {
-                builder
+            .build(&mut builder)
                     .set_font("icons")
                     .set_text_justify(Justify::Center)
                     .set_text_align(Align::Center)
                     .set_text(ICON_DOWN_OPEN_MINI)
                     .set_flex_grow(1.0)
                     .class("decrement")
-            });
+                    .entity();
 
-        state.style.insert_element(entity, "spinbox");
-
-        entity
+        builder
+            .set_display(Display::Flexbox)
+            .set_flex_direction(FlexDirection::Row)
+            .set_element("spinbox")
+            .entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

@@ -129,10 +129,47 @@ impl EntityManager {
 
 pub trait AsEntity {
     fn entity(&self) -> Entity;
+    fn get_override(&self, entity: Entity) -> Entity {
+        self.entity()
+    }
+}
+
+impl AsEntity for () {
+    fn entity(&self) -> Entity {
+        Entity::null()
+    }
+
+    fn get_override(&self, entity: Entity) -> Entity {
+        entity
+    }
 }
 
 impl AsEntity for Entity {
     fn entity(&self) -> Entity {
         *self
+    }
+}
+
+impl AsEntity for (Entity, Entity) {
+    fn entity(&self) -> Entity {
+        self.0
+    }
+}
+
+impl AsEntity for (Entity, Entity, Entity) {
+    fn entity(&self) -> Entity {
+        self.0
+    }
+}
+
+impl AsEntity for (Entity, Entity, Entity, Entity) {
+    fn entity(&self) -> Entity {
+        self.0
+    }
+}
+
+impl AsEntity for (Entity, Entity, Entity, Entity, Entity) {
+    fn entity(&self) -> Entity {
+        self.0
     }
 }

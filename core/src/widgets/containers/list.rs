@@ -14,12 +14,12 @@ impl HBox {
 
 impl Widget for HBox {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row);
-        entity.set_focusability(state, false);
-        entity.set_element(state, "hbox");
-
-        entity
+    fn on_build(&mut self, builder: Builder) -> Self::Ret {
+        builder
+            .set_flex_direction(FlexDirection::Row)
+            .set_focusability(false)
+            .set_element("hbox")
+            .entity()
     }
 }
 
@@ -33,12 +33,11 @@ impl VBox {
 
 impl Widget for VBox {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Column);
-        entity.set_focusability(state, false);
-        entity.set_element(state, "vbox");
-
-        entity
+    fn on_build(&mut self, builder: Builder) -> Self::Ret {
+        builder.set_flex_direction(FlexDirection::Column)
+            .set_focusability(false)
+            .set_element("vbox")
+            .entity()
     }
 }
 
@@ -58,14 +57,12 @@ impl ResizableVBox {
 
 impl Widget for ResizableVBox {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            .set_width(state, Length::Pixels(300.0))
-            .set_max_width(state, Length::Pixels(500.0))
-            .set_min_width(state, Length::Pixels(300.0));
-        //state.style.z_order.set(self.resize_marker, 1);
-
-        entity
+    fn on_build(&mut self, builder: Builder) -> Self::Ret {
+        builder
+            .set_width(Length::Pixels(300.0))
+            .set_max_width(Length::Pixels(500.0))
+            .set_min_width(Length::Pixels(300.0))
+            .entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

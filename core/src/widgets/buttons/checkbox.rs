@@ -69,29 +69,28 @@ impl Checkbox {
 
 impl Widget for Checkbox {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            .set_font(state, "icons")
-            .set_text_justify(state, Justify::Center)
-            .set_text_align(state, Align::Center);
+    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+        builder
+            .clone()
+            .set_font("icons")
+            .set_text_justify(Justify::Center)
+            .set_text_align(Align::Center);
 
         if self.checkbutton.is_checked() {
-            entity.set_checked(state, true);
+            builder.clone().set_checked(true);
 
             if let Some(icon_checked) = &self.icon_checked {
-                entity.set_text(state, &icon_checked);
+                builder.clone().set_text(&icon_checked);
             }
         } else {
-            entity.set_checked(state, false);
+            builder.clone().set_checked(false);
 
             if let Some(icon_unchecked) = &self.icon_unchecked {
-                entity.set_text(state, &icon_unchecked);
+                builder.clone().set_text(&icon_unchecked);
             }
         }
 
-        state.style.insert_element(entity, "checkbox");
-
-        entity
+        builder.set_element("checkbox").entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -136,18 +135,19 @@ impl CheckItem {
 
 impl Widget for CheckItem {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.checkbox = Checkbox::new(self.checked).build(state, entity, |builder| {
-            builder.set_hoverability(false).set_focusability(false)
-        });
-        self.label = Label::new(&self.name).build(state, entity, |builder| {
-            builder
+    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+        self.checkbox = Checkbox::new(self.checked).build(&mut builder)
+            .set_hoverability(false)
+            .set_focusability(false)
+            .entity();
+
+        self.label = Label::new(&self.name).build(&mut builder)
                 .set_flex_grow(1.0)
                 .set_hoverability(false)
                 .set_focusability(false)
                 .set_align_self(AlignSelf::Stretch)
                 .set_margin_left(Length::Pixels(5.0))
-        });
+                .entity();
 
         self.button =
             Button::new().on_release(Event::new(CheckboxEvent::Switch).target(self.checkbox));
@@ -158,11 +158,11 @@ impl Widget for CheckItem {
         //     state.insert_event(Event::new(CheckboxEvent::Switch).target(checkbox))
         // });
 
-        entity
-            .set_flex_direction(state, FlexDirection::Row)
-            .set_align_items(state, AlignItems::Center);
-
-        entity.set_element(state, "check_item")
+        builder
+            .set_flex_direction(FlexDirection::Row)
+            .set_align_items(AlignItems::Center)
+            .set_element("check_item")
+            .entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

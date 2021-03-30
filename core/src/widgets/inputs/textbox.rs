@@ -100,14 +100,12 @@ impl Textbox {
 
 impl Widget for Textbox {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_text(state, &(self.text.to_owned() + &self.units));
+    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+        builder = builder.set_text(&(self.text.to_owned() + &self.units));
 
-        self.entity = entity;
+        self.entity = builder.set_element("textbox").entity();
 
-        state.style.insert_element(entity, "textbox");
-
-        entity
+        self.entity
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

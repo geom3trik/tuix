@@ -134,7 +134,7 @@ pub trait PropSet {
     fn set_prev_focus(self, state: &mut State, value: Entity) -> Self;
     fn set_focus_order(self, state: &mut State, next: Entity, prev: Entity) -> Self;
 
-    fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
+    //fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
 
     // fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
 
@@ -174,14 +174,14 @@ impl PropSet for Entity {
     //     self
     // }
 
-    fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
-    where
-        F: FnMut(Builder) -> Builder,
-    {
-        builder(Builder::new(state, self));
+    // fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
+    // where
+    //     F: FnMut(Builder) -> Builder,
+    // {
+    //     builder(Builder::new(state, self));
 
-        self
-    }
+    //     self
+    // }
 
     fn class(self, state: &mut State, class_name: &str) -> Self {
         state.style.insert_class(self, class_name);

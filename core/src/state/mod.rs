@@ -54,7 +54,7 @@ pub struct State {
     pub captured: Entity,
     pub focused: Entity,
 
-    pub(crate) event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
 
     pub(crate) removed_entities: Vec<Entity>,
     pub event_queue: VecDeque<Event>,
@@ -113,13 +113,19 @@ impl State {
         }
     }
 
-    pub(crate) fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a>
+    pub(crate) fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a, ()>
     where
         T: EventHandler + 'static,
     {
         self.event_handlers.insert(entity, Box::new(event_handler));
 
-        Builder::new(self, entity)
+        //Builder::new(self, entity)
+
+        Builder {
+            data: (),
+            entity,
+            state: self,
+        }
     }
 
     /// Adds a stylesheet to the application

@@ -1,19 +1,46 @@
-use crate::state::style::*;
+use crate::{AsEntity, state::style::*};
 use crate::{Entity, EventHandler, State, Widget};
 
 use std::cell::RefCell;
 use std::rc::Rc;
 
 /// Contains an entity id and a mutable reference to state and can be used to set properties
-pub struct Builder<'a> {
+pub struct Builder<'a, E: AsEntity + Clone = ()> {
+    pub data: E,
     pub entity: Entity,
     pub state: &'a mut State,
 }
 
-impl<'a> Builder<'a> {
+impl<'a, E: AsEntity + Clone> Builder<'a, E> {
     /// Creates a new Builder
-    pub fn new(state: &'a mut State, entity: Entity) -> Self {
-        Builder { entity, state }
+    pub fn new(state: &'a mut State, entity: Entity) -> Builder<'a> {
+        Builder { data: (), entity, state }
+    }
+
+    pub fn clone<'b>(&'b mut self) -> Builder<'b, E>
+    where 'a: 'b 
+    {
+        Builder {
+            data: self.data.clone(),
+            entity: self.entity,
+            state: self.state,
+        }
+    }
+
+    // pub fn child<'b, T: Widget>(&'b mut self, widget: T) -> Builder<'b>
+    // where 'a: 'b
+    // {
+    //     widget.build(self)
+    // }
+
+    pub fn borrow<'b>(&'b mut self, entity: Entity) -> Builder<'b, E>
+    where 'a: 'b 
+    {
+        Builder {
+            data: self.data.clone(),
+            entity,
+            state: self.state,
+        }
     }
 
     pub(crate) fn build<T>(mut self, event_handler: T) -> Entity
@@ -25,6 +52,10 @@ impl<'a> Builder<'a> {
             .insert(self.entity, Box::new(event_handler));
 
         self.entity
+    }
+
+    pub fn do_nothing(&mut self) -> &mut Self {
+        self
     }
 
     /// Returns a mutable reference to the State

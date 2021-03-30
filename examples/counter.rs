@@ -28,18 +28,18 @@ impl Widget for Counter {
     type Ret = Entity;
 
     // Build
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
         Button::with_label("increment")
             .on_press(Event::new(CounterMessage::Increment))
-            .build(state, entity, |builder| builder.class("increment"));
+            .build(&mut builder).class("increment");
 
         Button::with_label("decrement")
             .on_press(Event::new(CounterMessage::Decrement))
-            .build(state, entity, |builder| builder.class("decrement"));
+            .build(&mut builder).class("decrement");
 
-        self.label = Label::new(&self.value.to_string()).build(state, entity, |builder| builder);
+        self.label = Label::new(&self.value.to_string()).build(&mut builder).entity();
 
-        entity.set_element(state, "counter")
+        builder.set_element("counter").entity()
     }
 
     // Events
@@ -62,8 +62,8 @@ impl Widget for Counter {
 
 fn main() {
     // Create the app
-    let app = Application::new(|state, window| {
-        state.add_theme(THEME);
+    let app = Application::new(|mut ctx, window| {
+        ctx.state().add_theme(THEME);
 
         // Set the window title and size
         window.set_title("Counter").set_inner_size(400, 100);
@@ -72,7 +72,7 @@ fn main() {
             // Set local state
             .set_initial_value(50)
             // Build the widget
-            .build(state, window.entity(), |builder| builder);
+            .build(&mut ctx);
     });
 
     app.run();

@@ -16,10 +16,11 @@ impl Label {
 
 impl Widget for Label {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            .set_text(state, &self.text)
-            .set_element(state, "label")
-            .set_focusability(state, false)
+    fn on_build(&mut self, builder: Builder) -> Self::Ret {
+        builder
+            .set_text(&self.text)
+            .set_element("label")
+            .set_focusability(false)
+            .entity()
     }
 }

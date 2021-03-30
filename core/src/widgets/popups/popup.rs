@@ -19,11 +19,12 @@ impl Popup {
 
 impl Widget for Popup {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            .set_focusability(state, false)
-            .set_element(state, "popup")
-            .set_overflow(state, Overflow::Visible)
+    fn on_build(&mut self, builder: Builder) -> Self::Ret {
+        builder
+            .set_focusability(false)
+            .set_element("popup")
+            .set_overflow(Overflow::Visible)
+            .entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

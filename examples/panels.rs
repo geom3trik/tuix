@@ -59,28 +59,24 @@ const STYLE: &str = r#"
 "#;
 
 fn main() {
-    let app = Application::new(|state, window| {
-        state.add_theme(STYLE);
+    let app = Application::new(|mut ctx, window| {
+        ctx.state().add_theme(STYLE);
 
         window.set_title("Panels");
 
-        let panel = Panel::new("Panel 1").build(state, window.entity(), |builder| builder.class("one"));
+        let mut panel = Panel::new("Panel 1").build(&mut ctx).class("one");
 
-        Button::with_label("Button").build(state, panel, |builder| {
-            builder
+        Button::with_label("Button").build(&mut panel)
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
-                .set_text_justify(Justify::Center)
-        });
+                .set_text_justify(Justify::Center);
 
-        let panel = Panel::new("Panel 2").build(state, window.entity(), |builder| builder.class("two"));
+        let mut panel = Panel::new("Panel 2").build(&mut ctx).class("two");
 
-        Button::with_label("Button").build(state, panel, |builder| {
-            builder
+        Button::with_label("Button").build(&mut panel)
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
-                .set_text_justify(Justify::Center)
-        });
+                .set_text_justify(Justify::Center);
 
         
     });

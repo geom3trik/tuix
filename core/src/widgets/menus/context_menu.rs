@@ -18,13 +18,13 @@ impl ContextMenu {
 
 impl Widget for ContextMenu {
     type Ret = (Entity, Entity);
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.context_menu = Element::new().build(state, entity, |builder| {
-            builder
+    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+        self.context_menu = Element::new().build(&mut builder)
                 .set_background_color(Color::red())
                 .set_visibility(Visibility::Invisible)
-        });
-        (entity, self.context_menu)
+                .entity();
+
+        (builder.entity(), self.context_menu)
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

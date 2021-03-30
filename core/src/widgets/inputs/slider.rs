@@ -74,39 +74,32 @@ impl Slider {
 
 impl Widget for Slider {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row);
+    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+        
 
-        self.active = Element::new().build(state, entity, |builder| {
-            builder
+        self.active = Element::new().build(&mut builder)
                 .set_position(Position::Absolute)
                 .set_width(Length::Percentage(0.0))
                 .set_height(Length::Percentage(1.0))
                 //.set_background_color(Color::rgb(60, 60, 200))
                 .set_hoverability(false)
                 .class("active")
-        });
+                .entity();
 
-        self.thumb = Element::new().build(
-            state,
-            entity,
-            |builder| {
-                builder
+        self.thumb = Element::new().build(&mut builder)
                     //.set_position(Position::Absolute)
                     //.set_top(Length::Pixels(-8.0))
                     //.set_width(Length::Pixels(20.0))
                     //.set_height(Length::Pixels(20.0))
                     .class("thumb")
-            }, //.set_background_color(Color::rgb(80, 80, 200))
-        );
+                    .entity();
+                     //.set_background_color(Color::rgb(80, 80, 200))
 
         // TEMP
-        self.thumb.set_left(state, Length::Percentage(0.0));
-        self.active.set_width(state, Length::Percentage(self.value));
+        self.thumb.set_left(builder.state(), Length::Percentage(0.0));
+        self.active.set_width(builder.state(), Length::Percentage(self.value));
 
-        state.style.insert_element(entity, "slider");
-
-        entity
+        builder.set_flex_direction(FlexDirection::Row).set_element("slider").entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
