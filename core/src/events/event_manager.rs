@@ -1,5 +1,5 @@
 use crate::{
-    Builder, CursorIcon, Entity, Event, Hierarchy, HierarchyTree, IntoBranchIterator,
+    Context, CursorIcon, Entity, Event, Hierarchy, HierarchyTree, IntoBranchIterator,
     IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State, WindowEvent,
 };
 

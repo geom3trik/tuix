@@ -71,20 +71,20 @@ impl ControlKnob {
 impl Widget for ControlKnob {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.back = Element::new().build(state, entity, |builder| {
-            builder
+        self.back = Element::new().build(state, entity, |context| {
+            context
                 .set_hoverability(false)
                 .set_display(Display::None)
                 .class("back")
         });
-        self.slider = Element::new().build(state, entity, |builder| {
-            builder
+        self.slider = Element::new().build(state, entity, |context| {
+            context
                 .set_hoverability(false)
                 .set_display(Display::None)
                 .class("slider")
         });
-        self.tick = Element::new().build(state, entity, |builder| {
-            builder
+        self.tick = Element::new().build(state, entity, |context| {
+            context
                 .set_hoverability(false)
                 .set_display(Display::None)
                 .class("tick")

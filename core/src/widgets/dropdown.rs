@@ -33,16 +33,16 @@ impl Item {
 
 impl Widget for Item {
     type Ret = Entity;
-    fn on_build(&mut self, builder: Builder) -> Self::Ret {
-        builder
+    fn on_build(&mut self, context: Context) -> Self::Ret {
+        context
             .set_flex_grow(1.0)
             .set_text(&self.text)
             .class("item")
             .entity()
 
-        //self.checkbox = Checkbox::new(false).build(state, entity, |builder| builder.set_hoverability(false));
-        // Element::new().build(state, entity, |builder| {
-        //     builder.set_text(&self.text).set_flex_grow(1.0).set_hoverability(false)
+        //self.checkbox = Checkbox::new(false).build(state, entity, |context| context.set_hoverability(false));
+        // Element::new().build(state, entity, |context| {
+        //     context.set_text(&self.text).set_flex_grow(1.0).set_hoverability(false)
         // });
     }
 
@@ -139,17 +139,17 @@ impl Dropdown {
 
 impl Widget for Dropdown {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
-        self.header = Element::new().build(&mut builder)
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+        let mut header = Element::new().build(&mut context)
             //.set_background_color(Color::rgb(100,100,50))
             .set_hoverability(false)
             .set_focusability(false)
             .set_flex_direction(FlexDirection::Row)
             .set_flex_grow(1.0)
-            .class("header")
-            .entity();
+            .class("header");
+        self.header = header.entity();
 
-        self.label = Label::new(&self.text).build(&mut builder)
+        self.label = Label::new(&self.text).build(&mut header)
                 //.set_background_color(Color::rgb(100,50,50))
                 .set_hoverability(false)
                 .set_focusability(false)
@@ -157,18 +157,18 @@ impl Widget for Dropdown {
                 .entity();
 
         // Icon
-        Element::new().build(&mut builder)
-                .set_font("icons")
-                .set_hoverability(false)
-                .set_focusability(false)
-                //.set_background_color(Color::rgb(100,100,100))
-                .set_text(ICON_DOWN_DIR)
-                //.set_width(Length::Pixels(20.0))
-                .set_text_justify(Justify::Center)
-                .class("icon");
+        Element::new().build(&mut header)
+            .set_font("icons")
+            .set_hoverability(false)
+            .set_focusability(false)
+            //.set_background_color(Color::rgb(100,100,100))
+            .set_text(ICON_DOWN_DIR)
+            //.set_width(Length::Pixels(20.0))
+            .set_text_justify(Justify::Center)
+            .class("icon");
 
         if self.multi {
-            self.container = Popup::new().build(&mut builder)
+            self.container = Popup::new().build(&mut context)
                 .set_position(Position::Absolute)
                 .set_opacity(0.0)
                 .set_z_order(1)
@@ -176,7 +176,7 @@ impl Widget for Dropdown {
                 .class("container")
                 .entity();
         } else {
-            self.container = Popup::new().build(&mut builder)
+            self.container = Popup::new().build(&mut context)
                 .set_position(Position::Absolute)
                 .set_opacity(0.0)
                 .set_z_order(1)
@@ -185,7 +185,7 @@ impl Widget for Dropdown {
                 .entity();
         }
 
-        builder = builder.set_element("dropdown");
+        context = context.set_element("dropdown");
 
         let container_fade_in_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
@@ -193,7 +193,7 @@ impl Widget for Dropdown {
             .with_keyframe((0.0, Opacity(0.0)))
             .with_keyframe((1.0, Opacity(1.0)));
 
-        self.fade_in_animation = builder.state()
+        self.fade_in_animation = context.state()
             .style
             .opacity
             .insert_animation(container_fade_in_animation);
@@ -203,7 +203,7 @@ impl Widget for Dropdown {
             .with_keyframe((0.0, Opacity(1.0)))
             .with_keyframe((1.0, Opacity(0.0)));
 
-        self.fade_out_animation = builder.state()
+        self.fade_out_animation = context.state()
             .style
             .opacity
             .insert_animation(container_fade_out_animation);

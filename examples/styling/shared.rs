@@ -17,13 +17,13 @@ fn main() {
 
         window.set_title("Hello GUI");
 
-        Button::with_label("Button 1").build(state, window.entity(), |builder| {
-            builder
+        Button::with_label("Button 1").build(state, window.entity(), |context| {
+            context
                 .set_text_justify(Justify::Center)
         });
 
-        Button::with_label("Button 2").build(state, window.entity(), |builder| {
-            builder
+        Button::with_label("Button 2").build(state, window.entity(), |context| {
+            context
                 .set_text_justify(Justify::Center)
         });
 

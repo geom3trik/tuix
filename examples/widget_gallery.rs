@@ -11,18 +11,18 @@ impl Header {
 impl Widget for Header {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        Button::with_label("M").build(state, entity, |builder| {
-            builder
+        Button::with_label("M").build(state, entity, |context| {
+            context
                 .set_flex_basis(Length::Pixels(30.0))
                 .set_text_justify(Justify::Center)
         });
 
-        Label::new("Gallery").build(state, entity, |builder| {
-            builder.set_flex_grow(1.0).set_text_justify(Justify::Center)
+        Label::new("Gallery").build(state, entity, |context| {
+            context.set_flex_grow(1.0).set_text_justify(Justify::Center)
         });
 
-        Button::with_label("S").build(state, entity, |builder| {
-            builder
+        Button::with_label("S").build(state, entity, |context| {
+            context
                 .set_flex_basis(Length::Pixels(30.0))
                 .set_text_justify(Justify::Center)
         });
@@ -41,39 +41,39 @@ fn main() {
 
         window.set_title("Widget Gallery").set_background_color(state, Color::white());
 
-        let (tab_bar, tab_view) = TabManager::new().build(state, window.entity(), |builder| 
-            builder
+        let (tab_bar, tab_view) = TabManager::new().build(state, window.entity(), |context| 
+            context
                 .set_flex_grow(1.0)
                 .set_flex_basis(Length::Pixels(30.0))
         );
 
-        Header::new().build(state, window.entity(), |builder| builder);
+        Header::new().build(state, window.entity(), |context| context);
 
-        let container = Element::new().build(state, window.entity(), |builder| {
-            builder
+        let container = Element::new().build(state, window.entity(), |context| {
+            context
                 .set_flex_grow(1.0)
                 .set_align_items(AlignItems::Center)
                 .set_justify_content(JustifyContent::Center)
         });
 
-        // Button::with_label("Button").build(state, container, |builder|
-        //     builder
+        // Button::with_label("Button").build(state, container, |context|
+        //     context
         //         .set_width(Length::Pixels(100.0))
         //         .set_height(Length::Pixels(50.0))
         // );
 
-        CheckItem::new("First", true).build(state, container, |builder| {
-            builder
+        CheckItem::new("First", true).build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
         });
-        CheckItem::new("Second", true).build(state, container, |builder| {
-            builder
+        CheckItem::new("Second", true).build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
         });
-        CheckItem::new("Third", true).build(state, container, |builder| {
-            builder
+        CheckItem::new("Third", true).build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
         });

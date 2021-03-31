@@ -16,8 +16,8 @@ fn main() {
         };
 
         // Flex Start
-        let container = Element::new().build(state, window.entity(), |builder| {
-            builder
+        let container = Element::new().build(state, window.entity(), |context| {
+            context
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(50, 50, 50))
                 .set_justify_content(JustifyContent::Center)
@@ -25,30 +25,30 @@ fn main() {
                 .set_flex_direction(container_flex_direction)
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(30.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 50, 120))
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(30.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 50, 160))
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(30.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 50, 200))
         });
 
         // Flex End
-        let container = Element::new().build(state, window.entity(), |builder| {
-            builder
+        let container = Element::new().build(state, window.entity(), |context| {
+            context
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(70, 70, 70))
                 .set_justify_content(JustifyContent::Center)
@@ -56,30 +56,30 @@ fn main() {
                 .set_flex_direction(container_flex_direction)
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(30.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 120, 50))
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(30.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 160, 50))
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(30.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 200, 50))
         });
 
         // Center
-        let container = Element::new().build(state, window.entity(), |builder| {
-            builder
+        let container = Element::new().build(state, window.entity(), |context| {
+            context
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(50, 50, 50))
                 .set_justify_content(JustifyContent::Center)
@@ -87,30 +87,30 @@ fn main() {
                 .set_flex_direction(container_flex_direction)
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(30.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(120, 50, 50))
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(30.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(160, 50, 50))
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_width(Length::Pixels(30.0))
                 .set_height(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(200, 50, 50))
         });
 
         // Stretch
-        let container = Element::new().build(state, window.entity(), |builder| {
-            builder
+        let container = Element::new().build(state, window.entity(), |context| {
+            context
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(70, 70, 70))
                 .set_justify_content(JustifyContent::Center)
@@ -118,20 +118,20 @@ fn main() {
                 .set_flex_direction(container_flex_direction)
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_flex_basis(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(120, 120, 50))
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_flex_basis(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(160, 120, 50))
         });
 
-        Element::new().build(state, container, |builder| {
-            builder
+        Element::new().build(state, container, |context| {
+            context
                 .set_flex_basis(Length::Pixels(30.0))
                 .set_background_color(Color::rgb(200, 120, 50))
         });

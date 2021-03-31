@@ -46,8 +46,8 @@ fn main() {
         window.set_title("Hello GUI");
         
         Button::with_label("Button")
-            .build(state, window.entity(), |builder| {
-                builder
+            .build(state, window.entity(), |context| {
+                context
                     .set_width(Length::Pixels(100.0))
                     .set_height(Length::Pixels(30.0))
                     .set_background_color(Color::from("#ff5e1a"))
@@ -115,14 +115,14 @@ impl Widget for Counter {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Button::with_label("increment")
             .on_press(Event::new(CounterMessage::Increment))
-            .build(state, entity, |builder| builder.class("increment"))
+            .build(state, entity, |context| context.class("increment"))
         
         Button::with_label("decrement")
             .on_press(Event::new(CounterMessage::Decrement))
-            .build(state, entity, |builder| builder.class("decrement"));
+            .build(state, entity, |context| context.class("decrement"));
             
         self.label = Label::new("0")
-            .build(state, entity, |builder| builder);
+            .build(state, entity, |context| context);
             
         entity.set_element(state, "counter")
     }
@@ -180,7 +180,7 @@ fn main() {
 
         Counter::new()
             .with_initial_value(50)
-            .build(state, window.entity(), |builder| builder);
+            .build(state, window.entity(), |context| context);
   
     });
 

@@ -62,7 +62,7 @@ pub use window::WindowWidget;
 // pub use debug_container::*;
 
 pub use crate::entity::Entity;
-pub use crate::events::{Event, Propagation, Widget, WindowEvent, Builder};
+pub use crate::events::{Event, Propagation, Widget, WindowEvent, Context};
 pub use crate::mouse::*;
 pub use crate::state::State;
 pub use crate::{Code, Key};

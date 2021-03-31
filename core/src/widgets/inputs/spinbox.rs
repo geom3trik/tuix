@@ -166,7 +166,7 @@ where
         + std::cmp::PartialOrd,
 {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
         if self.value <= self.min {
             self.value = self.min;
         }
@@ -178,9 +178,9 @@ where
 
 
         self.textbox = Textbox::new(&self.value.to_string())
-            .build(&mut builder).set_flex_grow(1.0).entity();
+            .build(&mut context).set_flex_grow(1.0).entity();
 
-        let arrow_container = Element::new().build(&mut builder)
+        let arrow_container = Element::new().build(&mut context)
                 .set_width(Length::Pixels(20.0))
                 .set_flex_grow(0.0)
                 .class("arrow_container")
@@ -188,7 +188,7 @@ where
 
         self.increment = Element::new()
             //.on_press(Event::new(SpinnerEvent::Increase))
-            .build(&mut builder)
+            .build(&mut context)
                     .set_font("icons")
                     .set_text_justify(Justify::Center)
                     .set_text_align(Align::Center)
@@ -199,7 +199,7 @@ where
 
         self.decrement = Element::new()
             //.on_press(Event::new(SpinnerEvent::Decrease))
-            .build(&mut builder)
+            .build(&mut context)
                     .set_font("icons")
                     .set_text_justify(Justify::Center)
                     .set_text_align(Align::Center)
@@ -208,7 +208,7 @@ where
                     .class("decrement")
                     .entity();
 
-        builder
+        context
             .set_display(Display::Flexbox)
             .set_flex_direction(FlexDirection::Row)
             .set_element("spinbox")

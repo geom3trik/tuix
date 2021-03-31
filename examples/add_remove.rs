@@ -32,8 +32,8 @@ impl Widget for Counter {
         if let Some(counter_event) = event.message.downcast::<AddRemoveEvent>() {
             match counter_event {
                 AddRemoveEvent::Add => {
-                    Button::new().build(state, entity, |builder| {
-                        builder.set_height(Length::Pixels(30.0))
+                    Button::new().build(state, entity, |context| {
+                        context.set_height(Length::Pixels(30.0))
                     });
                 }
 
@@ -71,7 +71,7 @@ fn main() {
 
         window.set_title("Counter").set_inner_size(400, 100);
 
-        Counter::new().build(state, window.entity(), |builder| builder);
+        Counter::new().build(state, window.entity(), |context| context);
         
     });
 

@@ -176,26 +176,26 @@ where
         entity.set_flex_direction(state, FlexDirection::Row);
 
         self.x = Textbox::new(&self.xval.to_string())
-            .build(state, entity, |builder| builder.set_flex_grow(1.0));
-        self.y = Textbox::new(&self.yval.to_string()).build(state, entity, |builder| {
-            builder
+            .build(state, entity, |context| context.set_flex_grow(1.0));
+        self.y = Textbox::new(&self.yval.to_string()).build(state, entity, |context| {
+            context
                 .set_flex_grow(1.0)
                 .set_margin_left(Length::Pixels(5.0))
         });
-        self.z = Textbox::new(&self.zval.to_string()).build(state, entity, |builder| {
-            builder
+        self.z = Textbox::new(&self.zval.to_string()).build(state, entity, |context| {
+            context
                 .set_flex_grow(1.0)
                 .set_margin_left(Length::Pixels(5.0))
         });
-        self.w = Textbox::new(&self.wval.to_string()).build(state, entity, |builder| {
-            builder
+        self.w = Textbox::new(&self.wval.to_string()).build(state, entity, |context| {
+            context
                 .set_flex_grow(1.0)
                 .set_margin_left(Length::Pixels(5.0))
         });
 
         self.dims = Dropdown::new("4")
-            .build(state, entity, |builder| {
-                builder
+            .build(state, entity, |context| {
+                context
                     .set_flex_basis(Length::Pixels(30.0))
                     .set_text_justify(Justify::End)
                     .set_margin_left(Length::Pixels(5.0))
@@ -203,10 +203,10 @@ where
             })
             .2;
 
-        Dimension::new("1").build(state, self.dims, |builder| builder.class("item"));
-        Dimension::new("2").build(state, self.dims, |builder| builder.class("item"));
-        Dimension::new("3").build(state, self.dims, |builder| builder.class("item"));
-        Dimension::new("4").build(state, self.dims, |builder| builder.class("item"));
+        Dimension::new("1").build(state, self.dims, |context| context.class("item"));
+        Dimension::new("2").build(state, self.dims, |context| context.class("item"));
+        Dimension::new("3").build(state, self.dims, |context| context.class("item"));
+        Dimension::new("4").build(state, self.dims, |context| context.class("item"));
 
         self.reveal = state.style.flex_grow.insert_animation(
             AnimationState::new()

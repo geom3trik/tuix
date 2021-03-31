@@ -26,17 +26,17 @@
 //             .set_flex_grow(state, 1.0)
 //             .set_flex_direction(state, FlexDirection::Row);
 
-//         let left = Element::new().build(state, entity, |builder| builder.set_flex_grow(1.0));
-//         let right = Element::new().build(state, entity, |builder| {
-//             builder.set_flex_basis(Length::Pixels(300.0))
+//         let left = Element::new().build(state, entity, |context| context.set_flex_grow(1.0));
+//         let right = Element::new().build(state, entity, |context| {
+//             context.set_flex_basis(Length::Pixels(300.0))
 //         });
 
-//         let panel = Panel::new("Position").build(state, right, |builder| builder);
+//         let panel = Panel::new("Position").build(state, right, |context| context);
 //         // Left
-//         let row = HBox::new().build(state, panel, |builder| builder);
-//         Label::new("Left").build(state, row, |builder| builder);
-//         //ValueSlider::new("value").build(state, row, |builder| builder.set_flex_grow(1.0));
-//         LengthBox::new().build(state, row, |builder| builder.set_flex_grow(1.0));
+//         let row = HBox::new().build(state, panel, |context| context);
+//         Label::new("Left").build(state, row, |context| context);
+//         //ValueSlider::new("value").build(state, row, |context| context.set_flex_grow(1.0));
+//         LengthBox::new().build(state, row, |context| context.set_flex_grow(1.0));
 
 //         left
 //     }

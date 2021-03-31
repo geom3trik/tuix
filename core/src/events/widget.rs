@@ -1,4 +1,4 @@
-use crate::{builder::Builder, EventHandler};
+use crate::{context::Context, EventHandler};
 use crate::{Entity, Hierarchy, State, AsEntity};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
@@ -15,20 +15,20 @@ use std::{any::Any};
 
 pub trait Widget: std::marker::Sized + 'static {
     type Ret: AsEntity + Clone;
-    fn on_build(&mut self, state: Builder<'_>) -> Self::Ret;
+    fn on_build(&mut self, state: Context<'_>) -> Self::Ret;
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
-    fn build<'a: 'b, 'b, T: AsEntity + Clone>(mut self, context: &'b mut Builder<'a, T>) -> Builder<'b, Self::Ret>
+    fn build<'a: 'b, 'b, T: AsEntity + Clone>(mut self, context: &'b mut Context<'a, T>) -> Context<'b, Self::Ret>
     where
         Self: std::marker::Sized + 'static,
         Self::Ret: AsEntity,
     {
         let entity = context.state.add(context.data.get_override(context.entity));
         //let mut new_context = context.borrow(entity);
-        let mut erased_context = Builder {data: (), entity, state: context.state()};
+        let mut erased_context = Context {data: (), entity, state: context.state()};
         
         //new_context.data = self.on_build(new_context.borrow(new_context.entity));
-        let new_context = Builder {
+        let new_context = Context {
             data: self.on_build(erased_context),
             entity,
             state: context.state(),

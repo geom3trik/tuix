@@ -42,16 +42,16 @@ impl Menu {
 
 impl Widget for Menu {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
-        builder = builder.set_flex_direction(FlexDirection::Column);
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+        context = context.set_flex_direction(FlexDirection::Column);
 
-        self.container = Element::new().build(&mut builder)
+        self.container = Element::new().build(&mut context)
                 .set_position(Position::Absolute)
                 .set_z_order(1)
                 .class("container")
                 .entity();
 
-        builder.set_element("menu");
+        context.set_element("menu");
 
         self.container
     }
@@ -137,8 +137,8 @@ impl MenuBar {
 
 impl Widget for MenuBar {
     type Ret = Entity;
-    fn on_build(&mut self, builder: Builder) -> Self::Ret {
-        builder.entity()
+    fn on_build(&mut self, context: Context) -> Self::Ret {
+        context.entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

@@ -74,12 +74,12 @@ impl Panel {
 
 impl Widget for Panel {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
         
 
         let mut header = Button::new()
-            .on_release(Event::new(PanelEvent::Open).target(builder.entity()))
-            .build(&mut builder)
+            .on_release(Event::new(PanelEvent::Open).target(context.entity()))
+            .build(&mut context)
             //.set_flex_direction(FlexDirection::Row)
             .class("header");
         self.header = header.entity();
@@ -103,7 +103,7 @@ impl Widget for Panel {
                 .class("label")
                 .entity();
 
-        let mut container1 = Element::new().build(&mut builder)
+        let mut container1 = Element::new().build(&mut context)
             .class("container1")
             .set_focusability(false);
 
@@ -123,12 +123,12 @@ impl Widget for Panel {
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
-        self.expand_height_animation = builder.state()
+        self.expand_height_animation = context.state()
             .style
             .height
             .insert_animation(container_expand_animation.clone());
 
-        self.expand_width_animation = builder.state()
+        self.expand_width_animation = context.state()
             .style
             .width
             .insert_animation(container_expand_animation.clone());
@@ -138,12 +138,12 @@ impl Widget for Panel {
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
-        self.collapse_height_animation = builder.state()
+        self.collapse_height_animation = context.state()
             .style
             .height
             .insert_animation(container_collapse_animation.clone());
 
-        self.collapse_width_animation = builder.state()
+        self.collapse_width_animation = context.state()
             .style
             .width
             .insert_animation(container_collapse_animation.clone());
@@ -158,12 +158,12 @@ impl Widget for Panel {
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
-        self.move_up_animation = builder.state()
+        self.move_up_animation = context.state()
             .style
             .top
             .insert_animation(container_hide_animation.clone());
 
-        self.move_left_animation = builder.state()
+        self.move_left_animation = context.state()
             .style
             .left
             .insert_animation(container_hide_animation.clone());
@@ -173,17 +173,17 @@ impl Widget for Panel {
             .with_keyframe((0.0, Length::Pixels(0.0)))
             .with_keyframe((1.0, Length::Pixels(0.0)));
 
-        self.move_down_animation = builder.state()
+        self.move_down_animation = context.state()
             .style
             .top
             .insert_animation(container_reveal_animation.clone());
 
-        self.move_right_animation = builder.state()
+        self.move_right_animation = context.state()
             .style
             .left
             .insert_animation(container_reveal_animation.clone());
 
-        self.fade_in_animation = builder.state()
+        self.fade_in_animation = context.state()
             .style
             .opacity
             .insert_animation(container_fade_in_animation);
@@ -194,7 +194,7 @@ impl Widget for Panel {
             .with_keyframe((0.0, Opacity(1.0)))
             .with_keyframe((1.0, Opacity(0.0)));
 
-        self.fade_out_animation = builder.state()
+        self.fade_out_animation = context.state()
             .style
             .opacity
             .insert_animation(container_fade_out_animation);
@@ -204,16 +204,16 @@ impl Widget for Panel {
             .with_keyframe((0.0, -90.0))
             .with_keyframe((1.0, 0.0));
 
-        self.arrow_cw_animation = builder.state().style.rotate.insert_animation(arrow_cw_animation);
+        self.arrow_cw_animation = context.state().style.rotate.insert_animation(arrow_cw_animation);
 
         let arrow_ccw_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
             .with_keyframe((0.0, 0.0))
             .with_keyframe((1.0, -90.0));
 
-        self.arrow_ccw_animation = builder.state().style.rotate.insert_animation(arrow_ccw_animation);
+        self.arrow_ccw_animation = context.state().style.rotate.insert_animation(arrow_ccw_animation);
 
-        builder.set_element("panel").set_focusability(false);
+        context.set_element("panel").set_focusability(false);
 
         self.container2
     }

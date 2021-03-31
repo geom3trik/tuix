@@ -14,7 +14,7 @@ pub struct Window {
 
 impl Window {
     pub fn new(events_loop: &EventLoop<()>, window_description: &WindowDescription) -> Self {
-        let window_builder = WindowBuilder::new()
+        let window_context = WindowBuilder::new()
             .with_title(&window_description.title)
             .with_inner_size(PhysicalSize::new(
                 window_description.inner_size.width,
@@ -40,7 +40,7 @@ impl Window {
         let handle = ContextBuilder::new()
             .with_vsync(true)
             // .with_srgb(true)
-            .build_windowed(window_builder, &events_loop)
+            .build_windowed(window_context, &events_loop)
             .expect("Window context creation failed!");
 
         let handle = unsafe { handle.make_current().unwrap() };

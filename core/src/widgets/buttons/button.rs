@@ -87,14 +87,14 @@ impl Button {
 
 impl Widget for Button {
     type Ret = Entity;
-    fn on_build(&mut self, builder: Builder) -> Self::Ret {
+    fn on_build(&mut self, context: Context) -> Self::Ret {
         // If there is a specified label then set the text of the button entity to this
         if let Some(text) = &self.text {
-            builder.entity.set_text(builder.state, text);
+            context.entity.set_text(context.state, text);
         }
 
         // Set the element name to 'button'
-        builder.entity.set_element(builder.state, "button")
+        context.entity.set_element(context.state, "button")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

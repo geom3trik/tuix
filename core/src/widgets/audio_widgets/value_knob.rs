@@ -116,8 +116,8 @@ impl ValueKnob {
 impl Widget for ValueKnob {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        Label::new(&self.label).build(state, entity, |builder| {
-            builder
+        Label::new(&self.label).build(state, entity, |context| {
+            context
                 .set_height(Length::Pixels(25.0))
                 .set_text_justify(Justify::Center)
         });
@@ -127,16 +127,16 @@ impl Widget for ValueKnob {
         knob.on_change = self.on_change.clone();
         knob.is_log = self.is_log;
 
-        self.knob = knob.build(state, entity, |builder| {
-            builder
+        self.knob = knob.build(state, entity, |context| {
+            context
                 .set_width(Length::Pixels(50.0))
                 .set_height(Length::Pixels(50.0))
         });
 
         //let val_str = format!("{:3}!", self.init);
         let freq_val: FreqValue = self.init.into();
-        self.textbox = Textbox::new(&freq_val.to_string()).build(state, entity, |builder| {
-            builder
+        self.textbox = Textbox::new(&freq_val.to_string()).build(state, entity, |context| {
+            context
                 .set_height(Length::Pixels(25.0))
                 .set_margin_left(Length::Pixels(2.5))
                 .set_margin_right(Length::Pixels(2.5))

@@ -69,16 +69,16 @@ fn main() {
             },
         };
 
-        Inspector::new(data.clone()).build(state, window.entity(), |builder| 
-            builder
+        Inspector::new(data.clone()).build(state, window.entity(), |context| 
+            context
                 .set_width(Length::Pixels(300.0))
                 .set_flex_grow(1.0)
                 .set_background_color(Color::rgb(50,50,50))
                 .set_padding(Length::Pixels(10.0))
         );
 
-        // Button::with_label("Button").build(state, root, |builder| {
-        //     builder
+        // Button::with_label("Button").build(state, root, |context| {
+        //     context
         //         .set_width(Length::Pixels(100.0))
         //         .set_height(Length::Pixels(30.0))
         //         .set_background_color(Color::from("#ff5e1a"))

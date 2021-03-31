@@ -8,8 +8,8 @@ fn main() {
             .set_title("position")
             .set_background_color(state, Color::white());
 
-        Element::new().build(state, window.entity(), |builder| {
-            builder
+        Element::new().build(state, window.entity(), |context| {
+            context
                 .set_left(Length::Pixels(100.0))
                 .set_top(Length::Pixels(100.0))
                 .set_width(Length::Pixels(100.0))

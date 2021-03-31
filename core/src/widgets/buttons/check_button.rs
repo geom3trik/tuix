@@ -41,11 +41,11 @@ impl CheckButton {
 
 impl Widget for CheckButton {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
-        self.button.on_build(builder.clone());
-        self.checkable.on_build(builder.clone());
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+        self.button.on_build(context.clone());
+        self.checkable.on_build(context.clone());
 
-        builder.set_element("check_button").entity()
+        context.set_element("check_button").entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

@@ -20,13 +20,13 @@ fn main() {
         // .set_align_items(state, AlignItems::FlexStart);
 
         //window.set_flex_direction(state, FlexDirection::Row);
-        // let levels = HBox::new().build(state, window, |builder| builder.set_width(Length::Pixels(50.0)).set_background_color(Color::red()));
+        // let levels = HBox::new().build(state, window, |context| context.set_width(Length::Pixels(50.0)).set_background_color(Color::red()));
 
-        // let left_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
-        // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
-        //let container = Element::new().build(state, window, |builder| builder.class("container"));
-        let _one = Element::new().build(state, window.entity(), |builder| {
-            builder
+        // let left_channel_level = AudioLevelBar::new().build(state, levels, |context| context.set_flex_grow(1.0).set_background_color(Color::green()));
+        // let right_channel_level = AudioLevelBar::new().build(state, levels, |context| context.set_flex_grow(1.0).set_background_color(Color::green()));
+        //let container = Element::new().build(state, window, |context| context.class("container"));
+        let _one = Element::new().build(state, window.entity(), |context| {
+            context
                 .class("one")
                 .set_background_gradient(
                     LinearGradient::new(Direction::TopToBottom)
@@ -42,81 +42,81 @@ fn main() {
                 .set_text("Button")
         });
 
-        // let two = Element::new().build(state, window, |builder| builder.class("two"));
-        // let three = Element::new().build(state, two, |builder| builder.class("three"));
-        // let four = Element::new().build(state, three, |builder| builder.class("four"));
+        // let two = Element::new().build(state, window, |context| context.class("two"));
+        // let three = Element::new().build(state, two, |context| context.class("three"));
+        // let four = Element::new().build(state, three, |context| context.class("four"));
 
         // three.set_clip_widget(state, two);
         // four.set_clip_widget(state, three);
-        //Element::new().build(state, two, |builder| builder.class("four"));
-        //let three = Element::new().build(state, two, |builder| builder.class("five"));
-        //Element::new().build(state, three, |builder| builder.class("six"));
-        // let four = Element::new().build(state, one, |builder| builder.class("four"));
+        //Element::new().build(state, two, |context| context.class("four"));
+        //let three = Element::new().build(state, two, |context| context.class("five"));
+        //Element::new().build(state, three, |context| context.class("six"));
+        // let four = Element::new().build(state, one, |context| context.class("four"));
 
-        // let test = VectorEdit::<f32>::new().build(state, window, |builder| builder
+        // let test = VectorEdit::<f32>::new().build(state, window, |context| context
         //     .set_width(Length::Pixels(100.0))
         //     .set_height(Length::Pixels(30.0))
         //     .set_background_color(Color::blue())
         // );
 
-        //let test= Spinner::new(0).build(state, window, |builder| builder);
+        //let test= Spinner::new(0).build(state, window, |context| context);
 
-        // let (_, _, dropdown) = Dropdown::new("Dropdown").build(state, window, |builder|
-        //     builder
+        // let (_, _, dropdown) = Dropdown::new("Dropdown").build(state, window, |context|
+        //     context
         //         .set_width(Length::Pixels(100.0))
         //         .set_height(Length::Pixels(30.0))
         // );
-        // Item::new("Item 1", "Item 1").build(state, dropdown, |builder| builder);
-        // Item::new("Item 2", "Item 2").build(state, dropdown, |builder| builder);
-        // Item::new("Item 3", "Item 3").build(state, dropdown, |builder| builder);
+        // Item::new("Item 1", "Item 1").build(state, dropdown, |context| context);
+        // Item::new("Item 2", "Item 2").build(state, dropdown, |context| context);
+        // Item::new("Item 3", "Item 3").build(state, dropdown, |context| context);
 
         // Checkbox::new(false)
-        //     .build(state, footer, |builder| {
-        //         builder.set_font("Icons").class("snap").set_background_color(Color::yellow())
+        //     .build(state, footer, |context| {
+        //         context.set_font("Icons").class("snap").set_background_color(Color::yellow())
         //     });
 
         // // Zoom Controls
         // let zoom_controls =
-        //     Element::new().build(state, footer, |builder| builder.class("zoom_controls").set_background_color(Color::red()));
+        //     Element::new().build(state, footer, |context| context.class("zoom_controls").set_background_color(Color::red()));
 
         // Button::new()
-        //     .build(state, zoom_controls, |builder| {
-        //         builder.set_font("Icons").class("zoom").class("first")
+        //     .build(state, zoom_controls, |context| {
+        //         context.set_font("Icons").class("zoom").class("first")
         //     });
 
-        // Element::new().build(state, zoom_controls, |builder| builder.class("zoom"));
+        // Element::new().build(state, zoom_controls, |context| context.class("zoom"));
 
         // Button::new()
-        //     .build(state, zoom_controls, |builder| {
-        //         builder.set_font("Icons").class("zoom").class("last")
+        //     .build(state, zoom_controls, |context| {
+        //         context.set_font("Icons").class("zoom").class("last")
         //     });
 
-        // let one = Element::new().build(state, window, |builder| {
-        //     builder
+        // let one = Element::new().build(state, window, |context| {
+        //     context
         //         .class("one")
         //         .set_box_shadow_h_offset(Length::Pixels(2.5))
         //         .set_box_shadow_v_offset(Length::Pixels(2.5))
         //         .set_box_shadow_blur(Length::Pixels(10.0))
         //         .set_box_shadow_color(Color::rgba(0, 0, 0, 128))
         // });
-        //let two = Element::new().build(state, one, |builder| builder.class("two"));
-        //let three = Element::new().build(state, two, |builder| builder.class("three"));
-        // let four = Element::new().build(state, three, |builder| builder.class("four"));
-        //let five = Element::new().build(state, four, |builder| builder.class("five"));
+        //let two = Element::new().build(state, one, |context| context.class("two"));
+        //let three = Element::new().build(state, two, |context| context.class("three"));
+        // let four = Element::new().build(state, three, |context| context.class("four"));
+        //let five = Element::new().build(state, four, |context| context.class("five"));
 
-        //let outer = ScrollContainer::new().build(state, window, |builder| builder.class("container"));
-        //outer = Element::new().build(state, window, |builder| builder.class("outer").set_scaley(1.0));
+        //let outer = ScrollContainer::new().build(state, window, |context| context.class("container"));
+        //outer = Element::new().build(state, window, |context| context.class("outer").set_scaley(1.0));
 
-        // let row = HBox::new().build(state, outer, |builder| {
-        //     builder
+        // let row = HBox::new().build(state, outer, |context| {
+        //     context
         // });
 
-        // Label::new("Button").build(state, row, |builder| builder);
-        // Button::with_label("Press Me").build(state, row, |builder| builder);
+        // Label::new("Button").build(state, row, |context| context);
+        // Button::with_label("Press Me").build(state, row, |context| context);
 
-        //let inner = Element::new().build(state, outer, |builder| builder.class("inner").set_clip_widget(outer));
-        //let inner = Element::new().build(state, outer, |builder| builder.class("inner2"));
-        // let _innerinner = Element::new().build(state, outer, |builder| builder.class("inner2"));
+        //let inner = Element::new().build(state, outer, |context| context.class("inner").set_clip_widget(outer));
+        //let inner = Element::new().build(state, outer, |context| context.class("inner2"));
+        // let _innerinner = Element::new().build(state, outer, |context| context.class("inner2"));
 
        
     });

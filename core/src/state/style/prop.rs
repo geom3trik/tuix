@@ -1,6 +1,6 @@
 use crate::state::style::*;
 use crate::State;
-use crate::{entity::Entity, Builder, EventHandler, Propagation};
+use crate::{entity::Entity, Context, EventHandler, Propagation};
 
 use crate::{Event, WindowEvent};
 
@@ -134,7 +134,7 @@ pub trait PropSet {
     fn set_prev_focus(self, state: &mut State, value: Entity) -> Self;
     fn set_focus_order(self, state: &mut State, next: Entity, prev: Entity) -> Self;
 
-    //fn mutate<F: FnMut(Builder) -> Builder>(self, state: &mut State, builder: F) -> Self;
+    //fn mutate<F: FnMut(Context) -> Context>(self, state: &mut State, context: F) -> Self;
 
     // fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
 
@@ -174,11 +174,11 @@ impl PropSet for Entity {
     //     self
     // }
 
-    // fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
+    // fn mutate<F>(self, state: &mut State, mut context: F) -> Self
     // where
-    //     F: FnMut(Builder) -> Builder,
+    //     F: FnMut(Context) -> Context,
     // {
-    //     builder(Builder::new(state, self));
+    //     context(Context::new(state, self));
 
     //     self
     // }

@@ -76,12 +76,12 @@ impl WindowDescription {
 
 
 
-pub struct WindowBuilder {
+pub struct WindowContext {
     entity: Entity,
     window_description: WindowDescription,
 }
 
-impl WindowBuilder {
+impl WindowContext {
     pub fn new(window: Entity) -> Self {
         Self {
             entity: window,
@@ -127,31 +127,31 @@ impl WindowBuilder {
 
 }
 
-// impl AsEntity for WindowBuilder {
+// impl AsEntity for WindowContext {
 //     fn entity(&self) -> Entity {
 //         self.entity
 //     }
 // }
 
-// impl AsEntity for &WindowBuilder {
+// impl AsEntity for &WindowContext {
 //     fn entity(&self) -> Entity {
 //         self.entity
 //     }
 // }
 
-// impl AsEntity for &mut WindowBuilder {
+// impl AsEntity for &mut WindowContext {
 //     fn entity(&self) -> Entity {
 //         self.entity
 //     }
 // }
 
-// impl AsEntity for &&mut WindowBuilder {
+// impl AsEntity for &&mut WindowContext {
 //     fn entity(&self) -> Entity {
 //         self.entity
 //     }
 // }
 
-impl std::ops::Deref for WindowBuilder {
+impl std::ops::Deref for WindowContext {
     type Target = Entity;
 
     fn deref(&self) -> &Self::Target {

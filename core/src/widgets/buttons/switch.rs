@@ -24,8 +24,8 @@ impl Widget for Switch {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.checkbox.on_build(state, entity);
 
-        self.front = Element::new().build(state, entity, |builder| {
-            builder.class("front").set_hoverability(false)
+        self.front = Element::new().build(state, entity, |context| {
+            context.class("front").set_hoverability(false)
         });
 
         state.style.insert_element(entity, "switch");

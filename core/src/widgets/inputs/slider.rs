@@ -74,10 +74,10 @@ impl Slider {
 
 impl Widget for Slider {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
         
 
-        self.active = Element::new().build(&mut builder)
+        self.active = Element::new().build(&mut context)
                 .set_position(Position::Absolute)
                 .set_width(Length::Percentage(0.0))
                 .set_height(Length::Percentage(1.0))
@@ -86,7 +86,7 @@ impl Widget for Slider {
                 .class("active")
                 .entity();
 
-        self.thumb = Element::new().build(&mut builder)
+        self.thumb = Element::new().build(&mut context)
                     //.set_position(Position::Absolute)
                     //.set_top(Length::Pixels(-8.0))
                     //.set_width(Length::Pixels(20.0))
@@ -96,10 +96,10 @@ impl Widget for Slider {
                      //.set_background_color(Color::rgb(80, 80, 200))
 
         // TEMP
-        self.thumb.set_left(builder.state(), Length::Percentage(0.0));
-        self.active.set_width(builder.state(), Length::Percentage(self.value));
+        self.thumb.set_left(context.state(), Length::Percentage(0.0));
+        self.active.set_width(context.state(), Length::Percentage(self.value));
 
-        builder.set_flex_direction(FlexDirection::Row).set_element("slider").entity()
+        context.set_flex_direction(FlexDirection::Row).set_element("slider").entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

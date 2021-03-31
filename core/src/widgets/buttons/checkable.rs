@@ -46,14 +46,14 @@ impl Checkable {
 
 impl Widget for Checkable {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
         if self.checked {
-            builder.clone().set_checked(true);
+            context.clone().set_checked(true);
         } else {
-            builder.clone().set_checked(false);
+            context.clone().set_checked(false);
         }
 
-        builder.set_element("checkable").entity()
+        context.set_element("checkable").entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

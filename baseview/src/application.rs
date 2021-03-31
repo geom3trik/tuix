@@ -36,7 +36,7 @@ where
     /// Do **not** use this in the context of audio plugins, unless it is compiled as a
     /// standalone application.
     ///
-    /// * `app` - The Tuix application builder.
+    /// * `app` - The Tuix application context.
     pub fn run(self) {
         TuixWindow::open_blocking(self.app)
     }
@@ -47,7 +47,7 @@ where
     /// used in the context of audio plugins.
     ///
     /// * `parent` - The parent window.
-    /// * `app` - The Tuix application builder.
+    /// * `app` - The Tuix application context.
     pub fn open_parented<P: HasRawWindowHandle>(self, parent: &P) {
         TuixWindow::open_parented(parent, self.app)
     }
@@ -57,7 +57,7 @@ where
     /// This function does **not** block the current thread. This is only to be
     /// used in the context of audio plugins.
     ///
-    /// * `app` - The Tuix application builder.
+    /// * `app` - The Tuix application context.
     pub fn open_as_if_parented(self) -> RawWindowHandle {
         TuixWindow::open_as_if_parented(self.app)
     }

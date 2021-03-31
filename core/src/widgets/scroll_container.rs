@@ -71,8 +71,8 @@ impl Widget for ScrollContainerH {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Column);
 
-        self.container = Button::new().build(state, entity, |builder| {
-            builder
+        self.container = Button::new().build(state, entity, |context| {
+            context
                 .set_position(Position::Absolute)
                 // .set_left(Length::Percentage(0.0))
                 // .set_align_self(AlignSelf::FlexStart)
@@ -84,8 +84,8 @@ impl Widget for ScrollContainerH {
         state.style.clip_widget.insert(self.container, entity);
 
         if self.scrollbar {
-            self.horizontal_scroll = Element::new().build(state, entity, |builder| {
-                builder
+            self.horizontal_scroll = Element::new().build(state, entity, |context| {
+                context
                     .set_position(Position::Absolute)
                     // .set_left(Length::Percentage(0.0))
                     //.set_height(Length::Pixels(10.0))
@@ -394,8 +394,8 @@ impl Widget for ScrollContainer {
 
         //println!("Container: {}", self.container);
 
-        self.container = Element::new().build(state, entity, |builder| {
-            builder
+        self.container = Element::new().build(state, entity, |context| {
+            context
                 .set_position(Position::Absolute)
                 //.set_top(Length::Percentage(0.0))
                 //.set_flex_grow(1.0)
@@ -405,8 +405,8 @@ impl Widget for ScrollContainer {
 
         state.style.clip_widget.insert(self.container, entity);
 
-        self.vertical_scroll = Element::new().build(state, entity, |builder| {
-            builder
+        self.vertical_scroll = Element::new().build(state, entity, |context| {
+            context
                 .set_position(Position::Absolute)
                 //.set_top(Length::Percentage(0.0))
                 // .set_width(Length::Pixels(10.0))
@@ -423,8 +423,8 @@ impl Widget for ScrollContainer {
         self.vertical_scroll.set_enabled(state, false);
 
         // self.vertical_scroll =
-        //     Scrollbar::new(self.container, Direction::Vertical).build(state, entity, |builder| {
-        //         builder
+        //     Scrollbar::new(self.container, Direction::Vertical).build(state, entity, |context| {
+        //         context
         //             .set_width(Length::Pixels(10.0))
         //             .set_height(Length::Percentage(1.0))
         //             .set_background_color(Color::rgb(50, 50, 100))
@@ -771,16 +771,16 @@ impl Widget for ScrollContainerHV {
             .set_flex_grow(state, 1.0)
             .set_flex_shrink(state, 1.0);
 
-        let hbox = HBox::new().build(state, entity, |builder| {
-            builder.set_flex_grow(1.0).set_flex_shrink(1.0)
+        let hbox = HBox::new().build(state, entity, |context| {
+            context.set_flex_grow(1.0).set_flex_shrink(1.0)
         });
 
-        let vbox = VBox::new().build(state, hbox, |builder| {
-            builder.set_flex_grow(1.0).set_flex_shrink(1.0)
+        let vbox = VBox::new().build(state, hbox, |context| {
+            context.set_flex_grow(1.0).set_flex_shrink(1.0)
         });
 
-        self.container = Button::new().build(state, vbox, |builder| {
-            builder
+        self.container = Button::new().build(state, vbox, |context| {
+            context
                 .set_top(Length::Percentage(0.0))
                 .set_align_self(AlignSelf::FlexStart)
                 .class("container")
@@ -790,8 +790,8 @@ impl Widget for ScrollContainerHV {
 
         //println!("Container: {}", self.container);
 
-        self.vertical_scroll = Element::new().build(state, hbox, |builder| {
-            builder
+        self.vertical_scroll = Element::new().build(state, hbox, |context| {
+            context
                 //.set_position(Position::Absolute)
                 .set_top(Length::Percentage(0.0))
                 .set_width(Length::Pixels(10.0))
@@ -804,8 +804,8 @@ impl Widget for ScrollContainerHV {
             //
         });
 
-        self.vertical_scroll = Element::new().build(state, hbox, |builder| {
-            builder
+        self.vertical_scroll = Element::new().build(state, hbox, |context| {
+            context
                 //.set_position(Position::Absolute)
                 .set_left(Length::Percentage(0.0))
                 .set_height(Length::Pixels(10.0))
@@ -821,8 +821,8 @@ impl Widget for ScrollContainerHV {
         //self.vertical_scroll.set_disabled(state, true);
 
         // self.vertical_scroll =
-        //     Scrollbar::new(self.container, Direction::Vertical).build(state, entity, |builder| {
-        //         builder
+        //     Scrollbar::new(self.container, Direction::Vertical).build(state, entity, |context| {
+        //         context
         //             .set_width(Length::Pixels(10.0))
         //             .set_height(Length::Percentage(1.0))
         //             .set_background_color(Color::rgb(50, 50, 100))

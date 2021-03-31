@@ -31,14 +31,14 @@ impl Radio {
 
 impl Widget for Radio {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
-        self.marker = Element::new().build(&mut builder)
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+        self.marker = Element::new().build(&mut context)
                 .set_hoverability(false)
                 .class("marker")
                 .set_hoverability(false)
                 .entity();
 
-        builder.set_element("radio").entity()
+        context.set_element("radio").entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

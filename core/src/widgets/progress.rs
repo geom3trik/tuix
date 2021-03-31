@@ -27,8 +27,8 @@ impl Widget for ProgressBar {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_flex_direction(state, FlexDirection::Row);
 
-        self.front = Element::new().build(state, entity, |builder| {
-            builder.set_width(Length::Percentage(0.5)).class("front")
+        self.front = Element::new().build(state, entity, |context| {
+            context.set_width(Length::Percentage(0.5)).class("front")
         });
 
         entity.set_element(state, "progress_bar")

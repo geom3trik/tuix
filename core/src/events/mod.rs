@@ -9,8 +9,8 @@ pub use event::*;
 pub mod event_handler;
 pub use event_handler::*;
 
-pub mod builder;
-pub use builder::*;
+pub mod context;
+pub use context::*;
 
 pub mod window_event;
 pub use window_event::*;

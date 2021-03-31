@@ -41,9 +41,9 @@ fn expand_struct(derive_input: &syn::DeriveInput, data: &syn::DataStruct) -> Tok
 
         let widget = match custom_widget {
             Some(widget) => quote!{
-                let row = HBox::new().build(state, panel, |builder| builder);
-                let label = Label::new(#field_label).build(state, row, |builder| builder);
-                #widget::default().build(state, row, |builder| builder.set_flex_grow(1.0));
+                let row = HBox::new().build(state, panel, |context| context);
+                let label = Label::new(#field_label).build(state, row, |context| context);
+                #widget::default().build(state, row, |context| context.set_flex_grow(1.0));
             },
             None => quote!{<#ty as tuix_core::Inspectable>::widget(&self.#accessor, state, panel, #field_label);},
         };
@@ -51,12 +51,12 @@ fn expand_struct(derive_input: &syn::DeriveInput, data: &syn::DataStruct) -> Tok
         let ui = quote! {
             #widget
             //if let Some(widget) = custom_widget {
-            //    widget.to_token_stream()::new().build(state, panel, |builder| builder.set_flex_grow(1.0));
+            //    widget.to_token_stream()::new().build(state, panel, |context| context.set_flex_grow(1.0));
             //} else {
                 //<#ty as tuix_core::Inspectable>::widget(&self.#accessor, state, panel, #field_label);
             //}
-            //let row = HBox::new().build(state, panel, |builder| builder);
-            //let label = Label::new(#field_label).build(state, row, |builder| builder);
+            //let row = HBox::new().build(state, panel, |context| context);
+            //let label = Label::new(#field_label).build(state, row, |context| context);
         };
 
         quote! {
@@ -71,7 +71,7 @@ fn expand_struct(derive_input: &syn::DeriveInput, data: &syn::DataStruct) -> Tok
             fn widget(&self, state: &mut tuix_core::State, parent: tuix_core::Entity, name: &str) -> tuix_core::Entity {
                 use tuix_core::widgets::*;
 
-                let panel = Panel::new(stringify!(#id)).build(state, parent, |builder| builder);
+                let panel = Panel::new(stringify!(#id)).build(state, parent, |context| context);
 
                 #(#fields)*
 

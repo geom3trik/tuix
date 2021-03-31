@@ -30,9 +30,9 @@ impl List {
 
 impl Widget for List {
     type Ret = Entity;
-    fn on_build(&mut self, builder: Builder) -> Self::Ret {
+    fn on_build(&mut self, context: Context) -> Self::Ret {
         //state.focused = entity;
-        builder
+        context
             .set_focusability(false)
             .set_element("list")
             .entity()

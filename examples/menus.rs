@@ -32,7 +32,7 @@ static THEME: &'static str = include_str!("themes/menus_theme.css");
 //         state: &'a mut State,
 //         parent: Entity,
 //         event_manager: &'a mut EventManager,
-//     ) -> Builder<'a> {
+//     ) -> Context<'a> {
 //         let id = state.add(parent);
 //         id.set_width(state, 200.0)
 //             .set_height(state, 30.0)
@@ -98,12 +98,12 @@ fn main() {
 
         window.set_title("Menus");
 
-        let menu_bar = MenuBar::new().build(state, window.entity(), |builder| {
-            builder.set_flex_direction(FlexDirection::Row)
+        let menu_bar = MenuBar::new().build(state, window.entity(), |context| {
+            context.set_flex_direction(FlexDirection::Row)
         });
 
-        let menu1 = Menu::new().build(state, menu_bar, |builder| {
-            builder
+        let menu1 = Menu::new().build(state, menu_bar, |context| {
+            context
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
                 .set_flex_grow(0.0)
@@ -111,15 +111,15 @@ fn main() {
                 .class("menu")
         });
 
-        Button::with_label("Item 1").build(state, menu1, |builder| builder.class("item"));
-        Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
+        Button::with_label("Item 1").build(state, menu1, |context| context.class("item"));
+        Button::with_label("Item 2").build(state, menu1, |context| context.class("item"));
         Button::with_label("Item 3")
             .on_press(Event::new(WindowEvent::WindowClose))
-            .build(state, menu1, |builder| builder.class("item"));
-        Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
+            .build(state, menu1, |context| context.class("item"));
+        Button::with_label("Item 4").build(state, menu1, |context| context.class("item"));
 
-        let menu1 = Menu::new().build(state, menu_bar, |builder| {
-            builder
+        let menu1 = Menu::new().build(state, menu_bar, |context| {
+            context
                 .set_width(Length::Pixels(100.0))
                 .set_height(Length::Pixels(30.0))
                 .set_flex_grow(0.0)
@@ -127,35 +127,35 @@ fn main() {
                 .class("menu")
         });
 
-        Button::with_label("Item 1").build(state, menu1, |builder| builder.class("item"));
-        Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
+        Button::with_label("Item 1").build(state, menu1, |context| context.class("item"));
+        Button::with_label("Item 2").build(state, menu1, |context| context.class("item"));
         Button::with_label("Item 3")
             .on_press(Event::new(WindowEvent::WindowClose))
-            .build(state, menu1, |builder| builder.class("item"));
-        Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
+            .build(state, menu1, |context| context.class("item"));
+        Button::with_label("Item 4").build(state, menu1, |context| context.class("item"));
 
-        // // Button::new().build2(state, menu1, |builder| builder.class("spacer2"));
+        // // Button::new().build2(state, menu1, |context| context.class("spacer2"));
 
-        // Button::with_label("SubItem 1").build(state, menu2, |builder| builder.class("item"));
-        // Button::with_label("SubItem 2").build(state, menu2, |builder| builder.class("item"));
+        // Button::with_label("SubItem 1").build(state, menu2, |context| context.class("item"));
+        // Button::with_label("SubItem 2").build(state, menu2, |context| context.class("item"));
         // Button::with_label("SubItem 3")
         //     .on_press(Event::new(WindowEvent::WindowClose))
-        //     .build(state, menu2, |builder| builder.class("item"));
+        //     .build(state, menu2, |context| context.class("item"));
 
-        // Button::new().build(state, menu1, |builder| builder.class("spacer2"));
+        // Button::new().build(state, menu1, |context| context.class("spacer2"));
 
-        // let menu3 = Menu::new("SubSubMenu", MenuPosition::Right).build(state, menu2, |builder| {
-        //     builder.class("item").class("submenu")
+        // let menu3 = Menu::new("SubSubMenu", MenuPosition::Right).build(state, menu2, |context| {
+        //     context.class("item").class("submenu")
         // });
 
-        // Button::with_label("SubSubItem 1").build(state, menu3, |builder| builder.class("item"));
-        // Button::with_label("SubSubItem 2").build(state, menu3, |builder| builder.class("item"));
+        // Button::with_label("SubSubItem 1").build(state, menu3, |context| context.class("item"));
+        // Button::with_label("SubSubItem 2").build(state, menu3, |context| context.class("item"));
         // Button::with_label("SubSubItem 3")
         //     .on_press(Event::new(WindowEvent::WindowClose))
-        //     .build(state, menu3, |builder| builder.class("item"));
+        //     .build(state, menu3, |context| context.class("item"));
 
-        // let button = Button::with_label("Right Click Me").build(state, window, |builder| {
-        //     builder
+        // let button = Button::with_label("Right Click Me").build(state, window, |context| {
+        //     context
         //         .set_left(Length::Pixels(100.0))
         //         .set_top(Length::Pixels(100.0))
         //         .set_width(Length::Pixels(150.0))
@@ -163,28 +163,28 @@ fn main() {
         //         .set_background_color(Color::green())
         // });
 
-        // let (_container, menu) = ContextMenu::new().build(state, button, |builder| {
-        //     builder
+        // let (_container, menu) = ContextMenu::new().build(state, button, |context| {
+        //     context
         //         .set_width(Length::Percentage(1.0))
         //         .set_height(Length::Percentage(1.0))
         // });
 
         // menu.set_width(state, Length::Pixels(100.0));
 
-        // Button::with_label("Option 1").build(state, menu, |builder| {
-        //     builder
+        // Button::with_label("Option 1").build(state, menu, |context| {
+        //     context
         //         .set_height(Length::Pixels(30.0))
         //         .set_background_color(Color::rgb(50, 50, 50))
         // });
 
-        // Button::with_label("Option 2").build(state, menu, |builder| {
-        //     builder
+        // Button::with_label("Option 2").build(state, menu, |context| {
+        //     context
         //         .set_height(Length::Pixels(30.0))
         //         .set_background_color(Color::rgb(50, 50, 50))
         // });
 
-        // Button::with_label("Option 3").build(state, menu, |builder| {
-        //     builder
+        // Button::with_label("Option 3").build(state, menu, |context| {
+        //     context
         //         .set_height(Length::Pixels(30.0))
         //         .set_background_color(Color::rgb(50, 50, 50))
         // });

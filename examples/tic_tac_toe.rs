@@ -64,27 +64,32 @@ impl Board {
 // Add the squares and the post-game overlay
 impl Widget for Board {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+
+        let entity = context.entity();
+
         // Create three rows each with 3 buttons
         for r in 0..3 {
-            let row = HBox::new().build(state, entity, |builder| builder.class("row"));
+            let mut row = HBox::new().build(&mut context).class("row");
             for c in 0..3 {
                 Square::default()
                     .on_press(Event::new(GameEvent::SquarePressed(3 * r + c)))
-                    .build(state, row, |builder| builder.class("square"));
+                    .build(&mut row).class("square");
             }
         }
 
-        self.overlay = Element::new().build(state, entity, |builder| builder.class("overlay"));
+        let mut overlay= Element::new().build(&mut context).class("overlay");
+        self.overlay = overlay.entity();
 
         self.winner_label =
-            Label::new("").build(state, self.overlay, |builder| builder.class("winner"));
+            Label::new("").build(&mut overlay).class("winner").entity();
 
         Button::with_label("Play Again")
             .on_release(Event::new(GameEvent::Restart).target(entity))
-            .build(state, self.overlay, |builder| builder.class("replay"));
+            .build(&mut overlay)
+            .class("replay");
 
-        entity.set_element(state, "board")
+        context.set_element("board").entity()
     }
 
     // React to the various game events
@@ -169,8 +174,8 @@ impl Square {
 // Inherits from button
 impl Widget for Square {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.button.on_build(state, entity)
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+        self.button.on_build(context.clone())
     }
 
     // Inherits button behaviour and adds new behaviour by reacting to a restart event
@@ -190,14 +195,14 @@ impl Widget for Square {
 }
 // Run the app
 fn main() {
-    let app = Application::new(|state, window| {
-        state
+    let app = Application::new(|mut context, window| {
+        context.state()
             .add_stylesheet("examples/themes/tic_tac_toe_theme.css")
             .expect("Failed to load stylesheet");
 
         window.set_inner_size(300, 300).set_title("Tic Tac Toe");
 
-        Board::new().build(state, window.entity(), |builder| builder);
+        Board::new().build(&mut context);
 
         
     });

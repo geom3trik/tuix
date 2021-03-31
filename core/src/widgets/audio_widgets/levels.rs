@@ -25,8 +25,8 @@ impl AudioLevelBar {
 impl Widget for AudioLevelBar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.front = Element::new().build(state, entity, |builder| {
-            builder.class("front")
+        self.front = Element::new().build(state, entity, |context| {
+            context.class("front")
             //.set_height(Length::Percentage(1.0))
         });
 

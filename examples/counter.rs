@@ -28,18 +28,18 @@ impl Widget for Counter {
     type Ret = Entity;
 
     // Build
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
         Button::with_label("increment")
             .on_press(Event::new(CounterMessage::Increment))
-            .build(&mut builder).class("increment");
+            .build(&mut context).class("increment");
 
         Button::with_label("decrement")
             .on_press(Event::new(CounterMessage::Decrement))
-            .build(&mut builder).class("decrement");
+            .build(&mut context).class("decrement");
 
-        self.label = Label::new(&self.value.to_string()).build(&mut builder).entity();
+        self.label = Label::new(&self.value.to_string()).build(&mut context).entity();
 
-        builder.set_element("counter").entity()
+        context.set_element("counter").entity()
     }
 
     // Events

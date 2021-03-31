@@ -9,7 +9,7 @@ use tuix::*;
 
 // impl Widget for Button {
 //     type Ret = Entity;
-//     fn on_build<'a>(&mut self, state: &mut Builder) {
+//     fn on_build<'a>(&mut self, state: &mut Context) {
   
 //     }
 // }
@@ -21,14 +21,14 @@ pub struct Row {
 
 impl Widget for Row {
     type Ret = ();
-    fn on_build(&mut self, builder: Builder) -> Self::Ret {
-        builder.set_flex_direction(FlexDirection::Row);
+    fn on_build(&mut self, context: Context) -> Self::Ret {
+        context.set_flex_direction(FlexDirection::Row);
     }
 }
 
 // fn main() {
 //     let app = Application::new(|ctx, window| {
-//         //let mut ctx = Builder::new(state, window.entity());
+//         //let mut ctx = Context::new(state, window.entity());
 //         Row::default().build(ctx, window.entity(), |ctx| {
 //             println!("Entity1: {}", ctx.entity);
 //             Button::default().build(ctx, ctx.entity(), |ctx| {

@@ -1,7 +1,7 @@
 use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
 use winit::window::Icon;
-use winit::window::WindowBuilder;
+use winit::window::WindowContext;
 
 use femtovg::{renderer::OpenGl, Canvas, Color};
 use raw_gl_context::{GlConfig, GlContext};
@@ -16,7 +16,7 @@ pub struct Window {
 
 impl Window {
     pub fn new(events_loop: &EventLoop<()>, window_description: &WindowDescription) -> Self {
-        let window_builder = WindowBuilder::new()
+        let window_context = WindowContext::new()
             .with_title(&window_description.title)
             .with_inner_size(PhysicalSize::new(
                 window_description.inner_size.width,
@@ -39,7 +39,7 @@ impl Window {
                 None
             });
 
-        let window = window_builder
+        let window = window_context
             .build(&events_loop)
             .expect("Window creation failed");
 

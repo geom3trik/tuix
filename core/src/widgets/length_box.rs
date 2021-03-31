@@ -28,10 +28,10 @@ impl LengthBox {
 
 impl Widget for LengthBox {
     type Ret = Entity;
-    fn on_build(&mut self, builder: Builder) -> Self::Ret {
-        builder.set_flex_direction(FlexDirection::Row);
+    fn on_build(&mut self, context: Context) -> Self::Ret {
+        context.set_flex_direction(FlexDirection::Row);
 
-        self.value = Textbox::new("0.0").build(&mut builder)
+        self.value = Textbox::new("0.0").build(&mut context)
             .set_flex_grow(1.0).class("value")
             .entity();
         // self.unit = Dropdown::new("-")
@@ -39,22 +39,22 @@ impl Widget for LengthBox {
         //     .add_item("px", "px")
         //     .add_item("%", "%")
         //     .add_item("Initial", "-")
-        //     .build(state, entity, |builder| builder.set_flex_basis(30.0).set_text_justify(Justify::End).class("unit")).1;
+        //     .build(state, entity, |context| context.set_flex_basis(30.0).set_text_justify(Justify::End).class("unit")).1;
 
         // FIX THIS - ENTITY IS WRONG
         self.unit = Dropdown::new("-")
-            .build(&mut builder)
+            .build(&mut context)
             .set_flex_basis(Length::Pixels(30.0))
             .set_text_justify(Justify::End)
             .class("unit")
             .entity();
 
-        let _auto = Item::new("auto", "-").build(&mut builder).class("item");
-        let _pixel = Item::new("px", "px").build(&mut builder).class("item");
+        let _auto = Item::new("auto", "-").build(&mut context).class("item");
+        let _pixel = Item::new("px", "px").build(&mut context).class("item");
         let _percentage =
-            Item::new("%", "%").build(state, self.unit, |builder| builder.class("item"));
+            Item::new("%", "%").build(state, self.unit, |context| context.class("item"));
         let _initial =
-            Item::new("initial", "-").build(state, self.unit, |builder| builder.class("item"));
+            Item::new("initial", "-").build(state, self.unit, |context| context.class("item"));
 
         state.style.insert_element(entity, "length_box");
 

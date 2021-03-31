@@ -21,7 +21,7 @@ use tuix_core::style::{Display, Visibility};
 
 use tuix_core::state::style::prop::*;
 
-use tuix_core::{WindowEvent, WindowWidget, WindowBuilder, Builder};
+use tuix_core::{WindowEvent, WindowWidget, WindowContext, Context};
 
 use tuix_core::systems::*;
 
@@ -37,7 +37,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new<F: FnOnce(Builder, &mut WindowBuilder)>(
+    pub fn new<F: FnOnce(Context, &mut WindowContext)>(
         app: F,
     ) -> Self {
         let event_loop = EventLoop::new();
@@ -49,10 +49,10 @@ impl Application {
         state.hierarchy.add(Entity::root(), None);
 
         //let window_description = win(WindowDescription::new());
-        let mut window_builder = WindowBuilder::new(root);
-        let mut ctx = Builder::<()>::new(&mut state, Entity::root());
-        app(ctx, &mut window_builder);
-        let window_description = window_builder.get_window_description();
+        let mut window_context = WindowContext::new(root);
+        let mut ctx = Context::<()>::new(&mut state, Entity::root());
+        app(ctx, &mut window_context);
+        let window_description = window_context.get_window_description();
 
         let mut window = Window::new(&event_loop, window_description);
 

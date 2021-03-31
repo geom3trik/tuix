@@ -37,14 +37,14 @@ impl RangeSlider {
 
 impl Widget for RangeSlider {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
-        self.active = Element::new().build(&mut builder).class("active").entity();
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+        self.active = Element::new().build(&mut context).class("active").entity();
 
-        self.first = Element::new().build(&mut builder).class("first").entity();
+        self.first = Element::new().build(&mut context).class("first").entity();
 
-        self.first = Element::new().build(&mut builder).class("second").entity();
+        self.first = Element::new().build(&mut context).class("second").entity();
 
-        builder.entity()
+        context.entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

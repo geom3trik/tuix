@@ -59,7 +59,7 @@ impl Scrollbar {
 impl Widget for Scrollbar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.front = Button::new().build(state, entity, |builder| builder.class("front"));
+        self.front = Button::new().build(state, entity, |context| context.class("front"));
         match self.direction {
             ScrollDirection::Horizontal => {
                 // entity

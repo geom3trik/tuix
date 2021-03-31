@@ -106,9 +106,9 @@ impl TabManager {
 impl Widget for TabManager {
     type Ret = (Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.tab_bar = TabBar2::new().build(state, entity, |builder| builder);
+        self.tab_bar = TabBar2::new().build(state, entity, |context| context);
 
-        self.viewport = Element::new().build(state, entity, |builder| builder.class("viewport"));
+        self.viewport = Element::new().build(state, entity, |context| context.class("viewport"));
 
         entity.set_element(state, "tab_manager");
 
@@ -242,8 +242,8 @@ impl Widget for TabBar2 {
         self.phantom_tab1 = Tab::new("phantom1").build(
             state,
             entity,
-            |builder| {
-                builder
+            |context| {
+                context
                     .set_display(Display::None)
                     .set_width(Length::Pixels(30.0))
             }, //.set_background_color(Color::rgb(90,90,90))
@@ -251,7 +251,7 @@ impl Widget for TabBar2 {
         self.phantom_tab2 = Tab::new("phantom2").build(
             state,
             entity,
-            |builder| builder.set_display(Display::None), //.set_background_color(Color::rgb(90,90,90))
+            |context| context.set_display(Display::None), //.set_background_color(Color::rgb(90,90,90))
         );
 
         // Animation to shrink one of the phantom tracks

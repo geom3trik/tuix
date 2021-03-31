@@ -22,7 +22,7 @@ pub use mouse::*;
 pub mod resource;
 pub use resource::*;
 
-pub use crate::events::{Builder, Event, Propagation, Widget};
+pub use crate::events::{Context, Event, Propagation, Widget};
 pub use crate::window_event::WindowEvent;
 
 use crate::EventHandler;
@@ -113,15 +113,15 @@ impl State {
         }
     }
 
-    pub(crate) fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a, ()>
+    pub(crate) fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Context<'a, ()>
     where
         T: EventHandler + 'static,
     {
         self.event_handlers.insert(entity, Box::new(event_handler));
 
-        //Builder::new(self, entity)
+        //Context::new(self, entity)
 
-        Builder {
+        Context {
             data: (),
             entity,
             state: self,

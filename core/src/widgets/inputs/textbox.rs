@@ -100,10 +100,10 @@ impl Textbox {
 
 impl Widget for Textbox {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
-        builder = builder.set_text(&(self.text.to_owned() + &self.units));
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+        context = context.set_text(&(self.text.to_owned() + &self.units));
 
-        self.entity = builder.set_element("textbox").entity();
+        self.entity = context.set_element("textbox").entity();
 
         self.entity
     }

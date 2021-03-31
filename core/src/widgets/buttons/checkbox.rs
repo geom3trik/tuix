@@ -69,28 +69,28 @@ impl Checkbox {
 
 impl Widget for Checkbox {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
-        builder
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+        context
             .clone()
             .set_font("icons")
             .set_text_justify(Justify::Center)
             .set_text_align(Align::Center);
 
         if self.checkbutton.is_checked() {
-            builder.clone().set_checked(true);
+            context.clone().set_checked(true);
 
             if let Some(icon_checked) = &self.icon_checked {
-                builder.clone().set_text(&icon_checked);
+                context.clone().set_text(&icon_checked);
             }
         } else {
-            builder.clone().set_checked(false);
+            context.clone().set_checked(false);
 
             if let Some(icon_unchecked) = &self.icon_unchecked {
-                builder.clone().set_text(&icon_unchecked);
+                context.clone().set_text(&icon_unchecked);
             }
         }
 
-        builder.set_element("checkbox").entity()
+        context.set_element("checkbox").entity()
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -135,13 +135,13 @@ impl CheckItem {
 
 impl Widget for CheckItem {
     type Ret = Entity;
-    fn on_build(&mut self, mut builder: Builder) -> Self::Ret {
-        self.checkbox = Checkbox::new(self.checked).build(&mut builder)
+    fn on_build(&mut self, mut context: Context) -> Self::Ret {
+        self.checkbox = Checkbox::new(self.checked).build(&mut context)
             .set_hoverability(false)
             .set_focusability(false)
             .entity();
 
-        self.label = Label::new(&self.name).build(&mut builder)
+        self.label = Label::new(&self.name).build(&mut context)
                 .set_flex_grow(1.0)
                 .set_hoverability(false)
                 .set_focusability(false)
@@ -158,7 +158,7 @@ impl Widget for CheckItem {
         //     state.insert_event(Event::new(CheckboxEvent::Switch).target(checkbox))
         // });
 
-        builder
+        context
             .set_flex_direction(FlexDirection::Row)
             .set_align_items(AlignItems::Center)
             .set_element("check_item")

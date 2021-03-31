@@ -29,17 +29,17 @@ impl Widget for ValueSlider {
             .set_display(state, Display::Flexbox)
             .set_flex_direction(state, FlexDirection::Row);
 
-        self.slider = Slider::new().build(state, entity, |builder| {
-            builder.set_flex_grow(1.0).class("custom2")
+        self.slider = Slider::new().build(state, entity, |context| {
+            context.set_flex_grow(1.0).class("custom2")
         });
-        self.value = Textbox::new("0.5").build(state, entity, |builder| {
-            builder
+        self.value = Textbox::new("0.5").build(state, entity, |context| {
+            context
                 .set_flex_grow(0.0)
                 .set_flex_basis(Length::Pixels(50.0))
                 .set_margin_left(Length::Pixels(5.0))
         });
-        self.label = Label::new(&self.label_text).build(state, self.slider, |builder| {
-            builder
+        self.label = Label::new(&self.label_text).build(state, self.slider, |context| {
+            context
                 .set_width(Length::Percentage(1.0))
                 .set_height(Length::Percentage(1.0))
                 .set_position(Position::Absolute)

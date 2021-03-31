@@ -14,8 +14,8 @@ impl HBox {
 
 impl Widget for HBox {
     type Ret = Entity;
-    fn on_build(&mut self, builder: Builder) -> Self::Ret {
-        builder
+    fn on_build(&mut self, context: Context) -> Self::Ret {
+        context
             .set_flex_direction(FlexDirection::Row)
             .set_focusability(false)
             .set_element("hbox")
@@ -33,8 +33,8 @@ impl VBox {
 
 impl Widget for VBox {
     type Ret = Entity;
-    fn on_build(&mut self, builder: Builder) -> Self::Ret {
-        builder.set_flex_direction(FlexDirection::Column)
+    fn on_build(&mut self, context: Context) -> Self::Ret {
+        context.set_flex_direction(FlexDirection::Column)
             .set_focusability(false)
             .set_element("vbox")
             .entity()
@@ -57,8 +57,8 @@ impl ResizableVBox {
 
 impl Widget for ResizableVBox {
     type Ret = Entity;
-    fn on_build(&mut self, builder: Builder) -> Self::Ret {
-        builder
+    fn on_build(&mut self, context: Context) -> Self::Ret {
+        context
             .set_width(Length::Pixels(300.0))
             .set_max_width(Length::Pixels(500.0))
             .set_min_width(Length::Pixels(300.0))
