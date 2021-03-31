@@ -115,3 +115,33 @@ impl Default for Scroll {
         }
     }
 }
+
+
+// Experimental new layout system
+#[derive(Debug, Clone, PartialEq)]
+pub enum Units {
+    Pixels(f32),
+    Percentage(f32),
+    Stretch(f32),
+}
+
+impl Default for Units {
+    fn default() -> Self {
+        Self::Stretch(1.0)
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct Axis {
+    pub space_before: Units,
+    pub size: Units,
+    pub space_after: Units,
+}
+
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct AxisAlign {
+    pub space_before_first: Units,
+    pub space_between: Units,
+    pub space_after_last: Units,
+}
+

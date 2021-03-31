@@ -165,11 +165,22 @@ pub struct Style {
 
     pub text_align: StyleStorage<Align>,
     pub text_justify: StyleStorage<Justify>,
+
+    pub main_axis: StyleStorage<Axis>,
+    pub cross_axis: StyleStorage<Axis>,
+    pub main_axis_align: StyleStorage<AxisAlign>,
+    pub cross_axis_align: StyleStorage<AxisAlign>,
 }
 
 impl Style {
     pub fn new() -> Self {
         Style {
+
+            main_axis: StyleStorage::new(),
+            cross_axis: StyleStorage::new(),
+            main_axis_align: StyleStorage::new(),
+            cross_axis_align: StyleStorage::new(),
+
             rules: Vec::new(),
 
             //rules: Vec::new(),
