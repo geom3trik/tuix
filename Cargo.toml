@@ -58,3 +58,4 @@ tuix_inspector_derive = {path = "inspector-derive"}
 [dev-dependencies]
 femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master", default-features = false }
 image = "0.23.12"
+rand = "*"

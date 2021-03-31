@@ -146,3 +146,31 @@ pub struct AxisAlign {
     pub space_after_last: Units,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum LayoutType {
+    Horizontal,
+    Vertical,
+    Grid,
+}
+
+impl Default for LayoutType {
+    fn default() -> Self {
+        Self::Vertical
+    }
+}
+
+
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct Grid {
+    pub items: Vec<Units>,
+    pub align: AxisAlign,
+}
+
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct GridItem {
+    pub row_index: u32,
+    pub row_span: u32,
+    pub col_index: u32,
+    pub col_span: u32,
+}
+

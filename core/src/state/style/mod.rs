@@ -170,6 +170,10 @@ pub struct Style {
     pub cross_axis: StyleStorage<Axis>,
     pub main_axis_align: StyleStorage<AxisAlign>,
     pub cross_axis_align: StyleStorage<AxisAlign>,
+    pub layout_type: StyleStorage<LayoutType>,
+    pub grid_rows: StyleStorage<Grid>,
+    pub grid_cols: StyleStorage<Grid>,
+    pub grid_item: StyleStorage<GridItem>,
 }
 
 impl Style {
@@ -180,6 +184,10 @@ impl Style {
             cross_axis: StyleStorage::new(),
             main_axis_align: StyleStorage::new(),
             cross_axis_align: StyleStorage::new(),
+            layout_type: StyleStorage::new(),
+            grid_rows: StyleStorage::new(),
+            grid_cols: StyleStorage::new(),
+            grid_item: StyleStorage::new(),
 
             rules: Vec::new(),
 
