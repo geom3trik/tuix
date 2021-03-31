@@ -120,6 +120,7 @@ impl Default for Scroll {
 // Experimental new layout system
 #[derive(Debug, Clone, PartialEq)]
 pub enum Units {
+    Inherit,
     Pixels(f32),
     Percentage(f32),
     Stretch(f32),

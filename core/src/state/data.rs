@@ -1,3 +1,5 @@
+use cssparser::_cssparser_internal_phf::map::Entries;
+
 use crate::entity::Entity;
 
 use crate::state::style::Visibility;
@@ -54,6 +56,15 @@ impl Default for BoundingBox {
     }
 }
 
+
+#[derive(Debug, Default, Clone, PartialEq)]
+pub struct Margins {
+    pub left: f32,
+    pub right: f32,
+    pub top: f32,
+    pub bottom: f32,
+}
+
 #[derive(Clone)]
 pub struct Data {
     pub position: Vec<Pos>,
@@ -71,6 +82,9 @@ pub struct Data {
     pub(crate) child_max: Vec<f32>, // Max child width
     pub(crate) prev_size: Vec<Pos>,
     pub clip_region: Vec<BoundingBox>,
+
+    pub margins: Vec<Margins>,
+    pub cross_stretch_sum: Vec<f32>,
     // pub(crate) child_pos: Vec<f32>,
     // pub(crate) child_grow_sum: Vec<f32>,
     // pub(crate) child_shrink_sum: Vec<f32>,
@@ -94,6 +108,9 @@ impl Data {
             z_order: Vec::new(),
             //clip_widget: Vec::new(),
             clip_region: Vec::new(),
+
+            margins: Vec::new(),
+            cross_stretch_sum: Vec::new(),
         }
     }
 
@@ -116,6 +133,8 @@ impl Data {
             self.z_order.resize(key + 1, 0);
             //self.clip_widget.resize(key + 1, Entity::root());
             self.clip_region.resize(key + 1, Default::default());
+            self.margins.resize(key + 1, Default::default());
+            self.cross_stretch_sum.resize(key + 1, Default::default());
         }
 
         // Are these needed?
@@ -143,6 +162,38 @@ impl Data {
     //         .cloned()
     //         .unwrap()
     // }
+
+    pub fn get_cross_stretch_sum(&self, entity: Entity) -> f32 {
+        self.cross_stretch_sum.get(entity.index_unchecked()).cloned().unwrap()
+    }
+
+    pub fn set_cross_stretch_sum(&mut self, entity: Entity, val: f32) {
+        if let Some(cross_stretch_sum) = self.cross_stretch_sum.get_mut(entity.index_unchecked()) {
+            *cross_stretch_sum = val;
+        }
+    }
+
+    pub fn get_space_left(&self, entity: Entity) -> f32 {
+        self.margins.get(entity.index_unchecked()).cloned().unwrap().left
+    }
+
+    pub fn get_space_right(&self, entity: Entity) -> f32 {
+        self.margins.get(entity.index_unchecked()).cloned().unwrap().right
+    }
+
+    pub fn get_space_top(&self, entity: Entity) -> f32 {
+        self.margins.get(entity.index_unchecked()).cloned().unwrap().top
+    }
+
+    pub fn get_space_bottom(&self, entity: Entity) -> f32 {
+        self.margins.get(entity.index_unchecked()).cloned().unwrap().bottom
+    }
+
+    pub fn get_space(&self, entity: Entity) -> Margins {
+        self.margins.get(entity.index_unchecked()).cloned().unwrap()
+    } 
+
+
 
     pub fn get_clip_region(&self, entity: Entity) -> BoundingBox {
         self.clip_region
@@ -228,6 +279,37 @@ impl Data {
     //         *clip_widget = val;
     //     }
     // }
+
+    pub fn set_margins(&mut self, entity: Entity, val: Margins) {
+        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
+            *margins = val;
+        }
+    }
+
+    pub fn set_space_left(&mut self, entity: Entity, val: f32) {
+        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
+            margins.left = val;
+        }
+    }
+
+    pub fn set_space_right(&mut self, entity: Entity, val: f32) {
+        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
+            margins.right = val;
+        }
+    }
+
+    pub fn set_space_top(&mut self, entity: Entity, val: f32) {
+        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
+            margins.top = val;
+        }
+    }
+
+    pub fn set_space_bottom(&mut self, entity: Entity, val: f32) {
+        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
+            margins.bottom = val;
+        }
+    }
+
 
     pub fn set_clip_region(&mut self, entity: Entity, val: BoundingBox) {
         if let Some(clip_region) = self.clip_region.get_mut(entity.index_unchecked()) {
