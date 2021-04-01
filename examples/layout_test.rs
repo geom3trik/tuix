@@ -56,7 +56,7 @@ const STYLE: &str = r#"
 
     button {
         background-color: #505050;
-        border-width: 1px;
+        border-width: 0px;
         border-color: black;
     }
 
@@ -79,89 +79,120 @@ fn main() {
         // });
 
         context.state().style.grid_rows.insert(Entity::root(), Grid {
-            items: vec![Units::Stretch(1.0), Units::Stretch(1.0)],
+            items: vec![Units::Stretch(1.0), Units::Stretch(1.0), Units::Stretch(1.0), Units::Stretch(1.0), Units::Stretch(1.0)],
             align: AxisAlign {
                 space_before_first: Units::Pixels(0.0),
-                space_between: Units::Pixels(50.0),
+                space_between: Units::Pixels(1.0),
                 space_after_last: Units::Pixels(0.0),
             },
         });
 
         context.state().style.grid_cols.insert(Entity::root(), Grid {
-            items: vec![Units::Stretch(1.0), Units::Stretch(1.0), Units::Stretch(1.0)],
+            items: vec![Units::Stretch(1.0), Units::Stretch(1.0), Units::Stretch(1.0), Units::Stretch(1.0)],
             align: AxisAlign {
                 space_before_first: Units::Pixels(0.0),
-                space_between: Units::Pixels(50.0),
+                space_between: Units::Pixels(1.0),
                 space_after_last: Units::Pixels(0.0),
             },
         });
 
         context.state().style.layout_type.insert(Entity::root(), LayoutType::Grid);
 
-        let mut button = Button::with_label("Button 1")
-            .build(&mut context)
-            .set_background_color(Color::from("#ff5e1a"))
-            .set_text_justify(Justify::Center);
-        let entity = button.entity();
+        for i in 0..5 {
+            for j in 0..4 {
 
-        button.state().style.grid_item.insert(entity, GridItem {
-            row_index: 0,
-            row_span: 1,
-            col_index: 0,
-            col_span: 1,
-        });
+                if i == 4 && j == 1 {
+                    continue;
+                }
 
-        let mut button = Button::with_label("Button 1")
-            .build(&mut context)
-            .set_background_color(Color::from("#1a5eff"))
-            .set_text_justify(Justify::Center);
-        let entity = button.entity();
+                let mut button = Button::with_label("Button 1")
+                    .build(&mut context)
+                    .set_background_color(Color::from("#ff5e1a"))
+                    .set_text_justify(Justify::Center);
+                let entity = button.entity();
 
-        button.state().style.grid_item.insert(entity, GridItem {
-            row_index: 1,
-            row_span: 1,
-            col_index: 0,
-            col_span: 1,
-        });
+                button.state().style.grid_item.insert(entity, GridItem {
+                    row_index: i,
+                    row_span: 1,
+                    col_index: j,
+                    col_span: 1,
+                });
 
-        let mut button = Button::with_label("Button 1")
-            .build(&mut context)
-            .set_background_color(Color::from("#1a805e"))
-            .set_text_justify(Justify::Center);
-        let entity = button.entity();
+                if i == 4 && j == 0 {
+                    button.state().style.grid_item.insert(entity, GridItem {
+                        row_index: i,
+                        row_span: 1,
+                        col_index: j,
+                        col_span: 2,
+                    });
+                }
+            }
+        }
 
-        button.state().style.grid_item.insert(entity, GridItem {
-            row_index: 0,
-            row_span: 2,
-            col_index: 1,
-            col_span: 1,
-        });
+        // let mut button = Button::with_label("Button 1")
+        //     .build(&mut context)
+        //     .set_background_color(Color::from("#ff5e1a"))
+        //     .set_text_justify(Justify::Center);
+        // let entity = button.entity();
 
-        let mut button = Button::with_label("Button 1")
-            .build(&mut context)
-            .set_background_color(Color::from("#1a5eff"))
-            .set_text_justify(Justify::Center);
-        let entity = button.entity();
+        // button.state().style.grid_item.insert(entity, GridItem {
+        //     row_index: 0,
+        //     row_span: 1,
+        //     col_index: 0,
+        //     col_span: 1,
+        // });
 
-        button.state().style.grid_item.insert(entity, GridItem {
-            row_index: 0,
-            row_span: 1,
-            col_index: 2,
-            col_span: 1,
-        });
+        // let mut button = Button::with_label("Button 1")
+        //     .build(&mut context)
+        //     .set_background_color(Color::from("#1a5eff"))
+        //     .set_text_justify(Justify::Center);
+        // let entity = button.entity();
 
-        let mut button = Button::with_label("Button 1")
-            .build(&mut context)
-            .set_background_color(Color::from("#ff5e1a"))
-            .set_text_justify(Justify::Center);
-        let entity = button.entity();
+        // button.state().style.grid_item.insert(entity, GridItem {
+        //     row_index: 1,
+        //     row_span: 1,
+        //     col_index: 0,
+        //     col_span: 1,
+        // });
 
-        button.state().style.grid_item.insert(entity, GridItem {
-            row_index: 1,
-            row_span: 1,
-            col_index: 2,
-            col_span: 1,
-        });
+        // let mut button = Button::with_label("Button 1")
+        //     .build(&mut context)
+        //     .set_background_color(Color::from("#1a805e"))
+        //     .set_text_justify(Justify::Center);
+        // let entity = button.entity();
+
+        // button.state().style.grid_item.insert(entity, GridItem {
+        //     row_index: 0,
+        //     row_span: 2,
+        //     col_index: 1,
+        //     col_span: 1,
+        // });
+
+        // let mut button = Button::with_label("Button 1")
+        //     .build(&mut context)
+        //     .set_background_color(Color::from("#1a5eff"))
+        //     .set_text_justify(Justify::Center);
+        // let entity = button.entity();
+
+        // button.state().style.grid_item.insert(entity, GridItem {
+        //     row_index: 0,
+        //     row_span: 1,
+        //     col_index: 2,
+        //     col_span: 1,
+        // });
+
+        // let mut button = Button::with_label("Button 1")
+        //     .build(&mut context)
+        //     .set_background_color(Color::from("#ff5e1a"))
+        //     .set_text_justify(Justify::Center);
+        // let entity = button.entity();
+
+        // button.state().style.grid_item.insert(entity, GridItem {
+        //     row_index: 1,
+        //     row_span: 1,
+        //     col_index: 2,
+        //     col_span: 1,
+        // });
 
         
 

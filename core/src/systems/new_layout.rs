@@ -494,7 +494,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 col_widths[col_widths_len].0 = current_col_pos;
 
                 //println!("{} {:?}", parent, row_heights);
-                //println!("{} {:?}", parent, col_widths);
+                println!("{} {:?}", parent, col_widths);
 
                 for child in parent.child_iter(&hierarchy) {
                     let grid_item = state.style.grid_item.get(child).cloned().unwrap_or_default();
@@ -510,18 +510,40 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                     //println!("Child: {:?} {} {} {} {}", child, col_widths[col_start].0, row_heights[row_start].0, col_widths[col_start].1, row_heights[row_start].1);
 
-                    state.data.set_posx(child, col_widths[col_start].0 + (col_space_between / 2.0 * col_start as f32));
-                    state.data.set_posy(child, row_heights[row_start].0 + (row_space_between / 2.0 * row_start as f32));
-                    if col_end + 1 == col_widths.len() {
-                        state.data.set_width(child, col_widths[col_end].0 - col_widths[col_start].0);
+                    if col_start == 0 {
+                        state.data.set_posx(child, col_widths[col_start].0);
+                        state.data.set_width(child, (col_widths[col_end].0 - col_widths[col_start].0) - col_space_between/2.0);
+                    } else if col_end+1 == col_widths.len() {
+                        state.data.set_posx(child, col_widths[col_start].0 + (col_space_between / 2.0));
+                        state.data.set_width(child, (col_widths[col_end].0 - col_widths[col_start].0) - col_space_between/2.0);
                     } else {
-                        state.data.set_width(child, (col_widths[col_end].0 - col_widths[col_start].0) - col_space_between / 2.0);
+                        state.data.set_posx(child, col_widths[col_start].0 + (col_space_between / 2.0));
+                        state.data.set_width(child, (col_widths[col_end].0 - col_widths[col_start].0) - col_space_between);
                     }
-                    if row_end + 1 == row_heights.len() {
-                        state.data.set_height(child, row_heights[row_end].0 - row_heights[row_start].0);
+
+                    if row_start == 0 {
+                        state.data.set_posy(child, row_heights[row_start].0);
+                        state.data.set_height(child, (row_heights[row_end].0 - row_heights[row_start].0) - row_space_between/2.0);
+                    } else if row_end+1 == row_heights.len() {
+                        state.data.set_posy(child, row_heights[row_start].0 + (row_space_between / 2.0));
+                        state.data.set_height(child, (row_heights[row_end].0 - row_heights[row_start].0) - row_space_between/2.0);
                     } else {
-                        state.data.set_height(child, (row_heights[row_end].0 - row_heights[row_start].0) - row_space_between / 2.0);
+                        state.data.set_posy(child, row_heights[row_start].0 + (row_space_between / 2.0));
+                        state.data.set_height(child, (row_heights[row_end].0 - row_heights[row_start].0) - row_space_between);
                     }
+
+                    // state.data.set_posx(child, col_widths[col_start].0 + (col_space_between / 2.0 * col_start as f32));
+                    // state.data.set_posy(child, row_heights[row_start].0 + (row_space_between / 2.0 * row_start as f32));
+                    // if col_end + 1 == col_widths.len() {
+                    //     state.data.set_width(child, col_widths[col_end].0 - col_widths[col_start].0);
+                    // } else {
+                    //     state.data.set_width(child, (col_widths[col_end].0 - col_widths[col_start].0) - col_space_between);
+                    // }
+                    // if row_end + 1 == row_heights.len() {
+                    //     state.data.set_height(child, row_heights[row_end].0 - row_heights[row_start].0);
+                    // } else {
+                    //     state.data.set_height(child, (row_heights[row_end].0 - row_heights[row_start].0) - row_space_between);
+                    // }
                     
                 }
 
