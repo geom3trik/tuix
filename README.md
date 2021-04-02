@@ -2,6 +2,7 @@
 
 <img src="https://github.com/geom3trik/tuix/blob/main/docs/tuix-logo.png" width="320" height="180">
 
+---
 A cross-platform GUI toolkit written in the Rust programming langauge.
 
 The driving principle behind tuix is to be a self-contained, small-as-possible, but still fast, toolkit for creating graphical user interfaces in Rust. 
