@@ -27,12 +27,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
 
-        let (mut main_free_space, mut cross_free_space) = match parent_layout_type {
+        let (mut main_free_space, mut cross_free_space2) = match parent_layout_type {
             LayoutType::Vertical => {
                 (parent_height, parent_width)
             }
 
-            LayoutType::Horizontal | LayoutType::Grid => {
+            LayoutType::Horizontal | LayoutType::Grid | LayoutType::None => {
                 (parent_width, parent_height)
             }
         };
@@ -63,7 +63,16 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         if main_axis.space_after == Units::Inherit {
                             main_axis.space_after = main_axis_align.space_after_last.clone();
                         }
-                    } 
+                    }
+
+                    if cross_axis.space_before == Units::Inherit {
+                        cross_axis.space_before = cross_axis_align.space_before_first.clone();
+                    }
+
+                    if cross_axis.space_after == Units::Inherit {
+                        cross_axis.space_after = cross_axis_align.space_after_last.clone();
+                    }
+
 
 
                     let mut cross_stretch_sum = 0.0;
@@ -197,12 +206,14 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 // Calculate flexible items
                 for child in parent.child_iter(&hierarchy) {
                     let mut main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
-                    let cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
+                    let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
 
                     //let mut new_width = state.data.get_width(child);
                     //let mut new_height = state.data.get_height(child);
 
                     let cross_stretch_sum = state.data.get_cross_stretch_sum(child);
+
+                    
 
                     if hierarchy.get_first_child(parent) == Some(child) {
                         if main_axis.space_before == Units::Inherit {
@@ -221,6 +232,16 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
                     } 
 
+                    if cross_axis.space_before == Units::Inherit {
+                        cross_axis.space_before = cross_axis_align.space_before_first.clone();
+                    }
+
+                    if cross_axis.space_after == Units::Inherit {
+                        cross_axis.space_after = cross_axis_align.space_after_last.clone();
+                    }
+
+                    let mut cross_free_space = 0.0;
+
                     let (   mut new_main, 
                             mut new_cross,
                             mut main_space_before,
@@ -229,6 +250,9 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                             mut cross_space_after,
                         ) = match parent_layout_type {
                         LayoutType::Vertical => {
+                            
+                            cross_free_space = state.data.get_width(parent);
+                            
                             (   
                                 state.data.get_height(child), 
                                 state.data.get_width(child),
@@ -236,11 +260,13 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                                 state.data.get_space_bottom(child),
                                 state.data.get_space_left(child),
                                 state.data.get_space_right(child),
-                            
                             )
                         }
 
-                        LayoutType::Horizontal | LayoutType::Grid => {
+                        LayoutType::Horizontal | LayoutType::Grid | LayoutType::None => {
+                            
+                            cross_free_space = state.data.get_height(parent);
+                            
                             (   
                                 state.data.get_width(child), 
                                 state.data.get_height(child),
@@ -248,9 +274,13 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                                 state.data.get_space_right(child),
                                 state.data.get_space_top(child),
                                 state.data.get_space_bottom(child),
+
+                                
                             )
                         }
                     };
+
+                    cross_free_space = cross_free_space - new_cross - cross_space_before - cross_space_after;
 
                     match main_axis.space_before {
                         Units::Stretch(val) => {
@@ -547,7 +577,9 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     
                 }
 
-            }   
+            }  
+            
+            _=> {}
         }
 
 

@@ -132,22 +132,65 @@ impl Default for Units {
     }
 }
 
-#[derive(Default, Debug, Clone, PartialEq)]
+impl std::fmt::Display for Units {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Self::Inherit => {
+                write!(fmt, "Inherit")
+            }
+
+            Self::Pixels(val) => {
+                write!(fmt, "{}px", val)
+            }
+
+            Self::Percentage(val) => {
+                write!(fmt, "{}%", val)
+            }
+
+            Self::Stretch(val) => {
+                write!(fmt, "{}s", val)
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct Axis {
     pub space_before: Units,
     pub size: Units,
     pub space_after: Units,
 }
 
-#[derive(Default, Debug, Clone, PartialEq)]
+impl Default for Axis {
+    fn default() -> Self {
+        Self {
+            space_before: Units::Inherit,
+            size: Units::Stretch(1.0),
+            space_after: Units::Inherit,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct AxisAlign {
     pub space_before_first: Units,
     pub space_between: Units,
     pub space_after_last: Units,
 }
 
+impl Default for AxisAlign {
+    fn default() -> Self {
+        Self {
+            space_before_first: Units::Stretch(1.0),
+            space_between: Units::Stretch(1.0),
+            space_after_last: Units::Stretch(1.0),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum LayoutType {
+    None,
     Horizontal,
     Vertical,
     Grid,
@@ -155,7 +198,7 @@ pub enum LayoutType {
 
 impl Default for LayoutType {
     fn default() -> Self {
-        Self::Vertical
+        Self::None
     }
 }
 

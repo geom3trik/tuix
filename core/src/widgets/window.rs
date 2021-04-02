@@ -53,7 +53,7 @@ impl Widget for WindowWidget {
                     // apply_hover(state);
                     apply_z_ordering(state, &hierarchy);
                     apply_visibility(state, &hierarchy);
-                    //apply_layout(state, &hierarchy);
+                    apply_layout(state, &hierarchy);
                     apply_layout2(state, &hierarchy);
                     apply_hover(state);
                 }
