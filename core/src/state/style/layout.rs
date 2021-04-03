@@ -115,3 +115,116 @@ impl Default for Scroll {
         }
     }
 }
+
+// Experimental new layout system
+#[derive(Debug, Clone, PartialEq)]
+pub enum Units {
+    Inherit,
+    Pixels(f32),
+    Percentage(f32),
+    Stretch(f32),
+}
+
+impl Default for Units {
+    fn default() -> Self {
+        Self::Stretch(1.0)
+    }
+}
+
+impl std::fmt::Display for Units {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Self::Inherit => {
+                write!(fmt, "Inherit")
+            }
+
+            Self::Pixels(val) => {
+                write!(fmt, "{}px", val)
+            }
+
+            Self::Percentage(val) => {
+                write!(fmt, "{}%", val)
+            }
+
+            Self::Stretch(val) => {
+                write!(fmt, "{}s", val)
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Axis {
+    pub space_before: Units,
+    pub size: Units,
+    pub space_after: Units,
+}
+
+impl Default for Axis {
+    fn default() -> Self {
+        Self {
+            space_before: Units::Inherit,
+            size: Units::Stretch(1.0),
+            space_after: Units::Inherit,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct AxisAlign {
+    pub space_before_first: Units,
+    pub space_between: Units,
+    pub space_after_last: Units,
+}
+
+impl Default for AxisAlign {
+    fn default() -> Self {
+        Self {
+            space_before_first: Units::Stretch(1.0),
+            space_between: Units::Stretch(1.0),
+            space_after_last: Units::Stretch(1.0),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum LayoutType {
+    None,
+    Horizontal,
+    Vertical,
+    Grid,
+}
+
+impl Default for LayoutType {
+    fn default() -> Self {
+        Self::None
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum PositioningType {
+    SelfDirected,
+    ParentDirected,
+}
+
+impl Default for PositioningType {
+    fn default() -> Self {
+        Self::ParentDirected
+    }
+}
+
+
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct GridAxis {
+    pub items: Vec<Units>,
+    pub align: AxisAlign,
+}
+
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct GridItem {
+    pub row_index: u32,
+    pub row_span: u32,
+    pub col_index: u32,
+    pub col_span: u32,
+}

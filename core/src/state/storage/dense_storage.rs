@@ -1,6 +1,6 @@
 use crate::entity::Entity;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct DenseStorage<T> {
     pub indices: Vec<u32>,
     pub data: Vec<T>,

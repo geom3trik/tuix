@@ -58,7 +58,7 @@ pub use transform::Scale;
 
 // use bimap::BiMap;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Style {
     pub(crate) rules: Vec<StyleRule>,
     //pub rule_selectors: Vec<Vec<Selector>>,
@@ -165,129 +165,36 @@ pub struct Style {
 
     pub text_align: StyleStorage<Align>,
     pub text_justify: StyleStorage<Justify>,
+
+
+    // LAYOUT
+
+    // Main Axis
+    pub main_axis: StyleStorage<Axis>,
+
+    // Cross Axis
+    pub cross_axis: StyleStorage<Axis>,
+
+    // Main Axis Align
+    pub main_axis_align: StyleStorage<AxisAlign>,
+
+    // Cross Axis Align
+    pub cross_axis_align: StyleStorage<AxisAlign>,
+
+    // Layout Type
+    pub layout_type: StyleStorage<LayoutType>,
+
+    // Positioning Type
+    pub positioning_type: StyleStorage<PositioningType>,
+
+    // Grid
+    pub grid_rows: StyleStorage<GridAxis>,
+    pub grid_cols: StyleStorage<GridAxis>,
+    pub grid_item: StyleStorage<GridItem>,
+
 }
 
 impl Style {
-    pub fn new() -> Self {
-        Style {
-            rules: Vec::new(),
-
-            //rules: Vec::new(),
-            //rule_selectors: Vec::new(),
-
-            //ids: DenseStorage::new(),
-            //ids: BiMap::new(),
-            elements: DenseStorage::new(),
-            classes: DenseStorage::new(),
-            pseudo_classes: DenseStorage::new(),
-
-            //enabled: DenseStorage::new(),
-            //checked: DenseStorage::new(),
-            //over: DenseStorage::new(),
-            opacity: AnimatableStorage::new(),
-
-            z_order: StyleStorage::new(),
-
-            // Transform
-            rotate: AnimatableStorage::new(),
-            scalex: AnimatableStorage::new(),
-            scaley: AnimatableStorage::new(),
-
-            // Positioning
-            position: StyleStorage::new(),
-            left: AnimatableStorage::new(),
-            right: AnimatableStorage::new(),
-            top: AnimatableStorage::new(),
-            bottom: AnimatableStorage::new(),
-
-            // Size
-            width: AnimatableStorage::new(),
-            height: AnimatableStorage::new(),
-
-            // Size Constraints
-            max_width: AnimatableStorage::new(),
-            max_height: AnimatableStorage::new(),
-            min_width: AnimatableStorage::new(),
-            min_height: AnimatableStorage::new(),
-
-            // Margin
-            margin_left: AnimatableStorage::new(),
-            margin_right: AnimatableStorage::new(),
-            margin_top: AnimatableStorage::new(),
-            margin_bottom: AnimatableStorage::new(),
-
-            // Padding
-            padding_left: AnimatableStorage::new(),
-            padding_right: AnimatableStorage::new(),
-            padding_top: AnimatableStorage::new(),
-            padding_bottom: AnimatableStorage::new(),
-
-            // Border
-            border_width: AnimatableStorage::new(),
-            border_color: AnimatableStorage::new(),
-
-            // Border Radius
-            border_radius_top_left: AnimatableStorage::new(),
-            border_radius_top_right: AnimatableStorage::new(),
-            border_radius_bottom_left: AnimatableStorage::new(),
-            border_radius_bottom_right: AnimatableStorage::new(),
-
-            // Flex Container
-            flex_direction: StyleStorage::new(),
-            justify_content: StyleStorage::new(),
-            align_items: StyleStorage::new(),
-            align_content: StyleStorage::new(),
-
-            // Text Alignment
-            text_align: StyleStorage::new(),
-            text_justify: StyleStorage::new(),
-
-            // Font
-            font_color: AnimatableStorage::new(),
-            font_size: AnimatableStorage::new(),
-
-            // Text
-            text: DenseStorage::new(),
-
-            // Tooltip
-            tooltip: DenseStorage::new(),
-
-            // TODO
-            overflow: StyleStorage::new(),
-            scroll: DenseStorage::new(),
-
-            // Display
-            display: StyleStorage::new(),
-            visibility: StyleStorage::new(),
-            clip_widget: DenseStorage::new(),
-
-            // Focus
-            focus_order: DenseStorage::new(),
-
-            // Outer Shadow
-            outer_shadow_h_offset: AnimatableStorage::new(),
-            outer_shadow_v_offset: AnimatableStorage::new(),
-            outer_shadow_blur: AnimatableStorage::new(),
-            outer_shadow_color: AnimatableStorage::new(),
-
-            // Inner Shadow
-            inner_shadow_h_offset: AnimatableStorage::new(),
-            inner_shadow_v_offset: AnimatableStorage::new(),
-            inner_shadow_blur: AnimatableStorage::new(),
-            inner_shadow_color: AnimatableStorage::new(),
-
-            // Background
-            background_color: AnimatableStorage::new(),
-            background_image: StyleStorage::new(),
-            background_gradient: StyleStorage::new(),
-
-            // Flex Item
-            align_self: StyleStorage::new(),
-            flex_grow: AnimatableStorage::new(),
-            flex_shrink: AnimatableStorage::new(),
-            flex_basis: AnimatableStorage::new(),
-        }
-    }
 
     pub fn add_rule(&mut self, style_rule: StyleRule) {
         if !self.rules.contains(&style_rule) {

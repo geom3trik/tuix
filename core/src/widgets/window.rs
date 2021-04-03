@@ -1,7 +1,7 @@
 use crate::{apply_hover, Entity, Event, State, Widget, WindowEvent};
 
 use crate::systems::{
-    apply_layout, apply_styles, apply_visibility, apply_z_ordering,
+    apply_layout, apply_styles, apply_visibility, apply_z_ordering, apply_layout2
 };
 
 #[derive(Clone)]
@@ -54,6 +54,7 @@ impl Widget for WindowWidget {
                     apply_z_ordering(state, &hierarchy);
                     apply_visibility(state, &hierarchy);
                     apply_layout(state, &hierarchy);
+                    apply_layout2(state, &hierarchy);
                     apply_hover(state);
                 }
 

@@ -72,8 +72,8 @@ impl State {
     pub fn new() -> Self {
         let entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
-        let mut style = Style::new();
-        let mut data = Data::new();
+        let mut style = Style::default();
+        let mut data = Data::default();
         let mouse = MouseState::default();
         let modifiers = ModifiersState::default();
 
