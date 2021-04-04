@@ -44,7 +44,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
 
 
-
+                    // Override child space_before with parent space_before_first if set to Inherit
                     if hierarchy.get_first_child(parent) == Some(child) {
                         if main_axis.space_before == Units::Inherit {
                             main_axis.space_before = main_axis_align.space_before_first.clone();
@@ -55,7 +55,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
                     } 
 
-
+                    // Override child space_after with parent space_after_last if set to Inherit
                     if hierarchy.get_last_child(parent) == Some(child) {
                         if main_axis.space_after == Units::Inherit {
                             main_axis.space_after = main_axis_align.space_after_last.clone();
@@ -198,7 +198,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 main_stretch_sum = main_stretch_sum.max(1.0);
                 
 
-                //println!("cross_free_space: {}", cross_free_space);
+
 
                 // Calculate flexible items
                 for child in parent.child_iter(&hierarchy) {
@@ -369,6 +369,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 let parent_posx = state.data.get_posx(parent);
                 let parent_posy = state.data.get_posy(parent);
 
+                // Position Children
                 for child in parent.child_iter(&hierarchy) {
 
                     let main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
@@ -378,6 +379,21 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                     let width = state.data.get_width(child);
                     let height = state.data.get_height(child);
+
+                    match parent_layout_type {
+                        LayoutType::Vertical => {
+                            current_posy += space.top + height + space.bottom;
+                        }
+
+                        LayoutType::Horizontal => {
+                            if current_posx + space.left + width + space.right >= parent_posx + parent_width {
+                                current_posx = 0.0;
+                                current_posy += height;
+                            }
+                        }
+
+                        _=> {}
+                    }
 
                     let new_posx = parent_posx + current_posx + space.left;
                     let new_posy = parent_posy + current_posy + space.top;
@@ -389,13 +405,20 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         LayoutType::Horizontal => {
                             current_posx += space.left + width + space.right;
+                            //println!("Current PosX: {}", current_posx);
+                            // if current_posx >= parent_posx + parent_width {
+                            //     //println!("Do This");
+                            //     current_posx = 0.0;
+           
+                            //     current_posy += height;
+                            // }
                         }
 
                         _=> {}
                     }
                     
                     
-
+                    //println!("posx: {} posy: {}", new_posx, new_posy);
                     state.data.set_posx(child, new_posx);
                     state.data.set_posy(child, new_posy);
                 }
