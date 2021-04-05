@@ -1,3 +1,5 @@
+use std::num;
+
 use prop::PropGet;
 
 use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};
@@ -24,7 +26,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
 
-        let (mut main_free_space, mut cross_free_space2) = match parent_layout_type {
+        let (parent_main, parent_cross ) = match parent_layout_type {
             LayoutType::Vertical => {
                 (parent_height, parent_width)
             }
@@ -34,12 +36,23 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             }
         };
 
-        let mut main_stretch_sum = 0.0;
+        let mut main_free_space = parent_main;
+        //let mut cross_free_space = parent_cross;
+
+        let mut main_stretch_sum: f32 = 0.0;
+        //let mut cross_stretch_sum: f32 = 1.0;
+
+        let mut temp_main_pos = 0.0;
+
+        let mut num_of_wraps = 1;
+
+        let mut wraps: Vec<f32> = Vec::new();
+        wraps.push(0.0);
 
         match parent_layout_type {
             LayoutType::Horizontal | LayoutType::Vertical => {
                 // Calculate inflexible items
-                for child in parent.child_iter(&hierarchy) {
+                for (index, child) in parent.child_iter(&hierarchy).enumerate() {
                     let mut main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
                     let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
 
@@ -72,7 +85,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
 
 
-                    let mut cross_stretch_sum = 0.0;
+                    
 
                     let mut new_main = 0.0;
                     let mut new_cross = 0.0;
@@ -82,6 +95,9 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     let mut main_space_after = 0.0;
                     let mut cross_space_before = 0.0;
                     let mut cross_space_after = 0.0;
+
+                    let mut cross_stretch_sum = 0.0;
+                    let mut cross_used_space = 0.0;
 
 
                     match main_axis.space_before {
@@ -124,9 +140,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
+                    //println!("Child {} {}", index, temp_free_space_main);
+
+
                     match cross_axis.space_before {
                         Units::Pixels(val) => {
-                            //cross_free_space -= val;
+                            cross_used_space += val;
                             cross_space_before = val;
                         }
 
@@ -140,11 +159,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     match cross_axis.size {
                         Units::Pixels(val) => {
                             new_cross = val;
-                            //cross_free_space -= new_width;
+                            cross_used_space += val;
                         }
 
                         Units::Stretch(val) => {
-                            cross_stretch_sum += val;
+                            cross_stretch_sum += 1.0;
                         }
 
                         _=> {}
@@ -153,6 +172,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     match cross_axis.space_after {
                         Units::Pixels(val) => {
                             cross_space_after = val;
+                            cross_used_space += val;
                         }
 
                         Units::Stretch(val) => {
@@ -161,6 +181,16 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         _=> {}
                     }
+
+                    if temp_main_pos + main_space_before + new_main + main_space_after >= parent_main {
+                        temp_main_pos = 0.0;
+                        num_of_wraps += 1;
+                        wraps.push(cross_space_before + new_cross + cross_space_after);
+                    } else {
+                        wraps[num_of_wraps as usize - 1] = wraps[num_of_wraps as usize - 1].max(cross_space_before + new_cross + cross_space_after);
+                    }
+
+                    temp_main_pos += main_space_before + new_main + main_space_after;
 
                     
                 
@@ -188,20 +218,33 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
+                    
                     cross_stretch_sum = cross_stretch_sum.max(1.0);
-
                     state.data.set_cross_stretch_sum(child, cross_stretch_sum);
 
                     //println!("nw: {}  nh: {}", new_width, new_height);
                 }
-            
+
                 main_stretch_sum = main_stretch_sum.max(1.0);
+
+                //println!("Number of Rows: {} {:?}", num_of_wraps, wraps);
+            
+                let mut current_wrap = 0;
+                temp_main_pos = 0.0;
+
+
+
+                let num_of_stretch_rows = wraps.iter().filter(|&x| *x <= (parent_cross/num_of_wraps as f32)).count();
+                let used_space = wraps.iter().filter(|&x| *x > (parent_cross/num_of_wraps as f32)).sum::<f32>();
                 
+                println!("Num stretch rows: {:?}  Used space: {}", num_of_stretch_rows, used_space);
 
-
+                wraps.iter_mut().for_each(|x| if *x <= (parent_cross/num_of_wraps as f32) { *x = (parent_cross - used_space)/num_of_stretch_rows as f32 });
+                
+                println!("Wraps: {:?}", wraps);
 
                 // Calculate flexible items
-                for child in parent.child_iter(&hierarchy) {
+                for (index, child) in parent.child_iter(&hierarchy).enumerate() {
                     let mut main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
                     let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
 
@@ -209,8 +252,6 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     //let mut new_height = state.data.get_height(child);
 
                     let cross_stretch_sum = state.data.get_cross_stretch_sum(child);
-
-                    
 
                     if hierarchy.get_first_child(parent) == Some(child) {
                         if main_axis.space_before == Units::Inherit {
@@ -237,8 +278,6 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         cross_axis.space_after = cross_axis_align.space_after_last.clone();
                     }
 
-                    let mut cross_free_space = 0.0;
-
                     let (   mut new_main, 
                             mut new_cross,
                             mut main_space_before,
@@ -248,7 +287,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         ) = match parent_layout_type {
                         LayoutType::Vertical => {
                             
-                            cross_free_space = state.data.get_width(parent);
+                            //cross_free_space = state.data.get_width(parent);
                             
                             (   
                                 state.data.get_height(child), 
@@ -262,7 +301,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         LayoutType::Horizontal | LayoutType::Grid | LayoutType::None => {
                             
-                            cross_free_space = state.data.get_height(parent);
+                            //cross_free_space = state.data.get_height(parent);
                             
                             (   
                                 state.data.get_width(child), 
@@ -277,7 +316,34 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
                     };
 
-                    cross_free_space = cross_free_space - new_cross - cross_space_before - cross_space_after;
+
+
+                    
+                    //println!("Do This: {} {} {}", index, temp_main_pos + main_space_before + new_main + main_space_after, parent_main);
+                    if temp_main_pos + main_space_before + new_main + main_space_after >= parent_main {
+                        
+                        temp_main_pos = 0.0;
+                        current_wrap += 1;
+                    }
+
+                    temp_main_pos += main_space_before + new_main + main_space_after;
+
+                    //println!("Child: {} {}", index, current_wrap);
+
+                    let cross_free_space = wraps[current_wrap] - new_cross - cross_space_before - cross_space_after;
+
+                    // let cross_free_space = if wraps[current_wrap] == 0.0 {
+                        
+                    //     parent_cross / num_of_stretch_rows as f32
+                    // } else {
+                    //     wraps[current_wrap]
+                    // };
+
+                    // println!("Child: {} {}", index, cross_free_space);
+                    
+
+                    //let cross_used_space = new_cross + cross_space_before + cross_space_after;
+                    //let cross_free_space = (parent_cross / num_of_wraps as f32) - cross_used_space;
 
                     match main_axis.space_before {
                         Units::Stretch(val) => {
@@ -369,6 +435,8 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 let parent_posx = state.data.get_posx(parent);
                 let parent_posy = state.data.get_posy(parent);
 
+                let mut current_wrap = 0;
+
                 // Position Children
                 for child in parent.child_iter(&hierarchy) {
 
@@ -388,7 +456,9 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         LayoutType::Horizontal => {
                             if current_posx + space.left + width + space.right >= parent_posx + parent_width {
                                 current_posx = 0.0;
-                                current_posy += height;
+                                // current_posy += space.top + height + space.bottom;
+                                current_posy += wraps[current_wrap];
+                                current_wrap += 1;
                             }
                         }
 

@@ -1,4 +1,4 @@
-use crate::state::style::*;
+use crate::{AsEntity, state::style::*};
 use crate::State;
 use crate::{entity::Entity, Builder, EventHandler, Propagation};
 
@@ -6,9 +6,19 @@ use crate::{Event, WindowEvent};
 
 use crate::state::hierarchy::*;
 
-pub trait PropSet {
+pub trait PropSet : AsEntity {
+    
+    fn insert_event(&self, state: &mut State, mut event: Event) -> Entity 
+    where Self: 'static
+    {
+        state.insert_event(event.target(self.entity()));
+
+        self.entity()
+    }
+    
     /// Add a class name to an entity
     fn class(self, state: &mut State, class_name: &str) -> Self;
+
 
     // TODO move to PropGet
     fn get_parent(self, state: &mut State) -> Option<Entity>;
