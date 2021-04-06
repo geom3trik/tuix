@@ -153,6 +153,78 @@ pub trait PropSet : AsEntity {
     //     state: &mut State,
     //     mutator: F,
     // ) -> Self;
+
+    fn set_main_before(&self, state: &mut State, value: Units) -> Entity {
+        state.style.main_before.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_main_size(&self, state: &mut State, value: Units) -> Entity {
+        state.style.main_size.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_main_after(&self, state: &mut State, value: Units) -> Entity {
+        state.style.main_after.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_cross_before(&self, state: &mut State, value: Units) -> Entity {
+        state.style.cross_before.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_cross_size(&self, state: &mut State, value: Units) -> Entity {
+        state.style.cross_size.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_cross_after(&self, state: &mut State, value: Units) -> Entity {
+        state.style.cross_after.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_main_before_first(&self, state: &mut State, value: Units) -> Entity {
+        state.style.main_before_first.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_main_between(&self, state: &mut State, value: Units) -> Entity {
+        state.style.main_between.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_main_after_last(&self, state: &mut State, value: Units) -> Entity {
+        state.style.main_after_last.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_cross_before_first(&self, state: &mut State, value: Units) -> Entity {
+        state.style.cross_before_first.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_cross_between(&self, state: &mut State, value: Units) -> Entity {
+        state.style.cross_between.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_cross_after_last(&self, state: &mut State, value: Units) -> Entity {
+        state.style.cross_after_last.insert(self.entity(), value);
+
+        self.entity()
+    }
 }
 
 impl PropSet for Entity {

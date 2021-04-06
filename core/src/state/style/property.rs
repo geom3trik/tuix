@@ -12,9 +12,6 @@ use crate::state::animation::Transition;
 pub enum Property {
     None,
 
-    Animation(String),
-    AnimationDuration(std::time::Duration),
-
     // General
     Display(Display),
     Visibility(Visibility),
@@ -90,4 +87,24 @@ pub enum Property {
     Transition(Vec<Transition>),
 
     ZIndex(i32),
+
+    // Main Axis
+    MainBefore(Units),
+    MainSize(Units),
+    MainAfter(Units),
+
+    // Cross Axis
+    CrossBefore(Units),
+    CrossSize(Units),
+    CrossAfter(Units),
+
+    // Main Axis Align
+    MainBeforeFirst(Units),
+    MainBetween(Units),
+    MainAfterLast(Units),
+
+    // Cross Axis Align
+    CrossBeforeFirst(Units),
+    CrossBetween(Units),
+    CrossAfterLast(Units),
 }

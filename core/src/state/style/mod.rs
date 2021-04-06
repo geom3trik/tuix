@@ -60,7 +60,7 @@ pub use transform::Scale;
 
 #[derive(Clone, Default)]
 pub struct Style {
-    pub(crate) rules: Vec<StyleRule>,
+    pub rules: Vec<StyleRule>,
     //pub rule_selectors: Vec<Vec<Selector>>,
     pub elements: DenseStorage<u64>,
     pub classes: DenseStorage<HashSet<String>>,
@@ -192,6 +192,28 @@ pub struct Style {
     pub grid_cols: StyleStorage<GridAxis>,
     pub grid_item: StyleStorage<GridItem>,
 
+
+    // Main Axis
+    pub main_before: AnimatableStorage<Units>,
+    pub main_size: AnimatableStorage<Units>,
+    pub main_after: AnimatableStorage<Units>,
+
+    // Cross Axis
+    pub cross_before: AnimatableStorage<Units>,
+    pub cross_size: AnimatableStorage<Units>,
+    pub cross_after: AnimatableStorage<Units>,
+
+    // Main Axis Align
+    pub main_before_first: AnimatableStorage<Units>,
+    pub main_between: AnimatableStorage<Units>,
+    pub main_after_last: AnimatableStorage<Units>,
+
+    // Cross Axis Align
+    pub cross_before_first: AnimatableStorage<Units>,
+    pub cross_between: AnimatableStorage<Units>,
+    pub cross_after_last: AnimatableStorage<Units>,
+
+    
 }
 
 impl Style {
@@ -199,8 +221,8 @@ impl Style {
     pub fn add_rule(&mut self, style_rule: StyleRule) {
         if !self.rules.contains(&style_rule) {
             self.rules.push(style_rule);
-            //self.rules.sort_by_key(|rule| rule.specificity());
-            //self.rules.reverse();
+            self.rules.sort_by_key(|rule| rule.specificity());
+            self.rules.reverse();
         }
 
         self.set_style_properties();

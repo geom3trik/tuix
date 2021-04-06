@@ -161,6 +161,12 @@ impl Event {
         self
     }
 
+    pub fn direct(mut self, entity: Entity) -> Self {
+        self.propagation = Propagation::Direct;
+        self.target = entity;
+        self
+    }
+
     /// Consumes the event
     /// (prevents the event from continuing on its propagation path)
     pub fn consume(&mut self) {

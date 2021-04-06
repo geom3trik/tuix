@@ -33,6 +33,10 @@ path = "examples/styling/inline.rs"
 name = "shared"
 path = "examples/styling/shared.rs"
 
+[[example]]
+name = "hover"
+path = "examples/styling/hover.rs"
+
 [workspace]
 members = [
     "winit",

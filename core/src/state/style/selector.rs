@@ -264,6 +264,16 @@ impl Selector {
         self.element = Some(s.finish());
         self
     }
+
+    pub fn set_hover(mut self) -> Self {
+        self.pseudo_classes.set_hover(true);
+        self
+    }
+
+    pub fn set_active(mut self) -> Self {
+        self.pseudo_classes.set_active(true);
+        self
+    }
 }
 
 impl PartialEq for Selector {

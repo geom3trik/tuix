@@ -117,7 +117,7 @@ impl Default for Scroll {
 }
 
 // Experimental new layout system
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Units {
     Inherit,
     Pixels(f32),
@@ -149,6 +149,24 @@ impl std::fmt::Display for Units {
             Self::Stretch(val) => {
                 write!(fmt, "{}s", val)
             }
+        }
+    }
+}
+
+impl Interpolator for Units {
+    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
+        let s = match start {
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => val,
+            Units::Stretch(_) => return *end,
+            Units::Inherit => return *end,
+        };
+
+        match end {
+            Units::Pixels(e) => Units::Pixels(f32::interpolate(s, e, t)),
+            Units::Percentage(e) => Units::Percentage(f32::interpolate(s, e, t)),
+            Units::Stretch(_) => return *end,
+            Units::Inherit => return *end,
         }
     }
 }
