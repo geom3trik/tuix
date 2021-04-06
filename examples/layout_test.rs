@@ -26,15 +26,15 @@ fn main() {
         );
 
         state.style.main_axis.insert(one, Axis {
-            space_before: Units::Inherit,
-            size: Units::Pixels(100.0),
-            space_after: Units::Inherit,
+            space_before: Units::Stretch(1.0),
+            size: Units::Stretch(1.0),
+            space_after: Units::Stretch(1.0),
         });
 
         state.style.cross_axis.insert(one, Axis {
             space_before: Units::Stretch(1.0),
             size: Units::Stretch(1.0),
-            space_after: Units::Pixels(0.0),
+            space_after: Units::Stretch(1.0),
         });
 
         let one = Element::new().build(state, window.entity(), |builder| 

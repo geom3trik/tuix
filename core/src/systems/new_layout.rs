@@ -331,19 +331,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     //println!("Child: {} {}", index, current_wrap);
 
                     let cross_free_space = wraps[current_wrap] - new_cross - cross_space_before - cross_space_after;
-
-                    // let cross_free_space = if wraps[current_wrap] == 0.0 {
-                        
-                    //     parent_cross / num_of_stretch_rows as f32
-                    // } else {
-                    //     wraps[current_wrap]
-                    // };
-
-                    // println!("Child: {} {}", index, cross_free_space);
                     
 
                     //let cross_used_space = new_cross + cross_space_before + cross_space_after;
                     //let cross_free_space = (parent_cross / num_of_wraps as f32) - cross_used_space;
+
+                    let cross_free_space = parent_cross - new_cross - cross_space_before - cross_space_after;
 
                     match main_axis.space_before {
                         Units::Stretch(val) => {
@@ -448,22 +441,22 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     let width = state.data.get_width(child);
                     let height = state.data.get_height(child);
 
-                    match parent_layout_type {
-                        LayoutType::Vertical => {
-                            current_posy += space.top + height + space.bottom;
-                        }
+                    // match parent_layout_type {
+                    //     LayoutType::Vertical => {
+                    //         current_posy += space.top + height + space.bottom;
+                    //     }
 
-                        LayoutType::Horizontal => {
-                            if current_posx + space.left + width + space.right >= parent_posx + parent_width {
-                                current_posx = 0.0;
-                                // current_posy += space.top + height + space.bottom;
-                                current_posy += wraps[current_wrap];
-                                current_wrap += 1;
-                            }
-                        }
+                    //     LayoutType::Horizontal => {
+                    //         if current_posx + space.left + width + space.right >= parent_posx + parent_width {
+                    //             current_posx = 0.0;
+                    //             // current_posy += space.top + height + space.bottom;
+                    //             current_posy += wraps[current_wrap];
+                    //             current_wrap += 1;
+                    //         }
+                    //     }
 
-                        _=> {}
-                    }
+                    //     _=> {}
+                    // }
 
                     let new_posx = parent_posx + current_posx + space.left;
                     let new_posy = parent_posy + current_posy + space.top;
