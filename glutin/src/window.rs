@@ -6,6 +6,7 @@ use glutin::ContextBuilder;
 use femtovg::{renderer::OpenGl, Canvas, Color};
 
 use tuix_core::WindowDescription;
+use glutin::platform::windows::WindowBuilderExtWindows;
 
 pub struct Window {
     pub handle: glutin::WindowedContext<glutin::PossiblyCurrent>,
@@ -14,28 +15,34 @@ pub struct Window {
 
 impl Window {
     pub fn new(events_loop: &EventLoop<()>, window_description: &WindowDescription) -> Self {
-        let window_builder = WindowBuilder::new()
-            .with_title(&window_description.title)
-            .with_inner_size(PhysicalSize::new(
-                window_description.inner_size.width,
-                window_description.inner_size.height,
-            ))
-            .with_min_inner_size(PhysicalSize::new(
-                window_description.min_inner_size.width,
-                window_description.min_inner_size.height,
-            ))
-            .with_window_icon(if let Some(icon) = &window_description.icon {
-                Some(
-                    glutin::window::Icon::from_rgba(
-                        icon.clone(),
-                        window_description.icon_width,
-                        window_description.icon_height,
-                    )
-                    .unwrap(),
-                )
-            } else {
-                None
-            });
+	    //Windows COM doesn't play nicely with winit's drag and drop right now
+	    #[cfg(target_os = "windows")]
+	        let mut window_builder = WindowBuilder::new()
+		        .with_drag_and_drop(false);
+	    #[cfg(not(target_os = "windows"))]
+		    let mut window_builder = WindowBuilder::new();
+
+		    window_builder = window_builder.with_title(&window_description.title)
+		    .with_inner_size(PhysicalSize::new(
+			    window_description.inner_size.width,
+			    window_description.inner_size.height,
+		    ))
+		    .with_min_inner_size(PhysicalSize::new(
+			    window_description.min_inner_size.width,
+			    window_description.min_inner_size.height,
+		    ))
+		    .with_window_icon(if let Some(icon) = &window_description.icon {
+			    Some(
+				    glutin::window::Icon::from_rgba(
+					    icon.clone(),
+					    window_description.icon_width,
+					    window_description.icon_height,
+				    )
+					    .unwrap(),
+			    )
+		    } else {
+			    None
+		    });
 
         let handle = ContextBuilder::new()
             .with_vsync(true)
