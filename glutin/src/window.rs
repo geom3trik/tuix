@@ -6,7 +6,6 @@ use glutin::ContextBuilder;
 use femtovg::{renderer::OpenGl, Canvas, Color};
 
 use tuix_core::WindowDescription;
-use glutin::platform::windows::WindowBuilderExtWindows;
 
 pub struct Window {
     pub handle: glutin::WindowedContext<glutin::PossiblyCurrent>,
@@ -17,8 +16,11 @@ impl Window {
     pub fn new(events_loop: &EventLoop<()>, window_description: &WindowDescription) -> Self {
 	    //Windows COM doesn't play nicely with winit's drag and drop right now
 	    #[cfg(target_os = "windows")]
-	        let mut window_builder = WindowBuilder::new()
-		        .with_drag_and_drop(false);
+	        let mut window_builder = {
+		        use glutin::platform::windows::WindowBuilderExtWindows;
+		        WindowBuilder::new()
+			        .with_drag_and_drop(false)
+	        };
 	    #[cfg(not(target_os = "windows"))]
 		    let mut window_builder = WindowBuilder::new();
 
