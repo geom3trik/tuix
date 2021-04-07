@@ -63,19 +63,19 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
 
     // Child size constraints
     let child_min_width = match child.get_min_width(state) {
-        Length::Pixels(val) => val,
+        Units::Pixels(val) => val,
         _ => 0.0,
     };
     let child_max_width = match child.get_max_width(state) {
-        Length::Pixels(val) => val,
+        Units::Pixels(val) => val,
         _ => std::f32::INFINITY,
     };
     let child_min_height = match child.get_min_height(state) {
-        Length::Pixels(val) => val,
+        Units::Pixels(val) => val,
         _ => 0.0,
     };
     let child_max_height = match child.get_max_height(state) {
-        Length::Pixels(val) => val,
+        Units::Pixels(val) => val,
         _ => std::f32::INFINITY,
     };
 
@@ -114,14 +114,14 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
 
     // A main specified in pixels overrides child sum
     match main {
-        Length::Pixels(val) => new_main = val,
+        Units::Pixels(val) => new_main = val,
 
         _ => {}
     }
 
     // A cross specified in pixels overrides child max
     match cross {
-        Length::Pixels(val) => new_cross = val,
+        Units::Pixels(val) => new_cross = val,
 
         _ => {}
     }
@@ -130,7 +130,7 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
 
     // Flex basis overrides main
     match child_flex_basis {
-        Length::Pixels(val) => new_main = val,
+        Units::Pixels(val) => new_main = val,
         _ => {}
     }
 
@@ -305,9 +305,9 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
 
             // A main specified in pixels overrides child sum
             match main {
-                Length::Pixels(val) => new_main = val,
+                Units::Pixels(val) => new_main = val,
 
-                Length::Percentage(val) => new_main = parent_main * val,
+                Units::Percentage(val) => new_main = parent_main * val,
 
                 _ => {}
             }
@@ -316,8 +316,8 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
 
             // Flex basis overrides main
             match child_flex_basis {
-                Length::Pixels(val) => new_main = val,
-                Length::Percentage(val) => new_main = parent_main * val,
+                Units::Pixels(val) => new_main = val,
+                Units::Percentage(val) => new_main = parent_main * val,
                 _ => {}
             }
 
@@ -334,9 +334,9 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
 
             // A cross specified in pixels overrides align stretch
             match cross {
-                Length::Pixels(val) => new_cross = val,
+                Units::Pixels(val) => new_cross = val,
 
-                Length::Percentage(val) => new_cross = parent_cross * val,
+                Units::Percentage(val) => new_cross = parent_cross * val,
 
                 _ => {}
             }
@@ -361,17 +361,15 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
             let bottom = child.get_bottom(state);
 
             let r = match right {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => val * parent_width,
-                Length::Initial(val) => val,
-                Length::Auto => 0.0,
+                Units::Pixels(val) => val,
+                Units::Percentage(val) => val * parent_width,
+                _ => 0.0,
             };
 
             let l = match left {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => val * parent_width,
-                Length::Initial(val) => val,
-                Length::Auto => 0.0,
+                Units::Pixels(val) => val,
+                Units::Percentage(val) => val * parent_width,
+                _ => 0.0,
             };
 
             if !right.is_auto() && !left.is_auto() {
@@ -379,17 +377,15 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
             }
 
             let b = match bottom {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => val * parent_height,
-                Length::Initial(val) => val,
-                Length::Auto => 0.0,
+                Units::Pixels(val) => val,
+                Units::Percentage(val) => val * parent_height,
+                _ => 0.0,
             };
 
             let t = match top {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => val * parent_height,
-                Length::Initial(val) => val,
-                Length::Auto => 0.0,
+                Units::Pixels(val) => val,
+                Units::Percentage(val) => val * parent_height,
+                _ => 0.0,
             };
 
             if !bottom.is_auto() && !top.is_auto() {
@@ -397,17 +393,17 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
             }
 
             match width {
-                Length::Auto => {}
-                Length::Pixels(val) => new_width = val,
-                Length::Initial(val) => new_width = val,
-                Length::Percentage(val) => new_width = val * parent_width,
+                
+                Units::Pixels(val) => new_width = val,
+                Units::Percentage(val) => new_width = val * parent_width,
+                _ => {}
             }
 
             match height {
-                Length::Auto => {}
-                Length::Pixels(val) => new_height = val,
-                Length::Initial(val) => new_height = val,
-                Length::Percentage(val) => new_height = val * parent_height,
+                
+                Units::Pixels(val) => new_height = val,
+                Units::Percentage(val) => new_height = val * parent_height,
+                _ => {}
             }
 
             match parent_flex_direction {
@@ -723,19 +719,19 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                         // Child size constraints
                         let _child_min_width = match child.get_min_width(state) {
-                            Length::Pixels(val) => val,
+                            Units::Pixels(val) => val,
                             _ => 0.0,
                         };
                         let child_max_width = match child.get_max_width(state) {
-                            Length::Pixels(val) => val,
+                            Units::Pixels(val) => val,
                             _ => std::f32::INFINITY,
                         };
                         let _child_min_height = match child.get_min_height(state) {
-                            Length::Pixels(val) => val,
+                            Units::Pixels(val) => val,
                             _ => 0.0,
                         };
                         let child_max_height = match child.get_max_height(state) {
-                            Length::Pixels(val) => val,
+                            Units::Pixels(val) => val,
                             _ => std::f32::INFINITY,
                         };
 
@@ -966,11 +962,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match left {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posx += val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posx += val
                                 * (parent_width
                                     - parent_padding_left
@@ -982,11 +978,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match top {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posy += val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posy += val
                                 * (parent_height
                                     - parent_padding_top
@@ -1006,11 +1002,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     new_posy = parent_posy;
 
                     match right {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posx = parent_posx + parent_width - child_width - val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posx =
                                 parent_posx + parent_width - child_width - (val * parent_width);
                         }
@@ -1019,11 +1015,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match left {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posx = parent_posx + val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posx = parent_posx + (val * parent_width);
                         }
 
@@ -1031,11 +1027,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match bottom {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posy = parent_posy + parent_height - child_height - val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posy =
                                 parent_posy + parent_height - child_height - (val * parent_height);
                         }
@@ -1044,11 +1040,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match top {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posy = parent_posy + val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posy = parent_posy + (val * parent_height);
                         }
 

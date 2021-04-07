@@ -146,7 +146,7 @@ impl Widget for CheckItem {
                 .set_hoverability(false)
                 .set_focusability(false)
                 .set_align_self(AlignSelf::Stretch)
-                .set_margin_left(Length::Pixels(5.0))
+                .set_margin_left(Units::Pixels(5.0))
         });
 
         self.button =

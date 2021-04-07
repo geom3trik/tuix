@@ -119,23 +119,49 @@ impl Default for Scroll {
 // Experimental new layout system
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Units {
-    Inherit,
+    Auto,
     Pixels(f32),
     Percentage(f32),
     Stretch(f32),
 }
 
+impl Units {
+
+    pub fn is_auto(&self) -> bool {
+        match self {
+            Units::Auto => true,
+            _ => false,
+        }
+    }
+
+    pub fn get_value(&self, parent_length: f32) -> f32 {
+        match self {
+            Units::Pixels(value) => *value,
+            Units::Percentage(value) => *value * parent_length,
+            _ => 0.0,
+        }
+    }
+
+    pub fn get_value_or(&self, parent_length: f32, default: f32) -> f32 {
+        match self {
+            Units::Pixels(value) => *value,
+            Units::Percentage(value) => *value * parent_length,
+            _ => default,
+        }
+    }
+}
+
 impl Default for Units {
     fn default() -> Self {
-        Self::Stretch(1.0)
+        Self::Auto
     }
 }
 
 impl std::fmt::Display for Units {
     fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Self::Inherit => {
-                write!(fmt, "Inherit")
+            Self::Auto => {
+                write!(fmt, "Auto")
             }
 
             Self::Pixels(val) => {
@@ -159,14 +185,14 @@ impl Interpolator for Units {
             Units::Pixels(val) => val,
             Units::Percentage(val) => val,
             Units::Stretch(_) => return *end,
-            Units::Inherit => return *end,
+            Units::Auto => return *end,
         };
 
         match end {
             Units::Pixels(e) => Units::Pixels(f32::interpolate(s, e, t)),
             Units::Percentage(e) => Units::Percentage(f32::interpolate(s, e, t)),
             Units::Stretch(_) => return *end,
-            Units::Inherit => return *end,
+            Units::Auto => return *end,
         }
     }
 }
@@ -181,9 +207,9 @@ pub struct Axis {
 impl Default for Axis {
     fn default() -> Self {
         Self {
-            space_before: Units::Inherit,
+            space_before: Units::Auto,
             size: Units::Stretch(1.0),
-            space_after: Units::Inherit,
+            space_after: Units::Auto,
         }
     }
 }

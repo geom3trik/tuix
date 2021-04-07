@@ -132,8 +132,8 @@ impl Widget for Animations {
         // Position Animation
         let position_animation_state = AnimationState::new()
             .with_duration(std::time::Duration::from_secs(2))
-            .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(100.0)))
+            .with_keyframe((0.0, Units::Pixels(0.0)))
+            .with_keyframe((1.0, Units::Pixels(100.0)))
             .set_persistent(true);
 
         // Add the same animation to two different properties (need to clone)
@@ -153,8 +153,8 @@ impl Widget for Animations {
         // Size Animation
         let size_animation_state = AnimationState::new()
             .with_duration(std::time::Duration::from_secs(2))
-            .with_keyframe((0.0, Length::Pixels(50.0)))
-            .with_keyframe((1.0, Length::Pixels(200.0)))
+            .with_keyframe((0.0, Units::Pixels(50.0)))
+            .with_keyframe((1.0, Units::Pixels(200.0)))
             .set_persistent(true);
 
         self.width_animation = state
@@ -175,8 +175,8 @@ impl Widget for Animations {
         // Margins, Padding, Border & Border Radius Animation
         let animation_state = AnimationState::new()
             .with_duration(std::time::Duration::from_secs(1))
-            .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(10.0)))
+            .with_keyframe((0.0, Units::Pixels(0.0)))
+            .with_keyframe((1.0, Units::Pixels(10.0)))
             .set_persistent(true);
 
         self.margin_left_animation = state

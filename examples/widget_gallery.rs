@@ -13,7 +13,7 @@ impl Widget for Header {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Button::with_label("M").build(state, entity, |builder| {
             builder
-                .set_flex_basis(Length::Pixels(30.0))
+                .set_flex_basis(Units::Pixels(30.0))
                 .set_text_justify(Justify::Center)
         });
 
@@ -23,12 +23,12 @@ impl Widget for Header {
 
         Button::with_label("S").build(state, entity, |builder| {
             builder
-                .set_flex_basis(Length::Pixels(30.0))
+                .set_flex_basis(Units::Pixels(30.0))
                 .set_text_justify(Justify::Center)
         });
 
         entity
-            .set_flex_basis(state, Length::Pixels(30.0))
+            .set_flex_basis(state, Units::Pixels(30.0))
             .set_flex_direction(state, FlexDirection::Row)
             .set_background_color(state, Color::rgb(255, 94, 26))
     }
@@ -44,7 +44,7 @@ fn main() {
         let (tab_bar, tab_view) = TabManager::new().build(state, window.entity(), |builder| 
             builder
                 .set_flex_grow(1.0)
-                .set_flex_basis(Length::Pixels(30.0))
+                .set_flex_basis(Units::Pixels(30.0))
         );
 
         Header::new().build(state, window.entity(), |builder| builder);
@@ -58,24 +58,24 @@ fn main() {
 
         // Button::with_label("Button").build(state, container, |builder|
         //     builder
-        //         .set_width(Length::Pixels(100.0))
-        //         .set_height(Length::Pixels(50.0))
+        //         .set_width(Units::Pixels(100.0))
+        //         .set_height(Units::Pixels(50.0))
         // );
 
         CheckItem::new("First", true).build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(30.0))
         });
         CheckItem::new("Second", true).build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(30.0))
         });
         CheckItem::new("Third", true).build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(30.0))
         });
     });
 

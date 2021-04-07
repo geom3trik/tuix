@@ -184,7 +184,7 @@ where
 
         let arrow_container = Element::new().build(state, entity, |builder| {
             builder
-                .set_width(Length::Pixels(20.0))
+                .set_width(Units::Pixels(20.0))
                 .set_flex_grow(0.0)
                 .class("arrow_container")
         });

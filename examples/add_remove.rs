@@ -33,7 +33,7 @@ impl Widget for Counter {
             match counter_event {
                 AddRemoveEvent::Add => {
                     Button::new().build(state, entity, |builder| {
-                        builder.set_height(Length::Pixels(30.0))
+                        builder.set_height(Units::Pixels(30.0))
                     });
                 }
 

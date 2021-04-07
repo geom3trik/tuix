@@ -80,8 +80,8 @@ impl Widget for Slider {
         self.active = Element::new().build(state, entity, |builder| {
             builder
                 .set_position(Position::Absolute)
-                .set_width(Length::Percentage(0.0))
-                .set_height(Length::Percentage(1.0))
+                .set_width(Units::Percentage(0.0))
+                .set_height(Units::Percentage(1.0))
                 //.set_background_color(Color::rgb(60, 60, 200))
                 .set_hoverability(false)
                 .class("active")
@@ -93,16 +93,16 @@ impl Widget for Slider {
             |builder| {
                 builder
                     //.set_position(Position::Absolute)
-                    //.set_top(Length::Pixels(-8.0))
-                    //.set_width(Length::Pixels(20.0))
-                    //.set_height(Length::Pixels(20.0))
+                    //.set_top(Units::Pixels(-8.0))
+                    //.set_width(Units::Pixels(20.0))
+                    //.set_height(Units::Pixels(20.0))
                     .class("thumb")
             }, //.set_background_color(Color::rgb(80, 80, 200))
         );
 
         // TEMP
-        self.thumb.set_left(state, Length::Percentage(0.0));
-        self.active.set_width(state, Length::Percentage(self.value));
+        self.thumb.set_left(state, Units::Percentage(0.0));
+        self.active.set_width(state, Units::Percentage(self.value));
 
         state.style.insert_element(entity, "slider");
 
@@ -127,7 +127,7 @@ impl Widget for Slider {
                         }
 
                         self.thumb
-                            .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
+                            .set_left(state, Units::Percentage((dx - thumb_width / 2.0) / width));
                     }
                 }
 
@@ -154,9 +154,9 @@ impl Widget for Slider {
 
                         let v = self.min + nx * (self.max - self.min);
 
-                        self.active.set_width(state, Length::Percentage(nx));
+                        self.active.set_width(state, Units::Percentage(nx));
                         self.thumb
-                            .set_left(state, Length::Pixels(dx - thumb_width / 2.0));
+                            .set_left(state, Units::Pixels(dx - thumb_width / 2.0));
 
                         if let Some(on_change) = &self.on_change {
                             let mut event = (on_change)(v);
@@ -194,10 +194,10 @@ impl Widget for Slider {
 
                         let v = self.min + nx * (self.max - self.min);
 
-                        self.active.set_width(state, Length::Percentage(nx));
+                        self.active.set_width(state, Units::Percentage(nx));
 
                         self.thumb
-                            .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
+                            .set_left(state, Units::Percentage((dx - thumb_width / 2.0) / width));
 
                         self.value = v;
 

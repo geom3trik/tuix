@@ -91,7 +91,7 @@ impl Widget for Panel {
                 .set_font("icons")
                 .set_text_justify(Justify::Center)
                 .set_text_align(Align::Center)
-                .set_flex_basis(Length::Pixels(20.0))
+                .set_flex_basis(Units::Pixels(20.0))
                 .set_hoverability(false)
                 .set_focusability(false)
                 .class("icon")
@@ -122,8 +122,8 @@ impl Widget for Panel {
         // Animations
         let container_expand_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(0.0)));
+            .with_keyframe((0.0, Units::Pixels(0.0)))
+            .with_keyframe((1.0, Units::Pixels(0.0)));
 
         self.expand_height_animation = state
             .style
@@ -137,8 +137,8 @@ impl Widget for Panel {
 
         let container_collapse_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(0.0)));
+            .with_keyframe((0.0, Units::Pixels(0.0)))
+            .with_keyframe((1.0, Units::Pixels(0.0)));
 
         self.collapse_height_animation = state
             .style
@@ -157,8 +157,8 @@ impl Widget for Panel {
 
         let container_hide_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(0.0)));
+            .with_keyframe((0.0, Units::Pixels(0.0)))
+            .with_keyframe((1.0, Units::Pixels(0.0)));
 
         self.move_up_animation = state
             .style
@@ -172,8 +172,8 @@ impl Widget for Panel {
 
         let container_reveal_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(0.0)));
+            .with_keyframe((0.0, Units::Pixels(0.0)))
+            .with_keyframe((1.0, Units::Pixels(0.0)));
 
         self.move_down_animation = state
             .style
@@ -237,7 +237,7 @@ impl Widget for Panel {
                                         self.expand_height_animation,
                                     );
 
-                                    self.container1.set_height(state, Length::Auto);
+                                    self.container1.set_height(state, Units::Auto);
 
                                     state
                                         .style
@@ -252,7 +252,7 @@ impl Widget for Panel {
                                         self.expand_width_animation,
                                     );
 
-                                    self.container1.set_width(state, Length::Auto);
+                                    self.container1.set_width(state, Units::Auto);
 
                                     state
                                         .style
@@ -290,7 +290,7 @@ impl Widget for Panel {
                                                 .get_animation_mut(self.expand_height_animation)
                                             {
                                                 animation.keyframes.last_mut().unwrap().1 =
-                                                    Length::Pixels(container_height);
+                                                    Units::Pixels(container_height);
                                             }
         
                                             if let Some(animation) = state
@@ -299,7 +299,7 @@ impl Widget for Panel {
                                                 .get_animation_mut(self.collapse_height_animation)
                                             {
                                                 animation.keyframes.first_mut().unwrap().1 =
-                                                    Length::Pixels(container_height);
+                                                    Units::Pixels(container_height);
                                             }
         
                                             if let Some(animation) = state
@@ -308,7 +308,7 @@ impl Widget for Panel {
                                                 .get_animation_mut(self.move_down_animation)
                                             {
                                                 animation.keyframes.first_mut().unwrap().1 =
-                                                    Length::Pixels(-container_height);
+                                                    Units::Pixels(-container_height);
                                             }
         
                                             if let Some(animation) = state
@@ -317,7 +317,7 @@ impl Widget for Panel {
                                                 .get_animation_mut(self.move_up_animation)
                                             {
                                                 animation.keyframes.last_mut().unwrap().1 =
-                                                    Length::Pixels(-container_height);
+                                                    Units::Pixels(-container_height);
                                             }
         
                                             self.container_height = container_height;
@@ -330,7 +330,7 @@ impl Widget for Panel {
                                         self.collapse_height_animation,
                                     );
 
-                                    self.container1.set_height(state, Length::Pixels(0.0));
+                                    self.container1.set_height(state, Units::Pixels(0.0));
 
                                     state
                                         .style
@@ -355,7 +355,7 @@ impl Widget for Panel {
                                                 .get_animation_mut(self.expand_width_animation)
                                             {
                                                 animation.keyframes.last_mut().unwrap().1 =
-                                                    Length::Pixels(container_width);
+                                                    Units::Pixels(container_width);
                                             }
         
                                             if let Some(animation) = state
@@ -364,7 +364,7 @@ impl Widget for Panel {
                                                 .get_animation_mut(self.collapse_width_animation)
                                             {
                                                 animation.keyframes.first_mut().unwrap().1 =
-                                                    Length::Pixels(container_width);
+                                                    Units::Pixels(container_width);
                                             }
         
                                             if let Some(animation) = state
@@ -373,7 +373,7 @@ impl Widget for Panel {
                                                 .get_animation_mut(self.move_left_animation)
                                             {
                                                 animation.keyframes.first_mut().unwrap().1 =
-                                                    Length::Pixels(-container_width);
+                                                    Units::Pixels(-container_width);
                                             }
         
                                             if let Some(animation) = state
@@ -382,7 +382,7 @@ impl Widget for Panel {
                                                 .get_animation_mut(self.move_right_animation)
                                             {
                                                 animation.keyframes.last_mut().unwrap().1 =
-                                                    Length::Pixels(-container_width);
+                                                    Units::Pixels(-container_width);
                                             }
         
                                             self.container_height = container_width;
@@ -394,7 +394,7 @@ impl Widget for Panel {
                                         self.collapse_width_animation,
                                     );
 
-                                    self.container1.set_width(state, Length::Pixels(0.0));
+                                    self.container1.set_width(state, Units::Pixels(0.0));
 
                                     state
                                         .style

@@ -11,11 +11,11 @@ fn main() {
         // Create a shared style rule for button elements
         let style_rule: StyleRule = StyleRule::new()
             .selector(Selector::element("button"))
-            .set_width(Length::Pixels(100.0))
-            .set_height(Length::Pixels(30.0))
+            .set_width(Units::Pixels(100.0))
+            .set_height(Units::Pixels(30.0))
             .set_background_color(Color::from("#ff5e1a"))
             .set_text_justify(Justify::Center)
-            .set_margin(Length::Pixels(5.0));
+            .set_margin(Units::Pixels(5.0));
 
         // Add the shared style rule to state
         state.add_style_rule(style_rule);

@@ -46,9 +46,9 @@ fn main() {
         );
 
         state.style.main_axis.insert(one, Axis {
-            space_before: Units::Inherit,
+            space_before: Units::Auto,
             size: Units::Pixels(100.0),
-            space_after: Units::Inherit,
+            space_after: Units::Auto,
         });
 
         state.style.cross_axis.insert(one, Axis {
@@ -66,9 +66,9 @@ fn main() {
         );
 
         state.style.main_axis.insert(one, Axis {
-            space_before: Units::Inherit,
+            space_before: Units::Auto,
             size: Units::Pixels(100.0),
-            space_after: Units::Inherit,
+            space_after: Units::Auto,
         });
 
         state.style.cross_axis.insert(one, Axis {
@@ -87,9 +87,9 @@ fn main() {
         );
 
         state.style.main_axis.insert(one, Axis {
-            space_before: Units::Inherit,
+            space_before: Units::Auto,
             size: Units::Pixels(100.0),
-            space_after: Units::Inherit,
+            space_after: Units::Auto,
         });
 
         state.style.cross_axis.insert(one, Axis {
@@ -107,9 +107,9 @@ fn main() {
         );
 
         state.style.main_axis.insert(one, Axis {
-            space_before: Units::Inherit,
+            space_before: Units::Auto,
             size: Units::Pixels(100.0),
-            space_after: Units::Inherit,
+            space_after: Units::Auto,
         });
 
         state.style.cross_axis.insert(one, Axis {
@@ -127,9 +127,9 @@ fn main() {
         );
 
         state.style.main_axis.insert(one, Axis {
-            space_before: Units::Inherit,
+            space_before: Units::Auto,
             size: Units::Pixels(100.0),
-            space_after: Units::Inherit,
+            space_after: Units::Auto,
         });
         state.style.cross_axis.insert(one, Axis {
             space_before: Units::Pixels(0.0),

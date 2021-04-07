@@ -71,25 +71,25 @@ pub trait PropSet : AsEntity {
     // Flex Item
     fn set_flex_grow(self, state: &mut State, value: f32) -> Self;
     fn set_flex_shrink(self, state: &mut State, value: f32) -> Self;
-    fn set_flex_basis(self, state: &mut State, value: Length) -> Self;
+    fn set_flex_basis(self, state: &mut State, value: Units) -> Self;
     fn set_align_self(self, state: &mut State, value: AlignSelf) -> Self;
 
     // Positioning
     fn set_position(self, state: &mut State, value: Position) -> Self;
-    fn set_left(self, state: &mut State, value: Length) -> Self;
-    fn set_right(self, state: &mut State, value: Length) -> Self;
-    fn set_top(self, state: &mut State, value: Length) -> Self;
-    fn set_bottom(self, state: &mut State, value: Length) -> Self;
+    fn set_left(self, state: &mut State, value: Units) -> Self;
+    fn set_right(self, state: &mut State, value: Units) -> Self;
+    fn set_top(self, state: &mut State, value: Units) -> Self;
+    fn set_bottom(self, state: &mut State, value: Units) -> Self;
 
     // Size
-    fn set_width(self, state: &mut State, value: Length) -> Self;
-    fn set_height(self, state: &mut State, value: Length) -> Self;
+    fn set_width(self, state: &mut State, value: Units) -> Self;
+    fn set_height(self, state: &mut State, value: Units) -> Self;
 
     // Size Constraints
-    fn set_min_width(self, state: &mut State, value: Length) -> Self;
-    fn set_max_width(self, state: &mut State, value: Length) -> Self;
-    fn set_min_height(self, state: &mut State, value: Length) -> Self;
-    fn set_max_height(self, state: &mut State, value: Length) -> Self;
+    fn set_min_width(self, state: &mut State, value: Units) -> Self;
+    fn set_max_width(self, state: &mut State, value: Units) -> Self;
+    fn set_min_height(self, state: &mut State, value: Units) -> Self;
+    fn set_max_height(self, state: &mut State, value: Units) -> Self;
 
     // Text
     fn set_text(self, state: &mut State, text: &str) -> Self;
@@ -111,29 +111,29 @@ pub trait PropSet : AsEntity {
     fn set_background_image(self, state: &mut State, value: String) -> Self;
 
     // Border
-    fn set_border_width(self, state: &mut State, value: Length) -> Self;
+    fn set_border_width(self, state: &mut State, value: Units) -> Self;
     fn set_border_color(self, state: &mut State, value: Color) -> Self;
 
     // Border Radius
-    fn set_border_radius(self, state: &mut State, value: Length) -> Self;
-    fn set_border_radius_top_left(self, state: &mut State, value: Length) -> Self;
-    fn set_border_radius_top_right(self, state: &mut State, value: Length) -> Self;
-    fn set_border_radius_bottom_left(self, state: &mut State, value: Length) -> Self;
-    fn set_border_radius_bottom_right(self, state: &mut State, value: Length) -> Self;
+    fn set_border_radius(self, state: &mut State, value: Units) -> Self;
+    fn set_border_radius_top_left(self, state: &mut State, value: Units) -> Self;
+    fn set_border_radius_top_right(self, state: &mut State, value: Units) -> Self;
+    fn set_border_radius_bottom_left(self, state: &mut State, value: Units) -> Self;
+    fn set_border_radius_bottom_right(self, state: &mut State, value: Units) -> Self;
 
     // Margin
-    fn set_margin(self, state: &mut State, value: Length) -> Self;
-    fn set_margin_left(self, state: &mut State, value: Length) -> Self;
-    fn set_margin_right(self, state: &mut State, value: Length) -> Self;
-    fn set_margin_top(self, state: &mut State, value: Length) -> Self;
-    fn set_margin_bottom(self, state: &mut State, value: Length) -> Self;
+    fn set_margin(self, state: &mut State, value: Units) -> Self;
+    fn set_margin_left(self, state: &mut State, value: Units) -> Self;
+    fn set_margin_right(self, state: &mut State, value: Units) -> Self;
+    fn set_margin_top(self, state: &mut State, value: Units) -> Self;
+    fn set_margin_bottom(self, state: &mut State, value: Units) -> Self;
 
     // Padding
-    fn set_padding(self, state: &mut State, value: Length) -> Self;
-    fn set_padding_left(self, state: &mut State, value: Length) -> Self;
-    fn set_padding_right(self, state: &mut State, value: Length) -> Self;
-    fn set_padding_top(self, state: &mut State, value: Length) -> Self;
-    fn set_padding_bottom(self, state: &mut State, value: Length) -> Self;
+    fn set_padding(self, state: &mut State, value: Units) -> Self;
+    fn set_padding_left(self, state: &mut State, value: Units) -> Self;
+    fn set_padding_right(self, state: &mut State, value: Units) -> Self;
+    fn set_padding_top(self, state: &mut State, value: Units) -> Self;
+    fn set_padding_bottom(self, state: &mut State, value: Units) -> Self;
 
     // Clipping
     fn set_clip_widget(self, state: &mut State, value: Entity) -> Self;
@@ -497,7 +497,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_flex_basis(self, state: &mut State, value: Length) -> Self {
+    fn set_flex_basis(self, state: &mut State, value: Units) -> Self {
         state.style.flex_basis.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -525,7 +525,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_left(self, state: &mut State, value: Length) -> Self {
+    fn set_left(self, state: &mut State, value: Units) -> Self {
         state.style.left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -534,7 +534,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_right(self, state: &mut State, value: Length) -> Self {
+    fn set_right(self, state: &mut State, value: Units) -> Self {
         state.style.right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -543,7 +543,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_top(self, state: &mut State, value: Length) -> Self {
+    fn set_top(self, state: &mut State, value: Units) -> Self {
         state.style.top.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -552,7 +552,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_bottom(self, state: &mut State, value: Length) -> Self {
+    fn set_bottom(self, state: &mut State, value: Units) -> Self {
         state.style.bottom.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -562,7 +562,7 @@ impl PropSet for Entity {
     }
 
     // Size
-    fn set_width(self, state: &mut State, value: Length) -> Self {
+    fn set_width(self, state: &mut State, value: Units) -> Self {
         state.style.width.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -571,7 +571,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_height(self, state: &mut State, value: Length) -> Self {
+    fn set_height(self, state: &mut State, value: Units) -> Self {
         state.style.height.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -581,7 +581,7 @@ impl PropSet for Entity {
     }
 
     // Size Constraints
-    fn set_min_width(self, state: &mut State, value: Length) -> Self {
+    fn set_min_width(self, state: &mut State, value: Units) -> Self {
         state.style.min_width.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -590,7 +590,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_max_width(self, state: &mut State, value: Length) -> Self {
+    fn set_max_width(self, state: &mut State, value: Units) -> Self {
         state.style.max_width.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -599,7 +599,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_min_height(self, state: &mut State, value: Length) -> Self {
+    fn set_min_height(self, state: &mut State, value: Units) -> Self {
         state.style.min_height.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -608,7 +608,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_max_height(self, state: &mut State, value: Length) -> Self {
+    fn set_max_height(self, state: &mut State, value: Units) -> Self {
         state.style.max_height.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -716,7 +716,7 @@ impl PropSet for Entity {
     }
 
     // Border
-    fn set_border_width(self, state: &mut State, value: Length) -> Self {
+    fn set_border_width(self, state: &mut State, value: Units) -> Self {
         state.style.border_width.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -734,7 +734,7 @@ impl PropSet for Entity {
     }
 
     // Border Radius
-    fn set_border_radius(self, state: &mut State, value: Length) -> Self {
+    fn set_border_radius(self, state: &mut State, value: Units) -> Self {
         state.style.border_radius_top_left.insert(self, value);
         state.style.border_radius_top_right.insert(self, value);
         state.style.border_radius_bottom_left.insert(self, value);
@@ -745,7 +745,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_border_radius_top_left(self, state: &mut State, value: Length) -> Self {
+    fn set_border_radius_top_left(self, state: &mut State, value: Units) -> Self {
         state.style.border_radius_top_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -753,7 +753,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_border_radius_top_right(self, state: &mut State, value: Length) -> Self {
+    fn set_border_radius_top_right(self, state: &mut State, value: Units) -> Self {
         state.style.border_radius_top_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -761,7 +761,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_border_radius_bottom_left(self, state: &mut State, value: Length) -> Self {
+    fn set_border_radius_bottom_left(self, state: &mut State, value: Units) -> Self {
         state.style.border_radius_bottom_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -769,7 +769,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_border_radius_bottom_right(self, state: &mut State, value: Length) -> Self {
+    fn set_border_radius_bottom_right(self, state: &mut State, value: Units) -> Self {
         state.style.border_radius_bottom_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -778,7 +778,7 @@ impl PropSet for Entity {
     }
 
     // Margin
-    fn set_margin(self, state: &mut State, value: Length) -> Self {
+    fn set_margin(self, state: &mut State, value: Units) -> Self {
         state.style.margin_left.insert(self, value);
         state.style.margin_right.insert(self, value);
         state.style.margin_top.insert(self, value);
@@ -790,7 +790,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_margin_left(self, state: &mut State, value: Length) -> Self {
+    fn set_margin_left(self, state: &mut State, value: Units) -> Self {
         state.style.margin_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -798,7 +798,7 @@ impl PropSet for Entity {
 
         self
     }
-    fn set_margin_right(self, state: &mut State, value: Length) -> Self {
+    fn set_margin_right(self, state: &mut State, value: Units) -> Self {
         state.style.margin_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -806,7 +806,7 @@ impl PropSet for Entity {
 
         self
     }
-    fn set_margin_top(self, state: &mut State, value: Length) -> Self {
+    fn set_margin_top(self, state: &mut State, value: Units) -> Self {
         state.style.margin_top.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -814,7 +814,7 @@ impl PropSet for Entity {
 
         self
     }
-    fn set_margin_bottom(self, state: &mut State, value: Length) -> Self {
+    fn set_margin_bottom(self, state: &mut State, value: Units) -> Self {
         state.style.margin_bottom.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -824,7 +824,7 @@ impl PropSet for Entity {
     }
 
     // Padding
-    fn set_padding(self, state: &mut State, value: Length) -> Self {
+    fn set_padding(self, state: &mut State, value: Units) -> Self {
         state.style.padding_left.insert(self, value);
         state.style.padding_right.insert(self, value);
         state.style.padding_top.insert(self, value);
@@ -836,7 +836,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_padding_left(self, state: &mut State, value: Length) -> Self {
+    fn set_padding_left(self, state: &mut State, value: Units) -> Self {
         state.style.padding_left.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -844,7 +844,7 @@ impl PropSet for Entity {
 
         self
     }
-    fn set_padding_right(self, state: &mut State, value: Length) -> Self {
+    fn set_padding_right(self, state: &mut State, value: Units) -> Self {
         state.style.padding_right.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -852,7 +852,7 @@ impl PropSet for Entity {
 
         self
     }
-    fn set_padding_top(self, state: &mut State, value: Length) -> Self {
+    fn set_padding_top(self, state: &mut State, value: Units) -> Self {
         state.style.padding_top.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -860,7 +860,7 @@ impl PropSet for Entity {
 
         self
     }
-    fn set_padding_bottom(self, state: &mut State, value: Length) -> Self {
+    fn set_padding_bottom(self, state: &mut State, value: Units) -> Self {
         state.style.padding_bottom.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -960,39 +960,39 @@ pub trait PropGet {
 
     // Position
     fn get_position(&self, state: &mut State) -> Position;
-    fn get_left(&self, state: &mut State) -> Length;
-    fn get_right(&self, state: &mut State) -> Length;
-    fn get_top(&self, state: &mut State) -> Length;
-    fn get_bottom(&self, state: &mut State) -> Length;
+    fn get_left(&self, state: &mut State) -> Units;
+    fn get_right(&self, state: &mut State) -> Units;
+    fn get_top(&self, state: &mut State) -> Units;
+    fn get_bottom(&self, state: &mut State) -> Units;
 
     // Size
-    fn get_width(&self, state: &mut State) -> Length;
-    fn get_height(&self, state: &mut State) -> Length;
+    fn get_width(&self, state: &mut State) -> Units;
+    fn get_height(&self, state: &mut State) -> Units;
 
     // Size Constraints
-    fn get_min_width(&self, state: &mut State) -> Length;
-    fn get_max_width(&self, state: &mut State) -> Length;
-    fn get_min_height(&self, state: &mut State) -> Length;
-    fn get_max_height(&self, state: &mut State) -> Length;
+    fn get_min_width(&self, state: &mut State) -> Units;
+    fn get_max_width(&self, state: &mut State) -> Units;
+    fn get_min_height(&self, state: &mut State) -> Units;
+    fn get_max_height(&self, state: &mut State) -> Units;
 
     // Margins
-    fn get_margin_left(&self, state: &mut State) -> Length;
-    fn get_margin_right(&self, state: &mut State) -> Length;
-    fn get_margin_top(&self, state: &mut State) -> Length;
-    fn get_margin_bottom(&self, state: &mut State) -> Length;
+    fn get_margin_left(&self, state: &mut State) -> Units;
+    fn get_margin_right(&self, state: &mut State) -> Units;
+    fn get_margin_top(&self, state: &mut State) -> Units;
+    fn get_margin_bottom(&self, state: &mut State) -> Units;
 
     // Padding
-    fn get_padding_left(&self, state: &mut State) -> Length;
-    fn get_padding_right(&self, state: &mut State) -> Length;
-    fn get_padding_top(&self, state: &mut State) -> Length;
-    fn get_padding_bottom(&self, state: &mut State) -> Length;
+    fn get_padding_left(&self, state: &mut State) -> Units;
+    fn get_padding_right(&self, state: &mut State) -> Units;
+    fn get_padding_top(&self, state: &mut State) -> Units;
+    fn get_padding_bottom(&self, state: &mut State) -> Units;
 
     // Border
-    fn get_border_width(&self, state: &mut State) -> Length;
+    fn get_border_width(&self, state: &mut State) -> Units;
 
     // Flex Container
     fn get_flex_direction(&self, state: &mut State) -> FlexDirection;
-    fn get_flex_basis(&self, state: &mut State) -> Length;
+    fn get_flex_basis(&self, state: &mut State) -> Units;
     fn get_justify_content(&self, state: &mut State) -> JustifyContent;
     fn get_align_items(&self, state: &mut State) -> AlignItems;
 
@@ -1065,30 +1065,30 @@ impl PropGet for Entity {
     fn get_position(&self, state: &mut State) -> Position {
         state.style.position.get(*self).cloned().unwrap_or_default()
     }
-    fn get_left(&self, state: &mut State) -> Length {
+    fn get_left(&self, state: &mut State) -> Units {
         state.style.left.get(*self).cloned().unwrap_or_default()
     }
-    fn get_right(&self, state: &mut State) -> Length {
+    fn get_right(&self, state: &mut State) -> Units {
         state.style.right.get(*self).cloned().unwrap_or_default()
     }
-    fn get_top(&self, state: &mut State) -> Length {
+    fn get_top(&self, state: &mut State) -> Units {
         state.style.top.get(*self).cloned().unwrap_or_default()
     }
-    fn get_bottom(&self, state: &mut State) -> Length {
+    fn get_bottom(&self, state: &mut State) -> Units {
         state.style.bottom.get(*self).cloned().unwrap_or_default()
     }
 
     // Size
-    fn get_width(&self, state: &mut State) -> Length {
+    fn get_width(&self, state: &mut State) -> Units {
         state.style.width.get(*self).cloned().unwrap_or_default()
     }
 
-    fn get_height(&self, state: &mut State) -> Length {
+    fn get_height(&self, state: &mut State) -> Units {
         state.style.height.get(*self).cloned().unwrap_or_default()
     }
 
     // Size Constraints
-    fn get_min_width(&self, state: &mut State) -> Length {
+    fn get_min_width(&self, state: &mut State) -> Units {
         state
             .style
             .min_width
@@ -1097,7 +1097,7 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    fn get_max_width(&self, state: &mut State) -> Length {
+    fn get_max_width(&self, state: &mut State) -> Units {
         state
             .style
             .max_width
@@ -1106,7 +1106,7 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    fn get_min_height(&self, state: &mut State) -> Length {
+    fn get_min_height(&self, state: &mut State) -> Units {
         state
             .style
             .min_height
@@ -1115,7 +1115,7 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    fn get_max_height(&self, state: &mut State) -> Length {
+    fn get_max_height(&self, state: &mut State) -> Units {
         state
             .style
             .max_height
@@ -1125,7 +1125,7 @@ impl PropGet for Entity {
     }
 
     // Margins
-    fn get_margin_left(&self, state: &mut State) -> Length {
+    fn get_margin_left(&self, state: &mut State) -> Units {
         state
             .style
             .margin_left
@@ -1134,7 +1134,7 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    fn get_margin_right(&self, state: &mut State) -> Length {
+    fn get_margin_right(&self, state: &mut State) -> Units {
         state
             .style
             .margin_right
@@ -1143,7 +1143,7 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    fn get_margin_top(&self, state: &mut State) -> Length {
+    fn get_margin_top(&self, state: &mut State) -> Units {
         state
             .style
             .margin_top
@@ -1152,7 +1152,7 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    fn get_margin_bottom(&self, state: &mut State) -> Length {
+    fn get_margin_bottom(&self, state: &mut State) -> Units {
         state
             .style
             .margin_bottom
@@ -1162,7 +1162,7 @@ impl PropGet for Entity {
     }
 
     // Padding
-    fn get_padding_left(&self, state: &mut State) -> Length {
+    fn get_padding_left(&self, state: &mut State) -> Units {
         state
             .style
             .padding_left
@@ -1171,7 +1171,7 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    fn get_padding_right(&self, state: &mut State) -> Length {
+    fn get_padding_right(&self, state: &mut State) -> Units {
         state
             .style
             .padding_right
@@ -1179,7 +1179,7 @@ impl PropGet for Entity {
             .cloned()
             .unwrap_or_default()
     }
-    fn get_padding_top(&self, state: &mut State) -> Length {
+    fn get_padding_top(&self, state: &mut State) -> Units {
         state
             .style
             .padding_top
@@ -1187,7 +1187,7 @@ impl PropGet for Entity {
             .cloned()
             .unwrap_or_default()
     }
-    fn get_padding_bottom(&self, state: &mut State) -> Length {
+    fn get_padding_bottom(&self, state: &mut State) -> Units {
         state
             .style
             .padding_bottom
@@ -1197,7 +1197,7 @@ impl PropGet for Entity {
     }
 
     // Border
-    fn get_border_width(&self, state: &mut State) -> Length {
+    fn get_border_width(&self, state: &mut State) -> Units {
         state
             .style
             .border_width
@@ -1216,7 +1216,7 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    fn get_flex_basis(&self, state: &mut State) -> Length {
+    fn get_flex_basis(&self, state: &mut State) -> Units {
         state
             .style
             .flex_basis

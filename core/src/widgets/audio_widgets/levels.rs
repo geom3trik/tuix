@@ -41,7 +41,7 @@ impl Widget for AudioLevelBar {
                 AudioLevelEvent::SetLevel(val) => {
                     self.level = *val;
                     let level_db = 1.0 + (20.0 * self.level.abs().log10()).max(-60.0) / 60.0;
-                    self.front.set_height(state, Length::Percentage(level_db));
+                    self.front.set_height(state, Units::Percentage(level_db));
                 }
             }
         }

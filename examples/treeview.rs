@@ -19,8 +19,8 @@ fn main() {
 
         let rvbox = ResizableVBox::new().build(state, window.entity(), |builder| {
             builder
-                .set_width(Length::Pixels(300.0))
-                .set_height(Length::Percentage(1.0))
+                .set_width(Units::Pixels(300.0))
+                .set_height(Units::Percentage(1.0))
                 .set_background_color(Color::blue())
                 .class("container")
         });

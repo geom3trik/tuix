@@ -5,7 +5,7 @@ use crate::entity::Entity;
 use crate::state::animation::Interpolator;
 use crate::style::color::Color;
 
-use crate::style::Length;
+use crate::style::Units;
 
 // TODO
 /*
@@ -32,19 +32,19 @@ impl Default for BorderStyle {
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct BorderRadius {
-    pub top_left: Length,
-    pub top_right: Length,
-    pub bottom_left: Length,
-    pub bottom_right: Length,
+    pub top_left: Units,
+    pub top_right: Units,
+    pub bottom_left: Units,
+    pub bottom_right: Units,
 }
 
 impl Default for BorderRadius {
     fn default() -> Self {
         BorderRadius {
-            top_left: Length::default(),
-            top_right: Length::default(),
-            bottom_left: Length::default(),
-            bottom_right: Length::default(),
+            top_left: Units::default(),
+            top_right: Units::default(),
+            bottom_left: Units::default(),
+            bottom_right: Units::default(),
         }
     }
 }
@@ -52,28 +52,28 @@ impl Default for BorderRadius {
 impl Interpolator for BorderRadius {
     fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
         BorderRadius {
-            top_left: Length::interpolate(&start.top_left, &end.top_left, t),
-            top_right: Length::interpolate(&start.top_right, &end.top_right, t),
-            bottom_left: Length::interpolate(&start.bottom_left, &end.bottom_left, t),
-            bottom_right: Length::interpolate(&start.bottom_right, &end.bottom_right, t),
+            top_left: Units::interpolate(&start.top_left, &end.top_left, t),
+            top_right: Units::interpolate(&start.top_right, &end.top_right, t),
+            bottom_left: Units::interpolate(&start.bottom_left, &end.bottom_left, t),
+            bottom_right: Units::interpolate(&start.bottom_right, &end.bottom_right, t),
         }
     }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct BoxShadow {
-    pub horizontal_offset: Length,
-    pub vertical_offset: Length,
-    pub blur_radius: Length,
+    pub horizontal_offset: Units,
+    pub vertical_offset: Units,
+    pub blur_radius: Units,
     pub color: Color,
 }
 
 impl Default for BoxShadow {
     fn default() -> Self {
         BoxShadow {
-            horizontal_offset: Length::Auto,
-            vertical_offset: Length::Auto,
-            blur_radius: Length::Auto,
+            horizontal_offset: Units::Auto,
+            vertical_offset: Units::Auto,
+            blur_radius: Units::Auto,
             color: Color::rgba(0, 0, 0, 128),
         }
     }
@@ -116,13 +116,13 @@ impl Default for FocusOrder {
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct GradientStop {
     // Position of the gradient stop
-    pub position: Length,
+    pub position: Units,
     // Colour of the gradient stop
     pub color: Color,
 }
 
 impl GradientStop {
-    pub fn new(position: Length, color: Color) -> Self {
+    pub fn new(position: Units, color: Color) -> Self {
         Self { position, color }
     }
 }
@@ -163,10 +163,10 @@ impl LinearGradient {
         self
     }
 
-    pub fn get_stops(&mut self, parent_length: f32) -> Vec<(f32, Color)> {
+    pub fn get_stops(&mut self, parent_Units: f32) -> Vec<(f32, Color)> {
         self.stops
             .iter()
-            .map(|stop| (stop.position.get_value(parent_length), stop.color))
+            .map(|stop| (stop.position.get_value(parent_Units), stop.color))
             .collect::<Vec<_>>()
     }
 }

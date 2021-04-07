@@ -35,16 +35,16 @@ impl Widget for ValueSlider {
         self.value = Textbox::new("0.5").build(state, entity, |builder| {
             builder
                 .set_flex_grow(0.0)
-                .set_flex_basis(Length::Pixels(50.0))
-                .set_margin_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(50.0))
+                .set_margin_left(Units::Pixels(5.0))
         });
         self.label = Label::new(&self.label_text).build(state, self.slider, |builder| {
             builder
-                .set_width(Length::Percentage(1.0))
-                .set_height(Length::Percentage(1.0))
+                .set_width(Units::Percentage(1.0))
+                .set_height(Units::Percentage(1.0))
                 .set_position(Position::Absolute)
                 .set_text(&self.label_text)
-                .set_padding_left(Length::Pixels(5.0))
+                .set_padding_left(Units::Pixels(5.0))
                 .set_hoverability(false)
         });
 

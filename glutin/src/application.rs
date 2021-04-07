@@ -6,7 +6,7 @@ use crate::keyboard::{scan_to_code, vk_to_key};
 
 use crate::window::Window;
 
-use tuix_core::{BoundingBox, Length};
+use tuix_core::{BoundingBox, Units};
 use tuix_core::{Entity, State};
 
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
@@ -91,11 +91,11 @@ impl Application {
 
         state.style.width.insert(
             Entity::root(),
-            Length::Pixels(window_description.inner_size.width as f32),
+            Units::Pixels(window_description.inner_size.width as f32),
         );
         state.style.height.insert(
             Entity::root(),
-            Length::Pixels(window_description.inner_size.height as f32),
+            Units::Pixels(window_description.inner_size.height as f32),
         );
 
         state
@@ -403,11 +403,11 @@ impl Application {
                             state
                                 .style
                                 .width
-                                .insert(Entity::root(), Length::Pixels(physical_size.width as f32));
+                                .insert(Entity::root(), Units::Pixels(physical_size.width as f32));
                             state
                                 .style
                                 .height
-                                .insert(Entity::root(), Length::Pixels(physical_size.height as f32));
+                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32));
 
                             state
                                 .data

@@ -245,7 +245,7 @@ impl Widget for TabBar2 {
             |builder| {
                 builder
                     .set_display(Display::None)
-                    .set_width(Length::Pixels(30.0))
+                    .set_width(Units::Pixels(30.0))
             }, //.set_background_color(Color::rgb(90,90,90))
         );
         self.phantom_tab2 = Tab::new("phantom2").build(
@@ -257,16 +257,16 @@ impl Widget for TabBar2 {
         // Animation to shrink one of the phantom tracks
         let shrink_animation_state = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Length::Pixels(100.0)))
-            .with_keyframe((1.0, Length::Pixels(0.0)));
+            .with_keyframe((0.0, Units::Pixels(100.0)))
+            .with_keyframe((1.0, Units::Pixels(0.0)));
 
         self.shrink_animation = state.style.width.insert_animation(shrink_animation_state);
 
         // Animation to grow one of the phantom tracks
         let grow_animation_state = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Length::Pixels(0.0)))
-            .with_keyframe((1.0, Length::Pixels(100.0)));
+            .with_keyframe((0.0, Units::Pixels(0.0)))
+            .with_keyframe((1.0, Units::Pixels(100.0)));
 
         self.grow_animation = state.style.width.insert_animation(grow_animation_state);
 
@@ -296,13 +296,13 @@ impl Widget for TabBar2 {
                         + tab.get_margin_bottom(state).get_value(0.0);
 
                     self.phantom_tab1
-                        .set_height(state, Length::Pixels(tab_height));
+                        .set_height(state, Units::Pixels(tab_height));
                     self.phantom_tab1
-                        .set_width(state, Length::Pixels(tab_width));
+                        .set_width(state, Units::Pixels(tab_width));
 
                     self.phantom_tab2
-                        .set_height(state, Length::Pixels(tab_height));
-                    self.phantom_tab2.set_width(state, Length::Pixels(0.0));
+                        .set_height(state, Units::Pixels(tab_height));
+                    self.phantom_tab2.set_width(state, Units::Pixels(0.0));
 
                     // Move the tab to the end unless already at the end
                     if let Some(last_child) = state.hierarchy.get_last_child(entity) {
@@ -351,8 +351,8 @@ impl Widget for TabBar2 {
                                     .width
                                     .play_animation(self.phantom_tab2, self.grow_animation);
 
-                                self.phantom_tab1.set_width(state, Length::Pixels(0.0));
-                                self.phantom_tab2.set_width(state, Length::Pixels(100.0));
+                                self.phantom_tab1.set_width(state, Units::Pixels(0.0));
+                                self.phantom_tab2.set_width(state, Units::Pixels(100.0));
                             } else if state.hierarchy.get_next_sibling(event.target)
                                 == Some(self.phantom_tab2)
                             {
@@ -369,8 +369,8 @@ impl Widget for TabBar2 {
                                     .width
                                     .play_animation(self.phantom_tab1, self.grow_animation);
 
-                                self.phantom_tab2.set_width(state, Length::Pixels(0.0));
-                                self.phantom_tab1.set_width(state, Length::Pixels(100.0));
+                                self.phantom_tab2.set_width(state, Units::Pixels(0.0));
+                                self.phantom_tab1.set_width(state, Units::Pixels(100.0));
                             }
                         } else {
                             if state.hierarchy.get_prev_sibling(event.target)
@@ -389,8 +389,8 @@ impl Widget for TabBar2 {
                                     .width
                                     .play_animation(self.phantom_tab2, self.grow_animation);
 
-                                self.phantom_tab1.set_width(state, Length::Pixels(0.0));
-                                self.phantom_tab2.set_width(state, Length::Pixels(100.0));
+                                self.phantom_tab1.set_width(state, Units::Pixels(0.0));
+                                self.phantom_tab2.set_width(state, Units::Pixels(100.0));
                             } else if state.hierarchy.get_prev_sibling(event.target)
                                 == Some(self.phantom_tab2)
                             {
@@ -407,8 +407,8 @@ impl Widget for TabBar2 {
                                     .width
                                     .play_animation(self.phantom_tab1, self.grow_animation);
 
-                                self.phantom_tab2.set_width(state, Length::Pixels(0.0));
-                                self.phantom_tab1.set_width(state, Length::Pixels(100.0));
+                                self.phantom_tab2.set_width(state, Units::Pixels(0.0));
+                                self.phantom_tab1.set_width(state, Units::Pixels(100.0));
                             }
                         }
                     }
@@ -425,8 +425,8 @@ pub struct MovableTab {
     dragging: bool,
     pos_down_x: f32,
     pos_down_y: f32,
-    previous_height: Length,
-    previous_width: Length,
+    previous_height: Units,
+    previous_width: Units,
     position_state: bool,
     tab: Tab,
 }
@@ -438,8 +438,8 @@ impl MovableTab {
             dragging: false,
             pos_down_x: 0.0,
             pos_down_y: 0.0,
-            previous_height: Length::default(),
-            previous_width: Length::default(),
+            previous_height: Units::default(),
+            previous_width: Units::default(),
             position_state: false,
             tab: Tab::new(name),
         }
@@ -469,15 +469,15 @@ impl Widget for MovableTab {
                         self.previous_height = entity.get_height(state);
                         self.previous_width = entity.get_width(state);
 
-                        entity.set_height(state, Length::Pixels(state.data.get_height(entity)));
-                        entity.set_width(state, Length::Pixels(state.data.get_width(entity)));
+                        entity.set_height(state, Units::Pixels(state.data.get_height(entity)));
+                        entity.set_width(state, Units::Pixels(state.data.get_width(entity)));
 
                         let parent = state.hierarchy.get_parent(entity).unwrap();
                         let parent_posx = state.data.get_posx(parent);
                         let parent_posy = state.data.get_posy(parent);
 
-                        entity.set_left(state, Length::Pixels(self.pos_down_x - parent_posx));
-                        entity.set_top(state, Length::Pixels(self.pos_down_y - parent_posy));
+                        entity.set_left(state, Units::Pixels(self.pos_down_x - parent_posx));
+                        entity.set_top(state, Units::Pixels(self.pos_down_y - parent_posy));
 
                         entity.set_position(state, Position::Absolute);
                         entity.set_z_order(state, 10);
@@ -496,12 +496,12 @@ impl Widget for MovableTab {
                         entity.set_width(state, self.previous_width);
                         entity.set_position(state, Position::Relative);
                         state.data.set_hoverability(entity, true);
-                        entity.set_left(state, Length::Auto);
-                        entity.set_top(state, Length::Auto);
+                        entity.set_left(state, Units::Auto);
+                        entity.set_top(state, Units::Auto);
                         entity.set_z_order(state, 0);
                         state.release(entity);
-                        entity.set_left(state, Length::Auto);
-                        entity.set_top(state, Length::Auto);
+                        entity.set_left(state, Units::Auto);
+                        entity.set_top(state, Units::Auto);
                         state.insert_event(
                             Event::new(MovableTabEvent::StopMove(entity)).target(entity),
                         );
@@ -525,9 +525,9 @@ impl Widget for MovableTab {
                         if self.dragging {
                             entity.set_left(
                                 state,
-                                Length::Pixels(self.pos_down_x - parent_posx + dist),
+                                Units::Pixels(self.pos_down_x - parent_posx + dist),
                             );
-                            //entity.set_top(state, Length::Pixels(self.pos_down_y - parent_posy + (*y - state.mouse.left.pos_down.1)));
+                            //entity.set_top(state, Units::Pixels(self.pos_down_y - parent_posy + (*y - state.mouse.left.pos_down.1)));
                         }
 
                         if !state.hovered.is_descendant_of(&state.hierarchy, entity) {

@@ -65,7 +65,7 @@ impl Widget for RangeSlider {
                 //         }
 
                 //         self.thumb
-                //             .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
+                //             .set_left(state, Units::Percentage((dx - thumb_width / 2.0) / width));
                 //     }
                 // }
                 WindowEvent::MouseDown(button) => {
@@ -91,9 +91,9 @@ impl Widget for RangeSlider {
 
                         let v = self.min + nx * (self.max - self.min);
 
-                        self.active.set_width(state, Length::Percentage(nx));
+                        self.active.set_width(state, Units::Percentage(nx));
                         self.first
-                            .set_left(state, Length::Pixels(dx - thumb_width / 2.0));
+                            .set_left(state, Units::Pixels(dx - thumb_width / 2.0));
 
                         // if let Some(on_change) = &self.on_change {
                         //     let mut event = (on_change)(v);
@@ -131,10 +131,10 @@ impl Widget for RangeSlider {
 
                         let v = self.min + nx * (self.max - self.min);
 
-                        self.active.set_width(state, Length::Percentage(nx));
+                        self.active.set_width(state, Units::Percentage(nx));
 
                         self.first
-                            .set_left(state, Length::Percentage((dx - thumb_width / 2.0) / width));
+                            .set_left(state, Units::Percentage((dx - thumb_width / 2.0) / width));
 
                         //self.value = v;
                         // if let Some(on_change) = &self.on_change {

@@ -20,34 +20,34 @@ pub enum Property {
 
     // Positioning
     Position(Position),
-    Left(Length),
-    Right(Length),
-    Top(Length),
-    Bottom(Length),
+    Left(Units),
+    Right(Units),
+    Top(Units),
+    Bottom(Units),
 
     // Size
-    Width(Length),
-    Height(Length),
+    Width(Units),
+    Height(Units),
 
     // Size Constraints
-    MinWidth(Length),
-    MinHeight(Length),
-    MaxWidth(Length),
-    MaxHeight(Length),
+    MinWidth(Units),
+    MinHeight(Units),
+    MaxWidth(Units),
+    MaxHeight(Units),
 
     // Margin
-    Margin(Length),
-    MarginLeft(Length),
-    MarginRight(Length),
-    MarginTop(Length),
-    MarginBottom(Length),
+    Margin(Units),
+    MarginLeft(Units),
+    MarginRight(Units),
+    MarginTop(Units),
+    MarginBottom(Units),
 
     // Padding
-    Padding(Length),
-    PaddingLeft(Length),
-    PaddingRight(Length),
-    PaddingTop(Length),
-    PaddingBottom(Length),
+    Padding(Units),
+    PaddingLeft(Units),
+    PaddingRight(Units),
+    PaddingTop(Units),
+    PaddingBottom(Units),
 
     // Flex Container
     FlexDirection(FlexDirection),
@@ -56,18 +56,18 @@ pub enum Property {
     AlignContent(AlignContent),
 
     // Flex Item
-    FlexBasis(Length),
+    FlexBasis(Units),
     FlexGrow(f32),
     FlexShrink(f32),
     AlignSelf(AlignSelf),
 
     // Border
-    BorderRadius(Length),
-    BorderTopLeftRadius(Length),
-    BorderTopRightRadius(Length),
-    BorderBottomLeftRadius(Length),
-    BorderBottomRightRadius(Length),
-    BorderWidth(Length),
+    BorderRadius(Units),
+    BorderTopLeftRadius(Units),
+    BorderTopRightRadius(Units),
+    BorderBottomLeftRadius(Units),
+    BorderBottomRightRadius(Units),
+    BorderWidth(Units),
     BorderColor(Color),
 
     // Background

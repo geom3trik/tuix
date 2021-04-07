@@ -2,7 +2,7 @@
 
 use crate::entity::Entity;
 use crate::events::*;
-use crate::{Direction, Justify, Length, PropGet, PropSet, State, Visibility, WindowEvent};
+use crate::{Direction, Justify, Units, PropGet, PropSet, State, Visibility, WindowEvent};
 
 use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
 
@@ -431,9 +431,9 @@ impl Widget for Textbox {
             .style
             .padding_left
             .get(entity)
-            .unwrap_or(&Length::Auto)
+            .unwrap_or(&Units::Auto)
         {
-            Length::Pixels(val) => val,
+            Units::Pixels(val) => val,
             _ => &0.0,
         };
 
@@ -441,14 +441,14 @@ impl Widget for Textbox {
             .style
             .padding_right
             .get(entity)
-            .unwrap_or(&Length::Auto)
+            .unwrap_or(&Units::Auto)
         {
-            Length::Pixels(val) => val,
+            Units::Pixels(val) => val,
             _ => &0.0,
         };
 
-        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Length::Auto) {
-            Length::Pixels(val) => val,
+        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Units::Auto) {
+            Units::Pixels(val) => val,
             _ => &0.0,
         };
 
@@ -456,9 +456,9 @@ impl Widget for Textbox {
             .style
             .padding_bottom
             .get(entity)
-            .unwrap_or(&Length::Auto)
+            .unwrap_or(&Units::Auto)
         {
-            Length::Pixels(val) => val,
+            Units::Pixels(val) => val,
             _ => &0.0,
         };
 
@@ -498,8 +498,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -510,8 +510,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -522,8 +522,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -534,8 +534,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -554,8 +554,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -597,8 +597,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -609,8 +609,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_height * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_height * val,
             _ => 0.0,
         };
 
@@ -621,8 +621,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_height * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_height * val,
             _ => 0.0,
         };
 
@@ -643,8 +643,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -655,8 +655,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_height * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_height * val,
             _ => 0.0,
         };
 
@@ -667,8 +667,8 @@ impl Widget for Textbox {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_height * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_height * val,
             _ => 0.0,
         };
 

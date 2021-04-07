@@ -83,7 +83,7 @@ impl StyleRule {
     }
 
     // Outer Shadow
-    pub fn set_outer_shadow_h_offset(mut self, value: Length) -> Self {
+    pub fn set_outer_shadow_h_offset(mut self, value: Units) -> Self {
         let mut box_shadow = BoxShadow::default();
         box_shadow.horizontal_offset = value;
 
@@ -92,7 +92,7 @@ impl StyleRule {
         self
     }
 
-    pub fn set_outer_shadow_v_offset(mut self, value: Length) -> Self {
+    pub fn set_outer_shadow_v_offset(mut self, value: Units) -> Self {
         let mut box_shadow = BoxShadow::default();
         box_shadow.vertical_offset = value;
 
@@ -110,7 +110,7 @@ impl StyleRule {
         self
     }
 
-    pub fn set_outer_shadow_blur(mut self, value: Length) -> Self {
+    pub fn set_outer_shadow_blur(mut self, value: Units) -> Self {
         let mut box_shadow = BoxShadow::default();
         box_shadow.blur_radius = value;
 
@@ -120,7 +120,7 @@ impl StyleRule {
     }
 
     // Inner Shadow
-    pub fn set_inner_shadow_h_offset(mut self, value: Length) -> Self {
+    pub fn set_inner_shadow_h_offset(mut self, value: Units) -> Self {
         let mut box_shadow = BoxShadow::default();
         box_shadow.horizontal_offset = value;
 
@@ -129,7 +129,7 @@ impl StyleRule {
         self
     }
 
-    pub fn set_inner_shadow_v_offset(mut self, value: Length) -> Self {
+    pub fn set_inner_shadow_v_offset(mut self, value: Units) -> Self {
         let mut box_shadow = BoxShadow::default();
         box_shadow.vertical_offset = value;
 
@@ -147,7 +147,7 @@ impl StyleRule {
         self
     }
 
-    pub fn set_inner_shadow_blur(mut self, value: Length) -> Self {
+    pub fn set_inner_shadow_blur(mut self, value: Units) -> Self {
         
         let mut box_shadow = BoxShadow::default();
         box_shadow.blur_radius = value;
@@ -165,24 +165,24 @@ impl StyleRule {
         self
     }
 
-    pub fn set_left(mut self, value: Length) -> Self {
+    pub fn set_left(mut self, value: Units) -> Self {
         self.properties.push(Property::Left(value));
 
         self
     }
 
-    pub fn set_right(mut self, value: Length) -> Self {
+    pub fn set_right(mut self, value: Units) -> Self {
         self.properties.push(Property::Right(value));
 
         self
     }
 
-    pub fn set_top(mut self, value: Length) -> Self {
+    pub fn set_top(mut self, value: Units) -> Self {
         self.properties.push(Property::Top(value));
         self
     }
 
-    pub fn set_bottom(mut self, value: Length) -> Self {
+    pub fn set_bottom(mut self, value: Units) -> Self {
         self.properties.push(Property::Bottom(value));
         self
     }
@@ -201,13 +201,13 @@ impl StyleRule {
 
     // Size
 
-    pub fn set_width(mut self, value: Length) -> Self {
+    pub fn set_width(mut self, value: Units) -> Self {
         self.properties.push(Property::Width(value));
 
         self
     }
 
-    pub fn set_height(mut self, value: Length) -> Self {
+    pub fn set_height(mut self, value: Units) -> Self {
         self.properties.push(Property::Height(value));
 
         self
@@ -215,25 +215,25 @@ impl StyleRule {
 
     // Size Constraints
 
-    pub fn set_min_width(mut self, value: Length) -> Self {
+    pub fn set_min_width(mut self, value: Units) -> Self {
         self.properties.push(Property::MinHeight(value));
 
         self
     }
 
-    pub fn set_max_width(mut self, value: Length) -> Self {
+    pub fn set_max_width(mut self, value: Units) -> Self {
         self.properties.push(Property::MaxWidth(value));
 
         self
     }
 
-    pub fn set_min_height(mut self, value: Length) -> Self {
+    pub fn set_min_height(mut self, value: Units) -> Self {
         self.properties.push(Property::MinHeight(value));
 
         self
     }
 
-    pub fn set_max_height(mut self, value: Length) -> Self {
+    pub fn set_max_height(mut self, value: Units) -> Self {
         self.properties.push(Property::MaxHeight(value));
 
         self
@@ -241,7 +241,7 @@ impl StyleRule {
 
     // Margins
 
-    pub fn set_margin(mut self, value: Length) -> Self {
+    pub fn set_margin(mut self, value: Units) -> Self {
         self.properties.push(Property::MarginLeft(value));
         self.properties.push(Property::MarginRight(value));
         self.properties.push(Property::MarginTop(value));
@@ -251,25 +251,25 @@ impl StyleRule {
         self
     }
 
-    pub fn set_margin_left(mut self, value: Length) -> Self {
+    pub fn set_margin_left(mut self, value: Units) -> Self {
         self.properties.push(Property::MarginLeft(value));
 
         self
     }
 
-    pub fn set_margin_right(mut self, value: Length) -> Self {
+    pub fn set_margin_right(mut self, value: Units) -> Self {
         self.properties.push(Property::MarginRight(value));
 
         self
     }
 
-    pub fn set_margin_top(mut self, value: Length) -> Self {
+    pub fn set_margin_top(mut self, value: Units) -> Self {
         self.properties.push(Property::MarginTop(value));
 
         self
     }
 
-    pub fn set_margin_bottom(mut self, value: Length) -> Self {
+    pub fn set_margin_bottom(mut self, value: Units) -> Self {
         self.properties.push(Property::MarginBottom(value));
 
         self
@@ -277,7 +277,7 @@ impl StyleRule {
 
     // Padding
 
-    pub fn set_padding(mut self, value: Length) -> Self {
+    pub fn set_padding(mut self, value: Units) -> Self {
         self.properties.push(Property::PaddingLeft(value));
         self.properties.push(Property::PaddingRight(value));
         self.properties.push(Property::PaddingTop(value));
@@ -287,25 +287,25 @@ impl StyleRule {
         self
     }
 
-    pub fn set_padding_left(mut self, value: Length) -> Self {
+    pub fn set_padding_left(mut self, value: Units) -> Self {
         self.properties.push(Property::PaddingLeft(value));
 
         self
     }
 
-    pub fn set_padding_right(mut self, value: Length) -> Self {
+    pub fn set_padding_right(mut self, value: Units) -> Self {
         self.properties.push(Property::PaddingRight(value));
 
         self
     }
 
-    pub fn set_padding_top(mut self, value: Length) -> Self {
+    pub fn set_padding_top(mut self, value: Units) -> Self {
         self.properties.push(Property::PaddingTop(value));
 
         self
     }
 
-    pub fn set_padding_bottom(mut self, value: Length) -> Self {
+    pub fn set_padding_bottom(mut self, value: Units) -> Self {
         self.properties.push(Property::PaddingBottom(value));
 
         self
@@ -325,7 +325,7 @@ impl StyleRule {
         self
     }
 
-    pub fn set_flex_basis(mut self, value: Length) -> Self {
+    pub fn set_flex_basis(mut self, value: Units) -> Self {
         self.properties.push(Property::FlexBasis(value));
 
         self
@@ -371,37 +371,37 @@ impl StyleRule {
         self
     }
 
-    pub fn set_border_width(mut self, value: Length) -> Self {
+    pub fn set_border_width(mut self, value: Units) -> Self {
         self.properties.push(Property::BorderWidth(value));
 
         self
     }
 
-    pub fn set_border_radius(mut self, value: Length) -> Self {
+    pub fn set_border_radius(mut self, value: Units) -> Self {
         self.properties.push(Property::BorderTopLeftRadius(value));
 
         self
     }
 
-    pub fn set_border_radius_top_left(mut self, value: Length) -> Self {
+    pub fn set_border_radius_top_left(mut self, value: Units) -> Self {
         self.properties.push(Property::BorderTopLeftRadius(value));
 
         self
     }
 
-    pub fn set_border_radius_top_right(mut self, value: Length) -> Self {
+    pub fn set_border_radius_top_right(mut self, value: Units) -> Self {
         self.properties.push(Property::BorderTopRightRadius(value));
         
         self
     }
 
-    pub fn set_border_radius_bottom_left(mut self, value: Length) -> Self {
+    pub fn set_border_radius_bottom_left(mut self, value: Units) -> Self {
         self.properties.push(Property::BorderBottomLeftRadius(value));
 
         self
     }
 
-    pub fn set_border_radius_bottom_right(mut self, value: Length) -> Self {
+    pub fn set_border_radius_bottom_right(mut self, value: Units) -> Self {
         self.properties.push(Property::BorderBottomRightRadius(value));
 
         self

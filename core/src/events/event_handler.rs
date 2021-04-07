@@ -14,7 +14,7 @@ use femtovg::{
     Paint, Path, Renderer, Solidity,
 };
 
-use crate::style::{Direction, Justify, Length, Visibility};
+use crate::style::{Direction, Justify, Units, Visibility};
 
 use std::any::{Any, TypeId};
 
@@ -54,9 +54,9 @@ pub(crate) trait EventHandler: Any {
             .style
             .padding_left
             .get(entity)
-            .unwrap_or(&Length::Auto)
+            .unwrap_or(&Units::Auto)
         {
-            Length::Pixels(val) => val,
+            Units::Pixels(val) => val,
             _ => &0.0,
         };
 
@@ -64,14 +64,14 @@ pub(crate) trait EventHandler: Any {
             .style
             .padding_right
             .get(entity)
-            .unwrap_or(&Length::Auto)
+            .unwrap_or(&Units::Auto)
         {
-            Length::Pixels(val) => val,
+            Units::Pixels(val) => val,
             _ => &0.0,
         };
 
-        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Length::Auto) {
-            Length::Pixels(val) => val,
+        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Units::Auto) {
+            Units::Pixels(val) => val,
             _ => &0.0,
         };
 
@@ -79,9 +79,9 @@ pub(crate) trait EventHandler: Any {
             .style
             .padding_bottom
             .get(entity)
-            .unwrap_or(&Length::Auto)
+            .unwrap_or(&Units::Auto)
         {
-            Length::Pixels(val) => val,
+            Units::Pixels(val) => val,
             _ => &0.0,
         };
 
@@ -121,8 +121,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -133,8 +133,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -145,8 +145,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -157,8 +157,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -177,8 +177,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -220,8 +220,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -232,8 +232,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_height * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_height * val,
             _ => 0.0,
         };
 
@@ -244,8 +244,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_height * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_height * val,
             _ => 0.0,
         };
 
@@ -266,8 +266,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 
@@ -278,8 +278,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_height * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_height * val,
             _ => 0.0,
         };
 
@@ -290,8 +290,8 @@ pub(crate) trait EventHandler: Any {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => parent_height * val,
+            Units::Pixels(val) => val,
+            Units::Percentage(val) => parent_height * val,
             _ => 0.0,
         };
 
@@ -578,9 +578,9 @@ pub(crate) trait EventHandler: Any {
                         .style
                         .padding_left
                         .get(entity)
-                        .unwrap_or(&Length::Auto)
+                        .unwrap_or(&Units::Auto)
                     {
-                        Length::Pixels(val) => val,
+                        Units::Pixels(val) => val,
                         _ => &0.0,
                     };
 
@@ -588,15 +588,15 @@ pub(crate) trait EventHandler: Any {
                         .style
                         .padding_right
                         .get(entity)
-                        .unwrap_or(&Length::Auto)
+                        .unwrap_or(&Units::Auto)
                     {
-                        Length::Pixels(val) => val,
+                        Units::Pixels(val) => val,
                         _ => &0.0,
                     };
 
-                    let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Length::Auto)
+                    let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Units::Auto)
                     {
-                        Length::Pixels(val) => val,
+                        Units::Pixels(val) => val,
                         _ => &0.0,
                     };
 
@@ -604,9 +604,9 @@ pub(crate) trait EventHandler: Any {
                         .style
                         .padding_bottom
                         .get(entity)
-                        .unwrap_or(&Length::Auto)
+                        .unwrap_or(&Units::Auto)
                     {
-                        Length::Pixels(val) => val,
+                        Units::Pixels(val) => val,
                         _ => &0.0,
                     };
 
@@ -656,26 +656,26 @@ pub(crate) trait EventHandler: Any {
                         .unwrap_or_default();
 
                     let border_radius_top_left = match border_radius.top_left {
-                        Length::Pixels(val) => val,
-                        Length::Percentage(val) => parent_width * val,
+                        Units::Pixels(val) => val,
+                        Units::Percentage(val) => parent_width * val,
                         _ => 0.0,
                     };
 
                     let border_radius_top_right = match border_radius.top_right {
-                        Length::Pixels(val) => val,
-                        Length::Percentage(val) => parent_width * val,
+                        Units::Pixels(val) => val,
+                        Units::Percentage(val) => parent_width * val,
                         _ => 0.0,
                     };
 
                     let border_radius_bottom_left = match border_radius.bottom_left {
-                        Length::Pixels(val) => val,
-                        Length::Percentage(val) => parent_width * val,
+                        Units::Pixels(val) => val,
+                        Units::Percentage(val) => parent_width * val,
                         _ => 0.0,
                     };
 
                     let border_radius_bottom_right = match border_radius.bottom_right {
-                        Length::Pixels(val) => val,
-                        Length::Percentage(val) => parent_width * val,
+                        Units::Pixels(val) => val,
+                        Units::Percentage(val) => parent_width * val,
                         _ => 0.0,
                     };
 

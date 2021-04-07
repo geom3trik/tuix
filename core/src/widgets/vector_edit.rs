@@ -180,25 +180,25 @@ where
         self.y = Textbox::new(&self.yval.to_string()).build(state, entity, |builder| {
             builder
                 .set_flex_grow(1.0)
-                .set_margin_left(Length::Pixels(5.0))
+                .set_margin_left(Units::Pixels(5.0))
         });
         self.z = Textbox::new(&self.zval.to_string()).build(state, entity, |builder| {
             builder
                 .set_flex_grow(1.0)
-                .set_margin_left(Length::Pixels(5.0))
+                .set_margin_left(Units::Pixels(5.0))
         });
         self.w = Textbox::new(&self.wval.to_string()).build(state, entity, |builder| {
             builder
                 .set_flex_grow(1.0)
-                .set_margin_left(Length::Pixels(5.0))
+                .set_margin_left(Units::Pixels(5.0))
         });
 
         self.dims = Dropdown::new("4")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(Length::Pixels(30.0))
+                    .set_flex_basis(Units::Pixels(30.0))
                     .set_text_justify(Justify::End)
-                    .set_margin_left(Length::Pixels(5.0))
+                    .set_margin_left(Units::Pixels(5.0))
                     .class("dim")
             })
             .2;
@@ -218,15 +218,15 @@ where
         self.grow = state.style.margin_left.insert_animation(
             AnimationState::new()
                 .with_duration(std::time::Duration::from_millis(100))
-                .with_keyframe((0.0, Length::Pixels(0.0)))
-                .with_keyframe((1.0, Length::Pixels(5.0))),
+                .with_keyframe((0.0, Units::Pixels(0.0)))
+                .with_keyframe((1.0, Units::Pixels(5.0))),
         );
 
         self.shrink = state.style.margin_left.insert_animation(
             AnimationState::new()
                 .with_duration(std::time::Duration::from_millis(100))
-                .with_keyframe((0.0, Length::Pixels(5.0)))
-                .with_keyframe((1.0, Length::Pixels(0.0))),
+                .with_keyframe((0.0, Units::Pixels(5.0)))
+                .with_keyframe((1.0, Units::Pixels(0.0))),
         );
 
         self.hide = state.style.flex_grow.insert_animation(
@@ -272,9 +272,9 @@ where
                         self.z.set_flex_grow(state, 0.0);
                         self.w.set_flex_grow(state, 0.0);
 
-                        self.y.set_margin_left(state, Length::Pixels(0.0));
-                        self.z.set_margin_left(state, Length::Pixels(0.0));
-                        self.w.set_margin_left(state, Length::Pixels(0.0));
+                        self.y.set_margin_left(state, Units::Pixels(0.0));
+                        self.z.set_margin_left(state, Units::Pixels(0.0));
+                        self.w.set_margin_left(state, Units::Pixels(0.0));
 
                         self.num_of_dims = 1;
 
@@ -308,9 +308,9 @@ where
                         self.z.set_flex_grow(state, 0.0);
                         self.w.set_flex_grow(state, 0.0);
 
-                        self.y.set_margin_left(state, Length::Pixels(5.0));
-                        self.z.set_margin_left(state, Length::Pixels(0.0));
-                        self.w.set_margin_left(state, Length::Pixels(0.0));
+                        self.y.set_margin_left(state, Units::Pixels(5.0));
+                        self.z.set_margin_left(state, Units::Pixels(0.0));
+                        self.w.set_margin_left(state, Units::Pixels(0.0));
 
                         self.num_of_dims = 2;
 
@@ -344,9 +344,9 @@ where
                         self.z.set_flex_grow(state, 1.0);
                         self.w.set_flex_grow(state, 0.0);
 
-                        self.y.set_margin_left(state, Length::Pixels(5.0));
-                        self.z.set_margin_left(state, Length::Pixels(5.0));
-                        self.w.set_margin_left(state, Length::Pixels(0.0));
+                        self.y.set_margin_left(state, Units::Pixels(5.0));
+                        self.z.set_margin_left(state, Units::Pixels(5.0));
+                        self.w.set_margin_left(state, Units::Pixels(0.0));
 
                         self.num_of_dims = 3;
 
@@ -381,9 +381,9 @@ where
                         self.z.set_flex_grow(state, 1.0);
                         self.w.set_flex_grow(state, 1.0);
 
-                        self.y.set_margin_left(state, Length::Pixels(5.0));
-                        self.z.set_margin_left(state, Length::Pixels(5.0));
-                        self.w.set_margin_left(state, Length::Pixels(5.0));
+                        self.y.set_margin_left(state, Units::Pixels(5.0));
+                        self.z.set_margin_left(state, Units::Pixels(5.0));
+                        self.w.set_margin_left(state, Units::Pixels(5.0));
 
                         self.num_of_dims = 4;
 

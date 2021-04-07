@@ -1,4 +1,4 @@
-use crate::{Display, Entity, Event, Length, PropGet, State, Visibility, WindowEvent};
+use crate::{Display, Entity, Event, Units, PropGet, State, Visibility, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
@@ -39,8 +39,8 @@ pub fn apply_hover(state: &mut State) {
             .cloned()
             .unwrap_or_default()
         {
-            Length::Pixels(val) => val,
-            //Length::Percentage(val) => parent_width * val,
+            Units::Pixels(val) => val,
+            //Units::Percentage(val) => parent_width * val,
             _ => 0.0,
         };
 

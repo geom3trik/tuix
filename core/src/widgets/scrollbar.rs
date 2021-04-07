@@ -44,7 +44,7 @@ impl Scrollbar {
 
     pub fn set_posx(&self, state: &mut State, value: f32) {
         //self.back.set_left(state, value);
-        self.front.set_left(state, Length::Pixels(value));
+        self.front.set_left(state, Units::Pixels(value));
     }
 
     // pub fn on_scroll<F>(mut self, pos: F) -> Self
@@ -63,8 +63,8 @@ impl Widget for Scrollbar {
         match self.direction {
             ScrollDirection::Horizontal => {
                 // entity
-                //     .set_width(state, Length::Pixels(100.0))
-                //     .set_height(state, Length::Pixels(10.0));
+                //     .set_width(state, Units::Pixels(100.0))
+                //     .set_height(state, Units::Pixels(10.0));
 
                 //self.front.set_height(state, 1.0);
                 //.set_background_color(state, Color::rgb(80, 50, 50));
@@ -78,8 +78,8 @@ impl Widget for Scrollbar {
                 //.set_background_color(state, Color::rgb(38, 38, 38));
 
                 self.front
-                    .set_width(state, Length::Percentage(1.0))
-                    .set_height(state, Length::Percentage(1.0));
+                    .set_width(state, Units::Percentage(1.0))
+                    .set_height(state, Units::Percentage(1.0));
                 //.set_background_color(state, Color::rgb(100, 100, 100));
                 //.set_margin_left(state, 1.0)
                 //.set_margin_right(state, 1.0);
@@ -105,8 +105,8 @@ impl Widget for Scrollbar {
                         .cloned()
                         .unwrap_or_default();
                         self.front
-                            .set_top(state, Length::Percentage(scroll.y * (1.0 - scroll.h)));
-                        self.front.set_height(state, Length::Percentage(scroll.h));
+                            .set_top(state, Units::Percentage(scroll.y * (1.0 - scroll.h)));
+                        self.front.set_height(state, Units::Percentage(scroll.h));
 
                         if scroll.h == 1.0 {
                             state.style.enabled.set(entity, false);
@@ -139,8 +139,8 @@ impl Widget for Scrollbar {
                         .cloned()
                         .unwrap_or_default();
                     self.front
-                        .set_top(state, Length::Percentage(scroll.y * (1.0 - scroll.h)));
-                    self.front.set_height(state, Length::Percentage(scroll.h));
+                        .set_top(state, Units::Percentage(scroll.y * (1.0 - scroll.h)));
+                    self.front.set_height(state, Units::Percentage(scroll.h));
 
                     if scroll.h == 1.0 {
                         //state.style.enabled.set(entity, false);
@@ -174,8 +174,8 @@ impl Widget for Scrollbar {
                             .cloned()
                             .unwrap_or_default();
                         self.front
-                            .set_top(state, Length::Percentage(scroll.y * (1.0 - scroll.h)));
-                        self.front.set_height(state, Length::Percentage(scroll.h));
+                            .set_top(state, Units::Percentage(scroll.y * (1.0 - scroll.h)));
+                        self.front.set_height(state, Units::Percentage(scroll.h));
 
                         if scroll.h == 1.0 {
                             //state.style.enabled.set(entity, false);
@@ -256,7 +256,7 @@ impl Widget for Scrollbar {
                             .cloned()
                             .unwrap_or_default();
                         self.front
-                            .set_top(state, Length::Percentage(scroll.y * (1.0 - scroll.h)));
+                            .set_top(state, Units::Percentage(scroll.y * (1.0 - scroll.h)));
 
                         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
                         state

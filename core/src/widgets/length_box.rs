@@ -11,7 +11,7 @@ pub struct LengthBox {
     pub unit: Entity,
     pub pixels: f32,
     pub percentage: f32,
-    pub length_type: Length,
+    pub length_type: Units,
 }
 
 impl LengthBox {
@@ -21,7 +21,7 @@ impl LengthBox {
             unit: Entity::null(),
             pixels: 0.0,
             percentage: 0.0,
-            length_type: Length::Auto,
+            length_type: Units::Auto,
         }
     }
 }
@@ -44,7 +44,7 @@ impl Widget for LengthBox {
         self.unit = Dropdown::new("-")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(Length::Pixels(30.0))
+                    .set_flex_basis(Units::Pixels(30.0))
                     .set_text_justify(Justify::End)
                     .class("unit")
             })
@@ -68,22 +68,22 @@ impl Widget for LengthBox {
                 DropdownEvent::SetText(text) => {
                     if text == "auto" {
                         self.value.set_text(state, text);
-                        self.length_type = Length::Auto;
+                        self.length_type = Units::Auto;
                     }
 
-                    if text == "initial" {
+                    if text == "stretch" {
                         self.value.set_text(state, text);
-                        self.length_type = Length::Initial(0.0);
+                        self.length_type = Units::Stretch(0.0);
                     }
 
                     if text == "px" {
                         self.value.set_text(state, &self.pixels.to_string());
-                        self.length_type = Length::Pixels(0.0);
+                        self.length_type = Units::Pixels(0.0);
                     }
 
                     if text == "%" {
                         self.value.set_text(state, &self.percentage.to_string());
-                        self.length_type = Length::Percentage(0.0);
+                        self.length_type = Units::Percentage(0.0);
                     }
                 }
             }
@@ -92,11 +92,11 @@ impl Widget for LengthBox {
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
                 TextboxEvent::ValueChanged(value) => match self.length_type {
-                    Length::Pixels(_) => {
+                    Units::Pixels(_) => {
                         self.pixels = value.parse::<f32>().unwrap();
                     }
 
-                    Length::Percentage(_) => {
+                    Units::Percentage(_) => {
                         self.percentage = value.parse::<f32>().unwrap();
                     }
 

@@ -118,7 +118,7 @@ impl Widget for ValueKnob {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Label::new(&self.label).build(state, entity, |builder| {
             builder
-                .set_height(Length::Pixels(25.0))
+                .set_height(Units::Pixels(25.0))
                 .set_text_justify(Justify::Center)
         });
 
@@ -129,17 +129,17 @@ impl Widget for ValueKnob {
 
         self.knob = knob.build(state, entity, |builder| {
             builder
-                .set_width(Length::Pixels(50.0))
-                .set_height(Length::Pixels(50.0))
+                .set_width(Units::Pixels(50.0))
+                .set_height(Units::Pixels(50.0))
         });
 
         //let val_str = format!("{:3}!", self.init);
         let freq_val: FreqValue = self.init.into();
         self.textbox = Textbox::new(&freq_val.to_string()).build(state, entity, |builder| {
             builder
-                .set_height(Length::Pixels(25.0))
-                .set_margin_left(Length::Pixels(2.5))
-                .set_margin_right(Length::Pixels(2.5))
+                .set_height(Units::Pixels(25.0))
+                .set_margin_left(Units::Pixels(2.5))
+                .set_margin_right(Units::Pixels(2.5))
                 .set_flex_grow(1.0)
         });
 

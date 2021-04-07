@@ -164,7 +164,7 @@ impl<'a> Builder<'a> {
     }
 
     // Outer Shadow
-    pub fn set_outer_shadow_h_offset(mut self, val: Length) -> Self {
+    pub fn set_outer_shadow_h_offset(mut self, val: Units) -> Self {
         self.state
             .style
             .outer_shadow_h_offset
@@ -173,7 +173,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_outer_shadow_v_offset(mut self, val: Length) -> Self {
+    pub fn set_outer_shadow_v_offset(mut self, val: Units) -> Self {
         self.state
             .style
             .outer_shadow_v_offset
@@ -188,14 +188,14 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_outer_shadow_blur(mut self, val: Length) -> Self {
+    pub fn set_outer_shadow_blur(mut self, val: Units) -> Self {
         self.state.style.outer_shadow_blur.insert(self.entity, val);
 
         self
     }
 
     // Inner Shadow
-    pub fn set_inner_shadow_h_offset(mut self, val: Length) -> Self {
+    pub fn set_inner_shadow_h_offset(mut self, val: Units) -> Self {
         self.state
             .style
             .inner_shadow_h_offset
@@ -204,7 +204,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_inner_shadow_v_offset(mut self, val: Length) -> Self {
+    pub fn set_inner_shadow_v_offset(mut self, val: Units) -> Self {
         self.state
             .style
             .inner_shadow_v_offset
@@ -219,7 +219,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_inner_shadow_blur(mut self, val: Length) -> Self {
+    pub fn set_inner_shadow_blur(mut self, val: Units) -> Self {
         self.state.style.inner_shadow_blur.insert(self.entity, val);
 
         self
@@ -233,24 +233,24 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_left(mut self, val: Length) -> Self {
+    pub fn set_left(mut self, val: Units) -> Self {
         self.state.style.left.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_right(mut self, val: Length) -> Self {
+    pub fn set_right(mut self, val: Units) -> Self {
         self.state.style.right.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_top(mut self, val: Length) -> Self {
+    pub fn set_top(mut self, val: Units) -> Self {
         self.state.style.top.insert(self.entity, val);
         self
     }
 
-    pub fn set_bottom(mut self, val: Length) -> Self {
+    pub fn set_bottom(mut self, val: Units) -> Self {
         self.state.style.bottom.insert(self.entity, val);
         self
     }
@@ -269,13 +269,13 @@ impl<'a> Builder<'a> {
 
     // Size
 
-    pub fn set_width(mut self, val: Length) -> Self {
+    pub fn set_width(mut self, val: Units) -> Self {
         self.state.style.width.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_height(mut self, val: Length) -> Self {
+    pub fn set_height(mut self, val: Units) -> Self {
         self.state.style.height.insert(self.entity, val);
 
         self
@@ -283,25 +283,25 @@ impl<'a> Builder<'a> {
 
     // Size Constraints
 
-    pub fn set_min_width(mut self, val: Length) -> Self {
+    pub fn set_min_width(mut self, val: Units) -> Self {
         self.state.style.min_width.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_max_width(mut self, val: Length) -> Self {
+    pub fn set_max_width(mut self, val: Units) -> Self {
         self.state.style.max_width.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_min_height(mut self, val: Length) -> Self {
+    pub fn set_min_height(mut self, val: Units) -> Self {
         self.state.style.min_height.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_max_height(mut self, val: Length) -> Self {
+    pub fn set_max_height(mut self, val: Units) -> Self {
         self.state.style.max_height.insert(self.entity, val);
 
         self
@@ -309,7 +309,7 @@ impl<'a> Builder<'a> {
 
     // Margins
 
-    pub fn set_margin(mut self, val: Length) -> Self {
+    pub fn set_margin(mut self, val: Units) -> Self {
         self.state.style.margin_left.insert(self.entity, val);
         self.state.style.margin_right.insert(self.entity, val);
         self.state.style.margin_top.insert(self.entity, val);
@@ -318,25 +318,25 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_margin_left(mut self, val: Length) -> Self {
+    pub fn set_margin_left(mut self, val: Units) -> Self {
         self.state.style.margin_left.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_margin_right(mut self, val: Length) -> Self {
+    pub fn set_margin_right(mut self, val: Units) -> Self {
         self.state.style.margin_right.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_margin_top(mut self, val: Length) -> Self {
+    pub fn set_margin_top(mut self, val: Units) -> Self {
         self.state.style.margin_top.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_margin_bottom(mut self, val: Length) -> Self {
+    pub fn set_margin_bottom(mut self, val: Units) -> Self {
         self.state.style.margin_bottom.insert(self.entity, val);
 
         self
@@ -344,7 +344,7 @@ impl<'a> Builder<'a> {
 
     // Padding
 
-    pub fn set_padding(mut self, val: Length) -> Self {
+    pub fn set_padding(mut self, val: Units) -> Self {
         self.state.style.padding_left.insert(self.entity, val);
         self.state.style.padding_right.insert(self.entity, val);
         self.state.style.padding_top.insert(self.entity, val);
@@ -353,25 +353,25 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_padding_left(mut self, val: Length) -> Self {
+    pub fn set_padding_left(mut self, val: Units) -> Self {
         self.state.style.padding_left.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_padding_right(mut self, val: Length) -> Self {
+    pub fn set_padding_right(mut self, val: Units) -> Self {
         self.state.style.padding_right.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_padding_top(mut self, val: Length) -> Self {
+    pub fn set_padding_top(mut self, val: Units) -> Self {
         self.state.style.padding_top.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_padding_bottom(mut self, val: Length) -> Self {
+    pub fn set_padding_bottom(mut self, val: Units) -> Self {
         self.state.style.padding_bottom.insert(self.entity, val);
 
         self
@@ -391,7 +391,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_flex_basis(mut self, val: Length) -> Self {
+    pub fn set_flex_basis(mut self, val: Units) -> Self {
         self.state.style.flex_basis.insert(self.entity, val);
 
         self
@@ -437,13 +437,13 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_border_width(mut self, val: Length) -> Self {
+    pub fn set_border_width(mut self, val: Units) -> Self {
         self.state.style.border_width.insert(self.entity, val);
 
         self
     }
 
-    pub fn set_border_radius(mut self, val: Length) -> Self {
+    pub fn set_border_radius(mut self, val: Units) -> Self {
         self.state
             .style
             .border_radius_top_left
@@ -464,7 +464,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_border_radius_top_left(mut self, val: Length) -> Self {
+    pub fn set_border_radius_top_left(mut self, val: Units) -> Self {
         self.state
             .style
             .border_radius_top_left
@@ -473,7 +473,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_border_radius_top_right(mut self, val: Length) -> Self {
+    pub fn set_border_radius_top_right(mut self, val: Units) -> Self {
         self.state
             .style
             .border_radius_top_right
@@ -482,7 +482,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_border_radius_bottom_left(mut self, val: Length) -> Self {
+    pub fn set_border_radius_bottom_left(mut self, val: Units) -> Self {
         self.state
             .style
             .border_radius_bottom_left
@@ -491,7 +491,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_border_radius_bottom_right(mut self, val: Length) -> Self {
+    pub fn set_border_radius_bottom_right(mut self, val: Units) -> Self {
         self.state
             .style
             .border_radius_bottom_right
@@ -600,6 +600,18 @@ impl<'a> Builder<'a> {
             .scaley
             .insert(self.entity, Scale::new(scaley));
 
+        self
+    }
+
+    pub fn set_main_size(mut self, value: Units) -> Self {
+        self.state.style.main_size.insert(self.entity, value);
+        
+        self
+    }
+
+    pub fn set_cross_size(mut self, value: Units) -> Self {
+        self.state.style.cross_size.insert(self.entity, value);
+        
         self
     }
 }

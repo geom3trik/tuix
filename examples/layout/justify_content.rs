@@ -28,22 +28,22 @@ fn main() {
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 50, 120))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 50, 160))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 50, 200))
         });
 
@@ -59,22 +59,22 @@ fn main() {
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 120, 50))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 160, 50))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 200, 50))
         });
 
@@ -90,22 +90,22 @@ fn main() {
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(120, 50, 50))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(160, 50, 50))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(200, 50, 50))
         });
 
@@ -121,22 +121,22 @@ fn main() {
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(120, 120, 50))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(160, 120, 50))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(200, 120, 50))
         });
 
@@ -152,22 +152,22 @@ fn main() {
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(120, 50, 120))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(160, 50, 160))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(200, 50, 200))
         });
 
@@ -183,22 +183,22 @@ fn main() {
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 120, 120))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 160, 160))
         });
 
         Element::new().build(state, container, |builder| {
             builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(50, 200, 200))
         });
 

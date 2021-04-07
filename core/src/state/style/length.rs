@@ -49,26 +49,26 @@ impl Length {
     // }
 }
 
-impl Default for Length {
-    fn default() -> Self {
-        Length::Auto
-    }
-}
+// impl Default for Length {
+//     fn default() -> Self {
+//         Length::Auto
+//     }
+// }
 
-impl Interpolator for Length {
-    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
-        let s = match start {
-            Length::Pixels(val) => val,
-            Length::Percentage(val) => val,
-            Length::Auto => return end.clone(),
-            Length::Initial(val) => val,
-        };
+// impl Interpolator for Length {
+//     fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
+//         let s = match start {
+//             Length::Pixels(val) => val,
+//             Length::Percentage(val) => val,
+//             Length::Auto => return end.clone(),
+//             Length::Initial(val) => val,
+//         };
 
-        match end {
-            Length::Pixels(e) => Length::Pixels(f32::interpolate(s, e, t)),
-            Length::Percentage(e) => Length::Percentage(f32::interpolate(s, e, t)),
-            Length::Auto => return end.clone(),
-            Length::Initial(e) => Length::Pixels(f32::interpolate(s, e, t)),
-        }
-    }
-}
+//         match end {
+//             Length::Pixels(e) => Length::Pixels(f32::interpolate(s, e, t)),
+//             Length::Percentage(e) => Length::Percentage(f32::interpolate(s, e, t)),
+//             Length::Auto => return end.clone(),
+//             Length::Initial(e) => Length::Pixels(f32::interpolate(s, e, t)),
+//         }
+//     }
+// }

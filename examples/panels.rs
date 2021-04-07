@@ -68,8 +68,8 @@ fn main() {
 
         Button::with_label("Button").build(state, panel, |builder| {
             builder
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(30.0))
                 .set_text_justify(Justify::Center)
         });
 
@@ -77,8 +77,8 @@ fn main() {
 
         Button::with_label("Button").build(state, panel, |builder| {
             builder
-                .set_width(Length::Pixels(100.0))
-                .set_height(Length::Pixels(30.0))
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(30.0))
                 .set_text_justify(Justify::Center)
         });
 

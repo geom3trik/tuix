@@ -15,7 +15,7 @@ fn main() {
 
         // // Menu bar
         // let menu_bar = Element::new().build(state, window, |builder| {
-        //     builder.class("menu_bar").set_height(Length::Pixels(40.0))
+        //     builder.class("menu_bar").set_height(Units::Pixels(40.0))
         // });
 
         // Horizontal Container
@@ -24,8 +24,8 @@ fn main() {
         // Resizable Vertical Container
         let rvbox = ResizableVBox::new().build(state, hbox, |builder| {
             builder
-                .set_width(Length::Pixels(300.0))
-                .set_height(Length::Percentage(1.0))
+                .set_width(Units::Pixels(300.0))
+                .set_height(Units::Percentage(1.0))
                 .set_background_color(Color::rgb(60, 60, 60))
         });
 
@@ -37,8 +37,8 @@ fn main() {
         // Label::new("Button").build(state, row, |builder| builder);
         // Button::with_label("Press Me").build(state, row, |builder| {
         //     builder
-        //         .set_width(Length::Pixels(100.0))
-        //         .set_height(Length::Pixels(30.0))
+        //         .set_width(Units::Pixels(100.0))
+        //         .set_height(Units::Pixels(30.0))
         //         .set_flex_grow(1.0)
         // });
 
@@ -90,20 +90,20 @@ fn main() {
         CheckButton::new(true).build(state, list, |builder| {
             builder
                 .set_text("Option 1")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 2")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 3")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
 
         // MULTILIST
@@ -115,20 +115,20 @@ fn main() {
         CheckButton::new(true).build(state, list, |builder| {
             builder
                 .set_text("Option 1")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 2")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 3")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
 
         // LISTS PANEL
@@ -138,26 +138,26 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("List").build(state, row, |builder| builder);
         let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| {
-            builder.set_height(Length::Pixels(30.0)).set_flex_grow(1.0)
+            builder.set_height(Units::Pixels(30.0)).set_flex_grow(1.0)
         });
         let list = List::new().build(state, popup, |builder| builder.set_flex_grow(1.0));
         CheckButton::new(true).build(state, list, |builder| {
             builder
                 .set_text("Option 1")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 2")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 3")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
 
         // DROPDOWN MULTILIST
@@ -166,7 +166,7 @@ fn main() {
         let (_, _, popup) = Dropdown::new("Dropdown")
             .set_multi()
             .build(state, row, |builder| {
-                builder.set_height(Length::Pixels(30.0)).set_flex_grow(1.0)
+                builder.set_height(Units::Pixels(30.0)).set_flex_grow(1.0)
             });
         let list = List::new()
             .set_multi()
@@ -174,43 +174,43 @@ fn main() {
         CheckButton::new(true).build(state, list, |builder| {
             builder
                 .set_text("Option 1")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 2")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 3")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
 
         // DROPDOWN CHECKITEM LIST
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("List").build(state, row, |builder| builder);
         let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| {
-            builder.set_height(Length::Pixels(30.0)).set_flex_grow(1.0)
+            builder.set_height(Units::Pixels(30.0)).set_flex_grow(1.0)
         });
         let list = List::new().build(state, popup, |builder| builder.set_flex_grow(1.0));
         CheckItem::new("Option 1", true).build(state, list, |builder| {
             builder
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckItem::new("Option2", false).build(state, list, |builder| {
             builder
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckItem::new("Option3", false).build(state, list, |builder| {
             builder
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
 
         // DROPDOWN CHECK MULTILIST
@@ -219,25 +219,25 @@ fn main() {
         let (_, _, popup) = Dropdown::new("Dropdown")
             .set_multi()
             .build(state, row, |builder| {
-                builder.set_height(Length::Pixels(30.0)).set_flex_grow(1.0)
+                builder.set_height(Units::Pixels(30.0)).set_flex_grow(1.0)
             });
         let list = List::new()
             .set_multi()
             .build(state, popup, |builder| builder.set_flex_grow(1.0));
         CheckItem::new("Option 1", true).build(state, list, |builder| {
             builder
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckItem::new("Option2", false).build(state, list, |builder| {
             builder
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckItem::new("Option3", false).build(state, list, |builder| {
             builder
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
 
         // LISTS PANEL
@@ -250,20 +250,20 @@ fn main() {
         CheckItem::new("Option1", true).build(state, list, |builder| {
             builder
                 //.set_text("Option 1")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckItem::new("Option2", false).build(state, list, |builder| {
             builder
                 //.set_text("Option 2")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckItem::new("Option3", false).build(state, list, |builder| {
             builder
                 //.set_text("Option 3")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
 
         // LISTBOX
@@ -275,20 +275,20 @@ fn main() {
         CheckItem::new("Option1", true).build(state, list, |builder| {
             builder
                 //.set_text("Option 1")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckItem::new("Option2", false).build(state, list, |builder| {
             builder
                 //.set_text("Option 2")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
         CheckItem::new("Option3", false).build(state, list, |builder| {
             builder
                 //.set_text("Option 3")
-                .set_flex_basis(Length::Pixels(30.0))
-                .set_padding_left(Length::Pixels(5.0))
+                .set_flex_basis(Units::Pixels(30.0))
+                .set_padding_left(Units::Pixels(5.0))
         });
 
         //
@@ -332,7 +332,7 @@ fn main() {
         // Label::new("Radio List (V)").build(state, row, |builder| builder);
         // let radio_list = List::new().build(state, row, |builder| {
         //     builder
-        //         .set_height(Length::Pixels(80.0))
+        //         .set_height(Units::Pixels(80.0))
         //         .set_justify_content(JustifyContent::SpaceEvenly)
         // });
 
@@ -341,8 +341,8 @@ fn main() {
         // Label::new("Option 1").build(state, item, |builder| {
         //     builder
         //         .set_font_color(Color::black())
-        //         .set_width(Length::Pixels(50.0))
-        //         .set_margin_left(Length::Pixels(5.0))
+        //         .set_width(Units::Pixels(50.0))
+        //         .set_margin_left(Units::Pixels(5.0))
         // });
 
         // let item = HBox::new().build(state, radio_list, |builder| builder);
@@ -350,8 +350,8 @@ fn main() {
         // Label::new("Option 2").build(state, item, |builder| {
         //     builder
         //         .set_font_color(Color::black())
-        //         .set_width(Length::Pixels(50.0))
-        //         .set_margin_left(Length::Pixels(5.0))
+        //         .set_width(Units::Pixels(50.0))
+        //         .set_margin_left(Units::Pixels(5.0))
         // });
 
         // let item = HBox::new().build(state, radio_list, |builder| builder);
@@ -359,8 +359,8 @@ fn main() {
         // Label::new("Option 3").build(state, item, |builder| {
         //     builder
         //         .set_font_color(Color::black())
-        //         .set_width(Length::Pixels(50.0))
-        //         .set_margin_left(Length::Pixels(5.0))
+        //         .set_width(Units::Pixels(50.0))
+        //         .set_margin_left(Units::Pixels(5.0))
         // });
 
         // first.set_checked(state, true);
@@ -378,8 +378,8 @@ fn main() {
         // Label::new("1").build(state, item, |builder| {
         //     builder
         //         .set_font_color(Color::black())
-        //         .set_width(Length::Pixels(30.0))
-        //         .set_margin_left(Length::Pixels(5.0))
+        //         .set_width(Units::Pixels(30.0))
+        //         .set_margin_left(Units::Pixels(5.0))
         // });
 
         // let item = HBox::new().build(state, radio_list, |builder| builder);
@@ -387,16 +387,16 @@ fn main() {
         // Label::new("2").build(state, item, |builder| {
         //     builder
         //         .set_font_color(Color::black())
-        //         .set_width(Length::Pixels(30.0))
-        //         .set_margin_left(Length::Pixels(5.0))
+        //         .set_width(Units::Pixels(30.0))
+        //         .set_margin_left(Units::Pixels(5.0))
         // });
         // let item = HBox::new().build(state, radio_list, |builder| builder);
         // Radio::new().build(state, item, |builder| builder);
         // Label::new("3").build(state, item, |builder| {
         //     builder
         //         .set_font_color(Color::black())
-        //         .set_width(Length::Pixels(30.0))
-        //         .set_margin_left(Length::Pixels(5.0))
+        //         .set_width(Units::Pixels(30.0))
+        //         .set_margin_left(Units::Pixels(5.0))
         // });
 
         // first.set_checked(state, true);
@@ -427,7 +427,7 @@ fn main() {
         // Label::new("Radio List (V)").build(state, row, |builder| builder);
         // let radio_list = List::new().build(state, row, |builder| {
         //     builder
-        //         .set_height(Length::Pixels(80.0))
+        //         .set_height(Units::Pixels(80.0))
         //         .set_justify_content(JustifyContent::SpaceEvenly)
         // });
 
@@ -438,8 +438,8 @@ fn main() {
         // Label::new("Option 1").build(state, item, |builder| {
         //     builder
         //         .set_font_color(Color::black())
-        //         .set_width(Length::Pixels(50.0))
-        //         .set_margin_left(Length::Pixels(5.0))
+        //         .set_width(Units::Pixels(50.0))
+        //         .set_margin_left(Units::Pixels(5.0))
         // });
 
         // let item = HBox::new().build(state, radio_list, |builder| builder);
@@ -447,8 +447,8 @@ fn main() {
         // Label::new("Option 2").build(state, item, |builder| {
         //     builder
         //         .set_font_color(Color::black())
-        //         .set_width(Length::Pixels(50.0))
-        //         .set_margin_left(Length::Pixels(5.0))
+        //         .set_width(Units::Pixels(50.0))
+        //         .set_margin_left(Units::Pixels(5.0))
         // });
 
         // let item = HBox::new().build(state, radio_list, |builder| builder);
@@ -456,8 +456,8 @@ fn main() {
         // Label::new("Option 3").build(state, item, |builder| {
         //     builder
         //         .set_font_color(Color::black())
-        //         .set_width(Length::Pixels(50.0))
-        //         .set_margin_left(Length::Pixels(5.0))
+        //         .set_width(Units::Pixels(50.0))
+        //         .set_margin_left(Units::Pixels(5.0))
         // });
     })
     .run();

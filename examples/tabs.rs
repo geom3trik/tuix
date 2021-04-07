@@ -12,8 +12,8 @@ fn main() {
 
         let controls = Element::new().build(state, window.entity(), |builder| {
             builder
-                .set_flex_basis(Length::Pixels(200.0))
-                .set_padding(Length::Pixels(10.0))
+                .set_flex_basis(Units::Pixels(200.0))
+                .set_padding(Units::Pixels(10.0))
         });
 
         // Create a tab manager
@@ -64,7 +64,7 @@ fn main() {
                 .set_align_self(AlignSelf::Stretch)
                 .set_background_color(Color::rgb(30, 30, 30))
                 .set_flex_direction(FlexDirection::Row)
-                .set_padding_top(Length::Pixels(2.0))
+                .set_padding_top(Units::Pixels(2.0))
         });
 
         // Create a tab manager

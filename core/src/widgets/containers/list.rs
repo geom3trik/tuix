@@ -60,9 +60,9 @@ impl Widget for ResizableVBox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_width(state, Length::Pixels(300.0))
-            .set_max_width(state, Length::Pixels(500.0))
-            .set_min_width(state, Length::Pixels(300.0));
+            .set_width(state, Units::Pixels(300.0))
+            .set_max_width(state, Units::Pixels(500.0))
+            .set_min_width(state, Units::Pixels(300.0));
         //state.style.z_order.set(self.resize_marker, 1);
 
         entity
@@ -111,7 +111,7 @@ impl Widget for ResizableVBox {
                 WindowEvent::MouseMove(x, _) => {
                     if self.resizing {
                         let distx = *x - state.mouse.left.pos_down.0;
-                        entity.set_width(state, Length::Pixels(self.previous_width + distx));
+                        entity.set_width(state, Units::Pixels(self.previous_width + distx));
                     } else {
                         if *x > state.data.get_posx(entity) + state.data.get_width(entity) - 4.0
                             && *x < state.data.get_posx(entity) + state.data.get_width(entity)

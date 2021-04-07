@@ -20,8 +20,18 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
         let parent_layout_type = state.style.layout_type.get(parent).cloned().unwrap_or_default();
 
-        let main_axis_align = state.style.main_axis_align.get(parent).cloned().unwrap_or_default();
-        let cross_axis_align = state.style.cross_axis_align.get(parent).cloned().unwrap_or_default();
+        //let main_axis_align = state.style.main_axis_align.get(parent).cloned().unwrap_or_default();
+        //let cross_axis_align = state.style.cross_axis_align.get(parent).cloned().unwrap_or_default();
+
+
+        let main_before_first = state.style.main_before_first.get(parent).cloned().unwrap_or_default();
+        let main_between = state.style.main_between.get(parent).cloned().unwrap_or_default();
+        let main_after_last = state.style.main_after_last.get(parent).cloned().unwrap_or_default();
+
+        let cross_before_first = state.style.cross_before_first.get(parent).cloned().unwrap_or_default();
+        let cross_between = state.style.cross_between.get(parent).cloned().unwrap_or_default();
+        let cross_after_last = state.style.cross_after_last.get(parent).cloned().unwrap_or_default();
+
 
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
@@ -53,38 +63,43 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             LayoutType::Horizontal | LayoutType::Vertical => {
                 // Calculate inflexible items
                 for (index, child) in parent.child_iter(&hierarchy).enumerate() {
-                    let mut main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
-                    let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
+                    //let mut main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
+                    //let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
+
+                    let mut main_before = state.style.main_before.get(child).cloned().unwrap_or_default();
+                    let main_size = state.style.main_size.get(child).cloned().unwrap_or_default();
+                    let mut main_after = state.style.main_after.get(child).cloned().unwrap_or_default();
+
+                    let mut cross_before = state.style.cross_before.get(child).cloned().unwrap_or_default();
+                    let cross_size = state.style.cross_size.get(child).cloned().unwrap_or_default();
+                    let mut cross_after = state.style.cross_after.get(child).cloned().unwrap_or_default();
 
 
                     // Override child space_before with parent space_before_first if set to Inherit
                     if hierarchy.get_first_child(parent) == Some(child) {
-                        if main_axis.space_before == Units::Inherit {
-                            main_axis.space_before = main_axis_align.space_before_first.clone();
+                        if main_before == Units::Auto {
+                            main_before = main_before_first.clone();
                         }
                     } else {
-                        if main_axis.space_before == Units::Inherit {
-                            main_axis.space_before = main_axis_align.space_between.clone();
+                        if main_before == Units::Auto {
+                            main_before = main_between.clone();
                         }
                     } 
 
                     // Override child space_after with parent space_after_last if set to Inherit
                     if hierarchy.get_last_child(parent) == Some(child) {
-                        if main_axis.space_after == Units::Inherit {
-                            main_axis.space_after = main_axis_align.space_after_last.clone();
+                        if main_after == Units::Auto {
+                            main_after = main_after_last.clone();
                         }
                     }
 
-                    if cross_axis.space_before == Units::Inherit {
-                        cross_axis.space_before = cross_axis_align.space_before_first.clone();
+                    if cross_before == Units::Auto {
+                        cross_before = cross_before_first.clone();
                     }
 
-                    if cross_axis.space_after == Units::Inherit {
-                        cross_axis.space_after = cross_axis_align.space_after_last.clone();
+                    if cross_after == Units::Auto {
+                        cross_after = cross_after_last.clone();
                     }
-
-
-
                     
 
                     let mut new_main = 0.0;
@@ -100,7 +115,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     let mut cross_used_space = 0.0;
 
 
-                    match main_axis.space_before {
+                    match main_before {
                         Units::Pixels(val) => {
                             main_free_space -= val;
                             main_space_before = val;
@@ -114,7 +129,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    match main_axis.size {
+                    match main_size {
                         Units::Pixels(val) => {
                             new_main = val;
                             main_free_space -= new_main;
@@ -127,7 +142,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    match main_axis.space_after {
+                    match main_after {
                         Units::Pixels(val) => {
                             main_free_space -= val;
                             main_space_after = val;
@@ -143,7 +158,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     //println!("Child {} {}", index, temp_free_space_main);
 
 
-                    match cross_axis.space_before {
+                    match cross_before {
                         Units::Pixels(val) => {
                             cross_used_space += val;
                             cross_space_before = val;
@@ -156,7 +171,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    match cross_axis.size {
+                    match cross_size {
                         Units::Pixels(val) => {
                             new_cross = val;
                             cross_used_space += val;
@@ -169,7 +184,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    match cross_axis.space_after {
+                    match cross_after {
                         Units::Pixels(val) => {
                             cross_space_after = val;
                             cross_used_space += val;
@@ -245,8 +260,16 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                 // Calculate flexible items
                 for (index, child) in parent.child_iter(&hierarchy).enumerate() {
-                    let mut main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
-                    let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
+                    // let mut main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
+                    // let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
+
+                    let mut main_before = state.style.main_before.get(child).cloned().unwrap_or_default();
+                    let main_size = state.style.main_size.get(child).cloned().unwrap_or_default();
+                    let mut main_after = state.style.main_after.get(child).cloned().unwrap_or_default();
+
+                    let mut cross_before = state.style.cross_before.get(child).cloned().unwrap_or_default();
+                    let cross_size = state.style.cross_size.get(child).cloned().unwrap_or_default();
+                    let mut cross_after = state.style.cross_after.get(child).cloned().unwrap_or_default();
 
                     //let mut new_width = state.data.get_width(child);
                     //let mut new_height = state.data.get_height(child);
@@ -254,28 +277,28 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     let cross_stretch_sum = state.data.get_cross_stretch_sum(child);
 
                     if hierarchy.get_first_child(parent) == Some(child) {
-                        if main_axis.space_before == Units::Inherit {
-                            main_axis.space_before = main_axis_align.space_before_first.clone();
+                        if main_before == Units::Auto {
+                            main_before = main_before_first.clone();
                         }
                     } else {
-                        if main_axis.space_before == Units::Inherit {
-                            main_axis.space_before = main_axis_align.space_between.clone();
+                        if main_before == Units::Auto {
+                            main_before = main_between.clone();
                         }
                     } 
 
 
                     if hierarchy.get_last_child(parent) == Some(child) {
-                        if main_axis.space_after == Units::Inherit {
-                            main_axis.space_after = main_axis_align.space_after_last.clone();
+                        if main_after == Units::Auto {
+                            main_after = main_after_last.clone();
                         }
                     } 
 
-                    if cross_axis.space_before == Units::Inherit {
-                        cross_axis.space_before = cross_axis_align.space_before_first.clone();
+                    if cross_before == Units::Auto {
+                        cross_before = cross_before_first.clone();
                     }
 
-                    if cross_axis.space_after == Units::Inherit {
-                        cross_axis.space_after = cross_axis_align.space_after_last.clone();
+                    if cross_after == Units::Auto {
+                        cross_after = cross_after_last.clone();
                     }
 
                     let (   mut new_main, 
@@ -338,7 +361,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                     let cross_free_space = parent_cross - new_cross - cross_space_before - cross_space_after;
 
-                    match main_axis.space_before {
+                    match main_before {
                         Units::Stretch(val) => {
                             main_space_before = main_free_space * val / main_stretch_sum;
                         }
@@ -346,7 +369,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    match main_axis.size {
+                    match main_size {
                         Units::Stretch(val) => {
                             new_main = main_free_space * val / main_stretch_sum;
                         }
@@ -354,7 +377,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    match main_axis.space_after {
+                    match main_after {
                         Units::Stretch(val) => {
                             main_space_after = main_free_space * val / main_stretch_sum;
                         }
@@ -362,7 +385,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    match cross_axis.space_before {
+                    match cross_before {
                         Units::Stretch(val) => {
                             cross_space_before = cross_free_space * val / cross_stretch_sum;
                             
@@ -371,7 +394,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    match cross_axis.size {
+                    match cross_size {
                         Units::Stretch(val) => {
                             new_cross = cross_free_space * val / cross_stretch_sum;
                         }
@@ -379,7 +402,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    match cross_axis.space_after {
+                    match cross_after {
                         Units::Stretch(val) => {
                             cross_space_after = cross_free_space * val / cross_stretch_sum;
                         }
@@ -433,8 +456,8 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 // Position Children
                 for child in parent.child_iter(&hierarchy) {
 
-                    let main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
-                    let cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
+                    //let main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
+                    //let cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
 
                     let space = state.data.get_space(child);
 

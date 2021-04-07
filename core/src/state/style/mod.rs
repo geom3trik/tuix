@@ -26,8 +26,8 @@ pub use flexbox::*;
 pub mod layout;
 pub use layout::*;
 
-pub mod length;
-pub use length::*;
+// pub mod Units;
+// pub use Units::*;
 
 pub mod shape;
 pub use shape::*;
@@ -83,42 +83,42 @@ pub struct Style {
 
     // Positioning
     pub position: StyleStorage<Position>,
-    pub left: AnimatableStorage<Length>,
-    pub right: AnimatableStorage<Length>,
-    pub top: AnimatableStorage<Length>,
-    pub bottom: AnimatableStorage<Length>,
+    pub left: AnimatableStorage<Units>,
+    pub right: AnimatableStorage<Units>,
+    pub top: AnimatableStorage<Units>,
+    pub bottom: AnimatableStorage<Units>,
 
     // Size
-    pub width: AnimatableStorage<Length>,
-    pub height: AnimatableStorage<Length>,
+    pub width: AnimatableStorage<Units>,
+    pub height: AnimatableStorage<Units>,
 
     // Size Constraints
-    pub max_width: AnimatableStorage<Length>,
-    pub max_height: AnimatableStorage<Length>,
-    pub min_width: AnimatableStorage<Length>,
-    pub min_height: AnimatableStorage<Length>,
+    pub max_width: AnimatableStorage<Units>,
+    pub max_height: AnimatableStorage<Units>,
+    pub min_width: AnimatableStorage<Units>,
+    pub min_height: AnimatableStorage<Units>,
 
     // Margin
-    pub margin_left: AnimatableStorage<Length>,
-    pub margin_right: AnimatableStorage<Length>,
-    pub margin_top: AnimatableStorage<Length>,
-    pub margin_bottom: AnimatableStorage<Length>,
+    pub margin_left: AnimatableStorage<Units>,
+    pub margin_right: AnimatableStorage<Units>,
+    pub margin_top: AnimatableStorage<Units>,
+    pub margin_bottom: AnimatableStorage<Units>,
 
     // Padding
-    pub padding_left: AnimatableStorage<Length>,
-    pub padding_right: AnimatableStorage<Length>,
-    pub padding_top: AnimatableStorage<Length>,
-    pub padding_bottom: AnimatableStorage<Length>,
+    pub padding_left: AnimatableStorage<Units>,
+    pub padding_right: AnimatableStorage<Units>,
+    pub padding_top: AnimatableStorage<Units>,
+    pub padding_bottom: AnimatableStorage<Units>,
 
     // Border
-    pub border_width: AnimatableStorage<Length>,
+    pub border_width: AnimatableStorage<Units>,
     pub border_color: AnimatableStorage<Color>,
 
     // Border Radius
-    pub border_radius_top_left: AnimatableStorage<Length>,
-    pub border_radius_top_right: AnimatableStorage<Length>,
-    pub border_radius_bottom_left: AnimatableStorage<Length>,
-    pub border_radius_bottom_right: AnimatableStorage<Length>,
+    pub border_radius_top_left: AnimatableStorage<Units>,
+    pub border_radius_top_right: AnimatableStorage<Units>,
+    pub border_radius_bottom_left: AnimatableStorage<Units>,
+    pub border_radius_bottom_right: AnimatableStorage<Units>,
 
     pub clip_widget: DenseStorage<Entity>,
 
@@ -128,7 +128,7 @@ pub struct Style {
     pub align_self: StyleStorage<AlignSelf>,
     pub flex_grow: AnimatableStorage<f32>,
     pub flex_shrink: AnimatableStorage<f32>,
-    pub flex_basis: AnimatableStorage<Length>,
+    pub flex_basis: AnimatableStorage<Units>,
 
     //pub grid_item: DenseStorage<GridItem>,
 
@@ -145,15 +145,15 @@ pub struct Style {
     pub background_gradient: StyleStorage<LinearGradient>,
 
     // Outer Shadow
-    pub outer_shadow_h_offset: AnimatableStorage<Length>,
-    pub outer_shadow_v_offset: AnimatableStorage<Length>,
-    pub outer_shadow_blur: AnimatableStorage<Length>,
+    pub outer_shadow_h_offset: AnimatableStorage<Units>,
+    pub outer_shadow_v_offset: AnimatableStorage<Units>,
+    pub outer_shadow_blur: AnimatableStorage<Units>,
     pub outer_shadow_color: AnimatableStorage<Color>,
 
     // Inner Shadow
-    pub inner_shadow_h_offset: AnimatableStorage<Length>,
-    pub inner_shadow_v_offset: AnimatableStorage<Length>,
-    pub inner_shadow_blur: AnimatableStorage<Length>,
+    pub inner_shadow_h_offset: AnimatableStorage<Units>,
+    pub inner_shadow_v_offset: AnimatableStorage<Units>,
+    pub inner_shadow_blur: AnimatableStorage<Units>,
     pub inner_shadow_color: AnimatableStorage<Color>,
 
     //Text Properties

@@ -28,7 +28,7 @@ impl Widget for ProgressBar {
         entity.set_flex_direction(state, FlexDirection::Row);
 
         self.front = Element::new().build(state, entity, |builder| {
-            builder.set_width(Length::Percentage(0.5)).class("front")
+            builder.set_width(Units::Percentage(0.5)).class("front")
         });
 
         entity.set_element(state, "progress_bar")
@@ -41,7 +41,7 @@ impl Widget for ProgressBar {
                     if event.target == entity {
                         self.value = val.clamp(0.0, 1.0);
 
-                        self.front.set_width(state, Length::Percentage(self.value));
+                        self.front.set_width(state, Units::Percentage(self.value));
                     }
                 }
 

@@ -1,7 +1,7 @@
 use crate::{mouse::MouseButton, HierarchyTree, Visibility};
 
 use crate::style::*;
-use crate::{widgets::*, Length};
+use crate::{widgets::*, Units};
 
 // Wrap a widget in a context menu to add a right-click menu to a widget
 pub struct ContextMenu {
@@ -41,8 +41,8 @@ impl Widget for ContextMenu {
                                 .data
                                 .get_posy(entity.parent(&state.hierarchy).unwrap());
                         self.context_menu
-                            .set_left(state, Length::Pixels(px))
-                            .set_top(state, Length::Pixels(py))
+                            .set_left(state, Units::Pixels(px))
+                            .set_top(state, Units::Pixels(py))
                             .set_visibility(state, Visibility::Visible);
                     }
                 }

@@ -562,15 +562,15 @@ fn parse_box_shadow<'i, 't>(
     let mut box_shadow = BoxShadow::default();
 
     match parse_length2(input.next()?) {
-        Ok(length) => {
-            box_shadow.horizontal_offset = length;
+        Ok(units) => {
+            box_shadow.horizontal_offset = units;
             match parse_length2(input.next()?) {
-                Ok(length) => {
-                    box_shadow.vertical_offset = length;
+                Ok(units) => {
+                    box_shadow.vertical_offset = units;
                     let next_token = input.next()?;
                     match parse_length2(next_token) {
-                        Ok(length) => {
-                            box_shadow.blur_radius = length;
+                        Ok(units) => {
+                            box_shadow.blur_radius = units;
 
                             let next_token = input.next()?;
                             match parse_color2(next_token) {
@@ -600,20 +600,20 @@ fn parse_box_shadow<'i, 't>(
 
     // match token {
     //     Token::Number { value: x, .. } => {
-    //         box_shadow.horizontal_offset = Length::Pixels(*x);
+    //         box_shadow.horizontal_offset = Units::Pixels(*x);
 
     //         match input.next()? {
     //             Token::Number { value: x, .. } => {
-    //                 box_shadow.vertical_offset = Length::Pixels(*x);
+    //                 box_shadow.vertical_offset = Units::Pixels(*x);
     //             }
 
     //             t => {}
     //         }
     //     }
 
-    //     Token::Percentage { unit_value: x, .. } => Length::Percentage(*x as f32),
+    //     Token::Percentage { unit_value: x, .. } => Units::Percentage(*x as f32),
 
-    //     Token::Dimension { value: x, .. } => Length::Pixels(*x as f32),
+    //     Token::Dimension { value: x, .. } => Units::Pixels(*x as f32),
 
     //     t => {
     //         let basic_error = BasicParseError {
@@ -627,12 +627,12 @@ fn parse_box_shadow<'i, 't>(
     // Ok(box_shadow)
 }
 
-fn parse_length2<'i>(token: &Token<'i>) -> Result<Length, ParseError<'i, CustomParseError>> {
+fn parse_length2<'i>(token: &Token<'i>) -> Result<Units, ParseError<'i, CustomParseError>> {
     match token {
-        Token::Number { value: x, .. } => Ok(Length::Pixels(*x as f32)),
-        Token::Percentage { unit_value: x, .. } => Ok(Length::Percentage(*x as f32)),
+        Token::Number { value: x, .. } => Ok(Units::Pixels(*x as f32)),
+        Token::Percentage { unit_value: x, .. } => Ok(Units::Percentage(*x as f32)),
 
-        Token::Dimension { value: x, .. } => Ok(Length::Pixels(*x as f32)),
+        Token::Dimension { value: x, .. } => Ok(Units::Pixels(*x as f32)),
         t => {
             let basic_error = BasicParseError {
                 kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
@@ -695,12 +695,12 @@ fn parse_transition2<'i, 't>(
 
 fn parse_length<'i, 't>(
     input: &mut Parser<'i, 't>,
-) -> Result<Length, ParseError<'i, CustomParseError>> {
+) -> Result<Units, ParseError<'i, CustomParseError>> {
     Ok(match input.next()? {
-        Token::Number { value: x, .. } => Length::Pixels(*x as f32),
-        Token::Percentage { unit_value: x, .. } => Length::Percentage(*x as f32),
+        Token::Number { value: x, .. } => Units::Pixels(*x as f32),
+        Token::Percentage { unit_value: x, .. } => Units::Percentage(*x as f32),
 
-        Token::Dimension { value: x, .. } => Length::Pixels(*x as f32),
+        Token::Dimension { value: x, .. } => Units::Pixels(*x as f32),
         t => {
             let basic_error = BasicParseError {
                 kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),

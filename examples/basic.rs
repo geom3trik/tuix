@@ -20,7 +20,7 @@ fn main() {
         // .set_align_items(state, AlignItems::FlexStart);
 
         //window.set_flex_direction(state, FlexDirection::Row);
-        // let levels = HBox::new().build(state, window, |builder| builder.set_width(Length::Pixels(50.0)).set_background_color(Color::red()));
+        // let levels = HBox::new().build(state, window, |builder| builder.set_width(Units::Pixels(50.0)).set_background_color(Color::red()));
 
         // let left_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
         // let right_channel_level = AudioLevelBar::new().build(state, levels, |builder| builder.set_flex_grow(1.0).set_background_color(Color::green()));
@@ -31,11 +31,11 @@ fn main() {
                 .set_background_gradient(
                     LinearGradient::new(Direction::TopToBottom)
                         .add_stop(GradientStop::new(
-                            Length::Pixels(0.0),
+                            Units::Pixels(0.0),
                             Color::rgb(90, 90, 90),
                         ))
                         .add_stop(GradientStop::new(
-                            Length::Pixels(30.0),
+                            Units::Pixels(30.0),
                             Color::rgb(50, 50, 50),
                         )),
                 )
@@ -54,8 +54,8 @@ fn main() {
         // let four = Element::new().build(state, one, |builder| builder.class("four"));
 
         // let test = VectorEdit::<f32>::new().build(state, window, |builder| builder
-        //     .set_width(Length::Pixels(100.0))
-        //     .set_height(Length::Pixels(30.0))
+        //     .set_width(Units::Pixels(100.0))
+        //     .set_height(Units::Pixels(30.0))
         //     .set_background_color(Color::blue())
         // );
 
@@ -63,8 +63,8 @@ fn main() {
 
         // let (_, _, dropdown) = Dropdown::new("Dropdown").build(state, window, |builder|
         //     builder
-        //         .set_width(Length::Pixels(100.0))
-        //         .set_height(Length::Pixels(30.0))
+        //         .set_width(Units::Pixels(100.0))
+        //         .set_height(Units::Pixels(30.0))
         // );
         // Item::new("Item 1", "Item 1").build(state, dropdown, |builder| builder);
         // Item::new("Item 2", "Item 2").build(state, dropdown, |builder| builder);
@@ -94,9 +94,9 @@ fn main() {
         // let one = Element::new().build(state, window, |builder| {
         //     builder
         //         .class("one")
-        //         .set_box_shadow_h_offset(Length::Pixels(2.5))
-        //         .set_box_shadow_v_offset(Length::Pixels(2.5))
-        //         .set_box_shadow_blur(Length::Pixels(10.0))
+        //         .set_box_shadow_h_offset(Units::Pixels(2.5))
+        //         .set_box_shadow_v_offset(Units::Pixels(2.5))
+        //         .set_box_shadow_blur(Units::Pixels(10.0))
         //         .set_box_shadow_color(Color::rgba(0, 0, 0, 128))
         // });
         //let two = Element::new().build(state, one, |builder| builder.class("two"));

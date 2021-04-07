@@ -44,7 +44,7 @@ impl Widget for ColorEdit {
         let test = Dropdown::new("RGB")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(Length::Pixels(40.0))
+                    .set_flex_basis(Units::Pixels(40.0))
                     .set_text_justify(Justify::End)
                     .class("dim")
             })
@@ -61,7 +61,7 @@ impl Widget for ColorEdit {
             .build(state, entity, |builder| {
                 builder
                     .set_flex_grow(1.0)
-                    .set_margin_left(Length::Pixels(5.0))
+                    .set_margin_left(Units::Pixels(5.0))
                     .class("item")
             });
 
@@ -111,8 +111,8 @@ fn main() {
 
         let rvbox = ResizableVBox::new().build(state, window.entity(), |builder| {
             builder
-                .set_width(Length::Pixels(300.0))
-                .set_height(Length::Percentage(1.0))
+                .set_width(Units::Pixels(300.0))
+                .set_height(Units::Percentage(1.0))
                 .set_background_color(Color::rgb(100, 50, 50))
         });
 
@@ -127,7 +127,7 @@ fn main() {
 
         let row = HBox::new().build(state, panel, |builder| builder);
 
-        Label::new("Length").build(state, row, |builder| builder.class("label"));
+        Label::new("Units").build(state, row, |builder| builder.class("label"));
         LengthBox::new().build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("item")
         });
@@ -162,7 +162,7 @@ fn main() {
         let radio_list = List::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
         let hbox = HBox::new().build(state, radio_list, |builder| {
-            builder.set_height(Length::Pixels(30.0))
+            builder.set_height(Units::Pixels(30.0))
         });
         CheckButton::new(true).build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
@@ -170,7 +170,7 @@ fn main() {
         Label::new("Option 1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
         let hbox = HBox::new().build(state, radio_list, |builder| {
-            builder.set_height(Length::Pixels(30.0))
+            builder.set_height(Units::Pixels(30.0))
         });
         CheckButton::new(false).build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
@@ -178,7 +178,7 @@ fn main() {
         Label::new("Option 2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
         let hbox = HBox::new().build(state, radio_list, |builder| {
-            builder.set_height(Length::Pixels(30.0))
+            builder.set_height(Units::Pixels(30.0))
         });
         CheckButton::new(false).build(state, hbox, |builder| {
             builder.set_align_self(AlignSelf::Center)
@@ -192,15 +192,15 @@ fn main() {
         });
 
         let knob = ValueKnob::new("Red", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Length::Pixels(50.0))
+            builder.set_width(Units::Pixels(50.0))
         });
 
         let knob = ValueKnob::new("Green", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Length::Pixels(50.0))
+            builder.set_width(Units::Pixels(50.0))
         });
 
         let knob = ValueKnob::new("Blue", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Length::Pixels(50.0))
+            builder.set_width(Units::Pixels(50.0))
         });
 
         let panel = Panel::new("Control Knobs").build(state, rvbox, |builder| builder);
@@ -210,15 +210,15 @@ fn main() {
         });
 
         let knob = ValueKnob::new("Red", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Length::Pixels(50.0))
+            builder.set_width(Units::Pixels(50.0))
         });
 
         let knob = ValueKnob::new("Green", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Length::Pixels(50.0))
+            builder.set_width(Units::Pixels(50.0))
         });
 
         let knob = ValueKnob::new("Blue", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Length::Pixels(50.0))
+            builder.set_width(Units::Pixels(50.0))
         });
 
         
@@ -237,15 +237,15 @@ fn main() {
     // Label::new("Radio").build(state, row, |builder| builder.class("label"));
     // let radio_list = RadioList::new("First").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
+    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Units::Pixels(30.0)));
     // RadioBox::new("Second").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
     // Label::new("TEST1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
-    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
+    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Units::Pixels(30.0)));
     // RadioBox::new("Second").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
     // Label::new("TEST2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 
-    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Length::Pixels(30.0)));
+    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Units::Pixels(30.0)));
     // RadioBox::new("Second").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
     // Label::new("TEST3").build(state, hbox, |builder| builder.set_flex_grow(1.0));
 

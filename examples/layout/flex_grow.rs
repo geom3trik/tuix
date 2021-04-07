@@ -17,20 +17,20 @@ fn main() {
 
         Label::new("Flex Basis: 200px, Flex Grow: 0.0").build(state, window.entity(), |builder| {
             builder
-                .set_flex_basis(Length::Pixels(200.0))
+                .set_flex_basis(Units::Pixels(200.0))
                 .set_background_color(Color::rgb(120, 50, 50))
         });
 
         Label::new("Flex Basis: 100px, Flex Grow: 2.0").build(state, window.entity(), |builder| {
             builder
                 .set_flex_grow(2.0)
-                .set_flex_basis(Length::Pixels(100.0))
+                .set_flex_basis(Units::Pixels(100.0))
                 .set_background_color(Color::rgb(50, 120, 50))
         });
 
         Label::new("Flex Basis: 100px, Flex Grow: 0.0").build(state, window.entity(), |builder| {
             builder
-                .set_flex_basis(Length::Pixels(200.0))
+                .set_flex_basis(Units::Pixels(200.0))
                 .set_background_color(Color::rgb(120, 120, 50))
         });
     });
