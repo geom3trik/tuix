@@ -154,41 +154,6 @@ pub trait PropSet : AsEntity {
     //     mutator: F,
     // ) -> Self;
 
-    fn set_main_before(&self, state: &mut State, value: Units) -> Entity {
-        state.style.main_before.insert(self.entity(), value);
-
-        self.entity()
-    }
-
-    fn set_main_size(&self, state: &mut State, value: Units) -> Entity {
-        state.style.main_size.insert(self.entity(), value);
-
-        self.entity()
-    }
-
-    fn set_main_after(&self, state: &mut State, value: Units) -> Entity {
-        state.style.main_after.insert(self.entity(), value);
-
-        self.entity()
-    }
-
-    fn set_cross_before(&self, state: &mut State, value: Units) -> Entity {
-        state.style.cross_before.insert(self.entity(), value);
-
-        self.entity()
-    }
-
-    fn set_cross_size(&self, state: &mut State, value: Units) -> Entity {
-        state.style.cross_size.insert(self.entity(), value);
-
-        self.entity()
-    }
-
-    fn set_cross_after(&self, state: &mut State, value: Units) -> Entity {
-        state.style.cross_after.insert(self.entity(), value);
-
-        self.entity()
-    }
 
     fn set_main_before_first(&self, state: &mut State, value: Units) -> Entity {
         state.style.main_before_first.insert(self.entity(), value);

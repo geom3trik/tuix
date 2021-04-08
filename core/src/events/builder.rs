@@ -602,16 +602,4 @@ impl<'a> Builder<'a> {
 
         self
     }
-
-    pub fn set_main_size(mut self, value: Units) -> Self {
-        self.state.style.main_size.insert(self.entity, value);
-        
-        self
-    }
-
-    pub fn set_cross_size(mut self, value: Units) -> Self {
-        self.state.style.cross_size.insert(self.entity, value);
-        
-        self
-    }
 }

@@ -192,17 +192,6 @@ pub struct Style {
     pub grid_cols: StyleStorage<GridAxis>,
     pub grid_item: StyleStorage<GridItem>,
 
-
-    // Main Axis
-    pub main_before: AnimatableStorage<Units>,
-    pub main_size: AnimatableStorage<Units>,
-    pub main_after: AnimatableStorage<Units>,
-
-    // Cross Axis
-    pub cross_before: AnimatableStorage<Units>,
-    pub cross_size: AnimatableStorage<Units>,
-    pub cross_after: AnimatableStorage<Units>,
-
     // Main Axis Align
     pub main_before_first: AnimatableStorage<Units>,
     pub main_between: AnimatableStorage<Units>,

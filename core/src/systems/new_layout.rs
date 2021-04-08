@@ -66,13 +66,35 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     //let mut main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
                     //let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
 
-                    let mut main_before = state.style.main_before.get(child).cloned().unwrap_or_default();
-                    let main_size = state.style.main_size.get(child).cloned().unwrap_or_default();
-                    let mut main_after = state.style.main_after.get(child).cloned().unwrap_or_default();
+                    
 
-                    let mut cross_before = state.style.cross_before.get(child).cloned().unwrap_or_default();
-                    let cross_size = state.style.cross_size.get(child).cloned().unwrap_or_default();
-                    let mut cross_after = state.style.cross_after.get(child).cloned().unwrap_or_default();
+                    let (mut main_before, 
+                        main_size, 
+                        mut main_after, 
+                        mut cross_before, 
+                        cross_size, 
+                        mut cross_after) = match parent_layout_type {
+                        LayoutType::Vertical => {
+
+                            (state.style.top.get(child).cloned().unwrap_or_default(),
+                            state.style.height.get(child).cloned().unwrap_or_default(),
+                            state.style.bottom.get(child).cloned().unwrap_or_default(),
+                            
+                            state.style.left.get(child).cloned().unwrap_or_default(),
+                            state.style.width.get(child).cloned().unwrap_or_default(),
+                            state.style.right.get(child).cloned().unwrap_or_default())
+                        }
+
+                        _ => {
+                            (state.style.left.get(child).cloned().unwrap_or_default(),
+                            state.style.width.get(child).cloned().unwrap_or_default(),
+                            state.style.right.get(child).cloned().unwrap_or_default(),
+
+                            state.style.top.get(child).cloned().unwrap_or_default(),
+                            state.style.height.get(child).cloned().unwrap_or_default(),
+                            state.style.bottom.get(child).cloned().unwrap_or_default())
+                        }
+                    };
 
 
                     // Override child space_before with parent space_before_first if set to Inherit
@@ -263,13 +285,33 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     // let mut main_axis = state.style.main_axis.get(child).cloned().unwrap_or_default();
                     // let mut cross_axis = state.style.cross_axis.get(child).cloned().unwrap_or_default();
 
-                    let mut main_before = state.style.main_before.get(child).cloned().unwrap_or_default();
-                    let main_size = state.style.main_size.get(child).cloned().unwrap_or_default();
-                    let mut main_after = state.style.main_after.get(child).cloned().unwrap_or_default();
+                    let (mut main_before, 
+                        main_size, 
+                        mut main_after, 
+                        mut cross_before, 
+                        cross_size, 
+                        mut cross_after) = match parent_layout_type {
+                        LayoutType::Vertical => {
 
-                    let mut cross_before = state.style.cross_before.get(child).cloned().unwrap_or_default();
-                    let cross_size = state.style.cross_size.get(child).cloned().unwrap_or_default();
-                    let mut cross_after = state.style.cross_after.get(child).cloned().unwrap_or_default();
+                            (state.style.top.get(child).cloned().unwrap_or_default(),
+                            state.style.height.get(child).cloned().unwrap_or_default(),
+                            state.style.bottom.get(child).cloned().unwrap_or_default(),
+                            
+                            state.style.left.get(child).cloned().unwrap_or_default(),
+                            state.style.width.get(child).cloned().unwrap_or_default(),
+                            state.style.right.get(child).cloned().unwrap_or_default())
+                        }
+
+                        _ => {
+                            (state.style.left.get(child).cloned().unwrap_or_default(),
+                            state.style.width.get(child).cloned().unwrap_or_default(),
+                            state.style.right.get(child).cloned().unwrap_or_default(),
+
+                            state.style.top.get(child).cloned().unwrap_or_default(),
+                            state.style.height.get(child).cloned().unwrap_or_default(),
+                            state.style.bottom.get(child).cloned().unwrap_or_default())
+                        }
+                    };
 
                     //let mut new_width = state.data.get_width(child);
                     //let mut new_height = state.data.get_height(child);

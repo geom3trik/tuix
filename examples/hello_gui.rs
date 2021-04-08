@@ -1,34 +1,49 @@
 use tuix::*;
 
-
-const STYLE: &str = r#"
-    button {
-        margin: 10px;
-    }
-"#;
-
 fn main() {
     let app = Application::new(|state, window| {
         
-        window.set_title("Hello GUI");
+        window.set_title("Custom Title").set_inner_size(300,300);
 
-        //state.style.layout_type.insert(window.entity(), LayoutType::Vertical);
+        let container = Element::new().build(state, window.entity(), |builder| 
+            builder
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(30.0))
+                .set_background_color(Color::rgb(200,80,20))
+        );
 
-        state.add_theme(STYLE);
+        // Add a Button widget as a child of the Element widget
+        Button::new().build(state, container, |builder| 
+            builder
+                .set_width(Units::Pixels(30.0))
+                .set_height(Units::Pixels(30.0))
+                .set_background_color(Color::rgb(20,80,200))
+        );
 
-        Button::with_label("Button")
-            .build(state, window.entity(), |builder| {
-                builder
-                    //.set_main_size(Units::Pixels(30.0))
-                    //.set_cross_size(Units::Pixels(100.0))
-                    //.set_main_before(Units::Pixels(0.0))
-                    //.set_cross_before(Units::Pixels(0.0))
-                    .set_margin(Units::Pixels(10.0))
-                    .set_width(Units::Pixels(100.0))
-                    .set_height(Units::Pixels(30.0))
-                    .set_background_color(Color::from("#ff5e1a"))
-                    .set_text_justify(Justify::Center)
-        });
     });
+
     app.run();
 }
+
+
+
+// use tuix::*;
+
+// fn main() {
+//     let app = Application::new(|state, window| {
+        
+//         window.set_title("Custom Title").set_inner_size(300,300);
+
+//         state.style.layout_type.insert(window.entity(), LayoutType::Vertical);
+
+//         Button::new().build(state, window.entity(), |builder| 
+//             builder
+//                 .set_width(Units::Stretch(1.0))
+//                 .set_height(Units::Pixels(30.0))
+//                 .set_background_color(Color::rgb(255,94,20))
+//         );
+
+//     });
+
+//     app.run();
+// }
