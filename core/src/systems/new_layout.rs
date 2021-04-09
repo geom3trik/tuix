@@ -16,6 +16,146 @@ enum Axis {
 pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
     
     let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
+
+    for entity in layout_hierarchy.iter() {
+        state.data.set_child_sum(*entity, 0.0);
+        state.data.set_child_max(*entity, 0.0);
+    }
+
+    // Walk up the hierarchy
+    for child in layout_hierarchy.iter().rev() {
+
+        // Stop before the window
+        if *child == Entity::root() {
+            break;
+        }
+
+        // Skip non-displayed entities
+        let child_display = child.get_display(state);
+        if child_display == Display::None {
+            continue;
+        }
+
+        // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
+        let parent = child.get_parent(state).unwrap();
+
+        let parent_layout_type = state.style.layout_type.get(parent).cloned().unwrap_or_default();
+
+        let parent_width = state.data.get_width(parent);
+        let parent_height = state.data.get_height(parent);
+
+        let mut left = state.style.left.get(*child).cloned().unwrap_or_default();
+        let width = state.style.width.get(*child).cloned().unwrap_or_default();
+        let mut right = state.style.right.get(*child).cloned().unwrap_or_default();
+
+        let mut top = state.style.top.get(*child).cloned().unwrap_or_default();
+        let height = state.style.height.get(*child).cloned().unwrap_or_default();
+        let mut bottom = state.style.bottom.get(*child).cloned().unwrap_or_default();
+
+        let min_left = state.style.min_left.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
+        let min_width = state.style.min_width.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
+        let min_right = state.style.min_right.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
+
+        let max_left = state.style.max_left.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
+        let max_width = state.style.max_width.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
+        let max_right = state.style.max_right.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
+
+        let min_top = state.style.min_top.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
+        let min_height = state.style.min_height.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
+        let min_bottom = state.style.min_bottom.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
+
+        let max_top = state.style.max_top.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
+        let max_height = state.style.max_height.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
+        let max_bottom = state.style.max_bottom.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
+
+
+        let mut new_left = 0.0;
+        let mut new_width = 0.0;
+        let mut new_right = 0.0;
+
+        let mut new_top = 0.0;
+        let mut new_height = 0.0;
+        let mut new_bottom = 0.0;
+
+        let mut horizontal_used_space = 0.0;
+        let mut vertical_used_space = 0.0;
+
+        match left {
+            Units::Pixels(val) => {
+                new_left = val.clamp(min_left, max_left);
+                horizontal_used_space += new_left;
+            }
+
+            _=> {}
+        }
+
+        match width {
+            Units::Pixels(val) => {
+                new_width = val.clamp(min_width, max_width);
+                horizontal_used_space += new_width;
+            }
+
+            _=> {}
+        }
+
+        match right {
+            Units::Pixels(val) => {
+                new_right = val.clamp(min_right, max_right);
+                horizontal_used_space += new_right;
+            }
+
+            _=> {}
+        }
+
+        match top {
+            Units::Pixels(val) => {
+                new_top = val.clamp(min_top, max_top);
+                vertical_used_space += new_top;
+            }
+
+            _=> {}
+        }
+
+        match height {
+            Units::Pixels(val) => {
+                new_height = val.clamp(min_height, max_height);
+                vertical_used_space += new_height;
+            }
+
+            _=> {}
+        }
+
+        match bottom {
+            Units::Pixels(val) => {
+                new_bottom = val.clamp(min_bottom, max_bottom);
+                vertical_used_space += new_bottom;
+            }
+
+            _=> {}
+        }
+
+        match parent_layout_type {
+            LayoutType::Vertical => {
+                state.data.set_child_sum(parent, state.data.get_child_sum(parent) + vertical_used_space);
+                state.data.set_child_max(parent, horizontal_used_space.max(state.data.get_child_max(parent)));
+            }
+
+            LayoutType::Horizontal => {
+                state.data.set_child_sum(parent, state.data.get_child_sum(parent) + horizontal_used_space);
+                state.data.set_child_max(parent, vertical_used_space.max(state.data.get_child_max(parent)));
+            }
+
+            _=> {}
+        }
+
+        state.data.set_height(*child, new_height);
+        state.data.set_width(*child, new_width);
+        state.data.set_space_top(*child, new_top);
+        state.data.set_space_bottom(*child, new_bottom);
+        state.data.set_space_left(*child, new_left);
+        state.data.set_space_right(*child, new_right);
+
+    }
     
     // Depth first traversal of all nodes from root
     for parent in layout_hierarchy.into_iter() {
@@ -142,13 +282,13 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         _=> {}
                     }
 
-                    let mut new_width = 0.0;
-                    let mut new_height = 0.0;
 
-                
                     let mut new_left = 0.0;
+                    let mut new_width = 0.0;
                     let mut new_right = 0.0;
+
                     let mut new_top = 0.0;
+                    let mut new_height = 0.0;
                     let mut new_bottom = 0.0;
                     
                     let mut horizontal_stretch_sum = 0.0;
@@ -159,6 +299,8 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                     let mut cross_stretch_sum = 0.0;
                     let cross_free_space;
+
+                    let child_layout_type = state.style.layout_type.get(child).cloned().unwrap_or_default();
 
                     // TODO - replace all these match' with a function
                     match left {
@@ -184,6 +326,20 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         Units::Stretch(val) => {
                             horizontal_stretch_sum += val;
                             horizontal_axis.push((child, val, min_width, max_width, Axis::Size));
+                        }
+
+                        Units::Auto => {
+                            match child_layout_type {
+                                LayoutType::Vertical => {
+                                    new_width = state.data.get_child_max(child);
+                                }
+
+                                LayoutType::Horizontal => {
+                                    new_width = state.data.get_child_sum(child);
+                                }
+
+                                _=> {}
+                            }
                         }
 
                         _=> {}
@@ -226,6 +382,22 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         Units::Stretch(val) => {
                             vertical_stretch_sum += val;
                             vertical_axis.push((child, val, min_height, max_height, Axis::Size));
+                        }
+
+                        Units::Auto => {
+                        
+                            match child_layout_type {
+                                LayoutType::Vertical => {
+                                    new_height = state.data.get_child_sum(child);
+                                    println!("New Height: {}", new_height);
+                                }
+
+                                LayoutType::Horizontal => {
+                                    new_height = state.data.get_child_max(child);
+                                }
+
+                                _=> {}
+                            }
                         }
 
                         _=> {}

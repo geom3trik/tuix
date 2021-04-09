@@ -5,10 +5,13 @@ fn main() {
         
         window.set_title("Custom Title").set_inner_size(300,300);
 
+        state.style.layout_type.insert(window.entity(), LayoutType::Vertical);
+
         let container = Element::new().build(state, window.entity(), |builder| 
             builder
                 .set_width(Units::Pixels(100.0))
-                .set_height(Units::Pixels(30.0))
+                .set_height(Units::Auto)
+                .set_layout_type(LayoutType::Vertical)
                 .set_background_color(Color::rgb(200,80,20))
         );
 
