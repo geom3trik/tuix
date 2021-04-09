@@ -85,6 +85,7 @@ pub struct Data {
 
     margins: Vec<Margins>,
     cross_stretch_sum: Vec<f32>,
+    cross_free_space: Vec<f32>,
 }
 
 impl Data {
@@ -110,6 +111,7 @@ impl Data {
             self.clip_region.resize(key + 1, Default::default());
             self.margins.resize(key + 1, Default::default());
             self.cross_stretch_sum.resize(key + 1, Default::default());
+            self.cross_free_space.resize(key + 1, Default::default());
         }
 
         // Are these needed?
@@ -145,6 +147,16 @@ impl Data {
     pub fn set_cross_stretch_sum(&mut self, entity: Entity, val: f32) {
         if let Some(cross_stretch_sum) = self.cross_stretch_sum.get_mut(entity.index_unchecked()) {
             *cross_stretch_sum = val;
+        }
+    }
+
+    pub fn get_cross_free_space(&self, entity: Entity) -> f32 {
+        self.cross_free_space.get(entity.index_unchecked()).cloned().unwrap()
+    }
+
+    pub fn set_cross_free_space(&mut self, entity: Entity, val: f32) {
+        if let Some(cross_free_space) = self.cross_free_space.get_mut(entity.index_unchecked()) {
+            *cross_free_space = val;
         }
     }
 

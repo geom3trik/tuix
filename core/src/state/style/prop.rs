@@ -603,7 +603,7 @@ impl PropSet for Entity {
             );
         }
 
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
