@@ -33,6 +33,8 @@ use std::collections::VecDeque;
 
 use fnv::FnvHashMap;
 
+use std::rc::Rc;
+
 #[derive(Clone)]
 pub struct Fonts {
     pub regular: Option<FontId>,
@@ -61,7 +63,7 @@ pub struct State {
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
-    resource_manager: ResourceManager, //TODO
+    pub(crate) resource_manager: ResourceManager, //TODO
 
     pub needs_restyle: bool,
     pub needs_relayout: bool,
@@ -163,8 +165,8 @@ impl State {
     }
 
     //TODO
-    pub fn add_image(&mut self, _name: &str, _path: &str) {
-        println!("Add an image to resource manager");
+    pub fn add_image(&mut self, image: image::DynamicImage) -> Rc<()> {
+        self.resource_manager.add_image(image)
     }
 
     //TODO

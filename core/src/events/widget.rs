@@ -104,6 +104,8 @@ pub trait Widget: std::marker::Sized + 'static {
             .get(entity)
             .cloned()
             .unwrap_or_default();
+        
+       
 
         let font_color = state
             .style
@@ -386,6 +388,19 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Fill with background color
         let mut paint = Paint::color(background_color);
+
+        if let Some(background_image) = state.style.background_image.get(entity) {
+            if let Some(image_id) = state.resource_manager.image_ids.get(background_image) {
+                match image_id {
+                    crate::ImageOrId::Id(id) => {
+                        paint = Paint::image(*id, 0.0, 0.0, 100.0, 100.0, 0.0, 1.0);
+                    }
+
+                    _=> {}
+                }
+                
+            }
+        } 
 
         // Gradient overrides background color
         if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {

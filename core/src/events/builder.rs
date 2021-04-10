@@ -154,6 +154,12 @@ impl<'a> Builder<'a> {
         self
     }
 
+    pub fn set_background_image(mut self, val: Rc<()>) -> Self {
+        self.state.style.background_image.insert(self.entity, val.clone());
+
+        self
+    }
+
     pub fn set_background_gradient(mut self, val: LinearGradient) -> Self {
         self.state
             .style

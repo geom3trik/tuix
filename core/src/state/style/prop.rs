@@ -108,7 +108,7 @@ pub trait PropSet : AsEntity {
 
     // Background
     fn set_background_color(self, state: &mut State, value: Color) -> Self;
-    fn set_background_image(self, state: &mut State, value: String) -> Self;
+    fn set_background_image(self, state: &mut State, value: std::rc::Rc<()>) -> Self;
 
     // Border
     fn set_border_width(self, state: &mut State, value: Units) -> Self;
@@ -672,7 +672,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_background_image(self, state: &mut State, value: String) -> Self {
+    fn set_background_image(self, state: &mut State, value: std::rc::Rc<()>) -> Self {
         state.style.background_image.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));

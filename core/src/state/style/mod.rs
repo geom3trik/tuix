@@ -56,6 +56,8 @@ pub use color::Color;
 pub mod transform;
 pub use transform::Scale;
 
+use std::rc::Rc;
+
 // use bimap::BiMap;
 
 #[derive(Clone, Default)]
@@ -151,7 +153,7 @@ pub struct Style {
 
     // Background
     pub background_color: AnimatableStorage<Color>,
-    pub background_image: StyleStorage<String>,
+    pub background_image: StyleStorage<Rc<()>>,
     pub background_gradient: StyleStorage<LinearGradient>,
 
     // Outer Shadow
@@ -425,9 +427,9 @@ impl Style {
                         self.background_color.insert_rule(rule_id, value);
                     }
 
-                    Property::BackgroundImage(value) => {
-                        self.background_image.insert_rule(rule_id, value);
-                    }
+                    // Property::BackgroundImage(value) => {
+                    //     self.background_image.insert_rule(rule_id, value);
+                    // }
 
                     // Flex Container
                     Property::FlexDirection(value) => {
@@ -936,9 +938,9 @@ impl Style {
                         self.background_color.insert_rule(rule_id, value);
                     }
 
-                    Property::BackgroundImage(value) => {
-                        self.background_image.insert_rule(rule_id, value);
-                    }
+                    // Property::BackgroundImage(value) => {
+                    //     self.background_image.insert_rule(rule_id, value);
+                    // }
 
                     // Flex Container
                     Property::FlexDirection(value) => {

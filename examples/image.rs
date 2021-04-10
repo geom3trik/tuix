@@ -2,21 +2,32 @@
 
 use tuix::*;
 
+use image::GenericImageView;
+
 fn main() {
     let app = Application::new(|state, window| {
         
-        //state.load_image();
+    let image = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
-        window.set_title("Hello GUI");
+    let image_id = state.add_image(image);
 
-        Button::with_label("Button")
-            .build(state, window.entity(), |builder| {
-                builder
-                    .set_width(Units::Pixels(100.0))
-                    .set_height(Units::Pixels(30.0))
-                    .set_background_color(Color::from("#ff5e1a"))
-                    .set_text_justify(Justify::Center)
-            });
+    window.set_title("Hello GUI");
+
+    Element::new()
+        .build(state, window.entity(), |builder| {
+            builder
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(100.0))
+                .set_background_image(image_id.clone())
+        });
+
+    Element::new()
+        .build(state, window.entity(), |builder| {
+            builder
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(100.0))
+                .set_background_image(image_id.clone())
+        });
 
     });
 

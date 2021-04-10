@@ -1,20 +1,17 @@
 use crate::{
     Builder, CursorIcon, Entity, Event, Hierarchy, HierarchyTree, IntoBranchIterator,
-    IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State, WindowEvent,
+    IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State, WindowEvent, ImageOrId
 };
 
 use crate::EventHandler;
 
-use std::{
-    collections::{HashMap, VecDeque},
-    println,
-};
+use std::{collections::{HashMap, VecDeque}, convert::TryInto, println};
 
 use std::time::{Duration, Instant};
 
 use femtovg::{
     renderer::OpenGl, Align, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId,
-    LineCap, LineJoin, Paint, Path, Renderer, Solidity,
+    LineCap, LineJoin, Paint, Path, Renderer, Solidity, 
 };
 
 use fnv::FnvHashMap;
@@ -198,6 +195,26 @@ impl EventManager {
     pub fn draw(&mut self, state: &mut State, hierarchy: &Hierarchy, canvas: &mut Canvas<OpenGl>) {
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
+
+        // for (resource, image_or_id) in state.resource_manager.image_ids.iter_mut() {
+        //     match image_or_id {
+        //         ImageOrId::Image(data, width, height) => {
+        //             image_or_id = 
+        //         }
+        //     }
+        // }
+
+        state.resource_manager.image_ids.iter_mut().for_each(|(_, image_or_id)| {
+            match image_or_id {
+                ImageOrId::Image(image) => {
+                    //let img = image.clone();
+                    //let image: femtovg::ImageSource = (&img).try_into().unwrap();
+                    let image: femtovg::ImageSource = (&*image).try_into().unwrap();
+                    *image_or_id = ImageOrId::Id(canvas.create_image(image, ImageFlags::empty()).unwrap())
+                }
+                _=> {}
+            }
+        });
 
         let width = state.data.get_width(Entity::root());
         let height = state.data.get_height(Entity::root());
