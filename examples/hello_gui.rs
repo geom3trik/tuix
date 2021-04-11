@@ -5,29 +5,40 @@ fn main() {
         
         window.set_title("Custom Title").set_inner_size(300,300);
 
+        // Create a shared style wich applies to all widgets with class name "my_class"
+        let style_rule: StyleRule = StyleRule::new()
+        .selector(Selector::new().class("my_class"))
+        .set_height(Units::Pixels(30.0))
+        .set_background_color(Color::rgb(80,200,20));
+
+        // Add the shared style rule to state
+        state.add_style_rule(style_rule);
+
         state.style.layout_type.insert(window.entity(), LayoutType::Vertical);
 
         let container = Element::new().build(state, window.entity(), |builder| 
             builder
                 .set_width(Units::Pixels(100.0))
-                .set_height(Units::Auto)
+                .set_left(Units::Stretch(1.0))
+                .set_right(Units::Stretch(1.0))
+                .set_top(Units::Stretch(1.0))
+                .set_bottom(Units::Stretch(1.0))
                 .set_layout_type(LayoutType::Vertical)
-                .set_background_color(Color::rgb(200,80,20))
+                .class("my_class")
         );
 
         // Add a Button widget as a child of the Element widget
         Button::new().build(state, container, |builder| 
             builder
                 .set_width(Units::Pixels(30.0))
-                .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::rgb(20,80,200))
+                .class("my_class")
         );
 
     });
 
     app.run();
 }
-
 
 
 // use tuix::*;

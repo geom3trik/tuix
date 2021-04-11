@@ -340,6 +340,8 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                                 _=> {}
                             }
+
+                            horizontal_used_space += new_width;
                         }
 
                         _=> {}
@@ -389,15 +391,17 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                             match child_layout_type {
                                 LayoutType::Vertical => {
                                     new_height = state.data.get_child_sum(child);
-                                    println!("New Height: {}", new_height);
                                 }
 
                                 LayoutType::Horizontal => {
                                     new_height = state.data.get_child_max(child);
+                                    
                                 }
 
                                 _=> {}
                             }
+
+                            vertical_used_space += new_height;
                         }
 
                         _=> {}
