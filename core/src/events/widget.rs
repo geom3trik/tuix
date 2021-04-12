@@ -58,10 +58,12 @@ pub trait Widget: std::marker::Sized + 'static {
             return;
         }
 
-        let posx = state.data.get_posx(entity);
-        let posy = state.data.get_posy(entity);
-        let width = state.data.get_width(entity);
-        let height = state.data.get_height(entity);
+        // let posx = state.data.get_posx(entity);
+        // let posy = state.data.get_posy(entity);
+        // let width = state.data.get_width(entity);
+        // let height = state.data.get_height(entity);
+
+        let bounds = state.data.get_bounds(entity);
 
         let padding_left = match state
             .style
@@ -198,7 +200,7 @@ pub trait Widget: std::marker::Sized + 'static {
         };
 
         // Skip widgets with no width or no height
-        if width == 0.0 || height == 0.0 {
+        if bounds.w == 0.0 || bounds.h == 0.0 {
             return;
         }
 
@@ -207,11 +209,11 @@ pub trait Widget: std::marker::Sized + 'static {
         let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
         canvas.save();
-        canvas.translate(posx + width / 2.0, posy + height / 2.0);
+        canvas.translate(bounds.x + bounds.w / 2.0, bounds.y + bounds.h / 2.0);
         canvas.rotate(rotate.to_radians());
-        canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
+        canvas.translate(-(bounds.x + bounds.w / 2.0), -(bounds.y + bounds.h / 2.0));
 
-        canvas.translate(posx, posy);
+        canvas.translate(bounds.x, bounds.y);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
@@ -222,8 +224,8 @@ pub trait Widget: std::marker::Sized + 'static {
         // Apply Scissor
         let mut clip_region = state.data.get_clip_region(entity);
         canvas.scissor(
-            clip_region.x - posx,
-            clip_region.y - posy,
+            clip_region.x - bounds.x,
+            clip_region.y - bounds.y,
             clip_region.w,
             clip_region.h,
         );
@@ -325,8 +327,8 @@ pub trait Widget: std::marker::Sized + 'static {
         path.rounded_rect_varying(
             0.0 - outer_shadow_blur + outer_shadow_h_offset,
             0.0 - outer_shadow_blur + outer_shadow_v_offset,
-            width + 2.0 * outer_shadow_blur,
-            height + 2.0 * outer_shadow_blur,
+            bounds.w + 2.0 * outer_shadow_blur,
+            bounds.h + 2.0 * outer_shadow_blur,
             border_radius_top_left,
             border_radius_top_right,
             border_radius_bottom_right,
@@ -335,8 +337,8 @@ pub trait Widget: std::marker::Sized + 'static {
         path.rounded_rect_varying(
             0.0,
             0.0,
-            width,
-            height,
+            bounds.w,
+            bounds.h,
             border_radius_top_left,
             border_radius_top_right,
             border_radius_bottom_right,
@@ -347,8 +349,8 @@ pub trait Widget: std::marker::Sized + 'static {
         let mut paint = Paint::box_gradient(
             0.0 + outer_shadow_h_offset,
             0.0 + outer_shadow_v_offset,
-            width,
-            height,
+            bounds.w,
+            bounds.h,
             border_radius_top_left
                 .max(border_radius_top_right)
                 .max(border_radius_bottom_left)
@@ -362,23 +364,23 @@ pub trait Widget: std::marker::Sized + 'static {
 
         let mut path = Path::new();
 
-        if border_radius_bottom_left == (width - 2.0 * border_width) / 2.0
-            && border_radius_bottom_right == (width - 2.0 * border_width) / 2.0
-            && border_radius_top_left == (width - 2.0 * border_width) / 2.0
-            && border_radius_top_right == (width - 2.0 * border_width) / 2.0
+        if border_radius_bottom_left == (bounds.w - 2.0 * border_width) / 2.0
+            && border_radius_bottom_right == (bounds.w - 2.0 * border_width) / 2.0
+            && border_radius_top_left == (bounds.w - 2.0 * border_width) / 2.0
+            && border_radius_top_right == (bounds.w - 2.0 * border_width) / 2.0
         {
             path.circle(
-                0.0 + (border_width / 2.0) + (width - border_width) / 2.0,
-                0.0 + (border_width / 2.0) + (height - border_width) / 2.0,
-                width / 2.0,
+                0.0 + (border_width / 2.0) + (bounds.w - border_width) / 2.0,
+                0.0 + (border_width / 2.0) + (bounds.h - border_width) / 2.0,
+                bounds.w / 2.0,
             );
         } else {
             // Draw rounded rect
             path.rounded_rect_varying(
                 0.0 + (border_width / 2.0),
                 0.0 + (border_width / 2.0),
-                width - border_width,
-                height - border_width,
+                bounds.w - border_width,
+                bounds.h - border_width,
                 border_radius_top_left,
                 border_radius_top_right,
                 border_radius_bottom_right,
@@ -405,9 +407,9 @@ pub trait Widget: std::marker::Sized + 'static {
         // Gradient overrides background color
         if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
             let (start_x, start_y, end_x, end_y) = match background_gradient.direction {
-                Direction::LeftToRight => (0.0, 0.0, width, 0.0),
-                Direction::TopToBottom => (0.0, 0.0, 0.0, height),
-                _ => (0.0, 0.0, width, 0.0),
+                Direction::LeftToRight => (0.0, 0.0, bounds.w, 0.0),
+                Direction::TopToBottom => (0.0, 0.0, 0.0, bounds.h),
+                _ => (0.0, 0.0, bounds.w, 0.0),
             };
 
             paint = Paint::linear_gradient_stops(
@@ -440,8 +442,8 @@ pub trait Widget: std::marker::Sized + 'static {
         path.rounded_rect_varying(
             0.0 + border_width,
             0.0 + border_width,
-            width - border_width * 2.0,
-            height - border_width * 2.0,
+            bounds.w - border_width * 2.0,
+            bounds.h - border_width * 2.0,
             border_radius_top_left,
             border_radius_top_right,
             border_radius_bottom_right,
@@ -451,8 +453,8 @@ pub trait Widget: std::marker::Sized + 'static {
         let mut paint = Paint::box_gradient(
             0.0 + inner_shadow_h_offset + border_width,
             0.0 + inner_shadow_v_offset + border_width,
-            width - border_width * 2.0,
-            height - border_width * 2.0,
+            bounds.w - border_width * 2.0,
+            bounds.h - border_width * 2.0,
             border_radius_top_left
                 .max(border_radius_top_right)
                 .max(border_radius_bottom_left)
@@ -500,11 +502,11 @@ pub trait Widget: std::marker::Sized + 'static {
                     Align::Left
                 }
                 Justify::Center => {
-                    x += 0.5 * width;
+                    x += 0.5 * bounds.w;
                     Align::Center
                 }
                 Justify::End => {
-                    x += width - padding_right - border_width;
+                    x += bounds.w - padding_right - border_width;
                     Align::Right
                 }
             };
@@ -515,11 +517,11 @@ pub trait Widget: std::marker::Sized + 'static {
                     Baseline::Top
                 }
                 crate::Align::Center => {
-                    y += 0.5 * height;
+                    y += 0.5 * bounds.h;
                     Baseline::Middle
                 }
                 crate::Align::End => {
-                    y += height - padding_bottom - border_width;
+                    y += bounds.h - padding_bottom - border_width;
                     Baseline::Bottom
                 }
             };
@@ -539,7 +541,7 @@ pub trait Widget: std::marker::Sized + 'static {
             canvas.fill_text(x, y, &text_string, paint);
         }
 
-        canvas.translate(-posx, -posy);
+        canvas.translate(-bounds.x, -bounds.y);
         canvas.restore();
     }
 }

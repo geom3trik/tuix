@@ -140,6 +140,15 @@ impl Data {
     //         .unwrap()
     // }
 
+    pub fn get_bounds(&self, entity: Entity) -> BoundingBox {
+        BoundingBox {
+            x: self.get_posx(entity),
+            y: self.get_posy(entity),
+            w: self.get_width(entity),
+            h: self.get_height(entity),
+        }
+    }
+
     pub fn get_cross_stretch_sum(&self, entity: Entity) -> f32 {
         self.cross_stretch_sum.get(entity.index_unchecked()).cloned().unwrap()
     }
