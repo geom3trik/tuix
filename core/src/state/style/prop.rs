@@ -97,7 +97,7 @@ pub trait PropSet : AsEntity {
     // Text Font
     fn set_font(self, state: &mut State, font: &str) -> Self;
     fn set_font_size(self, state: &mut State, size: f32) -> Self;
-    fn set_font_color(self, state: &mut State, color: Color) -> Self;
+    fn set_color(self, state: &mut State, color: Color) -> Self;
 
     // Text Alignment
     fn set_text_align(self, state: &mut State, align: Align) -> Self;
@@ -638,7 +638,7 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_font_color(self, state: &mut State, value: Color) -> Self {
+    fn set_color(self, state: &mut State, value: Color) -> Self {
         state.style.font_color.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));

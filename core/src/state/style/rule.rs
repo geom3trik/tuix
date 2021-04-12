@@ -407,7 +407,7 @@ impl StyleRule {
         self
     }
 
-    pub fn set_font_color(mut self, value: Color) -> Self {
+    pub fn set_color(mut self, value: Color) -> Self {
         self.properties.push(Property::FontColor(value));
 
         self

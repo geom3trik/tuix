@@ -527,7 +527,7 @@ impl<'a> Builder<'a> {
 
         self
     }
-    pub fn set_font_color(mut self, value: Color) -> Self {
+    pub fn set_color(mut self, value: Color) -> Self {
         self.state.style.font_color.insert(self.entity, value);
 
         self
