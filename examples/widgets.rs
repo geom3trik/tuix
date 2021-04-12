@@ -308,10 +308,12 @@ fn main() {
         // Label::new("Value Slider").build(state, row, |builder| builder);
         // ValueSlider::new("value").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-        // // SLIDER 1
-        // let row = HBox::new().build(state, panel, |builder| builder);
-        // Label::new("Slider").build(state, row, |builder| builder);
-        // Slider::new().build(state, row, |builder| builder.set_flex_grow(1.0));
+        // SLIDER 1
+        let row = HBox::new().build(state, panel, |builder| builder);
+        Label::new("Slider").build(state, row, |builder| builder);
+        Slider::new()
+            .on_hover(Event::new(WindowEvent::WindowClose))
+            .build(state, row, |builder| builder.set_flex_grow(1.0));
 
         // // SLIDER 2
         // let row = HBox::new().build(state, panel, |builder| builder);

@@ -67,3 +67,33 @@ pub use crate::mouse::*;
 pub use crate::state::State;
 pub use crate::{Code, Key};
 pub use crate::{PropGet, PropSet, Animation, AnimationState};
+
+
+#[derive(Default)]
+pub struct BaseWidget {
+    on_hover: Option<Event>,
+}
+
+impl BaseWidget {
+    pub fn on_hover(&mut self, event: Event) -> &mut Self {
+        self.on_hover = Some(event);
+
+        self
+    }
+}
+
+pub trait BasicWidget: Sized {
+    fn get_base_widget(&mut self) -> &mut BaseWidget;
+
+    fn on_hover(mut self, event: Event) -> Self
+    {
+        self.get_base_widget().on_hover(event);
+
+        self
+    }
+
+    fn on_active(mut self, event: Event) -> Self
+    {
+        self
+    }
+}

@@ -14,12 +14,13 @@ pub struct Slider {
     active: Entity,
     sliding: bool,
     on_change: Option<Box<dyn Fn(f32) -> Event>>,
-
     value: f32,
 
     min: f32,
     max: f32,
     div: f32,
+
+    base_widget: BaseWidget,
 }
 
 impl Default for Slider {
@@ -33,7 +34,15 @@ impl Default for Slider {
             min: 0.0,
             max: 1.0,
             div: 0.01,
+
+            base_widget: BaseWidget::default(),
         }
+    }
+}
+
+impl BasicWidget for Slider {
+    fn get_base_widget(&mut self) -> &mut BaseWidget {
+        &mut self.base_widget
     }
 }
 

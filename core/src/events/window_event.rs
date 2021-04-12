@@ -23,42 +23,42 @@ pub struct GeometryChanged {
 // Or events that can be used to set properties of the window
 #[derive(Debug, Clone, PartialEq)]
 pub enum WindowEvent {
-    // Emitted when a window is closed
+    /// Emitted when a window is closed
     WindowClose,
-    // Emitted when a window is opened
+    /// Emitted when a window is opened
     WindowResize(f32, f32),
-    // Emitted when a mouse button is double clicked
+    /// Emitted when a mouse button is double clicked
     MouseDoubleClick(MouseButton),
-    // Emitted when a mouse button is pressed
+    /// Emitted when a mouse button is pressed
     MouseDown(MouseButton),
-    // Emitted when a mouse button is released
+    /// Emitted when a mouse button is released
     MouseUp(MouseButton),
-    // Emitted when the mouse cursor is moved
+    /// Emitted when the mouse cursor is moved
     MouseMove(f32, f32),
-    // Emitted when the mouse scroll wheel is scrolled
+    /// Emitted when the mouse scroll wheel is scrolled
     MouseScroll(f32, f32),
-    // Emitted when the mouse cursor enters the bounding box of an entity
+    /// Emitted when the mouse cursor enters the bounding box of an entity
     MouseOver,
-    // Emitted when the mouse cursor leaves the bounding box of an entity
+    /// Emitted when the mouse cursor leaves the bounding box of an entity
     MouseOut,
-    // Emitted when a character is typed
+    /// Emitted when a character is typed
     CharInput(char),
-    // Emitted when a keyboard key is pressed
+    /// Emitted when a keyboard key is pressed
     KeyDown(Code, Option<Key>),
-    // Emitted when a keyboard key is released
+    /// Emitted when a keyboard key is released
     KeyUp(Code, Option<Key>),
-    // Sets the mouse cursor
+    /// Sets the mouse cursor
     SetCursor(CursorIcon),
-    // Emitted when mouse events have been captured
+    /// Emitted when mouse events have been captured
     MouseCaptureEvent,
-    // Emitted when mouse events have been released
+    /// Emitted when mouse events have been released
     MouseCaptureOutEvent,
-    // Emitted when an entity changes position or size (TODO: check if this includes margins + borders)
+    /// Emitted when an entity changes position or size (TODO: check if this includes margins + borders)
     GeometryChanged(GeometryChanged),
-    // Requests a redraw of the window contents
+    /// Requests a redraw of the window contents
     Redraw,
-    // Request a restyle
+    /// Request a restyle
     Restyle,
-    // Requests a relayout
+    /// Requests a relayout
     Relayout,
 }

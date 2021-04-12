@@ -9,6 +9,8 @@ use femtovg::{renderer::OpenGl, Canvas, LineCap, Paint, Path, Solidity};
 
 use std::sync::{Arc, Mutex};
 
+
+
 pub struct ControlKnob {
     sliding: bool, // Could replace this with a bool in state, maybe in mouse
     value: f32,
