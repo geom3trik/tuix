@@ -312,6 +312,7 @@ fn main() {
         let row = HBox::new().build(state, panel, |builder| builder);
         Label::new("Slider").build(state, row, |builder| builder);
         Slider::new()
+            .with_range(0.0..20.0)
             .on_hover(Event::new(WindowEvent::WindowClose))
             .build(state, row, |builder| builder.set_flex_grow(1.0));
 

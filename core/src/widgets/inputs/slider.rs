@@ -65,6 +65,13 @@ impl Slider {
         self
     }
 
+    pub fn with_range(mut self, range: std::ops::Range<f32>) -> Self {
+        self.min = range.start;
+        self.max = range.end;
+
+        self
+    }
+
     pub fn with_min(mut self, val: f32) -> Self {
         self.min = val;
         self
