@@ -6,11 +6,17 @@ use std::fmt::Debug;
 /// Determines how the event propagates through the hierarchy
 #[derive(Debug, Clone, PartialEq)]
 pub enum Propagation {
+    /// Events propagate down the hierarchy to the target entity, e.g. from grand-parent to parent to child (target)
     Down,
+    /// Events propagate up the hierarchy to the target entity, e.g. from child (target) to parent to grand-parent
     Up,
+    /// Events propagate down the hierarchy to the target entity and then back up to the root
     DownUp,
+    /// Events propagate from the target entity to all entities below but on the same branch
     Fall,
+    /// Events propagate directly to the target entity and to no others
     Direct,
+    /// Events propagate to all entities in the hierarchy
     All,
 }
 

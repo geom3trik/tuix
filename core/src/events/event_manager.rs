@@ -72,7 +72,8 @@ impl EventManager {
         'events: for event in self.event_queue.iter_mut() {
             //println!("Event: {:?}", event);
 
-            if event.target == Entity::null() {
+            // Skip events with no target unless they are set to propagate to all entities
+            if event.target == Entity::null() && event.propagation != Propagation::All {
                 continue 'events;
             }
 

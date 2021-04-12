@@ -159,10 +159,14 @@ impl Widget for Slider {
                             .set_left(state, Units::Pixels(dx - thumb_width / 2.0));
 
                         if let Some(on_change) = &self.on_change {
-                            let mut event = (on_change)(v);
-                            event.origin = entity;
+                            let mut on_change_event = (on_change)(v);
+                            on_change_event.origin = entity;
 
-                            state.insert_event(event);
+                            if on_change_event.target == Entity::null() {
+                                on_change_event.target = entity;
+                            }
+
+                            state.insert_event(on_change_event);
                         }
 
                         state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));
@@ -202,10 +206,14 @@ impl Widget for Slider {
                         self.value = v;
 
                         if let Some(on_change) = &self.on_change {
-                            let mut event = (on_change)(v);
-                            event.origin = entity;
+                            let mut on_change_event = (on_change)(v);
+                            on_change_event.origin = entity;
 
-                            state.insert_event(event);
+                            if on_change_event.target == Entity::null() {
+                                on_change_event.target = entity;
+                            }
+
+                            state.insert_event(on_change_event);
                         }
 
                         state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));

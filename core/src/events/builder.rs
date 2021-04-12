@@ -12,10 +12,11 @@ pub struct Builder<'a> {
 
 impl<'a> Builder<'a> {
     /// Creates a new Builder
-    pub fn new(state: &'a mut State, entity: Entity) -> Self {
+    pub(crate) fn new(state: &'a mut State, entity: Entity) -> Self {
         Builder { entity, state }
     }
 
+    // Builds the widget into State
     pub(crate) fn build<T>(mut self, event_handler: T) -> Entity
     where
         T: EventHandler + 'static + Sized,
@@ -96,12 +97,14 @@ impl<'a> Builder<'a> {
         self
     }
 
+    /// Sets the clip widget of the entity. The clip bounds of the entity are set to the bounds of the clip widget
     pub fn set_clip_widget(mut self, val: Entity) -> Self {
         self.state.style.clip_widget.insert(self.entity, val);
 
         self
     }
 
+    // Sets the text displayed within the entity
     pub fn set_text(mut self, val: &str) -> Self {
         if let Some(text) = self.state.style.text.get_mut(self.entity) {
             text.text = val.to_string();
@@ -118,6 +121,7 @@ impl<'a> Builder<'a> {
         self
     }
 
+    // Sets the tooltip associated with the entity
     pub fn set_tooltip(mut self, val: &str) -> Self {
         self.state
             .style
@@ -128,7 +132,7 @@ impl<'a> Builder<'a> {
     }
 
     // Display
-
+    /// Sets the display type of the entity
     pub fn set_display(mut self, val: Display) -> Self {
         self.state.style.display.insert(self.entity, val);
 
