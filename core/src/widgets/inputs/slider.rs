@@ -60,7 +60,7 @@ impl Slider {
         self
     }
 
-    pub fn on_hover(mut self, event: Event) -> Self {
+    pub fn on_over(mut self, event: Event) -> Self {
         self.on_hover = Some(event);
         self
     }
@@ -156,7 +156,7 @@ impl Widget for Slider {
                 }
 
                 WindowEvent::MouseOver => {
-                    if event.target == entity || event.target == self.active || event.target == self.thumb {
+                    if event.target == entity {
                         if let Some(mut on_hover) = self.on_hover.clone() {
                             on_hover.origin = entity;
 

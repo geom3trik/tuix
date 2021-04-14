@@ -41,6 +41,10 @@ pub enum WindowEvent {
     MouseOver,
     /// Emitted when the mouse cursor leaves the bounding box of an entity
     MouseOut,
+    /// Emitted when the mouse cursor enters an entity or one of its decendants
+    MouseEnter,
+    /// Emitted when the mouse cursor leaves an entity or one of its decendants
+    MouseLeave,
     /// Emitted when a character is typed
     CharInput(char),
     /// Emitted when a keyboard key is pressed

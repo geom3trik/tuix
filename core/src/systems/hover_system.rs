@@ -1,4 +1,4 @@
-use crate::{Display, Entity, Event, Units, PropGet, State, Visibility, WindowEvent};
+use crate::{Display, Entity, Event, Units, PropGet, State, Visibility, WindowEvent, Propagation};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
@@ -68,12 +68,20 @@ pub fn apply_hover(state: &mut State) {
             && cursory < (clip_region.y + clip_region.h)
         {
             hovered_widget = entity;
-            if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
-                pseudo_classes.set_over(true);
+            if entity.is_over(state) == false {
+                //println!("Over: {}", entity);
+                state.insert_event(Event::new(WindowEvent::MouseOver).target(entity).propagate(Propagation::Direct));
+                if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(entity) {
+                    pseudo_classes.set_over(true);
+                }
             }
+            
         } else {
-            if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
-                pseudo_classes.set_over(false);
+            if entity.is_over(state) == true {
+                state.insert_event(Event::new(WindowEvent::MouseOut).target(entity).propagate(Propagation::Direct));
+                if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(entity) {
+                    pseudo_classes.set_over(false);
+                }
             }
         }
     }
@@ -113,8 +121,8 @@ pub fn apply_hover(state: &mut State) {
         //     );
         // }
 
-        state.insert_event(Event::new(WindowEvent::MouseOver).target(hovered_widget));
-        state.insert_event(Event::new(WindowEvent::MouseOut).target(state.hovered));
+        state.insert_event(Event::new(WindowEvent::MouseEnter).target(hovered_widget));
+        state.insert_event(Event::new(WindowEvent::MouseLeave).target(state.hovered));
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
 

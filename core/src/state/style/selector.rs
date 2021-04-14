@@ -98,31 +98,31 @@ impl PseudoClasses {
         }
     }
 
-    pub fn get_hover(&mut self) -> bool {
+    pub fn get_hover(&self) -> bool {
         (self.0 & 1) != 0
     }
 
-    pub fn get_over(&mut self) -> bool {
+    pub fn get_over(&self) -> bool {
         (self.0 & (1 << 1)) >> 1 != 0
     }
 
-    pub fn get_active(&mut self) -> bool {
+    pub fn get_active(&self) -> bool {
         (self.0 & (1 << 2)) >> 2 != 0
     }
 
-    pub fn get_focus(&mut self) -> bool {
+    pub fn get_focus(&self) -> bool {
         (self.0 & (1 << 3)) >> 3 != 0
     }
 
-    pub fn get_enabled(&mut self) -> bool {
+    pub fn get_enabled(&self) -> bool {
         (self.0 & (1 << 4)) >> 4 != 0
     }
 
-    pub fn get_disabled(&mut self) -> bool {
+    pub fn get_disabled(&self) -> bool {
         (self.0 & (1 << 5)) >> 5 != 0
     }
 
-    pub fn get_checked(&mut self) -> bool {
+    pub fn get_checked(&self) -> bool {
         (self.0 & (1 << 6)) >> 6 != 0
     }
 }
