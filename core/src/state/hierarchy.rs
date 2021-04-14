@@ -13,6 +13,7 @@ pub struct Hierarchy {
     pub first_child: Vec<Option<Entity>>,
     pub next_sibling: Vec<Option<Entity>>,
     pub prev_sibling: Vec<Option<Entity>>,
+    pub changed: bool,
 }
 
 impl Hierarchy {
@@ -23,6 +24,7 @@ impl Hierarchy {
             first_child: Vec::new(),
             next_sibling: Vec::new(),
             prev_sibling: Vec::new(),
+            changed: false,
         }
     }
 
@@ -187,6 +189,8 @@ impl Hierarchy {
             self.next_sibling[index] = None;
             self.prev_sibling[index] = None;
             self.parent[index] = None;
+
+            self.changed = true;
         }
     }
 
@@ -228,6 +232,8 @@ impl Hierarchy {
             self.next_sibling[index] = previous_first_child;
 
             self.first_child[parent.index_unchecked()] = Some(entity);
+
+            self.changed = true;
 
             Ok(())
         } else {
@@ -295,6 +301,8 @@ impl Hierarchy {
         self.prev_sibling[sibling.index_unchecked()] = Some(entity); // D
         self.next_sibling[entity.index_unchecked()] = Some(sibling); // A
 
+        self.changed = true;
+
         Ok(())
     }
 
@@ -356,6 +364,8 @@ impl Hierarchy {
 
         self.prev_sibling[entity.index_unchecked()] = Some(sibling); // B
 
+        self.changed = true;
+
         Ok(())
     }
 
@@ -392,6 +402,8 @@ impl Hierarchy {
         }
 
         self.parent[entity.index_unchecked()] = Some(parent);
+
+        self.changed = true;
     }
 
     pub fn add(&mut self, entity: Entity, parent: Option<Entity>) {
@@ -429,6 +441,8 @@ impl Hierarchy {
                     self.prev_sibling[index] = temp;
                 }
             }
+
+            self.changed = true;
         }
     }
 
@@ -456,6 +470,8 @@ impl Hierarchy {
 
                 self.next_sibling[sibling.index_unchecked()] = Some(entity);
             }
+
+            self.changed = true;
         }
     }
 }

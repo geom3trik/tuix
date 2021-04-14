@@ -195,8 +195,6 @@ impl Application {
                 // REDRAW
 
                 GEvent::RedrawRequested(_) => {
-                    // Clone state hierarchy into event manager
-                    event_manager.hierarchy = state.hierarchy.clone();
                     event_manager.draw(&mut state, &mut window.canvas);
                     // Swap buffers
                     window

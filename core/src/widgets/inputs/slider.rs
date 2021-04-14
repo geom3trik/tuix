@@ -14,13 +14,14 @@ pub struct Slider {
     active: Entity,
     sliding: bool,
     on_change: Option<Box<dyn Fn(f32) -> Event>>,
+    on_active: Option<Event>,
+    on_hover: Option<Event>,
+
     value: f32,
 
     min: f32,
     max: f32,
     div: f32,
-
-    base_widget: BaseWidget,
 }
 
 impl Default for Slider {
@@ -30,19 +31,13 @@ impl Default for Slider {
             active: Entity::default(),
             sliding: false,
             on_change: None,
+            on_active: None,
+            on_hover: None,
             value: 0.0,
             min: 0.0,
             max: 1.0,
             div: 0.01,
-
-            base_widget: BaseWidget::default(),
         }
-    }
-}
-
-impl BasicWidget for Slider {
-    fn get_base_widget(&mut self) -> &mut BaseWidget {
-        &mut self.base_widget
     }
 }
 
@@ -51,11 +46,22 @@ impl Slider {
         Self::default()
     }
 
+    /// Sets the event generating closure that will be called when the slider value changes
     pub fn on_change<F>(mut self, message: F) -> Self
     where
         F: 'static + Fn(f32) -> Event,
     {
         self.on_change = Some(Box::new(message));
+        self
+    }
+
+    pub fn on_active(mut self, event: Event) -> Self {
+        self.on_active = Some(event);
+        self
+    }
+
+    pub fn on_hover(mut self, event: Event) -> Self {
+        self.on_hover = Some(event);
         self
     }
 
@@ -133,7 +139,9 @@ impl Widget for Slider {
                         let width = state.data.get_width(entity);
                         let thumb_width = state.data.get_width(self.thumb);
 
-                        let mut dx = self.value * (width - thumb_width) + thumb_width / 2.0;
+                        let normalised_value = self.value / (self.max - self.min);
+
+                        let mut dx = normalised_value * (width - thumb_width) + thumb_width / 2.0;
 
                         if dx <= thumb_width / 2.0 {
                             dx = thumb_width / 2.0;
@@ -147,12 +155,39 @@ impl Widget for Slider {
                     }
                 }
 
+                WindowEvent::MouseOver => {
+                    if event.target == entity || event.target == self.active || event.target == self.thumb {
+                        if let Some(mut on_hover) = self.on_hover.clone() {
+                            on_hover.origin = entity;
+
+                            if on_hover.target == Entity::null() {
+                                on_hover.target = entity;
+                            }
+
+                            state.insert_event(on_hover);
+                        }
+                    }
+                }
+
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left && event.target == entity
                         || event.target == self.thumb
                     {
                         self.sliding = true;
                         state.capture(entity);
+
+                        entity.set_active(state, true);
+
+                        if let Some(mut on_active) = self.on_active.clone() {
+                            on_active.origin = entity;
+
+                            if on_active.target == Entity::null() {
+                                on_active.target = entity;
+                            }
+
+                            state.insert_event(on_active);
+                        }
+
 
                         let width = state.data.get_width(entity);
                         let thumb_width = state.data.get_width(self.thumb);
@@ -169,6 +204,8 @@ impl Widget for Slider {
                         let nx = (dx - thumb_width / 2.0) / (width - thumb_width);
 
                         let v = self.min + nx * (self.max - self.min);
+
+                        self.value = v;
 
                         self.active.set_width(state, Units::Percentage(nx));
                         self.thumb

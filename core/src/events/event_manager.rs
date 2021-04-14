@@ -44,6 +44,13 @@ impl EventManager {
     pub fn flush_events(&mut self, state: &mut State) -> bool {
         let mut needs_redraw = false;
 
+
+        if state.hierarchy.changed {
+            self.hierarchy = state.hierarchy.clone();
+            state.hierarchy.changed = false;
+        }
+
+
         // Clear the event queue in the event manager
         self.event_queue.clear();
 

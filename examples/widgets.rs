@@ -313,7 +313,7 @@ fn main() {
         Label::new("Slider").build(state, row, |builder| builder);
         Slider::new()
             .with_range(0.0..20.0)
-            .on_hover(Event::new(WindowEvent::WindowClose))
+            .on_active(Event::new(WindowEvent::Debug("Activate the slider".to_owned())))
             .build(state, row, |builder| builder.set_flex_grow(1.0));
 
         // // SLIDER 2
