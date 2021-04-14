@@ -31,6 +31,10 @@ impl Widget for WindowWidget {
                     println!("Window Close Event");
                 }
 
+                WindowEvent::Debug(val) => {
+                    println!("{}", val);
+                }
+
                 WindowEvent::Restyle => {
                     //state.needs_restyle = true;
                     //println!("Restyle");

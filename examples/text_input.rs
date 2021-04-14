@@ -14,6 +14,20 @@ fn main() {
                     .set_background_color(Color::from("#202020"))
                     .set_text_justify(Justify::Center)
         });
+
+        let text_area = TextArea::new("Hello There إلا بسم الله Beep Boop!!")
+            .build(state, window.entity(), |builder| 
+                builder
+                    .set_left(Pixels(200.0))
+                    .set_top(Pixels(200.0))
+                    .set_width(Pixels(150.0))
+                    .set_height(Pixels(200.0))
+                    .set_background_color(Color::rgb(150, 200, 50))
+                    .set_text_align(Align::Center)
+                    .set_font_size(20.0)
+            );
+
+        state.focused = text_area;
     });
     app.run();
 }

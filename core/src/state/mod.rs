@@ -41,6 +41,7 @@ pub struct Fonts {
     pub bold: Option<FontId>,
     pub icons: Option<FontId>,
     pub emoji: Option<FontId>,
+    pub arabic: Option<FontId>,
 }
 
 pub struct State {
@@ -107,6 +108,7 @@ impl State {
                 bold: None,
                 icons: None,
                 emoji: None,
+                arabic: None,
             },
             resource_manager: ResourceManager::new(),
             needs_restyle: false,

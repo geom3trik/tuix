@@ -43,10 +43,13 @@ impl Application {
         let event_loop = EventLoop::new();
         let mut state = State::new();
 
-        let event_manager = EventManager::new();
+        let mut event_manager = EventManager::new();
+        
 
         let root = Entity::root();
         state.hierarchy.add(Entity::root(), None);
+
+        event_manager.hierarchy = state.hierarchy.clone();
 
         //let window_description = win(WindowDescription::new());
         let mut window_builder = WindowBuilder::new(root);
@@ -59,6 +62,7 @@ impl Application {
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
         let icon_font = include_bytes!("../../resources/entypo.ttf");
         let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
+        let arabic_font = include_bytes!("../../resources/amiri-regular.ttf");
 
         let fonts = Fonts {
             regular: Some(
@@ -83,6 +87,12 @@ impl Application {
                 window
                     .canvas
                     .add_font_mem(emoji_font)
+                    .expect("Cannot add font"),
+            ),
+            arabic: Some(
+                window
+                    .canvas
+                    .add_font_mem(arabic_font)
                     .expect("Cannot add font"),
             ),
         };
@@ -125,6 +135,10 @@ impl Application {
     pub fn run(self) {
         let mut state = self.state;
         let mut event_manager = self.event_manager;
+
+        event_manager.hierarchy = state.hierarchy.clone();
+
+        //println!("Event Manager: {:?}", event_manager.hierarchy);
 
         let mut window = self.window;
         let mut should_quit = false;
@@ -169,6 +183,7 @@ impl Application {
                     let hierarchy = state.hierarchy.clone();
 
                     if state.needs_redraw {
+                        // TODO - Move this to EventManager
                         apply_clipping(&mut state, &hierarchy);
                         window.handle.window().request_redraw();
                         state.needs_redraw = false;
@@ -180,8 +195,9 @@ impl Application {
                 // REDRAW
 
                 GEvent::RedrawRequested(_) => {
-                    let hierarchy = state.hierarchy.clone();
-                    event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
+                    // Clone state hierarchy into event manager
+                    event_manager.hierarchy = state.hierarchy.clone();
+                    event_manager.draw(&mut state, &mut window.canvas);
                     // Swap buffers
                     window
                         .handle

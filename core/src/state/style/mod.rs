@@ -91,6 +91,12 @@ pub struct Style {
     pub top: AnimatableStorage<Units>,
     pub bottom: AnimatableStorage<Units>,
 
+    // Spacing / Positioning
+    pub space_left: AnimatableStorage<Units>,
+    pub space_right: AnimatableStorage<Units>,
+    pub space_top: AnimatableStorage<Units>,
+    pub space_bottom: AnimatableStorage<Units>,
+
     // Size
     pub width: AnimatableStorage<Units>,
     pub height: AnimatableStorage<Units>,
@@ -101,15 +107,15 @@ pub struct Style {
     pub min_width: AnimatableStorage<Units>,
     pub min_height: AnimatableStorage<Units>,
 
-    pub max_left: AnimatableStorage<Units>,
-    pub max_right: AnimatableStorage<Units>,
-    pub min_left: AnimatableStorage<Units>,
-    pub min_right: AnimatableStorage<Units>,
+    pub max_space_left: AnimatableStorage<Units>,
+    pub max_space_right: AnimatableStorage<Units>,
+    pub min_space_left: AnimatableStorage<Units>,
+    pub min_space_right: AnimatableStorage<Units>,
 
-    pub max_top: AnimatableStorage<Units>,
-    pub max_bottom: AnimatableStorage<Units>,
-    pub min_top: AnimatableStorage<Units>,
-    pub min_bottom: AnimatableStorage<Units>,
+    pub max_space_top: AnimatableStorage<Units>,
+    pub max_space_bottom: AnimatableStorage<Units>,
+    pub min_space_top: AnimatableStorage<Units>,
+    pub min_space_bottom: AnimatableStorage<Units>,
 
     // Margin
     pub margin_left: AnimatableStorage<Units>,

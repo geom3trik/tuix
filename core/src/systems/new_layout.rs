@@ -52,21 +52,21 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         let height = state.style.height.get(*child).cloned().unwrap_or_default();
         let mut bottom = state.style.bottom.get(*child).cloned().unwrap_or_default();
 
-        let min_left = state.style.min_left.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
+        let min_left = state.style.min_space_left.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
         let min_width = state.style.min_width.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
-        let min_right = state.style.min_right.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
+        let min_right = state.style.min_space_right.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
 
-        let max_left = state.style.max_left.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
+        let max_left = state.style.max_space_left.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
         let max_width = state.style.max_width.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
-        let max_right = state.style.max_right.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
+        let max_right = state.style.max_space_right.get(*child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
 
-        let min_top = state.style.min_top.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
+        let min_top = state.style.min_space_top.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
         let min_height = state.style.min_height.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
-        let min_bottom = state.style.min_bottom.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
+        let min_bottom = state.style.min_space_bottom.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
 
-        let max_top = state.style.max_top.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
+        let max_top = state.style.max_space_top.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
         let max_height = state.style.max_height.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
-        let max_bottom = state.style.max_bottom.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
+        let max_bottom = state.style.max_space_bottom.get(*child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
 
 
         let mut new_left = 0.0;
@@ -207,21 +207,21 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     let height = state.style.height.get(child).cloned().unwrap_or_default();
                     let mut bottom = state.style.bottom.get(child).cloned().unwrap_or_default();
 
-                    let min_left = state.style.min_left.get(child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
+                    let min_left = state.style.min_space_left.get(child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
                     let min_width = state.style.min_width.get(child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
-                    let min_right = state.style.min_right.get(child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
+                    let min_right = state.style.min_space_right.get(child).cloned().unwrap_or_default().get_value_or(parent_width, 0.0);
 
-                    let max_left = state.style.max_left.get(child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
+                    let max_left = state.style.max_space_left.get(child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
                     let max_width = state.style.max_width.get(child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
-                    let max_right = state.style.max_right.get(child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
+                    let max_right = state.style.max_space_right.get(child).cloned().unwrap_or_default().get_value_or(parent_width, std::f32::INFINITY);
 
-                    let min_top = state.style.min_top.get(child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
+                    let min_top = state.style.min_space_top.get(child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
                     let min_height = state.style.min_height.get(child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
-                    let min_bottom = state.style.min_bottom.get(child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
+                    let min_bottom = state.style.min_space_bottom.get(child).cloned().unwrap_or_default().get_value_or(parent_height, 0.0);
 
-                    let max_top = state.style.max_top.get(child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
+                    let max_top = state.style.max_space_top.get(child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
                     let max_height = state.style.max_height.get(child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
-                    let max_bottom = state.style.max_bottom.get(child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
+                    let max_bottom = state.style.max_space_bottom.get(child).cloned().unwrap_or_default().get_value_or(parent_height, std::f32::INFINITY);
 
                     // Parent overrides
                     match parent_layout_type {

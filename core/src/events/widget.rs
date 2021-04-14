@@ -41,6 +41,7 @@ pub trait Widget: std::marker::Sized + 'static {
 
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+        
         // Skip window
         if entity == Entity::root() {
             return;
@@ -48,20 +49,13 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Skip invisible widgets
         if state.data.get_visibility(entity) == Visibility::Invisible {
-            //println!("Invisible: {}", entity);
             return;
         }
 
         // Skip widgets that have 0 opacity
         if state.data.get_opacity(entity) == 0.0 {
-            //println!("Zero Opacity: {}", entity);
             return;
         }
-
-        // let posx = state.data.get_posx(entity);
-        // let posy = state.data.get_posy(entity);
-        // let width = state.data.get_width(entity);
-        // let height = state.data.get_height(entity);
 
         let bounds = state.data.get_bounds(entity);
 
@@ -546,6 +540,7 @@ pub trait Widget: std::marker::Sized + 'static {
     }
 }
 
+// Implement EventHandler for any type implementing Widget
 impl<T> EventHandler for T
 where
     T: Widget + 'static,

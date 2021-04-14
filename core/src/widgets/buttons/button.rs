@@ -12,7 +12,7 @@ pub enum ButtonEvent {
     Press,
     // Received by the button and triggers the on_release event to be emitted
     Release,
-    //
+    //  
     Checked,
 
     Unchecked,

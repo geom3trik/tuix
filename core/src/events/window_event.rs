@@ -61,4 +61,6 @@ pub enum WindowEvent {
     Restyle,
     /// Requests a relayout
     Relayout,
+    /// Prints the debug message to the console
+    Debug(String),
 }

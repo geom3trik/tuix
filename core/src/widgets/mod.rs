@@ -54,6 +54,9 @@ pub use window::WindowWidget;
 pub mod tooltip;
 pub use tooltip::*;
 
+pub mod text_area;
+pub use text_area::*;
+
 // Audio Widgets
 pub mod audio_widgets;
 pub use audio_widgets::*;
@@ -67,7 +70,8 @@ pub use crate::mouse::*;
 pub use crate::state::State;
 pub use crate::{Code, Key};
 pub use crate::{PropGet, PropSet, Animation, AnimationState};
-
+pub type Canvas = femtovg::Canvas<femtovg::renderer::OpenGl>;
+pub use crate::Units::*;
 
 #[derive(Default)]
 pub struct BaseWidget {

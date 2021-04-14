@@ -1,11 +1,8 @@
-use crate::{
-    Builder, CursorIcon, Entity, Event, Hierarchy, HierarchyTree, IntoBranchIterator,
-    IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State, WindowEvent, ImageOrId
-};
+use crate::{Builder, CursorIcon, Entity, Event, Hierarchy, HierarchyTree, ImageOrId, IntoBranchIterator, IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State, WindowEvent, hierarchy};
 
 use crate::EventHandler;
 
-use std::{collections::{HashMap, VecDeque}, convert::TryInto, println};
+use std::{collections::{HashMap, VecDeque, hash_map::DefaultHasher}, convert::TryInto, println};
 
 use std::time::{Duration, Instant};
 
@@ -22,6 +19,9 @@ pub struct EventManager {
     // Queue of events to be processed
     pub event_queue: Vec<Event>,
 
+    // A copy of the hierarchy for iteration
+    pub hierarchy: Hierarchy,
+
     prev_width: f32,
     prev_height: f32,
     prev_dpi_factor: f64,
@@ -33,6 +33,8 @@ impl EventManager {
             event_handlers: FnvHashMap::default(),
             event_queue: Vec::new(),
 
+            hierarchy: Hierarchy::new(),
+
             prev_width: 0.0,
             prev_height: 0.0,
             prev_dpi_factor: 1.0,
@@ -41,9 +43,6 @@ impl EventManager {
 
     pub fn flush_events(&mut self, state: &mut State) -> bool {
         let mut needs_redraw = false;
-
-        // Clone the hierarchy from state
-        let hierarchy = state.hierarchy.clone();
 
         // Clear the event queue in the event manager
         self.event_queue.clear();
@@ -92,7 +91,7 @@ impl EventManager {
 
             // A null entity as target means send event to all entities
             if event.propagation == Propagation::All {
-                for entity in hierarchy.into_iter() {
+                for entity in self.hierarchy.into_iter() {
                     if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
                         event_handler.on_event_(state, entity, event);
 
@@ -109,7 +108,7 @@ impl EventManager {
                 // Construct the list of widgets to walk down by going up from the target
                 let ancestors: Vec<Entity> = event
                     .target
-                    .parent_iter(&hierarchy)
+                    .parent_iter(&self.hierarchy)
                     .collect::<Vec<Entity>>();
 
                 // Walk down the list of ancestors
@@ -150,7 +149,7 @@ impl EventManager {
             // Propagate up from target to root (not including target)
             if event.propagation == Propagation::Up || event.propagation == Propagation::DownUp {
                 // Walk up the hierarchy from parent to parent
-                for entity in target.parent_iter(&hierarchy) {
+                for entity in target.parent_iter(&self.hierarchy) {
                     // Skip the target entity
                     if entity == event.target {
                         continue;
@@ -171,7 +170,7 @@ impl EventManager {
             // Propagate down from target to leaf of current branch
             if event.propagation == Propagation::Fall {
                 // Walk hierarchy from the target down the branch
-                for entity in target.branch_iter(&hierarchy) {
+                for entity in target.branch_iter(&self.hierarchy) {
                     // Skip the target entity
                     if entity == event.target {
                         continue;
@@ -193,7 +192,7 @@ impl EventManager {
         return needs_redraw;
     }
 
-    pub fn draw(&mut self, state: &mut State, hierarchy: &Hierarchy, canvas: &mut Canvas<OpenGl>) {
+    pub fn draw(&mut self, state: &mut State, canvas: &mut Canvas<OpenGl>) {
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
 
@@ -246,7 +245,7 @@ impl EventManager {
         canvas.reset();
 
         // Sort the hierarchy by z order
-        let mut draw_hierarchy: Vec<Entity> = hierarchy.into_iter().collect();
+        let mut draw_hierarchy: Vec<Entity> = self.hierarchy.into_iter().collect();
         draw_hierarchy.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
         // Call the on_draw() method for each widget
