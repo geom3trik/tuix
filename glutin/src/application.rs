@@ -2,7 +2,7 @@
 
 use glutin::event_loop::{ControlFlow, EventLoop};
 
-use crate::keyboard::{scan_to_code, vk_to_key};
+use crate::keyboard::{scan_to_code, vk_to_key, vcode_to_code};
 
 use crate::window::Window;
 
@@ -174,7 +174,7 @@ impl Application {
                         state.needs_redraw = false;
                     }
 
-                    
+
                 }
 
                 // REDRAW
@@ -255,7 +255,13 @@ impl Application {
                                 glutin::event::ElementState::Released => MouseButtonState::Released,
                             };
 
-                            let code = scan_to_code(input.scancode);
+	                        // Prefer virtual keycodes to scancodes, as scancodes aren't uniform between platforms
+	                        let code = if let Some(vkey) = input.virtual_keycode {
+		                        vcode_to_code(vkey)
+	                        } else {
+		                        scan_to_code(input.scancode)
+	                        };
+
                             let key = vk_to_key(
                                 input.virtual_keycode.unwrap_or(VirtualKeyCode::NoConvert),
                             );
@@ -308,14 +314,14 @@ impl Application {
                                     } else {
                                         let hierarchy = state.hierarchy.clone();
 
-                                        
+
                                         //let next = iter.next();
 
                                         println!("Focused: {}", state.focused);
 
-                                        
 
-                                        
+
+
                                         if next_focus != Entity::null() {
                                             state.focused.set_focus(&mut state, false);
                                             state.focused = next_focus;
@@ -329,8 +335,8 @@ impl Application {
 
 
                                             state.focused = if let Some(mut temp) = iter.next() {
-                                                while !state.data.get_focusability(temp) 
-                                                    || state.data.get_visibility(temp) == Visibility::Invisible 
+                                                while !state.data.get_focusability(temp)
+                                                    || state.data.get_visibility(temp) == Visibility::Invisible
                                                     || state.data.get_opacity(temp) == 0.0
                                                     || state.style.display.get(temp) == Some(&Display::None)
                                                 {
@@ -341,8 +347,8 @@ impl Application {
                                                         }
                                                     }
                                                 }
-                                                
-                                                temp                               
+
+                                                temp
                                             } else {
                                                 Entity::root()
                                             };
@@ -351,7 +357,7 @@ impl Application {
                                         }
                                     }
 
-                                    
+
 
                                     state.insert_event(
                                         Event::new(WindowEvent::Restyle)
@@ -419,7 +425,7 @@ impl Application {
                             let mut bounding_box = BoundingBox::default();
                             bounding_box.w = physical_size.width as f32;
                             bounding_box.h = physical_size.height as f32;
-                    
+
                             state.data.set_clip_region(Entity::root(), bounding_box);
 
                             // state.insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()).target(Entity::root()));
