@@ -317,6 +317,46 @@ impl<'a> Builder<'a> {
         self
     }
 
+    pub fn set_min_left(mut self, val: Units) -> Self {
+        self.state.style.min_left.insert(self.entity, val);
+        self
+    }
+
+    pub fn set_min_right(mut self, val: Units) -> Self {
+        self.state.style.min_right.insert(self.entity, val);
+        self
+    }
+
+    pub fn set_min_top(mut self, val: Units) -> Self {
+        self.state.style.min_top.insert(self.entity, val);
+        self
+    }
+
+    pub fn set_min_bottom(mut self, val: Units) -> Self {
+        self.state.style.min_bottom.insert(self.entity, val);
+        self
+    }
+
+    pub fn set_max_left(mut self, val: Units) -> Self {
+        self.state.style.max_left.insert(self.entity, val);
+        self
+    }
+
+    pub fn set_max_right(mut self, val: Units) -> Self {
+        self.state.style.max_right.insert(self.entity, val);
+        self
+    }
+
+    pub fn set_max_top(mut self, val: Units) -> Self {
+        self.state.style.max_top.insert(self.entity, val);
+        self
+    }
+
+    pub fn set_max_bottom(mut self, val: Units) -> Self {
+        self.state.style.max_bottom.insert(self.entity, val);
+        self
+    }
+
     // Margins
 
     pub fn set_margin(mut self, val: Units) -> Self {
@@ -640,6 +680,11 @@ impl<'a> Builder<'a> {
 
     pub fn set_cross_after_last(mut self, value: Units) -> Self {
         self.state.style.cross_after_last.insert(self.entity, value);
+        self
+    }
+
+    pub fn set_position_type(mut self, value: PositioningType) -> Self {
+        self.state.style.positioning_type.insert(self.entity, value);
         self
     }
 

@@ -86,6 +86,11 @@ pub struct Data {
     margins: Vec<Margins>,
     cross_stretch_sum: Vec<f32>,
     cross_free_space: Vec<f32>,
+
+    horizontal_used_space: Vec<f32>,
+    horizontal_stretch_sum: Vec<f32>,
+    vertical_used_space: Vec<f32>,
+    vertical_stretch_sum: Vec<f32>,
 }
 
 impl Data {
@@ -112,6 +117,12 @@ impl Data {
             self.margins.resize(key + 1, Default::default());
             self.cross_stretch_sum.resize(key + 1, Default::default());
             self.cross_free_space.resize(key + 1, Default::default());
+
+            self.horizontal_used_space.resize(key + 1, Default::default());
+            self.horizontal_stretch_sum.resize(key + 1, Default::default());
+            self.vertical_used_space.resize(key + 1, Default::default());
+            self.vertical_stretch_sum.resize(key + 1, Default::default());
+
         }
 
         // Are these needed?
@@ -266,6 +277,22 @@ impl Data {
         self.opacity.get(entity.index_unchecked()).cloned().unwrap()
     }
 
+    pub fn get_horizontal_used_space(&self, entity: Entity) -> f32 {
+        self.horizontal_used_space.get(entity.index_unchecked()).cloned().unwrap()
+    }
+
+    pub fn get_horizontal_stretch_sum(&self, entity: Entity) -> f32 {
+        self.horizontal_stretch_sum.get(entity.index_unchecked()).cloned().unwrap()
+    }
+
+    pub fn get_vertical_used_space(&self, entity: Entity) -> f32 {
+        self.vertical_used_space.get(entity.index_unchecked()).cloned().unwrap()
+    }
+
+    pub fn get_vertical_stretch_sum(&self, entity: Entity) -> f32 {
+        self.vertical_stretch_sum.get(entity.index_unchecked()).cloned().unwrap()
+    }
+
     // SETTERS
 
     // pub fn set_clip_widget(&mut self, entity: Entity, val: Entity) {
@@ -273,6 +300,30 @@ impl Data {
     //         *clip_widget = val;
     //     }
     // }
+
+    pub fn set_horizontal_used_space(&mut self, entity: Entity, value: f32) {
+        if let Some(horizontal_used_space) = self.horizontal_used_space.get_mut(entity.index_unchecked()) {
+            *horizontal_used_space = value;
+        }
+    }
+
+    pub fn set_horizontal_stretch_sum(&mut self, entity: Entity, value: f32) {
+        if let Some(horizontal_stretch_sum) = self.horizontal_stretch_sum.get_mut(entity.index_unchecked()) {
+            *horizontal_stretch_sum = value;
+        }
+    }
+
+    pub fn set_vertical_used_space(&mut self, entity: Entity, value: f32) {
+        if let Some(vertical_used_space) = self.vertical_used_space.get_mut(entity.index_unchecked()) {
+            *vertical_used_space = value;
+        }
+    }
+
+    pub fn set_vertical_stretch_sum(&mut self, entity: Entity, value: f32) {
+        if let Some(vertical_stretch_sum) = self.vertical_stretch_sum.get_mut(entity.index_unchecked()) {
+            *vertical_stretch_sum = value;
+        }
+    }
 
     pub fn set_margins(&mut self, entity: Entity, val: Margins) {
         if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
