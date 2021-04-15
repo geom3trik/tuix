@@ -60,34 +60,27 @@ const STYLE: &str = r#"
 
 fn main() {
     let app = Application::new(|state, window| {
-        //state.add_theme(STYLE);
+        state.add_theme(STYLE);
 
         window.set_title("Panels");
 
-        let panel = Panel::new("Panel 1").build(state, window.entity(), |builder| 
-        builder
-            .class("one")
-            .set_width(Pixels(100.0))
-            .set_height(Pixels(100.0))
-            .set_background_color(Color::red())
-        );
+        let panel = Panel::new("Panel 1").build(state, window.entity(), |builder| builder.class("one"));
 
         Button::with_label("Button").build(state, panel, |builder| {
             builder
-                .set_width(Pixels(100.0))
-                .set_height(Pixels(30.0))
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(30.0))
                 .set_text_justify(Justify::Center)
-                .set_background_color(Color::blue())
         });
 
-        // let panel = Panel::new("Panel 2").build(state, window.entity(), |builder| builder.class("two"));
+        let panel = Panel::new("Panel 2").build(state, window.entity(), |builder| builder.class("two"));
 
-        // Button::with_label("Button").build(state, panel, |builder| {
-        //     builder
-        //         .set_width(Pixels(100.0))
-        //         .set_height(Pixels(30.0))
-        //         .set_text_justify(Justify::Center)
-        // });
+        Button::with_label("Button").build(state, panel, |builder| {
+            builder
+                .set_width(Units::Pixels(100.0))
+                .set_height(Units::Pixels(30.0))
+                .set_text_justify(Justify::Center)
+        });
 
         
     });
