@@ -347,12 +347,12 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "padding-top" => Property::PaddingTop(parse_units(input)?),
             "padding-bottom" => Property::PaddingBottom(parse_units(input)?),
 
-            "child_space" => Property::ChildSpace(parse_units(input)?),
-            "child_left" => Property::ChildLeft(parse_units(input)?),
-            "child_right" => Property::ChildRight(parse_units(input)?),
-            "child_top" => Property::ChildTop(parse_units(input)?),
-            "child_bottom" => Property::ChildBottom(parse_units(input)?),
-            "child_between" => Property::ChildBetween(parse_units(input)?),
+            "child-space" => Property::ChildSpace(parse_units(input)?),
+            "child-left" => Property::ChildLeft(parse_units(input)?),
+            "child-right" => Property::ChildRight(parse_units(input)?),
+            "child-top" => Property::ChildTop(parse_units(input)?),
+            "child-bottom" => Property::ChildBottom(parse_units(input)?),
+            "child-between" => Property::ChildBetween(parse_units(input)?),
 
 
             "text-align" => Property::TextAlign(parse_alignment(input)?),
@@ -715,6 +715,10 @@ fn parse_units<'i, 't>(
 
         Token::Dimension {has_sign: _, value: v, int_value: _, unit: u} if u == &"s" => {
             Units::Stretch(*v as f32)
+        }
+
+        Token::Ident(name) if name == &"auto" => {
+            Units::Auto
         }
             
         t => {

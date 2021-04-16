@@ -3,6 +3,16 @@
     color: black;
 }
 
+row {
+    width: auto;
+    height: auto;
+}
+
+column {
+    width: auto;
+    height: auto;
+}
+
 button {
     color: black;
     background-color: #dfdfdf;
@@ -72,6 +82,8 @@ checkbox {
 list {
     border-width: 1px;
     border-color: #999999;
+    height: auto;
+    /* width: auto; */
     /* padding: 5px; */
 }
 

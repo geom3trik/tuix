@@ -355,7 +355,11 @@ fn main() {
         Label::new("Slider").build(state, row, |builder| builder);
         Slider::new()
             .with_range(0.0..20.0)
-            .on_over(Event::new(WindowEvent::Debug("Over the slider".to_owned())))
+            .on_changed(|val| Event::new(WindowEvent::Debug(format!("slider on_changed - {}", val))))
+            .on_changing(|val| Event::new(WindowEvent::Debug(format!("slider on_changing - {}", val))))
+            //.on_min(|val| Event::new(WindowEvent::Debug(format!("slider on_min - {}", val))))
+            //.on_max(|val| Event::new(WindowEvent::Debug(format!("slider on_max - {}", val))))
+            .on_over(Event::new(WindowEvent::Debug("slider on_over".to_owned())))
             .build(state, row, |builder| 
                 builder
                     .set_flex_grow(1.0)

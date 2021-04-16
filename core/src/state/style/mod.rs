@@ -310,6 +310,15 @@ impl Style {
 
                     Property::Position(value) => {
                         self.position.insert_rule(rule_id, value);
+                        match value {
+                            Position::Absolute => {
+                                self.positioning_type.insert_rule(rule_id, PositioningType::SelfDirected);
+                            }
+
+                            Position::Relative => {
+                                self.positioning_type.insert_rule(rule_id, PositioningType::ParentDirected);
+                            }
+                        }
                     }
 
                     Property::Left(value) => {
@@ -449,6 +458,17 @@ impl Style {
                     // Flex Container
                     Property::FlexDirection(value) => {
                         self.flex_direction.insert_rule(rule_id, value);
+                        match value {
+                            FlexDirection::Column => {
+                                self.layout_type.insert_rule(rule_id, LayoutType::Vertical);
+                            }
+
+                            FlexDirection::Row => {
+                                self.layout_type.insert_rule(rule_id, LayoutType::Horizontal);
+                            }
+
+                            _=> {}
+                        }
                     }
                     Property::JustifyContent(value) => {
                         self.justify_content.insert_rule(rule_id, value);

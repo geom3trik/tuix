@@ -406,6 +406,18 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
+        if state.style.layout_type.link_rule(entity, &matched_rules) {
+            //println!("30");
+            should_relayout = true;
+            should_redraw = true;
+        }
+
+        if state.style.positioning_type.link_rule(entity, &matched_rules) {
+            //println!("30");
+            should_relayout = true;
+            should_redraw = true;
+        }
+
         if state
             .style
             .justify_content

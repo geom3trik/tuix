@@ -20,8 +20,8 @@ impl Widget for Row {
             .set_layout_type(state, LayoutType::Horizontal)
             .set_focusability(state, false)
             .set_element(state, "row")
-            .set_width(state, Auto)
-            .set_height(state, Auto)
+            //.set_width(state, Auto)
+            //.set_height(state, Auto)
     }
 }
 
@@ -41,8 +41,8 @@ impl Widget for Column {
             .set_layout_type(state, LayoutType::Vertical)
             .set_focusability(state, false)
             .set_element(state, "column")
-            .set_width(state, Auto)
-            .set_height(state, Auto)
+            //.set_width(state, Auto)
+            //.set_height(state, Auto)
     }
 }
 

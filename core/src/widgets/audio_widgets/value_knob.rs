@@ -182,6 +182,8 @@ impl Widget for ValueKnob {
                         );
                     }
                 }
+
+                _=> {}
             }
         }
 

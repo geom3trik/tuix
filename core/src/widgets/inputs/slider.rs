@@ -7,6 +7,8 @@ use crate::widgets::*;
 pub enum SliderEvent {
     ValueChanged(f32),
     SetValue(f32),
+    SetMin(f32),
+    SetMax(f32),
 }
 
 pub struct Slider {
@@ -14,9 +16,20 @@ pub struct Slider {
     active: Entity,
     thumb: Entity,
     sliding: bool,
-    on_change: Option<Box<dyn Fn(f32) -> Event>>,
+    // Event sent when the slider value has changed
+    on_changed: Option<Box<dyn Fn(f32) -> Event>>,
+    // event sent when the slider value is changing
+    on_changing: Option<Box<dyn Fn(f32) -> Event>>,
+    // Event sent when the slider reaches the minimum value
+    on_min: Option<Box<dyn Fn(f32) -> Event>>,
+    // Event sent when the slider reaches the maximum value
+    on_max: Option<Box<dyn Fn(f32) -> Event>>,
+    // Event sent when the slider is activated
     on_active: Option<Event>,
-    on_hover: Option<Event>,
+    // Event sent when the mouse cursor enters the slider
+    on_over: Option<Event>,
+    // Event sent when the mouse cusor leaves the slider
+    on_out: Option<Event>,
 
     value: f32,
 
@@ -32,9 +45,14 @@ impl Default for Slider {
             active: Entity::default(),
             thumb: Entity::default(),
             sliding: false,
-            on_change: None,
+            on_changed: None,
+            on_changing: None,
+            on_min: None,
+            on_max: None,
             on_active: None,
-            on_hover: None,
+            on_over: None,
+            on_out: None,
+
             value: 0.0,
             min: 0.0,
             max: 1.0,
@@ -48,12 +66,20 @@ impl Slider {
         Self::default()
     }
 
-    /// Sets the event generating closure that will be called when the slider value changes
-    pub fn on_change<F>(mut self, message: F) -> Self
+    /// Sets the event generating closure that will be called when the slider value has changed
+    pub fn on_changed<F>(mut self, message: F) -> Self
     where
         F: 'static + Fn(f32) -> Event,
     {
-        self.on_change = Some(Box::new(message));
+        self.on_changed = Some(Box::new(message));
+        self
+    }
+
+    pub fn on_changing<F>(mut self, message: F) -> Self
+    where
+        F: 'static + Fn(f32) -> Event,
+    {
+        self.on_changing = Some(Box::new(message));
         self
     }
 
@@ -63,7 +89,7 @@ impl Slider {
     }
 
     pub fn on_over(mut self, event: Event) -> Self {
-        self.on_hover = Some(event);
+        self.on_over = Some(event);
         self
     }
 
@@ -116,11 +142,8 @@ impl Widget for Slider {
 
         self.active = Element::new().build(state, self.track, |builder| {
             builder
-                //.set_position(Position::Absolute)
-                //.set_position_type(PositioningType::SelfDirected)
                 .set_width(Percentage(0.5))
                 .set_height(Stretch(1.0))
-                //.set_background_color(Color::rgb(60, 60, 200))
                 .set_hoverability(false)
                 .class("active")
         });
@@ -131,12 +154,8 @@ impl Widget for Slider {
             |builder| {
                 builder
                     .set_position_type(PositioningType::SelfDirected)
-                    //.set_position(Position::Absolute)
-                    //.set_top(Units::Pixels(-8.0))
-                    //.set_width(Units::Pixels(20.0))
-                    //.set_height(Units::Pixels(20.0))
                     .class("thumb")
-            }, //.set_background_color(Color::rgb(80, 80, 200))
+            },
         );
 
         // TEMP
@@ -174,7 +193,7 @@ impl Widget for Slider {
 
                 WindowEvent::MouseOver => {
                     if event.target == entity {
-                        if let Some(mut on_hover) = self.on_hover.clone() {
+                        if let Some(mut on_hover) = self.on_over.clone() {
                             on_hover.origin = entity;
 
                             if on_hover.target == Entity::null() {
@@ -182,6 +201,20 @@ impl Widget for Slider {
                             }
 
                             state.insert_event(on_hover);
+                        }
+                    }
+                }
+
+                WindowEvent::MouseOut => {
+                    if event.target == entity {
+                        if let Some(mut on_out) = self.on_out.clone() {
+                            on_out.origin = entity;
+
+                            if on_out.target == Entity::null() {
+                                on_out.target = entity;
+                            }
+
+                            state.insert_event(on_out);
                         }
                     }
                 }
@@ -228,15 +261,15 @@ impl Widget for Slider {
                         self.thumb
                             .set_left(state, Units::Pixels(dx - thumb_width / 2.0));
 
-                        if let Some(on_change) = &self.on_change {
-                            let mut on_change_event = (on_change)(v);
-                            on_change_event.origin = entity;
+                        if let Some(on_changing) = &self.on_changing {
+                            let mut on_changing_event = (on_changing)(v);
+                            on_changing_event.origin = entity;
 
-                            if on_change_event.target == Entity::null() {
-                                on_change_event.target = entity;
+                            if on_changing_event.target == Entity::null() {
+                                on_changing_event.target = entity;
                             }
 
-                            state.insert_event(on_change_event);
+                            state.insert_event(on_changing_event);
                         }
 
                         state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));
@@ -247,6 +280,18 @@ impl Widget for Slider {
                     if *button == MouseButton::Left {
                         self.sliding = false;
                         state.release(entity);
+
+                        if let Some(on_changed) = &self.on_changed {
+                            let mut on_changed_event = (on_changed)(self.value);
+                            on_changed_event.origin = entity;
+
+                            if on_changed_event.target == Entity::null() {
+                                on_changed_event.target = entity;
+                            }
+
+                            state.insert_event(on_changed_event);
+                        }
+
                     }
                 }
 
@@ -275,15 +320,15 @@ impl Widget for Slider {
 
                         self.value = v;
 
-                        if let Some(on_change) = &self.on_change {
-                            let mut on_change_event = (on_change)(v);
-                            on_change_event.origin = entity;
+                        if let Some(on_changing) = &self.on_changing {
+                            let mut on_changing_event = (on_changing)(v);
+                            on_changing_event.origin = entity;
 
-                            if on_change_event.target == Entity::null() {
-                                on_change_event.target = entity;
+                            if on_changing_event.target == Entity::null() {
+                                on_changing_event.target = entity;
                             }
 
-                            state.insert_event(on_change_event);
+                            state.insert_event(on_changing_event);
                         }
 
                         state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));

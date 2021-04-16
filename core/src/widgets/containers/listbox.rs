@@ -32,7 +32,7 @@ impl Widget for List {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         //state.focused = entity;
-        entity.set_focusability(state, false).set_height(state, Auto);
+        entity.set_focusability(state, false);
         entity.set_element(state, "list")
     }
 

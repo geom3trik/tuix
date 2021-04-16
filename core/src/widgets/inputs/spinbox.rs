@@ -187,6 +187,7 @@ where
             builder
                 .set_width(Pixels(20.0))
                 .set_flex_grow(0.0)
+                .set_layout_type(LayoutType::Vertical)
                 .class("arrow_container")
         });
 
