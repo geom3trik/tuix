@@ -1,9 +1,9 @@
 
 
-use crate::{Entity, State};
-
 use crate::hierarchy::*;
 use crate::style::*;
+
+use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};
 
 #[derive(Debug)]
 enum Axis {
@@ -28,6 +28,13 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
         state.data.set_child_sum(*parent, 0.0);
         state.data.set_child_max(*parent, 0.0);
+
+        state
+            .data
+            .set_prev_width(*parent, state.data.get_width(*parent));
+        state
+            .data
+            .set_prev_height(*parent, state.data.get_height(*parent));
 
         for child in parent.child_iter(hierarchy) {
             
@@ -887,6 +894,28 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                     state.data.set_posx(child, new_posx);
                     state.data.set_posy(child, new_posy);
+                }
+
+                let prev_width = state.data.get_prev_width(parent);
+                let prev_height = state.data.get_prev_height(parent);
+                let new_width = state.data.get_width(parent);
+                let new_height = state.data.get_height(parent);
+
+                let mut geometry_changed = GeometryChanged::default();
+
+                if new_width != prev_width {
+                    geometry_changed.width = true;
+                }
+                if new_height != prev_height {
+                    geometry_changed.height = true;
+                }
+
+                if geometry_changed.width || geometry_changed.height {
+                    state.insert_event(
+                        Event::new(WindowEvent::GeometryChanged(geometry_changed))
+                            .target(parent)
+                            .propagate(Propagation::Down),
+                    );
                 }
             
             }
