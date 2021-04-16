@@ -479,7 +479,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Units::Percentage(val) => {
-                            new_left = val * parent_width;
+                            new_left = (val * parent_width).round();
                             new_left = new_left.clamp(min_left, max_left);
                             horizontal_used_space += new_left;
                         }
@@ -499,7 +499,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Units::Percentage(val) => {
-                            new_width = val * parent_width;
+                            new_width = (val * parent_width).round();
                             new_width = new_width.clamp(min_width, max_width);
                             horizontal_used_space += new_width;
                         }
@@ -535,7 +535,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Units::Percentage(val) => {
-                            new_right = val * parent_width;
+                            new_right = (val * parent_width).round();
                             new_right = new_right.clamp(min_right, max_right);
                             horizontal_used_space += new_right;
                         }
@@ -555,7 +555,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Units::Percentage(val) => {
-                            new_top = val * parent_height;
+                            new_top = (val * parent_height).round();
                             new_top = new_top.clamp(min_top, max_top);
                             vertical_used_space += new_top;
                         }
@@ -575,7 +575,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Units::Percentage(val) => {
-                            new_height = val * parent_height;
+                            new_height = (val * parent_height).round();
                             new_height = new_height.clamp(min_height, max_height);
                             vertical_used_space += new_height;
                         }
@@ -614,7 +614,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         Units::Percentage(val) => {
-                            new_bottom = val * parent_height;
+                            new_bottom = (val * parent_height).round();
                             new_bottom = new_bottom.clamp(min_bottom, max_bottom);
                             vertical_used_space += new_bottom;
                         }

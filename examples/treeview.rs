@@ -2,7 +2,7 @@ extern crate tuix;
 
 use tuix::*;
 
-use tuix::widgets::{Panel, ResizableVBox, ScrollContainer};
+use tuix::widgets::{Panel, ResizableColumn, ScrollContainer};
 
 static THEME: &'static str = include_str!("themes/treeview_theme.css");
 
@@ -17,7 +17,7 @@ fn main() {
 
         window.set_title("Panels").set_inner_size(800, 600);
 
-        let rvbox = ResizableVBox::new().build(state, window.entity(), |builder| {
+        let rvbox = ResizableColumn::new().build(state, window.entity(), |builder| {
             builder
                 .set_width(Pixels(300.0))
                 .set_height(Stretch(1.0))

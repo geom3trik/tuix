@@ -84,8 +84,6 @@ impl Widget for Panel {
             .on_release(Event::new(PanelEvent::Open).target(entity))
             .build(state, entity, |builder| {
                 builder
-                    .set_child_top(Stretch(1.0))
-                    .set_child_bottom(Stretch(1.0))
                     .set_layout_type(LayoutType::Horizontal)
                     //.set_flex_direction(FlexDirection::Row)
                     .class("header")
@@ -98,6 +96,9 @@ impl Widget for Panel {
                 .set_text_justify(Justify::Center)
                 .set_text_align(Align::Center)
                 .set_flex_basis(Pixels(20.0))
+                //.set_left(Pixels(5.0))
+                .set_top(Stretch(1.0))
+                .set_bottom(Stretch(1.0))
                 .set_width(Pixels(20.0))
                 .set_height(Pixels(20.0))
                 .set_hoverability(false)
@@ -130,8 +131,6 @@ impl Widget for Panel {
                 .class("container2")
                 .set_focusability(false)
                 .set_clip_widget(self.container1)
-                .set_child_top(Pixels(10.0))
-                .set_child_bottom(Pixels(10.0))
                 //.set_child_left(Stretch(1.0))
                 //.set_child_right(Stretch(1.0))
                 .set_width(Stretch(1.0))

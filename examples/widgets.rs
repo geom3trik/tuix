@@ -116,7 +116,6 @@ fn main() {
             builder
                 .set_width(Stretch(1.0))
                 .set_height(Auto)
-                .set_background_color(Color::red())
         );
         CheckButton::new(true).build(state, list, |builder| {
             builder
@@ -147,8 +146,6 @@ fn main() {
                     .set_flex_grow(1.0)
                     .set_width(Stretch(1.0))
                     .set_height(Auto)
-                    .set_background_color(Color::red())
-            
             );
         CheckButton::new(true).build(state, list, |builder| {
             builder

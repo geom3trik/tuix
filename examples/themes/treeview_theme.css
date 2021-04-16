@@ -43,28 +43,31 @@ scroll_container:disabled>.container {
 
 .container {
     background-color: #383838;
-    /* background-color: #4c4797; */
 }
 
 panel>.header {
     height: 30px;
     background-color: #383838;
     flex-direction: row;
+    child-left: 5px;
 }
 
 panel.level1>.header {
     background-color: #383838;
-    padding-left: 15px;
+    /* padding-left: 15px; */
+    child-left: 15px;
 }
 
 panel.level2>.header {
     background-color: #383838;
-    padding-left: 30px;
+    /* padding-left: 30px; */
+    child-left: 30px;
 }
 
 panel.level3>.header {
     background-color: #383838;
-    padding-left: 45px;
+    /* padding-left: 45px; */
+    child-left: 45px;
 }
 
 panel>.header:hover {
@@ -74,6 +77,7 @@ panel>.header:hover {
 panel>.container {
     background-color: #383838;
     /* padding-left: 15px; */
+    child-left: 15px;
 }
 
 label {
@@ -82,19 +86,19 @@ label {
 }
 
 label.level1 {
-    padding-left: 35px;
-}
-
-label.level2 {
     padding-left: 50px;
 }
 
-label.level3 {
+label.level2 {
     padding-left: 65px;
 }
 
-label.level4 {
+label.level3 {
     padding-left: 80px;
+}
+
+label.level4 {
+    padding-left: 95px;
 }
 
 label:hover {
