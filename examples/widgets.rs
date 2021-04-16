@@ -76,23 +76,26 @@ fn main() {
         Label::new("Switch").build(state, row, |builder| builder);
         let switch = Switch::new(false).build(state, row, |builder| builder);
 
-        // // INPUT PANEL
-        // let panel = Panel::new("Input").build(state, rvbox, |builder| builder);
+        // INPUT PANEL
+        let panel = Panel::new("Input").build(state, scroll, |builder| builder);
 
-        // // TEXTBOX
-        // let row = HBox::new().build(state, panel, |builder| builder);
-        // Label::new("Textbox").build(state, row, |builder| builder);
-        // Textbox::new("Some Text").build(state, row, |builder| builder);
+        panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
 
-        // // SPINNER
-        // let row = HBox::new().build(state, panel, |builder| builder);
-        // Label::new("Spinner").build(state, row, |builder| builder);
-        // Spinbox::new(100)
-        //     .with_min(95)
-        //     .with_max(105)
-        //     .on_min(Event::new(CheckboxEvent::Uncheck).target(switch))
-        //     .on_max(Event::new(CheckboxEvent::Check).target(switch))
-        //     .build(state, row, |builder| builder);
+
+        // TEXTBOX
+        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        Label::new("Textbox").build(state, row, |builder| builder);
+        Textbox::new("Some Text").build(state, row, |builder| builder);
+
+        // SPINNER
+        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        Label::new("Spinner").build(state, row, |builder| builder);
+        Spinbox::new(100)
+            .with_min(95)
+            .with_max(105)
+            .on_min(Event::new(CheckboxEvent::Uncheck).target(switch))
+            .on_max(Event::new(CheckboxEvent::Check).target(switch))
+            .build(state, row, |builder| builder);
 
         // // VECTOR EDIT
         // let row = HBox::new().build(state, panel, |builder| builder);

@@ -177,14 +177,15 @@ where
 
         entity
             .set_display(state, Display::Flexbox)
-            .set_flex_direction(state, FlexDirection::Row);
+            .set_flex_direction(state, FlexDirection::Row)
+            .set_layout_type(state, LayoutType::Horizontal);
 
         self.textbox = Textbox::new(&self.value.to_string())
             .build(state, entity, |builder| builder.set_flex_grow(1.0));
 
         let arrow_container = Element::new().build(state, entity, |builder| {
             builder
-                .set_width(Units::Pixels(20.0))
+                .set_width(Pixels(20.0))
                 .set_flex_grow(0.0)
                 .class("arrow_container")
         });
@@ -197,7 +198,7 @@ where
                     .set_text_justify(Justify::Center)
                     .set_text_align(Align::Center)
                     .set_text(ICON_UP_OPEN_MINI)
-                    .set_flex_grow(1.0)
+                    .set_height(Stretch(1.0))
                     .class("increment")
             });
 
@@ -209,7 +210,7 @@ where
                     .set_text_justify(Justify::Center)
                     .set_text_align(Align::Center)
                     .set_text(ICON_DOWN_OPEN_MINI)
-                    .set_flex_grow(1.0)
+                    .set_height(Stretch(1.0))
                     .class("decrement")
             });
 

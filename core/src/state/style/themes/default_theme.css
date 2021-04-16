@@ -154,6 +154,7 @@ spinbox>textbox {
     border-width: 1px;
     border-color: #757575;
     margin-right: -1;
+    right: -1px;
     text-align: center;
     text-justify: center;
 }
@@ -275,41 +276,6 @@ scroll_container:disabled>.container {
 }
 
 /*
-spinner {
-    height: 30px;
-    flex-grow: 1.0;
-}
-
-spinner .increment {
-    color: #ff5e1a;
-    text-justify: center;
-}
-
-spinner .decrement {
-    color: #ff5e1a;
-    text-justify: center;
-}
-
-spinner>textbox {
-    color: black;
-    border-width: 1px;
-    border-color: black;
-    border-top-left-radius: 3;
-    border-bottom-left-radius: 3;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    margin-right: -1;
-    text-align: center;
-    text-justify: center;
-}
-
-spinner>.arrow_container {
-    border-width: 1px;
-    border-color: black;
-    border-top-right-radius: 3;
-    border-bottom-right-radius: 3;
-}
-
 textbox {
     flex-grow: 1.0;
     height: 30px;
