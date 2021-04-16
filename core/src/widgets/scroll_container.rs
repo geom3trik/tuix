@@ -397,6 +397,8 @@ impl Widget for ScrollContainer {
         self.container = Element::new().build(state, entity, |builder| {
             builder
                 .set_position(Position::Absolute)
+                .set_position_type(PositioningType::SelfDirected)
+                .set_height(Auto)
                 //.set_top(Units::Percentage(0.0))
                 //.set_flex_grow(1.0)
                 //.set_align_self(AlignSelf::FlexStart)
@@ -408,6 +410,7 @@ impl Widget for ScrollContainer {
         self.vertical_scroll = Element::new().build(state, entity, |builder| {
             builder
                 .set_position(Position::Absolute)
+                .set_position_type(PositioningType::SelfDirected)
                 //.set_top(Units::Percentage(0.0))
                 // .set_width(Units::Pixels(10.0))
                 //.set_height(Units::Percentage(0.0))
@@ -419,8 +422,8 @@ impl Widget for ScrollContainer {
             //
         });
 
-        self.vertical_scroll.set_disabled(state, true);
-        self.vertical_scroll.set_enabled(state, false);
+        entity.set_disabled(state, true);
+        entity.set_enabled(state, false);
 
         // self.vertical_scroll =
         //     Scrollbar::new(self.container, Direction::Vertical).build(state, entity, |builder| {
@@ -467,11 +470,11 @@ impl Widget for ScrollContainer {
 
                             if scrollh >= 1.0 {
                                 scrollh = 1.0;
-                                self.vertical_scroll.set_disabled(state, true);
+                                entity.set_disabled(state, true);
                             }
 
                             if scrollh < 1.0 {
-                                self.vertical_scroll.set_enabled(state, true);
+                                entity.set_enabled(state, true);
                             }
 
                             if !state.style.top.is_animating(self.vertical_scroll) {

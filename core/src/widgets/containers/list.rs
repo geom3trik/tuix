@@ -66,12 +66,12 @@ impl Widget for ResizableVBox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_width(state, Units::Pixels(300.0))
-            .set_max_width(state, Units::Pixels(500.0))
-            .set_min_width(state, Units::Pixels(300.0));
+            //.set_width(state, Units::Pixels(300.0))
+            //.set_max_width(state, Units::Pixels(500.0))
+            //.set_min_width(state, Units::Pixels(300.0));
         //state.style.z_order.set(self.resize_marker, 1);
 
-        entity
+        //entity
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

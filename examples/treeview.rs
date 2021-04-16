@@ -19,13 +19,15 @@ fn main() {
 
         let rvbox = ResizableVBox::new().build(state, window.entity(), |builder| {
             builder
-                .set_width(Units::Pixels(300.0))
-                .set_height(Units::Percentage(1.0))
+                .set_width(Pixels(300.0))
+                .set_height(Stretch(1.0))
                 .set_background_color(Color::blue())
                 .class("container")
         });
 
         let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
+
+        println!("Scroll: {}", scroll);
 
         let root = Panel::new("ROOT").build(state, scroll, |builder| builder);
 

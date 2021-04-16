@@ -13,28 +13,35 @@ fn main() {
         state.add_theme(DEFAULT_THEME);
         state.add_theme(THEME);
 
+        window.set_min_inner_size(300, 300);
+
         // // Menu bar
         // let menu_bar = Element::new().build(state, window, |builder| {
         //     builder.class("menu_bar").set_height(Pixels(40.0))
         // });
 
         // Horizontal Container
-        let hbox = HBox::new().build(state, window.entity(), |builder| 
-        builder
-            .set_width(Stretch(1.0))
-            .set_height(Stretch(1.0))
-        );
+        // let hbox = HBox::new().build(state, window.entity(), |builder| 
+        // builder
+        //     .set_width(Stretch(1.0))
+        //     .set_height(Stretch(1.0))
+        // );
 
         // Resizable Vertical Container
-        let rvbox = ResizableVBox::new().build(state, hbox, |builder| {
+        let rvbox = ResizableVBox::new().build(state, window.entity(), |builder| {
             builder
-                .set_width(Pixels(300.0))
+                .set_width(Stretch(1.0))
+                .set_max_width(Pixels(500.0))
+                .set_min_width(Pixels(300.0))
                 .set_height(Stretch(1.0))
-                .set_background_color(Color::rgb(60, 60, 60))
+                //.set_background_color(Color::rgb(60, 60, 60))
         });
 
+        let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
+
+
         // BUTTONS PANEL
-        let panel = Panel::new("Buttons").build(state, rvbox, |builder| 
+        let panel = Panel::new("Buttons").build(state, scroll, |builder| 
             builder
                 .set_width(Stretch(1.0))
         );
@@ -96,7 +103,7 @@ fn main() {
         //
 
         // LISTS PANEL
-        let panel = Panel::new("Check Button Lists").build(state, rvbox, |builder| builder.set_width(Stretch(1.0)));
+        let panel = Panel::new("Check Button Lists").build(state, scroll, |builder| builder.set_width(Stretch(1.0)));
 
         panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
         // LIST
@@ -160,7 +167,7 @@ fn main() {
         });
 
         // LISTS PANEL
-        let panel = Panel::new("Dropdown Lists").build(state, rvbox, |builder| builder);
+        let panel = Panel::new("Dropdown Lists").build(state, scroll, |builder| builder);
 
         panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
 
@@ -326,7 +333,7 @@ fn main() {
         //
 
         // SLIDERS PANEL
-        let panel = Panel::new("Sliders").build(state, rvbox, |builder| builder);
+        let panel = Panel::new("Sliders").build(state, scroll, |builder| builder);
         panel.set_child_space(state, Pixels(10.0));
         // // PROGRESS BAR
         // let row = HBox::new().build(state, panel, |builder| builder);
