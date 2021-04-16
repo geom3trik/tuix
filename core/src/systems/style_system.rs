@@ -574,6 +574,31 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
+        if state.style.child_left.link_rule(entity, &matched_rules) {
+            should_relayout = true;
+            should_redraw = true;
+        }
+
+        if state.style.child_right.link_rule(entity, &matched_rules) {
+            should_relayout = true;
+            should_redraw = true;
+        }
+
+        if state.style.child_top.link_rule(entity, &matched_rules) {
+            should_relayout = true;
+            should_redraw = true;
+        }
+
+        if state.style.child_bottom.link_rule(entity, &matched_rules) {
+            should_relayout = true;
+            should_redraw = true;
+        }
+
+        if state.style.child_between.link_rule(entity, &matched_rules) {
+            should_relayout = true;
+            should_redraw = true;
+        }
+
         if should_relayout {
             state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
             //state.needs_relayout = true;

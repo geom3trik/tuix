@@ -4,65 +4,63 @@ use crate::style::*;
 use crate::widgets::*;
 use crate::CursorIcon;
 
-pub struct HBox {}
+pub struct Row {}
 
-impl HBox {
+impl Row {
     pub fn new() -> Self {
-        HBox {}
+        Self {}
     }
 }
 
-impl Widget for HBox {
+impl Widget for Row {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_flex_direction(state, FlexDirection::Row)
             .set_layout_type(state, LayoutType::Horizontal)
             .set_focusability(state, false)
-            .set_element(state, "hbox")
+            .set_element(state, "row")
             .set_width(state, Auto)
             .set_height(state, Auto)
-            //.set_child_top(state, Stretch(1.0))
-            //.set_child_bottom(state, Stretch(1.0))
     }
 }
 
-pub struct VBox {}
+pub struct Column {}
 
-impl VBox {
+impl Column {
     pub fn new() -> Self {
-        VBox {}
+        Self {}
     }
 }
 
-impl Widget for VBox {
+impl Widget for Column {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_flex_direction(state, FlexDirection::Column)
             .set_layout_type(state, LayoutType::Vertical)
             .set_focusability(state, false)
-            .set_element(state, "vbox")
+            .set_element(state, "column")
             .set_width(state, Auto)
             .set_height(state, Auto)
     }
 }
 
-pub struct ResizableVBox {
+pub struct ResizableColumn {
     resizing: bool,
     previous_width: f32,
 }
 
-impl ResizableVBox {
+impl ResizableColumn {
     pub fn new() -> Self {
-        ResizableVBox {
+        Self {
             resizing: false,
             previous_width: 0.0,
         }
     }
 }
 
-impl Widget for ResizableVBox {
+impl Widget for ResizableColumn {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity

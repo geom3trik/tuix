@@ -92,17 +92,17 @@ impl Widget for Animations {
         entity.set_flex_grow(state, 1.0);
 
         // Horizontal split
-        let hbox = HBox::new().build(state, entity, |builder| builder.set_flex_grow(1.0));
+        let row = Row::new().build(state, entity, |builder| builder.set_flex_grow(1.0));
 
         // List
-        let vbox = VBox::new().build(state, hbox, |builder| {
+        let column = Column::new().build(state, row, |builder| {
             builder
                 //.set_flex_grow(1.0)
                 //.set_flex_shrink(0.0)
                 .set_background_color(Color::rgb(50, 100, 50))
         });
 
-        let container = Element::new().build(state, hbox, |builder| builder.set_flex_grow(4.0));
+        let container = Element::new().build(state, row, |builder| builder.set_flex_grow(4.0));
 
         self.element = Element::new().build(state, container, |builder| {
             builder
@@ -127,7 +127,7 @@ impl Widget for Animations {
 
         self.background_color_button = Button::with_label("Background Color")
             .on_press(Event::new(AnimationsEvent::Play))
-            .build(state, vbox, |builder| builder);
+            .build(state, column, |builder| builder);
 
         // Position Animation
         let position_animation_state = AnimationState::new()
@@ -148,7 +148,7 @@ impl Widget for Animations {
 
         self.position_button = Button::with_label("Position")
             .on_press(Event::new(AnimationsEvent::Play))
-            .build(state, vbox, |builder| builder);
+            .build(state, column, |builder| builder);
 
         // Size Animation
         let size_animation_state = AnimationState::new()
@@ -170,7 +170,7 @@ impl Widget for Animations {
 
         self.size_button = Button::with_label("Size")
             .on_press(Event::new(AnimationsEvent::Play))
-            .build(state, vbox, |builder| builder);
+            .build(state, column, |builder| builder);
 
         // Margins, Padding, Border & Border Radius Animation
         let animation_state = AnimationState::new()
@@ -198,7 +198,7 @@ impl Widget for Animations {
 
         self.margins_button = Button::with_label("Margins")
             .on_press(Event::new(AnimationsEvent::Play))
-            .build(state, vbox, |builder| builder);
+            .build(state, column, |builder| builder);
 
         // Border
         self.border_animation = state
@@ -208,7 +208,7 @@ impl Widget for Animations {
 
         self.border_button = Button::with_label("Border Width")
             .on_press(Event::new(AnimationsEvent::Play))
-            .build(state, vbox, |builder| builder);
+            .build(state, column, |builder| builder);
 
         // Padding
         self.padding_left_animation = state
@@ -230,7 +230,7 @@ impl Widget for Animations {
 
         self.padding_button = Button::with_label("Padding")
             .on_press(Event::new(AnimationsEvent::Play))
-            .build(state, vbox, |builder| builder);
+            .build(state, column, |builder| builder);
 
         // Border Radius
         self.border_top_left_animation = state
@@ -244,7 +244,7 @@ impl Widget for Animations {
 
         self.border_radius_button = Button::with_label("Border Radius")
             .on_press(Event::new(AnimationsEvent::Play))
-            .build(state, vbox, |builder| builder);
+            .build(state, column, |builder| builder);
 
         entity
     }

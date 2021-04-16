@@ -18,7 +18,11 @@ const STYLE: &str = r#"
 
     panel .container2 {
         padding: 10px;
-        align-items: center;
+        child_left: 1s;
+        child_right: 1s;
+        child_top: 10px;
+        child_bottom: 10px;
+        child_between: 10px;
     }
 
     button {
@@ -30,7 +34,8 @@ const STYLE: &str = r#"
     }
     
     panel.one {
-        margin: 10px;
+        left: 10px;
+        top: 10px;
         width: 300px;
         flex-direction: column;
         background-color: cyan;
@@ -38,7 +43,6 @@ const STYLE: &str = r#"
 
     panel.one>.header {
         height: 30px;
-        width: 300px;
         flex-direction: row;
     }
 
@@ -71,9 +75,7 @@ fn main() {
                 .class("one")
     
         );
-
-        panel.set_child_between(state, Pixels(10.0));
-
+        
         Button::with_label("1").build(state, panel, |builder| {
             builder
                 .set_width(Units::Pixels(100.0))

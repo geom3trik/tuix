@@ -41,7 +41,7 @@ fn expand_struct(derive_input: &syn::DeriveInput, data: &syn::DataStruct) -> Tok
 
         let widget = match custom_widget {
             Some(widget) => quote!{
-                let row = HBox::new().build(state, panel, |builder| builder);
+                let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
                 let label = Label::new(#field_label).build(state, row, |builder| builder);
                 #widget::default().build(state, row, |builder| builder.set_flex_grow(1.0));
             },
@@ -55,7 +55,7 @@ fn expand_struct(derive_input: &syn::DeriveInput, data: &syn::DataStruct) -> Tok
             //} else {
                 //<#ty as tuix_core::Inspectable>::widget(&self.#accessor, state, panel, #field_label);
             //}
-            //let row = HBox::new().build(state, panel, |builder| builder);
+            //let row = Row::new().build(state, panel, |builder| builder);
             //let label = Label::new(#field_label).build(state, row, |builder| builder);
         };
 
@@ -71,7 +71,11 @@ fn expand_struct(derive_input: &syn::DeriveInput, data: &syn::DataStruct) -> Tok
             fn widget(&self, state: &mut tuix_core::State, parent: tuix_core::Entity, name: &str) -> tuix_core::Entity {
                 use tuix_core::widgets::*;
 
-                let panel = Panel::new(stringify!(#id)).build(state, parent, |builder| builder);
+                let panel = Panel::new(stringify!(#id)).build(state, parent, |builder| 
+                    builder
+                );
+
+                panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
 
                 #(#fields)*
 

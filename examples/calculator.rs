@@ -112,7 +112,7 @@ impl Widget for Calculator {
 
         // Currently using flexbox to create the layout but would be good to use grid when working
 
-        let row1 = HBox::new().build(state, container, |builder| builder);
+        let row1 = Row::new().build(state, container, |builder| builder);
 
         self.clear = Button::new()
             .on_press(Event::new(CalculatorEvent::Operator('C')))
@@ -139,7 +139,7 @@ impl Widget for Calculator {
             });
 
         // Second Row
-        let row2 = HBox::new().build(state, container, |builder| builder);
+        let row2 = Row::new().build(state, container, |builder| builder);
 
         // Digit Seven
         self.seven = Button::new()
@@ -164,7 +164,7 @@ impl Widget for Calculator {
             });
 
         // Third Row
-        let row3 = HBox::new().build(state, container, |builder| builder);
+        let row3 = Row::new().build(state, container, |builder| builder);
 
         // Digit Four
         self.four = Button::new()
@@ -189,7 +189,7 @@ impl Widget for Calculator {
             });
 
         // Fourth Row
-        let row4 = HBox::new().build(state, container, |builder| builder);
+        let row4 = Row::new().build(state, container, |builder| builder);
 
         // Digit One
         self.one = Button::new()
@@ -214,7 +214,7 @@ impl Widget for Calculator {
             });
 
         // Fifth Row
-        let row5 = HBox::new().build(state, container, |builder| builder.class("last"));
+        let row5 = Row::new().build(state, container, |builder| builder.class("last"));
 
         // Digit Zero
         self.zero = Button::new()

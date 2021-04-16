@@ -21,14 +21,14 @@ fn main() {
         // });
 
         // Horizontal Container
-        // let hbox = HBox::new().build(state, window.entity(), |builder| 
+        // let row = Row::new().build(state, window.entity(), |builder| 
         // builder
         //     .set_width(Stretch(1.0))
         //     .set_height(Stretch(1.0))
         // );
 
         // Resizable Vertical Container
-        let rvbox = ResizableVBox::new().build(state, window.entity(), |builder| {
+        let rcolumn = ResizableColumn::new().build(state, window.entity(), |builder| {
             builder
                 .set_width(Stretch(1.0))
                 .set_max_width(Pixels(500.0))
@@ -37,7 +37,7 @@ fn main() {
                 //.set_background_color(Color::rgb(60, 60, 60))
         });
 
-        let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
+        let scroll = ScrollContainer::new().build(state, rcolumn, |builder| builder);
 
 
         // BUTTONS PANEL
@@ -49,7 +49,7 @@ fn main() {
         panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
 
         // // BUTTON
-        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         Label::new("Button").build(state, row, |builder| 
             builder
                 .set_height(Pixels(30.0))
@@ -62,17 +62,17 @@ fn main() {
         });
 
         // // CHECKBUTTON
-        // let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        // let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         // Label::new("Check Button").build(state, row, |builder| builder);
         // CheckButton::new(false).build(state, row, |builder| builder);
 
         // CHECKBOX
-        let row = HBox::new().build(state, panel, |builder| builder);
+        let row = Row::new().build(state, panel, |builder| builder);
         Label::new("Checkbox").build(state, row, |builder| builder);
         Checkbox::new(false).build(state, row, |builder| builder);
 
         // SWITCH
-        let row = HBox::new().build(state, panel, |builder| builder);
+        let row = Row::new().build(state, panel, |builder| builder);
         Label::new("Switch").build(state, row, |builder| builder);
         let switch = Switch::new(false).build(state, row, |builder| builder);
 
@@ -83,12 +83,12 @@ fn main() {
 
 
         // TEXTBOX
-        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         Label::new("Textbox").build(state, row, |builder| builder);
         Textbox::new("Some Text").build(state, row, |builder| builder);
 
         // SPINNER
-        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         Label::new("Spinner").build(state, row, |builder| builder);
         Spinbox::new(100)
             .with_min(95)
@@ -98,7 +98,7 @@ fn main() {
             .build(state, row, |builder| builder);
 
         // // VECTOR EDIT
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Vector Edit").build(state, row, |builder| builder);
         // VectorEdit::<f32>::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
@@ -110,7 +110,7 @@ fn main() {
 
         panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
         // LIST
-        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         Label::new("List").build(state, row, |builder| builder);
         let list = List::new().build(state, row, |builder| 
             builder
@@ -138,7 +138,7 @@ fn main() {
         });
 
         // MULTILIST
-        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         Label::new("Multilist").build(state, row, |builder| builder);
         let list = List::new()
             .set_multi()
@@ -175,7 +175,7 @@ fn main() {
         panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
 
         // DROPDOWN LIST
-        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         Label::new("List").build(state, row, |builder| builder);
         let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| {
             builder.set_height(Pixels(30.0)).set_width(Stretch(1.0))
@@ -203,7 +203,7 @@ fn main() {
         });
 
         // DROPDOWN MULTILIST
-        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         Label::new("Multilist").build(state, row, |builder| builder);
         let (_, _, popup) = Dropdown::new("Dropdown")
             .set_multi()
@@ -233,7 +233,7 @@ fn main() {
         });
 
         // // DROPDOWN CHECKITEM LIST
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("List").build(state, row, |builder| builder);
         // let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| {
         //     builder.set_height(Pixels(30.0)).set_flex_grow(1.0)
@@ -256,7 +256,7 @@ fn main() {
         // });
 
         // // DROPDOWN CHECK MULTILIST
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Multilist").build(state, row, |builder| builder);
         // let (_, _, popup) = Dropdown::new("Dropdown")
         //     .set_multi()
@@ -283,10 +283,10 @@ fn main() {
         // });
 
         // // LISTS PANEL
-        // let panel = Panel::new("Check List").build(state, rvbox, |builder| builder);
+        // let panel = Panel::new("Check List").build(state, rcolumn, |builder| builder);
 
         // // LISTBOX
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("List").build(state, row, |builder| builder);
         // let list = List::new().build(state, row, |builder| builder.set_flex_grow(1.0));
         // CheckItem::new("Option1", true).build(state, list, |builder| {
@@ -309,7 +309,7 @@ fn main() {
         // });
 
         // // LISTBOX
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Multilist").build(state, row, |builder| builder);
         // let list = List::new()
         //     .set_multi()
@@ -339,19 +339,19 @@ fn main() {
         let panel = Panel::new("Sliders").build(state, scroll, |builder| builder);
         panel.set_child_space(state, Pixels(10.0));
         // // PROGRESS BAR
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Progress Bar").build(state, row, |builder| builder);
         // ProgressBar::new()
         //     .with_value(0.5)
         //     .build(state, row, |builder| builder.set_flex_grow(1.0));
 
         // // VALUE SLIDER
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Value Slider").build(state, row, |builder| builder);
         // ValueSlider::new("value").build(state, row, |builder| builder.set_flex_grow(1.0));
 
         // SLIDER 1
-        let row = HBox::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         Label::new("Slider").build(state, row, |builder| builder);
         Slider::new()
             .with_range(0.0..20.0)
@@ -364,21 +364,21 @@ fn main() {
             );
 
         // // SLIDER 2
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Slider").build(state, row, |builder| builder);
         // Slider::new().build(state, row, |builder| {
         //     builder.set_flex_grow(1.0).class("custom1")
         // });
 
         // // SLIDER 3
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Slider").build(state, row, |builder| builder);
         // Slider::new().build(state, row, |builder| {
         //     builder.set_flex_grow(1.0).class("custom2")
         // });
 
-        // let panel = Panel::new("Radio List").build(state, rvbox, |builder| builder);
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let panel = Panel::new("Radio List").build(state, rcolumn, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Radio List (V)").build(state, row, |builder| builder);
         // let radio_list = List::new().build(state, row, |builder| {
         //     builder
@@ -386,7 +386,7 @@ fn main() {
         //         .set_justify_content(JustifyContent::SpaceEvenly)
         // });
 
-        // let item = HBox::new().build(state, radio_list, |builder| builder);
+        // let item = Row::new().build(state, radio_list, |builder| builder);
         // let first = Radio::new().build(state, item, |builder| builder);
         // Label::new("Option 1").build(state, item, |builder| {
         //     builder
@@ -395,7 +395,7 @@ fn main() {
         //         .set_margin_left(Pixels(5.0))
         // });
 
-        // let item = HBox::new().build(state, radio_list, |builder| builder);
+        // let item = Row::new().build(state, radio_list, |builder| builder);
         // Radio::new().build(state, item, |builder| builder);
         // Label::new("Option 2").build(state, item, |builder| {
         //     builder
@@ -404,7 +404,7 @@ fn main() {
         //         .set_margin_left(Pixels(5.0))
         // });
 
-        // let item = HBox::new().build(state, radio_list, |builder| builder);
+        // let item = Row::new().build(state, radio_list, |builder| builder);
         // Radio::new().build(state, item, |builder| builder);
         // Label::new("Option 3").build(state, item, |builder| {
         //     builder
@@ -415,7 +415,7 @@ fn main() {
 
         // first.set_checked(state, true);
 
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Radio List (H)").build(state, row, |builder| builder);
         // let radio_list = List::new().build(state, row, |builder| {
         //     builder
@@ -423,7 +423,7 @@ fn main() {
         //         .set_flex_grow(1.0)
         //         .set_justify_content(JustifyContent::SpaceEvenly)
         // });
-        // let item = HBox::new().build(state, radio_list, |builder| builder);
+        // let item = Row::new().build(state, radio_list, |builder| builder);
         // let first = Radio::new().build(state, item, |builder| builder);
         // Label::new("1").build(state, item, |builder| {
         //     builder
@@ -432,7 +432,7 @@ fn main() {
         //         .set_margin_left(Pixels(5.0))
         // });
 
-        // let item = HBox::new().build(state, radio_list, |builder| builder);
+        // let item = Row::new().build(state, radio_list, |builder| builder);
         // Radio::new().build(state, item, |builder| builder);
         // Label::new("2").build(state, item, |builder| {
         //     builder
@@ -440,7 +440,7 @@ fn main() {
         //         .set_width(Pixels(30.0))
         //         .set_margin_left(Pixels(5.0))
         // });
-        // let item = HBox::new().build(state, radio_list, |builder| builder);
+        // let item = Row::new().build(state, radio_list, |builder| builder);
         // Radio::new().build(state, item, |builder| builder);
         // Label::new("3").build(state, item, |builder| {
         //     builder
@@ -451,7 +451,7 @@ fn main() {
 
         // first.set_checked(state, true);
 
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Radio Buttons").build(state, row, |builder| builder);
         // let radio_list = List::new().build(state, row, |builder| {
         //     builder
@@ -473,7 +473,7 @@ fn main() {
 
         // first.set_checked(state, true);
 
-        // let row = HBox::new().build(state, panel, |builder| builder);
+        // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Radio List (V)").build(state, row, |builder| builder);
         // let radio_list = List::new().build(state, row, |builder| {
         //     builder
@@ -481,7 +481,7 @@ fn main() {
         //         .set_justify_content(JustifyContent::SpaceEvenly)
         // });
 
-        // let item = HBox::new().build(state, radio_list, |builder| builder);
+        // let item = Row::new().build(state, radio_list, |builder| builder);
         // Checkbox::new(true)
         //     .on_checked(Event::new(WindowEvent::WindowClose).target(Entity::root()))
         //     .build(state, item, |builder| builder);
@@ -492,7 +492,7 @@ fn main() {
         //         .set_margin_left(Pixels(5.0))
         // });
 
-        // let item = HBox::new().build(state, radio_list, |builder| builder);
+        // let item = Row::new().build(state, radio_list, |builder| builder);
         // Checkbox::new(false).build(state, item, |builder| builder);
         // Label::new("Option 2").build(state, item, |builder| {
         //     builder
@@ -501,7 +501,7 @@ fn main() {
         //         .set_margin_left(Pixels(5.0))
         // });
 
-        // let item = HBox::new().build(state, radio_list, |builder| builder);
+        // let item = Row::new().build(state, radio_list, |builder| builder);
         // Checkbox::new(false).build(state, item, |builder| builder);
         // Label::new("Option 3").build(state, item, |builder| {
         //     builder

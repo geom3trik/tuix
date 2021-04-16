@@ -5,7 +5,7 @@ use crate::state::style::*;
 use crate::{MouseButton, State};
 
 use crate::widgets::*;
-use crate::widgets::{Button, Element, HBox, VBox};
+use crate::widgets::{Button, Element, Row, Column};
 use crate::AnimationState;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -774,15 +774,15 @@ impl Widget for ScrollContainerHV {
             .set_flex_grow(state, 1.0)
             .set_flex_shrink(state, 1.0);
 
-        let hbox = HBox::new().build(state, entity, |builder| {
+        let row = Row::new().build(state, entity, |builder| {
             builder.set_flex_grow(1.0).set_flex_shrink(1.0)
         });
 
-        let vbox = VBox::new().build(state, hbox, |builder| {
+        let column = Column::new().build(state, row, |builder| {
             builder.set_flex_grow(1.0).set_flex_shrink(1.0)
         });
 
-        self.container = Button::new().build(state, vbox, |builder| {
+        self.container = Button::new().build(state, column, |builder| {
             builder
                 .set_top(Units::Percentage(0.0))
                 .set_align_self(AlignSelf::FlexStart)
@@ -793,7 +793,7 @@ impl Widget for ScrollContainerHV {
 
         //println!("Container: {}", self.container);
 
-        self.vertical_scroll = Element::new().build(state, hbox, |builder| {
+        self.vertical_scroll = Element::new().build(state, row, |builder| {
             builder
                 //.set_position(Position::Absolute)
                 .set_top(Units::Percentage(0.0))
@@ -807,7 +807,7 @@ impl Widget for ScrollContainerHV {
             //
         });
 
-        self.vertical_scroll = Element::new().build(state, hbox, |builder| {
+        self.vertical_scroll = Element::new().build(state, row, |builder| {
             builder
                 //.set_position(Position::Absolute)
                 .set_left(Units::Percentage(0.0))

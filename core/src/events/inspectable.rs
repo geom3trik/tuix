@@ -6,7 +6,7 @@ pub trait Inspectable: Default {
 
 impl Inspectable for String {
     fn widget(&self, state: &mut State, parent: Entity, name: &str) -> Entity {
-        let row = HBox::new().build(state, parent, |builder| builder);
+        let row = Row::new().build(state, parent, |builder| builder.set_width(Stretch(1.0)));
         let label = Label::new(name).build(state, row, |builder| builder);
         Textbox::new(self).build(state, row, |builder| builder.set_flex_grow(1.0))
     }
@@ -14,7 +14,7 @@ impl Inspectable for String {
 
 impl Inspectable for bool {
     fn widget(&self, state: &mut State, parent: Entity, name: &str) -> Entity {
-        let row = HBox::new().build(state, parent, |builder| builder);
+        let row = Row::new().build(state, parent, |builder| builder.set_width(Stretch(1.0)));
         let label = Label::new(name).build(state, row, |builder| builder);
         Checkbox::new(*self).build(state, row, |builder| builder)
     }
@@ -22,7 +22,7 @@ impl Inspectable for bool {
 
 impl Inspectable for i32 {
     fn widget(&self, state: &mut State, parent: Entity, name: &str) -> Entity {
-        let row = HBox::new().build(state, parent, |builder| builder);
+        let row = Row::new().build(state, parent, |builder| builder.set_width(Stretch(1.0)));
         let label = Label::new(name).build(state, row, |builder| builder);
         Spinbox::new(*self)
              .with_min(95)
@@ -35,7 +35,7 @@ impl Inspectable for i32 {
 
 impl Inspectable for f32 {
     fn widget(&self, state: &mut State, parent: Entity, name: &str) -> Entity {
-        let row = HBox::new().build(state, parent, |builder| builder);
+        let row = Row::new().build(state, parent, |builder| builder.set_width(Stretch(1.0)));
         let label = Label::new(name).build(state, row, |builder| builder);
         Slider::new()
             .with_initial_value(*self)

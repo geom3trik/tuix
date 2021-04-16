@@ -3,7 +3,7 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, CheckButton, Checkbox, Dimension, Dropdown, Panel, List, ResizableVBox,
+    Button, CheckButton, Checkbox, Dimension, Dropdown, Panel, List, ResizableColumn,
     ScrollContainer, Spinbox, Textbox, VectorEdit, VectorEditEvent,
 };
 
@@ -109,44 +109,44 @@ fn main() {
 
         window.set_title("Panels").set_inner_size(800, 600);
 
-        let rvbox = ResizableVBox::new().build(state, window.entity(), |builder| {
+        let rcolumn = ResizableColumn::new().build(state, window.entity(), |builder| {
             builder
                 .set_width(Units::Pixels(300.0))
                 .set_height(Units::Percentage(1.0))
                 .set_background_color(Color::rgb(100, 50, 50))
         });
 
-        //let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
+        //let scroll = ScrollContainer::new().build(state, rcolumn, |builder| builder);
 
-        let panel = Panel::new("Background Colour").build(state, rvbox, |builder| builder);
+        let panel = Panel::new("Background Colour").build(state, rcolumn, |builder| builder);
 
-        let row = HBox::new().build(state, panel, |builder| builder);
+        let row = Row::new().build(state, panel, |builder| builder);
 
         Label::new("Colour").build(state, row, |builder| builder.class("label"));
         let color_edit = ColorEdit::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
-        let row = HBox::new().build(state, panel, |builder| builder);
+        let row = Row::new().build(state, panel, |builder| builder);
 
         Label::new("Units").build(state, row, |builder| builder.class("label"));
         LengthBox::new().build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("item")
         });
 
-        let row = HBox::new().build(state, panel, |builder| builder);
+        let row = Row::new().build(state, panel, |builder| builder);
 
         Label::new("Slider").build(state, row, |builder| builder.class("label"));
         ValueSlider::new("test").build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("item")
         });
 
-        let row = HBox::new().build(state, panel, |builder| builder);
+        let row = Row::new().build(state, panel, |builder| builder);
 
         Label::new("Number").build(state, row, |builder| builder.class("label"));
         Spinbox::new(100.0).build(state, row, |builder| {
             builder.set_flex_grow(1.0).class("item")
         });
 
-        let row = HBox::new().build(state, panel, |builder| builder);
+        let row = Row::new().build(state, panel, |builder| builder);
 
         Button::with_label("Button").build(state, row, |builder| builder.class("label"));
         //Button::with_label("Press Me").build(state, row, |builder| builder.set_flex_grow(1.0).class("item"));
@@ -156,38 +156,38 @@ fn main() {
         // //Dropdown::new("Position").add_item("Absolute", "Absolute").add_item("Relative", "Relative").build(state, row, |builder| builder.set_flex_grow(1.0));
         // //Textbox::new("Textbox").build(state, row, |builder| builder.set_flex_grow(1.0).set_background_color(Color::rgb(50, 100, 100)));
 
-        let row = HBox::new().build(state, panel, |builder| builder);
+        let row = Row::new().build(state, panel, |builder| builder);
 
         Label::new("Radio").build(state, row, |builder| builder.class("label"));
         let radio_list = List::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
-        let hbox = HBox::new().build(state, radio_list, |builder| {
+        let row = Row::new().build(state, radio_list, |builder| {
             builder.set_height(Units::Pixels(30.0))
         });
-        CheckButton::new(true).build(state, hbox, |builder| {
+        CheckButton::new(true).build(state, row, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
-        Label::new("Option 1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+        Label::new("Option 1").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-        let hbox = HBox::new().build(state, radio_list, |builder| {
+        let row = Row::new().build(state, radio_list, |builder| {
             builder.set_height(Units::Pixels(30.0))
         });
-        CheckButton::new(false).build(state, hbox, |builder| {
+        CheckButton::new(false).build(state, row, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
-        Label::new("Option 2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+        Label::new("Option 2").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-        let hbox = HBox::new().build(state, radio_list, |builder| {
+        let row = Row::new().build(state, radio_list, |builder| {
             builder.set_height(Units::Pixels(30.0))
         });
-        CheckButton::new(false).build(state, hbox, |builder| {
+        CheckButton::new(false).build(state, row, |builder| {
             builder.set_align_self(AlignSelf::Center)
         });
-        Label::new("Option 3").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+        Label::new("Option 3").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-        let panel = Panel::new("Control Knobs").build(state, rvbox, |builder| builder);
+        let panel = Panel::new("Control Knobs").build(state, rcolumn, |builder| builder);
 
-        let row = HBox::new().build(state, panel, |builder| {
+        let row = Row::new().build(state, panel, |builder| {
             builder.set_justify_content(JustifyContent::SpaceEvenly)
         });
 
@@ -203,9 +203,9 @@ fn main() {
             builder.set_width(Units::Pixels(50.0))
         });
 
-        let panel = Panel::new("Control Knobs").build(state, rvbox, |builder| builder);
+        let panel = Panel::new("Control Knobs").build(state, rcolumn, |builder| builder);
 
-        let row = HBox::new().build(state, panel, |builder| {
+        let row = Row::new().build(state, panel, |builder| {
             builder.set_justify_content(JustifyContent::SpaceEvenly)
         });
 
@@ -230,26 +230,26 @@ fn main() {
     // Get the window from the app
     //let window = state.root;
 
-    // let row = HBox::new().build(state, panel, |builder| {
+    // let row = Row::new().build(state, panel, |builder| {
     //     builder
     // });
 
     // Label::new("Radio").build(state, row, |builder| builder.class("label"));
     // let radio_list = RadioList::new("First").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Units::Pixels(30.0)));
-    // RadioBox::new("Second").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
-    // Label::new("TEST1").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+    // let row = Row::new().build(state, radio_list, |builder| builder.set_height(Units::Pixels(30.0)));
+    // RadioBox::new("Second").build(state, row, |builder| builder.set_align_self(AlignSelf::Center));
+    // Label::new("TEST1").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Units::Pixels(30.0)));
-    // RadioBox::new("Second").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
-    // Label::new("TEST2").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+    // let row = Row::new().build(state, radio_list, |builder| builder.set_height(Units::Pixels(30.0)));
+    // RadioBox::new("Second").build(state, row, |builder| builder.set_align_self(AlignSelf::Center));
+    // Label::new("TEST2").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-    // let hbox = HBox::new().build(state, radio_list, |builder| builder.set_height(Units::Pixels(30.0)));
-    // RadioBox::new("Second").build(state, hbox, |builder| builder.set_align_self(AlignSelf::Center));
-    // Label::new("TEST3").build(state, hbox, |builder| builder.set_flex_grow(1.0));
+    // let row = Row::new().build(state, radio_list, |builder| builder.set_height(Units::Pixels(30.0)));
+    // RadioBox::new("Second").build(state, row, |builder| builder.set_align_self(AlignSelf::Center));
+    // Label::new("TEST3").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-    // let row3 = HBox::new().build(state, panel, |builder| {
+    // let row3 = Row::new().build(state, panel, |builder| {
     //     builder.class("item")
     // });
     // Label::new("Checkbox").build(state, row3, |builder| builder.class("label"));
@@ -259,13 +259,13 @@ fn main() {
     //     builder.set_flex_direction(FlexDirection::Row).class("item")
     // });
     // Button::with_label("Right").build(state, row4, |builder| builder.class("label"));
-    // LengthBox::new().build(state, row4, |builder| builder.set_flex_grow(1.0));
+    // Lengtrow::new().build(state, row4, |builder| builder.set_flex_grow(1.0));
 
     // let row5 = Button::new().build(state, panel, |builder| {
     //     builder.set_flex_direction(FlexDirection::Row).class("item")
     // });
     // Button::with_label("Bottom").build(state, row5, |builder| builder.class("label"));
-    // LengthBox::new().build(state, row5, |builder| builder.set_flex_grow(1.0));
+    // Lengtrow::new().build(state, row5, |builder| builder.set_flex_grow(1.0));
 
     // let flex_panel = Panel::new("Flex").build(state, scroll, |builder| {
     //     builder
@@ -276,21 +276,21 @@ fn main() {
     // });
 
     // Button::with_label("Basis").build(state, flex_panel_row1, |builder| builder.class("label"));
-    // LengthBox::new().build(state, flex_panel_row1, |builder| builder.set_flex_grow(1.0));
+    // Lengtrow::new().build(state, flex_panel_row1, |builder| builder.set_flex_grow(1.0));
 
     // let flex_panel_row2 = Button::new().build(state, flex_panel, |builder| {
     //     builder.set_flex_direction(FlexDirection::Row).class("item")
     // });
 
     // Button::with_label("Grow").build(state, flex_panel_row2, |builder| builder.class("label"));
-    // LengthBox::new().build(state, flex_panel_row2, |builder| builder.set_flex_grow(1.0));
+    // Lengtrow::new().build(state, flex_panel_row2, |builder| builder.set_flex_grow(1.0));
 
     // let flex_panel_row3 = Button::new().build(state, flex_panel, |builder| {
     //     builder.set_flex_direction(FlexDirection::Row).class("item")
     // });
 
     // Button::with_label("Shrink").build(state, flex_panel_row3, |builder| builder.class("label"));
-    // LengthBox::new().build(state, flex_panel_row3, |builder| builder.set_flex_grow(1.0));
+    // Lengtrow::new().build(state, flex_panel_row3, |builder| builder.set_flex_grow(1.0));
 
     // let panel = Panel::new("Image").build(state, scroll, |builder| {
     //     builder

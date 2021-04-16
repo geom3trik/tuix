@@ -503,6 +503,33 @@ impl Style {
                             .insert_rule(rule_id, box_shadow.color);
                     }
 
+                    Property::ChildLeft(value) => {
+                        self.child_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::ChildRight(value) => {
+                        self.child_right.insert_rule(rule_id, value);
+                    }
+
+                    Property::ChildTop(value) => {
+                        self.child_top.insert_rule(rule_id, value);
+                    }
+
+                    Property::ChildBottom(value) => {
+                        self.child_bottom.insert_rule(rule_id, value);
+                    }
+
+                    Property::ChildSpace(value) => {
+                        self.child_left.insert_rule(rule_id, value);
+                        self.child_right.insert_rule(rule_id, value);
+                        self.child_top.insert_rule(rule_id, value);
+                        self.child_bottom.insert_rule(rule_id, value);
+                    }
+
+                    Property::ChildBetween(value) => {
+                        self.child_between.insert_rule(rule_id, value);
+                    }
+
                     Property::Transition(transitions) => {
                         for transition in transitions {
                             match transition.property.as_ref() {

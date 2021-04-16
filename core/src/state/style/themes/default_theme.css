@@ -22,7 +22,7 @@ button:active {
 } */
 
 
-panel>.container1>.container2>hbox {
+panel>.container1>.container2>row {
     padding: 10px;
     align-items: center;
 }
@@ -51,7 +51,7 @@ panel>.header>.label {
     color: white;
 }
 
-panel .container2>hbox>label {
+panel .container2>row>label {
     height: 30px;
     width: 120px;
     color: black;
