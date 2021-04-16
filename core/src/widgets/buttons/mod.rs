@@ -12,3 +12,6 @@ pub use check_button::*;
 
 pub mod radio;
 pub use radio::*;
+
+pub mod switch;
+pub use switch::*;

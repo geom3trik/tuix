@@ -30,7 +30,7 @@ impl Widget for Switch {
 
         state.style.insert_element(entity, "switch");
 
-        entity
+        entity.set_child_top(state, Stretch(1.0)).set_child_bottom(state, Stretch(1.0))
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

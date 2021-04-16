@@ -211,15 +211,23 @@ pub struct Style {
     pub grid_cols: StyleStorage<GridAxis>,
     pub grid_item: StyleStorage<GridItem>,
 
+    pub child_left: AnimatableStorage<Units>,
+    pub child_right: AnimatableStorage<Units>,
+    pub child_top: AnimatableStorage<Units>,
+    pub child_bottom: AnimatableStorage<Units>,
+    pub child_between: AnimatableStorage<Units>,
+    // pub child_wrap: AnimatableStorage<Units>,
+
+
     // Main Axis Align
-    pub main_before_first: AnimatableStorage<Units>,
-    pub main_between: AnimatableStorage<Units>,
-    pub main_after_last: AnimatableStorage<Units>,
+    // pub main_before_first: AnimatableStorage<Units>,
+    // pub main_between: AnimatableStorage<Units>,
+    // pub main_after_last: AnimatableStorage<Units>,
 
     // Cross Axis Align
-    pub cross_before_first: AnimatableStorage<Units>,
-    pub cross_between: AnimatableStorage<Units>,
-    pub cross_after_last: AnimatableStorage<Units>,
+    // pub cross_before_first: AnimatableStorage<Units>,
+    // pub cross_between: AnimatableStorage<Units>,
+    // pub cross_after_last: AnimatableStorage<Units>,
 
     
 }

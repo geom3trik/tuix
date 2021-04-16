@@ -99,12 +99,10 @@ pub enum Property {
     CrossAfter(Units),
 
     // Main Axis Align
-    MainBeforeFirst(Units),
-    MainBetween(Units),
-    MainAfterLast(Units),
-
-    // Cross Axis Align
-    CrossBeforeFirst(Units),
-    CrossBetween(Units),
-    CrossAfterLast(Units),
+    ChildSpace(Units),
+    ChildLeft(Units),
+    ChildRight(Units),
+    ChildTop(Units),
+    ChildBottom(Units),
+    ChildBetween(Units),
 }

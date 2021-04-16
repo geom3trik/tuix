@@ -33,10 +33,12 @@ const STYLE: &str = r#"
         margin: 10px;
         width: 300px;
         flex-direction: column;
+        background-color: cyan;
     }
 
     panel.one>.header {
-        flex-basis: 30px;
+        height: 30px;
+        width: 300px;
         flex-direction: row;
     }
 
@@ -64,23 +66,38 @@ fn main() {
 
         window.set_title("Panels");
 
-        let panel = Panel::new("Panel 1").build(state, window.entity(), |builder| builder.class("one"));
+        let panel = Panel::new("Panel 1").build(state, window.entity(), |builder| 
+            builder
+                .class("one")
+    
+        );
 
-        Button::with_label("Button").build(state, panel, |builder| {
+        panel.set_child_between(state, Pixels(10.0));
+
+        Button::with_label("1").build(state, panel, |builder| {
             builder
                 .set_width(Units::Pixels(100.0))
                 .set_height(Units::Pixels(30.0))
+                .set_background_color(Color::blue())
                 .set_text_justify(Justify::Center)
         });
 
-        let panel = Panel::new("Panel 2").build(state, window.entity(), |builder| builder.class("two"));
-
-        Button::with_label("Button").build(state, panel, |builder| {
+        Button::with_label("2").build(state, panel, |builder| {
             builder
                 .set_width(Units::Pixels(100.0))
                 .set_height(Units::Pixels(30.0))
+                .set_background_color(Color::blue())
                 .set_text_justify(Justify::Center)
         });
+
+        // let panel = Panel::new("Panel 2").build(state, window.entity(), |builder| builder.class("two"));
+
+        // Button::with_label("Button").build(state, panel, |builder| {
+        //     builder
+        //         .set_width(Units::Pixels(100.0))
+        //         .set_height(Units::Pixels(30.0))
+        //         .set_text_justify(Justify::Center)
+        // });
 
         
     });

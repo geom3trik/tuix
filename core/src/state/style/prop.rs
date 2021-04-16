@@ -154,39 +154,47 @@ pub trait PropSet : AsEntity {
     //     mutator: F,
     // ) -> Self;
 
-
-    fn set_main_before_first(&self, state: &mut State, value: Units) -> Entity {
-        state.style.main_before_first.insert(self.entity(), value);
-
-        self.entity()
-    }
-
-    fn set_main_between(&self, state: &mut State, value: Units) -> Entity {
-        state.style.main_between.insert(self.entity(), value);
+    fn set_layout_type(&self, state: &mut State, value: LayoutType) -> Entity {
+        state.style.layout_type.insert(self.entity(), value);
 
         self.entity()
     }
 
-    fn set_main_after_last(&self, state: &mut State, value: Units) -> Entity {
-        state.style.main_after_last.insert(self.entity(), value);
+    fn set_child_space(&self, state: &mut State, value: Units) -> Entity {
+        state.style.child_left.insert(self.entity(), value);
+        state.style.child_right.insert(self.entity(), value);
+        state.style.child_top.insert(self.entity(), value);
+        state.style.child_bottom.insert(self.entity(), value);
 
         self.entity()
     }
 
-    fn set_cross_before_first(&self, state: &mut State, value: Units) -> Entity {
-        state.style.cross_before_first.insert(self.entity(), value);
+    fn set_child_left(&self, state: &mut State, value: Units) -> Entity {
+        state.style.child_left.insert(self.entity(), value);
 
         self.entity()
     }
 
-    fn set_cross_between(&self, state: &mut State, value: Units) -> Entity {
-        state.style.cross_between.insert(self.entity(), value);
+    fn set_child_between(&self, state: &mut State, value: Units) -> Entity {
+        state.style.child_between.insert(self.entity(), value);
 
         self.entity()
     }
 
-    fn set_cross_after_last(&self, state: &mut State, value: Units) -> Entity {
-        state.style.cross_after_last.insert(self.entity(), value);
+    fn set_child_right(&self, state: &mut State, value: Units) -> Entity {
+        state.style.child_right.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_child_top(&self, state: &mut State, value: Units) -> Entity {
+        state.style.child_top.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_child_bottom(&self, state: &mut State, value: Units) -> Entity {
+        state.style.child_bottom.insert(self.entity(), value);
 
         self.entity()
     }

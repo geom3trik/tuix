@@ -317,35 +317,43 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             // Positioning
             "position" => Property::Position(parse_position(input)?),
 
-            "left" => Property::Left(parse_length(input)?),
-            "right" => Property::Right(parse_length(input)?),
-            "top" => Property::Top(parse_length(input)?),
-            "bottom" => Property::Bottom(parse_length(input)?),
+            "left" => Property::Left(parse_units(input)?),
+            "right" => Property::Right(parse_units(input)?),
+            "top" => Property::Top(parse_units(input)?),
+            "bottom" => Property::Bottom(parse_units(input)?),
 
             // Size
-            "width" => Property::Width(parse_length(input)?),
-            "height" => Property::Height(parse_length(input)?),
+            "width" => Property::Width(parse_units(input)?),
+            "height" => Property::Height(parse_units(input)?),
 
             // Size Constraints
             //TODO - Are percentages supported?
-            "min-width" => Property::MinWidth(parse_length(input)?),
-            "min-height" => Property::MinHeight(parse_length(input)?),
-            "max-width" => Property::MaxWidth(parse_length(input)?),
-            "max-height" => Property::MaxHeight(parse_length(input)?),
+            "min-width" => Property::MinWidth(parse_units(input)?),
+            "min-height" => Property::MinHeight(parse_units(input)?),
+            "max-width" => Property::MaxWidth(parse_units(input)?),
+            "max-height" => Property::MaxHeight(parse_units(input)?),
 
             // Margin
-            "margin" => Property::Margin(parse_length(input)?),
-            "margin-left" => Property::MarginLeft(parse_length(input)?),
-            "margin-right" => Property::MarginRight(parse_length(input)?),
-            "margin-top" => Property::MarginTop(parse_length(input)?),
-            "margin-bottom" => Property::MarginBottom(parse_length(input)?),
+            "margin" => Property::Margin(parse_units(input)?),
+            "margin-left" => Property::MarginLeft(parse_units(input)?),
+            "margin-right" => Property::MarginRight(parse_units(input)?),
+            "margin-top" => Property::MarginTop(parse_units(input)?),
+            "margin-bottom" => Property::MarginBottom(parse_units(input)?),
 
             // Padding
-            "padding" => Property::Padding(parse_length(input)?),
-            "padding-left" => Property::PaddingLeft(parse_length(input)?),
-            "padding-right" => Property::PaddingRight(parse_length(input)?),
-            "padding-top" => Property::PaddingTop(parse_length(input)?),
-            "padding-bottom" => Property::PaddingBottom(parse_length(input)?),
+            "padding" => Property::Padding(parse_units(input)?),
+            "padding-left" => Property::PaddingLeft(parse_units(input)?),
+            "padding-right" => Property::PaddingRight(parse_units(input)?),
+            "padding-top" => Property::PaddingTop(parse_units(input)?),
+            "padding-bottom" => Property::PaddingBottom(parse_units(input)?),
+
+            "child_space" => Property::ChildSpace(parse_units(input)?),
+            "child_left" => Property::ChildLeft(parse_units(input)?),
+            "child_right" => Property::ChildRight(parse_units(input)?),
+            "child_top" => Property::ChildTop(parse_units(input)?),
+            "child_bottom" => Property::ChildBottom(parse_units(input)?),
+            "child_between" => Property::ChildBetween(parse_units(input)?),
+
 
             "text-align" => Property::TextAlign(parse_alignment(input)?),
             "text-justify" => Property::TextJustify(parse_justification(input)?),
@@ -353,15 +361,15 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "font-size" => Property::FontSize(parse_font_size(input)?),
 
             // Border
-            "border-width" => Property::BorderWidth(parse_length(input)?),
+            "border-width" => Property::BorderWidth(parse_units(input)?),
             "border-color" => Property::BorderColor(parse_color(input)?),
             // TODO - Support array for specifying each corner
-            "border-radius" => Property::BorderRadius(parse_length(input)?),
+            "border-radius" => Property::BorderRadius(parse_units(input)?),
 
-            "border-top-left-radius" => Property::BorderTopLeftRadius(parse_length(input)?),
-            "border-top-right-radius" => Property::BorderTopRightRadius(parse_length(input)?),
-            "border-bottom-left-radius" => Property::BorderBottomLeftRadius(parse_length(input)?),
-            "border-bottom-right-radius" => Property::BorderBottomRightRadius(parse_length(input)?),
+            "border-top-left-radius" => Property::BorderTopLeftRadius(parse_units(input)?),
+            "border-top-right-radius" => Property::BorderTopRightRadius(parse_units(input)?),
+            "border-bottom-left-radius" => Property::BorderBottomLeftRadius(parse_units(input)?),
+            "border-bottom-right-radius" => Property::BorderBottomRightRadius(parse_units(input)?),
 
             "opacity" => Property::Opacity(parse_length_or_percentage(input)?),
 
@@ -373,7 +381,7 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "align-self" => Property::AlignSelf(parse_align_self(input)?),
 
             // Flex Item
-            "flex-basis" => Property::FlexBasis(parse_length(input)?),
+            "flex-basis" => Property::FlexBasis(parse_units(input)?),
             "flex-grow" => Property::FlexGrow(parse_length_or_percentage(input)?),
             "flex-shrink" => Property::FlexShrink(parse_length_or_percentage(input)?),
 
@@ -693,14 +701,22 @@ fn parse_transition2<'i, 't>(
     })
 }
 
-fn parse_length<'i, 't>(
+fn parse_units<'i, 't>(
     input: &mut Parser<'i, 't>,
 ) -> Result<Units, ParseError<'i, CustomParseError>> {
     Ok(match input.next()? {
         Token::Number { value: x, .. } => Units::Pixels(*x as f32),
         Token::Percentage { unit_value: x, .. } => Units::Percentage(*x as f32),
 
-        Token::Dimension { value: x, .. } => Units::Pixels(*x as f32),
+
+        Token::Dimension {has_sign: _, value: v, int_value: _, unit: u} if u == &"px" => {
+            Units::Pixels(*v as f32)
+        }
+
+        Token::Dimension {has_sign: _, value: v, int_value: _, unit: u} if u == &"s" => {
+            Units::Stretch(*v as f32)
+        }
+            
         t => {
             let basic_error = BasicParseError {
                 kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),

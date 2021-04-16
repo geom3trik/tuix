@@ -147,7 +147,12 @@ impl Widget for Dropdown {
                 .set_hoverability(false)
                 .set_focusability(false)
                 .set_flex_direction(FlexDirection::Row)
+                .set_layout_type(LayoutType::Horizontal)
                 .set_flex_grow(1.0)
+                .set_width(Stretch(1.0))
+                .set_height(Stretch(1.0))
+                .set_child_top(Stretch(1.0))
+                .set_child_bottom(Stretch(1.0))
                 .class("header")
         });
 
@@ -157,6 +162,7 @@ impl Widget for Dropdown {
                 .set_hoverability(false)
                 .set_focusability(false)
                 .set_flex_grow(1.0)
+                .set_width(Stretch(1.0))
         });
 
         // Icon
@@ -176,6 +182,7 @@ impl Widget for Dropdown {
             self.container = Popup::new().build(state, entity, |builder| {
                 builder
                     .set_position(Position::Absolute)
+                    .set_position_type(PositioningType::SelfDirected)
                     .set_opacity(0.0)
                     .set_z_order(1)
                     .set_clip_widget(Entity::root())
@@ -185,6 +192,7 @@ impl Widget for Dropdown {
             self.container = Popup::new().build(state, entity, |builder| {
                 builder
                     .set_position(Position::Absolute)
+                    .set_position_type(PositioningType::SelfDirected)
                     .set_opacity(0.0)
                     .set_z_order(1)
                     .set_clip_widget(Entity::root())

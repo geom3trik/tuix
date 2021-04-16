@@ -152,6 +152,6 @@ impl Color {
     }
 
     pub fn yellow() -> Self {
-        Self { data: 0xFF00FFFF }
+        Self { data: 0xFFFFFF00 }
     }
 }

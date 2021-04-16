@@ -56,6 +56,8 @@ panel .container2>hbox>label {
     width: 120px;
     color: black;
     padding-left: 5px;
+    top: 1s;
+    bottom: 1s;
 }
 
 checkbox {
@@ -110,6 +112,7 @@ dropdown .icon {
     text-justify: center;
     color: #ff5e1a;
     width: 30px;
+    height: 30px;
 }
 
 dropdown>.container {
@@ -161,13 +164,15 @@ spinbox>.arrow_container {
 }
 
 slider {
-    height: 4px;
-    border-radius: 2px;
-    background-color: #dfdfdf;
-    align-items: center;
+    height: 20px;
 }
 
-slider>.active {
+slider>.track {
+    background-color: #dfdfdf;
+    border-radius: 2px;
+}
+
+slider>.track>.active {
     background-color: #f74c00;
     border-radius: 2px;
 }
@@ -197,8 +202,8 @@ dropdown>.container>.item:hover {
     transition: background-color 0.1 0.0;
 } */
 
-/* switch {
-    width: 36px;
+switch {
+    width: 40px;
     height: 20px;
     background-color: #646464;
     flex-direction: row;
@@ -208,16 +213,19 @@ dropdown>.container>.item:hover {
 }
 
 switch>.front {
-    left: 0%;
-    width: 50%;
+    left: 1px;
+    width: 18px;
+    height: 18px;
     background-color: white;
+    border-radius: 9px;
+    /* border-color: #757575;
+    border-width: 1px; */
     transition: left 0.1 0.0;
-    border-radius: 7.5px;
 }
 
 
 switch:checked>.front {
-    left: 50%;
+    left: 21px;
     transition: left 0.1 0.0;
 }
 
@@ -225,7 +233,7 @@ switch:checked {
     background-color: #ff5e1a;
     transition: background-color 0.1 0.0;
 }
-
+/*
 spinner {
     height: 30px;
     flex-grow: 1.0;

@@ -15,11 +15,15 @@ impl HBox {
 impl Widget for HBox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row);
-        entity.set_focusability(state, false);
-        entity.set_element(state, "hbox");
-
         entity
+            .set_flex_direction(state, FlexDirection::Row)
+            .set_layout_type(state, LayoutType::Horizontal)
+            .set_focusability(state, false)
+            .set_element(state, "hbox")
+            .set_width(state, Auto)
+            .set_height(state, Auto)
+            //.set_child_top(state, Stretch(1.0))
+            //.set_child_bottom(state, Stretch(1.0))
     }
 }
 
@@ -34,11 +38,13 @@ impl VBox {
 impl Widget for VBox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Column);
-        entity.set_focusability(state, false);
-        entity.set_element(state, "vbox");
-
         entity
+            .set_flex_direction(state, FlexDirection::Column)
+            .set_layout_type(state, LayoutType::Vertical)
+            .set_focusability(state, false)
+            .set_element(state, "vbox")
+            .set_width(state, Auto)
+            .set_height(state, Auto)
     }
 }
 

@@ -1,4 +1,4 @@
-use tuix_core::{BoundingBox, Length};
+use tuix_core::{BoundingBox, Units};
 use tuix_core::{Entity, State};
 
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
@@ -13,12 +13,14 @@ use tuix_core::style::{Display, Visibility};
 
 use tuix_core::state::style::prop::*;
 
-use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
+use tuix_core::{WindowDescription, WindowEvent, WindowWidget, Fonts};
 
 use tuix_core::systems::*;
-use baseview::{Event, EventStatus, Window, WindowHandler, WindowOpenOptions, WindowScalePolicy};
+use baseview::{EventStatus, Window, WindowHandler, WindowOpenOptions, WindowScalePolicy};
+use raw_gl_context::{GlConfig, GlContext};
+use femtovg::{renderer::OpenGl, Canvas, Color};
 
-use crate::window::TuixWindow;
+// use crate::window::TuixWindow;
 pub struct Application2 {
     state: State,
     event_manager: EventManager,
@@ -50,13 +52,21 @@ impl Application2 {
             scale: WindowScalePolicy::SystemScaleFactor,
         };
 
-        
-
-
         Window::open_blocking(
             window_settings,
             move |window: &mut baseview::Window<'_>| -> TuixWindow {
 
+                let mut gl_config = GlConfig::default();
+                gl_config.vsync = true;
+
+                let context =
+                GlContext::create(window, gl_config).expect("OpenGL context creation failed");
+
+                context.make_current();
+
+                let renderer = OpenGl::new(|s| context.get_proc_address(s) as *const _)
+                    .expect("Cannot create renderer");
+                let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
 
                 let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
                 let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
@@ -65,26 +75,22 @@ impl Application2 {
         
                 let fonts = Fonts {
                     regular: Some(
-                        window
-                            .canvas
+                        canvas
                             .add_font_mem(regular_font)
                             .expect("Cannot add font"),
                     ),
                     bold: Some(
-                        window
-                            .canvas
+                        canvas
                             .add_font_mem(bold_font)
                             .expect("Cannot add font"),
                     ),
                     icons: Some(
-                        window
-                            .canvas
+                        canvas
                             .add_font_mem(icon_font)
                             .expect("Cannot add font"),
                     ),
                     emoji: Some(
-                        window
-                            .canvas
+                        canvas
                             .add_font_mem(emoji_font)
                             .expect("Cannot add font"),
                     ),
@@ -94,11 +100,11 @@ impl Application2 {
         
                 state.style.width.insert(
                     Entity::root(),
-                    Length::Pixels(window_description.inner_size.width as f32),
+                    Units::Pixels(window_description.inner_size.width as f32),
                 );
                 state.style.height.insert(
                     Entity::root(),
-                    Length::Pixels(window_description.inner_size.height as f32),
+                    Units::Pixels(window_description.inner_size.height as f32),
                 );
         
                 state
@@ -206,8 +212,8 @@ impl WindowHandler for Application2 {
                             .cloned()
                             .unwrap_or_default()
                         {
-                            Length::Pixels(val) => val,
-                            //Length::Percentage(val) => parent_width * val,
+                            Units::Pixels(val) => val,
+                            //Units::Percentage(val) => parent_width * val,
                             _ => 0.0,
                         };
 
@@ -617,11 +623,11 @@ impl WindowHandler for Application2 {
                     self.state
                         .style
                         .width
-                        .insert(Entity::root(), Length::Pixels(logical_size.0 as f32));
+                        .insert(Entity::root(), Units::Pixels(logical_size.0 as f32));
                     self.state
                         .style
                         .height
-                        .insert(Entity::root(), Length::Pixels(logical_size.1 as f32));
+                        .insert(Entity::root(), Units::Pixels(logical_size.1 as f32));
 
                     self.state
                         .data

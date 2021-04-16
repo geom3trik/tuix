@@ -10,8 +10,9 @@ pub enum SliderEvent {
 }
 
 pub struct Slider {
-    thumb: Entity,
+    track: Entity,
     active: Entity,
+    thumb: Entity,
     sliding: bool,
     on_change: Option<Box<dyn Fn(f32) -> Event>>,
     on_active: Option<Event>,
@@ -27,8 +28,9 @@ pub struct Slider {
 impl Default for Slider {
     fn default() -> Self {
         Self {
-            thumb: Entity::default(),
+            track: Entity::default(),
             active: Entity::default(),
+            thumb: Entity::default(),
             sliding: false,
             on_change: None,
             on_active: None,
@@ -97,13 +99,27 @@ impl Slider {
 impl Widget for Slider {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row);
+        entity
+            .set_flex_direction(state, FlexDirection::Row)
+            .set_child_top(state, Stretch(1.0))
+            .set_child_bottom(state, Stretch(1.0));
 
-        self.active = Element::new().build(state, entity, |builder| {
+
+        self.track = Element::new().build(state, entity, |builder|
             builder
-                .set_position(Position::Absolute)
-                .set_width(Units::Percentage(0.0))
-                .set_height(Units::Percentage(1.0))
+                .set_width(Stretch(1.0))
+                .set_height(Pixels(4.0))
+                .set_bottom(Auto)
+                .set_hoverability(false)
+                .class("track")
+        );
+
+        self.active = Element::new().build(state, self.track, |builder| {
+            builder
+                //.set_position(Position::Absolute)
+                //.set_position_type(PositioningType::SelfDirected)
+                .set_width(Percentage(0.5))
+                .set_height(Stretch(1.0))
                 //.set_background_color(Color::rgb(60, 60, 200))
                 .set_hoverability(false)
                 .class("active")
@@ -114,6 +130,7 @@ impl Widget for Slider {
             entity,
             |builder| {
                 builder
+                    .set_position_type(PositioningType::SelfDirected)
                     //.set_position(Position::Absolute)
                     //.set_top(Units::Pixels(-8.0))
                     //.set_width(Units::Pixels(20.0))

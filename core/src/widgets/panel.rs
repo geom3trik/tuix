@@ -75,12 +75,18 @@ impl Panel {
 impl Widget for Panel {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_focusability(state, false);
+        entity
+            .set_focusability(state, false)
+            .set_width(state, Stretch(1.0))
+            .set_height(state, Auto);
 
         self.header = Button::new()
             .on_release(Event::new(PanelEvent::Open).target(entity))
             .build(state, entity, |builder| {
                 builder
+                    .set_child_top(Stretch(1.0))
+                    .set_child_bottom(Stretch(1.0))
+                    .set_layout_type(LayoutType::Horizontal)
                     //.set_flex_direction(FlexDirection::Row)
                     .class("header")
             });
@@ -91,7 +97,9 @@ impl Widget for Panel {
                 .set_font("icons")
                 .set_text_justify(Justify::Center)
                 .set_text_align(Align::Center)
-                .set_flex_basis(Units::Pixels(20.0))
+                .set_flex_basis(Pixels(20.0))
+                .set_width(Pixels(20.0))
+                .set_height(Pixels(20.0))
                 .set_hoverability(false)
                 .set_focusability(false)
                 .class("icon")
@@ -101,13 +109,20 @@ impl Widget for Panel {
         Label::new(&self.title).build(state, self.header, |builder| {
             builder
                 .set_flex_grow(1.0)
+                .set_width(Stretch(1.0))
+                .set_height(Stretch(1.0))
+                .set_left(Pixels(10.0))
                 .set_hoverability(false)
                 .set_focusability(false)
                 .class("label")
         });
 
         self.container1 = Element::new().build(state, entity, |builder| {
-            builder.class("container1").set_focusability(false)
+            builder
+                .class("container1")
+                .set_focusability(false)
+                .set_width(Stretch(1.0))
+                .set_height(Auto)
         });
 
         self.container2 = Element::new().build(state, self.container1, |builder| {
@@ -115,6 +130,12 @@ impl Widget for Panel {
                 .class("container2")
                 .set_focusability(false)
                 .set_clip_widget(self.container1)
+                .set_child_top(Pixels(10.0))
+                .set_child_bottom(Pixels(10.0))
+                //.set_child_left(Stretch(1.0))
+                //.set_child_right(Stretch(1.0))
+                .set_width(Stretch(1.0))
+                .set_height(Auto)
         });
 
         state.style.insert_element(entity, "panel");

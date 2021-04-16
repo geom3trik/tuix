@@ -653,33 +653,36 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_main_before_first(mut self, value: Units) -> Self {
-        self.state.style.main_before_first.insert(self.entity, value);
+    pub fn set_child_left(mut self, value: Units) -> Self {
+        self.state.style.child_left.insert(self.entity, value);
         self
     }
 
-    pub fn set_main_between(mut self, value: Units) -> Self {
-        self.state.style.main_between.insert(self.entity, value);
+    pub fn set_child_right(mut self, value: Units) -> Self {
+        self.state.style.child_right.insert(self.entity, value);
         self
     }
 
-    pub fn set_main_after_last(mut self, value: Units) -> Self {
-        self.state.style.main_after_last.insert(self.entity, value);
+    pub fn set_child_top(mut self, value: Units) -> Self {
+        self.state.style.child_top.insert(self.entity, value);
         self
     }
 
-    pub fn set_cross_before_first(mut self, value: Units) -> Self {
-        self.state.style.cross_before_first.insert(self.entity, value);
+    pub fn set_child_bottom(mut self, value: Units) -> Self {
+        self.state.style.child_bottom.insert(self.entity, value);
         self
     }
 
-    pub fn set_cross_between(mut self, value: Units) -> Self {
-        self.state.style.cross_between.insert(self.entity, value);
+    pub fn set_child_between(mut self, value: Units) -> Self {
+        self.state.style.child_between.insert(self.entity, value);
         self
     }
 
-    pub fn set_cross_after_last(mut self, value: Units) -> Self {
-        self.state.style.cross_after_last.insert(self.entity, value);
+    pub fn set_child_space(mut self, value: Units) -> Self {
+        self.state.style.child_left.insert(self.entity, value);
+        self.state.style.child_right.insert(self.entity, value);
+        self.state.style.child_top.insert(self.entity, value);
+        self.state.style.child_bottom.insert(self.entity, value);
         self
     }
 

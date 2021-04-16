@@ -91,6 +91,8 @@ pub struct Data {
     horizontal_stretch_sum: Vec<f32>,
     vertical_used_space: Vec<f32>,
     vertical_stretch_sum: Vec<f32>,
+
+    stack_child: Vec<(bool, bool)>,
 }
 
 impl Data {
@@ -122,6 +124,7 @@ impl Data {
             self.horizontal_stretch_sum.resize(key + 1, Default::default());
             self.vertical_used_space.resize(key + 1, Default::default());
             self.vertical_stretch_sum.resize(key + 1, Default::default());
+            self.stack_child.resize(key + 1, (false, false));
 
         }
 
@@ -150,6 +153,10 @@ impl Data {
     //         .cloned()
     //         .unwrap()
     // }
+
+    pub fn get_stack_child(&self, entity: Entity) -> (bool, bool) {
+        self.stack_child.get(entity.index_unchecked()).cloned().unwrap_or((false, false))
+    }
 
     pub fn get_bounds(&self, entity: Entity) -> BoundingBox {
         BoundingBox {
@@ -293,6 +300,9 @@ impl Data {
         self.vertical_stretch_sum.get(entity.index_unchecked()).cloned().unwrap()
     }
 
+
+
+
     // SETTERS
 
     // pub fn set_clip_widget(&mut self, entity: Entity, val: Entity) {
@@ -300,6 +310,18 @@ impl Data {
     //         *clip_widget = val;
     //     }
     // }
+
+    pub fn set_stack_first_child(&mut self, entity: Entity, value: bool) {
+        if let Some(stack_child) = self.stack_child.get_mut(entity.index_unchecked()) {
+            stack_child.0 = value;
+        }
+    }
+
+    pub fn set_stack_last_child(&mut self, entity: Entity, value: bool) {
+        if let Some(stack_child) = self.stack_child.get_mut(entity.index_unchecked()) {
+            stack_child.1 = value;
+        }
+    }
 
     pub fn set_horizontal_used_space(&mut self, entity: Entity, value: f32) {
         if let Some(horizontal_used_space) = self.horizontal_used_space.get_mut(entity.index_unchecked()) {

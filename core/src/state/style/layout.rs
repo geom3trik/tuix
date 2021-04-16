@@ -241,7 +241,7 @@ pub enum LayoutType {
 
 impl Default for LayoutType {
     fn default() -> Self {
-        Self::None
+        Self::Vertical
     }
 }
 
