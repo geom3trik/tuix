@@ -20,7 +20,7 @@ fn main() {
             builder
                 .set_width(Stretch(1.0))
                 .set_max_width(Pixels(500.0))
-                //.set_min_width(Pixels(300.0))
+                .set_min_width(Pixels(300.0))
                 .set_height(Stretch(1.0))
                 //.set_background_color(Color::rgb(60, 60, 60))
         });
@@ -339,12 +339,12 @@ fn main() {
         Slider::new()
             .with_initial_value(10.0)
             .with_range(0.0..20.0)
-            .on_changed(|val| Event::new(WindowEvent::Debug(format!("slider on_changed - {}", val))))
+            .on_change(|val| Event::new(WindowEvent::Debug(format!("slider on_changed - {}", val))))
             //.on_changing(|val| Event::new(WindowEvent::Debug(format!("slider on_changing - {}", val))))
             .on_press(Event::new(WindowEvent::Debug("slider on_press".to_owned())))
             .on_release(Event::new(WindowEvent::Debug("slider on_release".to_owned())))
-            //.on_min(|val| Event::new(WindowEvent::Debug(format!("slider on_min - {}", val))))
-            //.on_max(|val| Event::new(WindowEvent::Debug(format!("slider on_max - {}", val))))
+            .on_min(|val| Event::new(WindowEvent::Debug(format!("slider on_min - {}", val))))
+            .on_max(|val| Event::new(WindowEvent::Debug(format!("slider on_max - {}", val))))
             .on_over(Event::new(WindowEvent::Debug("slider on_over".to_owned())))
             .on_out(Event::new(WindowEvent::Debug("slider on_out".to_owned())))
 

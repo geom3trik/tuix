@@ -369,6 +369,7 @@ pub struct ScrollContainer {
 }
 
 impl ScrollContainer {
+    /// Create a new ScrollContainer widget
     pub fn new() -> Self {
         ScrollContainer {
             container: Entity::null(),
@@ -390,7 +391,10 @@ impl ScrollContainer {
 impl Widget for ScrollContainer {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row);
+        entity
+            .set_flex_direction(state, FlexDirection::Row)
+            .set_layout_type(state, LayoutType::Horizontal)
+            .set_min_height(state, Pixels(0.0));
 
         //println!("Container: {}", self.container);
 
@@ -411,6 +415,7 @@ impl Widget for ScrollContainer {
             builder
                 .set_position(Position::Absolute)
                 .set_position_type(PositioningType::SelfDirected)
+                .set_min_height(Pixels(0.0))
                 //.set_top(Units::Percentage(0.0))
                 // .set_width(Units::Pixels(10.0))
                 //.set_height(Units::Percentage(0.0))
