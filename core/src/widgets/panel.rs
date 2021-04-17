@@ -124,6 +124,7 @@ impl Widget for Panel {
                 .set_focusability(false)
                 .set_width(Stretch(1.0))
                 .set_height(Auto)
+                .set_min_height(Pixels(0.0))
         });
 
         self.container2 = Element::new().build(state, self.container1, |builder| {

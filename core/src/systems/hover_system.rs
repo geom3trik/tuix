@@ -4,7 +4,7 @@ use crate::{Display, Entity, Event, Units, PropGet, State, Visibility, WindowEve
 pub fn apply_hover(state: &mut State) {
     let mut draw_hierarchy: Vec<Entity> = state.hierarchy.into_iter().collect();
 
-    // This should be cached somewhere
+    // This should be cached somewhere probably
     draw_hierarchy.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
     let cursorx = state.mouse.cursorx;
@@ -89,6 +89,7 @@ pub fn apply_hover(state: &mut State) {
     if hovered_widget != state.hovered {
         // Useful for debugging
 
+        #[cfg(debug_assertions)]
         println!(
             "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
             hovered_widget,

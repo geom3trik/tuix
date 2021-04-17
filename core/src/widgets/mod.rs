@@ -86,18 +86,18 @@ impl BaseWidget {
     }
 }
 
-pub trait BasicWidget: Sized {
-    fn get_base_widget(&mut self) -> &mut BaseWidget;
+// pub trait BasicWidget: Sized {
+//     fn get_base_widget(&mut self) -> &mut BaseWidget;
 
-    fn on_hover(mut self, event: Event) -> Self
-    {
-        self.get_base_widget().on_hover(event);
+//     fn on_hover(mut self, event: Event) -> Self
+//     {
+//         self.get_base_widget().on_hover(event);
 
-        self
-    }
+//         self
+//     }
 
-    fn on_active(mut self, event: Event) -> Self
-    {
-        self
-    }
-}
+//     fn on_active(mut self, event: Event) -> Self
+//     {
+//         self
+//     }
+// }

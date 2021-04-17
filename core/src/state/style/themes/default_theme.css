@@ -35,6 +35,7 @@ button:active {
 panel>.container1>.container2>row {
     padding: 10px;
     align-items: center;
+    width: 1s;
 }
 
 panel>.container1 {

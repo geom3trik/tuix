@@ -19,21 +19,43 @@ pub enum Property {
     Opacity(f32),
 
     // Positioning
+    // To be removed
     Position(Position),
+
+    LayoutType(LayoutType),
+    PositioningType(PositioningType),
+
+    // Position and Size
     Left(Units),
+    Width(Units),
     Right(Units),
     Top(Units),
+    Height(Units),
     Bottom(Units),
 
-    // Size
-    Width(Units),
-    Height(Units),
-
-    // Size Constraints
+    // Constraints
+    MinLeft(Units),
+    MaxLeft(Units),
     MinWidth(Units),
-    MinHeight(Units),
     MaxWidth(Units),
+    MinRight(Units),
+    MaxRight(Units),
+
+    MinTop(Units),
+    MaxTop(Units),
+    MinHeight(Units),
     MaxHeight(Units),
+    MinBottom(Units),
+    MaxBottom(Units),
+
+    // Child Spacing
+    ChildSpace(Units),
+    ChildLeft(Units),
+    ChildRight(Units),
+    ChildTop(Units),
+    ChildBottom(Units),
+    ChildBetween(Units),
+
 
     // Margin
     Margin(Units),
@@ -88,21 +110,5 @@ pub enum Property {
 
     ZIndex(i32),
 
-    // Main Axis
-    MainBefore(Units),
-    MainSize(Units),
-    MainAfter(Units),
 
-    // Cross Axis
-    CrossBefore(Units),
-    CrossSize(Units),
-    CrossAfter(Units),
-
-    // Main Axis Align
-    ChildSpace(Units),
-    ChildLeft(Units),
-    ChildRight(Units),
-    ChildTop(Units),
-    ChildBottom(Units),
-    ChildBetween(Units),
 }

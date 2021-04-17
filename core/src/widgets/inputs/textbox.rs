@@ -153,9 +153,9 @@ impl Widget for Textbox {
                 WindowEvent::MouseDown(button) => {
                     if entity == state.hovered {
                         if self.edit == false && !entity.is_disabled(state) {
-                            self.cursor_pos = text_data.text.len() as u32;
+                            self.cursor_pos = text_data.len() as u32;
                             self.select_pos = 0;
-                            self.buffer = text_data.text.clone();
+                            self.buffer = text_data.clone();
                             state.focused = entity;
                             //state.captured = entity;
                             state.capture(entity);
@@ -180,7 +180,7 @@ impl Widget for Textbox {
                         entity.set_focus(state, false);
 
                         state.insert_event(
-                            Event::new(TextboxEvent::ValueChanged(text_data.text.clone()))
+                            Event::new(TextboxEvent::ValueChanged(text_data.clone()))
                                 .target(entity),
                         );
 
@@ -234,7 +234,7 @@ impl Widget for Textbox {
                     if *key == Some(Key::ArrowRight) {
                         if self.edit {
                             self.hitx = -1.0;
-                            if self.cursor_pos < text_data.text.len() as u32 {
+                            if self.cursor_pos < text_data.len() as u32 {
                                 self.cursor_pos += 1;
                             }
                             if !state.modifiers.shift {
@@ -258,14 +258,14 @@ impl Widget for Textbox {
                             //let end = text_data.cursor_pos as usize;
                             if start == end && self.cursor_pos > 0 {
                                 if let Some(txt) = state.style.text.get_mut(entity) {
-                                    txt.text.remove((self.cursor_pos - 1) as usize);
+                                    txt.remove((self.cursor_pos - 1) as usize);
                                 }
 
                                 self.cursor_pos -= 1;
                                 self.select_pos -= 1;
                             } else {
                                 if let Some(txt) = state.style.text.get_mut(entity) {
-                                    txt.text.replace_range(start..end, "");
+                                    txt.replace_range(start..end, "");
                                 }
                                 self.cursor_pos = start as u32;
                                 self.select_pos = start as u32;
@@ -277,7 +277,7 @@ impl Widget for Textbox {
 
                             if let Some(txt) = state.style.text.get(entity) {
                                 if let Some(on_change) = &self.on_change {
-                                    let mut event = (on_change)(&txt.text);
+                                    let mut event = (on_change)(&txt);
 
                                     if !event.target {
                                         event.target = entity;
@@ -298,12 +298,12 @@ impl Widget for Textbox {
                         if self.edit {
                             //text_data.buffer = text_data.text.clone();
                             state.insert_event(
-                                Event::new(TextboxEvent::ValueChanged(text_data.text.clone()))
+                                Event::new(TextboxEvent::ValueChanged(text_data.clone()))
                                     .target(entity),
                             );
 
                             if let Some(on_submit) = &self.on_submit {
-                                let mut event = (on_submit)(&text_data.text.clone());
+                                let mut event = (on_submit)(&text_data.clone());
 
                                 if !event.target {
                                     event.target = entity;
@@ -354,7 +354,7 @@ impl Widget for Textbox {
                             //let end = text_data.cursor_pos as usize;
                             if start == end {
                                 if let Some(txt) = state.style.text.get_mut(entity) {
-                                    txt.text.insert(start, *input);
+                                    txt.insert(start, *input);
                                 }
 
                                 //text_data.text.remove((text_data.cursor_pos - 1) as usize);
@@ -362,7 +362,7 @@ impl Widget for Textbox {
                                 self.select_pos += 1;
                             } else {
                                 if let Some(txt) = state.style.text.get_mut(entity) {
-                                    txt.text.replace_range(start..end, &input.to_string());
+                                    txt.replace_range(start..end, &input.to_string());
                                 }
                                 self.cursor_pos = (start + 1) as u32;
                                 self.select_pos = (start + 1) as u32;
@@ -370,7 +370,7 @@ impl Widget for Textbox {
 
                             if let Some(txt) = state.style.text.get(entity) {
                                 if let Some(on_change) = &self.on_change {
-                                    let mut event = (on_change)(&txt.text);
+                                    let mut event = (on_change)(&txt);
 
                                     if !event.target {
                                         event.target = entity;
@@ -811,7 +811,10 @@ impl Widget for Textbox {
         canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
 
         if let Some(text) = state.style.text.get_mut(entity) {
-            let font_id = match text.font.as_ref() {
+
+            let font = state.style.font.get(entity).cloned().unwrap_or_default();
+
+            let font_id = match font.as_ref() {
                 "sans" => state.fonts.regular.unwrap(),
                 "icons" => state.fonts.icons.unwrap(),
                 _ => state.fonts.regular.unwrap(),
@@ -820,7 +823,7 @@ impl Widget for Textbox {
             let mut x = posx;
             let mut y = posy;
 
-            let text_string = text.text.to_owned();
+            let text_string = text.to_owned();
 
             let text_align = state
                 .style
@@ -901,7 +904,7 @@ impl Widget for Textbox {
                             self.select_pos = 0;
                             startx
                         } else {
-                            self.select_pos = text.text.len() as u32;
+                            self.select_pos = text.len() as u32;
                             endx
                         };
 
@@ -909,7 +912,7 @@ impl Widget for Textbox {
                             self.cursor_pos = 0;
                             startx
                         } else {
-                            self.cursor_pos = text.text.len() as u32;
+                            self.cursor_pos = text.len() as u32;
                             endx
                         };
 
@@ -973,11 +976,11 @@ impl Widget for Textbox {
                             n += 1;
                         }
 
-                        if self.cursor_pos as usize == text.text.len() && text.text.len() != 0 {
+                        if self.cursor_pos as usize == text.len() && text.len() != 0 {
                             caretx = endx;
                         }
 
-                        if self.select_pos as usize == text.text.len() && text.text.len() != 0 {
+                        if self.select_pos as usize == text.len() && text.len() != 0 {
                             selectx = endx;
                         }
                     }

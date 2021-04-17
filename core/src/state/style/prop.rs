@@ -592,26 +592,16 @@ impl PropSet for Entity {
 
     // Tooltip
     fn set_tooltip(self, state: &mut State, value: &str) -> Self {
-        state.style.tooltip.insert(self, value.to_string());
+        state.style.tooltip.insert(self, value.to_owned());
 
         self
     }
 
     // Text
     fn set_text(self, state: &mut State, value: &str) -> Self {
-        if let Some(data) = state.style.text.get_mut(self) {
-            data.text = value.to_string();
-        } else {
-            state.style.text.insert(
-                self,
-                Text {
-                    text: value.to_string(),
-                    ..Default::default()
-                },
-            );
-        }
 
-        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.style.text.insert(self, value.to_owned());
+
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
@@ -619,17 +609,8 @@ impl PropSet for Entity {
 
     // Text Font
     fn set_font(self, state: &mut State, value: &str) -> Self {
-        if let Some(data) = state.style.text.get_mut(self) {
-            data.font = value.to_string();
-        } else {
-            state.style.text.insert(
-                self,
-                Text {
-                    font: value.to_string(),
-                    ..Default::default()
-                },
-            );
-        }
+
+        state.style.font.insert(self, value.to_owned());
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -979,6 +960,7 @@ pub trait PropGet {
 
     // Text
     fn get_text(&self, state: &mut State) -> String;
+    fn get_font(&self, state: &mut State) -> String;
 }
 
 impl PropGet for Entity {
@@ -1257,6 +1239,14 @@ impl PropGet for Entity {
             .get(*self)
             .cloned()
             .unwrap_or_default()
-            .text
+    }
+
+    fn get_font(&self, state: &mut State) -> String {
+        state
+            .style
+            .font
+            .get(*self)
+            .cloned()
+            .unwrap_or_default()
     }
 }

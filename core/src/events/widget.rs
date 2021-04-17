@@ -461,7 +461,10 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
-            let font_id = match text.font.as_ref() {
+
+            let font = state.style.font.get(entity).cloned().unwrap_or_default();
+
+            let font_id = match font.as_ref() {
                 "sans" => state.fonts.regular.unwrap(),
                 "icons" => state.fonts.icons.unwrap(),
                 "emoji" => state.fonts.emoji.unwrap(),
@@ -475,7 +478,7 @@ pub trait Widget: std::marker::Sized + 'static {
             let mut x = 0.0;
             let mut y = 0.0;
 
-            let text_string = text.text.to_owned();
+            let text_string = text.to_owned();
 
             let text_align = state
                 .style

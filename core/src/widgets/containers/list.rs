@@ -62,7 +62,7 @@ impl ResizableColumn {
 
 impl Widget for ResizableColumn {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
             //.set_width(state, Units::Pixels(300.0))
             //.set_max_width(state, Units::Pixels(500.0))

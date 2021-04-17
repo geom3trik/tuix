@@ -437,7 +437,10 @@ pub(crate) trait EventHandler: Any {
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
-            let font_id = match text.font.as_ref() {
+
+            let font = state.style.font.get(entity).cloned().unwrap_or_default();
+
+            let font_id = match text.as_ref() {
                 "sans" => state.fonts.regular.unwrap(),
                 "icons" => state.fonts.icons.unwrap(),
                 "emoji" => state.fonts.emoji.unwrap(),
@@ -451,7 +454,7 @@ pub(crate) trait EventHandler: Any {
             let mut x = 0.0;
             let mut y = 0.0;
 
-            let text_string = text.text.to_owned();
+            let text_string = text.to_owned();
 
             let text_align = state
                 .style

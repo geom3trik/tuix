@@ -26,6 +26,8 @@ pub use flexbox::*;
 pub mod layout;
 pub use layout::*;
 
+pub mod units;
+pub use units::Units;
 pub use Units::*;
 // pub mod Units;
 // pub use Units::*;
@@ -175,12 +177,15 @@ pub struct Style {
     pub inner_shadow_blur: AnimatableStorage<Units>,
     pub inner_shadow_color: AnimatableStorage<Color>,
 
-    //Text Properties
-    pub text: DenseStorage<Text>,
+    //Text & Font
+    pub text: DenseStorage<String>,
+    pub font: DenseStorage<String>,
+    pub font_color: AnimatableStorage<Color>,
+    pub font_size: AnimatableStorage<f32>,    
+
     pub tooltip: DenseStorage<String>,
 
-    pub font_color: AnimatableStorage<Color>,
-    pub font_size: AnimatableStorage<f32>,
+
 
     pub text_align: StyleStorage<Align>,
     pub text_justify: StyleStorage<Justify>,

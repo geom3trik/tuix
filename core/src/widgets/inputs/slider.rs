@@ -16,23 +16,25 @@ pub struct Slider {
     active: Entity,
     thumb: Entity,
     sliding: bool,
-    // Event sent when the slider value has changed
+    /// Event sent when the slider value has changed
     on_changed: Option<Box<dyn Fn(f32) -> Event>>,
-    // event sent when the slider value is changing
+    /// event sent when the slider value is changing
     on_changing: Option<Box<dyn Fn(f32) -> Event>>,
-    // Event sent when the slider reaches the minimum value
+    /// Event sent when the slider reaches the minimum value
     on_min: Option<Box<dyn Fn(f32) -> Event>>,
-    // Event sent when the slider reaches the maximum value
+    /// Event sent when the slider reaches the maximum value
     on_max: Option<Box<dyn Fn(f32) -> Event>>,
-    // Event sent when the slider is activated
-    on_active: Option<Event>,
-    // Event sent when the mouse cursor enters the slider
+    /// Event sent when the slider is pressed
+    on_press: Option<Event>,
+    /// Event sent when the slider is released
+    on_release: Option<Event>,
+    /// Event sent when the mouse cursor enters the slider
     on_over: Option<Event>,
-    // Event sent when the mouse cusor leaves the slider
+    /// Event sent when the mouse cusor leaves the slider
     on_out: Option<Event>,
 
     value: f32,
-
+    prev: f32,
     min: f32,
     max: f32,
     div: f32,
@@ -49,11 +51,13 @@ impl Default for Slider {
             on_changing: None,
             on_min: None,
             on_max: None,
-            on_active: None,
+            on_press: None,
+            on_release: None,
             on_over: None,
             on_out: None,
 
             value: 0.0,
+            prev: 0.0,
             min: 0.0,
             max: 1.0,
             div: 0.01,
@@ -66,7 +70,7 @@ impl Slider {
         Self::default()
     }
 
-    /// Sets the event generating closure that will be called when the slider value has changed
+    /// Set the event sent when the slider value has changed
     pub fn on_changed<F>(mut self, message: F) -> Self
     where
         F: 'static + Fn(f32) -> Event,
@@ -75,6 +79,7 @@ impl Slider {
         self
     }
 
+    /// Set the event sent when the slider value is changing (dragging)
     pub fn on_changing<F>(mut self, message: F) -> Self
     where
         F: 'static + Fn(f32) -> Event,
@@ -83,13 +88,27 @@ impl Slider {
         self
     }
 
-    pub fn on_active(mut self, event: Event) -> Self {
-        self.on_active = Some(event);
+    /// Set the event sent when the slider is pressed
+    pub fn on_press(mut self, event: Event) -> Self {
+        self.on_press = Some(event);
         self
     }
 
+    /// Set the event sent when the slider is released
+    pub fn on_release(mut self, event: Event) -> Self {
+        self.on_release = Some(event);
+        self
+    }
+
+    /// Set the event sent when the mouse cursor enters the slider
     pub fn on_over(mut self, event: Event) -> Self {
         self.on_over = Some(event);
+        self
+    }
+
+    /// Set the event sent when the mouse cursor leaves the slider
+    pub fn on_out(mut self, event: Event) -> Self {
+        self.on_out = Some(event);
         self
     }
 
@@ -116,9 +135,33 @@ impl Slider {
         self
     }
 
+    // TODO
     pub fn with_divisions(mut self, val: f32) -> Self {
         self.div = val;
         self
+    }
+
+    fn update_visuals(&mut self, state: &mut State, entity: Entity) {
+        let width = state.data.get_width(entity);
+        let thumb_width = state.data.get_width(self.thumb);
+
+        let normalised_value = self.value / (self.max - self.min);
+
+        let mut dx = normalised_value * (width - thumb_width) + thumb_width / 2.0;
+
+        if dx <= thumb_width / 2.0 {
+            dx = thumb_width / 2.0;
+        }
+        if dx >= width - thumb_width / 2.0 {
+            dx = width - thumb_width / 2.0;
+        }
+
+        let nx = (dx - thumb_width / 2.0) / (width - thumb_width);
+
+        self.thumb
+            .set_left(state, Units::Percentage((dx - thumb_width / 2.0) / width));
+
+        self.active.set_width(state, Units::Percentage(nx));
     }
 }
 
@@ -172,22 +215,7 @@ impl Widget for Slider {
             match window_event {
                 WindowEvent::GeometryChanged(_) => {
                     if event.target == entity {
-                        let width = state.data.get_width(entity);
-                        let thumb_width = state.data.get_width(self.thumb);
-
-                        let normalised_value = self.value / (self.max - self.min);
-
-                        let mut dx = normalised_value * (width - thumb_width) + thumb_width / 2.0;
-
-                        if dx <= thumb_width / 2.0 {
-                            dx = thumb_width / 2.0;
-                        }
-                        if dx >= width - thumb_width / 2.0 {
-                            dx = width - thumb_width / 2.0;
-                        }
-
-                        self.thumb
-                            .set_left(state, Units::Percentage((dx - thumb_width / 2.0) / width));
+                        self.update_visuals(state, entity);
                     }
                 }
 
@@ -226,9 +254,11 @@ impl Widget for Slider {
                         self.sliding = true;
                         state.capture(entity);
 
+                        self.prev = self.value;
+
                         entity.set_active(state, true);
 
-                        if let Some(mut on_active) = self.on_active.clone() {
+                        if let Some(mut on_active) = self.on_press.clone() {
                             on_active.origin = entity;
 
                             if on_active.target == Entity::null() {
@@ -253,16 +283,14 @@ impl Widget for Slider {
 
                         let nx = (dx - thumb_width / 2.0) / (width - thumb_width);
 
-                        let v = self.min + nx * (self.max - self.min);
-
-                        self.value = v;
+                        self.value = self.min + nx * (self.max - self.min);
 
                         self.active.set_width(state, Units::Percentage(nx));
                         self.thumb
                             .set_left(state, Units::Pixels(dx - thumb_width / 2.0));
 
                         if let Some(on_changing) = &self.on_changing {
-                            let mut on_changing_event = (on_changing)(v);
+                            let mut on_changing_event = (on_changing)(self.value);
                             on_changing_event.origin = entity;
 
                             if on_changing_event.target == Entity::null() {
@@ -272,7 +300,7 @@ impl Widget for Slider {
                             state.insert_event(on_changing_event);
                         }
 
-                        state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));
+                        state.insert_event(Event::new(SliderEvent::ValueChanged(self.value)).target(entity));
                     }
                 }
 
@@ -281,15 +309,27 @@ impl Widget for Slider {
                         self.sliding = false;
                         state.release(entity);
 
-                        if let Some(on_changed) = &self.on_changed {
-                            let mut on_changed_event = (on_changed)(self.value);
-                            on_changed_event.origin = entity;
+                        if self.prev != self.value {
+                            if let Some(on_changed) = &self.on_changed {
+                                let mut on_changed_event = (on_changed)(self.value);
+                                on_changed_event.origin = entity;
 
-                            if on_changed_event.target == Entity::null() {
-                                on_changed_event.target = entity;
+                                if on_changed_event.target == Entity::null() {
+                                    on_changed_event.target = entity;
+                                }
+
+                                state.insert_event(on_changed_event);
+                            }                            
+                        }
+
+                        if let Some(mut on_release) = self.on_release.clone() {
+                            on_release.origin = entity;
+
+                            if on_release.target == Entity::null() {
+                                on_release.target = entity;
                             }
 
-                            state.insert_event(on_changed_event);
+                            state.insert_event(on_release);
                         }
 
                     }
@@ -311,17 +351,15 @@ impl Widget for Slider {
 
                         let nx = (dx - thumb_width / 2.0) / (width - thumb_width);
 
-                        let v = self.min + nx * (self.max - self.min);
+                        self.value = self.min + nx * (self.max - self.min);
 
                         self.active.set_width(state, Units::Percentage(nx));
 
                         self.thumb
                             .set_left(state, Units::Percentage((dx - thumb_width / 2.0) / width));
 
-                        self.value = v;
-
                         if let Some(on_changing) = &self.on_changing {
-                            let mut on_changing_event = (on_changing)(v);
+                            let mut on_changing_event = (on_changing)(self.value);
                             on_changing_event.origin = entity;
 
                             if on_changing_event.target == Entity::null() {
@@ -331,7 +369,7 @@ impl Widget for Slider {
                             state.insert_event(on_changing_event);
                         }
 
-                        state.insert_event(Event::new(SliderEvent::ValueChanged(v)).target(entity));
+                        state.insert_event(Event::new(SliderEvent::ValueChanged(self.value)).target(entity));
                     }
                 }
 

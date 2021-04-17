@@ -15,30 +15,17 @@ fn main() {
 
         window.set_min_inner_size(300, 300);
 
-        // // Menu bar
-        // let menu_bar = Element::new().build(state, window, |builder| {
-        //     builder.class("menu_bar").set_height(Pixels(40.0))
-        // });
-
-        // Horizontal Container
-        // let row = Row::new().build(state, window.entity(), |builder| 
-        // builder
-        //     .set_width(Stretch(1.0))
-        //     .set_height(Stretch(1.0))
-        // );
-
         // Resizable Vertical Container
         let rcolumn = ResizableColumn::new().build(state, window.entity(), |builder| {
             builder
                 .set_width(Stretch(1.0))
                 .set_max_width(Pixels(500.0))
-                .set_min_width(Pixels(300.0))
+                //.set_min_width(Pixels(300.0))
                 .set_height(Stretch(1.0))
                 //.set_background_color(Color::rgb(60, 60, 60))
         });
 
         let scroll = ScrollContainer::new().build(state, rcolumn, |builder| builder);
-
 
         // BUTTONS PANEL
         let panel = Panel::new("Buttons").build(state, scroll, |builder| 
@@ -49,7 +36,7 @@ fn main() {
         panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
 
         // // BUTTON
-        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder);
         Label::new("Button").build(state, row, |builder| 
             builder
                 .set_height(Pixels(30.0))
@@ -58,7 +45,6 @@ fn main() {
         Button::with_label("Press Me").build(state, row, |builder| {
             builder
                 // .set_height(Pixels(30.0))
-                .set_flex_grow(1.0)
         });
 
         // // CHECKBUTTON
@@ -83,12 +69,12 @@ fn main() {
 
 
         // TEXTBOX
-        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder);
         Label::new("Textbox").build(state, row, |builder| builder);
         Textbox::new("Some Text").build(state, row, |builder| builder);
 
         // SPINNER
-        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder);
         Label::new("Spinner").build(state, row, |builder| builder);
         Spinbox::new(100)
             .with_min(95)
@@ -106,11 +92,11 @@ fn main() {
         //
 
         // LISTS PANEL
-        let panel = Panel::new("Check Button Lists").build(state, scroll, |builder| builder.set_width(Stretch(1.0)));
+        let panel = Panel::new("Check Button Lists").build(state, scroll, |builder| builder);
 
         panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
         // LIST
-        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder);
         Label::new("List").build(state, row, |builder| builder);
         let list = List::new().build(state, row, |builder| 
             builder
@@ -137,13 +123,12 @@ fn main() {
         });
 
         // MULTILIST
-        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder);
         Label::new("Multilist").build(state, row, |builder| builder);
         let list = List::new()
             .set_multi()
             .build(state, row, |builder| 
                 builder
-                    .set_flex_grow(1.0)
                     .set_width(Stretch(1.0))
                     .set_height(Auto)
             );
@@ -172,26 +157,27 @@ fn main() {
         panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
 
         // DROPDOWN LIST
-        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder);
         Label::new("List").build(state, row, |builder| builder);
         let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| {
             builder.set_height(Pixels(30.0)).set_width(Stretch(1.0))
         });
-        let list = List::new().build(state, popup, |builder| builder
-            .set_flex_grow(1.0)
-        );
-        CheckButton::new(true).build(state, list, |builder| {
-            builder
-                .set_text("Option 1")
-                .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
-        });
-        CheckButton::new(false).build(state, list, |builder| {
-            builder
-                .set_text("Option 2")
-                .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
-        });
+        let list = List::new()
+            .build(state, popup, |builder| builder);
+        CheckButton::new(true)
+            .build(state, list, |builder| {
+                builder
+                    .set_text("Option 1")
+                    .set_height(Pixels(30.0))
+                    .set_padding_left(Pixels(5.0))
+            });
+        CheckButton::new(false)
+            .build(state, list, |builder| {
+                builder
+                    .set_text("Option 2")
+                    .set_height(Pixels(30.0))
+                    .set_padding_left(Pixels(5.0))
+            });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 3")
@@ -200,16 +186,16 @@ fn main() {
         });
 
         // DROPDOWN MULTILIST
-        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        let row = Row::new().build(state, panel, |builder| builder);
         Label::new("Multilist").build(state, row, |builder| builder);
         let (_, _, popup) = Dropdown::new("Dropdown")
             .set_multi()
             .build(state, row, |builder| {
-                builder.set_height(Pixels(30.0)).set_flex_grow(1.0)
+                builder.set_height(Pixels(30.0))
             });
         let list = List::new()
             .set_multi()
-            .build(state, popup, |builder| builder.set_flex_grow(1.0));
+            .build(state, popup, |builder| builder);
         CheckButton::new(true).build(state, list, |builder| {
             builder
                 .set_text("Option 1")
@@ -351,12 +337,17 @@ fn main() {
         let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
         Label::new("Slider").build(state, row, |builder| builder);
         Slider::new()
+            .with_initial_value(10.0)
             .with_range(0.0..20.0)
             .on_changed(|val| Event::new(WindowEvent::Debug(format!("slider on_changed - {}", val))))
-            .on_changing(|val| Event::new(WindowEvent::Debug(format!("slider on_changing - {}", val))))
+            //.on_changing(|val| Event::new(WindowEvent::Debug(format!("slider on_changing - {}", val))))
+            .on_press(Event::new(WindowEvent::Debug("slider on_press".to_owned())))
+            .on_release(Event::new(WindowEvent::Debug("slider on_release".to_owned())))
             //.on_min(|val| Event::new(WindowEvent::Debug(format!("slider on_min - {}", val))))
             //.on_max(|val| Event::new(WindowEvent::Debug(format!("slider on_max - {}", val))))
             .on_over(Event::new(WindowEvent::Debug("slider on_over".to_owned())))
+            .on_out(Event::new(WindowEvent::Debug("slider on_out".to_owned())))
+
             .build(state, row, |builder| 
                 builder
                     .set_flex_grow(1.0)

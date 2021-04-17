@@ -106,17 +106,15 @@ impl<'a> Builder<'a> {
 
     // Sets the text displayed within the entity
     pub fn set_text(mut self, val: &str) -> Self {
-        if let Some(text) = self.state.style.text.get_mut(self.entity) {
-            text.text = val.to_string();
-        } else {
-            self.state.style.text.insert(
-                self.entity,
-                Text {
-                    text: val.to_string(),
-                    ..Default::default()
-                },
-            );
-        }
+
+        self.state.style.text.insert(self.entity, val.to_owned());
+
+        self
+    }
+
+    pub fn set_font(mut self, val: &str) -> Self {
+
+        self.state.style.font.insert(self.entity, val.to_owned());
 
         self
     }
@@ -550,23 +548,6 @@ impl<'a> Builder<'a> {
         self
     }
 
-
-
-    pub fn set_font(mut self, value: &str) -> Self {
-        if let Some(data) = self.state.style.text.get_mut(self.entity) {
-            data.font = value.to_string();
-        } else {
-            self.state.style.text.insert(
-                self.entity,
-                Text {
-                    font: value.to_string(),
-                    ..Default::default()
-                },
-            );
-        }
-
-        self
-    }
     pub fn set_color(mut self, value: Color) -> Self {
         self.state.style.font_color.insert(self.entity, value);
 
