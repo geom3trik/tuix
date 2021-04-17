@@ -112,12 +112,14 @@ impl Slider {
         self
     }
 
+    /// Set the initial value of the slider
     pub fn with_initial_value(mut self, val: f32) -> Self {
         self.value = val;
 
         self
     }
 
+    /// Set the range of the slider. Min and Max values are extracted from the range
     pub fn with_range(mut self, range: std::ops::Range<f32>) -> Self {
         self.min = range.start;
         self.max = range.end;
@@ -125,21 +127,23 @@ impl Slider {
         self
     }
 
+    /// Set the min value of the slider
     pub fn with_min(mut self, val: f32) -> Self {
         self.min = val;
         self
     }
 
+    /// Set the max value of the slider
     pub fn with_max(mut self, val: f32) -> Self {
         self.max = val;
         self
     }
 
     // TODO
-    pub fn with_divisions(mut self, val: f32) -> Self {
-        self.div = val;
-        self
-    }
+    // pub fn with_divisions(mut self, val: f32) -> Self {
+    //     self.div = val;
+    //     self
+    // }
 
     fn update_visuals(&mut self, state: &mut State, entity: Entity) {
         let width = state.data.get_width(entity);
@@ -200,10 +204,6 @@ impl Widget for Slider {
                     .class("thumb")
             },
         );
-
-        // TEMP
-        self.thumb.set_left(state, Units::Percentage(0.0));
-        self.active.set_width(state, Units::Percentage(self.value));
 
         state.style.insert_element(entity, "slider");
 
