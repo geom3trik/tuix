@@ -84,7 +84,7 @@ impl Widget for Panel {
             .on_release(Event::new(PanelEvent::Open).target(entity))
             .build(state, entity, |builder| {
                 builder
-                    .set_layout_type(LayoutType::Horizontal)
+                    .set_layout_type(LayoutType::Row)
                     //.set_flex_direction(FlexDirection::Row)
                     .class("header")
             });

@@ -4,7 +4,7 @@ use tuix::*;
 fn main() {
     let app = Application::new(|state, window| {
         
-        state.style.layout_type.insert(window.entity(), LayoutType::Vertical);
+        state.style.layout_type.insert(window.entity(), LayoutType::Column);
         window.set_child_top(state, Stretch(1.0)).set_child_bottom(state, Stretch(1.0));
 
         let one = Element::new().build(state, window.entity(), |builder| 

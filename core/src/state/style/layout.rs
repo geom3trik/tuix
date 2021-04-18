@@ -157,14 +157,14 @@ impl Default for AxisAlign {
 #[derive(Debug, Clone, PartialEq)]
 pub enum LayoutType {
     None,
-    Horizontal,
-    Vertical,
+    Row,
+    Column,
     Grid,
 }
 
 impl Default for LayoutType {
     fn default() -> Self {
-        Self::Vertical
+        Self::Column
     }
 }
 

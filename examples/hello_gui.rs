@@ -14,7 +14,7 @@ fn main() {
         // Add the shared style rule to state
         state.add_style_rule(style_rule);
 
-        state.style.layout_type.insert(window.entity(), LayoutType::Vertical);
+        state.style.layout_type.insert(window.entity(), LayoutType::Column);
 
         let container = Element::new().build(state, window.entity(), |builder| 
             builder
@@ -23,7 +23,7 @@ fn main() {
                 .set_right(Stretch(1.0))
                 .set_top(Stretch(1.0))
                 .set_bottom(Stretch(1.0))
-                .set_layout_type(LayoutType::Vertical)
+                .set_layout_type(LayoutType::Column)
                 .class("my_class")
         );
 
@@ -48,7 +48,7 @@ fn main() {
         
 //         window.set_title("Custom Title").set_inner_size(300,300);
 
-//         state.style.layout_type.insert(window.entity(), LayoutType::Vertical);
+//         state.style.layout_type.insert(window.entity(), LayoutType::Column);
 
 //         Button::new().build(state, window.entity(), |builder| 
 //             builder

@@ -143,11 +143,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             Units::Auto => {
                 //println!("{} Auto", child);
                 match child_layout_type {
-                    LayoutType::Vertical => {
+                    LayoutType::Column => {
                         state.data.get_child_max(*child) + 2.0 * child_border_width
                     }
 
-                    LayoutType::Horizontal => {
+                    LayoutType::Row => {
                         state.data.get_child_sum(*child) + 2.0 * child_border_width
                     }
 
@@ -173,11 +173,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
             Units::Auto => {
                 match child_layout_type {
-                    LayoutType::Vertical => {
+                    LayoutType::Column => {
                         state.data.get_child_sum(*child) + 2.0 * child_border_width
                     }
 
-                    LayoutType::Horizontal => {
+                    LayoutType::Row => {
                         state.data.get_child_max(*child) + 2.0 * child_border_width
                     }
 
@@ -191,7 +191,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
         // Parent overrides
         match parent_layout_type {
-            LayoutType::Vertical => {
+            LayoutType::Column => {
                 if state.data.get_stack_child(*child).0 {
                     if top == Units::Auto {
                         top = child_top.clone();
@@ -219,7 +219,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
             }
 
-            LayoutType::Horizontal => {
+            LayoutType::Row => {
                 if state.data.get_stack_child(*child).0 {
                     if left == Units::Auto {
                         left = child_left.clone();
@@ -277,11 +277,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
             Units::Auto | Units::Stretch(_) => {
                 match child_layout_type {
-                    LayoutType::Vertical => {
+                    LayoutType::Column => {
                         new_width = state.data.get_child_max(*child) + 2.0 * child_border_width;
                     }
 
-                    LayoutType::Horizontal => {
+                    LayoutType::Row => {
                         new_width = state.data.get_child_sum(*child) + 2.0 * child_border_width;
                     }
 
@@ -320,11 +320,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
             Units::Auto | Units::Stretch(_) => {
                 match child_layout_type {
-                    LayoutType::Vertical => {
+                    LayoutType::Column => {
                         new_height = state.data.get_child_sum(*child) + 2.0 * child_border_width;
                     }
 
-                    LayoutType::Horizontal => {
+                    LayoutType::Row => {
                         new_height = state.data.get_child_max(*child) + 2.0 * child_border_width;
                         
                     }
@@ -359,17 +359,17 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         //     _=> {}
         // } 
 
-        //println!("{} horizontal used space {}", child, horizontal_used_space);
+        //println!("{} Row used space {}", child, horizontal_used_space);
 
         match parent_layout_type {
-            LayoutType::Vertical => {
+            LayoutType::Column => {
                 if child_positioning_type == PositioningType::ParentDirected {
                     state.data.set_child_sum(parent, state.data.get_child_sum(parent) + vertical_used_space);
                     state.data.set_child_max(parent, horizontal_used_space.max(state.data.get_child_max(parent)));
                 }
             }
 
-            LayoutType::Horizontal => {
+            LayoutType::Row => {
                 if child_positioning_type == PositioningType::ParentDirected {
                     state.data.set_child_sum(parent, state.data.get_child_sum(parent) + horizontal_used_space);
                     state.data.set_child_max(parent, vertical_used_space.max(state.data.get_child_max(parent)));
@@ -407,11 +407,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         let parent_height = state.data.get_height(parent) - 2.0 * parent_border_width;
 
         let (parent_main, parent_cross ) = match parent_layout_type {
-            LayoutType::Vertical => {
+            LayoutType::Column => {
                 (parent_height, parent_width)
             }
 
-            LayoutType::Horizontal | LayoutType::Grid | LayoutType::None => {
+            LayoutType::Row | LayoutType::Grid | LayoutType::None => {
                 (parent_width, parent_height)
             }
         };
@@ -420,7 +420,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         let mut main_stretch_sum: f32 = 0.0;
 
         match parent_layout_type {
-            LayoutType::Horizontal | LayoutType::Vertical => {
+            LayoutType::Row | LayoutType::Column => {
 
                 let mut horizontal_axis = Vec::new();
                 let mut vertical_axis = Vec::new();
@@ -458,7 +458,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                     // Parent overrides
                     match parent_layout_type {
-                        LayoutType::Vertical => {
+                        LayoutType::Column => {
                             if state.data.get_stack_child(child).0 {
                                 if top == Units::Auto {
                                     top = child_top.clone();
@@ -486,7 +486,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         }
 
-                        LayoutType::Horizontal => {
+                        LayoutType::Row => {
                             if state.data.get_stack_child(child).0 {
                                 if left == Units::Auto {
                                     left = child_left.clone();
@@ -553,11 +553,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         Units::Auto => {
                             //println!("{} Auto", child);
                             match child_layout_type {
-                                LayoutType::Vertical => {
+                                LayoutType::Column => {
                                     state.data.get_child_max(child) + 2.0 * child_border_width
                                 }
             
-                                LayoutType::Horizontal => {
+                                LayoutType::Row => {
                                     state.data.get_child_sum(child) + 2.0 * child_border_width
                                 }
             
@@ -583,11 +583,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             
                         Units::Auto => {
                             match child_layout_type {
-                                LayoutType::Vertical => {
+                                LayoutType::Column => {
                                     state.data.get_child_sum(child) + 2.0 * child_border_width
                                 }
             
-                                LayoutType::Horizontal => {
+                                LayoutType::Row => {
                                     state.data.get_child_max(child) + 2.0 * child_border_width
                                 }
             
@@ -636,11 +636,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         Units::Auto => {
                             match child_layout_type {
-                                LayoutType::Vertical => {
+                                LayoutType::Column => {
                                     new_width = state.data.get_child_max(child) + 2.0 * child_border_width;
                                 }
 
-                                LayoutType::Horizontal => {
+                                LayoutType::Row => {
                                     new_width = state.data.get_child_sum(child) + 2.0 * child_border_width;
                                 }
 
@@ -711,12 +711,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         Units::Auto => {
                         
                             match child_layout_type {
-                                LayoutType::Vertical => {
+                                LayoutType::Column => {
                                     
                                     new_height = state.data.get_child_sum(child) + 2.0 * child_border_width;
                                 }
 
-                                LayoutType::Horizontal => {
+                                LayoutType::Row => {
                                     new_height = state.data.get_child_max(child) + 2.0 * child_border_width;
                                     
                                 }
@@ -768,7 +768,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     state.data.set_vertical_stretch_sum(child, vertical_stretch_sum);
 
                     match parent_layout_type {
-                        LayoutType::Vertical => {
+                        LayoutType::Column => {
                             if child_positioning_type == PositioningType::SelfDirected {
                                 vertical_used_space = 0.0;
                                 vertical_stretch_sum = 0.0;
@@ -779,7 +779,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                             cross_free_space = parent_cross - horizontal_used_space;
                         }
 
-                        LayoutType::Horizontal => {
+                        LayoutType::Row => {
                             if child_positioning_type == PositioningType::SelfDirected {
                                 horizontal_used_space = 0.0;
                                 horizontal_stretch_sum = 0.0;
@@ -809,7 +809,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 let mut vertical_stretch_sum = 0.0;
                 let mut vertical_free_space = 0.0;
 
-                // Calculate flexible horizontal space & size 
+                // Calculate flexible Row space & size 
                 for (child, value, min_value, max_value, variant) in horizontal_axis.iter() {
 
                     let cross_stretch_sum = state.data.get_cross_stretch_sum(*child);
@@ -825,12 +825,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         PositioningType::ParentDirected => {
                             match parent_layout_type {
-                                LayoutType::Vertical => {
+                                LayoutType::Column => {
                                     horizontal_stretch_sum = cross_stretch_sum;
                                     horizontal_free_space = cross_free_space;
                                 }
 
-                                LayoutType::Horizontal => {
+                                LayoutType::Row => {
                                     horizontal_free_space = main_free_space;
                                     horizontal_stretch_sum = main_stretch_sum;
                                 }
@@ -870,12 +870,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         PositioningType::ParentDirected => {
                             match parent_layout_type {
-                                LayoutType::Vertical => {
+                                LayoutType::Column => {
                                     state.data.set_cross_stretch_sum(*child, horizontal_stretch_sum - value);
                                     state.data.set_cross_free_space(*child, horizontal_free_space - new_value);
                                 }
 
-                                LayoutType::Horizontal => {
+                                LayoutType::Row => {
                                     main_free_space -= new_value;
                                     main_stretch_sum -= value;
                                 }
@@ -889,7 +889,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                 }
 
-                // Calculate flexible vertical space & size 
+                // Calculate flexible Column space & size 
                 for (child, value, min_value, max_value, variant) in vertical_axis.iter() {
                     let cross_stretch_sum = state.data.get_cross_stretch_sum(*child);
                     let cross_free_space = state.data.get_cross_free_space(*child);
@@ -905,12 +905,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         PositioningType::ParentDirected => {
                             match parent_layout_type {
-                                LayoutType::Horizontal => {
+                                LayoutType::Row => {
                                     vertical_stretch_sum = cross_stretch_sum;
                                     vertical_free_space = cross_free_space;
                                 }
 
-                                LayoutType::Vertical => {
+                                LayoutType::Column => {
                                     vertical_free_space = main_free_space;
                                     vertical_stretch_sum = main_stretch_sum;
                                 }
@@ -948,12 +948,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         PositioningType::ParentDirected => {
                             match parent_layout_type {
-                                LayoutType::Horizontal => {
+                                LayoutType::Row => {
                                     state.data.set_cross_stretch_sum(*child, vertical_stretch_sum - value);
                                     state.data.set_cross_free_space(*child, vertical_free_space - new_value);
                                 }
 
-                                LayoutType::Vertical => {
+                                LayoutType::Column => {
                                     main_free_space -= new_value;
                                     main_stretch_sum -= value;
                                 }
@@ -1001,11 +1001,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                             let new_posy = parent_posy + current_posy + space.top;
 
                             match parent_layout_type {
-                                LayoutType::Vertical => {
+                                LayoutType::Column => {
                                     current_posy += space.top + height + space.bottom;
                                 }
 
-                                LayoutType::Horizontal => {
+                                LayoutType::Row => {
                                     current_posx += space.left + width + space.right;
                                 }
 

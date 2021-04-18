@@ -465,11 +465,11 @@ impl Style {
                         self.flex_direction.insert_rule(rule_id, value);
                         match value {
                             FlexDirection::Column => {
-                                self.layout_type.insert_rule(rule_id, LayoutType::Vertical);
+                                self.layout_type.insert_rule(rule_id, LayoutType::Column);
                             }
 
                             FlexDirection::Row => {
-                                self.layout_type.insert_rule(rule_id, LayoutType::Horizontal);
+                                self.layout_type.insert_rule(rule_id, LayoutType::Column);
                             }
 
                             _=> {}

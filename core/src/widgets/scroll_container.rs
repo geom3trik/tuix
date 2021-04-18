@@ -393,7 +393,7 @@ impl Widget for ScrollContainer {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_flex_direction(state, FlexDirection::Row)
-            .set_layout_type(state, LayoutType::Horizontal)
+            .set_layout_type(state, LayoutType::Row)
             .set_min_height(state, Pixels(0.0));
 
         //println!("Container: {}", self.container);

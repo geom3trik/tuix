@@ -147,7 +147,7 @@ impl Widget for Dropdown {
                 .set_hoverability(false)
                 .set_focusability(false)
                 .set_flex_direction(FlexDirection::Row)
-                .set_layout_type(LayoutType::Horizontal)
+                .set_layout_type(LayoutType::Row)
                 .set_flex_grow(1.0)
                 .set_width(Stretch(1.0))
                 .set_height(Stretch(1.0))
