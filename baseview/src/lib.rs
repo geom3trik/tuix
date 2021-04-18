@@ -1,5 +1,4 @@
 mod application;
-mod application2;
 mod window;
 
 pub use application::Application;

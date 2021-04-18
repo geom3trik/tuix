@@ -1,34 +1,35 @@
 //use crate::event_manager::EventManager;
 use crate::window::TuixWindow;
 use crate::Renderer;
-use baseview::WindowScalePolicy;
+use baseview::{Window, WindowScalePolicy};
 use femtovg::Canvas;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use tuix_core::events::{Event, Propagation};
+use tuix_core::{events::{Event, Propagation}, window_description};
 use tuix_core::state::hierarchy::IntoHierarchyIterator;
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 use tuix_core::state::Fonts;
 use tuix_core::window::WindowWidget;
 use tuix_core::{
-    Entity, EventManager, Hierarchy, Length, PropSet, Size, State, Visibility, WindowDescription,
+    Entity, EventManager, Hierarchy, Units, PropSet, Size, State, Visibility, WindowDescription,
     WindowEvent,
 };
 
 pub struct Application<F>
 where
-    F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
-    F: 'static,
+    F: FnMut(&mut State, Entity),
+    F: 'static + Send,
 {
     app: F,
+    window_description: WindowDescription,
 }
 
 impl<F> Application<F>
 where
-    F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
-    F: 'static,
+    F: FnMut(&mut State, Entity),
+    F: 'static + Send,
 {
-    pub fn new(app: F) -> Self {
-        Self { app }
+    pub fn new(window_description: WindowDescription, app: F) -> Self {
+        Self { app, window_description }
     }
 
     /// Open a new window that blocks the current thread until the window is destroyed.
@@ -38,7 +39,7 @@ where
     ///
     /// * `app` - The Tuix application builder.
     pub fn run(self) {
-        TuixWindow::open_blocking(self.app)
+        TuixWindow::open_blocking(self.window_description, self.app)
     }
 
     /// Open a new child window.
@@ -49,7 +50,7 @@ where
     /// * `parent` - The parent window.
     /// * `app` - The Tuix application builder.
     pub fn open_parented<P: HasRawWindowHandle>(self, parent: &P) {
-        TuixWindow::open_parented(parent, self.app)
+        TuixWindow::open_parented(parent, self.window_description, self.app)
     }
 
     /// Open a new window as if it had a parent window.
@@ -59,7 +60,7 @@ where
     ///
     /// * `app` - The Tuix application builder.
     pub fn open_as_if_parented(self) -> RawWindowHandle {
-        TuixWindow::open_as_if_parented(self.app)
+        TuixWindow::open_as_if_parented(self.window_description, self.app)
     }
 }
 
@@ -107,6 +108,7 @@ impl ApplicationRunner {
             bold: Some(canvas.add_font_mem(bold_font).expect("Cannot add font")),
             icons: Some(canvas.add_font_mem(icon_font).expect("Cannot add font")),
             emoji: Some(canvas.add_font_mem(emoji_font).expect("Cannot add font")),
+            arabic: Some(canvas.add_font_mem(emoji_font).expect("Cannot add font")),
         };
 
         state.fonts = fonts;
@@ -116,11 +118,11 @@ impl ApplicationRunner {
         state
             .style
             .width
-            .insert(Entity::root(), Length::Pixels(logical_size.width as f32));
+            .insert(Entity::root(), Units::Pixels(logical_size.width as f32));
         state
             .style
             .height
-            .insert(Entity::root(), Length::Pixels(logical_size.height as f32));
+            .insert(Entity::root(), Units::Pixels(logical_size.height as f32));
 
         state
             .data
@@ -186,7 +188,7 @@ impl ApplicationRunner {
     pub fn render(&mut self) -> bool {
         if self.should_redraw {
             self.event_manager
-                .draw(&mut self.state, &self.hierarchy, &mut self.canvas);
+                .draw(&mut self.state, &mut self.canvas);
             self.should_redraw = false;
             true
         } else {
@@ -244,8 +246,8 @@ impl ApplicationRunner {
                             .cloned()
                             .unwrap_or_default()
                         {
-                            Length::Pixels(val) => val,
-                            //Length::Percentage(val) => parent_width * val,
+                            Units::Pixels(val) => val,
+                            //Units::Percentage(val) => parent_width * val,
                             _ => 0.0,
                         };
 
@@ -254,12 +256,12 @@ impl ApplicationRunner {
                         let width = self.state.data.get_width(widget) + (border_width);
                         let height = self.state.data.get_height(widget) + (border_width);
 
-                        let clip_widget = self.state.data.get_clip_widget(widget);
+                        let clip_bounds = self.state.data.get_clip_region(widget);
 
-                        let clip_posx = self.state.data.get_posx(clip_widget);
-                        let clip_posy = self.state.data.get_posy(clip_widget);
-                        let clip_width = self.state.data.get_width(clip_widget);
-                        let clip_height = self.state.data.get_height(clip_widget);
+                        let clip_posx = clip_bounds.x;
+                        let clip_posy = clip_bounds.y;
+                        let clip_width = clip_bounds.w;
+                        let clip_height = clip_bounds.h;
 
                         if cursorx >= posx
                             && cursorx >= clip_posx
@@ -655,11 +657,11 @@ impl ApplicationRunner {
                     self.state
                         .style
                         .width
-                        .insert(Entity::root(), Length::Pixels(logical_size.0 as f32));
+                        .insert(Entity::root(), Units::Pixels(logical_size.0 as f32));
                     self.state
                         .style
                         .height
-                        .insert(Entity::root(), Length::Pixels(logical_size.1 as f32));
+                        .insert(Entity::root(), Units::Pixels(logical_size.1 as f32));
 
                     self.state
                         .data

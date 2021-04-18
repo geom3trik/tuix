@@ -2,6 +2,8 @@ use crate::entity::Entity;
 
 use crate::state::style::Visibility;
 
+/// Computed properties used for layout and drawing
+
 #[derive(Clone, Copy, Debug)]
 pub struct Pos {
     pub x: f32,

@@ -67,7 +67,7 @@ impl Widget for Board {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // Create three rows each with 3 buttons
         for r in 0..3 {
-            let row = HBox::new().build(state, entity, |builder| builder.class("row"));
+            let row = Row::new().build(state, entity, |builder| builder.class("row"));
             for c in 0..3 {
                 Square::default()
                     .on_press(Event::new(GameEvent::SquarePressed(3 * r + c)))

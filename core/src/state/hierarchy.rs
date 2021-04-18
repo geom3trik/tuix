@@ -1,3 +1,7 @@
+
+
+// The hierarchy describes the tree of widgets
+
 use crate::entity::Entity;
 
 #[derive(Debug)]
