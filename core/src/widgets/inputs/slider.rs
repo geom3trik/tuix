@@ -39,6 +39,7 @@ pub struct Slider {
     prev: f32,
     min: f32,
     max: f32,
+    step: Option<f32>,
 
     is_min: bool,
     is_max: bool,
@@ -64,6 +65,7 @@ impl Default for Slider {
             prev: 0.0,
             min: 0.0,
             max: 1.0,
+            step: None,
 
             is_min: true,
             is_max: false,
@@ -104,6 +106,13 @@ impl Slider {
         self.max = val;
         self
     }
+
+    /// Set the step value of the slider.
+    pub fn with_step(mut self, val: f32) -> Self {
+        self.step = Some(val);
+        self
+    }
+    
 
     /// Set the event sent when the slider value has changed.
     ///

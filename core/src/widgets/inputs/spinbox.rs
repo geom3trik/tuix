@@ -6,14 +6,8 @@ const ICON_RIGHT_OPEN_BIG: &str = "\u{e762}";
 const ICON_DOWN_OPEN_MINI: &str = "\u{e760}";
 const ICON_UP_OPEN_MINI: &str = "\u{e763}";
 
-use crate::entity::Entity;
-use crate::events::*;
 use crate::state::style::*;
-use crate::{PropSet, State, WindowEvent};
-
-use crate::state::mouse::MouseButton;
-
-use crate::layout::{Align, Justify};
+use crate::widgets::*;
 
 use crate::widgets::{Element, Textbox, TextboxEvent};
 
@@ -27,17 +21,30 @@ use num_traits::{Bounded, Num, One};
 //     ValueChanged(f32),
 // }
 
-//impl Message for NumEditEvent {}
+pub struct Spinbox<T> 
+where
+    T: 'static
+        + Default
+        + std::fmt::Debug
+        + std::fmt::Display
+        + Copy
+        + PartialEq
+        + std::str::FromStr
+        + Num
+        + One
+        + Bounded
+        + std::ops::AddAssign
+        + std::ops::SubAssign,
+{
 
-pub struct Spinbox<T> {
-    pub value: T,
-    pub textbox: Entity,
-    pub increment: Entity,
-    pub decrement: Entity,
+    textbox: Entity,
+    increment: Entity,
+    decrement: Entity,
 
     pub increment_value: T,
     pub decrement_value: T,
 
+    value: T,
     min: T,
     max: T,
 
@@ -48,9 +55,39 @@ pub struct Spinbox<T> {
     // Triggered when the value is changed
     on_change: Option<Box<dyn Fn(T) -> Event>>,
     // Triggered when the spinner value reaches max
-    on_max: Option<Event>,
+    on_max: Option<Box<dyn Fn(T) -> Event>>,
     // Triggered when the spinner value reaches min
-    on_min: Option<Event>,
+    on_min: Option<Box<dyn Fn(T) -> Event>>,
+}
+
+impl<T> Default for Spinbox<T> 
+where
+    T: 'static
+        + Default
+        + std::fmt::Debug
+        + std::fmt::Display
+        + Copy
+        + PartialEq
+        + std::str::FromStr
+        + Num
+        + One
+        + Bounded
+        + std::ops::AddAssign
+        + std::ops::SubAssign
+        + std::cmp::PartialOrd,
+{
+    fn default() -> Self {
+        Self {
+            value: T::zero(),
+            increment_value: T::one(),
+            decrement_value: T::one(),
+
+            min: T::min_value(),
+            max: T::max_value(),
+
+            ..Default::default()
+        }
+    }
 }
 
 impl<T> Spinbox<T>
@@ -66,30 +103,16 @@ where
         + One
         + Bounded
         + std::ops::AddAssign
-        + std::ops::SubAssign,
+        + std::ops::SubAssign
+        + std::cmp::PartialOrd,
 {
-    pub fn new(initial_value: T) -> Self {
-        // entity.set_text(state, "Test".to_string())
-        //     .set_background(state, nanovg::Color::from_rgb(100, 50, 50));
+    pub fn new() -> Self {
+        Spinbox::default()
+    }
 
-        Spinbox {
-            value: initial_value,
-            increment_value: T::one(),
-            decrement_value: T::one(),
-
-            min: T::min_value(),
-            max: T::max_value(),
-
-            textbox: Entity::null(),
-            increment: Entity::null(),
-            decrement: Entity::null(),
-
-            on_increment: None,
-            on_decrement: None,
-            on_change: None,
-            on_max: None,
-            on_min: None,
-        }
+    pub fn with_initial_value(mut self, value: T) -> Self {
+        self.value = value;
+        self
     }
 
     pub fn with_increment(mut self, increment_value: T) -> Self {
@@ -132,21 +155,58 @@ where
 
     pub fn on_change<F>(mut self, message: F) -> Self
     where
-        F: Fn(T) -> Event,
-        F: 'static,
+        F: 'static + Fn(T) -> Event,
     {
         self.on_change = Some(Box::new(message));
         self
     }
 
-    pub fn on_max(mut self, event: Event) -> Self {
-        self.on_max = Some(event);
+    pub fn on_max<F>(mut self, message: F) -> Self 
+    where
+        F: 'static + Fn(T) -> Event,
+    {
+        self.on_max = Some(Box::new(message));
         self
     }
 
-    pub fn on_min(mut self, event: Event) -> Self {
-        self.on_min = Some(event);
+    pub fn on_min<F>(mut self, message: F) -> Self 
+    where
+        F: 'static + Fn(T) -> Event,
+    {
+        self.on_min = Some(Box::new(message));
         self
+    }
+
+    // Helper functions
+
+    // Helper function for sending events in response to on_changing, on_changed, on_min, and on_max
+    fn send_value_event<F>(&mut self, state: &mut State, entity: Entity, message: &Option<F>)
+    where
+        F: 'static + Fn(T) -> Event,
+    {
+        if let Some(on_event) = &message {
+            let mut event = (on_event)(self.value);
+            event.origin = entity;
+
+            if event.target == Entity::null() {
+                event.target = entity;
+            }
+
+            state.insert_event(event);
+        }  
+    }
+
+    // Helper function for sending events in response to on_press, on_release, on_over, on_out
+    fn send_event(&self, state: &mut State, entity: Entity, on_event: Option<Event>) {
+        if let Some(mut event) = on_event {
+            event.origin = entity;
+
+            if event.target == Entity::null() {
+                event.target = entity;
+            }
+
+            state.insert_event(event);
+        }
     }
 }
 
@@ -161,6 +221,7 @@ where
         + std::str::FromStr
         + Num
         + One
+        + Bounded
         + std::ops::AddAssign
         + std::ops::SubAssign
         + std::cmp::PartialOrd,
@@ -221,58 +282,8 @@ where
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        /*
-        if let Some(numedit_event) = event.message.downcast::<SpinnerEvent>() {
-            match numedit_event {
-                SpinnerEvent::Increase => {
-                    if event.target == self.increment {
-                        self.value += self.inc_value;
-
-                        // if self.value >= 1.0 {
-                        //     self.value = 1.0;
-                        // }
-
-                        // if self.value <= 0.0 {
-                        //     self.value = 0.0;
-                        // }
-
-                        let val_str = format!("{:.*}", 5, &self.value.to_string());
-
-                        self.textbox.set_text(state, &val_str);
-
-                        state.insert_event(
-                            Event::new(SpinnerEvent::ValueChanged(self.value)).target(entity),
-                        );
-
-                        state.insert_event(
-                            Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        );
-                    }
-                }
-
-                SpinnerEvent::Decrease => {
-                    if event.target == self.decrement {
-                        self.value -= self.inc_value;
-
-                        let val_str = format!("{:.*}", 5, &self.value.to_string());
-
-                        self.textbox.set_text(state, &val_str);
-
-                        state.insert_event(
-                            Event::new(SpinnerEvent::ValueChanged(self.value)).target(entity),
-                        );
-
-                        state.insert_event(
-                            Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        );
-                    }
-                }
-
-                _ => {}
-            }
-        }
-        */
-
+        
+        // Handle window events
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
@@ -282,41 +293,18 @@ where
 
                             if self.value <= self.min {
                                 self.value = self.min;
-                                if let Some(mut on_min) = self.on_min.clone() {
-                                    if !on_min.target {
-                                        on_min.target = entity;
-                                    }
-
-                                    on_min.origin = entity;
-                                    state.insert_event(on_min);
-                                }
+                                self.send_value_event(state, entity, &self.on_min);
                             }
 
                             if self.value >= self.max {
                                 self.value = self.max;
-                                if let Some(mut on_max) = self.on_max.clone() {
-                                    if !on_max.target {
-                                        on_max.target = entity;
-                                    }
-
-                                    on_max.origin = entity;
-                                    state.insert_event(on_max);
-                                }
+                                self.send_value_event(state, entity, &self.on_max);
                             }
 
                             let val_str = format!("{:.*}", 5, &self.value.to_string());
-
                             self.textbox.set_text(state, &val_str);
 
-                            if let Some(on_increment) = &self.on_increment {
-                                let mut event = (on_increment)(self.value);
-                                if !event.target {
-                                    event.target = entity;
-                                }
-
-                                event.origin = entity;
-                                state.insert_event(event);
-                            }
+                            self.send_value_event(state, entity, &self.on_increment);
 
                             event.consume();
                         }
@@ -326,41 +314,18 @@ where
 
                             if self.value <= self.min {
                                 self.value = self.min;
-                                if let Some(mut on_min) = self.on_min.clone() {
-                                    if !on_min.target {
-                                        on_min.target = entity;
-                                    }
-
-                                    on_min.origin = entity;
-                                    state.insert_event(on_min);
-                                }
+                                self.send_value_event(state, entity, &self.on_min);
                             }
 
                             if self.value >= self.max {
                                 self.value = self.max;
-                                if let Some(mut on_max) = self.on_max.clone() {
-                                    if !on_max.target {
-                                        on_max.target = entity;
-                                    }
-
-                                    on_max.origin = entity;
-                                    state.insert_event(on_max);
-                                }
+                                self.send_value_event(state, entity, &self.on_max);
                             }
 
                             let val_str = format!("{:.*}", 5, &self.value.to_string());
-
                             self.textbox.set_text(state, &val_str);
 
-                            if let Some(on_decrement) = &self.on_decrement {
-                                let mut event = (on_decrement)(self.value);
-                                if !event.target {
-                                    event.target = entity;
-                                }
-
-                                event.origin = entity;
-                                state.insert_event(event);
-                            }
+                            self.send_value_event(state, entity, &self.on_decrement);
 
                             event.consume();
                         }
@@ -376,22 +341,22 @@ where
                 TextboxEvent::ValueChanged(text) => {
                     if event.target == self.textbox {
                         if let Ok(value) = text.parse::<T>() {
-                            let val = value;
-                            // if val <= 0.0 {
-                            //     val = 0.0;
+                            let value = value;
+                            // if value <= 0.0 {
+                            //     value = 0.0;
                             // }
-                            // if val >= 1.0 {
-                            //     val = 1.0;
+                            // if value >= 1.0 {
+                            //     value = 1.0;
                             // }
 
-                            let val_str = format!("{:.*}", 5, &val.to_string());
+                            let val_str = format!("{:.*}", 5, &value.to_string());
                             state.insert_event(
                                 Event::new(TextboxEvent::SetValue(val_str))
                                     .target(self.textbox)
                                     .propagate(Propagation::Direct),
                             );
 
-                            self.value = val;
+                            self.value = value;
 
                             if let Some(on_change) = &self.on_change {
                                 let mut event = (on_change)(self.value);
