@@ -119,7 +119,7 @@ impl Widget for ValueKnob {
         Label::new(&self.label).build(state, entity, |builder| {
             builder
                 .set_height(Units::Pixels(25.0))
-                .set_text_justify(Justify::Center)
+                .set_child_space(Stretch(1.0))
         });
 
         let mut knob = ControlKnob::new(self.init, self.min, self.max);

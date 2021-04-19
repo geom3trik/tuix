@@ -13,6 +13,7 @@ use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
 };
+use image::Pixels;
 
 use crate::style::{Direction, Justify, Units, Visibility};
 
@@ -456,47 +457,70 @@ pub(crate) trait EventHandler: Any {
 
             let text_string = text.to_owned();
 
-            let text_align = state
-                .style
-                .text_align
-                .get(entity)
-                .cloned()
-                .unwrap_or_default();
-            let text_justify = state
-                .style
-                .text_justify
-                .get(entity)
-                .cloned()
-                .unwrap_or_default();
+            // TODO - Move this to a text layout system and include constraints
+            let child_left = state.style.child_left.get(entity).cloned().unwrap_or_default();
+            let child_right = state.style.child_right.get(entity).cloned().unwrap_or_default();
+            let child_top = state.style.child_top.get(entity).cloned().unwrap_or_default();
+            let child_bottom = state.style.child_bottom.get(entity).cloned().unwrap_or_default();
 
-            let align = match text_justify {
-                Justify::Start => {
-                    x += padding_left + border_width;
-                    Align::Left
+            let align = match child_left {
+                Units::Pixels(val) => {
+                    match child_right {
+                        Units::Stretch(_) => {
+                            x += val + border_width;
+                            Align::Left
+                        }
+
+                        _=> Align::Left
+                    }
                 }
-                Justify::Center => {
-                    x += 0.5 * width;
-                    Align::Center
+
+                Units::Stretch(_) => {
+                    match child_right {
+                        Units::Pixels(val) => {
+                            x += width - val - border_width;
+                            Align::Right
+                        }
+
+                        Units::Stretch(_) => {
+                            Align::Center
+                        }
+
+                        _=> Align::Right
+                    }
                 }
-                Justify::End => {
-                    x += width - padding_right - border_width;
-                    Align::Right
-                }
+
+                _=> Align::Left
             };
 
-            let baseline = match text_align {
-                crate::Align::Start => {
-                    y += padding_top + border_width;
-                    Baseline::Top
+            let baseline = match child_top {
+                Units::Pixels(val) => {
+                    match child_bottom {
+                        Units::Stretch(_) => {
+                            y += val + border_width;
+                            Baseline::Top
+                        }
+
+                        _=> Baseline::Top
+                    }
                 }
-                crate::Align::Center => {
-                    y += 0.5 * height;
-                    Baseline::Middle
+
+                Units::Stretch(_) => {
+                    match child_bottom {
+                        Units::Pixels(val) => {
+                            y += height - val - border_width;
+                            Baseline::Bottom
+                        }
+
+                        Units::Stretch(_) => {
+                            Baseline::Middle
+                        }
+
+                        _=> Baseline::Bottom
+                    }
                 }
-                crate::Align::End => {
-                    y += height - padding_bottom - border_width;
-                    Baseline::Bottom
-                }
+
+                _=> Baseline::Top
             };
 
             let mut font_color: femtovg::Color = font_color.into();

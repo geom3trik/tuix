@@ -246,45 +246,71 @@ impl Widget for TextArea {
         let mut x = bounds.x;
         let mut y = bounds.y;
 
-        let text_align = state
-            .style
-            .text_align
-            .get(entity)
-            .cloned()
-            .unwrap_or_default();
-        let text_justify = state
-            .style
-            .text_justify
-            .get(entity)
-            .cloned()
-            .unwrap_or_default();
+        // TODO - Move this to a text layout system and include constraints
+        let child_left = state.style.child_left.get(entity).cloned().unwrap_or_default();
+        let child_right = state.style.child_right.get(entity).cloned().unwrap_or_default();
+        let child_top = state.style.child_top.get(entity).cloned().unwrap_or_default();
+        let child_bottom = state.style.child_bottom.get(entity).cloned().unwrap_or_default();
 
-        let align = match text_justify {
-            Justify::Start => {
-                Align::Left
+        let align = match child_left {
+            Units::Pixels(val) => {
+                match child_right {
+                    Units::Stretch(_) => {
+                        x += val;
+                        Align::Left
+                    }
+
+                    _=> Align::Left
+                }
             }
-            Justify::Center => {
-                x += 0.5 * bounds.w;
-                Align::Center
+
+            Units::Stretch(_) => {
+                match child_right {
+                    Units::Pixels(val) => {
+                        x += bounds.w - val;
+                        Align::Right
+                    }
+
+                    Units::Stretch(_) => {
+                        x += 0.5 * bounds.w;
+                        Align::Center
+                    }
+
+                    _=> Align::Right
+                }
             }
-            Justify::End => {
-                x += bounds.w;
-                Align::Right
-            }
+
+            _=> Align::Left
         };
 
-        let baseline = match text_align {
-            crate::Align::Start => {
-                Baseline::Top
+        let baseline = match child_top {
+            Units::Pixels(val) => {
+                match child_bottom {
+                    Units::Stretch(_) => {
+                        y += val;
+                        Baseline::Top
+                    }
+
+                    _=> Baseline::Top
+                }
             }
-            crate::Align::Center => {
-                y += 0.5 * bounds.h;
-                Baseline::Middle
+
+            Units::Stretch(_) => {
+                match child_bottom {
+                    Units::Pixels(val) => {
+                        y += bounds.h - val;
+                        Baseline::Bottom
+                    }
+
+                    Units::Stretch(_) => {
+                        Baseline::Middle
+                    }
+
+                    _=> Baseline::Bottom
+                }
             }
-            crate::Align::End => {
-                y += bounds.h;
-                Baseline::Bottom
-            }
+
+            _=> Baseline::Top
         };
 
         let font_size = state.style.font_size.get(entity).cloned().unwrap_or(16.0);

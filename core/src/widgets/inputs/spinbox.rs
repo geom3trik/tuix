@@ -195,8 +195,7 @@ where
             .build(state, arrow_container, |builder| {
                 builder
                     .set_font("icons")
-                    .set_text_justify(Justify::Center)
-                    .set_text_align(Align::Center)
+                    .set_child_space(Stretch(1.0))
                     .set_text(ICON_UP_OPEN_MINI)
                     .set_height(Stretch(1.0))
                     .class("increment")
@@ -207,8 +206,7 @@ where
             .build(state, arrow_container, |builder| {
                 builder
                     .set_font("icons")
-                    .set_text_justify(Justify::Center)
-                    .set_text_align(Align::Center)
+                    .set_child_space(Stretch(1.0))
                     .set_text(ICON_DOWN_OPEN_MINI)
                     .set_height(Stretch(1.0))
                     .class("decrement")

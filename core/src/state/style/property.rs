@@ -54,33 +54,6 @@ pub enum Property {
     ChildBottom(Units),
     ChildBetween(Units),
 
-
-    // Margin
-    Margin(Units),
-    MarginLeft(Units),
-    MarginRight(Units),
-    MarginTop(Units),
-    MarginBottom(Units),
-
-    // Padding
-    Padding(Units),
-    PaddingLeft(Units),
-    PaddingRight(Units),
-    PaddingTop(Units),
-    PaddingBottom(Units),
-
-    // Flex Container
-    FlexDirection(FlexDirection),
-    JustifyContent(JustifyContent),
-    AlignItems(AlignItems),
-    AlignContent(AlignContent),
-
-    // Flex Item
-    FlexBasis(Units),
-    FlexGrow(f32),
-    FlexShrink(f32),
-    AlignSelf(AlignSelf),
-
     // Border
     BorderRadius(Units),
     BorderTopLeftRadius(Units),
@@ -94,10 +67,7 @@ pub enum Property {
     BackgroundColor(Color),
     BackgroundImage(String),
     BackgroundGradient(LinearGradient),
-
-    TextJustify(Justify),
-    TextAlign(Align),
-
+    
     FontSize(f32),
     FontColor(Color),
 

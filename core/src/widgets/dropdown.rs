@@ -170,7 +170,7 @@ impl Widget for Dropdown {
                 //.set_background_color(Color::rgb(100,100,100))
                 .set_text(ICON_DOWN_DIR)
                 //.set_width(Length::Pixels(20.0))
-                .set_text_justify(Justify::Center)
+                .set_child_space(Stretch(1.0))
                 .class("icon")
         });
 

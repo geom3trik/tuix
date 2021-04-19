@@ -93,8 +93,7 @@ impl Widget for Panel {
             builder
                 .set_text(ICON_DOWN_OPEN_BIG)
                 .set_font("icons")
-                .set_text_justify(Justify::Center)
-                .set_text_align(Align::Center)
+                .set_child_space(Stretch(1.0))
                 .set_top(Stretch(1.0))
                 .set_bottom(Stretch(1.0))
                 .set_width(Pixels(20.0))

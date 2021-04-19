@@ -17,6 +17,7 @@ button {
     color: black;
     background-color: #dfdfdf;
     text-justify: center;
+    child-space: 1s;
 }
 
 button:hover {
@@ -148,7 +149,10 @@ textbox {
     color: black;
     border-width: 1px;
     border-color: #757575;
-    text-justify: center;
+    child-left: 1s;
+    child-right: 1s;
+    child-top: 1s;
+    child-bottom: 1s;
 }
 
 spinbox .increment {

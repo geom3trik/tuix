@@ -72,8 +72,7 @@ impl Widget for Checkbox {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_font(state, "icons")
-            .set_text_justify(state, Justify::Center)
-            .set_text_align(state, Align::Center);
+            .set_child_space(state, Stretch(1.0));
 
         if self.checkbutton.is_checked() {
             entity.set_checked(state, true);

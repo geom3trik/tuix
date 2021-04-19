@@ -432,19 +432,6 @@ impl<'a> Builder<'a> {
         self
     }
 
-    // Text Alignment
-    pub fn set_text_justify(mut self, value: Justify) -> Self {
-        self.state.style.text_justify.insert(self.entity, value);
-
-        self
-    }
-
-    pub fn set_text_align(mut self, value: Align) -> Self {
-        self.state.style.text_align.insert(self.entity, value);
-
-        self
-    }
-
     pub fn set_next_focus(mut self, val: Entity) -> Self {
         if let Some(entity) = self.state.style.focus_order.get_mut(self.entity) {
             entity.next = val;

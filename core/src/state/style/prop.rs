@@ -62,17 +62,66 @@ pub trait PropSet : AsEntity + Sized {
     //fn set_grid_column_start(self, state: &mut State, value: u32) -> Self;
     //fn set_grid_column_span(self, state: &mut State, value: u32) -> Self
 
+    // Position
     fn set_position_type(self, state: &mut State, value: PositionType) -> Entity {
         state.style.positioning_type.insert(self.entity(), value);
 
         self.entity()
     }
 
-    // Positioning
     fn set_left(self, state: &mut State, value: Units) -> Self;
     fn set_right(self, state: &mut State, value: Units) -> Self;
     fn set_top(self, state: &mut State, value: Units) -> Self;
     fn set_bottom(self, state: &mut State, value: Units) -> Self;
+
+    // Position Constraints
+    fn set_min_left(self, state: &mut State, value: Units) -> Entity {
+        state.style.min_left.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_max_left(self, state: &mut State, value: Units) -> Entity {
+        state.style.max_left.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_min_right(self, state: &mut State, value: Units) -> Entity {
+        state.style.min_right.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_max_right(self, state: &mut State, value: Units) -> Entity {
+        state.style.max_right.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_min_top(self, state: &mut State, value: Units) -> Entity {
+        state.style.min_top.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_max_top(self, state: &mut State, value: Units) -> Entity {
+        state.style.max_top.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_min_bottom(self, state: &mut State, value: Units) -> Entity {
+        state.style.min_bottom.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_max_bottom(self, state: &mut State, value: Units) -> Entity {
+        state.style.max_bottom.insert(self.entity(), value);
+
+        self.entity()
+    }
 
     // Size
     fn set_width(self, state: &mut State, value: Units) -> Self;
@@ -91,10 +140,6 @@ pub trait PropSet : AsEntity + Sized {
     fn set_font(self, state: &mut State, font: &str) -> Self;
     fn set_font_size(self, state: &mut State, size: f32) -> Self;
     fn set_color(self, state: &mut State, color: Color) -> Self;
-
-    // Text Alignment
-    fn set_text_align(self, state: &mut State, align: Align) -> Self;
-    fn set_text_justify(self, state: &mut State, justify: Justify) -> Self;
 
     // Tooltip
     fn set_tooltip(self, state: &mut State, text: &str) -> Self;
@@ -132,6 +177,8 @@ pub trait PropSet : AsEntity + Sized {
     //     state: &mut State,
     //     mutator: F,
     // ) -> Self;
+
+    // Layout
 
     fn set_layout_type(&self, state: &mut State, value: LayoutType) -> Entity {
         state.style.layout_type.insert(self.entity(), value);
@@ -515,23 +562,6 @@ impl PropSet for Entity {
 
     fn set_color(self, state: &mut State, value: Color) -> Self {
         state.style.font_color.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    // Text Alignment
-    fn set_text_justify(self, state: &mut State, value: Justify) -> Self {
-        state.style.text_justify.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    fn set_text_align(self, state: &mut State, value: Align) -> Self {
-        state.style.text_align.insert(self, value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 

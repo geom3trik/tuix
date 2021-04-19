@@ -5,11 +5,13 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
-use crate::entity::Entity;
+use crate::{Transition, entity::Entity};
 use crate::hierarchy::Hierarchy;
 use crate::state::storage::animatable_storage::AnimatableStorage;
 use crate::state::storage::dense_storage::DenseStorage;
 use crate::state::storage::style_storage::StyleStorage;
+
+use crate::Interpolator;
 
 use crate::state::animation::AnimationState;
 
@@ -29,8 +31,6 @@ pub use layout::*;
 pub mod units;
 pub use units::Units;
 pub use Units::*;
-// pub mod Units;
-// pub use Units::*;
 
 pub mod shape;
 pub use shape::*;
@@ -132,21 +132,6 @@ pub struct Style {
 
     pub focus_order: DenseStorage<FocusOrder>,
 
-    // Flexbox
-    //pub align_self: StyleStorage<AlignSelf>,
-    //pub flex_grow: AnimatableStorage<f32>,
-    //pub flex_shrink: AnimatableStorage<f32>,
-    //pub flex_basis: AnimatableStorage<Units>,
-
-    //pub grid_item: DenseStorage<GridItem>,
-
-    //pub justification: DenseStorage<Justification>,
-    //pub alignment: DenseStorage<Alignment>,
-    //pub flex_direction: StyleStorage<FlexDirection>,
-    //pub justify_content: StyleStorage<JustifyContent>,
-    //pub align_items: StyleStorage<AlignItems>,
-    //pub align_content: StyleStorage<AlignContent>,
-
     // Background
     pub background_color: AnimatableStorage<Color>,
     pub background_image: StyleStorage<Rc<()>>,
@@ -172,25 +157,7 @@ pub struct Style {
 
     pub tooltip: DenseStorage<String>,
 
-
-
-    pub text_align: StyleStorage<Align>,
-    pub text_justify: StyleStorage<Justify>,
-
-
     // LAYOUT
-
-    // Main Axis
-    //pub main_axis: StyleStorage<Axis>,
-
-    // Cross Axis
-    //pub cross_axis: StyleStorage<Axis>,
-
-    // Main Axis Align
-    //pub main_axis_align: StyleStorage<AxisAlign>,
-
-    // Cross Axis Align
-    //pub cross_axis_align: StyleStorage<AxisAlign>,
 
     // Layout Type
     pub layout_type: StyleStorage<LayoutType>,
@@ -210,18 +177,6 @@ pub struct Style {
     pub child_between: AnimatableStorage<Units>,
     // pub child_wrap: AnimatableStorage<Units>,
 
-
-    // Main Axis Align
-    // pub main_before_first: AnimatableStorage<Units>,
-    // pub main_between: AnimatableStorage<Units>,
-    // pub main_after_last: AnimatableStorage<Units>,
-
-    // Cross Axis Align
-    // pub cross_before_first: AnimatableStorage<Units>,
-    // pub cross_between: AnimatableStorage<Units>,
-    // pub cross_after_last: AnimatableStorage<Units>,
-
-    
 }
 
 impl Style {
@@ -292,14 +247,6 @@ impl Style {
                         self.overflow.insert_rule(rule_id, value);
                     }
 
-                    Property::TextAlign(value) => {
-                        self.text_align.insert_rule(rule_id, value);
-                    }
-
-                    Property::TextJustify(value) => {
-                        self.text_justify.insert_rule(rule_id, value);
-                    }
-
                     Property::Left(value) => {
                         self.left.insert_rule(rule_id, value);
                     }
@@ -316,6 +263,42 @@ impl Style {
                         self.bottom.insert_rule(rule_id, value);
                     }
 
+                    // Position Constraints
+
+                    Property::MinLeft(value) => {
+                        self.min_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::MaxLeft(value) => {
+                        self.max_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::MinRight(value) => {
+                        self.min_right.insert_rule(rule_id, value);
+                    }
+
+                    Property::MaxRight(value) => {
+                        self.max_right.insert_rule(rule_id, value);
+                    }
+
+                    Property::MinTop(value) => {
+                        self.min_top.insert_rule(rule_id, value);
+                    }
+
+                    Property::MaxTop(value) => {
+                        self.max_top.insert_rule(rule_id, value);
+                    }
+
+                    Property::MinBottom(value) => {
+                        self.min_left.insert_rule(rule_id, value);
+                    }
+
+                    Property::MaxBottom(value) => {
+                        self.max_left.insert_rule(rule_id, value);
+                    }
+
+                    // Size
+
                     Property::Width(value) => {
                         self.width.insert_rule(rule_id, value);
                     }
@@ -323,6 +306,8 @@ impl Style {
                     Property::Height(value) => {
                         self.height.insert_rule(rule_id, value);
                     }
+
+                    // Size Constraints
 
                     Property::MaxWidth(value) => {
                         self.max_width.insert_rule(rule_id, value);
@@ -341,6 +326,7 @@ impl Style {
                     }
 
                     // Border
+
                     Property::BorderWidth(value) => {
                         self.border_width.insert_rule(rule_id, value);
                     }
@@ -348,6 +334,8 @@ impl Style {
                     Property::BorderColor(value) => {
                         self.border_color.insert_rule(rule_id, value);
                     }
+
+                    // Border Radius
 
                     Property::BorderRadius(value) => {
                         self.border_radius_top_left.insert_rule(rule_id, value);
@@ -372,6 +360,8 @@ impl Style {
                         self.border_radius_bottom_right.insert_rule(rule_id, value);
                     }
 
+                    // Font
+
                     Property::FontSize(value) => {
                         self.font_size.insert_rule(rule_id, value);
                     }
@@ -379,6 +369,8 @@ impl Style {
                     Property::FontColor(value) => {
                         self.font_color.insert_rule(rule_id, value);
                     }
+
+                    // Background
 
                     Property::BackgroundColor(value) => {
                         self.background_color.insert_rule(rule_id, value);
@@ -388,6 +380,7 @@ impl Style {
                     //     self.background_image.insert_rule(rule_id, value);
                     // }
 
+                    // Layout
 
                     Property::LayoutType(value) => {
                         self.layout_type.insert_rule(rule_id, value);
@@ -396,6 +389,8 @@ impl Style {
                     Property::ZIndex(value) => {
                         self.z_order.insert_rule(rule_id, value);
                     }
+
+                    // Outer Shadow
 
                     Property::OuterShadow(box_shadow) => {
                         self.outer_shadow_h_offset
@@ -408,6 +403,8 @@ impl Style {
                             .insert_rule(rule_id, box_shadow.color);
                     }
 
+                    // Inner Shadow
+
                     Property::InnerShadow(box_shadow) => {
                         self.inner_shadow_h_offset
                             .insert_rule(rule_id, box_shadow.horizontal_offset);
@@ -418,6 +415,8 @@ impl Style {
                         self.inner_shadow_color
                             .insert_rule(rule_id, box_shadow.color);
                     }
+
+                    // Child Spacing
 
                     Property::ChildLeft(value) => {
                         self.child_left.insert_rule(rule_id, value);
@@ -446,127 +445,147 @@ impl Style {
                         self.child_between.insert_rule(rule_id, value);
                     }
 
+                    // Transitions
+
                     Property::Transition(transitions) => {
                         for transition in transitions {
                             match transition.property.as_ref() {
                                 "background-color" => {
                                     self.background_color.insert_transition(
                                         rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
+                                        self.add_transition(transition)
                                     );
                                 }
 
                                 "left" => {
                                     self.left.insert_transition(
                                         rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
+                                        self.add_transition(transition)
                                     );
                                 }
 
                                 "top" => {
                                     self.top.insert_transition(
                                         rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
+                                        self.add_transition(transition)
                                     );
                                 }
 
                                 "right" => {
                                     self.right.insert_transition(
                                         rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
+                                        self.add_transition(transition)
                                     );
                                 }
 
                                 "bottom" => {
                                     self.bottom.insert_transition(
                                         rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "min-left" => {
+                                    self.min_left.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "max-left" => {
+                                    self.max_left.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "min-right" => {
+                                    self.min_right.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "max-right" => {
+                                    self.max_right.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "min-top" => {
+                                    self.min_top.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "max-top" => {
+                                    self.max_top.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "min-bottom" => {
+                                    self.min_bottom.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "max-bottom" => {
+                                    self.max_bottom.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
                                     );
                                 }
 
                                 "width" => {
                                     self.width.insert_transition(
                                         rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
+                                        self.add_transition(transition)
                                     );
                                 }
 
                                 "height" => {
                                     self.height.insert_transition(
                                         rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
+                                        self.add_transition(transition)
                                     );
                                 }
 
+                                "min-width" => {
+                                    self.min_width.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
 
+                                "max-width" => {
+                                    self.max_width.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "min-height" => {
+                                    self.min_height.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
+
+                                "max-height" => {
+                                    self.max_height.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition)
+                                    );
+                                }
                                 "opacity" => {
                                     self.opacity.insert_transition(
                                         rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
+                                        self.add_transition(transition)
                                     );
                                 }
 
@@ -578,6 +597,18 @@ impl Style {
                 }
             }
         }
+    }
+
+    fn add_transition<T: Default + Interpolator>(&self, transition: Transition) -> AnimationState<T> {
+        AnimationState::new()
+            .with_duration(std::time::Duration::from_secs_f32(
+                transition.duration,
+            ))
+            .with_delay(std::time::Duration::from_secs_f32(
+                transition.delay,
+            ))
+            .with_keyframe((0.0, Default::default()))
+            .with_keyframe((1.0, Default::default()))
     }
 
     /*
@@ -1099,35 +1130,49 @@ impl Style {
         self.right.remove_styles();
         self.top.remove_styles();
         self.bottom.remove_styles();
+
+        // Position Constraints
+        self.min_left.remove_styles();
+        self.max_left.remove_styles();
+        self.min_right.remove_styles();
+        self.max_right.remove_styles();
+        self.min_top.remove_styles();
+        self.max_top.remove_styles();
+        self.min_bottom.remove_styles();
+        self.max_bottom.remove_styles();
+
         // Size
         self.width.remove_styles();
         self.height.remove_styles();
+
         // Size Constraints
         self.min_width.remove_styles();
         self.max_width.remove_styles();
         self.min_height.remove_styles();
         self.max_height.remove_styles();
+
         // Border
         self.border_width.remove_styles();
         self.border_color.remove_styles();
+
         // Border Radius
         self.border_radius_top_left.remove_styles();
         self.border_radius_top_right.remove_styles();
         self.border_radius_bottom_left.remove_styles();
         self.border_radius_bottom_right.remove_styles();
+
         // Display
         self.display.remove_styles();
         self.visibility.remove_styles();
         self.opacity.remove_styles();
-        // Text Alignment
-        self.text_align.remove_styles();
-        self.text_justify.remove_styles();
 
+        // Inner Shadow
         self.inner_shadow_h_offset.remove_styles();
         self.inner_shadow_v_offset.remove_styles();
         self.inner_shadow_blur.remove_styles();
         self.inner_shadow_color.remove_styles();
 
+        // Outer Shadow
         self.outer_shadow_h_offset.remove_styles();
         self.outer_shadow_v_offset.remove_styles();
         self.outer_shadow_blur.remove_styles();

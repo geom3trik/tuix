@@ -371,17 +371,6 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
-        // Text Alignment
-        if state.style.text_align.link_rule(entity, &matched_rules) {
-            //println!("39");
-            should_redraw = true;
-        }
-
-        if state.style.text_justify.link_rule(entity, &matched_rules) {
-            //println!("40");
-            should_redraw = true;
-        }
-
         // Background
         if state
             .style

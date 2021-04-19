@@ -822,63 +822,94 @@ impl Widget for Textbox {
 
             let mut x = posx;
             let mut y = posy;
+            let mut sx = posx;
+            let mut sy = posy;
 
             let text_string = text.to_owned();
-
-            let text_align = state
-                .style
-                .text_align
-                .get(entity)
-                .cloned()
-                .unwrap_or_default();
-            let text_justify = state
-                .style
-                .text_justify
-                .get(entity)
-                .cloned()
-                .unwrap_or_default();
-
-            let align = match text_justify {
-                Justify::Start => {
-                    x += padding_left;
-                    Align::Left
-                }
-                Justify::Center => {
-                    x += 0.5 * width;
-                    Align::Center
-                }
-                Justify::End => {
-                    x += width - padding_right;
-                    Align::Right
-                }
-            };
-
-            let baseline = match text_align {
-                crate::Align::Start => {
-                    y += padding_top;
-                    Baseline::Top
-                }
-                crate::Align::Center => {
-                    y += 0.5 * height;
-                    Baseline::Middle
-                }
-                crate::Align::End => {
-                    y += height - padding_bottom;
-                    Baseline::Bottom
-                }
-            };
 
             let font_size = state.style.font_size.get(entity).cloned().unwrap_or(16.0);
 
             let mut paint = Paint::color(font_color);
             paint.set_font_size(font_size);
             paint.set_font(&[font_id]);
-            paint.set_text_align(align);
-            paint.set_text_baseline(baseline);
+
 
             let font_metrics = canvas
                 .measure_font(paint)
                 .expect("Failed to read font metrics");
+
+            // TODO - Move this to a text layout system and include constraints
+            let child_left = state.style.child_left.get(entity).cloned().unwrap_or_default();
+            let child_right = state.style.child_right.get(entity).cloned().unwrap_or_default();
+            let child_top = state.style.child_top.get(entity).cloned().unwrap_or_default();
+            let child_bottom = state.style.child_bottom.get(entity).cloned().unwrap_or_default();
+
+            let align = match child_left {
+                Units::Pixels(val) => {
+                    match child_right {
+                        Units::Stretch(_) => {
+                            x += val + border_width;
+                            Align::Left
+                        }
+
+                        _=> Align::Left
+                    }
+                }
+
+                Units::Stretch(_) => {
+                    match child_right {
+                        Units::Pixels(val) => {
+                            x += width - val - border_width;
+                            Align::Right
+                        }
+
+                        Units::Stretch(_) => {
+                            x += 0.5 * width;
+                            Align::Center
+                        }
+
+                        _=> Align::Right
+                    }
+                }
+
+                _=> Align::Left
+            };
+
+            let baseline = match child_top {
+                Units::Pixels(val) => {
+                    match child_bottom {
+                        Units::Stretch(_) => {
+                            y += val + border_width;
+                            Baseline::Top
+                        }
+
+                        _=> Baseline::Top
+                    }
+                }
+
+                Units::Stretch(_) => {
+                    match child_bottom {
+                        Units::Pixels(val) => {
+                            y += height - val - border_width;
+                            sy = y - font_metrics.height();
+                            Baseline::Bottom
+                        }
+
+                        Units::Stretch(_) => {
+                            y += 0.5 * height;
+                            sy = y - font_metrics.height() * 0.5;
+                            Baseline::Middle
+                        }
+
+                        _=> Baseline::Top
+                    }
+                }
+
+                _=> Baseline::Top
+            };
+
+            paint.set_text_align(align);
+            paint.set_text_baseline(baseline);
 
             if let Ok(res) = canvas.fill_text(x, y, &text_string, paint) {
                 let text_width = res.width();
@@ -991,7 +1022,7 @@ impl Widget for Textbox {
                         let mut path = Path::new();
                         path.rect(
                             caretx,
-                            y - font_metrics.height() / 2.0,
+                            sy,
                             select_width,
                             font_metrics.height(),
                         );
@@ -1000,17 +1031,18 @@ impl Widget for Textbox {
                         let mut path = Path::new();
                         path.rect(
                             selectx,
-                            y - font_metrics.height() / 2.0,
+                            sy,
                             select_width,
                             font_metrics.height(),
                         );
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     }
 
+                    // Draw Caret
                     let mut path = Path::new();
                     path.rect(
                         caretx.floor(),
-                        y - font_metrics.height() / 2.0,
+                        sy,
                         1.0,
                         font_metrics.height(),
                     );

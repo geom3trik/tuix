@@ -45,7 +45,8 @@ impl Widget for LengthBox {
             .build(state, entity, |builder| {
                 builder
                     .set_width(Pixels(30.0))
-                    .set_text_justify(Justify::End)
+                    .set_child_left(Stretch(1.0))
+                    .set_child_right(Pixels(0.0))
                     .class("unit")
             })
             .2;

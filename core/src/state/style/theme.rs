@@ -349,10 +349,6 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "child-bottom" => Property::ChildBottom(parse_units(input)?),
             "child-between" => Property::ChildBetween(parse_units(input)?),
 
-
-            "text-align" => Property::TextAlign(parse_alignment(input)?),
-            "text-justify" => Property::TextJustify(parse_justification(input)?),
-
             "font-size" => Property::FontSize(parse_font_size(input)?),
 
             // Border
@@ -367,18 +363,6 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "border-bottom-right-radius" => Property::BorderBottomRightRadius(parse_units(input)?),
 
             "opacity" => Property::Opacity(parse_length_or_percentage(input)?),
-
-            // Flex Container
-            "flex-direction" => Property::FlexDirection(parse_flex_direction(input)?),
-            "justify-content" => Property::JustifyContent(parse_justify_content(input)?),
-            "align-content" => Property::AlignContent(parse_align_content(input)?),
-            "align-items" => Property::AlignItems(parse_align_items(input)?),
-            "align-self" => Property::AlignSelf(parse_align_self(input)?),
-
-            // Flex Item
-            "flex-basis" => Property::FlexBasis(parse_units(input)?),
-            "flex-grow" => Property::FlexGrow(parse_length_or_percentage(input)?),
-            "flex-shrink" => Property::FlexShrink(parse_length_or_percentage(input)?),
 
             "display" => Property::Display(parse_display(input)?),
             "visibility" => Property::Visibility(parse_visibility(input)?),
