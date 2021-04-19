@@ -69,11 +69,11 @@ impl ScrollContainerH {
 impl Widget for ScrollContainerH {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Column);
+        entity.set_layout_type(state, LayoutType::Column);
 
         self.container = Button::new().build(state, entity, |builder| {
             builder
-                .set_position(Position::Absolute)
+                .set_position_type(PositionType::SelfDirected)
                 // .set_left(Units::Percentage(0.0))
                 // .set_align_self(AlignSelf::FlexStart)
                 //.set_background_color(Color::rgb(200, 70, 70))
@@ -86,7 +86,7 @@ impl Widget for ScrollContainerH {
         if self.scrollbar {
             self.horizontal_scroll = Element::new().build(state, entity, |builder| {
                 builder
-                    .set_position(Position::Absolute)
+                    .set_position_type(PositionType::SelfDirected)
                     // .set_left(Units::Percentage(0.0))
                     //.set_height(Units::Pixels(10.0))
                     // .set_width(Units::Percentage(0.0))
@@ -392,7 +392,6 @@ impl Widget for ScrollContainer {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_flex_direction(state, FlexDirection::Row)
             .set_layout_type(state, LayoutType::Row)
             .set_min_height(state, Pixels(0.0));
 
@@ -400,8 +399,7 @@ impl Widget for ScrollContainer {
 
         self.container = Element::new().build(state, entity, |builder| {
             builder
-                .set_position(Position::Absolute)
-                .set_position_type(PositioningType::SelfDirected)
+                .set_position_type(PositionType::SelfDirected)
                 .set_height(Auto)
                 //.set_top(Units::Percentage(0.0))
                 //.set_flex_grow(1.0)
@@ -413,8 +411,7 @@ impl Widget for ScrollContainer {
 
         self.vertical_scroll = Element::new().build(state, entity, |builder| {
             builder
-                .set_position(Position::Absolute)
-                .set_position_type(PositioningType::SelfDirected)
+                .set_position_type(PositionType::SelfDirected)
                 .set_min_height(Pixels(0.0))
                 //.set_top(Units::Percentage(0.0))
                 // .set_width(Units::Pixels(10.0))
@@ -775,22 +772,20 @@ impl Widget for ScrollContainerHV {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_flex_direction(state, FlexDirection::Row)
-            .set_flex_grow(state, 1.0)
-            .set_flex_shrink(state, 1.0);
+            .set_layout_type(state, LayoutType::Row);
 
         let row = Row::new().build(state, entity, |builder| {
-            builder.set_flex_grow(1.0).set_flex_shrink(1.0)
+            builder
         });
 
         let column = Column::new().build(state, row, |builder| {
-            builder.set_flex_grow(1.0).set_flex_shrink(1.0)
+            builder
         });
 
         self.container = Button::new().build(state, column, |builder| {
             builder
                 .set_top(Units::Percentage(0.0))
-                .set_align_self(AlignSelf::FlexStart)
+                //.set_align_self(AlignSelf::FlexStart)
                 .class("container")
         });
 
@@ -804,7 +799,7 @@ impl Widget for ScrollContainerHV {
                 .set_top(Units::Percentage(0.0))
                 .set_width(Units::Pixels(10.0))
                 .set_height(Units::Percentage(1.0))
-                .set_align_self(AlignSelf::FlexStart)
+                //.set_align_self(AlignSelf::FlexStart)
             //.set_background_color(Color::rgb(70, 200, 70))
             //.set_right(Units::Pixels(0.0))
             //.class("scrollbar")
@@ -818,7 +813,7 @@ impl Widget for ScrollContainerHV {
                 .set_left(Units::Percentage(0.0))
                 .set_height(Units::Pixels(10.0))
                 .set_width(Units::Percentage(1.0))
-                .set_align_self(AlignSelf::FlexStart)
+                //.set_align_self(AlignSelf::FlexStart)
             //.set_background_color(Color::rgb(20, 70, 200))
             //.set_right(Units::Pixels(0.0))
             //.class("scrollbar")

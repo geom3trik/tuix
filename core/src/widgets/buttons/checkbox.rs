@@ -142,11 +142,9 @@ impl Widget for CheckItem {
         });
         self.label = Label::new(&self.name).build(state, entity, |builder| {
             builder
-                .set_flex_grow(1.0)
                 .set_hoverability(false)
                 .set_focusability(false)
-                .set_align_self(AlignSelf::Stretch)
-                .set_margin_left(Units::Pixels(5.0))
+                .set_left(Pixels(5.0))
         });
 
         self.button =
@@ -159,8 +157,7 @@ impl Widget for CheckItem {
         // });
 
         entity
-            .set_flex_direction(state, FlexDirection::Row)
-            .set_align_items(state, AlignItems::Center);
+            .set_layout_type(state, LayoutType::Row);
 
         entity.set_element(state, "check_item")
     }

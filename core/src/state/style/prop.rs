@@ -1,4 +1,4 @@
-use crate::{AsEntity, state::style::*};
+use crate::{AsEntity, Pos, state::style::*};
 use crate::State;
 use crate::{entity::Entity, Builder, EventHandler, Propagation};
 
@@ -6,7 +6,7 @@ use crate::{Event, WindowEvent};
 
 use crate::state::hierarchy::*;
 
-pub trait PropSet : AsEntity {
+pub trait PropSet : AsEntity + Sized {
     
     fn insert_event(&self, state: &mut State, mut event: Event) -> Entity 
     where Self: 'static
@@ -60,22 +60,15 @@ pub trait PropSet : AsEntity {
 
     // Grid Item
     //fn set_grid_column_start(self, state: &mut State, value: u32) -> Self;
-    //fn set_grid_column_span(self, state: &mut State, value: u32) -> Self;
+    //fn set_grid_column_span(self, state: &mut State, value: u32) -> Self
 
-    // Flex Container
-    fn set_flex_direction(self, state: &mut State, value: FlexDirection) -> Self;
-    fn set_justify_content(self, state: &mut State, value: JustifyContent) -> Self;
-    fn set_align_content(self, state: &mut State, value: AlignContent) -> Self;
-    fn set_align_items(self, state: &mut State, value: AlignItems) -> Self;
+    fn set_position_type(self, state: &mut State, value: PositionType) -> Entity {
+        state.style.positioning_type.insert(self.entity(), value);
 
-    // Flex Item
-    fn set_flex_grow(self, state: &mut State, value: f32) -> Self;
-    fn set_flex_shrink(self, state: &mut State, value: f32) -> Self;
-    fn set_flex_basis(self, state: &mut State, value: Units) -> Self;
-    fn set_align_self(self, state: &mut State, value: AlignSelf) -> Self;
+        self.entity()
+    }
 
     // Positioning
-    fn set_position(self, state: &mut State, value: Position) -> Self;
     fn set_left(self, state: &mut State, value: Units) -> Self;
     fn set_right(self, state: &mut State, value: Units) -> Self;
     fn set_top(self, state: &mut State, value: Units) -> Self;
@@ -120,20 +113,6 @@ pub trait PropSet : AsEntity {
     fn set_border_radius_top_right(self, state: &mut State, value: Units) -> Self;
     fn set_border_radius_bottom_left(self, state: &mut State, value: Units) -> Self;
     fn set_border_radius_bottom_right(self, state: &mut State, value: Units) -> Self;
-
-    // Margin
-    fn set_margin(self, state: &mut State, value: Units) -> Self;
-    fn set_margin_left(self, state: &mut State, value: Units) -> Self;
-    fn set_margin_right(self, state: &mut State, value: Units) -> Self;
-    fn set_margin_top(self, state: &mut State, value: Units) -> Self;
-    fn set_margin_bottom(self, state: &mut State, value: Units) -> Self;
-
-    // Padding
-    fn set_padding(self, state: &mut State, value: Units) -> Self;
-    fn set_padding_left(self, state: &mut State, value: Units) -> Self;
-    fn set_padding_right(self, state: &mut State, value: Units) -> Self;
-    fn set_padding_top(self, state: &mut State, value: Units) -> Self;
-    fn set_padding_bottom(self, state: &mut State, value: Units) -> Self;
 
     // Clipping
     fn set_clip_widget(self, state: &mut State, value: Entity) -> Self;
@@ -405,99 +384,6 @@ impl PropSet for Entity {
         self
     }
 
-    // Flex Container
-    fn set_flex_direction(self, state: &mut State, value: FlexDirection) -> Self {
-        state.style.flex_direction.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    //TODO
-    // fn set_flex_wrap(self, state: &mut State, value: FlexDirection) -> Self {
-    //     if let Some(data) = state.style.grid_container.get_mut(self) {
-    //         data.flex_direction = value;
-    //     }
-
-    //     self
-    // }
-
-    fn set_justify_content(self, state: &mut State, value: JustifyContent) -> Self {
-        state.style.justify_content.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    fn set_align_content(self, state: &mut State, value: AlignContent) -> Self {
-        state.style.align_content.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    fn set_align_items(self, state: &mut State, value: AlignItems) -> Self {
-        state.style.align_items.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    // Flex Item
-    fn set_flex_grow(self, state: &mut State, value: f32) -> Self {
-        state.style.flex_grow.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    fn set_flex_shrink(self, state: &mut State, value: f32) -> Self {
-        state.style.flex_shrink.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    fn set_flex_basis(self, state: &mut State, value: Units) -> Self {
-        state.style.flex_basis.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    fn set_align_self(self, state: &mut State, value: AlignSelf) -> Self {
-        state.style.align_self.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    // Positioning
-    fn set_position(self, state: &mut State, value: Position) -> Self {
-        state.style.position.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
     fn set_left(self, state: &mut State, value: Units) -> Self {
         state.style.left.insert(self, value);
 
@@ -731,98 +617,6 @@ impl PropSet for Entity {
         self
     }
 
-    // Margin
-    fn set_margin(self, state: &mut State, value: Units) -> Self {
-        state.style.margin_left.insert(self, value);
-        state.style.margin_right.insert(self, value);
-        state.style.margin_top.insert(self, value);
-        state.style.margin_bottom.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    fn set_margin_left(self, state: &mut State, value: Units) -> Self {
-        state.style.margin_left.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-    fn set_margin_right(self, state: &mut State, value: Units) -> Self {
-        state.style.margin_right.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-    fn set_margin_top(self, state: &mut State, value: Units) -> Self {
-        state.style.margin_top.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-    fn set_margin_bottom(self, state: &mut State, value: Units) -> Self {
-        state.style.margin_bottom.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    // Padding
-    fn set_padding(self, state: &mut State, value: Units) -> Self {
-        state.style.padding_left.insert(self, value);
-        state.style.padding_right.insert(self, value);
-        state.style.padding_top.insert(self, value);
-        state.style.padding_bottom.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
-    fn set_padding_left(self, state: &mut State, value: Units) -> Self {
-        state.style.padding_left.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-    fn set_padding_right(self, state: &mut State, value: Units) -> Self {
-        state.style.padding_right.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-    fn set_padding_top(self, state: &mut State, value: Units) -> Self {
-        state.style.padding_top.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-    fn set_padding_bottom(self, state: &mut State, value: Units) -> Self {
-        state.style.padding_bottom.insert(self, value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self
-    }
-
     // Clipping
     fn set_clip_widget(self, state: &mut State, value: Entity) -> Self {
         state.style.clip_widget.insert(self, value);
@@ -898,7 +692,7 @@ impl PropSet for Entity {
     }
 }
 
-pub trait PropGet {
+pub trait PropGet: AsEntity {
     fn is_enabled(self, state: &mut State) -> bool;
     fn is_disabled(self, state: &mut State) -> bool;
     fn is_checked(self, state: &mut State) -> bool;
@@ -912,8 +706,11 @@ pub trait PropGet {
     // Display
     fn get_display(&self, state: &mut State) -> Display;
 
+    fn get_layout_type(&self, state: &mut State) -> LayoutType {
+        state.style.layout_type.get(self.entity()).cloned().unwrap_or_default()
+    }
+
     // Position
-    fn get_position(&self, state: &mut State) -> Position;
     fn get_left(&self, state: &mut State) -> Units;
     fn get_right(&self, state: &mut State) -> Units;
     fn get_top(&self, state: &mut State) -> Units;
@@ -929,31 +726,8 @@ pub trait PropGet {
     fn get_min_height(&self, state: &mut State) -> Units;
     fn get_max_height(&self, state: &mut State) -> Units;
 
-    // Margins
-    fn get_margin_left(&self, state: &mut State) -> Units;
-    fn get_margin_right(&self, state: &mut State) -> Units;
-    fn get_margin_top(&self, state: &mut State) -> Units;
-    fn get_margin_bottom(&self, state: &mut State) -> Units;
-
-    // Padding
-    fn get_padding_left(&self, state: &mut State) -> Units;
-    fn get_padding_right(&self, state: &mut State) -> Units;
-    fn get_padding_top(&self, state: &mut State) -> Units;
-    fn get_padding_bottom(&self, state: &mut State) -> Units;
-
     // Border
     fn get_border_width(&self, state: &mut State) -> Units;
-
-    // Flex Container
-    fn get_flex_direction(&self, state: &mut State) -> FlexDirection;
-    fn get_flex_basis(&self, state: &mut State) -> Units;
-    fn get_justify_content(&self, state: &mut State) -> JustifyContent;
-    fn get_align_items(&self, state: &mut State) -> AlignItems;
-
-    // Flex Item
-    fn get_flex_grow(&self, state: &mut State) -> f32;
-    fn get_flex_shrink(&self, state: &mut State) -> f32;
-    fn get_align_self(&self, state: &mut State) -> AlignSelf;
 
     // Tooltip
     fn get_tooltip(&self, state: &mut State) -> String;
@@ -1017,9 +791,6 @@ impl PropGet for Entity {
     }
 
     // Position
-    fn get_position(&self, state: &mut State) -> Position {
-        state.style.position.get(*self).cloned().unwrap_or_default()
-    }
     fn get_left(&self, state: &mut State) -> Units {
         state.style.left.get(*self).cloned().unwrap_or_default()
     }
@@ -1079,148 +850,11 @@ impl PropGet for Entity {
             .unwrap_or_default()
     }
 
-    // Margins
-    fn get_margin_left(&self, state: &mut State) -> Units {
-        state
-            .style
-            .margin_left
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    fn get_margin_right(&self, state: &mut State) -> Units {
-        state
-            .style
-            .margin_right
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    fn get_margin_top(&self, state: &mut State) -> Units {
-        state
-            .style
-            .margin_top
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    fn get_margin_bottom(&self, state: &mut State) -> Units {
-        state
-            .style
-            .margin_bottom
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    // Padding
-    fn get_padding_left(&self, state: &mut State) -> Units {
-        state
-            .style
-            .padding_left
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    fn get_padding_right(&self, state: &mut State) -> Units {
-        state
-            .style
-            .padding_right
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-    fn get_padding_top(&self, state: &mut State) -> Units {
-        state
-            .style
-            .padding_top
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-    fn get_padding_bottom(&self, state: &mut State) -> Units {
-        state
-            .style
-            .padding_bottom
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
     // Border
     fn get_border_width(&self, state: &mut State) -> Units {
         state
             .style
             .border_width
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    // Flex Container
-    fn get_flex_direction(&self, state: &mut State) -> FlexDirection {
-        state
-            .style
-            .flex_direction
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    fn get_flex_basis(&self, state: &mut State) -> Units {
-        state
-            .style
-            .flex_basis
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    fn get_justify_content(&self, state: &mut State) -> JustifyContent {
-        state
-            .style
-            .justify_content
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    fn get_align_items(&self, state: &mut State) -> AlignItems {
-        state
-            .style
-            .align_items
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    // Flex Item
-    fn get_flex_grow(&self, state: &mut State) -> f32 {
-        state
-            .style
-            .flex_grow
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    fn get_flex_shrink(&self, state: &mut State) -> f32 {
-        state
-            .style
-            .flex_shrink
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    fn get_align_self(&self, state: &mut State) -> AlignSelf {
-        state
-            .style
-            .align_self
             .get(*self)
             .cloned()
             .unwrap_or_default()

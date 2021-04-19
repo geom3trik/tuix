@@ -8,7 +8,7 @@ impl Inspectable for String {
     fn widget(&self, state: &mut State, parent: Entity, name: &str) -> Entity {
         let row = Row::new().build(state, parent, |builder| builder.set_width(Stretch(1.0)));
         let label = Label::new(name).build(state, row, |builder| builder);
-        Textbox::new(self).build(state, row, |builder| builder.set_flex_grow(1.0))
+        Textbox::new(self).build(state, row, |builder| builder)
     }
 }
 
@@ -29,7 +29,7 @@ impl Inspectable for i32 {
              .with_max(105)
              //.on_min(Event::new(CheckboxEvent::Uncheck).target(switch))
              //.on_max(Event::new(CheckboxEvent::Check).target(switch))
-             .build(state, row, |builder| builder.set_flex_grow(1.0))
+             .build(state, row, |builder| builder)
     }
 }
 
@@ -39,6 +39,6 @@ impl Inspectable for f32 {
         let label = Label::new(name).build(state, row, |builder| builder);
         Slider::new()
             .with_initial_value(*self)
-            .build(state, row, |builder| builder.set_flex_grow(1.0))
+            .build(state, row, |builder| builder)
     }
 }

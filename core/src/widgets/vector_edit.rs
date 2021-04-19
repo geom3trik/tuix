@@ -176,20 +176,20 @@ where
         entity.set_flex_direction(state, FlexDirection::Row);
 
         self.x = Textbox::new(&self.xval.to_string())
-            .build(state, entity, |builder| builder.set_flex_grow(1.0));
+            .build(state, entity, |builder| builder);
         self.y = Textbox::new(&self.yval.to_string()).build(state, entity, |builder| {
             builder
-                .set_flex_grow(1.0)
+                
                 .set_margin_left(Units::Pixels(5.0))
         });
         self.z = Textbox::new(&self.zval.to_string()).build(state, entity, |builder| {
             builder
-                .set_flex_grow(1.0)
+                
                 .set_margin_left(Units::Pixels(5.0))
         });
         self.w = Textbox::new(&self.wval.to_string()).build(state, entity, |builder| {
             builder
-                .set_flex_grow(1.0)
+                
                 .set_margin_left(Units::Pixels(5.0))
         });
 

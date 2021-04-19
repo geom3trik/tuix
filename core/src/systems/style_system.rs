@@ -3,6 +3,23 @@ use crate::{BoundingBox, Entity, Event, HierarchyTree, IntoParentIterator, State
 use crate::hierarchy::*;
 use crate::state::animation::*;
 
+pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
+    for entity in hierarchy.into_iter() {
+        if entity == Entity::root() {
+            continue;
+        }
+
+        let parent = hierarchy.get_parent(entity).unwrap();
+
+        if let Some(z_order) = state.style.z_order.get(entity) {
+            state.data.set_z_order(entity, *z_order);
+        } else {
+            let parent_z_order = state.data.get_z_order(parent);
+            state.data.set_z_order(entity, parent_z_order);
+        }
+    }
+} 
+
 pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
     //println!("Apply Clipping");
     for entity in hierarchy.into_iter() {
@@ -232,13 +249,6 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
-        // Positioning
-        if state.style.position.link_rule(entity, &matched_rules) {
-            //println!("5");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
         if state.style.left.link_rule(entity, &matched_rules) {
             //println!("6");
             should_relayout = true;
@@ -301,56 +311,6 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
-        // Margin
-        if state.style.margin_left.link_rule(entity, &matched_rules) {
-            //println!("16");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.margin_right.link_rule(entity, &matched_rules) {
-            //println!("17");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.margin_top.link_rule(entity, &matched_rules) {
-            //println!("18");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.margin_bottom.link_rule(entity, &matched_rules) {
-            //println!("19");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        // Padding
-        if state.style.padding_left.link_rule(entity, &matched_rules) {
-            //println!("20");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.padding_right.link_rule(entity, &matched_rules) {
-            //println!("21");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.padding_top.link_rule(entity, &matched_rules) {
-            //println!("22");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.padding_bottom.link_rule(entity, &matched_rules) {
-            //println!("23");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
         // Border
         if state.style.border_width.link_rule(entity, &matched_rules) {
             //println!("24");
@@ -399,13 +359,6 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
-        // Flex Container
-        if state.style.flex_direction.link_rule(entity, &matched_rules) {
-            //println!("30");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
         if state.style.layout_type.link_rule(entity, &matched_rules) {
             //println!("30");
             should_relayout = true;
@@ -414,59 +367,6 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
 
         if state.style.positioning_type.link_rule(entity, &matched_rules) {
             //println!("30");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state
-            .style
-            .justify_content
-            .link_rule(entity, &matched_rules)
-        {
-            //println!("31");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.align_content.link_rule(entity, &matched_rules) {
-            //println!("32");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.align_items.link_rule(entity, &matched_rules) {
-            //println!("33");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.align_self.link_rule(entity, &matched_rules) {
-            //println!("34");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        // Flex Item
-        if state.style.flex_basis.link_rule(entity, &matched_rules) {
-            //println!("35");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.flex_grow.link_rule(entity, &matched_rules) {
-            //println!("36");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.flex_shrink.link_rule(entity, &matched_rules) {
-            //println!("37");
-            should_relayout = true;
-            should_redraw = true;
-        }
-
-        if state.style.align_self.link_rule(entity, &matched_rules) {
-            //println!("38");
             should_relayout = true;
             should_redraw = true;
         }

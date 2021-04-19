@@ -315,12 +315,21 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "background-image" => Property::BackgroundImage(parse_string(input)?),
 
             // Positioning
-            "position" => Property::Position(parse_position(input)?),
+            "position" => Property::PositionType(parse_positioning_type(input)?),
 
             "left" => Property::Left(parse_units(input)?),
             "right" => Property::Right(parse_units(input)?),
             "top" => Property::Top(parse_units(input)?),
             "bottom" => Property::Bottom(parse_units(input)?),
+
+            "min-left" => Property::MinLeft(parse_units(input)?),
+            "max-left" => Property::MaxLeft(parse_units(input)?),
+            "min-right" => Property::MinRight(parse_units(input)?),
+            "max-right" => Property::MaxRight(parse_units(input)?),
+            "min-top" => Property::MinTop(parse_units(input)?),
+            "max-top" => Property::MaxTop(parse_units(input)?),
+            "min-bottom" => Property::MinBottom(parse_units(input)?),
+            "max-bottom" => Property::MaxBottom(parse_units(input)?),
 
             // Size
             "width" => Property::Width(parse_units(input)?),
@@ -332,20 +341,6 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "min-height" => Property::MinHeight(parse_units(input)?),
             "max-width" => Property::MaxWidth(parse_units(input)?),
             "max-height" => Property::MaxHeight(parse_units(input)?),
-
-            // Margin
-            "margin" => Property::Margin(parse_units(input)?),
-            "margin-left" => Property::MarginLeft(parse_units(input)?),
-            "margin-right" => Property::MarginRight(parse_units(input)?),
-            "margin-top" => Property::MarginTop(parse_units(input)?),
-            "margin-bottom" => Property::MarginBottom(parse_units(input)?),
-
-            // Padding
-            "padding" => Property::Padding(parse_units(input)?),
-            "padding-left" => Property::PaddingLeft(parse_units(input)?),
-            "padding-right" => Property::PaddingRight(parse_units(input)?),
-            "padding-top" => Property::PaddingTop(parse_units(input)?),
-            "padding-bottom" => Property::PaddingBottom(parse_units(input)?),
 
             "child-space" => Property::ChildSpace(parse_units(input)?),
             "child-left" => Property::ChildLeft(parse_units(input)?),
@@ -731,15 +726,15 @@ fn parse_units<'i, 't>(
     })
 }
 
-fn parse_position<'i, 't>(
+fn parse_positioning_type<'i, 't>(
     input: &mut Parser<'i, 't>,
-) -> Result<Position, ParseError<'i, CustomParseError>> {
+) -> Result<PositionType, ParseError<'i, CustomParseError>> {
     let location = input.current_source_location();
 
     Ok(match input.next()? {
         Token::Ident(name) => match name.as_ref() {
-            "absolute" => Position::Absolute,
-            "relative" => Position::Relative,
+            "self-directed" => PositionType::SelfDirected,
+            "parent-directed" => PositionType::ParentDirected,
 
             t => {
                 return Err(

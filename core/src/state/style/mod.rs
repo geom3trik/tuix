@@ -87,7 +87,6 @@ pub struct Style {
     pub scroll: DenseStorage<Scroll>,     // TODO
 
     // Positioning
-    pub position: StyleStorage<Position>,
     pub left: AnimatableStorage<Units>,
     pub right: AnimatableStorage<Units>,
     pub top: AnimatableStorage<Units>,
@@ -119,18 +118,6 @@ pub struct Style {
     pub min_top: AnimatableStorage<Units>,
     pub min_bottom: AnimatableStorage<Units>,
 
-    // Margin
-    pub margin_left: AnimatableStorage<Units>,
-    pub margin_right: AnimatableStorage<Units>,
-    pub margin_top: AnimatableStorage<Units>,
-    pub margin_bottom: AnimatableStorage<Units>,
-
-    // Padding
-    pub padding_left: AnimatableStorage<Units>,
-    pub padding_right: AnimatableStorage<Units>,
-    pub padding_top: AnimatableStorage<Units>,
-    pub padding_bottom: AnimatableStorage<Units>,
-
     // Border
     pub border_width: AnimatableStorage<Units>,
     pub border_color: AnimatableStorage<Color>,
@@ -146,19 +133,19 @@ pub struct Style {
     pub focus_order: DenseStorage<FocusOrder>,
 
     // Flexbox
-    pub align_self: StyleStorage<AlignSelf>,
-    pub flex_grow: AnimatableStorage<f32>,
-    pub flex_shrink: AnimatableStorage<f32>,
-    pub flex_basis: AnimatableStorage<Units>,
+    //pub align_self: StyleStorage<AlignSelf>,
+    //pub flex_grow: AnimatableStorage<f32>,
+    //pub flex_shrink: AnimatableStorage<f32>,
+    //pub flex_basis: AnimatableStorage<Units>,
 
     //pub grid_item: DenseStorage<GridItem>,
 
     //pub justification: DenseStorage<Justification>,
     //pub alignment: DenseStorage<Alignment>,
-    pub flex_direction: StyleStorage<FlexDirection>,
-    pub justify_content: StyleStorage<JustifyContent>,
-    pub align_items: StyleStorage<AlignItems>,
-    pub align_content: StyleStorage<AlignContent>,
+    //pub flex_direction: StyleStorage<FlexDirection>,
+    //pub justify_content: StyleStorage<JustifyContent>,
+    //pub align_items: StyleStorage<AlignItems>,
+    //pub align_content: StyleStorage<AlignContent>,
 
     // Background
     pub background_color: AnimatableStorage<Color>,
@@ -194,22 +181,22 @@ pub struct Style {
     // LAYOUT
 
     // Main Axis
-    pub main_axis: StyleStorage<Axis>,
+    //pub main_axis: StyleStorage<Axis>,
 
     // Cross Axis
-    pub cross_axis: StyleStorage<Axis>,
+    //pub cross_axis: StyleStorage<Axis>,
 
     // Main Axis Align
-    pub main_axis_align: StyleStorage<AxisAlign>,
+    //pub main_axis_align: StyleStorage<AxisAlign>,
 
     // Cross Axis Align
-    pub cross_axis_align: StyleStorage<AxisAlign>,
+    //pub cross_axis_align: StyleStorage<AxisAlign>,
 
     // Layout Type
     pub layout_type: StyleStorage<LayoutType>,
 
     // Positioning Type
-    pub positioning_type: StyleStorage<PositioningType>,
+    pub positioning_type: StyleStorage<PositionType>,
 
     // Grid
     pub grid_rows: StyleStorage<GridAxis>,
@@ -313,19 +300,6 @@ impl Style {
                         self.text_justify.insert_rule(rule_id, value);
                     }
 
-                    Property::Position(value) => {
-                        self.position.insert_rule(rule_id, value);
-                        match value {
-                            Position::Absolute => {
-                                self.positioning_type.insert_rule(rule_id, PositioningType::SelfDirected);
-                            }
-
-                            Position::Relative => {
-                                self.positioning_type.insert_rule(rule_id, PositioningType::ParentDirected);
-                            }
-                        }
-                    }
-
                     Property::Left(value) => {
                         self.left.insert_rule(rule_id, value);
                     }
@@ -364,52 +338,6 @@ impl Style {
 
                     Property::MinHeight(value) => {
                         self.min_height.insert_rule(rule_id, value);
-                    }
-
-                    Property::Margin(value) => {
-                        self.margin_left.insert_rule(rule_id, value);
-                        self.margin_right.insert_rule(rule_id, value);
-                        self.margin_top.insert_rule(rule_id, value);
-                        self.margin_bottom.insert_rule(rule_id, value);
-                    }
-
-                    Property::MarginLeft(value) => {
-                        self.margin_left.insert_rule(rule_id, value);
-                    }
-
-                    Property::MarginRight(value) => {
-                        self.margin_right.insert_rule(rule_id, value);
-                    }
-
-                    Property::MarginTop(value) => {
-                        self.margin_top.insert_rule(rule_id, value);
-                    }
-
-                    Property::MarginBottom(value) => {
-                        self.margin_bottom.insert_rule(rule_id, value);
-                    }
-
-                    Property::Padding(value) => {
-                        self.padding_left.insert_rule(rule_id, value);
-                        self.padding_right.insert_rule(rule_id, value);
-                        self.padding_top.insert_rule(rule_id, value);
-                        self.padding_bottom.insert_rule(rule_id, value);
-                    }
-
-                    Property::PaddingLeft(value) => {
-                        self.padding_left.insert_rule(rule_id, value);
-                    }
-
-                    Property::PaddingRight(value) => {
-                        self.padding_right.insert_rule(rule_id, value);
-                    }
-
-                    Property::PaddingTop(value) => {
-                        self.padding_top.insert_rule(rule_id, value);
-                    }
-
-                    Property::PaddingBottom(value) => {
-                        self.padding_bottom.insert_rule(rule_id, value);
                     }
 
                     // Border
@@ -460,46 +388,9 @@ impl Style {
                     //     self.background_image.insert_rule(rule_id, value);
                     // }
 
-                    // Flex Container
-                    Property::FlexDirection(value) => {
-                        self.flex_direction.insert_rule(rule_id, value);
-                        match value {
-                            FlexDirection::Column => {
-                                self.layout_type.insert_rule(rule_id, LayoutType::Column);
-                            }
 
-                            FlexDirection::Row => {
-                                self.layout_type.insert_rule(rule_id, LayoutType::Column);
-                            }
-
-                            _=> {}
-                        }
-                    }
-                    Property::JustifyContent(value) => {
-                        self.justify_content.insert_rule(rule_id, value);
-                    }
-                    Property::AlignContent(value) => {
-                        self.align_content.insert_rule(rule_id, value);
-                    }
-                    Property::AlignItems(value) => {
-                        self.align_items.insert_rule(rule_id, value);
-                    }
-
-                    Property::AlignSelf(value) => {
-                        self.align_self.insert_rule(rule_id, value);
-                    }
-
-                    // Flex Item
-                    Property::FlexGrow(value) => {
-                        self.flex_grow.insert_rule(rule_id, value);
-                    }
-
-                    Property::FlexShrink(value) => {
-                        self.flex_shrink.insert_rule(rule_id, value);
-                    }
-
-                    Property::FlexBasis(value) => {
-                        self.flex_basis.insert_rule(rule_id, value);
+                    Property::LayoutType(value) => {
+                        self.layout_type.insert_rule(rule_id, value);
                     }
 
                     Property::ZIndex(value) => {
@@ -560,21 +451,6 @@ impl Style {
                             match transition.property.as_ref() {
                                 "background-color" => {
                                     self.background_color.insert_transition(
-                                        rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
-                                    );
-                                }
-
-                                "flex-basis" => {
-                                    self.flex_basis.insert_transition(
                                         rule_id,
                                         AnimationState::new()
                                             .with_duration(std::time::Duration::from_secs_f32(
@@ -678,125 +554,6 @@ impl Style {
                                     );
                                 }
 
-                                "margin-bottom" => {
-                                    self.margin_bottom.insert_transition(
-                                        rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
-                                    );
-                                }
-
-                                "margin-top" => {
-                                    self.margin_top.insert_transition(
-                                        rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
-                                    );
-                                }
-
-                                "margin-left" => {
-                                    self.margin_left.insert_transition(
-                                        rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
-                                    );
-                                }
-
-                                "margin-right" => {
-                                    self.margin_right.insert_transition(
-                                        rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
-                                    );
-                                }
-
-                                "padding-left" => {
-                                    self.padding_left.insert_transition(
-                                        rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
-                                    );
-                                }
-
-                                "padding-right" => {
-                                    self.padding_right.insert_transition(
-                                        rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
-                                    );
-                                }
-
-                                "padding-top" => {
-                                    self.padding_top.insert_transition(
-                                        rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
-                                    );
-                                }
-
-                                "padding-bottom" => {
-                                    self.padding_bottom.insert_transition(
-                                        rule_id,
-                                        AnimationState::new()
-                                            .with_duration(std::time::Duration::from_secs_f32(
-                                                transition.duration,
-                                            ))
-                                            .with_delay(std::time::Duration::from_secs_f32(
-                                                transition.delay,
-                                            ))
-                                            .with_keyframe((0.0, Default::default()))
-                                            .with_keyframe((1.0, Default::default())),
-                                    );
-                                }
 
                                 "opacity" => {
                                     self.opacity.insert_transition(
@@ -823,6 +580,7 @@ impl Style {
         }
     }
 
+    /*
     pub fn parse_theme2(&mut self, stylesheet: &str) {
         let mut input = ParserInput::new(stylesheet);
         let mut parser = Parser::new(&mut input);
@@ -915,29 +673,6 @@ impl Style {
                         self.min_height.insert_rule(rule_id, value);
                     }
 
-                    Property::Margin(value) => {
-                        self.margin_left.insert_rule(rule_id, value);
-                        self.margin_right.insert_rule(rule_id, value);
-                        self.margin_top.insert_rule(rule_id, value);
-                        self.margin_bottom.insert_rule(rule_id, value);
-                    }
-
-                    Property::MarginLeft(value) => {
-                        self.margin_left.insert_rule(rule_id, value);
-                    }
-
-                    Property::MarginRight(value) => {
-                        self.margin_right.insert_rule(rule_id, value);
-                    }
-
-                    Property::MarginTop(value) => {
-                        self.margin_top.insert_rule(rule_id, value);
-                    }
-
-                    Property::MarginBottom(value) => {
-                        self.margin_bottom.insert_rule(rule_id, value);
-                    }
-
                     Property::Padding(value) => {
                         self.padding_left.insert_rule(rule_id, value);
                         self.padding_right.insert_rule(rule_id, value);
@@ -1333,6 +1068,7 @@ impl Style {
             }
         }
     }
+    */
 
     // TODO
     pub fn set_property(&mut self, entity: Entity, propert: Property) {}
@@ -1371,16 +1107,6 @@ impl Style {
         self.max_width.remove_styles();
         self.min_height.remove_styles();
         self.max_height.remove_styles();
-        // Margins
-        self.margin_left.remove_styles();
-        self.margin_right.remove_styles();
-        self.margin_top.remove_styles();
-        self.margin_bottom.remove_styles();
-        // Padding
-        self.padding_left.remove_styles();
-        self.padding_right.remove_styles();
-        self.padding_top.remove_styles();
-        self.padding_bottom.remove_styles();
         // Border
         self.border_width.remove_styles();
         self.border_color.remove_styles();
@@ -1389,16 +1115,6 @@ impl Style {
         self.border_radius_top_right.remove_styles();
         self.border_radius_bottom_left.remove_styles();
         self.border_radius_bottom_right.remove_styles();
-        // Flexbox
-        self.flex_grow.remove_styles();
-        self.flex_shrink.remove_styles();
-        self.flex_basis.remove_styles();
-        self.align_self.remove_styles();
-        self.align_content.remove_styles();
-        // Flex Container
-        self.align_items.remove_styles();
-        self.justify_content.remove_styles();
-        self.flex_direction.remove_styles();
         // Display
         self.display.remove_styles();
         self.visibility.remove_styles();

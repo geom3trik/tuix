@@ -30,8 +30,8 @@ pub use dropdown::*;
 pub mod scroll_container;
 pub use scroll_container::*;
 
-pub mod value_slider;
-pub use value_slider::ValueSlider;
+// pub mod value_slider;
+// pub use value_slider::ValueSlider;
 
 pub mod length_box;
 pub use length_box::LengthBox;
@@ -45,8 +45,8 @@ pub use label::*;
 pub mod containers;
 pub use containers::*;
 
-pub mod vector_edit;
-pub use vector_edit::*;
+// pub mod vector_edit;
+// pub use vector_edit::*;
 
 pub mod window;
 pub use window::WindowWidget;

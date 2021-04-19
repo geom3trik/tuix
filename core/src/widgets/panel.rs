@@ -95,8 +95,6 @@ impl Widget for Panel {
                 .set_font("icons")
                 .set_text_justify(Justify::Center)
                 .set_text_align(Align::Center)
-                .set_flex_basis(Pixels(20.0))
-                //.set_left(Pixels(5.0))
                 .set_top(Stretch(1.0))
                 .set_bottom(Stretch(1.0))
                 .set_width(Pixels(20.0))
@@ -109,7 +107,6 @@ impl Widget for Panel {
         // Label
         Label::new(&self.title).build(state, self.header, |builder| {
             builder
-                .set_flex_grow(1.0)
                 .set_width(Stretch(1.0))
                 .set_height(Stretch(1.0))
                 .set_left(Pixels(10.0))
@@ -249,8 +246,8 @@ impl Widget for Panel {
 
                             entity.set_checked(state, true);
 
-                            match entity.get_flex_direction(state) {
-                                FlexDirection::Column | FlexDirection::ColumnReverse => {
+                            match entity.get_layout_type(state) {
+                                LayoutType::Column => {
                                 
 
                                     state.style.height.play_animation(
@@ -267,7 +264,7 @@ impl Widget for Panel {
                                     self.arrow.set_rotate(state, 0.0);
                                 }
 
-                                FlexDirection::Row | FlexDirection::RowReverse => {
+                                LayoutType::Row => {
                                     state.style.width.play_animation(
                                         self.container1,
                                         self.expand_width_animation,
@@ -282,6 +279,8 @@ impl Widget for Panel {
 
                                     self.arrow.set_rotate(state, -90.0);
                                 }
+
+                                _=> {}
                             }
 
                             state
@@ -295,8 +294,8 @@ impl Widget for Panel {
 
                             entity.set_checked(state, false);
                             
-                            match entity.get_flex_direction(state) {
-                                FlexDirection::Column | FlexDirection::ColumnReverse => {
+                            match entity.get_layout_type(state) {
+                                LayoutType::Column => {
 
                                     if !state.style.height.is_animating(self.container1) {
                                         let container_height = state.data.get_height(self.container1);
@@ -361,7 +360,7 @@ impl Widget for Panel {
                                     self.arrow.set_rotate(state, -90.0);
                                 }
 
-                                FlexDirection::Row | FlexDirection::RowReverse => {
+                                LayoutType::Row => {
 
 
                                     if !state.style.height.is_animating(self.container1) {
@@ -423,6 +422,8 @@ impl Widget for Panel {
                                         .play_animation(self.arrow, self.arrow_cw_animation);
                                     self.arrow.set_rotate(state, 0.0);
                                 }
+
+                                _=> {}
                             }
 
                             state
@@ -447,9 +448,9 @@ impl Widget for Panel {
                 
                 WindowEvent::GeometryChanged(_) => {
                     if event.target == self.container1 {
-                        match entity.get_flex_direction(state) {
+                        match entity.get_layout_type(state) {
                         
-                            FlexDirection::Row | FlexDirection::RowReverse => {
+                            LayoutType::Row => {
                                 self.arrow.set_rotate(state, -90.0);
                             }
 

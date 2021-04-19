@@ -235,12 +235,6 @@ impl<'a> Builder<'a> {
 
     // Positioning
 
-    pub fn set_position(mut self, val: Position) -> Self {
-        self.state.style.position.insert(self.entity, val);
-
-        self
-    }
-
     pub fn set_left(mut self, val: Units) -> Self {
         self.state.style.left.insert(self.entity, val);
 
@@ -352,128 +346,6 @@ impl<'a> Builder<'a> {
 
     pub fn set_max_bottom(mut self, val: Units) -> Self {
         self.state.style.max_bottom.insert(self.entity, val);
-        self
-    }
-
-    // Margins
-
-    pub fn set_margin(mut self, val: Units) -> Self {
-        self.state.style.margin_left.insert(self.entity, val);
-        self.state.style.margin_right.insert(self.entity, val);
-        self.state.style.margin_top.insert(self.entity, val);
-        self.state.style.margin_bottom.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_margin_left(mut self, val: Units) -> Self {
-        self.state.style.margin_left.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_margin_right(mut self, val: Units) -> Self {
-        self.state.style.margin_right.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_margin_top(mut self, val: Units) -> Self {
-        self.state.style.margin_top.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_margin_bottom(mut self, val: Units) -> Self {
-        self.state.style.margin_bottom.insert(self.entity, val);
-
-        self
-    }
-
-    // Padding
-
-    pub fn set_padding(mut self, val: Units) -> Self {
-        self.state.style.padding_left.insert(self.entity, val);
-        self.state.style.padding_right.insert(self.entity, val);
-        self.state.style.padding_top.insert(self.entity, val);
-        self.state.style.padding_bottom.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_padding_left(mut self, val: Units) -> Self {
-        self.state.style.padding_left.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_padding_right(mut self, val: Units) -> Self {
-        self.state.style.padding_right.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_padding_top(mut self, val: Units) -> Self {
-        self.state.style.padding_top.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_padding_bottom(mut self, val: Units) -> Self {
-        self.state.style.padding_bottom.insert(self.entity, val);
-
-        self
-    }
-
-    // Flex Item
-
-    pub fn set_flex_grow(mut self, val: f32) -> Self {
-        self.state.style.flex_grow.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_flex_shrink(mut self, val: f32) -> Self {
-        self.state.style.flex_shrink.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_flex_basis(mut self, val: Units) -> Self {
-        self.state.style.flex_basis.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_align_self(mut self, val: AlignSelf) -> Self {
-        self.state.style.align_self.insert(self.entity, val);
-
-        self
-    }
-
-    // Flex Container
-
-    pub fn set_flex_direction(mut self, val: FlexDirection) -> Self {
-        self.state.style.flex_direction.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_justify_content(mut self, val: JustifyContent) -> Self {
-        self.state.style.justify_content.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_align_content(mut self, val: AlignContent) -> Self {
-        self.state.style.align_content.insert(self.entity, val);
-
-        self
-    }
-
-    pub fn set_align_items(mut self, val: AlignItems) -> Self {
-        self.state.style.align_items.insert(self.entity, val);
-
         self
     }
 
@@ -667,7 +539,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn set_position_type(mut self, value: PositioningType) -> Self {
+    pub fn set_position_type(mut self, value: PositionType) -> Self {
         self.state.style.positioning_type.insert(self.entity, value);
         self
     }

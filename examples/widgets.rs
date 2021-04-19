@@ -107,19 +107,19 @@ fn main() {
             builder
                 .set_text("Option 1")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 2")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 3")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
 
         // MULTILIST
@@ -136,19 +136,19 @@ fn main() {
             builder
                 .set_text("Option 1")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 2")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 3")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
 
         // LISTS PANEL
@@ -169,20 +169,20 @@ fn main() {
                 builder
                     .set_text("Option 1")
                     .set_height(Pixels(30.0))
-                    .set_padding_left(Pixels(5.0))
+                    .set_child_left(Pixels(5.0))
             });
         CheckButton::new(false)
             .build(state, list, |builder| {
                 builder
                     .set_text("Option 2")
                     .set_height(Pixels(30.0))
-                    .set_padding_left(Pixels(5.0))
+                    .set_child_left(Pixels(5.0))
             });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 3")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
 
         // DROPDOWN MULTILIST
@@ -200,19 +200,19 @@ fn main() {
             builder
                 .set_text("Option 1")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 2")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
         CheckButton::new(false).build(state, list, |builder| {
             builder
                 .set_text("Option 3")
                 .set_height(Pixels(30.0))
-                .set_padding_left(Pixels(5.0))
+                .set_child_left(Pixels(5.0))
         });
 
         // // DROPDOWN CHECKITEM LIST
@@ -225,17 +225,17 @@ fn main() {
         // CheckItem::new("Option 1", true).build(state, list, |builder| {
         //     builder
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
         // CheckItem::new("Option2", false).build(state, list, |builder| {
         //     builder
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
         // CheckItem::new("Option3", false).build(state, list, |builder| {
         //     builder
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
 
         // // DROPDOWN CHECK MULTILIST
@@ -252,17 +252,17 @@ fn main() {
         // CheckItem::new("Option 1", true).build(state, list, |builder| {
         //     builder
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
         // CheckItem::new("Option2", false).build(state, list, |builder| {
         //     builder
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
         // CheckItem::new("Option3", false).build(state, list, |builder| {
         //     builder
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
 
         // // LISTS PANEL
@@ -276,19 +276,19 @@ fn main() {
         //     builder
         //         //.set_text("Option 1")
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
         // CheckItem::new("Option2", false).build(state, list, |builder| {
         //     builder
         //         //.set_text("Option 2")
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
         // CheckItem::new("Option3", false).build(state, list, |builder| {
         //     builder
         //         //.set_text("Option 3")
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
 
         // // LISTBOX
@@ -301,19 +301,19 @@ fn main() {
         //     builder
         //         //.set_text("Option 1")
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
         // CheckItem::new("Option2", false).build(state, list, |builder| {
         //     builder
         //         //.set_text("Option 2")
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
         // CheckItem::new("Option3", false).build(state, list, |builder| {
         //     builder
         //         //.set_text("Option 3")
         //         .set_flex_basis(Pixels(30.0))
-        //         .set_padding_left(Pixels(5.0))
+        //         .set_child_left(Pixels(5.0))
         // });
 
         //
@@ -350,7 +350,6 @@ fn main() {
 
             .build(state, row, |builder| 
                 builder
-                    .set_flex_grow(1.0)
                     .set_top(Stretch(1.0))
                     .set_bottom(Stretch(1.0))
             );

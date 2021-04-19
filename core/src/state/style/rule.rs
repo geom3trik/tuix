@@ -159,12 +159,6 @@ impl StyleRule {
 
     // Positioning
 
-    pub fn set_position(mut self, value: Position) -> Self {
-        self.properties.push(Property::Position(value));
-
-        self
-    }
-
     pub fn set_left(mut self, value: Units) -> Self {
         self.properties.push(Property::Left(value));
 

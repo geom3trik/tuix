@@ -137,10 +137,9 @@ impl Widget for ValueKnob {
         let freq_val: FreqValue = self.init.into();
         self.textbox = Textbox::new(&freq_val.to_string()).build(state, entity, |builder| {
             builder
-                .set_height(Units::Pixels(25.0))
-                .set_margin_left(Units::Pixels(2.5))
-                .set_margin_right(Units::Pixels(2.5))
-                .set_flex_grow(1.0)
+                .set_height(Pixels(25.0))
+                .set_left(Pixels(2.5))
+                .set_right(Pixels(2.5))
         });
 
         state.style.insert_element(entity, "value_knob");

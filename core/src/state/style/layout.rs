@@ -33,17 +33,6 @@ impl Interpolator for MaxHeight {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Position {
-    Relative,
-    Absolute,
-}
-
-impl Default for Position {
-    fn default() -> Self {
-        Position::Relative
-    }
-}
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Justify {
@@ -68,20 +57,6 @@ pub enum Align {
 impl Default for Align {
     fn default() -> Self {
         Align::Center
-    }
-}
-
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum JustifySelf {
-    Start,
-    End,
-    Center,
-    Stretch,
-}
-
-impl Default for JustifySelf {
-    fn default() -> Self {
-        JustifySelf::Start
     }
 }
 
@@ -121,23 +96,6 @@ impl Default for Scroll {
 
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Axis {
-    pub space_before: Units,
-    pub size: Units,
-    pub space_after: Units,
-}
-
-impl Default for Axis {
-    fn default() -> Self {
-        Self {
-            space_before: Units::Auto,
-            size: Units::Stretch(1.0),
-            space_after: Units::Auto,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
 pub struct AxisAlign {
     pub space_before_first: Units,
     pub space_between: Units,
@@ -170,12 +128,12 @@ impl Default for LayoutType {
 
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum PositioningType {
+pub enum PositionType {
     SelfDirected,
     ParentDirected,
 }
 
-impl Default for PositioningType {
+impl Default for PositionType {
     fn default() -> Self {
         Self::ParentDirected
     }

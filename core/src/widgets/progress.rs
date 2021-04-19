@@ -1,3 +1,5 @@
+use std::alloc::Layout;
+
 use crate::state::style::*;
 use crate::widgets::slider::SliderEvent;
 use crate::widgets::*;
@@ -25,7 +27,7 @@ impl ProgressBar {
 impl Widget for ProgressBar {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row);
+        entity.set_layout_type(state, LayoutType::Row);
 
         self.front = Element::new().build(state, entity, |builder| {
             builder.set_width(Units::Percentage(0.5)).class("front")

@@ -43,7 +43,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             let child_positioning_type = state.style.positioning_type.get(child).cloned().unwrap_or_default();
 
             match child_positioning_type {
-                PositioningType::ParentDirected => {
+                PositionType::ParentDirected => {
                     if !found_first {
                         found_first = true;
                         state.data.set_stack_first_child(child, true);
@@ -51,7 +51,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     last_child = child;
                 }
 
-                PositioningType::SelfDirected => {
+                PositionType::SelfDirected => {
                     state.data.set_stack_first_child(child, true);
                     state.data.set_stack_last_child(child, true);
                 }
@@ -351,7 +351,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
 
         // match child_positioning_type {
-        //     PositioningType::SelfDirected => {
+        //     PositionType::SelfDirected => {
         //         horizontal_used_space = 0.0;
         //         vertical_used_space = 0.0;
         //     }
@@ -363,14 +363,14 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
         match parent_layout_type {
             LayoutType::Column => {
-                if child_positioning_type == PositioningType::ParentDirected {
+                if child_positioning_type == PositionType::ParentDirected {
                     state.data.set_child_sum(parent, state.data.get_child_sum(parent) + vertical_used_space);
                     state.data.set_child_max(parent, horizontal_used_space.max(state.data.get_child_max(parent)));
                 }
             }
 
             LayoutType::Row => {
-                if child_positioning_type == PositioningType::ParentDirected {
+                if child_positioning_type == PositionType::ParentDirected {
                     state.data.set_child_sum(parent, state.data.get_child_sum(parent) + horizontal_used_space);
                     state.data.set_child_max(parent, vertical_used_space.max(state.data.get_child_max(parent)));
                 }
@@ -769,7 +769,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                     match parent_layout_type {
                         LayoutType::Column => {
-                            if child_positioning_type == PositioningType::SelfDirected {
+                            if child_positioning_type == PositionType::SelfDirected {
                                 vertical_used_space = 0.0;
                                 vertical_stretch_sum = 0.0;
                             }
@@ -780,7 +780,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         }
 
                         LayoutType::Row => {
-                            if child_positioning_type == PositioningType::SelfDirected {
+                            if child_positioning_type == PositionType::SelfDirected {
                                 horizontal_used_space = 0.0;
                                 horizontal_stretch_sum = 0.0;
                             }
@@ -818,12 +818,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     let child_positioning_type = state.style.positioning_type.get(*child).cloned().unwrap_or_default();
 
                     match child_positioning_type {
-                        PositioningType::SelfDirected => {
+                        PositionType::SelfDirected => {
                             horizontal_free_space = parent_width - state.data.get_horizontal_used_space(*child);
                             horizontal_stretch_sum = state.data.get_horizontal_stretch_sum(*child);
                         }
 
-                        PositioningType::ParentDirected => {
+                        PositionType::ParentDirected => {
                             match parent_layout_type {
                                 LayoutType::Column => {
                                     horizontal_stretch_sum = cross_stretch_sum;
@@ -863,12 +863,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     
 
                     match child_positioning_type {
-                        PositioningType::SelfDirected => {
+                        PositionType::SelfDirected => {
                             state.data.set_horizontal_stretch_sum(*child, horizontal_stretch_sum - value);
                             state.data.set_horizontal_used_space(*child, parent_width - horizontal_free_space + new_value);
                         }
 
-                        PositioningType::ParentDirected => {
+                        PositionType::ParentDirected => {
                             match parent_layout_type {
                                 LayoutType::Column => {
                                     state.data.set_cross_stretch_sum(*child, horizontal_stretch_sum - value);
@@ -898,12 +898,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     let child_positioning_type = state.style.positioning_type.get(*child).cloned().unwrap_or_default();
 
                     match child_positioning_type {
-                        PositioningType::SelfDirected => {
+                        PositionType::SelfDirected => {
                             vertical_free_space = parent_height - state.data.get_vertical_used_space(*child);
                             vertical_stretch_sum = state.data.get_vertical_stretch_sum(*child);
                         }
 
-                        PositioningType::ParentDirected => {
+                        PositionType::ParentDirected => {
                             match parent_layout_type {
                                 LayoutType::Row => {
                                     vertical_stretch_sum = cross_stretch_sum;
@@ -941,12 +941,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match child_positioning_type {
-                        PositioningType::SelfDirected => {
+                        PositionType::SelfDirected => {
                             state.data.set_vertical_stretch_sum(*child, vertical_stretch_sum - value);
                             state.data.set_vertical_used_space(*child, parent_height - vertical_free_space + new_value);
                         }
 
-                        PositioningType::ParentDirected => {
+                        PositionType::ParentDirected => {
                             match parent_layout_type {
                                 LayoutType::Row => {
                                     state.data.set_cross_stretch_sum(*child, vertical_stretch_sum - value);
@@ -991,11 +991,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     let child_positioning_type = state.style.positioning_type.get(child).cloned().unwrap_or_default();
 
                     let (new_posx, new_posy) = match child_positioning_type {
-                        PositioningType::SelfDirected => {
+                        PositionType::SelfDirected => {
                             (parent_posx + space.left, parent_posy + space.top)
                         }
 
-                        PositioningType::ParentDirected => {
+                        PositionType::ParentDirected => {
 
                             let new_posx = parent_posx + current_posx + space.left;
                             let new_posy = parent_posy + current_posy + space.top;

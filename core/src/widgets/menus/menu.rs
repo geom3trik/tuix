@@ -43,11 +43,11 @@ impl Menu {
 impl Widget for Menu {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Column);
+        entity.set_layout_type(state, LayoutType::Column);
 
         self.container = Element::new().build(state, entity, |builder| {
             builder
-                .set_position(Position::Absolute)
+                .set_position_type(PositionType::SelfDirected)
                 .set_z_order(1)
                 .class("container")
         });

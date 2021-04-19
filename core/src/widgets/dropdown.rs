@@ -35,7 +35,6 @@ impl Widget for Item {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_flex_grow(state, 1.0)
             .set_text(state, &self.text)
             .class(state, "item");
 
@@ -146,9 +145,7 @@ impl Widget for Dropdown {
                 //.set_background_color(Color::rgb(100,100,50))
                 .set_hoverability(false)
                 .set_focusability(false)
-                .set_flex_direction(FlexDirection::Row)
                 .set_layout_type(LayoutType::Row)
-                .set_flex_grow(1.0)
                 .set_width(Stretch(1.0))
                 .set_height(Stretch(1.0))
                 .set_child_top(Stretch(1.0))
@@ -161,7 +158,6 @@ impl Widget for Dropdown {
                 //.set_background_color(Color::rgb(100,50,50))
                 .set_hoverability(false)
                 .set_focusability(false)
-                .set_flex_grow(1.0)
                 .set_width(Stretch(1.0))
         });
 
@@ -181,8 +177,7 @@ impl Widget for Dropdown {
         if self.multi {
             self.container = Popup::new().build(state, entity, |builder| {
                 builder
-                    .set_position(Position::Absolute)
-                    .set_position_type(PositioningType::SelfDirected)
+                    .set_position_type(PositionType::SelfDirected)
                     .set_opacity(0.0)
                     .set_z_order(1)
                     .set_clip_widget(Entity::root())
@@ -191,8 +186,7 @@ impl Widget for Dropdown {
         } else {
             self.container = Popup::new().build(state, entity, |builder| {
                 builder
-                    .set_position(Position::Absolute)
-                    .set_position_type(PositioningType::SelfDirected)
+                    .set_position_type(PositionType::SelfDirected)
                     .set_opacity(0.0)
                     .set_z_order(1)
                     .set_clip_widget(Entity::root())

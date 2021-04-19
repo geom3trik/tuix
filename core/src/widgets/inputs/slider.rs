@@ -348,7 +348,7 @@ impl Widget for Slider {
         self.is_max = self.value == self.max;
         
         entity
-            .set_flex_direction(state, FlexDirection::Row)
+            .set_layout_type(state, LayoutType::Row)
             .set_child_top(state, Stretch(1.0))
             .set_child_bottom(state, Stretch(1.0));
 
@@ -377,7 +377,7 @@ impl Widget for Slider {
             entity,
             |builder| {
                 builder
-                    .set_position_type(PositioningType::SelfDirected)
+                    .set_position_type(PositionType::SelfDirected)
                     .set_hoverability(false)
                     .class("thumb")
             },

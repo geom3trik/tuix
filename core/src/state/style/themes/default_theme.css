@@ -33,7 +33,6 @@ button:active {
 
 
 panel>.container1>.container2>row {
-    padding: 10px;
     align-items: center;
     width: 1s;
 }
@@ -43,7 +42,7 @@ panel>.container1 {
 }
 
 panel>.header {
-    flex-direction: row;
+    layout-type: row;
     background-color: #ff5e1a;
     height: 30px;
     color: white;
@@ -66,7 +65,7 @@ panel .container2>row>label {
     height: 30px;
     width: 120px;
     color: black;
-    padding-left: 5px;
+    child-left: 5px;
     top: 1s;
     bottom: 1s;
 }
@@ -118,7 +117,7 @@ dropdown:focus {
 
 dropdown label {
     color: black;
-    padding-left: 5px;
+    child-left: 5px;
 }
 
 dropdown .icon {
@@ -166,7 +165,6 @@ spinbox>textbox {
     color: black;
     border-width: 1px;
     border-color: #757575;
-    margin-right: -1;
     right: -1px;
     text-align: center;
     text-justify: center;
@@ -204,7 +202,7 @@ slider>.thumb {
 /* dropdown>.container>.item {
     height: 30px;
     color: black;
-    padding-left: 10px;
+    child-left: 10px;
     background-color: white;
     transition: background-color 0.1 0.0;
 }
@@ -220,8 +218,8 @@ switch {
     width: 40px;
     height: 20px;
     background-color: #646464;
-    flex-direction: row;
-    padding: 2px;
+    layout-type: row;
+    child-space: 2px;
     transition: background-color 0.1 0.0;
     border-radius: 9.5px;
 }
@@ -366,7 +364,7 @@ tooltip {
     color: black;
     background-color: white;
     border-color: black;
-    padding-left: 5px;
+    child-left: 5px;
     border-width: 1px;
     opacity: 0.0;
 }

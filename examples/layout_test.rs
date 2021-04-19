@@ -15,7 +15,7 @@ fn main() {
                 .set_width(Stretch(1.0))
                 .set_height(Stretch(1.0))
                 .set_text("1")
-                //.set_position_type(PositioningType::SelfDirected)
+                //.set_position_type(PositionType::SelfDirected)
         );
 
         // state.style.main_axis.insert(one, Axis {
@@ -38,7 +38,7 @@ fn main() {
                 .set_text("2")
                 .set_width(Pixels(300.0))
                 .set_height(Pixels(300.0))
-                .set_position_type(PositioningType::SelfDirected)
+                .set_position_type(PositionType::SelfDirected)
         );
 
         // state.style.main_axis.insert(one, Axis {

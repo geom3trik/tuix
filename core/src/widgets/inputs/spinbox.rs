@@ -177,16 +177,15 @@ where
 
         entity
             .set_display(state, Display::Flexbox)
-            .set_flex_direction(state, FlexDirection::Row)
+            .set_layout_type(state, LayoutType::Row)
             .set_layout_type(state, LayoutType::Row);
 
         self.textbox = Textbox::new(&self.value.to_string())
-            .build(state, entity, |builder| builder.set_flex_grow(1.0));
+            .build(state, entity, |builder| builder);
 
         let arrow_container = Element::new().build(state, entity, |builder| {
             builder
                 .set_width(Pixels(20.0))
-                .set_flex_grow(0.0)
                 .set_layout_type(LayoutType::Column)
                 .class("arrow_container")
         });

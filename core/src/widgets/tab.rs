@@ -289,11 +289,11 @@ impl Widget for TabBar2 {
                     //let tab_height = tab.get_height(state);
 
                     let tab_width = state.data.get_width(*tab)
-                        + tab.get_margin_left(state).get_value(0.0)
-                        + tab.get_margin_right(state).get_value(0.0);
+                        + tab.get_left(state).get_value(0.0)
+                        + tab.get_right(state).get_value(0.0);
                     let tab_height = state.data.get_width(*tab)
-                        + tab.get_margin_top(state).get_value(0.0)
-                        + tab.get_margin_bottom(state).get_value(0.0);
+                        + tab.get_top(state).get_value(0.0)
+                        + tab.get_bottom(state).get_value(0.0);
 
                     self.phantom_tab1
                         .set_height(state, Units::Pixels(tab_height));
@@ -479,7 +479,7 @@ impl Widget for MovableTab {
                         entity.set_left(state, Units::Pixels(self.pos_down_x - parent_posx));
                         entity.set_top(state, Units::Pixels(self.pos_down_y - parent_posy));
 
-                        entity.set_position(state, Position::Absolute);
+                        entity.set_position_type(state, PositionType::SelfDirected);
                         entity.set_z_order(state, 10);
                         state.capture(entity);
                         state.insert_event(
@@ -494,7 +494,7 @@ impl Widget for MovableTab {
                         self.dragging = false;
                         entity.set_height(state, self.previous_height);
                         entity.set_width(state, self.previous_width);
-                        entity.set_position(state, Position::Relative);
+                        entity.set_position_type(state, PositionType::ParentDirected);
                         state.data.set_hoverability(entity, true);
                         entity.set_left(state, Units::Auto);
                         entity.set_top(state, Units::Auto);

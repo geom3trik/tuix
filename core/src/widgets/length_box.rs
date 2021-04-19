@@ -29,10 +29,10 @@ impl LengthBox {
 impl Widget for LengthBox {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_flex_direction(state, FlexDirection::Row);
+        entity.set_layout_type(state, LayoutType::Row);
 
         self.value = Textbox::new("0.0").build(state, entity, |builder| {
-            builder.set_flex_grow(1.0).class("value")
+            builder.class("value")
         });
         // self.unit = Dropdown::new("-")
         //     .add_item("Auto", "-")
@@ -44,7 +44,7 @@ impl Widget for LengthBox {
         self.unit = Dropdown::new("-")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(Units::Pixels(30.0))
+                    .set_width(Pixels(30.0))
                     .set_text_justify(Justify::End)
                     .class("unit")
             })

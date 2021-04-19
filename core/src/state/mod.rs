@@ -332,17 +332,6 @@ impl State {
         self.style.height.animate(std::time::Instant::now());
         self.style.opacity.animate(std::time::Instant::now());
         self.style.rotate.animate(std::time::Instant::now());
-        self.style.flex_grow.animate(std::time::Instant::now());
-        self.style.flex_shrink.animate(std::time::Instant::now());
-        self.style.flex_basis.animate(std::time::Instant::now());
-        self.style.margin_left.animate(std::time::Instant::now());
-        self.style.margin_right.animate(std::time::Instant::now());
-        self.style.margin_top.animate(std::time::Instant::now());
-        self.style.margin_bottom.animate(std::time::Instant::now());
-        self.style.padding_left.animate(std::time::Instant::now());
-        self.style.padding_right.animate(std::time::Instant::now());
-        self.style.padding_top.animate(std::time::Instant::now());
-        self.style.padding_bottom.animate(std::time::Instant::now());
         self.style
             .border_radius_top_left
             .animate(std::time::Instant::now());
@@ -372,17 +361,6 @@ impl State {
             || self.style.height.has_animations()
             || self.style.opacity.has_animations()
             || self.style.rotate.has_animations()
-            || self.style.flex_grow.has_animations()
-            || self.style.flex_shrink.has_animations()
-            || self.style.flex_basis.has_animations()
-            || self.style.margin_left.has_animations()
-            || self.style.margin_right.has_animations()
-            || self.style.margin_top.has_animations()
-            || self.style.margin_bottom.has_animations()
-            || self.style.padding_left.has_animations()
-            || self.style.padding_right.has_animations()
-            || self.style.padding_top.has_animations()
-            || self.style.padding_bottom.has_animations()
             || self.style.border_radius_top_left.has_animations()
             || self.style.border_radius_top_right.has_animations()
             || self.style.border_radius_bottom_left.has_animations()

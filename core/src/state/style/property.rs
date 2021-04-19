@@ -19,11 +19,9 @@ pub enum Property {
     Opacity(f32),
 
     // Positioning
-    // To be removed
-    Position(Position),
 
     LayoutType(LayoutType),
-    PositioningType(PositioningType),
+    PositionType(PositionType),
 
     // Position and Size
     Left(Units),

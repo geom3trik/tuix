@@ -16,7 +16,6 @@ impl Widget for Row {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_flex_direction(state, FlexDirection::Row)
             .set_layout_type(state, LayoutType::Row)
             .set_focusability(state, false)
             .set_element(state, "row")
@@ -37,7 +36,6 @@ impl Widget for Column {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_flex_direction(state, FlexDirection::Column)
             .set_layout_type(state, LayoutType::Column)
             .set_focusability(state, false)
             .set_element(state, "column")

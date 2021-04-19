@@ -429,7 +429,7 @@ impl Widget for Textbox {
 
         let padding_left = match state
             .style
-            .padding_left
+            .child_left
             .get(entity)
             .unwrap_or(&Units::Auto)
         {
@@ -439,7 +439,7 @@ impl Widget for Textbox {
 
         let padding_right = match state
             .style
-            .padding_right
+            .child_right
             .get(entity)
             .unwrap_or(&Units::Auto)
         {
@@ -447,14 +447,14 @@ impl Widget for Textbox {
             _ => &0.0,
         };
 
-        let padding_top = match state.style.padding_top.get(entity).unwrap_or(&Units::Auto) {
+        let padding_top = match state.style.child_top.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
 
         let padding_bottom = match state
             .style
-            .padding_bottom
+            .child_bottom
             .get(entity)
             .unwrap_or(&Units::Auto)
         {
