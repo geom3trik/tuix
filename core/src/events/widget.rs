@@ -489,7 +489,7 @@ pub trait Widget: std::marker::Sized + 'static {
             let align = match child_left {
                 Units::Pixels(val) => {
                     match child_right {
-                        Units::Stretch(_) => {
+                        Units::Stretch(_) | Units::Auto => {
                             x += val + border_width;
                             Align::Left
                         }
@@ -520,7 +520,7 @@ pub trait Widget: std::marker::Sized + 'static {
             let baseline = match child_top {
                 Units::Pixels(val) => {
                     match child_bottom {
-                        Units::Stretch(_) => {
+                        Units::Stretch(_) | Units::Auto => {
                             y += val + border_width;
                             Baseline::Top
                         }

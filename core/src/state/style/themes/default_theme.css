@@ -16,7 +16,6 @@ column {
 button {
     color: black;
     background-color: #dfdfdf;
-    text-justify: center;
     child-space: 1s;
 }
 
@@ -44,6 +43,8 @@ panel>.container1 {
 
 panel>.header {
     layout-type: row;
+    child-left: 0px;
+    child-right: 1s;
     background-color: #ff5e1a;
     height: 30px;
     color: white;
@@ -60,6 +61,8 @@ panel>.header>.icon {
 
 panel>.header>.label {
     color: white;
+    child-space: 1s;
+    child-left: 0px;
 }
 
 panel .container2>row>label {
@@ -111,18 +114,32 @@ dropdown {
     background-color: #d2d2d2;
 }
 
+/* dropdown>.header>label { */
+    /* child-top: 1s; */
+    /* child-bottom: 1s; */
+    /* child-left: 5px; */
+/* } */
+
 dropdown:focus {
     border-width: 1px;
     border-color: black;
 }
 
-dropdown label {
-    color: black;
+dropdown>.header>label {
+    color: red;
+    child-top: 1s;
+    child-bottom: 1s;
     child-left: 5px;
 }
 
+/* dropdown label {
+    color: black;
+    child-top: 1s;
+    child-bottom: 1s;
+    child-left: 5px;
+} */
+
 dropdown .icon {
-    text-justify: center;
     color: #ff5e1a;
     width: 30px;
     height: 30px;

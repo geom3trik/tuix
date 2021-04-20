@@ -85,6 +85,7 @@ impl Widget for Panel {
             .build(state, entity, |builder| {
                 builder
                     .set_layout_type(LayoutType::Row)
+                    .set_child_left(Pixels(5.0))
                     //.set_flex_direction(FlexDirection::Row)
                     .class("header")
             });
@@ -100,6 +101,7 @@ impl Widget for Panel {
                 .set_height(Pixels(20.0))
                 .set_hoverability(false)
                 .set_focusability(false)
+                .set_background_color(Color::rgb(100,100,100))
                 .class("icon")
         });
 

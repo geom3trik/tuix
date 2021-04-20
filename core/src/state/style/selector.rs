@@ -37,6 +37,34 @@ impl Default for PseudoClasses {
     }
 }
 
+impl std::fmt::Display for PseudoClasses {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.get_hover() {
+            write!(f, ":hover")?;
+        }
+        if self.get_over() {
+            write!(f, ":over")?;
+        }
+        if self.get_active() {
+            write!(f, ":active")?;
+        }
+        if self.get_focus() {
+            write!(f, ":focus")?;
+        }
+        if self.get_enabled() {
+            write!(f, ":enabled")?;
+        }
+        if self.get_disabled() {
+            write!(f, ":disabled")?;
+        }
+        if self.get_checked() {
+            write!(f, ":checked")?;
+        }
+
+        Ok(())
+    }
+}
+
 impl PseudoClasses {
     pub fn new() -> Self {
         PseudoClasses(0)
@@ -137,7 +165,7 @@ pub enum Relation {
 #[derive(Clone, Debug)]
 pub struct Selector {
     pub id: Option<u64>,
-    pub element: Option<u64>,
+    pub element: Option<String>,
     pub classes: HashSet<String>,
     //pub pseudo_classes: HashSet<PseudoClass>,
     pub pseudo_classes: PseudoClasses,
@@ -159,6 +187,33 @@ impl Default for Selector {
     }
 }
 
+impl std::fmt::Display for Selector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        
+        if self.asterisk {
+            write!(f,"*")?;
+        }
+        
+        if let Some(element) = &self.element {
+            write!(f, "{}", element)?;
+        }
+
+        for class_name in self.classes.iter() {
+            write!(f, ".{}", class_name)?;
+        }
+
+        write!(f,"{}",self.pseudo_classes);
+
+        match self.relation {
+            Relation::None => {}
+            Relation::Ancestor => write!(f, " ")?,
+            Relation::Parent => write!(f, ">")?,
+        }
+
+        Ok(())
+    }
+}
+
 impl Selector {
     pub fn new() -> Self {
         Selector {
@@ -173,12 +228,12 @@ impl Selector {
     }
 
     pub fn element(element: &str) -> Self {
-        let mut s = DefaultHasher::new();
-        element.hash(&mut s);
+        //let mut s = DefaultHasher::new();
+        //element.hash(&mut s);
 
         Selector {
             id: None,
-            element: Some(s.finish()),
+            element: Some(element.to_owned()),
             classes: HashSet::new(),
             //pseudo_classes: HashSet::new(),
             pseudo_classes: PseudoClasses::default(),
@@ -259,9 +314,9 @@ impl Selector {
     }
 
     pub fn set_element(&mut self, element: &str) -> &mut Self {
-        let mut s = DefaultHasher::new();
-        element.hash(&mut s);
-        self.element = Some(s.finish());
+        //let mut s = DefaultHasher::new();
+        //element.hash(&mut s);
+        self.element = Some(element.to_owned());
         self
     }
 

@@ -1,3 +1,5 @@
+use std::fmt::write;
+
 use crate::animation::Interpolator;
 use crate::entity::Entity;
 
@@ -126,6 +128,17 @@ impl Default for LayoutType {
     }
 }
 
+impl std::fmt::Display for LayoutType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            LayoutType::None => write!(f, "none"),
+            LayoutType::Row => write!(f, "row"),
+            LayoutType::Column => write!(f, "column"),
+            LayoutType::Grid => write!(f, "grid"),
+        }
+    }
+}
+
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PositionType {
@@ -136,6 +149,15 @@ pub enum PositionType {
 impl Default for PositionType {
     fn default() -> Self {
         Self::ParentDirected
+    }
+}
+
+impl std::fmt::Display for PositionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            PositionType::SelfDirected => write!(f, "self-directed"),
+            PositionType::ParentDirected => write!(f, "parent-directed"),
+        }
     }
 }
 

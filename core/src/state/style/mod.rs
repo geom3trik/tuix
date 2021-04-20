@@ -67,7 +67,7 @@ use std::rc::Rc;
 pub struct Style {
     pub rules: Vec<StyleRule>,
     //pub rule_selectors: Vec<Vec<Selector>>,
-    pub elements: DenseStorage<u64>,
+    pub elements: DenseStorage<String>,
     pub classes: DenseStorage<HashSet<String>>,
     pub pseudo_classes: DenseStorage<PseudoClasses>,
 
@@ -218,9 +218,15 @@ impl Style {
 
         //self.rules = rule_list;
 
-        // for rule in self.rules.iter() {
-        //     println!("Rule: {:?}  {:?}", rule, rule.specificity());
+        // for (index, rule) in self.rules.iter().enumerate() {
+        //     println!("{} Rule: {:?}  {:?}", index, rule, rule.specificity());
+        //     println!("");
         // }
+
+        for rule in self.rules.iter() {
+            print!("{}", rule);
+        }
+
         self.remove_all();
         self.set_style_properties();
     }
@@ -1190,9 +1196,9 @@ impl Style {
     }
 
     pub(crate) fn insert_element(&mut self, entity: Entity, element: &str) -> &mut Self {
-        let mut s = DefaultHasher::new();
-        element.hash(&mut s);
-        self.elements.insert(entity, s.finish());
+        //let mut s = DefaultHasher::new();
+        //element.hash(&mut s);
+        self.elements.insert(entity, element.to_owned());
 
         self
     }

@@ -407,6 +407,26 @@ where
     //     }
     // }
 
+    pub fn get_rule_id(&self, entity: Entity) -> Option<usize> {
+        if entity.index_unchecked() >= self.entity_indices.len() {
+            return None;
+        }
+
+        let data_index = self.entity_indices[entity.index_unchecked()].data_index;
+
+        if data_index.is_inline() {
+            return None;
+        }
+
+        for (rule, index) in self.rule_indices.iter().enumerate() {
+            if index.index().index() == data_index.index() {
+                return Some(rule)
+            }
+        }
+
+        None
+    }
+
     // When the style system has determined the matching rule with the highest
     // specificity for an entity. The entity can be "linked" to the rule by pointing the
     // same computed property.

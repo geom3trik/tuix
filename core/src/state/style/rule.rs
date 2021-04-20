@@ -1,3 +1,5 @@
+use std::fmt::write;
+
 use crate::entity::Entity;
 
 use super::Property;
@@ -10,6 +12,24 @@ use crate::style::*;
 pub struct StyleRule {
     pub selectors: Vec<Selector>,
     pub properties: Vec<Property>,
+}
+
+impl std::fmt::Display for StyleRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for selector in self.selectors.iter() {
+            write!(f,"{}",selector)?;
+        }
+
+        write!(f, " {{\n")?;
+
+        for property in self.properties.iter() {
+            write!(f,"    {}\n",property)?;
+        }
+        
+        write!(f, "}}\n\n")?;
+        
+        Ok(())
+    }
 }
 
 impl StyleRule {

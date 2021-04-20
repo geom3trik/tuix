@@ -115,7 +115,7 @@ impl std::fmt::Debug for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "(r: {}, g: {}, b: {} a: {})",
+            "rgba({}, {}, {} {})",
             self.r(),
             self.g(),
             self.b(),
