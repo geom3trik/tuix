@@ -19,7 +19,6 @@ pub enum Property {
     Opacity(f32),
 
     // Positioning
-
     LayoutType(LayoutType),
     PositionType(PositionType),
 
@@ -67,7 +66,7 @@ pub enum Property {
     BackgroundColor(Color),
     BackgroundImage(String),
     BackgroundGradient(LinearGradient),
-    
+
     FontSize(f32),
     FontColor(Color),
 
@@ -77,8 +76,6 @@ pub enum Property {
     Transition(Vec<Transition>),
 
     ZIndex(i32),
-
-
 }
 
 impl std::fmt::Display for Property {
@@ -92,7 +89,6 @@ impl std::fmt::Display for Property {
             Property::Opacity(val) => write!(f, "opacity: {};", val),
 
             // Positioning
-
             Property::LayoutType(val) => write!(f, "layout-type: {};", val),
             Property::PositionType(val) => write!(f, "position-type: {};", val),
 
@@ -131,8 +127,12 @@ impl std::fmt::Display for Property {
             Property::BorderRadius(val) => write!(f, "border-radius: {};", val),
             Property::BorderTopLeftRadius(val) => write!(f, "border-top-left-radius: {};", val),
             Property::BorderTopRightRadius(val) => write!(f, "border-top-right-radius: {};", val),
-            Property::BorderBottomLeftRadius(val) => write!(f, "border-bottom-left-radius: {};", val),
-            Property::BorderBottomRightRadius(val) => write!(f, "border-bottom-right-radius: {};", val),
+            Property::BorderBottomLeftRadius(val) => {
+                write!(f, "border-bottom-left-radius: {};", val)
+            }
+            Property::BorderBottomRightRadius(val) => {
+                write!(f, "border-bottom-right-radius: {};", val)
+            }
             Property::BorderWidth(val) => write!(f, "border-width: {};", val),
             Property::BorderColor(val) => write!(f, "border-color: {:?};", val),
 
@@ -140,7 +140,7 @@ impl std::fmt::Display for Property {
             Property::BackgroundColor(val) => write!(f, "background-color: {:?};", val),
             Property::BackgroundImage(val) => write!(f, "background-image: {};", val),
             Property::BackgroundGradient(val) => write!(f, "background-gradient: {};", 4),
-            
+
             Property::FontSize(val) => write!(f, "font-size: {};", val),
             Property::FontColor(val) => write!(f, "color: {:?};", val),
 

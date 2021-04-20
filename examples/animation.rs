@@ -8,10 +8,8 @@ fn main() {
         state.style.parse_theme(THEME);
 
         window.set_title("Animation");
-        
-        Animations::new().build(state, window.entity(), |builder| builder);
 
-        
+        Animations::new().build(state, window.entity(), |builder| builder);
     });
 
     app.run();

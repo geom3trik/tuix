@@ -3,7 +3,7 @@ extern crate tuix;
 use tuix::*;
 
 use tuix::widgets::{
-    Button, CheckButton, Checkbox, Dimension, Dropdown, Panel, List, ResizableColumn,
+    Button, CheckButton, Checkbox, Dimension, Dropdown, List, Panel, ResizableColumn,
     ScrollContainer, Spinbox, Textbox, VectorEdit, VectorEditEvent,
 };
 
@@ -191,17 +191,14 @@ fn main() {
             builder.set_justify_content(JustifyContent::SpaceEvenly)
         });
 
-        let knob = ValueKnob::new("Red", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Units::Pixels(50.0))
-        });
+        let knob = ValueKnob::new("Red", 0.0, 0.0, 1.0)
+            .build(state, row, |builder| builder.set_width(Units::Pixels(50.0)));
 
-        let knob = ValueKnob::new("Green", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Units::Pixels(50.0))
-        });
+        let knob = ValueKnob::new("Green", 0.0, 0.0, 1.0)
+            .build(state, row, |builder| builder.set_width(Units::Pixels(50.0)));
 
-        let knob = ValueKnob::new("Blue", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Units::Pixels(50.0))
-        });
+        let knob = ValueKnob::new("Blue", 0.0, 0.0, 1.0)
+            .build(state, row, |builder| builder.set_width(Units::Pixels(50.0)));
 
         let panel = Panel::new("Control Knobs").build(state, rcolumn, |builder| builder);
 
@@ -209,19 +206,14 @@ fn main() {
             builder.set_justify_content(JustifyContent::SpaceEvenly)
         });
 
-        let knob = ValueKnob::new("Red", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Units::Pixels(50.0))
-        });
+        let knob = ValueKnob::new("Red", 0.0, 0.0, 1.0)
+            .build(state, row, |builder| builder.set_width(Units::Pixels(50.0)));
 
-        let knob = ValueKnob::new("Green", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Units::Pixels(50.0))
-        });
+        let knob = ValueKnob::new("Green", 0.0, 0.0, 1.0)
+            .build(state, row, |builder| builder.set_width(Units::Pixels(50.0)));
 
-        let knob = ValueKnob::new("Blue", 0.0, 0.0, 1.0).build(state, row, |builder| {
-            builder.set_width(Units::Pixels(50.0))
-        });
-
-        
+        let knob = ValueKnob::new("Blue", 0.0, 0.0, 1.0)
+            .build(state, row, |builder| builder.set_width(Units::Pixels(50.0)));
     });
 
     // Get the state from the window

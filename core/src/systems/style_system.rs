@@ -18,7 +18,7 @@ pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
             state.data.set_z_order(entity, parent_z_order);
         }
     }
-} 
+}
 
 pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
     //println!("Apply Clipping");
@@ -58,11 +58,10 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
                 state.data.set_clip_region(entity, intersection);
             } else {
                 state.data.set_clip_region(entity, parent_clip_region);
-            }            
+            }
         } else {
             state.data.set_clip_region(entity, root_clip_region);
         }
-
     }
 }
 
@@ -365,7 +364,11 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
-        if state.style.positioning_type.link_rule(entity, &matched_rules) {
+        if state
+            .style
+            .positioning_type
+            .link_rule(entity, &matched_rules)
+        {
             //println!("30");
             should_relayout = true;
             should_redraw = true;

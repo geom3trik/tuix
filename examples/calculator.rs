@@ -607,7 +607,6 @@ pub fn main() {
         // Replace this with icon loading using resource manager when working
         let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
-
         window
             .set_title("Calculator")
             .set_inner_size(300, 400)
@@ -620,9 +619,9 @@ pub fn main() {
             Err(e) => println!("Error loading stylesheet: {}", e),
         }
 
-        Calculator::default().build(state, window.entity(), |builder| builder.class("calculator"));
-
-
+        Calculator::default().build(state, window.entity(), |builder| {
+            builder.class("calculator")
+        });
     });
 
     app.run();

@@ -12,7 +12,7 @@ pub enum ButtonEvent {
     Press,
     // Received by the button and triggers the on_release event to be emitted
     Release,
-    // 
+    //
     SetLabel(String),
 
     SetKey(Code),
@@ -21,7 +21,6 @@ pub enum ButtonEvent {
 #[derive(Default)]
 // A Widget that can be pressed and released and may emit an event on_press and on_release
 pub struct Button {
-
     on_press: Option<Event>,
     on_release: Option<Event>,
     pub text: Option<String>,
@@ -114,7 +113,6 @@ impl Widget for Button {
 
                 ButtonEvent::Pressed => {
                     if event.target == entity {
-
                         self.send_event(state, entity, self.on_press.clone());
 
                         entity.set_active(state, true);
@@ -123,7 +121,6 @@ impl Widget for Button {
 
                 ButtonEvent::Released => {
                     if event.target == entity {
-
                         self.send_event(state, entity, self.on_release.clone());
 
                         entity.set_active(state, false);
@@ -153,7 +150,6 @@ impl Widget for Button {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) if *button == MouseButton::Left => {
-                
                     if entity == event.target && !entity.is_disabled(state) {
                         state.capture(entity);
                         state.insert_event(
@@ -162,7 +158,7 @@ impl Widget for Button {
                                 .origin(entity),
                         );
                     }
-                },
+                }
 
                 WindowEvent::MouseUp(button) if *button == MouseButton::Left => {
                     if entity == event.target && state.mouse.left.pressed == entity {
@@ -178,7 +174,7 @@ impl Widget for Button {
                             }
                         }
                     }
-                },
+                }
 
                 WindowEvent::KeyDown(code, _) if *code == self.key => {
                     if state.focused == entity && !entity.is_disabled(state) {
@@ -187,8 +183,8 @@ impl Widget for Button {
                                 .target(entity)
                                 .origin(entity),
                         );
-                    } 
-                },
+                    }
+                }
 
                 WindowEvent::KeyUp(code, _) if *code == self.key => {
                     state.insert_event(
@@ -196,7 +192,7 @@ impl Widget for Button {
                             .target(entity)
                             .origin(entity),
                     );
-                },
+                }
 
                 _ => {}
             }

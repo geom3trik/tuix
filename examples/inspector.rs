@@ -2,7 +2,6 @@ use tuix::*;
 
 use tuix::style::themes::DEFAULT_THEME;
 
-
 #[derive(Inspectable, Default, Clone)]
 pub struct MyData {
     value: String,
@@ -26,18 +25,16 @@ pub struct Inspector<T: Inspectable> {
 
 impl<T: Inspectable> Inspector<T> {
     pub fn new(data: T) -> Self {
-        Self {
-            data,
-        }
+        Self { data }
     }
 }
 
-impl<T> Widget for Inspector<T> 
-where T: 'static + Inspectable
+impl<T> Widget for Inspector<T>
+where
+    T: 'static + Inspectable,
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        
         self.data.widget(state, entity, "");
 
         entity
@@ -45,9 +42,6 @@ where T: 'static + Inspectable
 }
 
 fn main() {
-    
-    
-
     let app = Application::new(move |state, window| {
         state.add_theme(DEFAULT_THEME);
 
@@ -57,7 +51,7 @@ fn main() {
 
         window.set_title("Inspector Test");
 
-        //let data: String = "Testy Test".to_string(); 
+        //let data: String = "Testy Test".to_string();
         let data = SomeData {
             name: "Test Name".to_string(),
             other: "Other Test Name".to_string(),
@@ -69,13 +63,13 @@ fn main() {
             },
         };
 
-        Inspector::new(data.clone()).build(state, window.entity(), |builder| 
+        Inspector::new(data.clone()).build(state, window.entity(), |builder| {
             builder
                 .set_width(Units::Pixels(300.0))
                 .set_flex_grow(1.0)
-                .set_background_color(Color::rgb(50,50,50))
+                .set_background_color(Color::rgb(50, 50, 50))
                 .set_padding(Units::Pixels(10.0))
-        );
+        });
 
         // Button::with_label("Button").build(state, root, |builder| {
         //     builder
@@ -84,8 +78,6 @@ fn main() {
         //         .set_background_color(Color::from("#ff5e1a"))
         //         .set_text_justify(Justify::Center)
         // });
-
-        
     });
 
     app.run();

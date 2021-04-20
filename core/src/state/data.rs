@@ -84,7 +84,6 @@ pub struct Data {
     // pub(crate) child_pos: Vec<f32>,
     // pub(crate) child_grow_sum: Vec<f32>,
     // pub(crate) child_shrink_sum: Vec<f32>,
-
     margins: Vec<Margins>,
     cross_stretch_sum: Vec<f32>,
     cross_free_space: Vec<f32>,
@@ -98,7 +97,6 @@ pub struct Data {
 }
 
 impl Data {
-
     pub fn add(&mut self, entity: Entity) {
         let key = entity.index_unchecked();
 
@@ -122,12 +120,14 @@ impl Data {
             self.cross_stretch_sum.resize(key + 1, Default::default());
             self.cross_free_space.resize(key + 1, Default::default());
 
-            self.horizontal_used_space.resize(key + 1, Default::default());
-            self.horizontal_stretch_sum.resize(key + 1, Default::default());
+            self.horizontal_used_space
+                .resize(key + 1, Default::default());
+            self.horizontal_stretch_sum
+                .resize(key + 1, Default::default());
             self.vertical_used_space.resize(key + 1, Default::default());
-            self.vertical_stretch_sum.resize(key + 1, Default::default());
+            self.vertical_stretch_sum
+                .resize(key + 1, Default::default());
             self.stack_child.resize(key + 1, (false, false));
-
         }
 
         // Are these needed?
@@ -157,7 +157,10 @@ impl Data {
     // }
 
     pub fn get_stack_child(&self, entity: Entity) -> (bool, bool) {
-        self.stack_child.get(entity.index_unchecked()).cloned().unwrap_or((false, false))
+        self.stack_child
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap_or((false, false))
     }
 
     pub fn get_bounds(&self, entity: Entity) -> BoundingBox {
@@ -170,7 +173,10 @@ impl Data {
     }
 
     pub fn get_cross_stretch_sum(&self, entity: Entity) -> f32 {
-        self.cross_stretch_sum.get(entity.index_unchecked()).cloned().unwrap()
+        self.cross_stretch_sum
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn set_cross_stretch_sum(&mut self, entity: Entity, val: f32) {
@@ -180,7 +186,10 @@ impl Data {
     }
 
     pub fn get_cross_free_space(&self, entity: Entity) -> f32 {
-        self.cross_free_space.get(entity.index_unchecked()).cloned().unwrap()
+        self.cross_free_space
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn set_cross_free_space(&mut self, entity: Entity, val: f32) {
@@ -190,24 +199,40 @@ impl Data {
     }
 
     pub fn get_space_left(&self, entity: Entity) -> f32 {
-        self.margins.get(entity.index_unchecked()).cloned().unwrap().left
+        self.margins
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
+            .left
     }
 
     pub fn get_space_right(&self, entity: Entity) -> f32 {
-        self.margins.get(entity.index_unchecked()).cloned().unwrap().right
+        self.margins
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
+            .right
     }
 
     pub fn get_space_top(&self, entity: Entity) -> f32 {
-        self.margins.get(entity.index_unchecked()).cloned().unwrap().top
+        self.margins
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
+            .top
     }
 
     pub fn get_space_bottom(&self, entity: Entity) -> f32 {
-        self.margins.get(entity.index_unchecked()).cloned().unwrap().bottom
+        self.margins
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
+            .bottom
     }
 
     pub fn get_space(&self, entity: Entity) -> Margins {
         self.margins.get(entity.index_unchecked()).cloned().unwrap()
-    } 
+    }
 
     pub fn get_clip_region(&self, entity: Entity) -> BoundingBox {
         self.clip_region
@@ -287,23 +312,32 @@ impl Data {
     }
 
     pub fn get_horizontal_used_space(&self, entity: Entity) -> f32 {
-        self.horizontal_used_space.get(entity.index_unchecked()).cloned().unwrap()
+        self.horizontal_used_space
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn get_horizontal_stretch_sum(&self, entity: Entity) -> f32 {
-        self.horizontal_stretch_sum.get(entity.index_unchecked()).cloned().unwrap()
+        self.horizontal_stretch_sum
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn get_vertical_used_space(&self, entity: Entity) -> f32 {
-        self.vertical_used_space.get(entity.index_unchecked()).cloned().unwrap()
+        self.vertical_used_space
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
 
     pub fn get_vertical_stretch_sum(&self, entity: Entity) -> f32 {
-        self.vertical_stretch_sum.get(entity.index_unchecked()).cloned().unwrap()
+        self.vertical_stretch_sum
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
     }
-
-
-
 
     // SETTERS
 
@@ -326,25 +360,34 @@ impl Data {
     }
 
     pub fn set_horizontal_used_space(&mut self, entity: Entity, value: f32) {
-        if let Some(horizontal_used_space) = self.horizontal_used_space.get_mut(entity.index_unchecked()) {
+        if let Some(horizontal_used_space) =
+            self.horizontal_used_space.get_mut(entity.index_unchecked())
+        {
             *horizontal_used_space = value;
         }
     }
 
     pub fn set_horizontal_stretch_sum(&mut self, entity: Entity, value: f32) {
-        if let Some(horizontal_stretch_sum) = self.horizontal_stretch_sum.get_mut(entity.index_unchecked()) {
+        if let Some(horizontal_stretch_sum) = self
+            .horizontal_stretch_sum
+            .get_mut(entity.index_unchecked())
+        {
             *horizontal_stretch_sum = value;
         }
     }
 
     pub fn set_vertical_used_space(&mut self, entity: Entity, value: f32) {
-        if let Some(vertical_used_space) = self.vertical_used_space.get_mut(entity.index_unchecked()) {
+        if let Some(vertical_used_space) =
+            self.vertical_used_space.get_mut(entity.index_unchecked())
+        {
             *vertical_used_space = value;
         }
     }
 
     pub fn set_vertical_stretch_sum(&mut self, entity: Entity, value: f32) {
-        if let Some(vertical_stretch_sum) = self.vertical_stretch_sum.get_mut(entity.index_unchecked()) {
+        if let Some(vertical_stretch_sum) =
+            self.vertical_stretch_sum.get_mut(entity.index_unchecked())
+        {
             *vertical_stretch_sum = value;
         }
     }

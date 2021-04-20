@@ -2,8 +2,6 @@ use tuix::*;
 
 fn main() {
     let app = Application::new(|state, window| {
-
-        
         window
             .set_title("Flex Grow")
             .set_background_color(state, Color::white())

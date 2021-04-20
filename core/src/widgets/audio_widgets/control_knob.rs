@@ -5,12 +5,9 @@ use crate::widgets::*;
 
 use crate::widgets::slider::SliderEvent;
 
-
 use femtovg::{renderer::OpenGl, Canvas, LineCap, Paint, Path, Solidity};
 
 use std::sync::{Arc, Mutex};
-
-
 
 pub struct ControlKnob {
     sliding: bool, // Could replace this with a bool in state, maybe in mouse
@@ -94,8 +91,6 @@ impl Widget for ControlKnob {
         });
 
         state.style.insert_element(entity, "knob");
-
-        
 
         entity
     }

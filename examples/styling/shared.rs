@@ -1,10 +1,7 @@
 use tuix::*;
 
-
-
 fn main() {
     let app = Application::new(|state, window| {
-
         // Set the window title
         window.set_title("Shared Styles");
 
@@ -25,8 +22,6 @@ fn main() {
 
         // Add second button
         Button::with_label("Button 2").build(state, window.entity(), |builder| builder);
-
-        
     });
 
     app.run();

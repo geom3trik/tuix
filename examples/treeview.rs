@@ -57,7 +57,6 @@ fn main() {
             Label::new("Level 4").build(state, three_one_one, |builder| builder.class("level4"));
         let _three_one_one_two =
             Label::new("Level 4").build(state, three_one_one, |builder| builder.class("level4"));
-
     });
 
     app.run();

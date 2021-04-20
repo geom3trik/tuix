@@ -188,8 +188,6 @@ fn main() {
         //         .set_height(Units::Pixels(30.0))
         //         .set_background_color(Color::rgb(50, 50, 50))
         // });
-
-        
     });
 
     app.run();

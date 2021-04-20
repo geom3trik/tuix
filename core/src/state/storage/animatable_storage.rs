@@ -1,4 +1,4 @@
-use crate::state::animation::{AnimationState, Interpolator, Animation};
+use crate::state::animation::{Animation, AnimationState, Interpolator};
 use crate::state::Entity;
 
 #[derive(Copy, Clone)]
@@ -269,7 +269,6 @@ where
 
     pub fn play_animation(&mut self, entity: Entity, animation: Animation) {
         if let Some(index) = entity.index() {
-
             let description_id = animation.get_id();
 
             // Check if animation exists
@@ -420,7 +419,7 @@ where
 
         for (rule, index) in self.rule_indices.iter().enumerate() {
             if index.index().index() == data_index.index() {
-                return Some(rule)
+                return Some(rule);
             }
         }
 
@@ -702,9 +701,8 @@ where
     }
 
     pub fn get_animation_mut(&mut self, animation: Animation) -> Option<&mut AnimationState<T>> {
-        
         let animation_id = animation.get_id();
-        
+
         if animation_id >= self.animations.len() {
             return None;
         }

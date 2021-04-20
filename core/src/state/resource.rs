@@ -50,8 +50,9 @@ impl ResourceManager {
 
         let resource = Rc::new(());
 
-        self.image_ids.insert(resource.clone(), ImageOrId::Image(image));
-        
+        self.image_ids
+            .insert(resource.clone(), ImageOrId::Image(image));
+
         resource.clone()
     }
 

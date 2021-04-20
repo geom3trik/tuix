@@ -35,7 +35,6 @@ impl Interpolator for MaxHeight {
     }
 }
 
-
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Justify {
     Start,
@@ -95,8 +94,6 @@ impl Default for Scroll {
     }
 }
 
-
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct AxisAlign {
     pub space_before_first: Units,
@@ -139,7 +136,6 @@ impl std::fmt::Display for LayoutType {
     }
 }
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum PositionType {
     SelfDirected,
@@ -160,7 +156,6 @@ impl std::fmt::Display for PositionType {
         }
     }
 }
-
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct GridAxis {

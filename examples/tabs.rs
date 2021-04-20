@@ -8,7 +8,9 @@ fn main() {
     let app = Application::new(|state, window| {
         state.add_theme(THEME);
 
-        window.set_title("Text Input").set_flex_direction(state, FlexDirection::Row);
+        window
+            .set_title("Text Input")
+            .set_flex_direction(state, FlexDirection::Row);
 
         let controls = Element::new().build(state, window.entity(), |builder| {
             builder
@@ -17,7 +19,8 @@ fn main() {
         });
 
         // Create a tab manager
-        let (tab_bar1, tab_viewport1) = TabManager::new().build(state, window.entity(), |builder| builder);
+        let (tab_bar1, tab_viewport1) =
+            TabManager::new().build(state, window.entity(), |builder| builder);
 
         // Add a tab to the tab bar
         let first_tab = MovableTab::new("first").build(state, tab_bar1, |builder| {
@@ -109,7 +112,6 @@ fn main() {
             .build(state, list, |builder| {
                 builder.set_text("Second").class("item")
             });
-
     });
 
     app.run()

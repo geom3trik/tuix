@@ -19,10 +19,8 @@ pub use scrollbar::*;
 pub mod progress;
 pub use progress::*;
 
-
 pub mod tab;
 pub use tab::*;
-
 
 pub mod dropdown;
 pub use dropdown::*;
@@ -68,8 +66,8 @@ pub use crate::entity::Entity;
 pub use crate::events::{Event, Propagation, Widget, WindowEvent};
 pub use crate::mouse::*;
 pub use crate::state::State;
+pub use crate::{Animation, AnimationState, PropGet, PropSet};
 pub use crate::{Code, Key};
-pub use crate::{PropGet, PropSet, Animation, AnimationState};
 pub type Canvas = femtovg::Canvas<femtovg::renderer::OpenGl>;
 pub use crate::Units::*;
 

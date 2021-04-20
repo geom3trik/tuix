@@ -2,7 +2,6 @@ use tuix::*;
 
 fn main() {
     let app = Application::new(|state, window| {
-
         // Set the window title
         window.set_title("Shared Styles");
 
@@ -25,20 +24,16 @@ fn main() {
             .selector(Selector::element("button").set_active())
             .set_background_color(Color::from("#ee5a1d"));
 
-
         // Add the shared style rule to state
         state.add_style_rule(style_rule);
         state.add_style_rule(hover_rule);
         state.add_style_rule(active_rule);
-
 
         // Add first button
         Button::with_label("Button 1").build(state, window.entity(), |builder| builder);
 
         // Add second button
         Button::with_label("Button 2").build(state, window.entity(), |builder| builder);
-
-        
     });
 
     app.run();

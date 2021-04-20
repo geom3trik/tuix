@@ -180,8 +180,8 @@ where
             .set_layout_type(state, LayoutType::Row)
             .set_layout_type(state, LayoutType::Row);
 
-        self.textbox = Textbox::new(&self.value.to_string())
-            .build(state, entity, |builder| builder);
+        self.textbox =
+            Textbox::new(&self.value.to_string()).build(state, entity, |builder| builder);
 
         let arrow_container = Element::new().build(state, entity, |builder| {
             builder

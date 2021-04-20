@@ -689,19 +689,22 @@ fn parse_units<'i, 't>(
         Token::Number { value: x, .. } => Units::Pixels(*x as f32),
         Token::Percentage { unit_value: x, .. } => Units::Percentage(*x as f32),
 
+        Token::Dimension {
+            has_sign: _,
+            value: v,
+            int_value: _,
+            unit: u,
+        } if u == &"px" => Units::Pixels(*v as f32),
 
-        Token::Dimension {has_sign: _, value: v, int_value: _, unit: u} if u == &"px" => {
-            Units::Pixels(*v as f32)
-        }
+        Token::Dimension {
+            has_sign: _,
+            value: v,
+            int_value: _,
+            unit: u,
+        } if u == &"s" => Units::Stretch(*v as f32),
 
-        Token::Dimension {has_sign: _, value: v, int_value: _, unit: u} if u == &"s" => {
-            Units::Stretch(*v as f32)
-        }
+        Token::Ident(name) if name == &"auto" => Units::Auto,
 
-        Token::Ident(name) if name == &"auto" => {
-            Units::Auto
-        }
-            
         t => {
             let basic_error = BasicParseError {
                 kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),

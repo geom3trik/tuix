@@ -84,7 +84,6 @@ impl<S: 'static + PartialEq + Clone + Debug> Message for S {
     }
 
     fn equals_a(&self, other: &dyn Message) -> bool {
-
         //other.as_any().type_id() == self.as_any().type_id()
 
         other

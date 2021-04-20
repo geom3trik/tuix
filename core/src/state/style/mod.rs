@@ -5,11 +5,11 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
-use crate::{Transition, entity::Entity};
 use crate::hierarchy::Hierarchy;
 use crate::state::storage::animatable_storage::AnimatableStorage;
 use crate::state::storage::dense_storage::DenseStorage;
 use crate::state::storage::style_storage::StyleStorage;
+use crate::{entity::Entity, Transition};
 
 use crate::Interpolator;
 
@@ -150,7 +150,7 @@ pub struct Style {
     pub text: DenseStorage<String>,
     pub font: DenseStorage<String>,
     pub font_color: AnimatableStorage<Color>,
-    pub font_size: AnimatableStorage<f32>,    
+    pub font_size: AnimatableStorage<f32>,
 
     pub tooltip: DenseStorage<String>,
 
@@ -173,11 +173,9 @@ pub struct Style {
     pub child_bottom: AnimatableStorage<Units>,
     pub child_between: AnimatableStorage<Units>,
     // pub child_wrap: AnimatableStorage<Units>,
-
 }
 
 impl Style {
-
     pub fn add_rule(&mut self, style_rule: StyleRule) {
         if !self.rules.contains(&style_rule) {
             self.rules.push(style_rule);
@@ -212,7 +210,6 @@ impl Style {
 
         self.rules.sort_by_key(|rule| rule.specificity());
         self.rules.reverse();
-
 
         // for rule in self.rules.iter() {
         //     print!("{}", rule);
@@ -261,7 +258,6 @@ impl Style {
                     }
 
                     // Position Constraints
-
                     Property::MinLeft(value) => {
                         self.min_left.insert_rule(rule_id, value);
                     }
@@ -295,7 +291,6 @@ impl Style {
                     }
 
                     // Size
-
                     Property::Width(value) => {
                         self.width.insert_rule(rule_id, value);
                     }
@@ -305,7 +300,6 @@ impl Style {
                     }
 
                     // Size Constraints
-
                     Property::MaxWidth(value) => {
                         self.max_width.insert_rule(rule_id, value);
                     }
@@ -323,7 +317,6 @@ impl Style {
                     }
 
                     // Border
-
                     Property::BorderWidth(value) => {
                         self.border_width.insert_rule(rule_id, value);
                     }
@@ -333,7 +326,6 @@ impl Style {
                     }
 
                     // Border Radius
-
                     Property::BorderRadius(value) => {
                         self.border_radius_top_left.insert_rule(rule_id, value);
                         self.border_radius_top_right.insert_rule(rule_id, value);
@@ -358,7 +350,6 @@ impl Style {
                     }
 
                     // Font
-
                     Property::FontSize(value) => {
                         self.font_size.insert_rule(rule_id, value);
                     }
@@ -368,7 +359,6 @@ impl Style {
                     }
 
                     // Background
-
                     Property::BackgroundColor(value) => {
                         self.background_color.insert_rule(rule_id, value);
                     }
@@ -378,7 +368,6 @@ impl Style {
                     // }
 
                     // Layout
-
                     Property::LayoutType(value) => {
                         self.layout_type.insert_rule(rule_id, value);
                     }
@@ -388,7 +377,6 @@ impl Style {
                     }
 
                     // Outer Shadow
-
                     Property::OuterShadow(box_shadow) => {
                         self.outer_shadow_h_offset
                             .insert_rule(rule_id, box_shadow.horizontal_offset);
@@ -401,7 +389,6 @@ impl Style {
                     }
 
                     // Inner Shadow
-
                     Property::InnerShadow(box_shadow) => {
                         self.inner_shadow_h_offset
                             .insert_rule(rule_id, box_shadow.horizontal_offset);
@@ -414,7 +401,6 @@ impl Style {
                     }
 
                     // Child Spacing
-
                     Property::ChildLeft(value) => {
                         self.child_left.insert_rule(rule_id, value);
                     }
@@ -443,146 +429,145 @@ impl Style {
                     }
 
                     // Transitions
-
                     Property::Transition(transitions) => {
                         for transition in transitions {
                             match transition.property.as_ref() {
                                 "background-color" => {
                                     self.background_color.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "left" => {
                                     self.left.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "top" => {
                                     self.top.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "right" => {
                                     self.right.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "bottom" => {
                                     self.bottom.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "min-left" => {
                                     self.min_left.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "max-left" => {
                                     self.max_left.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "min-right" => {
                                     self.min_right.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "max-right" => {
                                     self.max_right.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "min-top" => {
                                     self.min_top.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "max-top" => {
                                     self.max_top.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "min-bottom" => {
                                     self.min_bottom.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "max-bottom" => {
                                     self.max_bottom.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "width" => {
                                     self.width.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "height" => {
                                     self.height.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "min-width" => {
                                     self.min_width.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "max-width" => {
                                     self.max_width.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "min-height" => {
                                     self.min_height.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
                                 "max-height" => {
                                     self.max_height.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
                                 "opacity" => {
                                     self.opacity.insert_transition(
                                         rule_id,
-                                        self.add_transition(transition)
+                                        self.add_transition(transition),
                                     );
                                 }
 
@@ -596,14 +581,13 @@ impl Style {
         }
     }
 
-    fn add_transition<T: Default + Interpolator>(&self, transition: Transition) -> AnimationState<T> {
+    fn add_transition<T: Default + Interpolator>(
+        &self,
+        transition: Transition,
+    ) -> AnimationState<T> {
         AnimationState::new()
-            .with_duration(std::time::Duration::from_secs_f32(
-                transition.duration,
-            ))
-            .with_delay(std::time::Duration::from_secs_f32(
-                transition.delay,
-            ))
+            .with_duration(std::time::Duration::from_secs_f32(transition.duration))
+            .with_delay(std::time::Duration::from_secs_f32(transition.delay))
             .with_keyframe((0.0, Default::default()))
             .with_keyframe((1.0, Default::default()))
     }
@@ -1114,8 +1098,7 @@ impl Style {
         self.focus_order.insert(entity, Default::default());
     }
 
-    pub fn remove(&mut self, entity: Entity) {
-    }
+    pub fn remove(&mut self, entity: Entity) {}
 
     pub fn remove_all(&mut self) {
         // Remove all non-inline style data

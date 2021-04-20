@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use crate::widgets::*;
 use crate::style::*;
+use crate::widgets::*;
 
 const ICON_DOWN_OPEN_BIG: &str = "\u{e75c}";
 const ICON_RIGHT_OPEN_BIG: &str = "\u{e75e}";
@@ -101,7 +101,7 @@ impl Widget for Panel {
                 .set_height(Pixels(20.0))
                 .set_hoverability(false)
                 .set_focusability(false)
-                .set_background_color(Color::rgb(100,100,100))
+                .set_background_color(Color::rgb(100, 100, 100))
                 .class("icon")
         });
 
@@ -249,8 +249,6 @@ impl Widget for Panel {
 
                             match entity.get_layout_type(state) {
                                 LayoutType::Column => {
-                                
-
                                     state.style.height.play_animation(
                                         self.container1,
                                         self.expand_height_animation,
@@ -281,7 +279,7 @@ impl Widget for Panel {
                                     self.arrow.set_rotate(state, -90.0);
                                 }
 
-                                _=> {}
+                                _ => {}
                             }
 
                             state
@@ -294,17 +292,17 @@ impl Widget for Panel {
                             self.collapsed = true;
 
                             entity.set_checked(state, false);
-                            
+
                             match entity.get_layout_type(state) {
                                 LayoutType::Column => {
-
                                     if !state.style.height.is_animating(self.container1) {
-                                        let container_height = state.data.get_height(self.container1);
+                                        let container_height =
+                                            state.data.get_height(self.container1);
                                         //println!("Container Height: {} {}", self.container1, container_height);
-                                        
+
                                         if container_height != self.container_height {
                                             //self.container_height = container_height;
-        
+
                                             if let Some(animation) = state
                                                 .style
                                                 .height
@@ -313,7 +311,7 @@ impl Widget for Panel {
                                                 animation.keyframes.last_mut().unwrap().1 =
                                                     Units::Pixels(container_height);
                                             }
-        
+
                                             if let Some(animation) = state
                                                 .style
                                                 .height
@@ -322,7 +320,7 @@ impl Widget for Panel {
                                                 animation.keyframes.first_mut().unwrap().1 =
                                                     Units::Pixels(container_height);
                                             }
-        
+
                                             if let Some(animation) = state
                                                 .style
                                                 .top
@@ -331,7 +329,7 @@ impl Widget for Panel {
                                                 animation.keyframes.first_mut().unwrap().1 =
                                                     Units::Pixels(-container_height);
                                             }
-        
+
                                             if let Some(animation) = state
                                                 .style
                                                 .top
@@ -340,11 +338,10 @@ impl Widget for Panel {
                                                 animation.keyframes.last_mut().unwrap().1 =
                                                     Units::Pixels(-container_height);
                                             }
-        
+
                                             self.container_height = container_height;
                                         }
                                     }
-
 
                                     state.style.height.play_animation(
                                         self.container1,
@@ -362,14 +359,12 @@ impl Widget for Panel {
                                 }
 
                                 LayoutType::Row => {
-
-
                                     if !state.style.height.is_animating(self.container1) {
                                         let container_width = state.data.get_width(self.container1);
-         
+
                                         if container_width != self.container_width {
                                             //self.container_height = container_height;
-        
+
                                             if let Some(animation) = state
                                                 .style
                                                 .width
@@ -378,7 +373,7 @@ impl Widget for Panel {
                                                 animation.keyframes.last_mut().unwrap().1 =
                                                     Units::Pixels(container_width);
                                             }
-        
+
                                             if let Some(animation) = state
                                                 .style
                                                 .width
@@ -387,7 +382,7 @@ impl Widget for Panel {
                                                 animation.keyframes.first_mut().unwrap().1 =
                                                     Units::Pixels(container_width);
                                             }
-        
+
                                             if let Some(animation) = state
                                                 .style
                                                 .left
@@ -396,7 +391,7 @@ impl Widget for Panel {
                                                 animation.keyframes.first_mut().unwrap().1 =
                                                     Units::Pixels(-container_width);
                                             }
-        
+
                                             if let Some(animation) = state
                                                 .style
                                                 .left
@@ -405,7 +400,7 @@ impl Widget for Panel {
                                                 animation.keyframes.last_mut().unwrap().1 =
                                                     Units::Pixels(-container_width);
                                             }
-        
+
                                             self.container_height = container_width;
                                         }
                                     }
@@ -424,7 +419,7 @@ impl Widget for Panel {
                                     self.arrow.set_rotate(state, 0.0);
                                 }
 
-                                _=> {}
+                                _ => {}
                             }
 
                             state
@@ -446,22 +441,18 @@ impl Widget for Panel {
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                
                 WindowEvent::GeometryChanged(_) => {
                     if event.target == self.container1 {
                         match entity.get_layout_type(state) {
-                        
                             LayoutType::Row => {
                                 self.arrow.set_rotate(state, -90.0);
                             }
 
-                            _=> {}
+                            _ => {}
                         }
 
                         event.consume();
                     }
-
-                    
                 }
                 _ => {}
             }

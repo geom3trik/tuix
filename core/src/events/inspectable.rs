@@ -1,5 +1,5 @@
-use crate::{State, Entity};
 use crate::widgets::*;
+use crate::{Entity, State};
 pub trait Inspectable: Default {
     fn widget(&self, state: &mut State, parent: Entity, name: &str) -> Entity;
 }
@@ -25,11 +25,11 @@ impl Inspectable for i32 {
         let row = Row::new().build(state, parent, |builder| builder.set_width(Stretch(1.0)));
         let label = Label::new(name).build(state, row, |builder| builder);
         Spinbox::new(*self)
-             .with_min(95)
-             .with_max(105)
-             //.on_min(Event::new(CheckboxEvent::Uncheck).target(switch))
-             //.on_max(Event::new(CheckboxEvent::Check).target(switch))
-             .build(state, row, |builder| builder)
+            .with_min(95)
+            .with_max(105)
+            //.on_min(Event::new(CheckboxEvent::Uncheck).target(switch))
+            //.on_max(Event::new(CheckboxEvent::Check).target(switch))
+            .build(state, row, |builder| builder)
     }
 }
 

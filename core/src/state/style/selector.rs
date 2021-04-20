@@ -189,11 +189,10 @@ impl Default for Selector {
 
 impl std::fmt::Display for Selector {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        
         if self.asterisk {
-            write!(f,"*")?;
+            write!(f, "*")?;
         }
-        
+
         if let Some(element) = &self.element {
             write!(f, "{}", element)?;
         }
@@ -202,7 +201,7 @@ impl std::fmt::Display for Selector {
             write!(f, ".{}", class_name)?;
         }
 
-        write!(f,"{}",self.pseudo_classes);
+        write!(f, "{}", self.pseudo_classes);
 
         match self.relation {
             Relation::None => {}

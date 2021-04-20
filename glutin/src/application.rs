@@ -2,7 +2,7 @@
 
 use glutin::event_loop::{ControlFlow, EventLoop};
 
-use crate::keyboard::{scan_to_code, vk_to_key, vcode_to_code};
+use crate::keyboard::{scan_to_code, vcode_to_code, vk_to_key};
 
 use crate::window::Window;
 
@@ -21,7 +21,7 @@ use tuix_core::style::{Display, Visibility};
 
 use tuix_core::state::style::prop::*;
 
-use tuix_core::{WindowEvent, WindowWidget, WindowDescription};
+use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
 use tuix_core::systems::*;
 
@@ -37,14 +37,14 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new<F: FnOnce(&mut State, Entity)>(window_description: WindowDescription,
+    pub fn new<F: FnOnce(&mut State, Entity)>(
+        window_description: WindowDescription,
         app: F,
     ) -> Self {
         let event_loop = EventLoop::new();
         let mut state = State::new();
 
         let mut event_manager = EventManager::new();
-        
 
         let root = Entity::root();
         state.hierarchy.add(Entity::root(), None);

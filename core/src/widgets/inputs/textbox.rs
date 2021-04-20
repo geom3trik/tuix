@@ -2,7 +2,7 @@
 
 use crate::entity::Entity;
 use crate::events::*;
-use crate::{Direction, Justify, Units, PropGet, PropSet, State, Visibility, WindowEvent};
+use crate::{Direction, Justify, PropGet, PropSet, State, Units, Visibility, WindowEvent};
 
 use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
 
@@ -427,22 +427,12 @@ impl Widget for Textbox {
         let width = state.data.get_width(entity);
         let height = state.data.get_height(entity);
 
-        let padding_left = match state
-            .style
-            .child_left
-            .get(entity)
-            .unwrap_or(&Units::Auto)
-        {
+        let padding_left = match state.style.child_left.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
 
-        let padding_right = match state
-            .style
-            .child_right
-            .get(entity)
-            .unwrap_or(&Units::Auto)
-        {
+        let padding_right = match state.style.child_right.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
@@ -452,12 +442,7 @@ impl Widget for Textbox {
             _ => &0.0,
         };
 
-        let padding_bottom = match state
-            .style
-            .child_bottom
-            .get(entity)
-            .unwrap_or(&Units::Auto)
-        {
+        let padding_bottom = match state.style.child_bottom.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
@@ -811,7 +796,6 @@ impl Widget for Textbox {
         canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
 
         if let Some(text) = state.style.text.get_mut(entity) {
-
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
             let font_id = match font.as_ref() {
@@ -833,79 +817,90 @@ impl Widget for Textbox {
             paint.set_font_size(font_size);
             paint.set_font(&[font_id]);
 
-
             let font_metrics = canvas
                 .measure_font(paint)
                 .expect("Failed to read font metrics");
 
             // TODO - Move this to a text layout system and include constraints
-            let child_left = state.style.child_left.get(entity).cloned().unwrap_or_default();
-            let child_right = state.style.child_right.get(entity).cloned().unwrap_or_default();
-            let child_top = state.style.child_top.get(entity).cloned().unwrap_or_default();
-            let child_bottom = state.style.child_bottom.get(entity).cloned().unwrap_or_default();
+            let child_left = state
+                .style
+                .child_left
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_right = state
+                .style
+                .child_right
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_top = state
+                .style
+                .child_top
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_bottom = state
+                .style
+                .child_bottom
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
 
             let align = match child_left {
-                Units::Pixels(val) => {
-                    match child_right {
-                        Units::Stretch(_) => {
-                            x += val + border_width;
-                            Align::Left
-                        }
-
-                        _=> Align::Left
+                Units::Pixels(val) => match child_right {
+                    Units::Stretch(_) => {
+                        x += val + border_width;
+                        Align::Left
                     }
-                }
 
-                Units::Stretch(_) => {
-                    match child_right {
-                        Units::Pixels(val) => {
-                            x += width - val - border_width;
-                            Align::Right
-                        }
+                    _ => Align::Left,
+                },
 
-                        Units::Stretch(_) => {
-                            x += 0.5 * width;
-                            Align::Center
-                        }
-
-                        _=> Align::Right
+                Units::Stretch(_) => match child_right {
+                    Units::Pixels(val) => {
+                        x += width - val - border_width;
+                        Align::Right
                     }
-                }
 
-                _=> Align::Left
+                    Units::Stretch(_) => {
+                        x += 0.5 * width;
+                        Align::Center
+                    }
+
+                    _ => Align::Right,
+                },
+
+                _ => Align::Left,
             };
 
             let baseline = match child_top {
-                Units::Pixels(val) => {
-                    match child_bottom {
-                        Units::Stretch(_) => {
-                            y += val + border_width;
-                            Baseline::Top
-                        }
-
-                        _=> Baseline::Top
+                Units::Pixels(val) => match child_bottom {
+                    Units::Stretch(_) => {
+                        y += val + border_width;
+                        Baseline::Top
                     }
-                }
 
-                Units::Stretch(_) => {
-                    match child_bottom {
-                        Units::Pixels(val) => {
-                            y += height - val - border_width;
-                            sy = y - font_metrics.height();
-                            Baseline::Bottom
-                        }
+                    _ => Baseline::Top,
+                },
 
-                        Units::Stretch(_) => {
-                            y += 0.5 * height;
-                            sy = y - font_metrics.height() * 0.5;
-                            Baseline::Middle
-                        }
-
-                        _=> Baseline::Top
+                Units::Stretch(_) => match child_bottom {
+                    Units::Pixels(val) => {
+                        y += height - val - border_width;
+                        sy = y - font_metrics.height();
+                        Baseline::Bottom
                     }
-                }
 
-                _=> Baseline::Top
+                    Units::Stretch(_) => {
+                        y += 0.5 * height;
+                        sy = y - font_metrics.height() * 0.5;
+                        Baseline::Middle
+                    }
+
+                    _ => Baseline::Top,
+                },
+
+                _ => Baseline::Top,
             };
 
             paint.set_text_align(align);
@@ -1020,32 +1015,17 @@ impl Widget for Textbox {
                     let select_width = (caretx - selectx).abs();
                     if selectx > caretx {
                         let mut path = Path::new();
-                        path.rect(
-                            caretx,
-                            sy,
-                            select_width,
-                            font_metrics.height(),
-                        );
+                        path.rect(caretx, sy, select_width, font_metrics.height());
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     } else if caretx > selectx {
                         let mut path = Path::new();
-                        path.rect(
-                            selectx,
-                            sy,
-                            select_width,
-                            font_metrics.height(),
-                        );
+                        path.rect(selectx, sy, select_width, font_metrics.height());
                         canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
                     }
 
                     // Draw Caret
                     let mut path = Path::new();
-                    path.rect(
-                        caretx.floor(),
-                        sy,
-                        1.0,
-                        font_metrics.height(),
-                    );
+                    path.rect(caretx.floor(), sy, 1.0, font_metrics.height());
                     canvas.fill_path(&mut path, Paint::color(Color::rgba(247, 76, 0, 255)));
 
                     // let mut path = Path::new();

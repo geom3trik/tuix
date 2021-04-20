@@ -7,7 +7,7 @@ pub fn inspectable(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
     match &input.data {
         syn::Data::Struct(data) => expand_struct(&input, data).into(),
-        _=> unimplemented!(),
+        _ => unimplemented!(),
     }
 }
 
@@ -67,11 +67,11 @@ fn expand_struct(derive_input: &syn::DeriveInput, data: &syn::DataStruct) -> Tok
 
     quote! {
         impl tuix_core::Inspectable for #name {
-           
+
             fn widget(&self, state: &mut tuix_core::State, parent: tuix_core::Entity, name: &str) -> tuix_core::Entity {
                 use tuix_core::widgets::*;
 
-                let panel = Panel::new(stringify!(#id)).build(state, parent, |builder| 
+                let panel = Panel::new(stringify!(#id)).build(state, parent, |builder|
                     builder
                 );
 
@@ -103,7 +103,6 @@ fn field_label(field: &syn::Field, i: usize) -> String {
         None => i.to_string(),
     }
 }
-
 
 enum InspectableAttribute {
     Assignment(syn::Ident, syn::Expr),

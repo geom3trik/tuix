@@ -198,8 +198,6 @@ fn main() {
         window.set_inner_size(300, 300).set_title("Tic Tac Toe");
 
         Board::new().build(state, window.entity(), |builder| builder);
-
-        
     });
 
     app.run();

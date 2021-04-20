@@ -17,17 +17,17 @@ pub struct StyleRule {
 impl std::fmt::Display for StyleRule {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for selector in self.selectors.iter() {
-            write!(f,"{}",selector)?;
+            write!(f, "{}", selector)?;
         }
 
         write!(f, " {{\n")?;
 
         for property in self.properties.iter() {
-            write!(f,"    {}\n",property)?;
+            write!(f, "    {}\n", property)?;
         }
-        
+
         write!(f, "}}\n\n")?;
-        
+
         Ok(())
     }
 }
@@ -90,7 +90,6 @@ impl StyleRule {
 
     // Background
     pub fn set_background_color(mut self, value: Color) -> Self {
-
         self.properties.push(Property::BackgroundColor(value));
 
         self
@@ -168,7 +167,6 @@ impl StyleRule {
     }
 
     pub fn set_inner_shadow_blur(mut self, value: Units) -> Self {
-        
         let mut box_shadow = BoxShadow::default();
         box_shadow.blur_radius = value;
 
@@ -281,18 +279,20 @@ impl StyleRule {
 
     pub fn set_border_radius_top_right(mut self, value: Units) -> Self {
         self.properties.push(Property::BorderTopRightRadius(value));
-        
+
         self
     }
 
     pub fn set_border_radius_bottom_left(mut self, value: Units) -> Self {
-        self.properties.push(Property::BorderBottomLeftRadius(value));
+        self.properties
+            .push(Property::BorderBottomLeftRadius(value));
 
         self
     }
 
     pub fn set_border_radius_bottom_right(mut self, value: Units) -> Self {
-        self.properties.push(Property::BorderBottomRightRadius(value));
+        self.properties
+            .push(Property::BorderBottomRightRadius(value));
 
         self
     }

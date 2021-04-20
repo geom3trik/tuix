@@ -66,7 +66,6 @@ impl<'a> Builder<'a> {
         self
     }
 
-
     /// Sets whether the entity can be focused
     pub fn set_focusability(mut self, val: bool) -> Self {
         self.state.data.set_focusability(self.entity, val);
@@ -106,14 +105,12 @@ impl<'a> Builder<'a> {
 
     // Sets the text displayed within the entity
     pub fn set_text(mut self, val: &str) -> Self {
-
         self.state.style.text.insert(self.entity, val.to_owned());
 
         self
     }
 
     pub fn set_font(mut self, val: &str) -> Self {
-
         self.state.style.font.insert(self.entity, val.to_owned());
 
         self
@@ -157,7 +154,10 @@ impl<'a> Builder<'a> {
     }
 
     pub fn set_background_image(mut self, val: Rc<()>) -> Self {
-        self.state.style.background_image.insert(self.entity, val.clone());
+        self.state
+            .style
+            .background_image
+            .insert(self.entity, val.clone());
 
         self
     }
@@ -398,7 +398,7 @@ impl<'a> Builder<'a> {
             .style
             .border_radius_top_right
             .insert(self.entity, val);
-        
+
         self
     }
 
@@ -535,4 +535,4 @@ impl<'a> Builder<'a> {
         self.state.style.layout_type.insert(self.entity, value);
         self
     }
-} 
+}

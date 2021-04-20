@@ -4,7 +4,6 @@ use crate::hierarchy::*;
 use crate::style::*;
 use crate::widgets::*;
 
-
 // Notes:
 // When user clicks menu, the container should appear
 // When container is visible, clicking on a menu item activates the item

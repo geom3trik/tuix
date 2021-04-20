@@ -19,8 +19,8 @@ impl Widget for Row {
             .set_layout_type(state, LayoutType::Row)
             .set_focusability(state, false)
             .set_element(state, "row")
-            //.set_width(state, Auto)
-            //.set_height(state, Auto)
+        //.set_width(state, Auto)
+        //.set_height(state, Auto)
     }
 }
 
@@ -39,8 +39,8 @@ impl Widget for Column {
             .set_layout_type(state, LayoutType::Column)
             .set_focusability(state, false)
             .set_element(state, "column")
-            //.set_width(state, Auto)
-            //.set_height(state, Auto)
+        //.set_width(state, Auto)
+        //.set_height(state, Auto)
     }
 }
 
@@ -62,9 +62,9 @@ impl Widget for ResizableColumn {
     type Ret = Entity;
     fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            //.set_width(state, Units::Pixels(300.0))
-            //.set_max_width(state, Units::Pixels(500.0))
-            //.set_min_width(state, Units::Pixels(300.0));
+        //.set_width(state, Units::Pixels(300.0))
+        //.set_max_width(state, Units::Pixels(500.0))
+        //.set_min_width(state, Units::Pixels(300.0));
         //state.style.z_order.set(self.resize_marker, 1);
 
         //entity

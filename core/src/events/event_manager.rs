@@ -1,14 +1,22 @@
-use crate::{Builder, CursorIcon, Entity, Event, Hierarchy, HierarchyTree, ImageOrId, IntoBranchIterator, IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State, WindowEvent, hierarchy};
+use crate::{
+    hierarchy, Builder, CursorIcon, Entity, Event, Hierarchy, HierarchyTree, ImageOrId,
+    IntoBranchIterator, IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State,
+    WindowEvent,
+};
 
 use crate::EventHandler;
 
-use std::{collections::{HashMap, VecDeque, hash_map::DefaultHasher}, convert::TryInto, println};
+use std::{
+    collections::{hash_map::DefaultHasher, HashMap, VecDeque},
+    convert::TryInto,
+    println,
+};
 
 use std::time::{Duration, Instant};
 
 use femtovg::{
     renderer::OpenGl, Align, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId,
-    LineCap, LineJoin, Paint, Path, Renderer, Solidity, 
+    LineCap, LineJoin, Paint, Path, Renderer, Solidity,
 };
 
 use fnv::FnvHashMap;
@@ -44,12 +52,10 @@ impl EventManager {
     pub fn flush_events(&mut self, state: &mut State) -> bool {
         let mut needs_redraw = false;
 
-
         if state.hierarchy.changed {
             self.hierarchy = state.hierarchy.clone();
             state.hierarchy.changed = false;
         }
-
 
         // Clear the event queue in the event manager
         self.event_queue.clear();
@@ -206,22 +212,27 @@ impl EventManager {
         // for (resource, image_or_id) in state.resource_manager.image_ids.iter_mut() {
         //     match image_or_id {
         //         ImageOrId::Image(data, width, height) => {
-        //             image_or_id = 
+        //             image_or_id =
         //         }
         //     }
         // }
 
-        state.resource_manager.image_ids.iter_mut().for_each(|(_, image_or_id)| {
-            match image_or_id {
-                ImageOrId::Image(image) => {
-                    //let img = image.clone();
-                    //let image: femtovg::ImageSource = (&img).try_into().unwrap();
-                    let image: femtovg::ImageSource = (&*image).try_into().unwrap();
-                    *image_or_id = ImageOrId::Id(canvas.create_image(image, ImageFlags::empty()).unwrap())
+        state
+            .resource_manager
+            .image_ids
+            .iter_mut()
+            .for_each(|(_, image_or_id)| {
+                match image_or_id {
+                    ImageOrId::Image(image) => {
+                        //let img = image.clone();
+                        //let image: femtovg::ImageSource = (&img).try_into().unwrap();
+                        let image: femtovg::ImageSource = (&*image).try_into().unwrap();
+                        *image_or_id =
+                            ImageOrId::Id(canvas.create_image(image, ImageFlags::empty()).unwrap())
+                    }
+                    _ => {}
                 }
-                _=> {}
-            }
-        });
+            });
 
         let width = state.data.get_width(Entity::root());
         let height = state.data.get_height(Entity::root());

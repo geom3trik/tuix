@@ -70,12 +70,9 @@ fn main() {
 
         window.set_title("Panels");
 
-        let panel = Panel::new("Panel 1").build(state, window.entity(), |builder| 
-            builder
-                .class("one")
-    
-        );
-        
+        let panel =
+            Panel::new("Panel 1").build(state, window.entity(), |builder| builder.class("one"));
+
         Button::with_label("1").build(state, panel, |builder| {
             builder
                 .set_width(Units::Pixels(100.0))
@@ -100,8 +97,6 @@ fn main() {
         //         .set_height(Units::Pixels(30.0))
         //         .set_text_justify(Justify::Center)
         // });
-
-        
     });
 
     app.run();

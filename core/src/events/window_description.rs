@@ -73,9 +73,6 @@ impl WindowDescription {
     }
 }
 
-
-
-
 pub struct WindowBuilder {
     entity: Entity,
     window_description: WindowDescription,
@@ -123,8 +120,6 @@ impl WindowBuilder {
         self.window_description.icon_height = height;
         self
     }
-
-
 }
 
 // impl AsEntity for WindowBuilder {

@@ -4,10 +4,9 @@ fn main() {
     let app = Application::new(|state, window| {
         let window_flex_direction = FlexDirection::Row;
 
-        window
-            .set_title("Align Items");
-            // .set_background_color(state, Color::white())
-            // .set_flex_direction(state, window_flex_direction);
+        window.set_title("Align Items");
+        // .set_background_color(state, Color::white())
+        // .set_flex_direction(state, window_flex_direction);
 
         let container_flex_direction = match window_flex_direction {
             FlexDirection::Column | FlexDirection::ColumnReverse => FlexDirection::Row,

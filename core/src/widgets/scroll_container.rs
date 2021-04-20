@@ -5,7 +5,7 @@ use crate::state::style::*;
 use crate::{MouseButton, State};
 
 use crate::widgets::*;
-use crate::widgets::{Button, Element, Row, Column};
+use crate::widgets::{Button, Column, Element, Row};
 use crate::AnimationState;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -176,10 +176,10 @@ impl Widget for ScrollContainerH {
                                 - (state.data.get_width(entity)
                                     / state.data.get_width(self.container));
 
-                            state.style.left.insert(
-                                self.container,
-                                Units::Percentage(self.scrolly * overflow),
-                            );
+                            state
+                                .style
+                                .left
+                                .insert(self.container, Units::Percentage(self.scrolly * overflow));
 
                             state.style.left.insert(
                                 self.horizontal_scroll,
@@ -512,10 +512,10 @@ impl Widget for ScrollContainer {
                                 - (state.data.get_height(entity)
                                     / state.data.get_height(self.container));
 
-                            state.style.top.insert(
-                                self.container,
-                                Units::Percentage(self.scrolly * overflow),
-                            );
+                            state
+                                .style
+                                .top
+                                .insert(self.container, Units::Percentage(self.scrolly * overflow));
 
                             state.style.top.insert(
                                 self.vertical_scroll,
@@ -771,16 +771,11 @@ impl ScrollContainerHV {
 impl Widget for ScrollContainerHV {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            .set_layout_type(state, LayoutType::Row);
+        entity.set_layout_type(state, LayoutType::Row);
 
-        let row = Row::new().build(state, entity, |builder| {
-            builder
-        });
+        let row = Row::new().build(state, entity, |builder| builder);
 
-        let column = Column::new().build(state, row, |builder| {
-            builder
-        });
+        let column = Column::new().build(state, row, |builder| builder);
 
         self.container = Button::new().build(state, column, |builder| {
             builder
@@ -799,7 +794,7 @@ impl Widget for ScrollContainerHV {
                 .set_top(Units::Percentage(0.0))
                 .set_width(Units::Pixels(10.0))
                 .set_height(Units::Percentage(1.0))
-                //.set_align_self(AlignSelf::FlexStart)
+            //.set_align_self(AlignSelf::FlexStart)
             //.set_background_color(Color::rgb(70, 200, 70))
             //.set_right(Units::Pixels(0.0))
             //.class("scrollbar")
@@ -813,7 +808,7 @@ impl Widget for ScrollContainerHV {
                 .set_left(Units::Percentage(0.0))
                 .set_height(Units::Pixels(10.0))
                 .set_width(Units::Percentage(1.0))
-                //.set_align_self(AlignSelf::FlexStart)
+            //.set_align_self(AlignSelf::FlexStart)
             //.set_background_color(Color::rgb(20, 70, 200))
             //.set_right(Units::Pixels(0.0))
             //.class("scrollbar")

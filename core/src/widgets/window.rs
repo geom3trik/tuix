@@ -1,8 +1,6 @@
 use crate::{apply_hover, Entity, Event, State, Widget, WindowEvent};
 
-use crate::systems::{
-   apply_styles, apply_visibility, apply_z_ordering, apply_layout2
-};
+use crate::systems::{apply_layout2, apply_styles, apply_visibility, apply_z_ordering};
 
 #[derive(Clone)]
 pub struct WindowWidget {}

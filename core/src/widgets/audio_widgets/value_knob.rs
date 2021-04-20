@@ -182,7 +182,7 @@ impl Widget for ValueKnob {
                     }
                 }
 
-                _=> {}
+                _ => {}
             }
         }
 

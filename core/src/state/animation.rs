@@ -10,7 +10,7 @@ use crate::state::style::Color;
 
 use std::collections::HashMap;
 
-#[derive(Debug,Clone,Copy,PartialEq,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Hash)]
 pub struct Animation(usize);
 
 impl Animation {
@@ -20,7 +20,7 @@ impl Animation {
 
     pub fn null() -> Self {
         Self(std::usize::MAX)
-    }    
+    }
 
     pub fn get_id(&self) -> usize {
         self.0

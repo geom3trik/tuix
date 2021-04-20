@@ -283,7 +283,10 @@ impl Widget for TabBar2 {
                     self.phantom_tab1.set_display(state, Display::Flexbox);
                     self.phantom_tab2.set_display(state, Display::Flexbox);
 
-                    state.hierarchy.set_prev_sibling(*tab, self.phantom_tab1).unwrap();
+                    state
+                        .hierarchy
+                        .set_prev_sibling(*tab, self.phantom_tab1)
+                        .unwrap();
 
                     //let tab_width = tab.get_width(state);
                     //let tab_height = tab.get_height(state);
@@ -297,8 +300,7 @@ impl Widget for TabBar2 {
 
                     self.phantom_tab1
                         .set_height(state, Units::Pixels(tab_height));
-                    self.phantom_tab1
-                        .set_width(state, Units::Pixels(tab_width));
+                    self.phantom_tab1.set_width(state, Units::Pixels(tab_width));
 
                     self.phantom_tab2
                         .set_height(state, Units::Pixels(tab_height));
@@ -311,7 +313,10 @@ impl Widget for TabBar2 {
                         }
                     }
 
-                    state.hierarchy.set_next_sibling(*tab, self.phantom_tab2).unwrap();
+                    state
+                        .hierarchy
+                        .set_next_sibling(*tab, self.phantom_tab2)
+                        .unwrap();
 
                     event.consume();
                 }
@@ -322,9 +327,15 @@ impl Widget for TabBar2 {
                     // need to check which one is active before moving the track before it.
                     // This can be done by checking which one has a non-zero width (for row)
                     if state.data.get_width(self.phantom_tab1) > 0.0 {
-                        state.hierarchy.set_prev_sibling(self.phantom_tab1, *tab).unwrap();
+                        state
+                            .hierarchy
+                            .set_prev_sibling(self.phantom_tab1, *tab)
+                            .unwrap();
                     } else if state.data.get_width(self.phantom_tab2) > 0.0 {
-                        state.hierarchy.set_prev_sibling(self.phantom_tab2, *tab).unwrap();
+                        state
+                            .hierarchy
+                            .set_prev_sibling(self.phantom_tab2, *tab)
+                            .unwrap();
                     }
 
                     self.phantom_tab1.set_display(state, Display::None);
@@ -340,7 +351,8 @@ impl Widget for TabBar2 {
                             {
                                 state
                                     .hierarchy
-                                    .set_prev_sibling(event.target, self.phantom_tab2).unwrap();
+                                    .set_prev_sibling(event.target, self.phantom_tab2)
+                                    .unwrap();
 
                                 state
                                     .style
@@ -358,7 +370,8 @@ impl Widget for TabBar2 {
                             {
                                 state
                                     .hierarchy
-                                    .set_prev_sibling(event.target, self.phantom_tab1).unwrap();
+                                    .set_prev_sibling(event.target, self.phantom_tab1)
+                                    .unwrap();
 
                                 state
                                     .style
@@ -378,7 +391,8 @@ impl Widget for TabBar2 {
                             {
                                 state
                                     .hierarchy
-                                    .set_next_sibling(event.target, self.phantom_tab2).unwrap();
+                                    .set_next_sibling(event.target, self.phantom_tab2)
+                                    .unwrap();
 
                                 state
                                     .style
@@ -396,7 +410,8 @@ impl Widget for TabBar2 {
                             {
                                 state
                                     .hierarchy
-                                    .set_next_sibling(event.target, self.phantom_tab1).unwrap();
+                                    .set_next_sibling(event.target, self.phantom_tab1)
+                                    .unwrap();
 
                                 state
                                     .style

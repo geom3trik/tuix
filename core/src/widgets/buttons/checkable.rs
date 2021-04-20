@@ -61,16 +61,13 @@ impl Widget for Checkable {
             match checkbox_event {
                 CheckboxEvent::Switch => {
                     if event.target == entity {
-
                         if self.checked {
-
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)
                                     .target(entity)
                                     .origin(entity),
                             );
                         } else {
-
                             state.insert_event(
                                 Event::new(CheckboxEvent::Checked)
                                     .target(entity)

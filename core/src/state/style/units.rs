@@ -10,7 +10,6 @@ pub enum Units {
 }
 
 impl Units {
-
     pub fn is_auto(&self) -> bool {
         match self {
             Units::Auto => true,

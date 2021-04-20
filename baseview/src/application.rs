@@ -4,13 +4,16 @@ use crate::Renderer;
 use baseview::{Window, WindowScalePolicy};
 use femtovg::Canvas;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use tuix_core::{events::{Event, Propagation}, window_description};
 use tuix_core::state::hierarchy::IntoHierarchyIterator;
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 use tuix_core::state::Fonts;
 use tuix_core::window::WindowWidget;
 use tuix_core::{
-    Entity, EventManager, Hierarchy, Units, PropSet, Size, State, Visibility, WindowDescription,
+    events::{Event, Propagation},
+    window_description,
+};
+use tuix_core::{
+    Entity, EventManager, Hierarchy, PropSet, Size, State, Units, Visibility, WindowDescription,
     WindowEvent,
 };
 
@@ -29,7 +32,10 @@ where
     F: 'static + Send,
 {
     pub fn new(window_description: WindowDescription, app: F) -> Self {
-        Self { app, window_description }
+        Self {
+            app,
+            window_description,
+        }
     }
 
     /// Open a new window that blocks the current thread until the window is destroyed.
@@ -187,8 +193,7 @@ impl ApplicationRunner {
 
     pub fn render(&mut self) -> bool {
         if self.should_redraw {
-            self.event_manager
-                .draw(&mut self.state, &mut self.canvas);
+            self.event_manager.draw(&mut self.state, &mut self.canvas);
             self.should_redraw = false;
             true
         } else {

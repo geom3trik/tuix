@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-
 use crate::state::style::*;
 use crate::widgets::*;
 
@@ -34,9 +33,7 @@ impl Item {
 impl Widget for Item {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-            .set_text(state, &self.text)
-            .class(state, "item");
+        entity.set_text(state, &self.text).class(state, "item");
 
         //self.checkbox = Checkbox::new(false).build(state, entity, |builder| builder.set_hoverability(false));
         // Element::new().build(state, entity, |builder| {

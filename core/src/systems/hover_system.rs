@@ -1,4 +1,4 @@
-use crate::{Display, Entity, Event, Units, PropGet, State, Visibility, WindowEvent, Propagation};
+use crate::{Display, Entity, Event, PropGet, Propagation, State, Units, Visibility, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
@@ -70,15 +70,22 @@ pub fn apply_hover(state: &mut State) {
             hovered_widget = entity;
             if entity.is_over(state) == false {
                 //println!("Over: {}", entity);
-                state.insert_event(Event::new(WindowEvent::MouseOver).target(entity).propagate(Propagation::Direct));
+                state.insert_event(
+                    Event::new(WindowEvent::MouseOver)
+                        .target(entity)
+                        .propagate(Propagation::Direct),
+                );
                 if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(entity) {
                     pseudo_classes.set_over(true);
                 }
             }
-            
         } else {
             if entity.is_over(state) == true {
-                state.insert_event(Event::new(WindowEvent::MouseOut).target(entity).propagate(Propagation::Direct));
+                state.insert_event(
+                    Event::new(WindowEvent::MouseOut)
+                        .target(entity)
+                        .propagate(Propagation::Direct),
+                );
                 if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(entity) {
                     pseudo_classes.set_over(false);
                 }

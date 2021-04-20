@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler};
-use crate::{Entity, Hierarchy, State, AsEntity};
+use crate::{AsEntity, Entity, Hierarchy, State};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -41,7 +41,6 @@ pub trait Widget: std::marker::Sized + 'static {
 
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
-        
         // Skip window
         if entity == Entity::root() {
             return;
@@ -59,22 +58,12 @@ pub trait Widget: std::marker::Sized + 'static {
 
         let bounds = state.data.get_bounds(entity);
 
-        let padding_left = match state
-            .style
-            .child_left
-            .get(entity)
-            .unwrap_or(&Units::Auto)
-        {
+        let padding_left = match state.style.child_left.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
 
-        let padding_right = match state
-            .style
-            .child_right
-            .get(entity)
-            .unwrap_or(&Units::Auto)
-        {
+        let padding_right = match state.style.child_right.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
@@ -84,12 +73,7 @@ pub trait Widget: std::marker::Sized + 'static {
             _ => &0.0,
         };
 
-        let padding_bottom = match state
-            .style
-            .child_bottom
-            .get(entity)
-            .unwrap_or(&Units::Auto)
-        {
+        let padding_bottom = match state.style.child_bottom.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
@@ -100,8 +84,6 @@ pub trait Widget: std::marker::Sized + 'static {
             .get(entity)
             .cloned()
             .unwrap_or_default();
-        
-       
 
         let font_color = state
             .style
@@ -392,11 +374,10 @@ pub trait Widget: std::marker::Sized + 'static {
                         paint = Paint::image(*id, 0.0, 0.0, 100.0, 100.0, 0.0, 1.0);
                     }
 
-                    _=> {}
+                    _ => {}
                 }
-                
             }
-        } 
+        }
 
         // Gradient overrides background color
         if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
@@ -461,7 +442,6 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
-
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
             let font_id = match font.as_ref() {
@@ -481,71 +461,83 @@ pub trait Widget: std::marker::Sized + 'static {
             let text_string = text.to_owned();
 
             // TODO - Move this to a text layout system and include constraints
-            let child_left = state.style.child_left.get(entity).cloned().unwrap_or_default();
-            let child_right = state.style.child_right.get(entity).cloned().unwrap_or_default();
-            let child_top = state.style.child_top.get(entity).cloned().unwrap_or_default();
-            let child_bottom = state.style.child_bottom.get(entity).cloned().unwrap_or_default();
+            let child_left = state
+                .style
+                .child_left
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_right = state
+                .style
+                .child_right
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_top = state
+                .style
+                .child_top
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_bottom = state
+                .style
+                .child_bottom
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
 
             let align = match child_left {
-                Units::Pixels(val) => {
-                    match child_right {
-                        Units::Stretch(_) | Units::Auto => {
-                            x += val + border_width;
-                            Align::Left
-                        }
-
-                        _=> Align::Left
+                Units::Pixels(val) => match child_right {
+                    Units::Stretch(_) | Units::Auto => {
+                        x += val + border_width;
+                        Align::Left
                     }
-                }
 
-                Units::Stretch(_) => {
-                    match child_right {
-                        Units::Pixels(val) => {
-                            x += bounds.w - val - border_width;
-                            Align::Right
-                        }
+                    _ => Align::Left,
+                },
 
-                        Units::Stretch(_) => {
-                            x += 0.5 * bounds.w;
-                            Align::Center
-                        }
-
-                        _=> Align::Right
+                Units::Stretch(_) => match child_right {
+                    Units::Pixels(val) => {
+                        x += bounds.w - val - border_width;
+                        Align::Right
                     }
-                }
 
-                _=> Align::Left
+                    Units::Stretch(_) => {
+                        x += 0.5 * bounds.w;
+                        Align::Center
+                    }
+
+                    _ => Align::Right,
+                },
+
+                _ => Align::Left,
             };
 
             let baseline = match child_top {
-                Units::Pixels(val) => {
-                    match child_bottom {
-                        Units::Stretch(_) | Units::Auto => {
-                            y += val + border_width;
-                            Baseline::Top
-                        }
-
-                        _=> Baseline::Top
+                Units::Pixels(val) => match child_bottom {
+                    Units::Stretch(_) | Units::Auto => {
+                        y += val + border_width;
+                        Baseline::Top
                     }
-                }
 
-                Units::Stretch(_) => {
-                    match child_bottom {
-                        Units::Pixels(val) => {
-                            y += bounds.h - val - border_width;
-                            Baseline::Bottom
-                        }
+                    _ => Baseline::Top,
+                },
 
-                        Units::Stretch(_) => {
-                            y += 0.5 * bounds.h;
-                            Baseline::Middle
-                        }
-
-                        _=> Baseline::Bottom
+                Units::Stretch(_) => match child_bottom {
+                    Units::Pixels(val) => {
+                        y += bounds.h - val - border_width;
+                        Baseline::Bottom
                     }
-                }
 
-                _=> Baseline::Top
+                    Units::Stretch(_) => {
+                        y += 0.5 * bounds.h;
+                        Baseline::Middle
+                    }
+
+                    _ => Baseline::Bottom,
+                },
+
+                _ => Baseline::Top,
             };
 
             let mut font_color: femtovg::Color = font_color.into();

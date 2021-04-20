@@ -1,9 +1,6 @@
-
-
-
-use crate::widgets::*;
 use crate::style::*;
-use femtovg::{Path,Paint, Align, Baseline};
+use crate::widgets::*;
+use femtovg::{Align, Baseline, Paint, Path};
 
 #[derive(Default)]
 pub struct TextSpan {
@@ -34,8 +31,7 @@ impl Text {
 }
 
 impl Text {
-
-    /// 
+    ///
     fn length(&mut self) -> usize {
         self.text.chars().count()
     }
@@ -91,11 +87,7 @@ pub fn len_utf8_from_first_byte(byte: u8) -> usize {
 }
 
 #[derive(Default)]
-pub struct Selection {
-
-}
-
-
+pub struct Selection {}
 
 pub struct TextArea {
     text_span: TextSpan,
@@ -128,27 +120,23 @@ impl Widget for TextArea {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast() {
             match window_event {
-                WindowEvent::KeyDown(code, key) => {
-                    match key {
-                        Some(Key::ArrowLeft) => {
+                WindowEvent::KeyDown(code, key) => match key {
+                    Some(Key::ArrowLeft) => {}
 
-                        }
-
-                        Some(Key::ArrowRight) => {
-                            let c = self.text.text.chars().nth(self.text.position);
-                            println!("{:?}", c);
-                            self.text.next();
-                        }
-
-                        _=> {}
+                    Some(Key::ArrowRight) => {
+                        let c = self.text.text.chars().nth(self.text.position);
+                        println!("{:?}", c);
+                        self.text.next();
                     }
-                }
+
+                    _ => {}
+                },
 
                 WindowEvent::CharInput(c) => {
                     self.text_span.text.insert(0, *c);
                 }
 
-                _=> {}
+                _ => {}
             }
         }
     }
@@ -157,20 +145,19 @@ impl Widget for TextArea {
         let bounds = state.data.get_bounds(entity);
 
         let parent = state
-        .hierarchy
-        .get_parent(entity)
-        .expect("Failed to find parent somehow");
+            .hierarchy
+            .get_parent(entity)
+            .expect("Failed to find parent somehow");
 
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
 
-
         let background_color = state
-        .style
-        .background_color
-        .get(entity)
-        .cloned()
-        .unwrap_or_default();
+            .style
+            .background_color
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
 
         let border_radius_top_left = match state
             .style
@@ -237,7 +224,6 @@ impl Widget for TextArea {
         let mut paint = Paint::color(background_color);
         canvas.fill_path(&mut path, paint);
 
-
         // Draw the text
         let font_id = state.fonts.icons.unwrap();
 
@@ -247,70 +233,80 @@ impl Widget for TextArea {
         let mut y = bounds.y;
 
         // TODO - Move this to a text layout system and include constraints
-        let child_left = state.style.child_left.get(entity).cloned().unwrap_or_default();
-        let child_right = state.style.child_right.get(entity).cloned().unwrap_or_default();
-        let child_top = state.style.child_top.get(entity).cloned().unwrap_or_default();
-        let child_bottom = state.style.child_bottom.get(entity).cloned().unwrap_or_default();
+        let child_left = state
+            .style
+            .child_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+        let child_right = state
+            .style
+            .child_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+        let child_top = state
+            .style
+            .child_top
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+        let child_bottom = state
+            .style
+            .child_bottom
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
 
         let align = match child_left {
-            Units::Pixels(val) => {
-                match child_right {
-                    Units::Stretch(_) => {
-                        x += val;
-                        Align::Left
-                    }
-
-                    _=> Align::Left
+            Units::Pixels(val) => match child_right {
+                Units::Stretch(_) => {
+                    x += val;
+                    Align::Left
                 }
-            }
 
-            Units::Stretch(_) => {
-                match child_right {
-                    Units::Pixels(val) => {
-                        x += bounds.w - val;
-                        Align::Right
-                    }
+                _ => Align::Left,
+            },
 
-                    Units::Stretch(_) => {
-                        x += 0.5 * bounds.w;
-                        Align::Center
-                    }
-
-                    _=> Align::Right
+            Units::Stretch(_) => match child_right {
+                Units::Pixels(val) => {
+                    x += bounds.w - val;
+                    Align::Right
                 }
-            }
 
-            _=> Align::Left
+                Units::Stretch(_) => {
+                    x += 0.5 * bounds.w;
+                    Align::Center
+                }
+
+                _ => Align::Right,
+            },
+
+            _ => Align::Left,
         };
 
         let baseline = match child_top {
-            Units::Pixels(val) => {
-                match child_bottom {
-                    Units::Stretch(_) => {
-                        y += val;
-                        Baseline::Top
-                    }
-
-                    _=> Baseline::Top
+            Units::Pixels(val) => match child_bottom {
+                Units::Stretch(_) => {
+                    y += val;
+                    Baseline::Top
                 }
-            }
 
-            Units::Stretch(_) => {
-                match child_bottom {
-                    Units::Pixels(val) => {
-                        y += bounds.h - val;
-                        Baseline::Bottom
-                    }
+                _ => Baseline::Top,
+            },
 
-                    Units::Stretch(_) => {
-                        Baseline::Middle
-                    }
-
-                    _=> Baseline::Bottom
+            Units::Stretch(_) => match child_bottom {
+                Units::Pixels(val) => {
+                    y += bounds.h - val;
+                    Baseline::Bottom
                 }
-            }
 
-            _=> Baseline::Top
+                Units::Stretch(_) => Baseline::Middle,
+
+                _ => Baseline::Bottom,
+            },
+
+            _ => Baseline::Top,
         };
 
         let font_size = state.style.font_size.get(entity).cloned().unwrap_or(16.0);
@@ -320,8 +316,6 @@ impl Widget for TextArea {
         paint.set_font(&[font_id]);
         paint.set_text_align(align);
         paint.set_text_baseline(baseline);
-
-
 
         // let text_lines = canvas.break_text_vec(bounds.w, text_string, paint).unwrap();
         // let mut total_height = 0.0;
@@ -340,9 +334,5 @@ impl Widget for TextArea {
                 y += font_metrics.height();
             }
         }
-
-
-
-
     }
 }

@@ -51,22 +51,12 @@ pub(crate) trait EventHandler: Any {
         let width = state.data.get_width(entity);
         let height = state.data.get_height(entity);
 
-        let padding_left = match state
-            .style
-            .child_left
-            .get(entity)
-            .unwrap_or(&Units::Auto)
-        {
+        let padding_left = match state.style.child_left.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
 
-        let padding_right = match state
-            .style
-            .child_right
-            .get(entity)
-            .unwrap_or(&Units::Auto)
-        {
+        let padding_right = match state.style.child_right.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
@@ -76,12 +66,7 @@ pub(crate) trait EventHandler: Any {
             _ => &0.0,
         };
 
-        let padding_bottom = match state
-            .style
-            .child_bottom
-            .get(entity)
-            .unwrap_or(&Units::Auto)
-        {
+        let padding_bottom = match state.style.child_bottom.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
             _ => &0.0,
         };
@@ -438,7 +423,6 @@ pub(crate) trait EventHandler: Any {
 
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
-
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
             let font_id = match text.as_ref() {
@@ -458,69 +442,77 @@ pub(crate) trait EventHandler: Any {
             let text_string = text.to_owned();
 
             // TODO - Move this to a text layout system and include constraints
-            let child_left = state.style.child_left.get(entity).cloned().unwrap_or_default();
-            let child_right = state.style.child_right.get(entity).cloned().unwrap_or_default();
-            let child_top = state.style.child_top.get(entity).cloned().unwrap_or_default();
-            let child_bottom = state.style.child_bottom.get(entity).cloned().unwrap_or_default();
+            let child_left = state
+                .style
+                .child_left
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_right = state
+                .style
+                .child_right
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_top = state
+                .style
+                .child_top
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_bottom = state
+                .style
+                .child_bottom
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
 
             let align = match child_left {
-                Units::Pixels(val) => {
-                    match child_right {
-                        Units::Stretch(_) => {
-                            x += val + border_width;
-                            Align::Left
-                        }
-
-                        _=> Align::Left
+                Units::Pixels(val) => match child_right {
+                    Units::Stretch(_) => {
+                        x += val + border_width;
+                        Align::Left
                     }
-                }
 
-                Units::Stretch(_) => {
-                    match child_right {
-                        Units::Pixels(val) => {
-                            x += width - val - border_width;
-                            Align::Right
-                        }
+                    _ => Align::Left,
+                },
 
-                        Units::Stretch(_) => {
-                            Align::Center
-                        }
-
-                        _=> Align::Right
+                Units::Stretch(_) => match child_right {
+                    Units::Pixels(val) => {
+                        x += width - val - border_width;
+                        Align::Right
                     }
-                }
 
-                _=> Align::Left
+                    Units::Stretch(_) => Align::Center,
+
+                    _ => Align::Right,
+                },
+
+                _ => Align::Left,
             };
 
             let baseline = match child_top {
-                Units::Pixels(val) => {
-                    match child_bottom {
-                        Units::Stretch(_) => {
-                            y += val + border_width;
-                            Baseline::Top
-                        }
-
-                        _=> Baseline::Top
+                Units::Pixels(val) => match child_bottom {
+                    Units::Stretch(_) => {
+                        y += val + border_width;
+                        Baseline::Top
                     }
-                }
 
-                Units::Stretch(_) => {
-                    match child_bottom {
-                        Units::Pixels(val) => {
-                            y += height - val - border_width;
-                            Baseline::Bottom
-                        }
+                    _ => Baseline::Top,
+                },
 
-                        Units::Stretch(_) => {
-                            Baseline::Middle
-                        }
-
-                        _=> Baseline::Bottom
+                Units::Stretch(_) => match child_bottom {
+                    Units::Pixels(val) => {
+                        y += height - val - border_width;
+                        Baseline::Bottom
                     }
-                }
 
-                _=> Baseline::Top
+                    Units::Stretch(_) => Baseline::Middle,
+
+                    _ => Baseline::Bottom,
+                },
+
+                _ => Baseline::Top,
             };
 
             let mut font_color: femtovg::Color = font_color.into();

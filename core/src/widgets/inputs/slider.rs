@@ -72,7 +72,6 @@ impl Default for Slider {
 }
 
 impl Slider {
-
     /// Create a new slider widget with default values (min: 0.0, max: 1.0, val: 0.0).
     pub fn new() -> Self {
         Self::default()
@@ -107,7 +106,7 @@ impl Slider {
 
     /// Set the event sent when the slider value has changed.
     ///
-    /// Takes a closure which provides the current value and returns an event to be sent when the slider 
+    /// Takes a closure which provides the current value and returns an event to be sent when the slider
     /// value has changed after releasing the slider. If the slider thumb is pressed but not moved, and thus
     /// the value is not changed, then the event will not be sent.
     ///
@@ -127,7 +126,7 @@ impl Slider {
 
     /// Set the event sent when the slider value is changing (dragging).
     ///
-    /// Takes a closure which provides the current value and returns an event to be sent when the slider 
+    /// Takes a closure which provides the current value and returns an event to be sent when the slider
     /// is value is changing, either by pressing the track or dragging the thumb along the track.
     ///
     /// # Example
@@ -146,7 +145,7 @@ impl Slider {
 
     /// Set the event sent when the slider value reaches the minimum.
     ///
-    /// Takes a closure which provides the minimum value and returns an event to be sent when the slider 
+    /// Takes a closure which provides the minimum value and returns an event to be sent when the slider
     /// reaches the minimum value, either by pressing the track at the start or dragging the thumb to the start
     /// of the track. The event is sent once for each time the value reaches the minimum.
     ///
@@ -166,7 +165,7 @@ impl Slider {
 
     /// Set the event sent when the slider value reaches the maximum.
     ///
-    /// Takes a closure which provides the maximum value and returns an event to be sent when the slider 
+    /// Takes a closure which provides the maximum value and returns an event to be sent when the slider
     /// reaches the maximum value, either by pressing the track at the end or dragging the thumb to the end
     /// of the track. The event is sent once for each time the value reaches the maximum.
     ///
@@ -251,7 +250,6 @@ impl Slider {
         let width = state.data.get_width(entity);
         let thumb_width = state.data.get_width(self.thumb);
 
-        
         if dx <= thumb_width / 2.0 {
             dx = thumb_width / 2.0;
         }
@@ -285,12 +283,11 @@ impl Slider {
         } else {
             self.is_max = false;
         }
-
     }
 
     fn update_visuals(&mut self, state: &mut State, entity: Entity) {
         let normalised_value = (self.value - self.min) / (self.max - self.min);
-                    
+
         let width = state.data.get_width(entity);
         let thumb_width = state.data.get_width(self.thumb);
 
@@ -313,7 +310,7 @@ impl Slider {
             }
 
             state.insert_event(event);
-        }  
+        }
     }
 
     // Helper function for sending events in response to on_press, on_release, on_over, on_out
@@ -337,30 +334,29 @@ impl Slider {
 impl Widget for Slider {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
         if self.min > self.max {
             panic!("minimum value must be less than maximum value")
         }
 
         self.clamp_value();
-        
+
         self.is_min = self.value == self.min;
         self.is_max = self.value == self.max;
-        
+
         entity
             .set_layout_type(state, LayoutType::Row)
             .set_child_top(state, Stretch(1.0))
             .set_child_bottom(state, Stretch(1.0));
 
         // Track
-        self.track = Element::new().build(state, entity, |builder|
+        self.track = Element::new().build(state, entity, |builder| {
             builder
                 .set_width(Stretch(1.0))
                 .set_height(Pixels(4.0))
                 .set_bottom(Auto)
                 .set_hoverability(false)
                 .class("track")
-        );
+        });
 
         // Active
         self.active = Element::new().build(state, self.track, |builder| {
@@ -372,16 +368,12 @@ impl Widget for Slider {
         });
 
         // Thumb
-        self.thumb = Element::new().build(
-            state,
-            entity,
-            |builder| {
-                builder
-                    .set_position_type(PositionType::SelfDirected)
-                    .set_hoverability(false)
-                    .class("thumb")
-            },
-        );
+        self.thumb = Element::new().build(state, entity, |builder| {
+            builder
+                .set_position_type(PositionType::SelfDirected)
+                .set_hoverability(false)
+                .class("thumb")
+        });
 
         state.style.insert_element(entity, "slider");
 
@@ -389,7 +381,6 @@ impl Widget for Slider {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        
         // Handle window events
         if let Some(window_event) = event.message.downcast() {
             match window_event {
@@ -405,9 +396,8 @@ impl Widget for Slider {
                     self.send_event(state, entity, self.on_out.clone());
                 }
 
-                WindowEvent::MouseDown(button) if event.target == entity  => {
+                WindowEvent::MouseDown(button) if event.target == entity => {
                     if *button == MouseButton::Left {
-
                         state.capture(entity);
 
                         self.prev = self.value;
@@ -422,13 +412,14 @@ impl Widget for Slider {
 
                         self.send_value_event(state, entity, &self.on_changing);
 
-                        state.insert_event(Event::new(SliderEvent::ValueChanged(self.value)).target(entity));
+                        state.insert_event(
+                            Event::new(SliderEvent::ValueChanged(self.value)).target(entity),
+                        );
                     }
                 }
 
                 WindowEvent::MouseUp(button) if event.target == entity => {
                     if *button == MouseButton::Left {
-                        
                         state.release(entity);
 
                         entity.set_active(state, false);
@@ -438,13 +429,11 @@ impl Widget for Slider {
                         }
 
                         self.send_event(state, entity, self.on_release.clone());
-
                     }
                 }
 
                 WindowEvent::MouseMove(x, _) if event.target == entity => {
                     if entity.is_active(state) {
-                        
                         let dx = *x - state.data.get_posx(entity);
 
                         self.update_value(state, entity, dx);
@@ -453,7 +442,6 @@ impl Widget for Slider {
                 }
 
                 // TODO - Add keyboard control
-
                 _ => {}
             }
         }
@@ -484,7 +472,7 @@ impl Widget for Slider {
                     self.update_visuals(state, entity);
                 }
 
-                _=> {}
+                _ => {}
             }
         }
     }

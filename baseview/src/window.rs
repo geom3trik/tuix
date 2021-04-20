@@ -44,7 +44,6 @@ impl TuixWindow {
             parent,
             window_settings,
             move |window: &mut baseview::Window<'_>| -> TuixWindow {
-
                 let mut state = State::new();
 
                 let root = Entity::root();
@@ -77,12 +76,11 @@ impl TuixWindow {
         Window::open_as_if_parented(
             window_settings,
             move |window: &mut baseview::Window<'_>| -> TuixWindow {
-
                 let mut state = State::new();
 
                 let root = Entity::root();
                 state.hierarchy.add(Entity::root(), None);
-        
+
                 (app)(&mut state, root);
 
                 TuixWindow::new(state, win_desc, window)
@@ -110,12 +108,11 @@ impl TuixWindow {
         Window::open_blocking(
             window_settings,
             move |window: &mut baseview::Window<'_>| -> TuixWindow {
-
                 let mut state = State::new();
 
                 let root = Entity::root();
                 state.hierarchy.add(Entity::root(), None);
-        
+
                 let win_desc = WindowDescription::new();
                 (app)(&mut state, root);
 

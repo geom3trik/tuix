@@ -155,8 +155,7 @@ impl Widget for CheckItem {
         //     state.insert_event(Event::new(CheckboxEvent::Switch).target(checkbox))
         // });
 
-        entity
-            .set_layout_type(state, LayoutType::Row);
+        entity.set_layout_type(state, LayoutType::Row);
 
         entity.set_element(state, "check_item")
     }

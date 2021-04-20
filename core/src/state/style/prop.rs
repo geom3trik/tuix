@@ -1,24 +1,23 @@
-use crate::{AsEntity, Pos, state::style::*};
 use crate::State;
 use crate::{entity::Entity, Builder, EventHandler, Propagation};
+use crate::{state::style::*, AsEntity, Pos};
 
 use crate::{Event, WindowEvent};
 
 use crate::state::hierarchy::*;
 
-pub trait PropSet : AsEntity + Sized {
-    
-    fn insert_event(&self, state: &mut State, mut event: Event) -> Entity 
-    where Self: 'static
+pub trait PropSet: AsEntity + Sized {
+    fn insert_event(&self, state: &mut State, mut event: Event) -> Entity
+    where
+        Self: 'static,
     {
         state.insert_event(event.target(self.entity()));
 
         self.entity()
     }
-    
+
     /// Add a class name to an entity
     fn class(self, state: &mut State, class_name: &str) -> Self;
-
 
     // TODO move to PropGet
     fn get_parent(self, state: &mut State) -> Option<Entity>;
@@ -532,7 +531,6 @@ impl PropSet for Entity {
 
     // Text
     fn set_text(self, state: &mut State, value: &str) -> Self {
-
         state.style.text.insert(self, value.to_owned());
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -542,7 +540,6 @@ impl PropSet for Entity {
 
     // Text Font
     fn set_font(self, state: &mut State, value: &str) -> Self {
-
         state.style.font.insert(self, value.to_owned());
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -737,7 +734,12 @@ pub trait PropGet: AsEntity {
     fn get_display(&self, state: &mut State) -> Display;
 
     fn get_layout_type(&self, state: &mut State) -> LayoutType {
-        state.style.layout_type.get(self.entity()).cloned().unwrap_or_default()
+        state
+            .style
+            .layout_type
+            .get(self.entity())
+            .cloned()
+            .unwrap_or_default()
     }
 
     // Position
@@ -897,20 +899,10 @@ impl PropGet for Entity {
 
     // Text
     fn get_text(&self, state: &mut State) -> String {
-        state
-            .style
-            .text
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
+        state.style.text.get(*self).cloned().unwrap_or_default()
     }
 
     fn get_font(&self, state: &mut State) -> String {
-        state
-            .style
-            .font
-            .get(*self)
-            .cloned()
-            .unwrap_or_default()
+        state.style.font.get(*self).cloned().unwrap_or_default()
     }
 }

@@ -68,11 +68,9 @@ fn main() {
     let app = Application::new(|state, window| {
         state.add_theme(DEFAULT_THEME);
 
-
         window.set_title("Counter").set_inner_size(400, 100);
 
         Counter::new().build(state, window.entity(), |builder| builder);
-        
     });
 
     app.run();

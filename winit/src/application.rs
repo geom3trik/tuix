@@ -345,10 +345,10 @@ impl Application {
                                 .style
                                 .width
                                 .insert(Entity::root(), Units::Pixels(physical_size.width as f32));
-                            state.style.height.insert(
-                                Entity::root(),
-                                Units::Pixels(physical_size.height as f32),
-                            );
+                            state
+                                .style
+                                .height
+                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32));
 
                             state
                                 .data
