@@ -35,9 +35,6 @@ pub use Units::*;
 pub mod shape;
 pub use shape::*;
 
-pub mod text;
-pub use text::*;
-
 pub mod display;
 pub use display::*;
 
@@ -216,16 +213,10 @@ impl Style {
         self.rules.sort_by_key(|rule| rule.specificity());
         self.rules.reverse();
 
-        //self.rules = rule_list;
 
-        // for (index, rule) in self.rules.iter().enumerate() {
-        //     println!("{} Rule: {:?}  {:?}", index, rule, rule.specificity());
-        //     println!("");
+        // for rule in self.rules.iter() {
+        //     print!("{}", rule);
         // }
-
-        for rule in self.rules.iter() {
-            print!("{}", rule);
-        }
 
         self.remove_all();
         self.set_style_properties();

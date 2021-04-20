@@ -14,7 +14,7 @@ enum Axis {
 
 
 pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
-    
+
     let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
 
     // for entity in layout_hierarchy.iter() {

@@ -6,6 +6,3 @@ pub use levels::*;
 
 pub mod value_knob;
 pub use value_knob::*;
-
-pub mod grid;
-pub use grid::*;

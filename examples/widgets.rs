@@ -89,270 +89,270 @@ fn main() {
         // VectorEdit::<f32>::new().build(state, row, |builder| builder.set_flex_grow(1.0));
 
 
-        // //
+        //
 
-        // // LISTS PANEL
-        // let panel = Panel::new("Check Button Lists").build(state, scroll, |builder| builder);
+        // LISTS PANEL
+        let panel = Panel::new("Check Button Lists").build(state, scroll, |builder| builder);
 
-        // panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
-        // // LIST
-        // let row = Row::new().build(state, panel, |builder| builder);
-        // Label::new("List").build(state, row, |builder| builder);
-        // let list = List::new().build(state, row, |builder| 
-        //     builder
-        //         .set_width(Stretch(1.0))
-        //         .set_height(Auto)
-        // );
-        // CheckButton::new(true).build(state, list, |builder| {
-        //     builder
-        //         .set_text("Option 1")
-        //         .set_height(Pixels(30.0))
-        //         .set_child_left(Pixels(5.0))
-        // });
-        // CheckButton::new(false).build(state, list, |builder| {
-        //     builder
-        //         .set_text("Option 2")
-        //         .set_height(Pixels(30.0))
-        //         .set_child_left(Pixels(5.0))
-        // });
-        // CheckButton::new(false).build(state, list, |builder| {
-        //     builder
-        //         .set_text("Option 3")
-        //         .set_height(Pixels(30.0))
-        //         .set_child_left(Pixels(5.0))
-        // });
+        panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
+        // LIST
+        let row = Row::new().build(state, panel, |builder| builder);
+        Label::new("List").build(state, row, |builder| builder);
+        let list = List::new().build(state, row, |builder| 
+            builder
+                .set_width(Stretch(1.0))
+                .set_height(Auto)
+        );
+        CheckButton::new(true).build(state, list, |builder| {
+            builder
+                .set_text("Option 1")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
+        CheckButton::new(false).build(state, list, |builder| {
+            builder
+                .set_text("Option 2")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
+        CheckButton::new(false).build(state, list, |builder| {
+            builder
+                .set_text("Option 3")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
 
-        // // MULTILIST
-        // let row = Row::new().build(state, panel, |builder| builder);
-        // Label::new("Multilist").build(state, row, |builder| builder);
-        // let list = List::new()
-        //     .set_multi()
-        //     .build(state, row, |builder| 
-        //         builder
-        //             .set_width(Stretch(1.0))
-        //             .set_height(Auto)
-        //     );
-        // CheckButton::new(true).build(state, list, |builder| {
-        //     builder
-        //         .set_text("Option 1")
-        //         .set_height(Pixels(30.0))
-        //         .set_child_left(Pixels(5.0))
-        // });
-        // CheckButton::new(false).build(state, list, |builder| {
-        //     builder
-        //         .set_text("Option 2")
-        //         .set_height(Pixels(30.0))
-        //         .set_child_left(Pixels(5.0))
-        // });
-        // CheckButton::new(false).build(state, list, |builder| {
-        //     builder
-        //         .set_text("Option 3")
-        //         .set_height(Pixels(30.0))
-        //         .set_child_left(Pixels(5.0))
-        // });
+        // MULTILIST
+        let row = Row::new().build(state, panel, |builder| builder);
+        Label::new("Multilist").build(state, row, |builder| builder);
+        let list = List::new()
+            .set_multi()
+            .build(state, row, |builder| 
+                builder
+                    .set_width(Stretch(1.0))
+                    .set_height(Auto)
+            );
+        CheckButton::new(true).build(state, list, |builder| {
+            builder
+                .set_text("Option 1")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
+        CheckButton::new(false).build(state, list, |builder| {
+            builder
+                .set_text("Option 2")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
+        CheckButton::new(false).build(state, list, |builder| {
+            builder
+                .set_text("Option 3")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
 
-        // // LISTS PANEL
-        // let panel = Panel::new("Dropdown Lists").build(state, scroll, |builder| builder);
+        // LISTS PANEL
+        let panel = Panel::new("Dropdown Lists").build(state, scroll, |builder| builder);
 
-        // panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
+        panel.set_child_space(state, Pixels(10.0)).set_child_between(state, Pixels(10.0));
 
-        // // DROPDOWN LIST
+        // DROPDOWN LIST
+        let row = Row::new().build(state, panel, |builder| builder);
+        Label::new("List").build(state, row, |builder| builder);
+        let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| {
+            builder.set_height(Pixels(30.0)).set_width(Stretch(1.0))
+        });
+        let list = List::new()
+            .build(state, popup, |builder| builder);
+        CheckButton::new(true)
+            .build(state, list, |builder| {
+                builder
+                    .set_text("Option 1")
+                    .set_height(Pixels(30.0))
+                    .set_child_left(Pixels(5.0))
+            });
+        CheckButton::new(false)
+            .build(state, list, |builder| {
+                builder
+                    .set_text("Option 2")
+                    .set_height(Pixels(30.0))
+                    .set_child_left(Pixels(5.0))
+            });
+        CheckButton::new(false).build(state, list, |builder| {
+            builder
+                .set_text("Option 3")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
+
+        // DROPDOWN MULTILIST
+        let row = Row::new().build(state, panel, |builder| builder);
+        Label::new("Multilist").build(state, row, |builder| builder);
+        let (_, _, popup) = Dropdown::new("Dropdown")
+            .set_multi()
+            .build(state, row, |builder| {
+                builder.set_height(Pixels(30.0))
+            });
+        let list = List::new()
+            .set_multi()
+            .build(state, popup, |builder| builder);
+        CheckButton::new(true).build(state, list, |builder| {
+            builder
+                .set_text("Option 1")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
+        CheckButton::new(false).build(state, list, |builder| {
+            builder
+                .set_text("Option 2")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
+        CheckButton::new(false).build(state, list, |builder| {
+            builder
+                .set_text("Option 3")
+                .set_height(Pixels(30.0))
+                .set_child_left(Pixels(5.0))
+        });
+
+        // // DROPDOWN CHECKITEM LIST
         // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("List").build(state, row, |builder| builder);
         // let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| {
-        //     builder.set_height(Pixels(30.0)).set_width(Stretch(1.0))
+        //     builder.set_height(Pixels(30.0)).set_flex_grow(1.0)
         // });
-        // let list = List::new()
-        //     .build(state, popup, |builder| builder);
-        // CheckButton::new(true)
-        //     .build(state, list, |builder| {
-        //         builder
-        //             .set_text("Option 1")
-        //             .set_height(Pixels(30.0))
-        //             .set_child_left(Pixels(5.0))
-        //     });
-        // CheckButton::new(false)
-        //     .build(state, list, |builder| {
-        //         builder
-        //             .set_text("Option 2")
-        //             .set_height(Pixels(30.0))
-        //             .set_child_left(Pixels(5.0))
-        //     });
-        // CheckButton::new(false).build(state, list, |builder| {
+        // let list = List::new().build(state, popup, |builder| builder.set_flex_grow(1.0));
+        // CheckItem::new("Option 1", true).build(state, list, |builder| {
         //     builder
-        //         .set_text("Option 3")
-        //         .set_height(Pixels(30.0))
+        //         .set_flex_basis(Pixels(30.0))
+        //         .set_child_left(Pixels(5.0))
+        // });
+        // CheckItem::new("Option2", false).build(state, list, |builder| {
+        //     builder
+        //         .set_flex_basis(Pixels(30.0))
+        //         .set_child_left(Pixels(5.0))
+        // });
+        // CheckItem::new("Option3", false).build(state, list, |builder| {
+        //     builder
+        //         .set_flex_basis(Pixels(30.0))
         //         .set_child_left(Pixels(5.0))
         // });
 
-        // // DROPDOWN MULTILIST
+        // // DROPDOWN CHECK MULTILIST
         // let row = Row::new().build(state, panel, |builder| builder);
         // Label::new("Multilist").build(state, row, |builder| builder);
         // let (_, _, popup) = Dropdown::new("Dropdown")
         //     .set_multi()
         //     .build(state, row, |builder| {
-        //         builder.set_height(Pixels(30.0))
+        //         builder.set_height(Pixels(30.0)).set_flex_grow(1.0)
         //     });
         // let list = List::new()
         //     .set_multi()
-        //     .build(state, popup, |builder| builder);
-        // CheckButton::new(true).build(state, list, |builder| {
+        //     .build(state, popup, |builder| builder.set_flex_grow(1.0));
+        // CheckItem::new("Option 1", true).build(state, list, |builder| {
         //     builder
-        //         .set_text("Option 1")
-        //         .set_height(Pixels(30.0))
+        //         .set_flex_basis(Pixels(30.0))
         //         .set_child_left(Pixels(5.0))
         // });
-        // CheckButton::new(false).build(state, list, |builder| {
+        // CheckItem::new("Option2", false).build(state, list, |builder| {
         //     builder
-        //         .set_text("Option 2")
-        //         .set_height(Pixels(30.0))
+        //         .set_flex_basis(Pixels(30.0))
         //         .set_child_left(Pixels(5.0))
         // });
-        // CheckButton::new(false).build(state, list, |builder| {
+        // CheckItem::new("Option3", false).build(state, list, |builder| {
         //     builder
-        //         .set_text("Option 3")
-        //         .set_height(Pixels(30.0))
+        //         .set_flex_basis(Pixels(30.0))
         //         .set_child_left(Pixels(5.0))
         // });
 
-        // // // DROPDOWN CHECKITEM LIST
-        // // let row = Row::new().build(state, panel, |builder| builder);
-        // // Label::new("List").build(state, row, |builder| builder);
-        // // let (_, _, popup) = Dropdown::new("Dropdown").build(state, row, |builder| {
-        // //     builder.set_height(Pixels(30.0)).set_flex_grow(1.0)
-        // // });
-        // // let list = List::new().build(state, popup, |builder| builder.set_flex_grow(1.0));
-        // // CheckItem::new("Option 1", true).build(state, list, |builder| {
-        // //     builder
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
-        // // CheckItem::new("Option2", false).build(state, list, |builder| {
-        // //     builder
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
-        // // CheckItem::new("Option3", false).build(state, list, |builder| {
-        // //     builder
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
+        // // LISTS PANEL
+        // let panel = Panel::new("Check List").build(state, rcolumn, |builder| builder);
 
-        // // // DROPDOWN CHECK MULTILIST
-        // // let row = Row::new().build(state, panel, |builder| builder);
-        // // Label::new("Multilist").build(state, row, |builder| builder);
-        // // let (_, _, popup) = Dropdown::new("Dropdown")
-        // //     .set_multi()
-        // //     .build(state, row, |builder| {
-        // //         builder.set_height(Pixels(30.0)).set_flex_grow(1.0)
-        // //     });
-        // // let list = List::new()
-        // //     .set_multi()
-        // //     .build(state, popup, |builder| builder.set_flex_grow(1.0));
-        // // CheckItem::new("Option 1", true).build(state, list, |builder| {
-        // //     builder
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
-        // // CheckItem::new("Option2", false).build(state, list, |builder| {
-        // //     builder
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
-        // // CheckItem::new("Option3", false).build(state, list, |builder| {
-        // //     builder
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
+        // // LISTBOX
+        // let row = Row::new().build(state, panel, |builder| builder);
+        // Label::new("List").build(state, row, |builder| builder);
+        // let list = List::new().build(state, row, |builder| builder.set_flex_grow(1.0));
+        // CheckItem::new("Option1", true).build(state, list, |builder| {
+        //     builder
+        //         //.set_text("Option 1")
+        //         .set_flex_basis(Pixels(30.0))
+        //         .set_child_left(Pixels(5.0))
+        // });
+        // CheckItem::new("Option2", false).build(state, list, |builder| {
+        //     builder
+        //         //.set_text("Option 2")
+        //         .set_flex_basis(Pixels(30.0))
+        //         .set_child_left(Pixels(5.0))
+        // });
+        // CheckItem::new("Option3", false).build(state, list, |builder| {
+        //     builder
+        //         //.set_text("Option 3")
+        //         .set_flex_basis(Pixels(30.0))
+        //         .set_child_left(Pixels(5.0))
+        // });
 
-        // // // LISTS PANEL
-        // // let panel = Panel::new("Check List").build(state, rcolumn, |builder| builder);
+        // // LISTBOX
+        // let row = Row::new().build(state, panel, |builder| builder);
+        // Label::new("Multilist").build(state, row, |builder| builder);
+        // let list = List::new()
+        //     .set_multi()
+        //     .build(state, row, |builder| builder.set_flex_grow(1.0));
+        // CheckItem::new("Option1", true).build(state, list, |builder| {
+        //     builder
+        //         //.set_text("Option 1")
+        //         .set_flex_basis(Pixels(30.0))
+        //         .set_child_left(Pixels(5.0))
+        // });
+        // CheckItem::new("Option2", false).build(state, list, |builder| {
+        //     builder
+        //         //.set_text("Option 2")
+        //         .set_flex_basis(Pixels(30.0))
+        //         .set_child_left(Pixels(5.0))
+        // });
+        // CheckItem::new("Option3", false).build(state, list, |builder| {
+        //     builder
+        //         //.set_text("Option 3")
+        //         .set_flex_basis(Pixels(30.0))
+        //         .set_child_left(Pixels(5.0))
+        // });
 
-        // // // LISTBOX
-        // // let row = Row::new().build(state, panel, |builder| builder);
-        // // Label::new("List").build(state, row, |builder| builder);
-        // // let list = List::new().build(state, row, |builder| builder.set_flex_grow(1.0));
-        // // CheckItem::new("Option1", true).build(state, list, |builder| {
-        // //     builder
-        // //         //.set_text("Option 1")
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
-        // // CheckItem::new("Option2", false).build(state, list, |builder| {
-        // //     builder
-        // //         //.set_text("Option 2")
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
-        // // CheckItem::new("Option3", false).build(state, list, |builder| {
-        // //     builder
-        // //         //.set_text("Option 3")
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
+        //
 
-        // // // LISTBOX
-        // // let row = Row::new().build(state, panel, |builder| builder);
-        // // Label::new("Multilist").build(state, row, |builder| builder);
-        // // let list = List::new()
-        // //     .set_multi()
-        // //     .build(state, row, |builder| builder.set_flex_grow(1.0));
-        // // CheckItem::new("Option1", true).build(state, list, |builder| {
-        // //     builder
-        // //         //.set_text("Option 1")
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
-        // // CheckItem::new("Option2", false).build(state, list, |builder| {
-        // //     builder
-        // //         //.set_text("Option 2")
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
-        // // CheckItem::new("Option3", false).build(state, list, |builder| {
-        // //     builder
-        // //         //.set_text("Option 3")
-        // //         .set_flex_basis(Pixels(30.0))
-        // //         .set_child_left(Pixels(5.0))
-        // // });
+        // SLIDERS PANEL
+        let panel = Panel::new("Sliders").build(state, scroll, |builder| builder);
+        panel.set_child_space(state, Pixels(10.0));
+        // // PROGRESS BAR
+        // let row = Row::new().build(state, panel, |builder| builder);
+        // Label::new("Progress Bar").build(state, row, |builder| builder);
+        // ProgressBar::new()
+        //     .with_value(0.5)
+        //     .build(state, row, |builder| builder.set_flex_grow(1.0));
 
-        // //
+        // // VALUE SLIDER
+        // let row = Row::new().build(state, panel, |builder| builder);
+        // Label::new("Value Slider").build(state, row, |builder| builder);
+        // ValueSlider::new("value").build(state, row, |builder| builder.set_flex_grow(1.0));
 
-        // // SLIDERS PANEL
-        // let panel = Panel::new("Sliders").build(state, scroll, |builder| builder);
-        // panel.set_child_space(state, Pixels(10.0));
-        // // // PROGRESS BAR
-        // // let row = Row::new().build(state, panel, |builder| builder);
-        // // Label::new("Progress Bar").build(state, row, |builder| builder);
-        // // ProgressBar::new()
-        // //     .with_value(0.5)
-        // //     .build(state, row, |builder| builder.set_flex_grow(1.0));
+        // SLIDER 1
+        let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
+        Label::new("Slider").build(state, row, |builder| builder);
+        Slider::new()
+            .with_initial_value(10.0)
+            .with_range(0.0..20.0)
+            .on_change(|val| Event::new(WindowEvent::Debug(format!("slider on_changed - {}", val))))
+            //.on_changing(|val| Event::new(WindowEvent::Debug(format!("slider on_changing - {}", val))))
+            .on_press(Event::new(WindowEvent::Debug("slider on_press".to_owned())))
+            .on_release(Event::new(WindowEvent::Debug("slider on_release".to_owned())))
+            .on_min(|val| Event::new(WindowEvent::Debug(format!("slider on_min - {}", val))))
+            .on_max(|val| Event::new(WindowEvent::Debug(format!("slider on_max - {}", val))))
+            .on_over(Event::new(WindowEvent::Debug("slider on_over".to_owned())))
+            .on_out(Event::new(WindowEvent::Debug("slider on_out".to_owned())))
 
-        // // // VALUE SLIDER
-        // // let row = Row::new().build(state, panel, |builder| builder);
-        // // Label::new("Value Slider").build(state, row, |builder| builder);
-        // // ValueSlider::new("value").build(state, row, |builder| builder.set_flex_grow(1.0));
-
-        // // SLIDER 1
-        // let row = Row::new().build(state, panel, |builder| builder.set_width(Stretch(1.0)));
-        // Label::new("Slider").build(state, row, |builder| builder);
-        // Slider::new()
-        //     .with_initial_value(10.0)
-        //     .with_range(0.0..20.0)
-        //     .on_change(|val| Event::new(WindowEvent::Debug(format!("slider on_changed - {}", val))))
-        //     //.on_changing(|val| Event::new(WindowEvent::Debug(format!("slider on_changing - {}", val))))
-        //     .on_press(Event::new(WindowEvent::Debug("slider on_press".to_owned())))
-        //     .on_release(Event::new(WindowEvent::Debug("slider on_release".to_owned())))
-        //     .on_min(|val| Event::new(WindowEvent::Debug(format!("slider on_min - {}", val))))
-        //     .on_max(|val| Event::new(WindowEvent::Debug(format!("slider on_max - {}", val))))
-        //     .on_over(Event::new(WindowEvent::Debug("slider on_over".to_owned())))
-        //     .on_out(Event::new(WindowEvent::Debug("slider on_out".to_owned())))
-
-        //     .build(state, row, |builder| 
-        //         builder
-        //             .set_top(Stretch(1.0))
-        //             .set_bottom(Stretch(1.0))
-        //     );
+            .build(state, row, |builder| 
+                builder
+                    .set_top(Stretch(1.0))
+                    .set_bottom(Stretch(1.0))
+            );
 
         // // SLIDER 2
         // let row = Row::new().build(state, panel, |builder| builder);

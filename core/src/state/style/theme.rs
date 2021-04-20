@@ -331,6 +331,8 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "min-bottom" => Property::MinBottom(parse_units(input)?),
             "max-bottom" => Property::MaxBottom(parse_units(input)?),
 
+            "layout-type" => Property::LayoutType(parse_layout_type(input)?),
+
             // Size
             "width" => Property::Width(parse_units(input)?),
             "height" => Property::Height(parse_units(input)?),
@@ -874,17 +876,16 @@ fn parse_overflow<'i, 't>(
     })
 }
 
-fn parse_flex_direction<'i, 't>(
+fn parse_layout_type<'i, 't>(
     input: &mut Parser<'i, 't>,
-) -> Result<FlexDirection, ParseError<'i, CustomParseError>> {
+) -> Result<LayoutType, ParseError<'i, CustomParseError>> {
     let location = input.current_source_location();
 
     Ok(match input.next()? {
         Token::Ident(name) => match name.as_ref() {
-            "row" => FlexDirection::Row,
-            "column" => FlexDirection::Column,
-            "row-reverse" => FlexDirection::RowReverse,
-            "column-reverse" => FlexDirection::ColumnReverse,
+            "row" => LayoutType::Row,
+            "column" => LayoutType::Column,
+            "grid" => LayoutType::Grid,
 
             _ => {
                 return Err(
@@ -902,133 +903,6 @@ fn parse_flex_direction<'i, 't>(
         }
     })
 }
-
-fn parse_justify_content<'i, 't>(
-    input: &mut Parser<'i, 't>,
-) -> Result<JustifyContent, ParseError<'i, CustomParseError>> {
-    let location = input.current_source_location();
-
-    Ok(match input.next()? {
-        Token::Ident(name) => match name.as_ref() {
-            "flex-start" => JustifyContent::FlexStart,
-            "flex-end" => JustifyContent::FlexEnd,
-            "center" => JustifyContent::Center,
-            "space-between" => JustifyContent::SpaceBetween,
-            "space-around" => JustifyContent::SpaceAround,
-            "space-evenly" => JustifyContent::SpaceEvenly,
-
-            _ => {
-                return Err(
-                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
-                );
-            }
-        },
-
-        t => {
-            let basic_error = BasicParseError {
-                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                location,
-            };
-            return Err(basic_error.into());
-        }
-    })
-}
-
-fn parse_align_content<'i, 't>(
-    input: &mut Parser<'i, 't>,
-) -> Result<AlignContent, ParseError<'i, CustomParseError>> {
-    let location = input.current_source_location();
-
-    Ok(match input.next()? {
-        Token::Ident(name) => match name.as_ref() {
-            "flex-start" => AlignContent::FlexStart,
-            "flex-end" => AlignContent::FlexEnd,
-            "center" => AlignContent::Center,
-            "space-between" => AlignContent::SpaceBetween,
-            "space-around" => AlignContent::SpaceAround,
-            "stretch" => AlignContent::Stretch,
-
-            _ => {
-                return Err(
-                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
-                );
-            }
-        },
-
-        t => {
-            let basic_error = BasicParseError {
-                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                location,
-            };
-            return Err(basic_error.into());
-        }
-    })
-}
-
-fn parse_align_items<'i, 't>(
-    input: &mut Parser<'i, 't>,
-) -> Result<AlignItems, ParseError<'i, CustomParseError>> {
-    let location = input.current_source_location();
-
-    Ok(match input.next()? {
-        Token::Ident(name) => match name.as_ref() {
-            "flex-start" => AlignItems::FlexStart,
-            "flex-end" => AlignItems::FlexEnd,
-            "center" => AlignItems::Center,
-            "stretch" => AlignItems::Stretch,
-            //"baseline" => AlignItems::Baseline, //TODO
-            _ => {
-                return Err(
-                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
-                );
-            }
-        },
-
-        t => {
-            let basic_error = BasicParseError {
-                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                location,
-            };
-            return Err(basic_error.into());
-        }
-    })
-}
-
-fn parse_align_self<'i, 't>(
-    input: &mut Parser<'i, 't>,
-) -> Result<AlignSelf, ParseError<'i, CustomParseError>> {
-    let location = input.current_source_location();
-
-    Ok(match input.next()? {
-        Token::Ident(name) => match name.as_ref() {
-            "flex-start" => AlignSelf::FlexStart,
-            "flex-end" => AlignSelf::FlexEnd,
-            "center" => AlignSelf::Center,
-            "stretch" => AlignSelf::Stretch,
-
-            _ => {
-                return Err(
-                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
-                );
-            }
-        },
-
-        t => {
-            let basic_error = BasicParseError {
-                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                location,
-            };
-            return Err(basic_error.into());
-        }
-    })
-}
-
-// TODO
-// fn parse_transform<'i,'t>(
-//     input: &mut Parser<'i,'t>
-// ) -> Result<Scale, ParseError<'i, CustomParseError>> {
-
-// }
 
 fn parse_color<'i, 't>(
     input: &mut Parser<'i, 't>,
