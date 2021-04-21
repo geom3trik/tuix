@@ -45,10 +45,7 @@ impl Widget for Dimension {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_text(state, &self.text)
-            .set_text_justify(state, Justify::Center)
-            .set_text_align(state, Align::Center);
-
-        entity
+            .set_child_space(state, Stretch(1.0))
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -56,8 +53,15 @@ impl Widget for Dimension {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {
+                        println!("Test");
                         if entity == event.target {
                             self.pressed = true;
+                            // println!("Send Change Event");
+                            // state.insert_event(
+                            //     Event::new(DropdownEvent::SetText(self.text.clone()))
+                            //         .target(entity)
+                            //         .propagate(Propagation::Up),
+                            // );
                         }
                     }
                 }
@@ -67,6 +71,7 @@ impl Widget for Dimension {
                         if self.pressed {
                             self.pressed = false;
                             //self.checkbox.set_checked(state, true);
+                            // println!("Send Change Event");
                             state.insert_event(
                                 Event::new(DropdownEvent::SetText(self.text.clone()))
                                     .target(entity)
@@ -171,34 +176,29 @@ where
 {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        state.add_theme(VEC_EDIT_STYLE);
+        //state.add_theme(VEC_EDIT_STYLE);
 
-        entity.set_flex_direction(state, FlexDirection::Row);
+        entity.set_layout_type(state, LayoutType::Row);
 
         self.x = Textbox::new(&self.xval.to_string())
-            .build(state, entity, |builder| builder);
+            .build(state, entity, |builder| 
+                builder.set_right(Pixels(5.0))
+        );
         self.y = Textbox::new(&self.yval.to_string()).build(state, entity, |builder| {
-            builder
-                
-                .set_margin_left(Units::Pixels(5.0))
+            builder.set_right(Pixels(5.0))
         });
         self.z = Textbox::new(&self.zval.to_string()).build(state, entity, |builder| {
-            builder
-                
-                .set_margin_left(Units::Pixels(5.0))
+            builder.set_right(Pixels(5.0))
         });
         self.w = Textbox::new(&self.wval.to_string()).build(state, entity, |builder| {
-            builder
-                
-                .set_margin_left(Units::Pixels(5.0))
+            builder.set_right(Pixels(5.0))
         });
 
         self.dims = Dropdown::new("4")
             .build(state, entity, |builder| {
                 builder
-                    .set_flex_basis(Units::Pixels(30.0))
-                    .set_text_justify(Justify::End)
-                    .set_margin_left(Units::Pixels(5.0))
+                    .set_width(Pixels(30.0))
+                    //.set_text_justify(Justify::End)
                     .class("dim")
             })
             .2;
@@ -208,32 +208,32 @@ where
         Dimension::new("3").build(state, self.dims, |builder| builder.class("item"));
         Dimension::new("4").build(state, self.dims, |builder| builder.class("item"));
 
-        self.reveal = state.style.flex_grow.insert_animation(
+        self.reveal = state.style.width.insert_animation(
             AnimationState::new()
                 .with_duration(std::time::Duration::from_millis(100))
-                .with_keyframe((0.0, 0.0))
-                .with_keyframe((1.0, 1.0)),
+                .with_keyframe((0.0, Stretch(0.0)))
+                .with_keyframe((1.0, Stretch(1.0))),
         );
 
-        self.grow = state.style.margin_left.insert_animation(
+        self.grow = state.style.right.insert_animation(
             AnimationState::new()
                 .with_duration(std::time::Duration::from_millis(100))
                 .with_keyframe((0.0, Units::Pixels(0.0)))
                 .with_keyframe((1.0, Units::Pixels(5.0))),
         );
 
-        self.shrink = state.style.margin_left.insert_animation(
+        self.shrink = state.style.right.insert_animation(
             AnimationState::new()
                 .with_duration(std::time::Duration::from_millis(100))
                 .with_keyframe((0.0, Units::Pixels(5.0)))
                 .with_keyframe((1.0, Units::Pixels(0.0))),
         );
 
-        self.hide = state.style.flex_grow.insert_animation(
+        self.hide = state.style.width.insert_animation(
             AnimationState::new()
                 .with_duration(std::time::Duration::from_millis(100))
-                .with_keyframe((0.0, 1.0))
-                .with_keyframe((1.0, 0.0)),
+                .with_keyframe((0.0, Stretch(1.0)))
+                .with_keyframe((1.0, Stretch(0.0))),
         );
 
         entity.set_element(state, "vector_edit");
@@ -249,32 +249,34 @@ where
                 DropdownEvent::SetText(text) => match text.as_ref() {
                     "1" => {
                         if state.data.get_width(self.x) == 0.0 {
-                            state.style.flex_grow.play_animation(self.x, self.reveal);
+                            state.style.width.play_animation(self.x, self.reveal);
+                            state.style.right.play_animation(self.x, self.grow);
                         }
 
                         if state.data.get_width(self.y) != 0.0 {
-                            state.style.flex_grow.play_animation(self.y, self.hide);
-                            state.style.margin_left.play_animation(self.y, self.shrink);
+                            state.style.width.play_animation(self.y, self.hide);
+                            state.style.right.play_animation(self.y, self.shrink);
                         }
 
                         if state.data.get_width(self.z) != 0.0 {
-                            state.style.flex_grow.play_animation(self.z, self.hide);
-                            state.style.margin_left.play_animation(self.z, self.shrink);
+                            state.style.width.play_animation(self.z, self.hide);
+                            state.style.right.play_animation(self.z, self.shrink);
                         }
 
                         if state.data.get_width(self.w) != 0.0 {
-                            state.style.flex_grow.play_animation(self.w, self.hide);
-                            state.style.margin_left.play_animation(self.w, self.shrink);
+                            state.style.width.play_animation(self.w, self.hide);
+                            state.style.right.play_animation(self.w, self.shrink);
                         }
 
-                        self.x.set_flex_grow(state, 1.0);
-                        self.y.set_flex_grow(state, 0.0);
-                        self.z.set_flex_grow(state, 0.0);
-                        self.w.set_flex_grow(state, 0.0);
+                        self.x.set_width(state, Stretch(1.0));
+                        self.y.set_width(state, Stretch(0.0));
+                        self.z.set_width(state, Stretch(0.0));
+                        self.w.set_width(state, Stretch(0.0));
 
-                        self.y.set_margin_left(state, Units::Pixels(0.0));
-                        self.z.set_margin_left(state, Units::Pixels(0.0));
-                        self.w.set_margin_left(state, Units::Pixels(0.0));
+                        self.x.set_right(state, Pixels(5.0));
+                        self.y.set_right(state, Pixels(0.0));
+                        self.z.set_right(state, Pixels(0.0));
+                        self.w.set_right(state, Pixels(0.0));
 
                         self.num_of_dims = 1;
 
@@ -285,32 +287,34 @@ where
 
                     "2" => {
                         if state.data.get_width(self.x) == 0.0 {
-                            state.style.flex_grow.play_animation(self.x, self.reveal);
+                            state.style.width.play_animation(self.x, self.reveal);
+                            state.style.right.play_animation(self.x, self.grow);
                         }
 
                         if state.data.get_width(self.y) == 0.0 {
-                            state.style.flex_grow.play_animation(self.y, self.reveal);
-                            state.style.margin_left.play_animation(self.y, self.grow);
+                            state.style.width.play_animation(self.y, self.reveal);
+                            state.style.right.play_animation(self.y, self.grow);
                         }
 
                         if state.data.get_width(self.z) != 0.0 {
-                            state.style.flex_grow.play_animation(self.z, self.hide);
-                            state.style.margin_left.play_animation(self.z, self.shrink);
+                            state.style.width.play_animation(self.z, self.hide);
+                            state.style.right.play_animation(self.z, self.shrink);
                         }
 
                         if state.data.get_width(self.w) != 0.0 {
-                            state.style.flex_grow.play_animation(self.w, self.hide);
-                            state.style.margin_left.play_animation(self.w, self.shrink);
+                            state.style.width.play_animation(self.w, self.hide);
+                            state.style.right.play_animation(self.w, self.shrink);
                         }
 
-                        self.x.set_flex_grow(state, 1.0);
-                        self.y.set_flex_grow(state, 1.0);
-                        self.z.set_flex_grow(state, 0.0);
-                        self.w.set_flex_grow(state, 0.0);
+                        self.x.set_width(state, Stretch(1.0));
+                        self.y.set_width(state, Stretch(1.0));
+                        self.z.set_width(state, Stretch(0.0));
+                        self.w.set_width(state, Stretch(0.0));
 
-                        self.y.set_margin_left(state, Units::Pixels(5.0));
-                        self.z.set_margin_left(state, Units::Pixels(0.0));
-                        self.w.set_margin_left(state, Units::Pixels(0.0));
+                        self.x.set_right(state, Units::Pixels(5.0));
+                        self.y.set_right(state, Units::Pixels(5.0));
+                        self.z.set_right(state, Units::Pixels(0.0));
+                        self.w.set_right(state, Units::Pixels(0.0));
 
                         self.num_of_dims = 2;
 
@@ -321,32 +325,34 @@ where
 
                     "3" => {
                         if state.data.get_width(self.x) == 0.0 {
-                            state.style.flex_grow.play_animation(self.x, self.reveal);
+                            state.style.width.play_animation(self.x, self.reveal);
+                            state.style.right.play_animation(self.x, self.grow);
                         }
 
                         if state.data.get_width(self.y) == 0.0 {
-                            state.style.flex_grow.play_animation(self.y, self.reveal);
-                            state.style.margin_left.play_animation(self.y, self.grow);
+                            state.style.width.play_animation(self.y, self.reveal);
+                            state.style.right.play_animation(self.y, self.grow);
                         }
 
                         if state.data.get_width(self.z) == 0.0 {
-                            state.style.flex_grow.play_animation(self.z, self.reveal);
-                            state.style.margin_left.play_animation(self.z, self.grow);
+                            state.style.width.play_animation(self.z, self.reveal);
+                            state.style.right.play_animation(self.z, self.grow);
                         }
 
                         if state.data.get_width(self.w) != 0.0 {
-                            state.style.flex_grow.play_animation(self.w, self.hide);
-                            state.style.margin_left.play_animation(self.w, self.shrink);
+                            state.style.width.play_animation(self.w, self.hide);
+                            state.style.right.play_animation(self.w, self.shrink);
                         }
 
-                        self.x.set_flex_grow(state, 1.0);
-                        self.y.set_flex_grow(state, 1.0);
-                        self.z.set_flex_grow(state, 1.0);
-                        self.w.set_flex_grow(state, 0.0);
+                        self.x.set_width(state, Stretch(1.0));
+                        self.y.set_width(state, Stretch(1.0));
+                        self.z.set_width(state, Stretch(1.0));
+                        self.w.set_width(state, Stretch(0.0));
 
-                        self.y.set_margin_left(state, Units::Pixels(5.0));
-                        self.z.set_margin_left(state, Units::Pixels(5.0));
-                        self.w.set_margin_left(state, Units::Pixels(0.0));
+                        self.x.set_right(state, Units::Pixels(5.0));
+                        self.y.set_right(state, Units::Pixels(5.0));
+                        self.z.set_right(state, Units::Pixels(5.0));
+                        self.w.set_right(state, Units::Pixels(0.0));
 
                         self.num_of_dims = 3;
 
@@ -358,32 +364,34 @@ where
 
                     "4" => {
                         if state.data.get_width(self.x) == 0.0 {
-                            state.style.flex_grow.play_animation(self.x, self.reveal);
+                            state.style.width.play_animation(self.x, self.reveal);
+                            state.style.right.play_animation(self.x, self.grow);
                         }
 
                         if state.data.get_width(self.y) == 0.0 {
-                            state.style.flex_grow.play_animation(self.y, self.reveal);
-                            state.style.margin_left.play_animation(self.y, self.grow);
+                            state.style.width.play_animation(self.y, self.reveal);
+                            state.style.right.play_animation(self.y, self.grow);
                         }
 
                         if state.data.get_width(self.z) == 0.0 {
-                            state.style.flex_grow.play_animation(self.z, self.reveal);
-                            state.style.margin_left.play_animation(self.z, self.grow);
+                            state.style.width.play_animation(self.z, self.reveal);
+                            state.style.right.play_animation(self.z, self.grow);
                         }
 
                         if state.data.get_width(self.w) == 0.0 {
-                            state.style.flex_grow.play_animation(self.w, self.reveal);
-                            state.style.margin_left.play_animation(self.w, self.grow);
+                            state.style.width.play_animation(self.w, self.reveal);
+                            state.style.right.play_animation(self.w, self.grow);
                         }
 
-                        self.x.set_flex_grow(state, 1.0);
-                        self.y.set_flex_grow(state, 1.0);
-                        self.z.set_flex_grow(state, 1.0);
-                        self.w.set_flex_grow(state, 1.0);
+                        self.x.set_width(state, Stretch(1.0));
+                        self.y.set_width(state, Stretch(1.0));
+                        self.z.set_width(state, Stretch(1.0));
+                        self.w.set_width(state, Stretch(1.0));
 
-                        self.y.set_margin_left(state, Units::Pixels(5.0));
-                        self.z.set_margin_left(state, Units::Pixels(5.0));
-                        self.w.set_margin_left(state, Units::Pixels(5.0));
+                        self.x.set_right(state, Units::Pixels(5.0));
+                        self.y.set_right(state, Units::Pixels(5.0));
+                        self.z.set_right(state, Units::Pixels(5.0));
+                        self.w.set_right(state, Units::Pixels(5.0));
 
                         self.num_of_dims = 4;
 

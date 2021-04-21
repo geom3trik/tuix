@@ -38,7 +38,7 @@ impl Default for WindowDescription {
 impl WindowDescription {
     pub fn new() -> Self {
         WindowDescription {
-            title: "Default".to_string(),
+            title: "Tuix Application".to_string(),
             inner_size: Size::new(800, 600),
             min_inner_size: Size::new(100, 100),
             icon: None,
@@ -70,86 +70,5 @@ impl WindowDescription {
         self.icon_width = width;
         self.icon_height = height;
         self
-    }
-}
-
-pub struct WindowBuilder {
-    entity: Entity,
-    window_description: WindowDescription,
-}
-
-impl WindowBuilder {
-    pub fn new(window: Entity) -> Self {
-        Self {
-            entity: window,
-            window_description: WindowDescription::new(),
-        }
-    }
-
-    pub fn get_window_description(&self) -> &WindowDescription {
-        &self.window_description
-    }
-
-    pub fn set_title(&mut self, title: &str) -> &mut Self {
-        self.window_description.title = title.to_string();
-
-        self
-    }
-
-    pub fn with_title(mut self, title: &str) -> Self {
-        self.window_description.title = title.to_string();
-
-        self
-    }
-
-    pub fn set_inner_size(&mut self, width: u32, height: u32) -> &mut Self {
-        self.window_description.inner_size = Size::new(width, height);
-
-        self
-    }
-
-    pub fn set_min_inner_size(&mut self, width: u32, height: u32) -> &mut Self {
-        self.window_description.min_inner_size = Size::new(width, height);
-
-        self
-    }
-
-    pub fn set_icon(&mut self, icon: Vec<u8>, width: u32, height: u32) -> &mut Self {
-        self.window_description.icon = Some(icon);
-        self.window_description.icon_width = width;
-        self.window_description.icon_height = height;
-        self
-    }
-}
-
-// impl AsEntity for WindowBuilder {
-//     fn entity(&self) -> Entity {
-//         self.entity
-//     }
-// }
-
-// impl AsEntity for &WindowBuilder {
-//     fn entity(&self) -> Entity {
-//         self.entity
-//     }
-// }
-
-// impl AsEntity for &mut WindowBuilder {
-//     fn entity(&self) -> Entity {
-//         self.entity
-//     }
-// }
-
-// impl AsEntity for &&mut WindowBuilder {
-//     fn entity(&self) -> Entity {
-//         self.entity
-//     }
-// }
-
-impl std::ops::Deref for WindowBuilder {
-    type Target = Entity;
-
-    fn deref(&self) -> &Self::Target {
-        &self.entity
     }
 }

@@ -79,14 +79,9 @@ impl std::ops::Not for Entity {
     }
 }
 
-// impl ToString for Entity {
-//     fn to_string(&self) -> String {
-//         self.id.to_string()
-//     }
-// }
 
 #[derive(Clone)]
-pub struct EntityManager {
+pub(crate) struct EntityManager {
     count: u32,
     free_list: VecDeque<Entity>,
 }
@@ -99,7 +94,7 @@ impl EntityManager {
         }
     }
 
-    pub fn create_entity(&mut self) -> Option<Entity> {
+    pub(crate) fn create_entity(&mut self) -> Option<Entity> {
         if self.free_list.len() > 1024 {
             if let Some(mut entity) = self.free_list.pop_front() {
                 entity.generation += 1;
@@ -113,18 +108,10 @@ impl EntityManager {
         }
     }
 
-    pub fn destroy_entity(&mut self, entity: Entity) {
+    pub(crate) fn destroy_entity(&mut self, entity: Entity) {
         println!("Destroy Entity");
         self.free_list.push_back(entity);
     }
-
-    // Destroy an entity.
-    // pub(crate) fn destroy_entity(&mut self, entity: Entity) {
-    //     if let Some(index) = entity.index() {
-    //         //self.count -= 1;
-    //         self.free_indices.push_back(index as u32);
-    //     }
-    // }
 }
 
 pub trait AsEntity {

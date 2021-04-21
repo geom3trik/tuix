@@ -67,14 +67,14 @@ impl Interpolator for Units {
         let s = match start {
             Units::Pixels(val) => val,
             Units::Percentage(val) => val,
-            Units::Stretch(_) => return *end,
+            Units::Stretch(val) => val,
             Units::Auto => return *end,
         };
 
         match end {
             Units::Pixels(e) => Units::Pixels(f32::interpolate(s, e, t)),
             Units::Percentage(e) => Units::Percentage(f32::interpolate(s, e, t)),
-            Units::Stretch(_) => return *end,
+            Units::Stretch(e) => Units::Stretch(f32::interpolate(s, e, t)),
             Units::Auto => return *end,
         }
     }

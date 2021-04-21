@@ -11,6 +11,7 @@ use tuix_core::window::WindowWidget;
 use tuix_core::{
     events::{Event, Propagation},
     window_description,
+    BoundingBox
 };
 use tuix_core::{
     Entity, EventManager, Hierarchy, PropSet, Size, State, Units, Visibility, WindowDescription,
@@ -138,14 +139,20 @@ impl ApplicationRunner {
             .set_height(Entity::root(), physical_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
 
+        let mut bounding_box = BoundingBox::default();
+        bounding_box.w = logical_size.width as f32;
+        bounding_box.h = logical_size.height as f32;
+
+        state.data.set_clip_region(Entity::root(), bounding_box);
+
         WindowWidget::new().build_window(&mut state);
 
-        state.insert_event(Event::new(WindowEvent::Restyle));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
 
         let hierarchy = state.hierarchy.clone();
 
-        tuix_core::systems::apply_styles(&mut state, &hierarchy);
+        //tuix_core::systems::apply_styles(&mut state, &hierarchy);
 
         ApplicationRunner {
             event_manager,
@@ -174,25 +181,37 @@ impl ApplicationRunner {
     */
 
     pub fn on_frame_update(&mut self) {
+
+        while !self.state.event_queue.is_empty() {
+            self.event_manager.flush_events(&mut self.state);
+        } 
+
         if self.state.apply_animations() {
             self.state.insert_event(
                 Event::new(WindowEvent::Relayout)
-                    .target(Entity::null())
-                    .origin(Entity::root()),
+                    .target(Entity::root())
             );
+            let hierarchy = self.state.hierarchy.clone();
+            tuix_core::apply_layout2(&mut self.state, &hierarchy);
             //self.state.insert_event(Event::new(WindowEvent::Redraw));
             self.should_redraw = true;
         }
 
-        while !self.state.event_queue.is_empty() {
-            if self.event_manager.flush_events(&mut self.state) {
-                self.should_redraw = true;
-            }
+          
+
+        if self.state.needs_redraw {
+            // TODO - Move this to EventManager
+            self.should_redraw = true;
+            self.state.needs_redraw = false;
         }
+
     }
 
     pub fn render(&mut self) -> bool {
         if self.should_redraw {
+            println!("Redraw");
+            let hierarchy = self.state.hierarchy.clone();
+            tuix_core::apply_clipping(&mut self.state, &hierarchy);
             self.event_manager.draw(&mut self.state, &mut self.canvas);
             self.should_redraw = false;
             true
@@ -326,9 +345,9 @@ impl ApplicationRunner {
                         );
 
                         self.state
-                            .insert_event(Event::new(WindowEvent::Restyle).origin(hovered_widget));
+                            .insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()).origin(hovered_widget));
                         self.state.insert_event(
-                            Event::new(WindowEvent::Restyle).origin(self.state.hovered),
+                            Event::new(WindowEvent::Restyle).target(Entity::root()).origin(self.state.hovered),
                         );
 
                         self.state.hovered = hovered_widget;
@@ -676,10 +695,10 @@ impl ApplicationRunner {
                         .set_height(Entity::root(), physical_size.1 as f32);
 
                     self.state
-                        .insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()));
+                        .insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()).origin(Entity::root()));
                     self.state
-                        .insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
-                    self.state.insert_event(Event::new(WindowEvent::Redraw));
+                        .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()).target(Entity::null()));
+                    self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                 }
                 baseview::WindowEvent::WillClose => {
                     self.state

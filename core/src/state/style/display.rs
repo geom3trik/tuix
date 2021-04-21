@@ -1,3 +1,4 @@
+use crate::Entity;
 use crate::state::animation::Interpolator;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -48,5 +49,20 @@ impl Default for Opacity {
 impl Interpolator for Opacity {
     fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
         return Opacity(start.0 + (end.0 - start.0) * t);
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct FocusOrder {
+    pub next: Entity,
+    pub prev: Entity,
+}
+
+impl Default for FocusOrder {
+    fn default() -> Self {
+        FocusOrder {
+            next: Entity::null(),
+            prev: Entity::null(),
+        }
     }
 }

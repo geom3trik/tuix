@@ -101,7 +101,7 @@ impl Widget for Panel {
                 .set_height(Pixels(20.0))
                 .set_hoverability(false)
                 .set_focusability(false)
-                .set_background_color(Color::rgb(100, 100, 100))
+                //.set_background_color(Color::rgb(100, 100, 100))
                 .class("icon")
         });
 

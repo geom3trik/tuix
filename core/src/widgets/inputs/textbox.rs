@@ -793,7 +793,8 @@ impl Widget for Textbox {
         canvas.translate(-posx, -posy);
         canvas.restore();
 
-        canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
+        canvas.save();
+        canvas.scissor(posx, posy, width, height);
 
         if let Some(text) = state.style.text.get_mut(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
@@ -1034,5 +1035,6 @@ impl Widget for Textbox {
                 }
             }
         }
+        canvas.restore();
     }
 }

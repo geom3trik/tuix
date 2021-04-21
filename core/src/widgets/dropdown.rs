@@ -156,6 +156,7 @@ impl Widget for Dropdown {
                 .set_hoverability(false)
                 .set_focusability(false)
                 .set_width(Stretch(1.0))
+                .class("label")
         });
 
         // Icon

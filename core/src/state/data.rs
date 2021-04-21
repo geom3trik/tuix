@@ -66,8 +66,7 @@ impl Default for BoundingBox {
 
 #[derive(Clone, Default)]
 pub struct Data {
-    pub position: Vec<Pos>,
-    pub size: Vec<Pos>,
+    pub bounds: Vec<BoundingBox>,
     pub visibility: Vec<Visibility>,
     pub opacity: Vec<f32>,
     // TODO - combine hoverability and focusability with a bitflag
@@ -75,15 +74,13 @@ pub struct Data {
     pub focusability: Vec<bool>,
 
     pub z_order: Vec<i32>,
-    //pub clip_widget: Vec<Entity>,
-    // Holds the child_width_sum and then the free_width_space
+
     pub(crate) child_sum: Vec<f32>, // Sum of child widths
     pub(crate) child_max: Vec<f32>, // Max child width
+
     pub(crate) prev_size: Vec<Pos>,
     pub clip_region: Vec<BoundingBox>,
-    // pub(crate) child_pos: Vec<f32>,
-    // pub(crate) child_grow_sum: Vec<f32>,
-    // pub(crate) child_shrink_sum: Vec<f32>,
+
     margins: Vec<Margins>,
     cross_stretch_sum: Vec<f32>,
     cross_free_space: Vec<f32>,
@@ -93,6 +90,7 @@ pub struct Data {
     vertical_used_space: Vec<f32>,
     vertical_stretch_sum: Vec<f32>,
 
+    // is_first_child, is_last_child
     stack_child: Vec<(bool, bool)>,
 }
 
@@ -100,21 +98,18 @@ impl Data {
     pub fn add(&mut self, entity: Entity) {
         let key = entity.index_unchecked();
 
-        if (key + 1) > self.position.len() {
-            self.position.resize(key + 1, Default::default());
-            self.size.resize(key + 1, Default::default());
+        if (key + 1) > self.bounds.len() {
+            self.bounds.resize(key + 1, Default::default());
             self.visibility.resize(key + 1, Default::default());
             self.hoverability.resize(key + 1, true);
             self.focusability.resize(key + 1, true);
             self.child_sum.resize(key + 1, 0.0);
             self.child_max.resize(key + 1, 0.0);
             self.prev_size.resize(key + 1, Default::default());
-            // self.child_pos.resize(key + 1, 0.0);
-            // self.child_grow_sum.resize(key + 1, 0.0);
-            // self.child_shrink_sum.resize(key + 1, 0.0);
+
             self.opacity.resize(key + 1, 0.0);
             self.z_order.resize(key + 1, 0);
-            //self.clip_widget.resize(key + 1, Entity::root());
+
             self.clip_region.resize(key + 1, Default::default());
             self.margins.resize(key + 1, Default::default());
             self.cross_stretch_sum.resize(key + 1, Default::default());
@@ -129,19 +124,6 @@ impl Data {
                 .resize(key + 1, Default::default());
             self.stack_child.resize(key + 1, (false, false));
         }
-
-        // Are these needed?
-        // if let Some(stored) = self.size.get_mut(key) {
-        //     *stored = Default::default();
-        // }
-
-        // if let Some(stored) = self.position.get_mut(key) {
-        //     *stored = Default::default();
-        // }
-
-        // if let Some(stored) = self.visibility.get_mut(key) {
-        //     *stored = Default::default();
-        // }
     }
 
     pub fn remove(&mut self, _entity: Entity) {}
@@ -260,7 +242,7 @@ impl Data {
     }
 
     pub fn get_posx(&self, entity: Entity) -> f32 {
-        self.position
+        self.bounds
             .get(entity.index_unchecked())
             .cloned()
             .unwrap_or_default()
@@ -268,7 +250,7 @@ impl Data {
     }
 
     pub fn get_posy(&self, entity: Entity) -> f32 {
-        self.position
+        self.bounds
             .get(entity.index_unchecked())
             .cloned()
             .unwrap_or_default()
@@ -276,19 +258,19 @@ impl Data {
     }
 
     pub fn get_width(&self, entity: Entity) -> f32 {
-        self.size
+        self.bounds
             .get(entity.index_unchecked())
             .cloned()
             .unwrap_or_default()
-            .x
+            .w
     }
 
     pub fn get_height(&self, entity: Entity) -> f32 {
-        self.size
+        self.bounds
             .get(entity.index_unchecked())
             .cloned()
             .unwrap_or_default()
-            .y
+            .h
     }
 
     pub(crate) fn get_prev_width(&self, entity: Entity) -> f32 {
@@ -447,26 +429,26 @@ impl Data {
     }
 
     pub fn set_posx(&mut self, entity: Entity, val: f32) {
-        if let Some(position) = self.position.get_mut(entity.index_unchecked()) {
-            position.x = val;
+        if let Some(bounds) = self.bounds.get_mut(entity.index_unchecked()) {
+            bounds.x = val;
         }
     }
 
     pub fn set_posy(&mut self, entity: Entity, val: f32) {
-        if let Some(position) = self.position.get_mut(entity.index_unchecked()) {
-            position.y = val;
+        if let Some(bounds) = self.bounds.get_mut(entity.index_unchecked()) {
+            bounds.y = val;
         }
     }
 
     pub fn set_width(&mut self, entity: Entity, val: f32) {
-        if let Some(size) = self.size.get_mut(entity.index_unchecked()) {
-            size.x = val;
+        if let Some(bounds) = self.bounds.get_mut(entity.index_unchecked()) {
+            bounds.w = val;
         }
     }
 
     pub fn set_height(&mut self, entity: Entity, val: f32) {
-        if let Some(size) = self.size.get_mut(entity.index_unchecked()) {
-            size.y = val;
+        if let Some(bounds) = self.bounds.get_mut(entity.index_unchecked()) {
+            bounds.h = val;
         }
     }
 

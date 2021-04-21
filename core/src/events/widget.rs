@@ -37,8 +37,6 @@ pub trait Widget: std::marker::Sized + 'static {
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
-    fn on_test(&self) {}
-
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
         // Skip window

@@ -297,13 +297,12 @@ impl State {
 
     //  TODO
     pub fn remove(&mut self, entity: Entity) {
+        // Collect all entities below the removed entity on the same branch of the hierarchy
         let delete_list = entity.branch_iter(&self.hierarchy).collect::<Vec<_>>();
-
-        println!("Delete List: {:?}", delete_list);
 
         for entity in delete_list.iter().rev() {
             self.hierarchy.remove(*entity);
-            self.hierarchy.remove(*entity);
+            //self.hierarchy.remove(*entity);
             self.data.remove(*entity);
             self.style.remove(*entity);
             self.removed_entities.push(*entity);
@@ -316,59 +315,105 @@ impl State {
     }
 
     // Run all pending animations
-    // This should probably be moved to style
+    // TODO - This should probably be moved to style
     pub fn apply_animations(&mut self) -> bool {
-        self.style
-            .background_color
-            .animate(std::time::Instant::now());
-        self.style.font_color.animate(std::time::Instant::now());
-        self.style.border_color.animate(std::time::Instant::now());
 
-        self.style.left.animate(std::time::Instant::now());
-        self.style.right.animate(std::time::Instant::now());
-        self.style.top.animate(std::time::Instant::now());
-        self.style.bottom.animate(std::time::Instant::now());
-        self.style.width.animate(std::time::Instant::now());
-        self.style.height.animate(std::time::Instant::now());
-        self.style.opacity.animate(std::time::Instant::now());
-        self.style.rotate.animate(std::time::Instant::now());
-        self.style
-            .border_radius_top_left
-            .animate(std::time::Instant::now());
-        self.style
-            .border_radius_top_right
-            .animate(std::time::Instant::now());
-        self.style
-            .border_radius_bottom_left
-            .animate(std::time::Instant::now());
-        self.style
-            .border_radius_bottom_right
-            .animate(std::time::Instant::now());
-        self.style.border_width.animate(std::time::Instant::now());
-        self.style.min_width.animate(std::time::Instant::now());
-        self.style.max_width.animate(std::time::Instant::now());
-        self.style.min_height.animate(std::time::Instant::now());
-        self.style.max_height.animate(std::time::Instant::now());
+        let time = std::time::Instant::now();
+
+        self.style.background_color.animate(time);
+        
+        // Spacing
+        self.style.left.animate(time);
+        self.style.right.animate(time);
+        self.style.top.animate(time);
+        self.style.bottom.animate(time);
+
+        // Spacing Constraints
+        self.style.min_left.animate(time);
+        self.style.max_left.animate(time);
+        self.style.min_right.animate(time);
+        self.style.max_right.animate(time);
+        self.style.min_top.animate(time);
+        self.style.max_top.animate(time);
+        self.style.min_bottom.animate(time);
+        self.style.max_bottom.animate(time);
+
+        // Size
+        self.style.width.animate(time);
+        self.style.height.animate(time);
+
+        // Size Constraints
+        self.style.min_width.animate(time);
+        self.style.max_width.animate(time);
+        self.style.min_height.animate(time);
+        self.style.max_height.animate(time);
+
+        // Child Spacing
+        self.style.child_left.animate(time);
+        self.style.child_right.animate(time);
+        self.style.child_top.animate(time);
+        self.style.child_bottom.animate(time);
+        self.style.child_between.animate(time);
+
+        self.style.opacity.animate(time);
+        self.style.rotate.animate(time);
+
+        // Border Radius
+        self.style.border_radius_top_left.animate(time);
+        self.style.border_radius_top_right.animate(time);
+        self.style.border_radius_bottom_left.animate(time);
+        self.style.border_radius_bottom_right.animate(time);
+        
+        // Border
+        self.style.border_width.animate(time);
+        self.style.border_color.animate(time);
+
+        // Font
+        self.style.font_size.animate(time);
+        self.style.font_color.animate(time);
+        
 
         self.style.background_color.has_animations()
             || self.style.font_color.has_animations()
-            || self.style.border_color.has_animations()
+            // Spacing
             || self.style.left.has_animations()
             || self.style.right.has_animations()
             || self.style.top.has_animations()
             || self.style.bottom.has_animations()
+            // Spacing Constraints
+            || self.style.min_left.has_animations()
+            || self.style.max_left.has_animations()
+            || self.style.min_right.has_animations()
+            || self.style.max_right.has_animations()
+            || self.style.min_top.has_animations()
+            || self.style.max_top.has_animations()
+            || self.style.min_bottom.has_animations()
+            || self.style.max_bottom.has_animations()
+            // Size
             || self.style.width.has_animations()
             || self.style.height.has_animations()
-            || self.style.opacity.has_animations()
-            || self.style.rotate.has_animations()
-            || self.style.border_radius_top_left.has_animations()
-            || self.style.border_radius_top_right.has_animations()
-            || self.style.border_radius_bottom_left.has_animations()
-            || self.style.border_radius_bottom_right.has_animations()
-            || self.style.border_width.has_animations()
+            // Size Constraints
             || self.style.min_width.has_animations()
             || self.style.max_width.has_animations()
             || self.style.min_height.has_animations()
             || self.style.max_height.has_animations()
+            // Child Spacing
+            || self.style.child_left.has_animations()
+            || self.style.child_right.has_animations()
+            || self.style.child_top.has_animations()
+            || self.style.child_bottom.has_animations()
+            || self.style.child_between.has_animations()
+            //
+            || self.style.opacity.has_animations()
+            || self.style.rotate.has_animations()
+            // Border Radius
+            || self.style.border_radius_top_left.has_animations()
+            || self.style.border_radius_top_right.has_animations()
+            || self.style.border_radius_bottom_left.has_animations()
+            || self.style.border_radius_bottom_right.has_animations()
+            // Border
+            || self.style.border_width.has_animations()
+            || self.style.border_color.has_animations()
+
     }
 }

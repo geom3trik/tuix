@@ -65,6 +65,21 @@ impl Widget for Popup {
                     //self.container.set_z_order(state, 1);
                 }
 
+                WindowEvent::MouseDown(button) => match button {
+                    MouseButton::Left => {
+                        if event.target == entity && event.origin != entity {
+                            state.insert_event(
+                                Event::new(WindowEvent::MouseDown(*button))
+                                    .target(state.hovered)
+                                    .origin(entity)
+                                    .propagate(Propagation::Direct),
+                            );
+                        }
+                    }
+
+                    _=> {}
+                }
+
                 WindowEvent::MouseUp(button) => match button {
                     MouseButton::Left => {
                         if event.target == entity && event.origin != entity {

@@ -65,10 +65,8 @@ const STYLE: &str = r#"
 "#;
 
 fn main() {
-    let app = Application::new(|state, window| {
+    let app = Application::new(WindowDescription::new().with_title("Panels"), |state, window| {
         state.add_theme(STYLE);
-
-        window.set_title("Panels");
 
         let panel =
             Panel::new("Panel 1").build(state, window.entity(), |builder| builder.class("one"));
@@ -78,7 +76,7 @@ fn main() {
                 .set_width(Units::Pixels(100.0))
                 .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::blue())
-                .set_text_justify(Justify::Center)
+                .set_child_space(Stretch(1.0))
         });
 
         Button::with_label("2").build(state, panel, |builder| {
@@ -86,7 +84,7 @@ fn main() {
                 .set_width(Units::Pixels(100.0))
                 .set_height(Units::Pixels(30.0))
                 .set_background_color(Color::blue())
-                .set_text_justify(Justify::Center)
+                .set_child_space(Stretch(1.0))
         });
 
         // let panel = Panel::new("Panel 2").build(state, window.entity(), |builder| builder.class("two"));

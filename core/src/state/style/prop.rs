@@ -68,6 +68,15 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    fn set_space(self, state: &mut State, value: Units) -> Entity {
+        state.style.left.insert(self.entity(), value);
+        state.style.right.insert(self.entity(), value);
+        state.style.top.insert(self.entity(), value);
+        state.style.bottom.insert(self.entity(), value);
+
+        self.entity()
+    } 
+
     fn set_left(self, state: &mut State, value: Units) -> Self;
     fn set_right(self, state: &mut State, value: Units) -> Self;
     fn set_top(self, state: &mut State, value: Units) -> Self;

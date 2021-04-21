@@ -235,6 +235,15 @@ impl<'a> Builder<'a> {
 
     // Positioning
 
+    pub fn set_space(mut self, val: Units) -> Self {
+        self.state.style.left.insert(self.entity, val);
+        self.state.style.right.insert(self.entity, val);
+        self.state.style.top.insert(self.entity, val);
+        self.state.style.bottom.insert(self.entity, val);
+
+        self
+    }
+
     pub fn set_left(mut self, val: Units) -> Self {
         self.state.style.left.insert(self.entity, val);
 
@@ -256,18 +265,6 @@ impl<'a> Builder<'a> {
         self.state.style.bottom.insert(self.entity, val);
         self
     }
-
-    // Alignment and Justification
-
-    // pub fn set_justification(mut self, val: Justification) -> Self {
-    //     self.state.style.justification.set(self.entity, val);
-    //     self
-    // }
-
-    // pub fn set_alignment(mut self, val: Alignment) -> Self {
-    //     self.state.style.alignment.set(self.entity, val);
-    //     self
-    // }
 
     // Size
 

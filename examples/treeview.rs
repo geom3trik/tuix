@@ -12,10 +12,8 @@ fn main() {
     //let window = Window::new(&event_loop, WindowDescription::new().with_title("Panels").with_inner_size(800, 600));
 
     // Create the app
-    let app = Application::new(|state, window| {
+    let app = Application::new(WindowDescription::new().with_title("Treeview"), |state, window| {
         state.add_theme(THEME);
-
-        window.set_title("Panels").set_inner_size(800, 600);
 
         let rvbox = ResizableColumn::new().build(state, window.entity(), |builder| {
             builder

@@ -9,11 +9,9 @@ use tuix::style::themes::DEFAULT_THEME;
 static THEME: &'static str = include_str!("themes/widgets_theme.css");
 
 fn main() {
-    Application::new(|state, window| {
+    Application::new(WindowDescription::new().with_min_inner_size(300, 300), |state, window| {
         state.add_theme(DEFAULT_THEME);
         //state.add_theme(THEME);
-
-        window.set_min_inner_size(300, 300);
 
         // Resizable Vertical Container
         let rcolumn = ResizableColumn::new().build(state, window.entity(), |builder| {

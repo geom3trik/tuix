@@ -22,9 +22,6 @@ pub mod theme;
 pub mod prop;
 pub use prop::{PropGet, PropSet};
 
-pub mod flexbox;
-pub use flexbox::*;
-
 pub mod layout;
 pub use layout::*;
 
@@ -32,8 +29,11 @@ pub mod units;
 pub use units::Units;
 pub use Units::*;
 
-pub mod shape;
-pub use shape::*;
+pub mod gradient;
+pub use gradient::*;
+
+pub mod shadow;
+pub use shadow::*;
 
 pub mod display;
 pub use display::*;
@@ -78,22 +78,17 @@ pub struct Style {
     // General
     pub display: StyleStorage<Display>,
     pub visibility: StyleStorage<Visibility>,
+    // Opacity
     pub opacity: AnimatableStorage<Opacity>,
 
     pub overflow: StyleStorage<Overflow>, // TODO
     pub scroll: DenseStorage<Scroll>,     // TODO
 
-    // Positioning
+    // Spacing
     pub left: AnimatableStorage<Units>,
     pub right: AnimatableStorage<Units>,
     pub top: AnimatableStorage<Units>,
     pub bottom: AnimatableStorage<Units>,
-
-    // Spacing / Positioning
-    pub space_left: AnimatableStorage<Units>,
-    pub space_right: AnimatableStorage<Units>,
-    pub space_top: AnimatableStorage<Units>,
-    pub space_bottom: AnimatableStorage<Units>,
 
     // Size
     pub width: AnimatableStorage<Units>,
@@ -105,15 +100,16 @@ pub struct Style {
     pub min_width: AnimatableStorage<Units>,
     pub min_height: AnimatableStorage<Units>,
 
+    // Spacing Constraints
+    pub min_left: AnimatableStorage<Units>,    
     pub max_left: AnimatableStorage<Units>,
-    pub max_right: AnimatableStorage<Units>,
-    pub min_left: AnimatableStorage<Units>,
     pub min_right: AnimatableStorage<Units>,
-
-    pub max_top: AnimatableStorage<Units>,
-    pub max_bottom: AnimatableStorage<Units>,
+    pub max_right: AnimatableStorage<Units>,
     pub min_top: AnimatableStorage<Units>,
+    pub max_top: AnimatableStorage<Units>,
     pub min_bottom: AnimatableStorage<Units>,
+    pub max_bottom: AnimatableStorage<Units>,
+    
 
     // Border
     pub border_width: AnimatableStorage<Units>,
@@ -167,6 +163,7 @@ pub struct Style {
     pub grid_cols: StyleStorage<GridAxis>,
     pub grid_item: StyleStorage<GridItem>,
 
+    // Child Spacing
     pub child_left: AnimatableStorage<Units>,
     pub child_right: AnimatableStorage<Units>,
     pub child_top: AnimatableStorage<Units>,
@@ -200,12 +197,6 @@ impl Style {
         let mut rule_list: Vec<StyleRule> =
             rules.into_iter().filter_map(|rule| rule.ok()).collect();
 
-        //rule_list.append(&mut self.rules);
-        //self.rules = rule_list;
-
-        //rule_list.sort_by_key(|rule| rule.specificity());
-        //rule_list.reverse();
-
         self.rules.append(&mut rule_list);
 
         self.rules.sort_by_key(|rule| rule.specificity());
@@ -225,6 +216,11 @@ impl Style {
 
             for property in rule.properties.clone() {
                 match property {
+
+                    Property::None => {
+                        //
+                    }
+
                     Property::Display(value) => {
                         self.display.insert_rule(rule_id, value);
                     }
@@ -239,6 +235,18 @@ impl Style {
 
                     Property::Overflow(value) => {
                         self.overflow.insert_rule(rule_id, value);
+                    }
+
+                    Property::BackgroundImage(value) => {
+                        //
+                    }
+
+                    Property::BackgroundGradient(value) => {
+                        self.background_gradient.insert_rule(rule_id, value);
+                    }
+
+                    Property::PositionType(value) => {
+                        self.positioning_type.insert_rule(rule_id, value);
                     }
 
                     Property::Left(value) => {
@@ -575,7 +583,6 @@ impl Style {
                             }
                         }
                     }
-                    _ => {}
                 }
             }
         }

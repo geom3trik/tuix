@@ -104,7 +104,7 @@ impl Widget for ColorEdit {
 
 fn main() {
     // Create the app
-    let mut app = Application::new(|state, window| {
+    let mut app = Application::new(WindowDescription::new(), |state, window| {
         state.add_theme(THEME);
 
         window.set_title("Panels").set_inner_size(800, 600);

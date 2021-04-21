@@ -10,22 +10,15 @@ pub enum AddRemoveEvent {
 }
 
 #[derive(Default)]
-struct Counter {}
+struct Controller {}
 
-impl Counter {
-    pub fn new() -> Self {
-        Counter {}
-    }
-}
-
-impl Widget for Counter {
+impl Widget for Controller {
     type Ret = Entity;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        println!("Entity Index: {}", entity);
-
         state.focused = entity;
-        entity.set_flex_grow(state, 1.0)
+
+        entity
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -33,7 +26,7 @@ impl Widget for Counter {
             match counter_event {
                 AddRemoveEvent::Add => {
                     Button::new().build(state, entity, |builder| {
-                        builder.set_height(Units::Pixels(30.0))
+                        builder.set_height(Units::Pixels(30.0)).set_space(Pixels(5.0))
                     });
                 }
 
@@ -65,12 +58,10 @@ impl Widget for Counter {
 
 fn main() {
     // Create the app
-    let app = Application::new(|state, window| {
+    let app = Application::new(WindowDescription::new().with_title("Add / Remove"),|state, window| {
         state.add_theme(DEFAULT_THEME);
 
-        window.set_title("Counter").set_inner_size(400, 100);
-
-        Counter::new().build(state, window.entity(), |builder| builder);
+        Controller::default().build(state, window.entity(), |builder| builder);
     });
 
     app.run();

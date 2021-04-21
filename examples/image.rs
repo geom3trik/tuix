@@ -4,12 +4,10 @@ use tuix::*;
 use image::GenericImageView;
 
 fn main() {
-    let app = Application::new(|state, window| {
+    let app = Application::new(WindowDescription::new().with_title("Image"),|state, window| {
         let image = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
         let image_id = state.add_image(image);
-
-        window.set_title("Hello GUI");
 
         Element::new().build(state, window.entity(), |builder| {
             builder

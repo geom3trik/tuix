@@ -13,7 +13,9 @@ impl TuixWindow {
     fn new(state: State, win_desc: WindowDescription, window: &mut baseview::Window) -> TuixWindow {
         let (renderer, context) = load_renderer(window);
 
+        context.make_current();
         let application = ApplicationRunner::new(state, win_desc, renderer);
+        context.make_not_current();
 
         TuixWindow {
             application,
@@ -128,9 +130,9 @@ impl WindowHandler for TuixWindow {
 
         self.context.make_current();
 
-        if self.application.render() {
-            self.context.swap_buffers();
-        }
+        self.application.render();
+        self.context.swap_buffers();
+        
 
         self.context.make_not_current();
     }
