@@ -177,6 +177,12 @@ impl StyleRule {
 
     // Positioning
 
+    pub fn set_space(mut self, value: Units) -> Self {
+        self.properties.push(Property::Space(value));
+
+        self
+    }
+
     pub fn set_left(mut self, value: Units) -> Self {
         self.properties.push(Property::Left(value));
 
@@ -247,6 +253,37 @@ impl StyleRule {
 
     pub fn set_max_height(mut self, value: Units) -> Self {
         self.properties.push(Property::MaxHeight(value));
+
+        self
+    }
+
+    // Child Spacing
+    pub fn set_child_space(mut self, value: Units) -> Self {
+        self.properties.push(Property::ChildSpace(value));
+
+        self
+    }
+
+    pub fn set_child_left(mut self, value: Units) -> Self {
+        self.properties.push(Property::ChildLeft(value));
+
+        self
+    }
+
+    pub fn set_child_right(mut self, value: Units) -> Self {
+        self.properties.push(Property::ChildRight(value));
+
+        self
+    }
+
+    pub fn set_child_top(mut self, value: Units) -> Self {
+        self.properties.push(Property::ChildTop(value));
+
+        self
+    }
+
+    pub fn set_child_bottom(mut self, value: Units) -> Self {
+        self.properties.push(Property::ChildBottom(value));
 
         self
     }

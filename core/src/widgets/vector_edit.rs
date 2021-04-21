@@ -88,10 +88,11 @@ impl Widget for Dimension {
 }
 
 pub struct VectorEdit<T> {
-    x: Entity,
-    y: Entity,
-    z: Entity,
-    w: Entity,
+    // Subwidgets
+    textbox_x: Entity,
+    textbox_y: Entity,
+    textbox_z: Entity,
+    textbox_w: Entity,
     dims: Entity,
 
     // Animations
@@ -100,11 +101,15 @@ pub struct VectorEdit<T> {
     grow: Animation,
     shrink: Animation,
 
-    xval: T,
-    yval: T,
-    zval: T,
-    wval: T,
-    num_of_dims: u8,
+    // Data
+    pub x: T,
+    pub y: T,
+    pub z: T,
+    pub w: T,
+    pub num_of_dims: u8,
+
+    // Events
+    on_change: Option<Box<dyn Fn(&Self) -> Event>>,
 }
 
 impl<T> VectorEdit<T>
@@ -119,10 +124,10 @@ where
 {
     pub fn new() -> Self {
         VectorEdit {
-            x: Entity::null(),
-            y: Entity::null(),
-            z: Entity::null(),
-            w: Entity::null(),
+            textbox_x: Entity::null(),
+            textbox_y: Entity::null(),
+            textbox_z: Entity::null(),
+            textbox_w: Entity::null(),
             dims: Entity::null(),
 
             reveal: Animation::default(),
@@ -130,36 +135,45 @@ where
             grow: Animation::default(),
             shrink: Animation::default(),
 
-            xval: T::default(),
-            yval: T::default(),
-            zval: T::default(),
-            wval: T::default(),
-
+            x: T::default(),
+            y: T::default(),
+            z: T::default(),
+            w: T::default(),
             num_of_dims: 4,
+
+            on_change: None,
         }
     }
 
     pub fn with_x(mut self, val: T) -> Self {
-        self.xval = val;
+        self.x = val;
 
         self
     }
 
     pub fn with_y(mut self, val: T) -> Self {
-        self.yval = val;
+        self.y = val;
 
         self
     }
 
     pub fn with_z(mut self, val: T) -> Self {
-        self.zval = val;
+        self.z = val;
 
         self
     }
 
     pub fn with_w(mut self, val: T) -> Self {
-        self.wval = val;
+        self.w = val;
 
+        self
+    }
+
+    pub fn on_change<F>(mut self, message: F) -> Self
+    where
+        F: 'static + Fn(&Self) -> Event,
+    {
+        self.on_change = Some(Box::new(message));
         self
     }
 }
@@ -180,17 +194,17 @@ where
 
         entity.set_layout_type(state, LayoutType::Row);
 
-        self.x = Textbox::new(&self.xval.to_string())
+        self.textbox_x = Textbox::new(&self.x.to_string())
             .build(state, entity, |builder| 
                 builder.set_right(Pixels(5.0))
         );
-        self.y = Textbox::new(&self.yval.to_string()).build(state, entity, |builder| {
+        self.textbox_y = Textbox::new(&self.y.to_string()).build(state, entity, |builder| {
             builder.set_right(Pixels(5.0))
         });
-        self.z = Textbox::new(&self.zval.to_string()).build(state, entity, |builder| {
+        self.textbox_z = Textbox::new(&self.z.to_string()).build(state, entity, |builder| {
             builder.set_right(Pixels(5.0))
         });
-        self.w = Textbox::new(&self.wval.to_string()).build(state, entity, |builder| {
+        self.textbox_w = Textbox::new(&self.w.to_string()).build(state, entity, |builder| {
             builder.set_right(Pixels(5.0))
         });
 
@@ -248,156 +262,156 @@ where
             match dropdown_event {
                 DropdownEvent::SetText(text) => match text.as_ref() {
                     "1" => {
-                        if state.data.get_width(self.x) == 0.0 {
-                            state.style.width.play_animation(self.x, self.reveal);
-                            state.style.right.play_animation(self.x, self.grow);
+                        if state.data.get_width(self.textbox_x) == 0.0 {
+                            state.style.width.play_animation(self.textbox_x, self.reveal);
+                            state.style.right.play_animation(self.textbox_x, self.grow);
                         }
 
-                        if state.data.get_width(self.y) != 0.0 {
-                            state.style.width.play_animation(self.y, self.hide);
-                            state.style.right.play_animation(self.y, self.shrink);
+                        if state.data.get_width(self.textbox_y) != 0.0 {
+                            state.style.width.play_animation(self.textbox_y, self.hide);
+                            state.style.right.play_animation(self.textbox_y, self.shrink);
                         }
 
-                        if state.data.get_width(self.z) != 0.0 {
-                            state.style.width.play_animation(self.z, self.hide);
-                            state.style.right.play_animation(self.z, self.shrink);
+                        if state.data.get_width(self.textbox_z) != 0.0 {
+                            state.style.width.play_animation(self.textbox_z, self.hide);
+                            state.style.right.play_animation(self.textbox_z, self.shrink);
                         }
 
-                        if state.data.get_width(self.w) != 0.0 {
-                            state.style.width.play_animation(self.w, self.hide);
-                            state.style.right.play_animation(self.w, self.shrink);
+                        if state.data.get_width(self.textbox_w) != 0.0 {
+                            state.style.width.play_animation(self.textbox_w, self.hide);
+                            state.style.right.play_animation(self.textbox_w, self.shrink);
                         }
 
-                        self.x.set_width(state, Stretch(1.0));
-                        self.y.set_width(state, Stretch(0.0));
-                        self.z.set_width(state, Stretch(0.0));
-                        self.w.set_width(state, Stretch(0.0));
+                        self.textbox_x.set_width(state, Stretch(1.0));
+                        self.textbox_y.set_width(state, Stretch(0.0));
+                        self.textbox_z.set_width(state, Stretch(0.0));
+                        self.textbox_w.set_width(state, Stretch(0.0));
 
-                        self.x.set_right(state, Pixels(5.0));
-                        self.y.set_right(state, Pixels(0.0));
-                        self.z.set_right(state, Pixels(0.0));
-                        self.w.set_right(state, Pixels(0.0));
+                        self.textbox_x.set_right(state, Pixels(5.0));
+                        self.textbox_y.set_right(state, Pixels(0.0));
+                        self.textbox_z.set_right(state, Pixels(0.0));
+                        self.textbox_w.set_right(state, Pixels(0.0));
 
                         self.num_of_dims = 1;
 
                         state.insert_event(
-                            Event::new(VectorEditEvent::Dim1(self.xval)).target(entity),
+                            Event::new(VectorEditEvent::Dim1(self.x)).target(entity),
                         );
                     }
 
                     "2" => {
-                        if state.data.get_width(self.x) == 0.0 {
-                            state.style.width.play_animation(self.x, self.reveal);
-                            state.style.right.play_animation(self.x, self.grow);
+                        if state.data.get_width(self.textbox_x) == 0.0 {
+                            state.style.width.play_animation(self.textbox_x, self.reveal);
+                            state.style.right.play_animation(self.textbox_x, self.grow);
                         }
 
-                        if state.data.get_width(self.y) == 0.0 {
-                            state.style.width.play_animation(self.y, self.reveal);
-                            state.style.right.play_animation(self.y, self.grow);
+                        if state.data.get_width(self.textbox_y) == 0.0 {
+                            state.style.width.play_animation(self.textbox_y, self.reveal);
+                            state.style.right.play_animation(self.textbox_y, self.grow);
                         }
 
-                        if state.data.get_width(self.z) != 0.0 {
-                            state.style.width.play_animation(self.z, self.hide);
-                            state.style.right.play_animation(self.z, self.shrink);
+                        if state.data.get_width(self.textbox_z) != 0.0 {
+                            state.style.width.play_animation(self.textbox_z, self.hide);
+                            state.style.right.play_animation(self.textbox_z, self.shrink);
                         }
 
-                        if state.data.get_width(self.w) != 0.0 {
-                            state.style.width.play_animation(self.w, self.hide);
-                            state.style.right.play_animation(self.w, self.shrink);
+                        if state.data.get_width(self.textbox_w) != 0.0 {
+                            state.style.width.play_animation(self.textbox_w, self.hide);
+                            state.style.right.play_animation(self.textbox_w, self.shrink);
                         }
 
-                        self.x.set_width(state, Stretch(1.0));
-                        self.y.set_width(state, Stretch(1.0));
-                        self.z.set_width(state, Stretch(0.0));
-                        self.w.set_width(state, Stretch(0.0));
+                        self.textbox_x.set_width(state, Stretch(1.0));
+                        self.textbox_y.set_width(state, Stretch(1.0));
+                        self.textbox_z.set_width(state, Stretch(0.0));
+                        self.textbox_w.set_width(state, Stretch(0.0));
 
-                        self.x.set_right(state, Units::Pixels(5.0));
-                        self.y.set_right(state, Units::Pixels(5.0));
-                        self.z.set_right(state, Units::Pixels(0.0));
-                        self.w.set_right(state, Units::Pixels(0.0));
+                        self.textbox_x.set_right(state, Units::Pixels(5.0));
+                        self.textbox_y.set_right(state, Units::Pixels(5.0));
+                        self.textbox_z.set_right(state, Units::Pixels(0.0));
+                        self.textbox_w.set_right(state, Units::Pixels(0.0));
 
                         self.num_of_dims = 2;
 
                         state.insert_event(
-                            Event::new(VectorEditEvent::Dim2(self.xval, self.yval)).target(entity),
+                            Event::new(VectorEditEvent::Dim2(self.x, self.y)).target(entity),
                         );
                     }
 
                     "3" => {
-                        if state.data.get_width(self.x) == 0.0 {
-                            state.style.width.play_animation(self.x, self.reveal);
-                            state.style.right.play_animation(self.x, self.grow);
+                        if state.data.get_width(self.textbox_x) == 0.0 {
+                            state.style.width.play_animation(self.textbox_x, self.reveal);
+                            state.style.right.play_animation(self.textbox_x, self.grow);
                         }
 
-                        if state.data.get_width(self.y) == 0.0 {
-                            state.style.width.play_animation(self.y, self.reveal);
-                            state.style.right.play_animation(self.y, self.grow);
+                        if state.data.get_width(self.textbox_y) == 0.0 {
+                            state.style.width.play_animation(self.textbox_y, self.reveal);
+                            state.style.right.play_animation(self.textbox_y, self.grow);
                         }
 
-                        if state.data.get_width(self.z) == 0.0 {
-                            state.style.width.play_animation(self.z, self.reveal);
-                            state.style.right.play_animation(self.z, self.grow);
+                        if state.data.get_width(self.textbox_z) == 0.0 {
+                            state.style.width.play_animation(self.textbox_z, self.reveal);
+                            state.style.right.play_animation(self.textbox_z, self.grow);
                         }
 
-                        if state.data.get_width(self.w) != 0.0 {
-                            state.style.width.play_animation(self.w, self.hide);
-                            state.style.right.play_animation(self.w, self.shrink);
+                        if state.data.get_width(self.textbox_w) != 0.0 {
+                            state.style.width.play_animation(self.textbox_w, self.hide);
+                            state.style.right.play_animation(self.textbox_w, self.shrink);
                         }
 
-                        self.x.set_width(state, Stretch(1.0));
-                        self.y.set_width(state, Stretch(1.0));
-                        self.z.set_width(state, Stretch(1.0));
-                        self.w.set_width(state, Stretch(0.0));
+                        self.textbox_x.set_width(state, Stretch(1.0));
+                        self.textbox_y.set_width(state, Stretch(1.0));
+                        self.textbox_z.set_width(state, Stretch(1.0));
+                        self.textbox_w.set_width(state, Stretch(0.0));
 
-                        self.x.set_right(state, Units::Pixels(5.0));
-                        self.y.set_right(state, Units::Pixels(5.0));
-                        self.z.set_right(state, Units::Pixels(5.0));
-                        self.w.set_right(state, Units::Pixels(0.0));
+                        self.textbox_x.set_right(state, Units::Pixels(5.0));
+                        self.textbox_y.set_right(state, Units::Pixels(5.0));
+                        self.textbox_z.set_right(state, Units::Pixels(5.0));
+                        self.textbox_w.set_right(state, Units::Pixels(0.0));
 
                         self.num_of_dims = 3;
 
                         state.insert_event(
-                            Event::new(VectorEditEvent::Dim3(self.xval, self.yval, self.zval))
+                            Event::new(VectorEditEvent::Dim3(self.x, self.y, self.z))
                                 .target(entity),
                         );
                     }
 
                     "4" => {
-                        if state.data.get_width(self.x) == 0.0 {
-                            state.style.width.play_animation(self.x, self.reveal);
-                            state.style.right.play_animation(self.x, self.grow);
+                        if state.data.get_width(self.textbox_x) == 0.0 {
+                            state.style.width.play_animation(self.textbox_x, self.reveal);
+                            state.style.right.play_animation(self.textbox_x, self.grow);
                         }
 
-                        if state.data.get_width(self.y) == 0.0 {
-                            state.style.width.play_animation(self.y, self.reveal);
-                            state.style.right.play_animation(self.y, self.grow);
+                        if state.data.get_width(self.textbox_y) == 0.0 {
+                            state.style.width.play_animation(self.textbox_y, self.reveal);
+                            state.style.right.play_animation(self.textbox_y, self.grow);
                         }
 
-                        if state.data.get_width(self.z) == 0.0 {
-                            state.style.width.play_animation(self.z, self.reveal);
-                            state.style.right.play_animation(self.z, self.grow);
+                        if state.data.get_width(self.textbox_z) == 0.0 {
+                            state.style.width.play_animation(self.textbox_z, self.reveal);
+                            state.style.right.play_animation(self.textbox_z, self.grow);
                         }
 
-                        if state.data.get_width(self.w) == 0.0 {
-                            state.style.width.play_animation(self.w, self.reveal);
-                            state.style.right.play_animation(self.w, self.grow);
+                        if state.data.get_width(self.textbox_w) == 0.0 {
+                            state.style.width.play_animation(self.textbox_w, self.reveal);
+                            state.style.right.play_animation(self.textbox_w, self.grow);
                         }
 
-                        self.x.set_width(state, Stretch(1.0));
-                        self.y.set_width(state, Stretch(1.0));
-                        self.z.set_width(state, Stretch(1.0));
-                        self.w.set_width(state, Stretch(1.0));
+                        self.textbox_x.set_width(state, Stretch(1.0));
+                        self.textbox_y.set_width(state, Stretch(1.0));
+                        self.textbox_z.set_width(state, Stretch(1.0));
+                        self.textbox_w.set_width(state, Stretch(1.0));
 
-                        self.x.set_right(state, Units::Pixels(5.0));
-                        self.y.set_right(state, Units::Pixels(5.0));
-                        self.z.set_right(state, Units::Pixels(5.0));
-                        self.w.set_right(state, Units::Pixels(5.0));
+                        self.textbox_x.set_right(state, Units::Pixels(5.0));
+                        self.textbox_y.set_right(state, Units::Pixels(5.0));
+                        self.textbox_z.set_right(state, Units::Pixels(5.0));
+                        self.textbox_w.set_right(state, Units::Pixels(5.0));
 
                         self.num_of_dims = 4;
 
                         state.insert_event(
                             Event::new(VectorEditEvent::Dim4(
-                                self.xval, self.yval, self.zval, self.wval,
+                                self.x, self.y, self.z, self.w,
                             ))
                             .target(entity),
                         );
@@ -412,41 +426,52 @@ where
             match textbox_event {
                 TextboxEvent::ValueChanged(text) => {
                     if let Ok(val) = text.clone().parse::<T>() {
-                        if target == self.x {
-                            self.xval = val;
+                        if target == self.textbox_x {
+                            self.x = val;
                         }
 
-                        if target == self.y {
-                            self.yval = val;
+                        if target == self.textbox_y {
+                            self.y = val;
                         }
 
-                        if target == self.z {
-                            self.zval = val;
+                        if target == self.textbox_z {
+                            self.z = val;
                         }
 
-                        if target == self.w {
-                            self.wval = val;
+                        if target == self.textbox_w {
+                            self.w = val;
                         }
 
                         match self.num_of_dims {
                             1 => state.insert_event(
-                                Event::new(VectorEditEvent::Dim1(self.xval)).target(entity),
+                                Event::new(VectorEditEvent::Dim1(self.x)).target(entity),
                             ),
                             2 => state.insert_event(
-                                Event::new(VectorEditEvent::Dim2(self.xval, self.yval))
+                                Event::new(VectorEditEvent::Dim2(self.x, self.y))
                                     .target(entity),
                             ),
                             3 => state.insert_event(
-                                Event::new(VectorEditEvent::Dim3(self.xval, self.yval, self.zval))
+                                Event::new(VectorEditEvent::Dim3(self.x, self.y, self.z))
                                     .target(entity),
                             ),
                             4 => state.insert_event(
                                 Event::new(VectorEditEvent::Dim4(
-                                    self.xval, self.yval, self.zval, self.wval,
+                                    self.x, self.y, self.z, self.w,
                                 ))
                                 .target(entity),
                             ),
                             _ => {}
+                        }
+
+                        if let Some(on_event) = &self.on_change {
+                            let mut event = (on_event)(self);
+                            event.origin = entity;
+                
+                            if event.target == Entity::null() {
+                                event.target = entity;
+                            }
+                
+                            state.insert_event(event);
                         }
 
                         //state.insert_event(Event::new(VectorEditEvent::ValueChanged(self.xval, self.yval, self.zval, self.wval)).target(entity));

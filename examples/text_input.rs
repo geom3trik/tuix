@@ -5,10 +5,10 @@ fn main() {
 
         Textbox::new("ä").build(state, window.entity(), |builder| {
             builder
-                .set_width(Units::Pixels(100.0))
-                .set_height(Units::Pixels(30.0))
+                .set_width(Pixels(100.0))
+                .set_height(Pixels(30.0))
                 .set_background_color(Color::from("#202020"))
-                .set_text_justify(Justify::Center)
+                .set_child_space(Stretch(1.0))
         });
 
         let text_area = TextArea::new("Hello There إلا بسم الله Beep Boop!!").build(
@@ -21,7 +21,7 @@ fn main() {
                     .set_width(Pixels(150.0))
                     .set_height(Pixels(200.0))
                     .set_background_color(Color::rgb(150, 200, 50))
-                    .set_text_align(Align::Center)
+                    .set_child_space(Stretch(1.0))
                     .set_font_size(20.0)
             },
         );

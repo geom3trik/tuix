@@ -249,6 +249,13 @@ impl Style {
                         self.positioning_type.insert_rule(rule_id, value);
                     }
 
+                    Property::Space(value) => {
+                        self.left.insert_rule(rule_id, value);
+                        self.right.insert_rule(rule_id, value);
+                        self.top.insert_rule(rule_id, value);
+                        self.bottom.insert_rule(rule_id, value);
+                    }
+
                     Property::Left(value) => {
                         self.left.insert_rule(rule_id, value);
                     }

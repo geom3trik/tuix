@@ -23,6 +23,7 @@ pub enum Property {
     PositionType(PositionType),
 
     // Position and Size
+    Space(Units),
     Left(Units),
     Width(Units),
     Right(Units),
@@ -93,6 +94,7 @@ impl std::fmt::Display for Property {
             Property::PositionType(val) => write!(f, "position-type: {};", val),
 
             // Position and Size
+            Property::Space(val) => write!(f, "space: {};", val),
             Property::Left(val) => write!(f, "left: {};", val),
             Property::Width(val) => write!(f, "width: {};", val),
             Property::Right(val) => write!(f, "right: {};", val),

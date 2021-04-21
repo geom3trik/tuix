@@ -49,9 +49,53 @@ const STYLE: &str = r#"
 
 "#;
 
+#[derive(Debug, Clone, PartialEq)]
+enum CustomEvent {
+    ChangeColor(Color),
+}
+
+#[derive(Default)]
+struct Container {
+    vec_edit: Entity,
+}
+
+impl Widget for Container {
+    type Ret = Entity;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+
+        self.vec_edit = VectorEdit::new()
+            .with_x(255u8)
+            .with_y(255u8)
+            .with_z(255u8)
+            .with_w(255u8)
+            .on_change(|vec_edit| {
+                println!("Num of Dims: {}", vec_edit.num_of_dims);
+                Event::new(CustomEvent::ChangeColor(Color::rgba(vec_edit.x, vec_edit.y, vec_edit.z, vec_edit.w)))
+            })
+            .build(state, entity, |builder| {
+                builder
+                    .set_width(Pixels(210.0))
+                    .set_height(Pixels(30.0))
+                    .set_space(Stretch(1.0))
+            });
+
+        entity.set_background_color(state, Color::white())
+    }
+
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(custom_event) = event.message.downcast() {
+            match custom_event {
+                CustomEvent::ChangeColor(color) => {
+                    entity.set_background_color(state, *color);
+                }
+            }
+        }
+    }
+}
+
 fn main() {
     let app = Application::new(
-        WindowDescription::new()
+    WindowDescription::new()
             .with_title("Vector Edit")
             .with_inner_size(300, 300),
     |state, window| {
@@ -60,17 +104,8 @@ fn main() {
 
             state.add_theme(STYLE);
             
-            VectorEdit::new()
-                .with_x(0.0)
-                .with_y(0.0)
-                .with_z(0.0)
-                .with_w(0.0)
-                .build(state, window.entity(), |builder| {
-                    builder
-                        .set_width(Pixels(210.0))
-                        .set_height(Pixels(30.0))
-                        .set_space(Stretch(1.0))
-                });
+            Container::default().build(state, window, |builder| builder);
+
         },
     );
 
