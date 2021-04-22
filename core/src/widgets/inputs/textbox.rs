@@ -156,12 +156,12 @@ impl Widget for Textbox {
                             self.cursor_pos = text_data.len() as u32;
                             self.select_pos = 0;
                             self.buffer = text_data.clone();
-                            state.focused = entity;
                             //state.captured = entity;
                             state.capture(entity);
                             //self.edit = true;
                             entity.set_active(state, true);
-                            entity.set_focus(state, true);
+                            state.set_focus(entity);
+                            
                         }
                         if self.edit == true {
                             self.hitx = state.mouse.cursorx;
@@ -177,7 +177,6 @@ impl Widget for Textbox {
                     } else {
                         self.edit = false;
                         entity.set_active(state, false);
-                        entity.set_focus(state, false);
 
                         state.insert_event(
                             Event::new(TextboxEvent::ValueChanged(text_data.clone()))
@@ -194,10 +193,6 @@ impl Widget for Textbox {
                             state.insert_event(
                                 Event::new(WindowEvent::MouseDown(*button)).target(state.hovered),
                             );
-                        }
-
-                        if state.focused == entity {
-                            state.focused = Entity::root();
                         }
 
                         //state.captured = Entity::null();
@@ -316,12 +311,8 @@ impl Widget for Textbox {
 
                             self.edit = false;
                             entity.set_active(state, false);
-                            state.focused = Entity::root();
-                            state.captured = Entity::null();
+                            state.release(entity);
 
-                            // state.insert_event(
-                            //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                            // );
 
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::root()),
@@ -347,6 +338,10 @@ impl Widget for Textbox {
 
                 WindowEvent::CharInput(input) => {
                     if *input as u8 != 8 && *input as u8 != 13 {
+                        // Ignore input when ctrl is being held
+                        if state.modifiers.ctrl {
+                            return;
+                        }
                         if self.edit {
                             let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
@@ -391,6 +386,22 @@ impl Widget for Textbox {
                             );
                         }
                     }
+                }
+
+                WindowEvent::FocusIn => {
+                    println!("Gained Focus");
+                }
+
+                WindowEvent::FocusOut => {
+                    println!("Lost Focus");
+                    self.edit = false;
+                    entity.set_active(state, false);
+                    state.release(entity);
+
+
+                    state.insert_event(
+                        Event::new(WindowEvent::Redraw).target(Entity::root()),
+                    );
                 }
 
                 _ => {}

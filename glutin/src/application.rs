@@ -288,11 +288,12 @@ impl Application {
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::H && s == MouseButtonState::Pressed {
-                                    println!("Hierarchy");
-                                    for entity in state.hierarchy.into_iter() {
-                                        //println!("Entity: {}  Parent: {:?} FC: {:?} NS: {:?}", entity, state.hierarchy.get_parent(entity), state.hierarchy.get_first_child(entity), state.hierarchy.get_next_sibling(entity));
-                                        println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity));
-                                    }
+                                    println!("Focused Widget: {}", state.focused);
+                                    
+                                    //println!("Hierarchy");
+                                    //for entity in state.hierarchy.into_iter() {
+                                        //println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity));
+                                    //}
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::Tab
@@ -315,9 +316,10 @@ impl Application {
 
                                     if state.modifiers.shift {
                                         if prev_focus != Entity::null() {
-                                            state.focused.set_focus(&mut state, false);
-                                            state.focused = prev_focus;
-                                            state.focused.set_focus(&mut state, true);
+                                            // state.focused.set_focus(&mut state, false);
+                                            // state.focused = prev_focus;
+                                            // state.focused.set_focus(&mut state, true);
+                                            state.set_focus(prev_focus);
                                         } else {
                                             // TODO impliment reverse iterator for hierarchy
                                             // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
@@ -337,18 +339,19 @@ impl Application {
 
 
                                         if next_focus != Entity::null() {
-                                            state.focused.set_focus(&mut state, false);
-                                            state.focused = next_focus;
-                                            state.focused.set_focus(&mut state, true);
+                                            // state.focused.set_focus(&mut state, false);
+                                            // state.focused = next_focus;
+                                            // state.focused.set_focus(&mut state, true);
+                                            state.set_focus(next_focus);
                                         } else {
 
-                                            state.focused.set_focus(&mut state, false);
+                                            //state.focused.set_focus(&mut state, false);
 
                                             let mut iter =  state.focused.into_iter(&hierarchy);
                                             iter.next();
 
 
-                                            state.focused = if let Some(mut temp) = iter.next() {
+                                            if let Some(mut temp) = iter.next() {
                                                 while !state.data.get_focusability(temp)
                                                     || state.data.get_visibility(temp) == Visibility::Invisible
                                                     || state.data.get_opacity(temp) == 0.0
@@ -362,12 +365,12 @@ impl Application {
                                                     }
                                                 }
 
-                                                temp
+                                                state.set_focus(temp);
                                             } else {
-                                                Entity::root()
-                                            };
+                                                state.set_focus(Entity::root());
+                                            }
 
-                                            state.focused.set_focus(&mut state, true);
+                                            //state.focused.set_focus(&mut state, true);
                                         }
                                     }
 

@@ -231,16 +231,16 @@ impl State {
     // }
 
     // This should probably be moved to state.mouse
-    pub fn capture(&mut self, id: Entity) {
-        if id != Entity::null() && self.captured != id {
+    pub fn capture(&mut self, entity: Entity) {
+        if entity != Entity::null() && self.captured != entity {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureEvent)
-                    .target(id)
+                    .target(entity)
                     .propagate(Propagation::Direct),
             );
         }
 
-        if self.captured != Entity::null() && self.captured != id {
+        if self.captured != Entity::null() && self.captured != entity {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureOutEvent)
                     .target(self.captured)
@@ -248,8 +248,8 @@ impl State {
             );
         }
 
-        self.captured = id;
-        self.active = id;
+        self.captured = entity;
+        self.active = entity;
     }
 
     // This should probably be moved to state.mouse
@@ -263,6 +263,24 @@ impl State {
             self.captured = Entity::null();
             self.active = Entity::null();
         }
+    }
+
+    pub fn set_focus(&mut self, entity: Entity) {
+        println!("Set Focus: {} {}", self.focused, entity);
+        if self.focused != entity {
+            if self.focused != Entity::null() {
+                self.focused.set_focus(self, false);
+                self.insert_event(Event::new(WindowEvent::FocusOut).target(self.focused));
+            }
+            
+            if entity != Entity::null() {
+                self.focused = entity;
+                entity.set_focus(self, true);
+                self.insert_event(Event::new(WindowEvent::FocusIn).target(self.focused));
+            }
+            
+            
+        }  
     }
 
     // Adds a new entity with a specified parent

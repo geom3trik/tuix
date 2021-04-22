@@ -45,6 +45,11 @@ pub enum WindowEvent {
     MouseEnter,
     /// Emitted when the mouse cursor leaves an entity or one of its decendants
     MouseLeave,
+
+    FocusIn,
+
+    FocusOut,
+
     /// Emitted when a character is typed
     CharInput(char),
     /// Emitted when a keyboard key is pressed
