@@ -266,7 +266,6 @@ impl State {
     }
 
     pub fn set_focus(&mut self, entity: Entity) {
-        println!("Set Focus: {} {}", self.focused, entity);
         if self.focused != entity {
             if self.focused != Entity::null() {
                 self.focused.set_focus(self, false);

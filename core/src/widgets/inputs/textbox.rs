@@ -388,12 +388,8 @@ impl Widget for Textbox {
                     }
                 }
 
-                WindowEvent::FocusIn => {
-                    println!("Gained Focus");
-                }
 
                 WindowEvent::FocusOut => {
-                    println!("Lost Focus");
                     self.edit = false;
                     entity.set_active(state, false);
                     state.release(entity);
