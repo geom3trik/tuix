@@ -141,6 +141,12 @@ fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
         entity_selector.pseudo_classes.set_active(true);
     }
 
+    if state.focused == entity {
+        entity_selector.pseudo_classes.set_focus(true);
+    } else {
+        entity_selector.pseudo_classes.set_focus(false);
+    }
+
     return selector.matches(&entity_selector);
 }
 
