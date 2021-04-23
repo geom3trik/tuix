@@ -1,7 +1,7 @@
 use tuix::*;
 fn main() {
-    let app = Application::new(|state, window| {
-        window.set_title("Hello GUI");
+    let app = Application::new(WindowDescription::new(), |state, window| {
+        //window.set_title("Hello GUI");
 
         Textbox::new("ä").build(state, window.entity(), |builder| {
             builder

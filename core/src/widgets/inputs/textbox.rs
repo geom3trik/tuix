@@ -206,6 +206,8 @@ impl Widget for Textbox {
 
                 WindowEvent::KeyDown(_, key) => {
                     //println!("Code: {:?} Key: {:?}", code, key);
+
+                    
                     if *key == Some(Key::ArrowLeft) {
                         if self.edit {
                             self.hitx = -1.0;
@@ -246,6 +248,10 @@ impl Widget for Textbox {
                         }
                     }
                     if *key == Some(Key::Backspace) {
+
+
+
+
                         if self.edit {
                             let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
@@ -253,7 +259,8 @@ impl Widget for Textbox {
                             //let end = text_data.cursor_pos as usize;
                             if start == end && self.cursor_pos > 0 {
                                 if let Some(txt) = state.style.text.get_mut(entity) {
-                                    txt.remove((self.cursor_pos - 1) as usize);
+                                    //txt.remove((self.cursor_pos - 1) as usize);
+                                    txt.pop();
                                 }
 
                                 self.cursor_pos -= 1;
@@ -343,6 +350,7 @@ impl Widget for Textbox {
                             return;
                         }
                         if self.edit {
+                            println!("Input: {}", input);
                             let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
                             //let start = text_data.select_pos as usize;
@@ -801,7 +809,7 @@ impl Widget for Textbox {
         canvas.restore();
 
         canvas.save();
-        canvas.scissor(posx, posy, width, height);
+        canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
 
         if let Some(text) = state.style.text.get_mut(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
@@ -995,7 +1003,7 @@ impl Widget for Textbox {
                         }
                     } else {
                         let mut n = 0;
-
+                        //println!("cursor: {}", self.cursor_pos);
                         //let mut start_x = 0.0;
 
                         for glyph in res.glyphs.iter() {

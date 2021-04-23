@@ -8,6 +8,9 @@
 pub mod state;
 pub use state::*;
 
+pub mod text;
+pub use text::*;
+
 pub mod events;
 pub use events::*;
 

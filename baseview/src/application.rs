@@ -209,7 +209,7 @@ impl ApplicationRunner {
 
     pub fn render(&mut self) -> bool {
         if self.should_redraw {
-            println!("Redraw");
+            //println!("Redraw");
             let hierarchy = self.state.hierarchy.clone();
             tuix_core::apply_clipping(&mut self.state, &hierarchy);
             self.event_manager.draw(&mut self.state, &mut self.canvas);

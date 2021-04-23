@@ -31,3 +31,37 @@ pub struct Selection {
     regions: Vec<SelectionRegion>,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct CursorIndex {
+    line: usize,
+    character: usize,
+}
+
+impl CursorIndex {
+    pub fn next(self, lines: Vec<std::ops::Range<usize>>) -> Option<Self> {
+        
+        //let index = self;
+        
+        lines.iter().nth(self.line).and_then(|rng| {
+            if self.character >= rng.clone().count() {
+                Some(CursorIndex {
+                    line: self.line + 1,
+                    character: 0,
+                })
+            } else {
+                Some(CursorIndex {
+                    line: self.line,
+                    character: self.character + 1,
+                })
+            }
+        })
+    }
+}
+
+pub enum Cursor {
+    Index(CursorIndex),
+    Selection {
+        start: CursorIndex,
+        end: CursorIndex,
+    }
+}

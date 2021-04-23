@@ -68,8 +68,9 @@ impl Widget for Container {
             .with_y(255u8)
             .with_z(255u8)
             .with_w(255u8)
-            .on_change(|vec_edit| {
-                println!("Num of Dims: {}", vec_edit.num_of_dims);
+            .on_change(|vec_edit, state, entity| {
+                println!("Vec Edit Entity: {}", entity);
+                state.insert_event(Event::new(WindowEvent::WindowClose).target(entity));
                 Event::new(CustomEvent::ChangeColor(Color::rgba(vec_edit.x, vec_edit.y, vec_edit.z, vec_edit.w)))
             })
             .build(state, entity, |builder| {

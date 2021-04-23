@@ -109,7 +109,6 @@ impl EntityManager {
     }
 
     pub(crate) fn destroy_entity(&mut self, entity: Entity) {
-        println!("Destroy Entity");
         self.free_list.push_back(entity);
     }
 }

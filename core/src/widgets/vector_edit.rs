@@ -53,7 +53,6 @@ impl Widget for Dimension {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if *button == MouseButton::Left {
-                        println!("Test");
                         if entity == event.target {
                             self.pressed = true;
                             // println!("Send Change Event");
@@ -109,7 +108,7 @@ pub struct VectorEdit<T> {
     pub num_of_dims: u8,
 
     // Events
-    on_change: Option<Box<dyn Fn(&Self) -> Event>>,
+    on_change: Option<Box<dyn Fn(&Self, &mut State, Entity) -> Event>>,
 }
 
 impl<T> VectorEdit<T>
@@ -171,9 +170,10 @@ where
 
     pub fn on_change<F>(mut self, message: F) -> Self
     where
-        F: 'static + Fn(&Self) -> Event,
+        F: 'static + Fn(&Self, &mut State, Entity) -> Event,
     {
         self.on_change = Some(Box::new(message));
+
         self
     }
 }
@@ -464,7 +464,7 @@ where
                         }
 
                         if let Some(on_event) = &self.on_change {
-                            let mut event = (on_event)(self);
+                            let mut event = (on_event)(self, state, entity);
                             event.origin = entity;
                 
                             if event.target == Entity::null() {

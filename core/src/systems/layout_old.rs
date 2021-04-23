@@ -1496,7 +1496,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 }
 
 pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
-    println!("Relayout");
+    //println!("Relayout");
     // Reset
     for entity in hierarchy.entities.iter() {
         state.data.set_child_sum(*entity, 0.0);
