@@ -92,22 +92,22 @@ static THEME: &'static str = include_str!("themes/menus_theme.css");
 // }
 
 fn main() {
+
+    let window_description = WindowDescription::new().with_title("Menus");
+
     // Create the app
-    let app = Application::new(|state, window| {
+    let app = Application::new(window_description, |state, window| {
         state.add_theme(THEME);
 
-        window.set_title("Menus");
-
         let menu_bar = MenuBar::new().build(state, window.entity(), |builder| {
-            builder.set_flex_direction(FlexDirection::Row)
+            builder.set_layout_type(LayoutType::Row)
         });
 
         let menu1 = Menu::new().build(state, menu_bar, |builder| {
             builder
-                .set_width(Units::Pixels(100.0))
-                .set_height(Units::Pixels(30.0))
-                .set_flex_grow(0.0)
-                .set_text_justify(Justify::Center)
+                .set_width(Pixels(100.0))
+                .set_height(Pixels(30.0))
+                .set_child_space(Stretch(1.0))
                 .class("menu")
         });
 
@@ -120,10 +120,9 @@ fn main() {
 
         let menu1 = Menu::new().build(state, menu_bar, |builder| {
             builder
-                .set_width(Units::Pixels(100.0))
-                .set_height(Units::Pixels(30.0))
-                .set_flex_grow(0.0)
-                .set_text_justify(Justify::Center)
+                .set_width(Pixels(100.0))
+                .set_height(Pixels(30.0))
+                .set_child_space(Stretch(1.0))
                 .class("menu")
         });
 

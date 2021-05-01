@@ -1,8 +1,8 @@
 use tuix::*;
 
 fn main() {
-    let app = Application::new(|state, window| {
-        window.set_title("Custom Title").set_inner_size(300, 300);
+    let window_description = WindowDescription::new().with_title("Hello GUI");
+    let app = Application::new(window_description, |state, window| {
 
         // Create a shared style wich applies to all widgets with class name "my_class"
         let style_rule: StyleRule = StyleRule::new()
@@ -35,6 +35,9 @@ fn main() {
                 .set_width(Pixels(30.0))
                 .set_background_color(Color::rgb(20, 80, 200))
                 .class("my_class")
+                .on_press(|button: &mut Button, state, entity| {
+                    println!("Found button: {:?} {}", button, entity);
+                })
         });
     });
 

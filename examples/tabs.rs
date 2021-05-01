@@ -5,17 +5,17 @@ use tuix::*;
 static THEME: &'static str = include_str!("themes/tabs_theme.css");
 
 fn main() {
-    let app = Application::new(|state, window| {
+    let window_description = WindowDescription::new().with_title("tabs");
+    let app = Application::new(window_description, |state, window| {
         state.add_theme(THEME);
 
         window
-            .set_title("Text Input")
-            .set_flex_direction(state, FlexDirection::Row);
+            .set_layout_type(state, LayoutType::Row);
 
         let controls = Element::new().build(state, window.entity(), |builder| {
             builder
-                .set_flex_basis(Units::Pixels(200.0))
-                .set_padding(Units::Pixels(10.0))
+                .set_width(Pixels(200.0))
+                .set_child_space(Pixels(10.0))
         });
 
         // Create a tab manager

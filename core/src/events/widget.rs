@@ -186,7 +186,9 @@ pub trait Widget: std::marker::Sized + 'static {
         canvas.translate(bounds.x + bounds.w / 2.0, bounds.y + bounds.h / 2.0);
         canvas.rotate(rotate.to_radians());
         canvas.translate(-(bounds.x + bounds.w / 2.0), -(bounds.y + bounds.h / 2.0));
+        //canvas.restore();
 
+        //canvas.save();
         canvas.translate(bounds.x, bounds.y);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
@@ -351,8 +353,8 @@ pub trait Widget: std::marker::Sized + 'static {
         } else {
             // Draw rounded rect
             path.rounded_rect_varying(
-                0.0 + (border_width / 2.0),
-                0.0 + (border_width / 2.0),
+                (border_width / 2.0),
+                (border_width / 2.0),
                 bounds.w - border_width,
                 bounds.h - border_width,
                 border_radius_top_left,

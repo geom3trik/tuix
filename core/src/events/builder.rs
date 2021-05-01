@@ -11,6 +11,7 @@ pub struct Builder<'a> {
 }
 
 impl<'a> Builder<'a> {
+
     /// Creates a new Builder
     pub(crate) fn new(state: &'a mut State, entity: Entity) -> Self {
         Builder { entity, state }
@@ -36,6 +37,22 @@ impl<'a> Builder<'a> {
     /// Returns the entity id contained within the builder
     pub fn entity(&self) -> Entity {
         self.entity
+    }
+
+    pub fn on_press<T, F>(mut self, mut handler: F) -> Self
+    where 
+        T: Widget,
+        F: FnMut(&mut T, &mut State, Entity) + 'static,
+    {
+        self.state.callbacks.insert(self.entity, Box::new(move |callback, state, entity| {
+            if let Some(callback) = callback.downcast::<T>() {
+                (handler)(callback, state, entity);
+            } else {
+                println!("Failed");
+            }
+        }));
+
+        self
     }
 
     /// Adds a class name to the entity

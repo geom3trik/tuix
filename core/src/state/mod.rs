@@ -58,6 +58,8 @@ pub struct State {
     pub captured: Entity,
     pub focused: Entity,
 
+    pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
+
     pub(crate) event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
 
     pub(crate) removed_entities: Vec<Entity>,
@@ -101,6 +103,7 @@ impl State {
             active: Entity::null(),
             captured: Entity::null(),
             focused: Entity::root(),
+            callbacks: FnvHashMap::default(),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             removed_entities: Vec::new(),

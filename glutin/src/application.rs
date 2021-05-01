@@ -526,17 +526,25 @@ impl Application {
                                         state.needs_restyle = true;
                                     }
 
-                                    if state.captured != Entity::null() {
+                                    let target = if state.captured != Entity::null() {
                                         state.insert_event(
                                             Event::new(WindowEvent::MouseDown(b))
                                                 .target(state.captured)
                                                 .propagate(Propagation::Direct),
                                         );
+                                        state.captured
                                     } else {
                                         state.insert_event(
                                             Event::new(WindowEvent::MouseDown(b))
                                                 .target(state.hovered),
                                         );
+                                        state.hovered
+                                    };
+
+                                    if let Some(event_handler) = event_manager.event_handlers.get_mut(&target) {
+                                        if let Some(callback) = event_manager.callbacks.get_mut(&target) {
+                                            (callback)(event_handler, &mut state, target);
+                                        }
                                     }
 
                                     match b {

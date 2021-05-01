@@ -182,42 +182,30 @@ impl ApplicationRunner {
 
     pub fn on_frame_update(&mut self) {
 
+        
+        if self.state.apply_animations() {
+            self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+            self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));    
+            self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));    
+        }
+
         while !self.state.event_queue.is_empty() {
             self.event_manager.flush_events(&mut self.state);
         } 
 
-        if self.state.apply_animations() {
-            self.state.insert_event(
-                Event::new(WindowEvent::Relayout)
-                    .target(Entity::root())
-            );
-            let hierarchy = self.state.hierarchy.clone();
-            tuix_core::apply_layout2(&mut self.state, &hierarchy);
-            //self.state.insert_event(Event::new(WindowEvent::Redraw));
-            self.should_redraw = true;
-        }
-
-          
-
         if self.state.needs_redraw {
-            // TODO - Move this to EventManager
+        //     // TODO - Move this to EventManager
             self.should_redraw = true;
             self.state.needs_redraw = false;
         }
 
     }
 
-    pub fn render(&mut self) -> bool {
-        if self.should_redraw {
-            //println!("Redraw");
-            let hierarchy = self.state.hierarchy.clone();
-            tuix_core::apply_clipping(&mut self.state, &hierarchy);
-            self.event_manager.draw(&mut self.state, &mut self.canvas);
-            self.should_redraw = false;
-            true
-        } else {
-            false
-        }
+    pub fn render(&mut self) {
+        let hierarchy = self.state.hierarchy.clone();
+        tuix_core::apply_clipping(&mut self.state, &hierarchy);
+        self.event_manager.draw(&mut self.state, &mut self.canvas);
+        self.should_redraw = false;
     }
 
     pub fn handle_event(&mut self, event: baseview::Event, should_quit: &mut bool) {
@@ -236,125 +224,7 @@ impl ApplicationRunner {
                     self.state.mouse.cursorx = cursorx;
                     self.state.mouse.cursory = cursory;
 
-                    let mut hovered_widget = Entity::root();
-
-                    // This only really needs to be computed when the hierarchy changes
-                    // Can be optimised
-                    let mut draw_hierarchy: Vec<Entity> =
-                        self.state.hierarchy.into_iter().collect();
-
-                    draw_hierarchy
-                        .sort_by_cached_key(|entity| self.state.data.get_z_order(*entity));
-
-                    for widget in draw_hierarchy.into_iter() {
-                        // Skip invisible widgets
-                        if self.state.data.get_visibility(widget) == Visibility::Invisible {
-                            continue;
-                        }
-
-                        // This shouldn't be here but there's a bug if it isn't
-                        if self.state.data.get_opacity(widget) == 0.0 {
-                            continue;
-                        }
-
-                        // Skip non-hoverable widgets
-                        if self.state.data.get_hoverability(widget) != true {
-                            continue;
-                        }
-
-                        let border_width = match self
-                            .state
-                            .style
-                            .border_width
-                            .get(widget)
-                            .cloned()
-                            .unwrap_or_default()
-                        {
-                            Units::Pixels(val) => val,
-                            //Units::Percentage(val) => parent_width * val,
-                            _ => 0.0,
-                        };
-
-                        let posx = self.state.data.get_posx(widget) - (border_width / 2.0);
-                        let posy = self.state.data.get_posy(widget) - (border_width / 2.0);
-                        let width = self.state.data.get_width(widget) + (border_width);
-                        let height = self.state.data.get_height(widget) + (border_width);
-
-                        let clip_bounds = self.state.data.get_clip_region(widget);
-
-                        let clip_posx = clip_bounds.x;
-                        let clip_posy = clip_bounds.y;
-                        let clip_width = clip_bounds.w;
-                        let clip_height = clip_bounds.h;
-
-                        if cursorx >= posx
-                            && cursorx >= clip_posx
-                            && cursorx < (posx + width)
-                            && cursorx < (clip_posx + clip_width)
-                            && cursory >= posy
-                            && cursory >= clip_posy
-                            && cursory < (posy + height)
-                            && cursory < (clip_posy + clip_height)
-                        {
-                            hovered_widget = widget;
-                            if let Some(pseudo_classes) =
-                                self.state.style.pseudo_classes.get_mut(hovered_widget)
-                            {
-                                pseudo_classes.set_over(true);
-                            }
-                        } else {
-                            if let Some(pseudo_classes) =
-                                self.state.style.pseudo_classes.get_mut(hovered_widget)
-                            {
-                                pseudo_classes.set_over(false);
-                            }
-                        }
-                    }
-
-                    if hovered_widget != self.state.hovered {
-                        // Useful for debugging
-
-                        // println!(
-                        //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-                        //     hovered_widget,
-                        //     self.state.hierarchy.get_parent(hovered_widget),
-                        //     self.state.transform.get_posx(hovered_widget),
-                        //     self.state.transform.get_posy(hovered_widget),
-                        //     self.state.transform.get_width(hovered_widget),
-                        //     self.state.transform.get_height(hovered_widget),
-                        //     self.state.transform.get_z_order(hovered_widget),
-                        // );
-
-                        if let Some(pseudo_classes) =
-                            self.state.style.pseudo_classes.get_mut(hovered_widget)
-                        {
-                            pseudo_classes.set_hover(true);
-                        }
-
-                        if let Some(pseudo_classes) =
-                            self.state.style.pseudo_classes.get_mut(self.state.hovered)
-                        {
-                            pseudo_classes.set_hover(false);
-                        }
-
-                        self.state.insert_event(
-                            Event::new(WindowEvent::MouseOver).target(hovered_widget),
-                        );
-                        self.state.insert_event(
-                            Event::new(WindowEvent::MouseOut).target(self.state.hovered),
-                        );
-
-                        self.state
-                            .insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()).origin(hovered_widget));
-                        self.state.insert_event(
-                            Event::new(WindowEvent::Restyle).target(Entity::root()).origin(self.state.hovered),
-                        );
-
-                        self.state.hovered = hovered_widget;
-                        self.state.active = Entity::null();
-
-                        self.state.insert_event(Event::new(WindowEvent::Redraw));
-                    }
+                    tuix_core::apply_hover(&mut self.state);
 
                     if self.state.captured != Entity::null() {
                         self.state.insert_event(
@@ -368,8 +238,6 @@ impl ApplicationRunner {
                                 .target(self.state.hovered),
                         );
                     }
-
-                    self.pos = (cursorx, cursory);
                 }
                 baseview::MouseEvent::ButtonPressed(button) => {
                     let b = match button {
@@ -398,19 +266,29 @@ impl ApplicationRunner {
                         && self.state.active != self.state.hovered
                     {
                         self.state.active = self.state.hovered;
-                        self.state.insert_event(Event::new(WindowEvent::Restyle));
+                        self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                        self.state.needs_restyle = true;
                     }
 
-                    if self.state.captured != Entity::null() {
+                    let target = if self.state.captured != Entity::null() {
                         self.state.insert_event(
                             Event::new(WindowEvent::MouseDown(b))
                                 .target(self.state.captured)
                                 .propagate(Propagation::Direct),
                         );
+                        self.state.captured
                     } else {
                         self.state.insert_event(
-                            Event::new(WindowEvent::MouseDown(b)).target(self.state.hovered),
+                            Event::new(WindowEvent::MouseDown(b))
+                                .target(self.state.hovered),
                         );
+                        self.state.hovered
+                    };
+
+                    if let Some(event_handler) = self.event_manager.event_handlers.get_mut(&target) {
+                        if let Some(callback) = self.event_manager.callbacks.get_mut(&target) {
+                            (callback)(event_handler, &mut self.state, target);
+                        }
                     }
 
                     match b {
@@ -459,7 +337,8 @@ impl ApplicationRunner {
                     };
 
                     self.state.active = Entity::null();
-                    self.state.insert_event(Event::new(WindowEvent::Restyle));
+                    self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                    self.state.needs_restyle = true;
 
                     if self.state.captured != Entity::null() {
                         self.state.insert_event(
@@ -656,11 +535,9 @@ impl ApplicationRunner {
             }
             baseview::Event::Window(event) => match event {
                 baseview::WindowEvent::Focused => {
-                    self.state.insert_event(
-                        Event::new(WindowEvent::Restyle)
-                            .target(Entity::root())
-                            .origin(Entity::root()),
-                    );
+                    self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                    self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+                    self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                 }
                 baseview::WindowEvent::Resized(window_info) => {
                     self.scale_factor = match self.scale_policy {
@@ -694,11 +571,16 @@ impl ApplicationRunner {
                         .data
                         .set_height(Entity::root(), physical_size.1 as f32);
 
-                    self.state
-                        .insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()).origin(Entity::root()));
-                    self.state
-                        .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()).target(Entity::null()));
+                    let mut bounding_box = BoundingBox::default();
+                    bounding_box.w = physical_size.0 as f32;
+                    bounding_box.h = physical_size.1 as f32;
+
+                    self.state.data.set_clip_region(Entity::root(), bounding_box);
+
+                    self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                    self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                     self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
                 }
                 baseview::WindowEvent::WillClose => {
                     self.state

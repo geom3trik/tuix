@@ -18,7 +18,7 @@ pub enum ButtonEvent {
     SetKey(Code),
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 // A Widget that can be pressed and released and may emit an event on_press and on_release
 pub struct Button {
     on_press: Option<Event>,
@@ -114,6 +114,8 @@ impl Widget for Button {
                 ButtonEvent::Pressed => {
                     if event.target == entity {
                         self.send_event(state, entity, self.on_press.clone());
+
+                        
 
                         entity.set_active(state, true);
                     }

@@ -19,7 +19,7 @@ pub struct Slider {
     thumb: Entity,
 
     // Event sent when the slider value has changed
-    on_change: Option<Box<dyn Fn(f32) -> Event>>,
+    on_change: Option<Box<dyn Fn(&Self, &mut State, Entity) -> Event>>,
     // event sent when the slider value is changing
     on_changing: Option<Box<dyn Fn(f32) -> Event>>,
     // Event sent when the slider reaches the minimum value
@@ -35,7 +35,7 @@ pub struct Slider {
     // Event sent when the mouse cusor leaves the slider
     on_out: Option<Event>,
 
-    value: f32,
+    pub value: f32,
     prev: f32,
     min: f32,
     max: f32,
@@ -118,7 +118,7 @@ impl Slider {
     /// ```
     pub fn on_change<F>(mut self, message: F) -> Self
     where
-        F: 'static + Fn(f32) -> Event,
+        F: 'static + Fn(&Self, &mut State, Entity) -> Event,
     {
         self.on_change = Some(Box::new(message));
         self
@@ -425,7 +425,18 @@ impl Widget for Slider {
                         entity.set_active(state, false);
 
                         if self.prev != self.value {
-                            self.send_value_event(state, entity, &self.on_change);
+                            //self.send_value_event(state, entity, &self.on_change);
+                            if let Some(on_event) = &self.on_change {
+                                let mut event = (on_event)(self, state, entity);
+                                event.origin = entity;
+                    
+                                if event.target == Entity::null() {
+                                    event.target = entity;
+                                }
+                    
+                                state.insert_event(event);
+                            }
+
                         }
 
                         self.send_event(state, entity, self.on_release.clone());

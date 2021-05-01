@@ -115,11 +115,13 @@ impl ValueKnob {
 
 impl Widget for ValueKnob {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {        
         Label::new(&self.label).build(state, entity, |builder| {
             builder
                 .set_height(Units::Pixels(25.0))
                 .set_child_space(Stretch(1.0))
+                //.set_background_color(Color::green())
+                .set_bottom(Pixels(5.0))
         });
 
         let mut knob = ControlKnob::new(self.init, self.min, self.max);
@@ -129,8 +131,10 @@ impl Widget for ValueKnob {
 
         self.knob = knob.build(state, entity, |builder| {
             builder
-                .set_width(Units::Pixels(50.0))
-                .set_height(Units::Pixels(50.0))
+                .set_width(Pixels(50.0))
+                .set_height(Pixels(50.0))
+                .set_left(Stretch(1.0))
+                .set_right(Stretch(1.0))
         });
 
         //let val_str = format!("{:3}!", self.init);
@@ -140,9 +144,13 @@ impl Widget for ValueKnob {
                 .set_height(Pixels(25.0))
                 .set_left(Pixels(2.5))
                 .set_right(Pixels(2.5))
+                .set_child_space(Stretch(1.0))
         });
 
-        state.style.insert_element(entity, "value_knob");
+        entity
+            .set_height(state, Units::Auto)
+            .set_element(state, "value_knob");
+            //.set_background_color(state, Color::blue());
 
         self.knob
     }

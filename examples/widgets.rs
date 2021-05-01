@@ -328,7 +328,7 @@ fn main() {
         Slider::new()
             .with_initial_value(10.0)
             .with_range(0.0..20.0)
-            .on_change(|val| Event::new(WindowEvent::Debug(format!("slider on_changed - {}", val))))
+            .on_change(|slider, state, entity| Event::new(WindowEvent::Debug(format!("slider on_changed - {}", slider.value))))
             //.on_changing(|val| Event::new(WindowEvent::Debug(format!("slider on_changing - {}", val))))
             .on_press(Event::new(WindowEvent::Debug("slider on_press".to_owned())))
             .on_release(Event::new(WindowEvent::Debug(

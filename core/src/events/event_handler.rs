@@ -21,7 +21,7 @@ use std::any::{Any, TypeId};
 
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
-pub(crate) trait EventHandler: Any {
+pub trait EventHandler: Any {
     // Called when events are flushed
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 

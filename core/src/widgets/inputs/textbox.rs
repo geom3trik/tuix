@@ -105,6 +105,8 @@ impl Widget for Textbox {
 
         self.entity = entity;
 
+        entity.set_clip_widget(state, entity);
+
         state.style.insert_element(entity, "textbox");
 
         entity

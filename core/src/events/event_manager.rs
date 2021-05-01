@@ -22,7 +22,8 @@ use femtovg::{
 use fnv::FnvHashMap;
 
 pub struct EventManager {
-    event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut State, Entity)>>,
 
     // Queue of events to be processed
     pub event_queue: Vec<Event>,
@@ -39,6 +40,7 @@ impl EventManager {
     pub fn new() -> Self {
         EventManager {
             event_handlers: FnvHashMap::default(),
+            callbacks: FnvHashMap::default(),
             event_queue: Vec::new(),
 
             hierarchy: Hierarchy::new(),
@@ -79,6 +81,8 @@ impl EventManager {
 
         // Clear the event queue in state
         state.event_queue.clear();
+
+        self.callbacks.extend(state.callbacks.drain());
 
         // Loop over the events in the event manager queue
         'events: for event in self.event_queue.iter_mut() {
@@ -148,10 +152,15 @@ impl EventManager {
                 }
             }
 
+            // Direct
             if event.propagation != Propagation::Fall {
                 // Send event to target
                 if let Some(event_handler) = self.event_handlers.get_mut(&event.target) {
                     event_handler.on_event_(state, event.target, event);
+
+                    // if let Some(test) = self.callbacks.get_mut(&event.target) {
+                    //     (test)(event_handler, state, event.target);
+                    // }
 
                     if event.consumed {
                         continue 'events;
