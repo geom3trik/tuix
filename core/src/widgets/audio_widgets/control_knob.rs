@@ -11,7 +11,7 @@ use std::sync::{Arc, Mutex};
 
 pub struct ControlKnob {
     sliding: bool, // Could replace this with a bool in state, maybe in mouse
-    value: f32,
+    pub value: f32,
     temp: f32,
 
     mouse_down_posy: f32,
@@ -27,6 +27,7 @@ pub struct ControlKnob {
     pub is_log: bool,
 
     pub on_change: Option<Arc<Mutex<dyn Fn(f32) -> Event>>>,
+    pub on_changing: Option<Arc<dyn Fn(&Self,&mut State, Entity)>>,
 }
 
 impl ControlKnob {
@@ -49,6 +50,7 @@ impl ControlKnob {
             is_log: false,
 
             on_change: None,
+            on_changing: None,
         }
     }
 
@@ -64,6 +66,15 @@ impl ControlKnob {
         F: 'static,
     {
         self.on_change = Some(Arc::new(Mutex::new(message)));
+        self
+    }
+
+    pub fn on_changing<F>(mut self, message: F) -> Self
+    where
+        F: Fn(&Self, &mut State, Entity),
+        F: 'static,
+    {
+        self.on_changing = Some(Arc::new(message));
         self
     }
 }
@@ -168,6 +179,10 @@ impl Widget for ControlKnob {
 
                                 event.origin = entity;
                                 state.insert_event(event);
+                            }
+
+                            if let Some(on_changing) = &self.on_changing {
+                                (on_changing)(self, state, entity);
                             }
 
                             state.insert_event(
@@ -298,7 +313,7 @@ impl Widget for ControlKnob {
         path.arc(cx, cy, r1 - 2.5, end, start, Solidity::Solid);
         let mut paint = Paint::color(back_color);
         paint.set_line_width(5.0);
-        paint.set_line_cap(LineCap::Round);
+        paint.set_line_cap(LineCap::Butt);
         canvas.stroke_path(&mut path, paint);
 
         if current != zero_position {
@@ -311,7 +326,7 @@ impl Widget for ControlKnob {
 
             let mut paint = Paint::color(slider_color);
             paint.set_line_width(5.0);
-            paint.set_line_cap(LineCap::Round);
+            paint.set_line_cap(LineCap::Butt);
             canvas.stroke_path(&mut path, paint);
         }
 

@@ -54,10 +54,18 @@ impl From<f32> for FreqValue {
     }
 }
 
+pub enum UnitsType {
+    None,
+    Hertz,
+    dB,
+}
+
 pub struct ValueKnob {
     pub label: String,
     pub knob: Entity,
     pub textbox: Entity,
+
+    units: UnitsType,
 
     init: f32,
     min: f32,
@@ -66,6 +74,8 @@ pub struct ValueKnob {
     is_log: bool,
 
     pub on_change: Option<Arc<Mutex<dyn Fn(f32) -> Event>>>,
+
+    pub on_changing: Option<Arc<dyn Fn(&ControlKnob, &mut State, Entity)>>,
 }
 
 impl ValueKnob {
@@ -75,6 +85,8 @@ impl ValueKnob {
             knob: Entity::null(),
             textbox: Entity::null(),
 
+            units: UnitsType::None,
+
             init,
             min,
             max,
@@ -82,12 +94,18 @@ impl ValueKnob {
             is_log: false,
 
             on_change: None,
+            on_changing: None,
         }
     }
 
     pub fn with_log_scale(mut self) -> Self {
         self.is_log = true;
 
+        self
+    }
+
+    pub fn with_units(mut self, units: UnitsType) -> Self {
+        self.units = units;
         self
     }
 
@@ -111,6 +129,15 @@ impl ValueKnob {
         self.on_change = Some(Arc::new(Mutex::new(message)));
         self
     }
+
+    pub fn on_changing<F>(mut self, message: F) -> Self
+    where
+        F: Fn(&ControlKnob, &mut State, Entity),
+        F: 'static,
+    {
+        self.on_changing = Some(Arc::new(message));
+        self
+    }
 }
 
 impl Widget for ValueKnob {
@@ -127,19 +154,35 @@ impl Widget for ValueKnob {
         let mut knob = ControlKnob::new(self.init, self.min, self.max);
 
         knob.on_change = self.on_change.clone();
+        knob.on_changing = self.on_changing.clone();
         knob.is_log = self.is_log;
 
         self.knob = knob.build(state, entity, |builder| {
             builder
-                .set_width(Pixels(50.0))
-                .set_height(Pixels(50.0))
+                .set_width(Pixels(70.0))
+                .set_height(Pixels(70.0))
                 .set_left(Stretch(1.0))
                 .set_right(Stretch(1.0))
         });
 
         //let val_str = format!("{:3}!", self.init);
         let freq_val: FreqValue = self.init.into();
-        self.textbox = Textbox::new(&freq_val.to_string()).build(state, entity, |builder| {
+
+        let units = match self.units {
+            UnitsType::Hertz => {
+                if self.init < 1000.0 {
+                    " Hz"
+                } else {
+                    " kHz"
+                }
+            },
+
+            UnitsType::dB => " dB",
+
+            _=> ""
+        };
+
+        self.textbox = Textbox::new(&(freq_val.to_string() + units)).build(state, entity, |builder| {
             builder
                 .set_height(Pixels(25.0))
                 .set_left(Pixels(2.5))
@@ -163,9 +206,26 @@ impl Widget for ValueKnob {
                     if event.target == self.knob {
                         // let val_str = format!("{:3}!", val);
                         let freq_val: FreqValue = (*val).into();
+
+                        let units = match self.units {
+                            UnitsType::Hertz => {
+                                if self.init < 1000.0 {
+                                    " Hz"
+                                } else {
+                                    " kHz"
+                                }
+                            },
+                
+                            UnitsType::dB => " dB",
+                
+                            _=> ""
+                        };
+
+                        let new_string = freq_val.to_string() + units;
+
                         //println!("val_str: {} {}", self.label, val_str);
                         state.insert_event(
-                            Event::new(TextboxEvent::SetValue(freq_val.to_string()))
+                            Event::new(TextboxEvent::SetValue(new_string))
                                 .target(self.textbox)
                                 .propagate(Propagation::Direct),
                         );
@@ -173,11 +233,28 @@ impl Widget for ValueKnob {
                 }
 
                 SliderEvent::SetValue(val) => {
-                    if event.target == entity {
+                    if event.target == entity || event.target == self.knob {
                         let freq_val: FreqValue = (*val).into();
                         //println!("val_str: {} {}", self.label, val_str);
+
+                        let units = match self.units {
+                            UnitsType::Hertz => {
+                                if self.init < 1000.0 {
+                                    " Hz"
+                                } else {
+                                    " kHz"
+                                }
+                            },
+                
+                            UnitsType::dB => " dB",
+                
+                            _=> ""
+                        };
+
+                        let new_string = freq_val.to_string() + units;
+
                         state.insert_event(
-                            Event::new(TextboxEvent::SetValue(freq_val.to_string()))
+                            Event::new(TextboxEvent::SetValue(new_string))
                                 .target(self.textbox)
                                 .propagate(Propagation::Direct),
                         );

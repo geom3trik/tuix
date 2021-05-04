@@ -105,7 +105,7 @@ impl ApplicationRunner {
 
         canvas.set_size(physical_size.width, physical_size.height, 1.0);
 
-        let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
+        let regular_font = include_bytes!("../../resources/FiraCode-Regular.ttf");
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
         let icon_font = include_bytes!("../../resources/entypo.ttf");
         let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
