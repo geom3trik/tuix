@@ -20,7 +20,7 @@ use tuix_core::{
 
 pub struct Application<F>
 where
-    F: FnMut(&mut State, Entity),
+    F: FnOnce(&mut State, Entity),
     F: 'static + Send,
 {
     app: F,
@@ -29,7 +29,7 @@ where
 
 impl<F> Application<F>
 where
-    F: FnMut(&mut State, Entity),
+    F: FnOnce(&mut State, Entity),
     F: 'static + Send,
 {
     pub fn new(window_description: WindowDescription, app: F) -> Self {

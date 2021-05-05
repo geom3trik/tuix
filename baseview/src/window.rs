@@ -30,7 +30,7 @@ impl TuixWindow {
     pub fn open_parented<P, F>(parent: &P, win_desc: WindowDescription, mut app: F)
     where
         P: HasRawWindowHandle,
-        F: FnMut(&mut State, Entity),
+        F: FnOnce(&mut State, Entity),
         F: 'static + Send,
     {
         let window_settings = WindowOpenOptions {
@@ -63,7 +63,7 @@ impl TuixWindow {
     /// * `app` - The Tuix application builder.
     pub fn open_as_if_parented<F>(win_desc: WindowDescription, mut app: F) -> RawWindowHandle
     where
-        F: FnMut(&mut State, Entity),
+        F: FnOnce(&mut State, Entity),
         F: 'static + Send,
     {
         let window_settings = WindowOpenOptions {
@@ -95,7 +95,7 @@ impl TuixWindow {
     /// * `app` - The Tuix application builder.
     pub fn open_blocking<F>(win_desc: WindowDescription, mut app: F)
     where
-        F: FnMut(&mut State, Entity),
+        F: FnOnce(&mut State, Entity),
         F: 'static + Send,
     {
         let window_settings = WindowOpenOptions {
@@ -151,7 +151,7 @@ impl WindowHandler for TuixWindow {
 
 fn load_renderer(window: &Window) -> (Renderer, raw_gl_context::GlContext) {
     let mut config = raw_gl_context::GlConfig::default();
-    config.vsync = true;
+    config.vsync = false;
 
     let context = raw_gl_context::GlContext::create(window, config).unwrap();
 
