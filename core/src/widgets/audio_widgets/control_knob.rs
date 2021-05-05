@@ -17,9 +17,9 @@ pub struct ControlKnob {
     mouse_down_posy: f32,
     shift_pressed: bool,
 
-    back: Entity,
-    slider: Entity,
-    tick: Entity,
+    pub back: Entity,
+    pub slider: Entity,
+    pub tick: Entity,
 
     min: f32,
     max: f32,
@@ -230,40 +230,16 @@ impl Widget for ControlKnob {
 
         let opacity = state.data.get_opacity(entity);
 
-        let mut knob_color: femtovg::Color = state
-            .style
-            .background_color
-            .get(entity)
-            .cloned()
-            .unwrap_or_default()
-            .into();
+        let mut knob_color: femtovg::Color = entity.get_background_color(state).into();
         knob_color.set_alphaf(knob_color.a * opacity);
 
-        let mut back_color: femtovg::Color = state
-            .style
-            .background_color
-            .get(self.back)
-            .cloned()
-            .unwrap_or_default()
-            .into();
+        let mut back_color: femtovg::Color = self.back.get_background_color(state).into();    
         back_color.set_alphaf(back_color.a * opacity);
 
-        let mut slider_color: femtovg::Color = state
-            .style
-            .background_color
-            .get(self.slider)
-            .cloned()
-            .unwrap_or_default()
-            .into();
+        let mut slider_color: femtovg::Color = self.slider.get_background_color(state).into();
         slider_color.set_alphaf(slider_color.a * opacity);
 
-        let mut tick_color: femtovg::Color = state
-            .style
-            .background_color
-            .get(self.tick)
-            .cloned()
-            .unwrap_or_default()
-            .into();
+        let mut tick_color: femtovg::Color = self.tick.get_background_color(state).into();
         tick_color.set_alphaf(tick_color.a * opacity);
 
         let posx = state.data.get_posx(entity);
@@ -274,6 +250,7 @@ impl Widget for ControlKnob {
         let cx = posx + 0.5 * width;
         let cy = posy + 0.5 * height;
         let r1 = width / 2.0;
+        // This property determines the thickness of the track, currently hardcoded to be 10 pixels
         let r0 = r1 - 10.0;
 
         use std::f32::consts::PI;
@@ -282,7 +259,6 @@ impl Widget for ControlKnob {
 
         let (min, max, value) = if self.is_log {
             (self.min.log10(), self.max.log10(), self.value.log10())
-        //(self.min_value, self.max_value, self.value)
         } else {
             (self.min, self.max, self.value)
         };
@@ -295,20 +271,11 @@ impl Widget for ControlKnob {
 
         let normalised = (value - min) / (max - min);
 
-        //println!("{}", zero_position);
-
         let current = normalised * (end - start) + start;
 
         canvas.save();
 
-        // Draw outer arc background
-        // let mut path = Path::new();
-        // path.arc(cx, cy, r0, start, end, Solidity::Hole);
-        // path.arc(cx, cy, r1, end, start, Solidity::Solid);
-        // path.close();
-        // let mut paint = Paint::color(back_color);
-        // canvas.fill_path(&mut path, paint);
-
+        // Draw the background of the slider
         let mut path = Path::new();
         path.arc(cx, cy, r1 - 2.5, end, start, Solidity::Solid);
         let mut paint = Paint::color(back_color);
@@ -316,6 +283,7 @@ impl Widget for ControlKnob {
         paint.set_line_cap(LineCap::Butt);
         canvas.stroke_path(&mut path, paint);
 
+        // Draw the filled part of the slider
         if current != zero_position {
             let mut path = Path::new();
             if current > zero_position {
@@ -330,26 +298,13 @@ impl Widget for ControlKnob {
             canvas.stroke_path(&mut path, paint);
         }
 
-        // Draw outer arc fill
-        //if current != start {
-        //let mut path = Path::new();
-        //path.arc(cx, cy, r0, start, current, Solidity::Hole);
-        //path.arc(cx, cy, r1, current, start, Solidity::Solid);
-        //path.close();
-        // path.arc(cx, cy, r1 - 2.5, end, start, Solidity::Solid);
-        // let mut paint = Paint::color(back_color);
-        // paint.set_line_width(5.0);
-        // paint.set_line_cap(LineCap::Round);
-        // canvas.fill_path(&mut path, paint);
-        //}
-
-        // Draw knob
+        // Draw the inner knob
         let mut path = Path::new();
         path.circle(cx, cy, r0 + 1.0);
         let paint = Paint::color(knob_color);
         canvas.fill_path(&mut path, paint);
 
-        // Draw knob tick
+        // Draw knob tick mark
         canvas.save();
         canvas.translate(cx, cy);
         canvas.rotate(current - PI / 2.0);
@@ -360,6 +315,7 @@ impl Widget for ControlKnob {
         canvas.fill_path(&mut path, paint);
 
         canvas.restore();
+        
         canvas.restore();
     }
 }

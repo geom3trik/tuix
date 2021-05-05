@@ -751,6 +751,11 @@ pub trait PropGet: AsEntity {
             .unwrap_or_default()
     }
 
+    // Background Color
+    fn get_background_color(&self, state: &mut State) -> Color {
+        state.style.background_color.get(self.entity()).cloned().unwrap_or_default()
+    }
+
     // Position
     fn get_left(&self, state: &mut State) -> Units;
     fn get_right(&self, state: &mut State) -> Units;
