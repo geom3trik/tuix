@@ -159,8 +159,8 @@ impl Widget for ValueKnob {
 
         self.knob = knob.build(state, entity, |builder| {
             builder
-                .set_width(Pixels(70.0))
-                .set_height(Pixels(70.0))
+                .set_width(Pixels(50.0))
+                .set_height(Pixels(50.0))
                 .set_left(Stretch(1.0))
                 .set_right(Stretch(1.0))
         });
