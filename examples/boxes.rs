@@ -133,43 +133,43 @@ impl Widget for BoxWidget {
         }
     }
 
-fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-    if let Some(window_event) = event.message.downcast::<WindowEvent>() {
-        match window_event {
-            WindowEvent::MouseDown(button) if *button == MouseButton::Left => {
-                if event.target == entity {
-                    state.capture(entity);
-                    self.dragging = true;
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+            match window_event {
+                WindowEvent::MouseDown(button) if *button == MouseButton::Left => {
+                    if event.target == entity {
+                        state.capture(entity);
+                        self.dragging = true;
 
-                    // Set the selected box state to this box
-                    let data = self.data;
-                    state.insert_update(Update::new(entity, move |selected_state: &mut SelectedState| selected_state.selected = data))
+                        // Set the selected box state to this box
+                        let data = self.data;
+                        state.insert_update(Update::new(entity, move |selected_state: &mut SelectedState| selected_state.selected = data))
+                    }
                 }
-            }
 
-            WindowEvent::MouseUp(button) if *button == MouseButton::Left => {
-                if event.target == entity {
-                    state.release(entity);
-                    self.dragging = false;
+                WindowEvent::MouseUp(button) if *button == MouseButton::Left => {
+                    if event.target == entity {
+                        state.release(entity);
+                        self.dragging = false;
+                    }
                 }
-            }
 
-            WindowEvent::MouseMove(x,y) => {
-                if self.dragging {
-                    // Mutate box state bound to this widget
-                    let x = *x;
-                    let y = *y;
-                    state.insert_update(Update::new(entity, move |box_state: &mut BoxState| {
-                        box_state.posx = x;
-                        box_state.posy = y;
-                    }));
+                WindowEvent::MouseMove(x,y) => {
+                    if self.dragging {
+                        // Mutate box state bound to this widget
+                        let x = *x;
+                        let y = *y;
+                        state.insert_update(Update::new(entity, move |box_state: &mut BoxState| {
+                            box_state.posx = x;
+                            box_state.posy = y;
+                        }));
+                    }
                 }
-            }
 
-            _=> {}
+                _=> {}
+            }
         }
     }
-}
 }
 
 struct ControlsWidget {
