@@ -26,7 +26,7 @@ pub use resource::*;
 pub use crate::events::{Builder, Event, Propagation, Widget};
 pub use crate::window_event::WindowEvent;
 
-use crate::{EventHandler, Node, Update};
+use crate::{EventHandler, Node, Update, Graph};
 
 use femtovg::FontId;
 
@@ -51,7 +51,7 @@ pub struct State {
     pub style: Style,              // The style properties for every widget
     pub data: Data,                // Computed data
 
-    pub data_hierarchy: Hierarchy, // Hierarchy of data nodes
+    pub data_graph: Graph, // Hierarchy of data nodes
 
     pub mouse: MouseState,
     pub modifiers: ModifiersState,
@@ -83,7 +83,7 @@ impl State {
     pub fn new() -> Self {
         let entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
-        let data_hierarchy = Hierarchy::new();
+        let data_graph = Graph::new();
         let mut style = Style::default();
         let mut data = Data::default();
         let mouse = MouseState::default();
@@ -103,7 +103,7 @@ impl State {
             hierarchy,
             style,
             data,
-            data_hierarchy,
+            data_graph,
             mouse,
             modifiers,
             hovered: Entity::root(),

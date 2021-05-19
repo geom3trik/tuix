@@ -9,8 +9,10 @@ use crate::state::hierarchy::*;
 pub trait PropSet: AsEntity + Sized {
 
     // This could fail
-    fn bind(&self, state: &mut State, node: Entity) {
-        state.data_hierarchy.add(self.entity(), Some(node));
+    fn bind(&self, state: &mut State, node: Entity) -> Entity {
+        state.data_graph.add(self.entity(), node);
+
+        self.entity()
     }
 
     fn insert_event(&self, state: &mut State, mut event: Event) -> Entity

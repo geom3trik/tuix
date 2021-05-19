@@ -56,9 +56,9 @@ impl Application {
 
         let mut data_manager = DataManager::new();
 
-        state.data_hierarchy.add(Entity::root(), None);
+        state.data_graph.add(Entity::root(), Entity::null());
 
-        data_manager.hierarchy = state.data_hierarchy.clone();
+        data_manager.graph = state.data_graph.clone();
 
         //let window_description = win(WindowDescription::new());
         //let mut window_builder = WindowBuilder::new(root);
@@ -148,7 +148,7 @@ impl Application {
         event_manager.hierarchy = state.hierarchy.clone();
         
         let mut data_manager = self.data_manager;
-        data_manager.hierarchy = state.data_hierarchy.clone();
+        data_manager.graph = state.data_graph.clone();
 
         //println!("Event Manager: {:?}", event_manager.hierarchy);
 
@@ -176,11 +176,9 @@ impl Application {
 
                 GEvent::MainEventsCleared => {
 
-                    while !state.event_queue.is_empty() {
+                    
+                    while !state.event_queue.is_empty() || !state.update_queue.is_empty() {
                         event_manager.flush_events(&mut state);
-                    }
-
-                    while !state.update_queue.is_empty() {
                         data_manager.flush_updates(&mut state, &mut event_manager);
                     }
 
