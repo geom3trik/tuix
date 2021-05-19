@@ -1,6 +1,6 @@
 use crate::{
     events::{Event, EventManager, Message},
-    state,
+    state, Node
 };
 
 use crate::builder::Builder;
@@ -22,6 +22,9 @@ use std::any::{Any, TypeId};
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
 pub trait EventHandler: Any {
+
+    fn  on_update(&mut self, state: &mut State, entity: Entity, node: &Box<dyn Node>) {}
+
     // Called when events are flushed
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 

@@ -19,6 +19,7 @@ pub struct Hierarchy {
 }
 
 impl Hierarchy {
+    /// Creates a new hierarchy 
     pub fn new() -> Hierarchy {
         Hierarchy {
             entities: Vec::new(),

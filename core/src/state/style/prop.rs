@@ -7,6 +7,12 @@ use crate::{Event, WindowEvent};
 use crate::state::hierarchy::*;
 
 pub trait PropSet: AsEntity + Sized {
+
+    // This could fail
+    fn bind(&self, state: &mut State, node: Entity) {
+        state.data_hierarchy.add(self.entity(), Some(node));
+    }
+
     fn insert_event(&self, state: &mut State, mut event: Event) -> Entity
     where
         Self: 'static,

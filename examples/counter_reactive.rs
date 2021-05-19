@@ -1,9 +1,14 @@
-extern crate tuix;
 use tuix::*;
 
-use tuix::button::Button;
-
 static THEME: &'static str = include_str!("themes/counter_theme.css");
+
+
+#[derive(Default)]
+pub struct CounterState {
+    value: i32,
+}
+
+impl Node for CounterState {}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CounterMessage {
@@ -12,23 +17,27 @@ pub enum CounterMessage {
 }
 
 #[derive(Default)]
-struct Counter {
+struct CounterWidget {
     value: i32,
     label: Entity,
 }
 
-impl Counter {
-    pub fn set_initial_value(mut self, val: i32) -> Self {
-        self.value = val;
-        self
+impl CounterWidget {
+
+    pub fn new() -> Self {
+        Self {
+            value: 0,
+            label: Entity::null(),
+        }
     }
 }
 
-impl Widget for Counter {
+impl Widget for CounterWidget {
     type Ret = Entity;
 
     // Build
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+
         Button::with_label("increment")
             .on_press(Event::new(CounterMessage::Increment))
             .build(state, entity, |builder| builder.class("increment"));
@@ -42,19 +51,26 @@ impl Widget for Counter {
         entity.set_element(state, "counter").set_layout_type(state, LayoutType::Row)
     }
 
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Box<dyn Node>) {
+        if let Some(counter_state) = data.downcast_ref::<CounterState>() {
+            // Optional: set local state
+            self.value = counter_state.value;
+            // Update label
+            self.label.set_text(state, &self.value.to_string());
+        }
+    }
+
     // Events
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(counter_event) = event.message.downcast::<CounterMessage>() {
             match counter_event {
                 CounterMessage::Increment => {
-                    self.value += 1;
-                    self.label.set_text(state, &self.value.to_string());
+                    state.insert_update(Update::new(entity, |counter: &mut CounterState| counter.value += 1));
                     event.consume();
                 }
 
                 CounterMessage::Decrement => {
-                    self.value -= 1;
-                    self.label.set_text(state, &self.value.to_string());
+                    state.insert_update(Update::new(entity, |counter: &mut CounterState| counter.value -= 1));
                     event.consume();
                 }
             }
@@ -68,11 +84,16 @@ fn main() {
     let app = Application::new(window_description, |state, window| {
         state.add_theme(THEME);
 
-        Counter::default()
-            // Set local state
-            .set_initial_value(50)
-            // Build the widget
-            .build(state, window.entity(), |builder| builder);
+        let app_data = CounterState::default().build(state, window);
+
+        let column = Column::new().build(state, window, |builder| builder);
+        CounterWidget::new()
+            .build(state, column, |builder| builder)
+            .bind(state, app_data);
+
+        CounterWidget::new()
+            .build(state, column, |builder| builder)
+            .bind(state, app_data);
     });
 
     app.run();

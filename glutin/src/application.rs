@@ -13,6 +13,8 @@ use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 
 use tuix_core::events::{Event, EventManager, Propagation};
 
+use tuix_core::store::{Node, DataManager};
+
 use tuix_core::state::hierarchy::IntoHierarchyIterator;
 
 use tuix_core::state::Fonts;
@@ -34,6 +36,7 @@ pub struct Application {
     pub state: State,
     event_loop: EventLoop<()>,
     pub event_manager: EventManager,
+    pub data_manager: DataManager,
 }
 
 impl Application {
@@ -50,6 +53,12 @@ impl Application {
         state.hierarchy.add(Entity::root(), None);
 
         event_manager.hierarchy = state.hierarchy.clone();
+
+        let mut data_manager = DataManager::new();
+
+        state.data_hierarchy.add(Entity::root(), None);
+
+        data_manager.hierarchy = state.data_hierarchy.clone();
 
         //let window_description = win(WindowDescription::new());
         //let mut window_builder = WindowBuilder::new(root);
@@ -128,6 +137,7 @@ impl Application {
             window: window,
             event_loop: event_loop,
             event_manager: event_manager,
+            data_manager: data_manager,
             state: state,
         }
     }
@@ -135,8 +145,10 @@ impl Application {
     pub fn run(self) {
         let mut state = self.state;
         let mut event_manager = self.event_manager;
-
         event_manager.hierarchy = state.hierarchy.clone();
+        
+        let mut data_manager = self.data_manager;
+        data_manager.hierarchy = state.data_hierarchy.clone();
 
         //println!("Event Manager: {:?}", event_manager.hierarchy);
 
@@ -166,6 +178,10 @@ impl Application {
 
                     while !state.event_queue.is_empty() {
                         event_manager.flush_events(&mut state);
+                    }
+
+                    while !state.update_queue.is_empty() {
+                        data_manager.flush_updates(&mut state, &mut event_manager);
                     }
 
                     if state.apply_animations() {

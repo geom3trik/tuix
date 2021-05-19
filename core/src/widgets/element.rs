@@ -1,4 +1,9 @@
 use crate::widgets::*;
+
+/// The unit widget
+///
+/// Represents a widget with no behaviour
+///
 pub struct Element {}
 
 impl Element {

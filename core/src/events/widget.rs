@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler};
-use crate::{AsEntity, Entity, Hierarchy, State};
+use crate::{AsEntity, Entity, Hierarchy, State, Node, Update};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -33,6 +33,9 @@ pub trait Widget: std::marker::Sized + 'static {
         // Return the entity or entities returned by the on_build method
         ret
     }
+
+    // Called when data bound to this widget is changed
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Box<dyn Node>) {}
 
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
@@ -561,10 +564,15 @@ pub trait Widget: std::marker::Sized + 'static {
 }
 
 // Implement EventHandler for any type implementing Widget
-impl<T> EventHandler for T
+impl<T: Widget> EventHandler for T
 where
     T: Widget + 'static,
 {
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Box<dyn Node>) {
+        <T as Widget>::on_update(self, state, entity, node);
+    }
+
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         <T as Widget>::on_event(self, state, entity, event);
     }

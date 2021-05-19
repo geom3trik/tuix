@@ -26,7 +26,7 @@ pub use resource::*;
 pub use crate::events::{Builder, Event, Propagation, Widget};
 pub use crate::window_event::WindowEvent;
 
-use crate::EventHandler;
+use crate::{EventHandler, Node, Update};
 
 use femtovg::FontId;
 
@@ -46,10 +46,12 @@ pub struct Fonts {
 }
 
 pub struct State {
-    entity_manager: EntityManager, // Creates and destroys entities
+    pub(crate) entity_manager: EntityManager, // Creates and destroys entities
     pub hierarchy: Hierarchy,      // The widget tree
     pub style: Style,              // The style properties for every widget
     pub data: Data,                // Computed data
+
+    pub data_hierarchy: Hierarchy, // Hierarchy of data nodes
 
     pub mouse: MouseState,
     pub modifiers: ModifiersState,
@@ -61,9 +63,12 @@ pub struct State {
     pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
 
     pub(crate) event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub data_nodes: FnvHashMap<Entity, Box<dyn Node>>,
 
     pub(crate) removed_entities: Vec<Entity>,
     pub event_queue: VecDeque<Event>,
+
+    pub update_queue: VecDeque<Update>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
@@ -78,6 +83,7 @@ impl State {
     pub fn new() -> Self {
         let entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
+        let data_hierarchy = Hierarchy::new();
         let mut style = Style::default();
         let mut data = Data::default();
         let mouse = MouseState::default();
@@ -97,6 +103,7 @@ impl State {
             hierarchy,
             style,
             data,
+            data_hierarchy,
             mouse,
             modifiers,
             hovered: Entity::root(),
@@ -105,7 +112,9 @@ impl State {
             focused: Entity::root(),
             callbacks: FnvHashMap::default(),
             event_handlers: FnvHashMap::default(),
+            data_nodes: FnvHashMap::default(),
             event_queue: VecDeque::new(),
+            update_queue: VecDeque::new(),
             removed_entities: Vec::new(),
             fonts: Fonts {
                 regular: None,
@@ -227,6 +236,10 @@ impl State {
         }
 
         self.event_queue.push_back(event);
+    }
+
+    pub fn insert_update(&mut self, update: Update) {
+        self.update_queue.push_back(update);
     }
 
     // TODO

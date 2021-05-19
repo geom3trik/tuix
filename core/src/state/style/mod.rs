@@ -63,7 +63,7 @@ use std::rc::Rc;
 #[derive(Clone, Default)]
 pub struct Style {
     pub rules: Vec<StyleRule>,
-    //pub rule_selectors: Vec<Vec<Selector>>,
+
     pub elements: DenseStorage<String>,
     pub classes: DenseStorage<HashSet<String>>,
     pub pseudo_classes: DenseStorage<PseudoClasses>,

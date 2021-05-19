@@ -10,6 +10,7 @@ use crate::state::style::Color;
 
 use std::collections::HashMap;
 
+/// An id used to reference stored animations
 #[derive(Debug, Clone, Copy, PartialEq, Hash)]
 pub struct Animation(usize);
 
