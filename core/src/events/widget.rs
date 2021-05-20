@@ -8,6 +8,8 @@ use femtovg::{
 use crate::style::{Direction, Justify, Units, Visibility};
 use crate::{Event, EventManager, Message};
 
+use fnv::FnvHashMap;
+
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
 use std::any::Any;
@@ -35,7 +37,7 @@ pub trait Widget: std::marker::Sized + 'static {
     }
 
     // Called when data bound to this widget is changed
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Box<dyn Node>) {}
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Box<dyn Node>, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {}
 
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
@@ -569,8 +571,8 @@ where
     T: Widget + 'static,
 {
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Box<dyn Node>) {
-        <T as Widget>::on_update(self, state, entity, node);
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Box<dyn Node>, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
+        <T as Widget>::on_update(self, state, entity, node, nodes);
     }
 
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

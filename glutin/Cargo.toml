@@ -12,3 +12,4 @@ glutin = "0.26.0"
 femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}
 keyboard-types = { version = "0.5", default-features = false }
 tuix_core = { path = "../core" }
+fnv = "1.0.7"

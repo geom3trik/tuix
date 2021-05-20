@@ -39,6 +39,14 @@ impl DataManager {
         let mut mutated_nodes = Vec::new();
 
         // Apply mutations
+        self.apply_mutations(&mut mutated_nodes);
+
+
+        // Update bound widgets
+        self.apply_updates(&mut mutated_nodes, state, event_manager);
+    }
+
+    fn apply_mutations(&mut self, mutated_nodes: &mut Vec<Entity>) {
         for update in self.update_queue.iter_mut() {
             //let target = update.target;
             if update.target != Entity::null() {
@@ -66,17 +74,17 @@ impl DataManager {
             }
 
         }
+    }
 
-
-        // Update bound widgets
-        for mutated_node in mutated_nodes.into_iter() {
+    fn apply_updates(&mut self, mutated_nodes: &mut Vec<Entity>, state: &mut State, event_manager: &mut EventManager) {
+        for mutated_node in mutated_nodes.iter() {
             if let Some(data_node) = self.nodes.get(&mutated_node) {
-                if let Some(children) = self.graph.get_children(mutated_node) {
+                if let Some(children) = self.graph.get_children(*mutated_node) {
                     //println!("Loop Over Children");
                     for child in children.iter() {
                         //println!("Child: {}", child);
                         if let Some(event_handler) = event_manager.event_handlers.get_mut(child) {
-                            event_handler.on_update(state, *child, data_node);
+                            event_handler.on_update(state, *child, data_node, &self.nodes);
                         }
                     }                       
                 }
