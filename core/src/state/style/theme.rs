@@ -321,6 +321,7 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "right" => Property::Right(parse_units(input)?),
             "top" => Property::Top(parse_units(input)?),
             "bottom" => Property::Bottom(parse_units(input)?),
+            "space" => Property::Space(parse_units(input)?),
 
             "min-left" => Property::MinLeft(parse_units(input)?),
             "max-left" => Property::MaxLeft(parse_units(input)?),

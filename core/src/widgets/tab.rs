@@ -89,30 +89,30 @@ impl Widget for Tab {
     }
 }
 
-pub struct TabManager {
+pub struct TabView {
     pub tab_bar: Entity,
-    pub viewport: Entity,
+    pub tab_page: Entity,
 }
 
-impl TabManager {
+impl TabView {
     pub fn new() -> Self {
         Self {
-            tab_bar: Entity::default(),
-            viewport: Entity::default(),
+            tab_bar: Entity::null(),
+            tab_page: Entity::null(),
         }
     }
 }
 
-impl Widget for TabManager {
+impl Widget for TabView {
     type Ret = (Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.tab_bar = TabBar2::new().build(state, entity, |builder| builder);
 
-        self.viewport = Element::new().build(state, entity, |builder| builder.class("viewport"));
+        self.tab_page = Element::new().build(state, entity, |builder| builder.class("viewport"));
 
         entity.set_element(state, "tab_manager");
 
-        (self.tab_bar, self.viewport)
+        (self.tab_bar, self.tab_page)
     }
 
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
@@ -125,7 +125,7 @@ impl Widget for TabManager {
                         || event.target == self.tab_bar
                     {
                         println!("Received request to switch tab: {}", name);
-                        for child in self.viewport.child_iter(&state.hierarchy.clone()) {
+                        for child in self.tab_page.child_iter(&state.hierarchy.clone()) {
                             state.insert_event(
                                 Event::new(TabEvent::SwitchTab(name.clone()))
                                     .target(child)
@@ -144,7 +144,7 @@ impl Widget for TabManager {
                         .is_descendant_of(&state.hierarchy, self.tab_bar)
                         || event.target == self.tab_bar
                     {
-                        for child in self.viewport.child_iter(&state.hierarchy.clone()) {
+                        for child in self.tab_page.child_iter(&state.hierarchy.clone()) {
                             state.insert_event(
                                 Event::new(TabEvent::CloseTab(name.clone()))
                                     .target(child)
