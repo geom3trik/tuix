@@ -159,8 +159,11 @@ pub struct Style {
     pub positioning_type: StyleStorage<PositionType>,
 
     // Grid
-    pub grid_rows: StyleStorage<GridAxis>,
-    pub grid_cols: StyleStorage<GridAxis>,
+    pub grid_rows: StyleStorage<Vec<Units>>,
+    pub row_between: StyleStorage<Units>,
+    pub grid_cols: StyleStorage<Vec<Units>>,
+    pub col_between: StyleStorage<Units>,
+
     pub grid_item: StyleStorage<GridItem>,
 
     // Child Spacing

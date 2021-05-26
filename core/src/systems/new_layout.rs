@@ -1327,9 +1327,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     .get(parent)
                     .cloned()
                     .unwrap_or_default();
+                
+                
 
-                let mut row_heights = vec![(0.0, 0.0, 0.0, 0.0); grid_rows.items.len() + 1];
-                let mut col_widths = vec![(0.0, 0.0, 0.0, 0.0); grid_cols.items.len() + 1];
+                let mut row_heights = vec![(0.0, 0.0, 0.0, 0.0); grid_rows.len() + 1];
+                let mut col_widths = vec![(0.0, 0.0, 0.0, 0.0); grid_cols.len() + 1];
 
                 let mut row_free_space = state.data.get_height(parent);
                 let mut col_free_space = state.data.get_width(parent);
@@ -1337,19 +1339,26 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 let mut row_stretch_sum = 0.0;
                 let mut col_stretch_sum = 0.0;
 
-                let space_before_first = match grid_rows.align.space_before_first {
-                    Units::Pixels(val) => val,
+                let row_between = match state.style.row_between
+                    .get(parent)
+                    .cloned()
+                    .unwrap_or_default() {
+                        Units::Pixels(val) => val,
 
-                    _ => 0.0,
-                };
+                        _=> 0.0,
+                    };
 
-                let row_space_between = match grid_rows.align.space_between {
-                    Units::Pixels(val) => val,
+                let col_between = match state.style.col_between
+                    .get(parent)
+                    .cloned()
+                    .unwrap_or_default() {
+                        Units::Pixels(val) => val,
 
-                    _ => 0.0,
-                };
+                        _=> 0.0,
+                    };
 
-                for (i, row) in grid_rows.items.iter().enumerate() {
+
+                for (i, row) in grid_rows.iter().enumerate() {
                     match row {
                         &Units::Pixels(val) => {
                             row_heights[i].1 = val;
@@ -1364,13 +1373,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                     }
                 }
 
-                let col_space_between = match grid_cols.align.space_between {
-                    Units::Pixels(val) => val,
-
-                    _ => 0.0,
-                };
-
-                for (i, col) in grid_cols.items.iter().enumerate() {
+                for (i, col) in grid_cols.iter().enumerate() {
                     match col {
                         &Units::Pixels(val) => {
                             col_widths[i].1 = val;
@@ -1397,7 +1400,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 let mut current_row_pos = state.data.get_posx(parent);
                 let mut current_col_pos = state.data.get_posy(parent);
 
-                for (i, row) in grid_rows.items.iter().enumerate() {
+                for (i, row) in grid_rows.iter().enumerate() {
                     match row {
                         &Units::Stretch(val) => {
                             row_heights[i].1 = row_free_space * val / row_stretch_sum;
@@ -1412,7 +1415,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 let row_heights_len = row_heights.len() - 1;
                 row_heights[row_heights_len].0 = current_row_pos;
 
-                for (i, col) in grid_cols.items.iter().enumerate() {
+                for (i, col) in grid_cols.iter().enumerate() {
                     match col {
                         &Units::Stretch(val) => {
                             col_widths[i].1 = col_free_space * val / col_stretch_sum;
@@ -1454,24 +1457,24 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         state.data.set_width(
                             child,
                             (col_widths[col_end].0 - col_widths[col_start].0)
-                                - col_space_between / 2.0,
+                                - col_between / 2.0,
                         );
                     } else if col_end + 1 == col_widths.len() {
                         state
                             .data
-                            .set_posx(child, col_widths[col_start].0 + (col_space_between / 2.0));
+                            .set_posx(child, col_widths[col_start].0 + (col_between / 2.0));
                         state.data.set_width(
                             child,
                             (col_widths[col_end].0 - col_widths[col_start].0)
-                                - col_space_between / 2.0,
+                                - col_between / 2.0,
                         );
                     } else {
                         state
                             .data
-                            .set_posx(child, col_widths[col_start].0 + (col_space_between / 2.0));
+                            .set_posx(child, col_widths[col_start].0 + (col_between / 2.0));
                         state.data.set_width(
                             child,
-                            (col_widths[col_end].0 - col_widths[col_start].0) - col_space_between,
+                            (col_widths[col_end].0 - col_widths[col_start].0) - col_between,
                         );
                     }
 
@@ -1480,24 +1483,24 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         state.data.set_height(
                             child,
                             (row_heights[row_end].0 - row_heights[row_start].0)
-                                - row_space_between / 2.0,
+                                - row_between / 2.0,
                         );
                     } else if row_end + 1 == row_heights.len() {
                         state
                             .data
-                            .set_posy(child, row_heights[row_start].0 + (row_space_between / 2.0));
+                            .set_posy(child, row_heights[row_start].0 + (row_between / 2.0));
                         state.data.set_height(
                             child,
                             (row_heights[row_end].0 - row_heights[row_start].0)
-                                - row_space_between / 2.0,
+                                - row_between / 2.0,
                         );
                     } else {
                         state
                             .data
-                            .set_posy(child, row_heights[row_start].0 + (row_space_between / 2.0));
+                            .set_posy(child, row_heights[row_start].0 + (row_between / 2.0));
                         state.data.set_height(
                             child,
-                            (row_heights[row_end].0 - row_heights[row_start].0) - row_space_between,
+                            (row_heights[row_end].0 - row_heights[row_start].0) - row_between,
                         );
                     }
                 }

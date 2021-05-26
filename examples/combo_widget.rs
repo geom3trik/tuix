@@ -117,20 +117,34 @@ impl Widget for AppWidget {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
+        entity.set_layout_type(state, LayoutType::Grid);
+        entity.set_grid_rows(state, vec![Pixels(30.0), Stretch(1.0), Pixels(30.0)]);
+        entity.set_grid_cols(state, vec![Stretch(1.0), Stretch(1.0), Stretch(1.0)]);
+
         let app_entity = entity;
         self.name_edit = Textbox::new("Name")
             .on_submit(move |textbox, state, entity| {
                 let new_name = textbox.text.clone();
                 state.insert_update(Event::new(AppEvent::SetName(2, new_name)).origin(app_entity));
             })
-            .build(state, entity, |builder| builder);
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(0)
+                    .set_col(0)
+                    .set_col_span(3)
+            );
         
         self.name_label = Textbox::new("Name")
             .on_submit(move |textbox, state, entity| {
                 let new_name = textbox.text.clone();
                 state.insert_update(Event::new(AppEvent::SetName(2, new_name)).origin(app_entity));
             })
-            .build(state, entity, |builder| builder);
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(1)
+                    .set_col(0)
+                    .set_col_span(3)
+            );
 
         Spinbox::new(0)
             .with_min(0)
@@ -139,7 +153,14 @@ impl Widget for AppWidget {
                 let new_index = spinbox.value;
                 state.insert_update(Event::new(AppEvent::SetIndex(new_index)).origin(app_entity));
             })
-            .build(state, entity, |builder| builder.set_height(Pixels(30.0)));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(2)
+                    .set_col(0)
+                    .set_col_span(3)
+                    //.set_height(Pixels(30.0))
+            );
+
         entity
     }
 
@@ -162,7 +183,7 @@ fn main() {
         let filter1 = ContactFilter::new(0).build(state, app_state);
         let filter2 = ContactFilter::new(1).build(state, app_state);
         AppWidget::new().build(state, window, |builder| builder).bind(state, filter1);
-        AppWidget::new().build(state, window, |builder| builder).bind(state, filter2);
+        //AppWidget::new().build(state, window, |builder| builder).bind(state, filter2);
     });
     app.run();
 

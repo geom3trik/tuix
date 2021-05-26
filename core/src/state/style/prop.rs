@@ -240,6 +240,37 @@ pub trait PropSet: AsEntity + Sized {
 
         self.entity()
     }
+
+    fn set_grid_rows(&self, state: &mut State, value: Vec<Units>) -> Entity {
+        state.style.grid_rows.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_grid_cols(&self, state: &mut State, value: Vec<Units>) -> Entity {
+        state.style.grid_cols.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_row_item(&self, state: &mut State, value: (u32, u32)) -> Entity {
+        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
+            grid_item.row_index = value.0;
+            grid_item.row_span = value.1;
+        }
+
+        self.entity()
+    }
+
+    fn set_col_item(&self, state: &mut State, value: (u32, u32)) -> Entity {
+        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
+            grid_item.col_index = value.0;
+            grid_item.col_span = value.1;
+        }
+
+        self.entity()
+    }
+
 }
 
 impl PropSet for Entity {

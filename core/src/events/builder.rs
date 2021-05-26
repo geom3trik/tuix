@@ -549,4 +549,65 @@ impl<'a> Builder<'a> {
         self.state.style.layout_type.insert(self.entity, value);
         self
     }
+
+    pub fn set_row(mut self, value: u32) -> Self {
+        if let Some(grid_item) = self.state.style.grid_item.get_mut(self.entity) {
+            grid_item.row_index = value;
+        } else {
+            self.state.style.grid_item.insert(self.entity, GridItem {
+                row_index: value,
+                row_span: 1,
+                col_index: 0,
+                col_span: 1,
+            });
+        }
+
+        self
+    }
+
+    pub fn set_col(mut self, value: u32) -> Self {
+        if let Some(grid_item) = self.state.style.grid_item.get_mut(self.entity) {
+            grid_item.col_index = value;
+        } else {
+            self.state.style.grid_item.insert(self.entity, GridItem {
+                row_index: 0,
+                row_span: 1,
+                col_index: value,
+                col_span: 1,
+            });
+        }
+
+        self
+    }
+
+    pub fn set_row_span(mut self, value: u32) -> Self {
+        if let Some(grid_item) = self.state.style.grid_item.get_mut(self.entity) {
+            grid_item.row_span = value;
+        } else {
+            self.state.style.grid_item.insert(self.entity, GridItem {
+                row_index: 0,
+                row_span: value,
+                col_index: 0,
+                col_span: 1,
+            });
+        }
+
+        self
+    }
+
+    pub fn set_col_span(mut self, value: u32) -> Self {
+        if let Some(grid_item) = self.state.style.grid_item.get_mut(self.entity) {
+            grid_item.col_span = value;
+        } else {
+            self.state.style.grid_item.insert(self.entity, GridItem {
+                row_index: 0,
+                row_span: 1,
+                col_index: 0,
+                col_span: value,
+            });
+        }
+
+        self
+    }
 }
+ 

@@ -163,10 +163,21 @@ pub struct GridAxis {
     pub align: AxisAlign,
 }
 
-#[derive(Default, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct GridItem {
     pub row_index: u32,
     pub row_span: u32,
     pub col_index: u32,
     pub col_span: u32,
+}
+
+impl Default for GridItem {
+    fn default() -> Self {
+        Self {
+            row_index: 0,
+            row_span: 1,
+            col_index: 0,
+            col_span: 1,
+        }
+    }
 }
