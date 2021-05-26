@@ -271,6 +271,18 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    fn set_row_between(&self, state: &mut State, value: Units) -> Entity {
+        state.style.row_between.insert(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_col_between(&self, state: &mut State, value: Units) -> Entity {
+        state.style.col_between.insert(self.entity(), value);
+
+        self.entity()
+    }
+
 }
 
 impl PropSet for Entity {

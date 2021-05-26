@@ -609,5 +609,17 @@ impl<'a> Builder<'a> {
 
         self
     }
+
+    pub fn set_grid_rows(mut self, value: Vec<Units>) -> Self {
+        self.state.style.grid_rows.insert(self.entity(), value);
+
+        self
+    }
+
+    pub fn set_grid_cols(mut self, value: Vec<Units>) -> Self {
+        self.state.style.grid_cols.insert(self.entity(), value);
+
+        self
+    }
 }
  

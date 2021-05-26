@@ -1,21 +1,15 @@
 
 .calculator {
     flex-grow: 1.0;
-}
-
-.container {
-    flex-grow: 1.0;
     background-color: #363636;
 }
 
-
 .display {
-    text-justify: end;
+    child-left: 1s;
     font-size: 60.0;
     color: #FFFFFF;
     background-color: #363636;
-    padding-right: 10px;
-    flex-grow: 1.0;
+    child-right: 10px;
 }
 
 .display:focus {
@@ -25,34 +19,18 @@
 
 
 button {
-    text-justify: center;
+    child-space: 1s;
     font-size: 40.0;
     color: white;
 }
 
 button:focus {
     border-color:yellow;
-    border-width: 5px;
-}
-
-hbox {
-    margin-bottom: 1px;
-    flex-grow: 1.0;
-}
-
-hbox.last {
-    margin-bottom: 0px;
+    border-width: 1px;
 }
 
 button.digit {
-    margin-right: 1px;
     background-color: #adadad;
-    flex-grow: 1.0;
-}
-
-button.digit.zero {
-    /* flex-basis: 1px; */
-    flex-grow: 2.0;
 }
 
 button.digit:hover {
@@ -63,20 +41,9 @@ button.digit:active {
     background-color: #8f8f8f;
 }
 
-/* button.digit:focus {
-    border-color:yellow;
-    border-width: 1px;
-} */
-
 button.operator {
     background-color: #ff7b00;
-    flex-grow: 1.0;
 }
-
-/* button.operator:focus {
-    border-color:yellow;
-    border-width: 1px;
-} */
 
 button.operator:hover {
     background-color: #ff8f26;

@@ -105,135 +105,241 @@ impl Calculator {
 impl Widget for Calculator {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        let container = Element::new().build(state, entity, |builder| builder.class("container"));
+
+        entity
+            .set_layout_type(state, LayoutType::Grid)
+            .set_grid_rows(state, vec![Stretch(1.0), Stretch(1.0), Stretch(1.0), Stretch(1.0), Stretch(1.0), Stretch(1.0)])
+            .set_grid_cols(state, vec![Stretch(1.0),Stretch(1.0),Stretch(1.0),Stretch(1.0)])
+            .set_row_between(state, Pixels(1.0))
+            .set_col_between(state, Pixels(1.0));
 
         // Change to label that can be copied but not edited at some point
-        self.display = Label::new("0").build(state, container, |builder| builder.class("display"));
+        self.display = Label::new("0").build(state, entity, |builder| 
+            builder
+                .set_row(0)
+                .set_col(0)
+                .set_col_span(4)
+                .class("display")
+        );
 
         // Currently using flexbox to create the layout but would be good to use grid when working
 
-        let row1 = Row::new().build(state, container, |builder| builder);
-
         self.clear = Button::new()
             .on_press(Event::new(CalculatorEvent::Operator('C')))
-            .build(state, row1, |builder| builder.set_text("AC").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(1)
+                    .set_col(0)
+                    .set_text("AC")
+                    .class("digit")
+            );
 
         self.plus_minus = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('¬')))
-            .build(state, row1, |builder| {
-                builder.set_text("\u{00B1}").class("digit")
+            .build(state, entity, |builder| {
+                builder
+                    .set_row(1)
+                    .set_col(1)
+                    .set_text("\u{00B1}")
+                    .class("digit")
             });
 
         // Percentage
         self.percent = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('%')))
-            .build(state, row1, |builder| {
-                builder.set_text("\u{0025}").class("digit")
+            .build(state, entity, |builder| {
+                builder
+                    .set_row(1)
+                    .set_col(2)
+                    .set_text("\u{0025}")
+                    .class("digit")
             });
 
         // Divide
         self.divide = Button::new()
             .on_press(Event::new(CalculatorEvent::Operator('/')))
-            .build(state, row1, |builder| {
-                builder.set_text("\u{00F7}").class("operator")
+            .build(state, entity, |builder| {
+                builder
+                    .set_row(1)
+                    .set_col(3)
+                    .set_text("\u{00F7}")
+                    .class("operator")
             });
 
         // Second Row
-        let row2 = Row::new().build(state, container, |builder| builder);
 
         // Digit Seven
         self.seven = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('7')))
-            .build(state, row2, |builder| builder.set_text("7").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(2)
+                    .set_col(0)
+                    .set_text("7")
+                    .class("digit")
+            );
 
         // Digit Eight
         self.eight = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('8')))
-            .build(state, row2, |builder| builder.set_text("8").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(2)
+                    .set_col(1)
+                    .set_text("8")
+                    .class("digit")
+            );
 
         // Digit Nine
         self.nine = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('9')))
-            .build(state, row2, |builder| builder.set_text("9").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(2)
+                    .set_col(2)
+                    .set_text("9")
+                    .class("digit")
+            );
 
         // Multiply
         self.multiply = Button::new()
             .on_press(Event::new(CalculatorEvent::Operator('*')))
-            .build(state, row2, |builder| {
-                builder.set_text("\u{00D7}").class("operator")
-            });
+            .build(state, entity, |builder|
+                builder
+                    .set_row(2)
+                    .set_col(3)
+                    .set_text("\u{00D7}")
+                    .class("operator")
+            );
 
         // Third Row
-        let row3 = Row::new().build(state, container, |builder| builder);
 
         // Digit Four
         self.four = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('4')))
-            .build(state, row3, |builder| builder.set_text("4").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(3)
+                    .set_col(0)
+                    .set_text("4")
+                    .class("digit")
+            );
 
         // Digit Five
         self.five = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('5')))
-            .build(state, row3, |builder| builder.set_text("5").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(3)
+                    .set_col(1)
+                    .set_text("5")
+                    .class("digit")
+            );
 
         // Digit Six
         self.six = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('6')))
-            .build(state, row3, |builder| builder.set_text("6").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(3)
+                    .set_col(2)
+                    .set_text("6")
+                    .class("digit")
+            );
 
         // Subtract
         self.subtract = Button::new()
             .on_press(Event::new(CalculatorEvent::Operator('-')))
-            .build(state, row3, |builder| {
-                builder.set_text("\u{002D}").class("operator")
+            .build(state, entity, |builder| {
+                builder
+                    .set_row(3)
+                    .set_col(3)
+                    .set_text("\u{002D}")
+                    .class("operator")
             });
 
         // Fourth Row
-        let row4 = Row::new().build(state, container, |builder| builder);
 
         // Digit One
         self.one = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('1')))
-            .build(state, row4, |builder| builder.set_text("1").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(4)
+                    .set_col(0)
+                    .set_text("1")
+                    .class("digit")
+            );
 
         // Digit Two
         self.two = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('2')))
-            .build(state, row4, |builder| builder.set_text("2").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(4)
+                    .set_col(1)
+                    .set_text("2")
+                    .class("digit")
+            );
 
         // Digit Three
         self.three = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('3')))
-            .build(state, row4, |builder| builder.set_text("3").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(4)
+                    .set_col(2)
+                    .set_text("3")
+                    .class("digit")
+            );
 
         // Add
         self.add = Button::new()
             .on_press(Event::new(CalculatorEvent::Operator('+')))
-            .build(state, row4, |builder| {
-                builder.set_text("\u{002B}").class("operator")
-            });
+            .build(state, entity, |builder|
+                builder
+                    .set_row(4)
+                    .set_col(3)
+                    .set_text("\u{002B}")
+                    .class("operator")
+            );
 
         // Fifth Row
-        let row5 = Row::new().build(state, container, |builder| builder.class("last"));
 
         // Digit Zero
         self.zero = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('0')))
-            .build(state, row5, |builder| {
-                builder.set_text("0").class("digit").class("zero")
-            });
+            .build(state, entity, |builder|
+                builder
+                    .set_row(5)
+                    .set_col(0)
+                    .set_col_span(2)
+                    .set_text("0")
+                    .class("digit")
+                    .class("zero")
+            );
 
         // Decimal Point
         self.decimal_point = Button::new()
             .on_press(Event::new(CalculatorEvent::Digit('.')))
-            .build(state, row5, |builder| builder.set_text(".").class("digit"));
+            .build(state, entity, |builder| 
+                builder
+                    .set_row(5)
+                    .set_col(2)
+                    .set_text(".")
+                    .class("digit")
+            );
 
         // Equals
         self.equals = Button::new()
             .on_press(Event::new(CalculatorEvent::Operator('=')))
-            .build(state, row5, |builder| {
-                builder.set_text("\u{003D}").class("operator")
-            });
+            .build(state, entity, |builder|
+                builder
+                    .set_row(5)
+                    .set_col(3)
+                    .set_text("\u{003D}")
+                    .class("operator")
+            );
 
         state.focused = self.display;
 
@@ -603,15 +709,15 @@ impl Widget for Calculator {
 }
 
 pub fn main() {
-    let app = Application::new(|state, window| {
-        // Replace this with icon loading using resource manager when working
-        let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
+    let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
-        window
-            .set_title("Calculator")
-            .set_inner_size(300, 400)
-            .set_min_inner_size(200, 300)
-            .set_icon(icon.to_bytes(), icon.width(), icon.height());
+    let window_description = WindowDescription::new()
+        .with_title("Calculator")
+        .with_inner_size(300, 400)
+        .with_min_inner_size(200, 300)
+        .with_icon(icon.to_bytes(), icon.width(), icon.height());
+    let app = Application::new(window_description, |state, window| {
+        // Replace this with icon loading using resource manager when working
 
         //state.add_theme(LIGHT_THEME);
         match state.add_stylesheet("examples/themes/calculator_light_theme.css") {
