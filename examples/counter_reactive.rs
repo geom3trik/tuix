@@ -1,4 +1,6 @@
 use tuix::*;
+use fnv::FnvHashMap;
+use std::any::Any;
 
 static THEME: &'static str = include_str!("themes/counter_theme.css");
 
@@ -8,7 +10,42 @@ pub struct CounterState {
     value: i32,
 }
 
-impl Node for CounterState {}
+impl Node for CounterState {
+    fn get_data(&self) -> Option<&dyn Any> {
+        Some(self)
+    }
+
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(counter_event) = event.message.downcast() {
+            match counter_event {
+                CounterMessage::Increment => {
+                    self.value += 1;
+                }
+
+                CounterMessage::Decrement => {
+                    self.value -= 1;
+                }
+            }
+        }
+    }
+}
+
+// impl Model for CounterState {
+    
+//     fn on_build() -> Entity {
+//         // Build the internal state
+//     }
+
+//     fn on_event() {
+//         // Process update events to mutate the internal state
+//     }
+
+//     fn data(row: usize, col: usize) -> Any {
+
+//     }
+
+    
+// }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CounterMessage {
@@ -51,7 +88,7 @@ impl Widget for CounterWidget {
         entity.set_element(state, "counter").set_layout_type(state, LayoutType::Row)
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Box<dyn Node>) {
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
         if let Some(counter_state) = data.downcast_ref::<CounterState>() {
             // Optional: set local state
             self.value = counter_state.value;
@@ -65,12 +102,12 @@ impl Widget for CounterWidget {
         if let Some(counter_event) = event.message.downcast::<CounterMessage>() {
             match counter_event {
                 CounterMessage::Increment => {
-                    state.insert_update(Update::new(entity, |counter: &mut CounterState| counter.value += 1));
+                    state.insert_update(Event::new(CounterMessage::Increment).origin(entity));
                     event.consume();
                 }
 
                 CounterMessage::Decrement => {
-                    state.insert_update(Update::new(entity, |counter: &mut CounterState| counter.value -= 1));
+                    state.insert_update(Event::new(CounterMessage::Decrement).origin(entity));
                     event.consume();
                 }
             }

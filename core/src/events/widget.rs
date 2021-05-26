@@ -1,4 +1,4 @@
-use crate::{builder::Builder, EventHandler};
+use crate::{builder::Builder, EventHandler, WindowEvent};
 use crate::{AsEntity, Entity, Hierarchy, State, Node, Update};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
@@ -26,6 +26,8 @@ pub trait Widget: std::marker::Sized + 'static {
         // Create a new entity
         let entity = state.add(parent);
 
+        state.insert_event(Event::new(WindowEvent::ChildAdded(entity)).direct(parent));
+
         // Call the on_build function of the widget
         let ret = self.on_build(state, entity);
 
@@ -37,7 +39,7 @@ pub trait Widget: std::marker::Sized + 'static {
     }
 
     // Called when data bound to this widget is changed
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Box<dyn Node>, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {}
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {}
 
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
@@ -571,7 +573,7 @@ where
     T: Widget + 'static,
 {
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Box<dyn Node>, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
         <T as Widget>::on_update(self, state, entity, node, nodes);
     }
 

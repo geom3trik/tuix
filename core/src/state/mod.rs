@@ -68,7 +68,7 @@ pub struct State {
     pub(crate) removed_entities: Vec<Entity>,
     pub event_queue: VecDeque<Event>,
 
-    pub update_queue: VecDeque<Update>,
+    pub update_queue: VecDeque<Event>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
@@ -238,7 +238,7 @@ impl State {
         self.event_queue.push_back(event);
     }
 
-    pub fn insert_update(&mut self, update: Update) {
+    pub fn insert_update(&mut self, update: Event) {
         self.update_queue.push_back(update);
     }
 

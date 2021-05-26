@@ -1,4 +1,5 @@
 use crate::state::mouse::MouseButton;
+use crate::Entity;
 
 use keyboard_types::{Code, Key};
 
@@ -72,4 +73,7 @@ pub enum WindowEvent {
     Relayout,
     /// Prints the debug message to the console
     Debug(String),
+    ///
+    // TODO - move to WidgetEvent
+    ChildAdded(Entity),
 }

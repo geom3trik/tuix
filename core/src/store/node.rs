@@ -1,22 +1,26 @@
-use crate::{Entity, State, Update};
+use crate::{Entity, State, Event};
+use fnv::FnvHashMap;
 
 use std::any::{Any, TypeId};
 pub trait Node: Any {
-    fn mutate(&mut self, update: &mut Update) -> bool {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         
-        // let mutator = update.mutator.borrow_mut();
-
-        // let new_value = mutator(self as &mut dyn Node);
-
-        false
     }
 
-    fn on_update(&self, state: &mut State, entity: Entity, data: &Box<dyn Node>) {}
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
+
+    }
+
+    fn get_data(&self) -> Option<&dyn Any>;
+
+    //fn on_update(&self, state: &mut State, entity: Entity, data: &Box<dyn Node>) {}
 
     fn build(mut self, state: &mut State, parent: Entity) -> Entity 
     where Self: std::marker::Sized + 'static
     {
         let entity = state.entity_manager.create_entity().unwrap();
+
+        state.data_graph.add(entity, parent);
 
         state.data_nodes.insert(entity, Box::new(self));
 
@@ -70,5 +74,3 @@ impl dyn Node {
 //         <T as Node>::update(self, data)
 //     }
 // }
-
-impl Node for bool {}

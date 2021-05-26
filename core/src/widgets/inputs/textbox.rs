@@ -19,7 +19,7 @@ pub enum TextboxEvent {
 
 pub struct Textbox {
     entity: Entity,
-    text: String,
+    pub text: String,
 
     buffer: String,
 
@@ -33,8 +33,8 @@ pub struct Textbox {
     dragx: f32,
 
     // Events
-    on_change: Option<Box<dyn Fn(&str) -> Event>>,
-    on_submit: Option<Box<dyn Fn(&str) -> Event>>,
+    on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    on_submit: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }
 
 impl Textbox {
@@ -72,7 +72,7 @@ impl Textbox {
 
     pub fn on_change<F>(mut self, on_change: F) -> Self
     where
-        F: 'static + Fn(&str) -> Event,
+        F: 'static + Fn(&mut Self, &mut State, Entity),
     {
         self.on_change = Some(Box::new(on_change));
 
@@ -81,7 +81,7 @@ impl Textbox {
 
     pub fn on_submit<F>(mut self, on_submit: F) -> Self
     where
-        F: 'static + Fn(&str) -> Event,
+        F: 'static + Fn(&mut Self, &mut State, Entity),
     {
         self.on_submit = Some(Box::new(on_submit));
 
@@ -275,22 +275,15 @@ impl Widget for Textbox {
                                 self.select_pos = start as u32;
                             }
 
+                            self.text = state.style.text.get(entity).unwrap().to_owned();
+
                             // state.insert_event(
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
-                            if let Some(txt) = state.style.text.get(entity) {
-                                if let Some(on_change) = &self.on_change {
-                                    let mut event = (on_change)(&txt);
-
-                                    if !event.target {
-                                        event.target = entity;
-                                    }
-
-                                    event.origin = entity;
-
-                                    state.insert_event(event);
-                                }
+                            if let Some(callback) = self.on_change.take() {
+                                (callback)(self, state, entity);
+                                self.on_change = Some(callback);
                             }
 
                             state.insert_event(
@@ -306,16 +299,9 @@ impl Widget for Textbox {
                                     .target(entity),
                             );
 
-                            if let Some(on_submit) = &self.on_submit {
-                                let mut event = (on_submit)(&text_data.clone());
-
-                                if !event.target {
-                                    event.target = entity;
-                                }
-
-                                event.origin = entity;
-
-                                state.insert_event(event);
+                            if let Some(callback) = self.on_submit.take() {
+                                (callback)(self, state, entity);
+                                self.on_submit = Some(callback);
                             }
 
                             self.edit = false;
@@ -373,18 +359,11 @@ impl Widget for Textbox {
                                 self.select_pos = (start + 1) as u32;
                             }
 
-                            if let Some(txt) = state.style.text.get(entity) {
-                                if let Some(on_change) = &self.on_change {
-                                    let mut event = (on_change)(&txt);
+                            self.text = state.style.text.get(entity).unwrap().to_owned();
 
-                                    if !event.target {
-                                        event.target = entity;
-                                    }
-
-                                    event.origin = entity;
-
-                                    state.insert_event(event);
-                                }
+                            if let Some(callback) = self.on_change.take() {
+                                (callback)(self, state, entity);
+                                self.on_change = Some(callback);
                             }
 
                             // state.insert_event(

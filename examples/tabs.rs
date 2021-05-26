@@ -20,7 +20,7 @@ fn main() {
 
         // Create a tab manager
         let (tab_bar1, tab_viewport1) =
-            TabManager::new().build(state, window.entity(), |builder| builder);
+            TabView::new().build(state, window.entity(), |builder| builder);
 
         // Add a tab to the tab bar
         let first_tab = Tab::new("first").build(state, tab_bar1, |builder| {

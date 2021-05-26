@@ -46,7 +46,7 @@ pub struct Spinbox<T> {
     // Triggered when the spinner is decremented
     on_decrement: Option<Box<dyn Fn(T) -> Event>>,
     // Triggered when the value is changed
-    on_change: Option<Box<dyn Fn(T) -> Event>>,
+    on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     // Triggered when the spinner value reaches max
     on_max: Option<Event>,
     // Triggered when the spinner value reaches min
@@ -132,7 +132,7 @@ where
 
     pub fn on_change<F>(mut self, message: F) -> Self
     where
-        F: Fn(T) -> Event,
+        F: Fn(&mut Self, &mut State, Entity),
         F: 'static,
     {
         self.on_change = Some(Box::new(message));
@@ -315,6 +315,11 @@ where
                                 state.insert_event(event);
                             }
 
+                            if let Some(callback) = self.on_change.take() {
+                                (callback)(self, state, entity);
+                                self.on_change = Some(callback);
+                            }
+
                             event.consume();
                         }
 
@@ -359,6 +364,11 @@ where
                                 state.insert_event(event);
                             }
 
+                            if let Some(callback) = self.on_change.take() {
+                                (callback)(self, state, entity);
+                                self.on_change = Some(callback);
+                            }
+
                             event.consume();
                         }
                     }
@@ -390,14 +400,9 @@ where
 
                             self.value = val;
 
-                            if let Some(on_change) = &self.on_change {
-                                let mut event = (on_change)(self.value);
-                                if !event.target {
-                                    event.target = entity;
-                                }
-
-                                event.origin = entity;
-                                state.insert_event(event);
+                            if let Some(callback) = self.on_change.take() {
+                                (callback)(self, state, entity);
+                                self.on_change = Some(callback);
                             }
                         } else {
                             state.insert_event(
