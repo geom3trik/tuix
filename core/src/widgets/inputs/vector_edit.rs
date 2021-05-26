@@ -108,7 +108,7 @@ pub struct VectorEdit<T> {
     pub num_of_dims: u8,
 
     // Events
-    on_change: Option<Box<dyn Fn(&Self, &mut State, Entity) -> Event>>,
+    on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }
 
 impl<T> VectorEdit<T>
@@ -170,7 +170,7 @@ where
 
     pub fn on_change<F>(mut self, message: F) -> Self
     where
-        F: 'static + Fn(&Self, &mut State, Entity) -> Event,
+        F: 'static + Fn(&mut Self, &mut State, Entity),
     {
         self.on_change = Some(Box::new(message));
 
@@ -249,6 +249,11 @@ where
                 .with_keyframe((0.0, Stretch(1.0)))
                 .with_keyframe((1.0, Stretch(0.0))),
         );
+
+        if let Some(callback) = self.on_change.take() {
+            (callback)(self, state, entity);
+            self.on_change = Some(callback);
+        }
 
         entity.set_element(state, "vector_edit");
 
@@ -463,15 +468,9 @@ where
                             _ => {}
                         }
 
-                        if let Some(on_event) = &self.on_change {
-                            let mut event = (on_event)(self, state, entity);
-                            event.origin = entity;
-                
-                            if event.target == Entity::null() {
-                                event.target = entity;
-                            }
-                
-                            state.insert_event(event);
+                        if let Some(callback) = self.on_change.take() {
+                            (callback)(self, state, entity);
+                            self.on_change = Some(callback);
                         }
 
                         //state.insert_event(Event::new(VectorEditEvent::ValueChanged(self.xval, self.yval, self.zval, self.wval)).target(entity));

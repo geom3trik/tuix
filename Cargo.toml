@@ -37,9 +37,15 @@ path = "examples/styling/shared.rs"
 name = "hover"
 path = "examples/styling/hover.rs"
 
+# Widget Examples
+
 [[example]]
 name = "vector_edit"
 path = "examples/widgets/vector_edit.rs"
+
+[[example]]
+name = "spinbox"
+path = "examples/widgets/spinbox.rs"
 
 [workspace]
 members = [

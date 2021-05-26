@@ -2,12 +2,12 @@ use tuix::*;
 
 fn main() {
     // Create the app
+    let window_description = WindowDescription::new().with_title("Position");
     let app = Application::new(
-        WindowDescription::new().with_title("Position"),
+        window_description,
         |state, window| {
-        window
-            .set_title("position")
-            .set_background_color(state, Color::white());
+        
+        window.set_background_color(state, Color::white());
 
         Element::new().build(state, window.entity(), |builder| {
             builder

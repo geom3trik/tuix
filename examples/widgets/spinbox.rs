@@ -2,48 +2,31 @@ use tuix::*;
 
 const STYLE: &str = r#"
 
-
-    vector_edit>textbox {
-        width: 1s;
-        min-width: 0px;
+    spinbox {
         background-color: white;
-        child-space: 1s;
+    }
+
+    spinbox .increment {
+        color: #ff5e1a;
+        text-justify: center;
+    }
+
+    spinbox .decrement {
+        color: #ff5e1a;
+        text-justify: center;
+    }
+
+    spinbox>textbox {
         color: black;
         border-width: 1px;
         border-color: #757575;
-    }
-
-    vector_edit>dropdown {
-        color: black;
-        background-color: #d2d2d2;
-    }
-
-    dropdown>.container {
-        top: 100%;
-        width: 100%;
-        border-width: 1px;
-        border-color: #757575;
-        outer-shadow: 2px 2px 5px #80000000;
-    }
-
-    dropdown>.header>.label {
-        color: black;
+        right: -1px;
         child-space: 1s;
     }
 
-    vector_edit>dropdown .item {
-        color: black;
-        background-color: white;
-        height: 30px;
-    }
-
-    vector_edit>dropdown .item:hover {
-        background-color: #f2f2f2;
-        height: 30px;
-    }
-
-    vector_edit .icon {
-        display: none;
+    spinbox>.arrow_container {
+        border-width: 1px;
+        border-color: #757575;
     }
 
 "#;
@@ -55,21 +38,16 @@ enum CustomEvent {
 
 #[derive(Default)]
 struct Container {
-    vec_edit: Entity,
+    spinbox: Entity,
 }
 
 impl Widget for Container {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
-        self.vec_edit = VectorEdit::new()
-            .with_x(255u8)
-            .with_y(255u8)
-            .with_z(255u8)
-            .with_w(255u8)
-            .on_change(|vec_edit, state, entity| {
-                
-                state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba(vec_edit.x, vec_edit.y, vec_edit.z, vec_edit.w))).target(entity));
+        self.spinbox = Spinbox::new(255u8)
+            .on_change(|spinbox, state, entity| {
+                state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba(spinbox.value, spinbox.value, spinbox.value, 255))).target(entity));
             })
             .build(state, entity, |builder| {
                 builder
@@ -95,7 +73,7 @@ impl Widget for Container {
 fn main() {
     let app = Application::new(
     WindowDescription::new()
-            .with_title("Vector Edit")
+            .with_title("Spinbox")
             .with_inner_size(300, 300),
     |state, window| {
 

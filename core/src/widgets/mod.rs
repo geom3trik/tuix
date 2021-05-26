@@ -43,9 +43,6 @@ pub use label::*;
 pub mod containers;
 pub use containers::*;
 
-pub mod vector_edit;
-pub use vector_edit::*;
-
 pub mod window;
 pub use window::WindowWidget;
 
