@@ -130,7 +130,7 @@ impl State {
         }
     }
 
-    pub(crate) fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a>
+    pub(crate) fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a,T>
     where
         T: EventHandler + 'static,
     {

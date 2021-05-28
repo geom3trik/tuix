@@ -25,22 +25,41 @@ const CHECKBOX_STYLE: &str = r#"
     }
 "#;
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum CheckboxEvent {
+    Check,
+    Uncheck,
+    Switch,
+    Checked,
+    Unchecked,
+}
+
 // A checkable with an added icon
 #[derive(Default)]
 pub struct Checkbox {
-    checkbutton: CheckButton,
-
     icon_unchecked: Option<String>,
     icon_checked: Option<String>,
+
+    checked: bool,
+
+    on_checked: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    on_unchecked: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+
+    key: Code,
 }
 
 impl Checkbox {
     pub fn new(checked: bool) -> Self {
         Self {
-            checkbutton: CheckButton::new(checked),
-
             icon_unchecked: Some(String::new()),
             icon_checked: Some(ICON_CHECK.to_string()),
+        
+            on_checked: None,
+            on_unchecked: None,
+
+            checked,
+
+            key: Code::Space,
         }
     }
 
@@ -56,13 +75,21 @@ impl Checkbox {
         self
     }
 
-    pub fn on_checked(mut self, event: Event) -> Self {
-        self.checkbutton = self.checkbutton.on_checked(event);
+    pub fn on_checked<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_checked = Some(Box::new(callback));
+
         self
     }
 
-    pub fn on_unchecked(mut self, event: Event) -> Self {
-        self.checkbutton = self.checkbutton.on_unchecked(event);
+    pub fn on_unchecked<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_unchecked = Some(Box::new(callback));
+
         self
     }
 }
@@ -74,18 +101,31 @@ impl Widget for Checkbox {
             .set_font(state, "icons")
             .set_child_space(state, Stretch(1.0));
 
-        if self.checkbutton.is_checked() {
+        if self.checked {
             entity.set_checked(state, true);
 
             if let Some(icon_checked) = &self.icon_checked {
                 entity.set_text(state, &icon_checked);
             }
+
+            state.insert_event(
+                Event::new(CheckboxEvent::Checked)
+                    .target(entity)
+                    .origin(entity),
+            );
+
         } else {
             entity.set_checked(state, false);
 
             if let Some(icon_unchecked) = &self.icon_unchecked {
                 entity.set_text(state, &icon_unchecked);
             }
+
+            state.insert_event(
+                Event::new(CheckboxEvent::Unchecked)
+                    .target(entity)
+                    .origin(entity),
+            );
         }
 
         state.style.insert_element(entity, "checkbox");
@@ -94,21 +134,124 @@ impl Widget for Checkbox {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        // Inherit chackable behaviour
-        self.checkbutton.on_event(state, entity, event);
+        
+        if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
+            match checkbox_event {
+                CheckboxEvent::Switch => {
+                    if event.target == entity {
+                        if self.checked {
 
-        if self.checkbutton.is_checked() {
-            if let Some(icon_checked) = &self.icon_checked {
-                entity.set_text(state, &icon_checked);
+                            entity.set_checked(state, false);
+
+                            if let Some(icon_unchecked) = &self.icon_unchecked {
+                                entity.set_text(state, &icon_unchecked);
+                            }
+
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Unchecked)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
+                        } else {
+
+                            entity.set_checked(state, true);
+
+                            if let Some(icon_checked) = &self.icon_checked {
+                                entity.set_text(state, &icon_checked);
+                            }
+
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Checked)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
+                        }
+                    }
+                }
+
+                CheckboxEvent::Check => {
+                    self.checked = true;
+                    entity.set_checked(state, true);
+                }
+
+                CheckboxEvent::Uncheck => {
+                    self.checked = false;
+                    entity.set_checked(state, false);
+                }
+
+                CheckboxEvent::Checked => {
+                    self.checked = true;
+
+                    entity.set_checked(state, true);
+
+                    if let Some(mut callback) = self.on_checked.take() {
+                        (callback)(self, state, entity);
+                        self.on_checked = Some(callback);
+                    }
+                }
+
+                CheckboxEvent::Unchecked => {
+                    self.checked = false;
+
+                    entity.set_checked(state, false);
+
+                    if let Some(mut callback) = self.on_unchecked.take() {
+                        (callback)(self, state, entity);
+                        self.on_unchecked = Some(callback);
+                    }
+                }
             }
-        } else {
-            if let Some(icon_unchecked) = &self.icon_unchecked {
-                entity.set_text(state, &icon_unchecked);
+        }
+        
+        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+            match window_event {
+                WindowEvent::MouseDown(button) if *button == MouseButton::Left => {
+                    if entity == event.target && !entity.is_disabled(state) {
+                        state.capture(entity);
+                    }
+                }
+
+                WindowEvent::MouseUp(button) if *button == MouseButton::Left => {
+                    if entity == event.target && state.mouse.left.pressed == entity {
+                        state.release(entity);
+                        entity.set_active(state, false);
+                        if !entity.is_disabled(state) {
+                            if state.hovered == entity {
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Switch)
+                                        .target(entity)
+                                        .origin(entity),
+                                );
+                            }
+                        }
+                    }
+                }
+
+                WindowEvent::KeyDown(code, _) if *code == self.key => {
+                    if state.focused == entity && !entity.is_disabled(state) {
+                        state.insert_event(
+                            Event::new(ButtonEvent::Pressed)
+                                .target(entity)
+                                .origin(entity),
+                        );
+                    }
+                }
+
+                WindowEvent::KeyUp(code, _) if *code == self.key => {
+                    state.insert_event(
+                        Event::new(ButtonEvent::Released)
+                            .target(entity)
+                            .origin(entity),
+                    );
+                }
+
+                _ => {}
             }
         }
     }
 }
 
+/*
 pub struct CheckItem {
     name: String,
     checked: bool,
@@ -146,8 +289,13 @@ impl Widget for CheckItem {
                 .set_left(Pixels(5.0))
         });
 
+        let checkbox = self.checkbox;
         self.button =
-            Button::new().on_release(Event::new(CheckboxEvent::Switch).target(self.checkbox));
+            Button::new().on_release(move |_, state, entity|
+                state.insert_event(
+                    Event::new(CheckboxEvent::Switch).target(checkbox).target(entity)
+                )
+            );
 
         //let checkbox = self.checkbox;
         // self.button.on_test(move |button, state, entity| {
@@ -164,3 +312,4 @@ impl Widget for CheckItem {
         self.button.on_event(state, entity, event);
     }
 }
+*/

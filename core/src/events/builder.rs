@@ -1,24 +1,25 @@
 use crate::state::style::*;
 use crate::{Entity, EventHandler, State, Widget};
 
-use std::cell::RefCell;
+use std::{cell::RefCell, marker::PhantomData};
 use std::rc::Rc;
 
 /// Contains an entity id and a mutable reference to state and can be used to set properties
-pub struct Builder<'a> {
+pub struct Builder<'a,T> {
     pub entity: Entity,
     pub state: &'a mut State,
+    phantom: std::marker::PhantomData<T>,
 }
 
-impl<'a> Builder<'a> {
+impl<'a,T> Builder<'a,T> {
 
     /// Creates a new Builder
     pub(crate) fn new(state: &'a mut State, entity: Entity) -> Self {
-        Builder { entity, state }
+        Builder::<T> { entity, state, phantom: PhantomData}
     }
 
     // Builds the widget into State
-    pub(crate) fn build<T>(mut self, event_handler: T) -> Entity
+    pub(crate) fn build(mut self, event_handler: T) -> Entity
     where
         T: EventHandler + 'static + Sized,
     {
@@ -39,7 +40,7 @@ impl<'a> Builder<'a> {
         self.entity
     }
 
-    pub fn on_press<T, F>(mut self, mut handler: F) -> Self
+    pub fn on_press<F>(mut self, mut handler: F) -> Self
     where 
         T: Widget,
         F: FnMut(&mut T, &mut State, Entity) + 'static,

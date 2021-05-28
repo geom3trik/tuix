@@ -18,11 +18,11 @@ pub enum ButtonEvent {
     SetKey(Code),
 }
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 // A Widget that can be pressed and released and may emit an event on_press and on_release
 pub struct Button {
-    on_press: Option<Event>,
-    on_release: Option<Event>,
+    on_press: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    on_release: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     pub text: Option<String>,
     key: Code,
 }
@@ -48,15 +48,21 @@ impl Button {
         }
     }
 
-    /// Set the event sent when the button is pressed
-    pub fn on_press(mut self, event: Event) -> Self {
-        self.on_press = Some(event);
+    /// Set the callback triggered when the button is pressed
+    pub fn on_press<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_press = Some(Box::new(callback));
         self
     }
 
-    /// Set the event sent when the button is released
-    pub fn on_release(mut self, event: Event) -> Self {
-        self.on_release = Some(event);
+    /// Set the callback triggered when the button is released
+    pub fn on_release<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_release = Some(Box::new(callback));
         self
     }
 
@@ -72,19 +78,6 @@ impl Button {
         self.on_release = None;
 
         self
-    }
-
-    // Helper function for sending events in response to on_press, on_release, on_over, on_out
-    fn send_event(&self, state: &mut State, entity: Entity, on_event: Option<Event>) {
-        if let Some(mut event) = on_event {
-            event.origin = entity;
-
-            if event.target == Entity::null() {
-                event.target = entity;
-            }
-
-            state.insert_event(event);
-        }
     }
 }
 
@@ -113,7 +106,10 @@ impl Widget for Button {
 
                 ButtonEvent::Pressed => {
                     if event.target == entity {
-                        self.send_event(state, entity, self.on_press.clone());
+                        if let Some(callback) = self.on_press.take() {
+                            (callback)(self, state, entity);
+                            self.on_press = Some(callback);
+                        }
 
                         
 
@@ -123,7 +119,10 @@ impl Widget for Button {
 
                 ButtonEvent::Released => {
                     if event.target == entity {
-                        self.send_event(state, entity, self.on_release.clone());
+                        if let Some(callback) = self.on_release.take() {
+                            (callback)(self, state, entity);
+                            self.on_release = Some(callback);
+                        }
 
                         entity.set_active(state, false);
                     }

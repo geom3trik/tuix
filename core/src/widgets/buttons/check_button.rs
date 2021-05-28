@@ -12,14 +12,22 @@ pub struct CheckButton {
 impl CheckButton {
     pub fn new(checked: bool) -> Self {
         Self {
-            button: Button::new().on_release(Event::new(CheckboxEvent::Switch)),
+            button: Button::new().on_release(|_, state, entity|
+                state.insert_event(
+                    Event::new(CheckboxEvent::Switch).target(entity)
+                )
+            ),
             checkable: Checkable::new(checked),
         }
     }
 
     pub fn with_label(name: &str, checked: bool) -> Self {
         Self {
-            button: Button::with_label(name).on_release(Event::new(CheckboxEvent::Switch)),
+            button: Button::with_label(name).on_release(|_, state, entity|
+                state.insert_event(
+                    Event::new(CheckboxEvent::Switch).target(entity)
+                )
+            ),
             checkable: Checkable::new(checked),
         }
     }
@@ -28,13 +36,23 @@ impl CheckButton {
         self.checkable.is_checked()
     }
 
-    pub fn on_checked(mut self, event: Event) -> Self {
-        self.checkable = self.checkable.on_checked(event);
-        self
-    }
+pub fn on_checked<F>(mut self, callback: F) -> Self 
+where
+    F: 'static + Fn(&Self, &mut State, Entity)
+{
+    self.checkable = self.checkable.on_checked(|_, state, entity|{
+        (callback)(&self, state, entity);
+    });
+    self
+}
 
-    pub fn on_unchecked(mut self, event: Event) -> Self {
-        self.checkable = self.checkable.on_unchecked(event);
+    pub fn on_unchecked<F>(mut self, mut callback: F) -> Self 
+    where
+        F: 'static + FnMut(&mut Self, &mut State, Entity)
+    {
+        self.checkable = self.checkable.on_unchecked(|checkable, state, entity|{
+            (callback)(&mut self, state, entity);
+        });
         self
     }
 }

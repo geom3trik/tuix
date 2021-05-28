@@ -35,8 +35,8 @@ fn main() {
                 .set_width(Pixels(30.0))
                 .set_background_color(Color::rgb(20, 80, 200))
                 .class("my_class")
-                .on_press(|button: &mut Button, state, entity| {
-                    println!("Found button: {:?} {}", button, entity);
+                .on_press(|button, state, entity| {
+                    println!("Found button: {}", entity);
                 })
         });
     });

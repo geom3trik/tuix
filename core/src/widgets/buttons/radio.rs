@@ -18,13 +18,23 @@ impl Radio {
         }
     }
 
-    pub fn on_checked(mut self, event: Event) -> Self {
-        self.check = self.check.on_checked(event);
+    pub fn on_checked<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.check = self.check.on_checked(|checkbutton, state, entity|{
+            (callback)(&mut self, state, entity)
+        });
         self
     }
 
-    pub fn on_unchecked(mut self, event: Event) -> Self {
-        self.check = self.check.on_unchecked(event);
+    pub fn on_unchecked<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.check = self.check.on_unchecked(|checkbutton, state, entity| {
+            (callback)(&mut self, state, entity)
+        });
         self
     }
 }

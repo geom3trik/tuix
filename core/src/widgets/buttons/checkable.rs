@@ -15,8 +15,8 @@ pub enum CheckboxEvent {
 pub struct Checkable {
     checked: bool,
 
-    on_checked: Option<Event>,
-    on_unchecked: Option<Event>,
+    on_checked: Option<Box<dyn Fn(&Self, &mut State, Entity)>>,
+    on_unchecked: Option<Box<dyn FnMut(&Self, &mut State, Entity)>>,
 }
 
 impl Checkable {
@@ -33,13 +33,19 @@ impl Checkable {
         self.checked
     }
 
-    pub fn on_checked(mut self, event: Event) -> Self {
-        self.on_checked = Some(event);
+    pub fn on_checked<'a, F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&Self, &mut State, Entity)
+    {
+        self.on_checked = Some(Box::new(callback));
         self
     }
 
-    pub fn on_unchecked(mut self, event: Event) -> Self {
-        self.on_unchecked = Some(event);
+    pub fn on_unchecked<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + FnMut(&Self, &mut State, Entity)
+    {
+        self.on_unchecked = Some(Box::new(callback));
         self
     }
 }
@@ -92,13 +98,9 @@ impl Widget for Checkable {
 
                     entity.set_checked(state, true);
 
-                    if let Some(mut on_checked) = self.on_checked.clone() {
-                        if on_checked.target == Entity::null() {
-                            on_checked.target = entity;
-                        }
-
-                        on_checked.origin = entity;
-                        state.insert_event(on_checked);
+                    if let Some(mut callback) = self.on_checked.take() {
+                        (callback)(self, state, entity);
+                        self.on_checked = Some(callback);
                     }
                 }
 
@@ -107,14 +109,9 @@ impl Widget for Checkable {
 
                     entity.set_checked(state, false);
 
-                    if let Some(mut on_unchecked) = self.on_unchecked.clone() {
-                        if on_unchecked.target == Entity::null() {
-                            on_unchecked.target = entity;
-                        }
-
-                        on_unchecked.origin = entity;
-
-                        state.insert_event(on_unchecked);
+                    if let Some(mut callback) = self.on_unchecked.take() {
+                        (callback)(self, state, entity);
+                        self.on_unchecked = Some(callback);
                     }
                 }
             }

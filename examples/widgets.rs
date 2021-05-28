@@ -76,8 +76,8 @@ fn main() {
         Spinbox::new(100)
             .with_min(95)
             .with_max(105)
-            .on_min(Event::new(CheckboxEvent::Uncheck).target(switch))
-            .on_max(Event::new(CheckboxEvent::Check).target(switch))
+            //.on_min(Event::new(CheckboxEvent::Uncheck).target(switch))
+            //.on_max(Event::new(CheckboxEvent::Check).target(switch))
             .build(state, row, |builder| builder);
 
         // // VECTOR EDIT

@@ -40,6 +40,14 @@ path = "examples/styling/hover.rs"
 # Widget Examples
 
 [[example]]
+name = "button"
+path = "examples/widgets/button.rs"
+
+[[example]]
+name = "checkbox"
+path = "examples/widgets/checkbox.rs"
+
+[[example]]
 name = "vector_edit"
 path = "examples/widgets/vector_edit.rs"
 
@@ -73,3 +81,4 @@ tuix_inspector_derive = {path = "inspector-derive"}
 femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}
 image = "0.23.12"
 fnv = "1.0.7"
+rand = "0.8.3"

@@ -81,7 +81,11 @@ impl Widget for Panel {
             .set_height(state, Auto);
 
         self.header = Button::new()
-            .on_release(Event::new(PanelEvent::Open).target(entity))
+            .on_release(move |_,state,_|
+                state.insert_event(
+                    Event::new(PanelEvent::Open).target(entity)
+                )
+            )
             .build(state, entity, |builder| {
                 builder
                     .set_layout_type(LayoutType::Row)

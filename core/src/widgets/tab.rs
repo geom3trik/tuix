@@ -46,11 +46,23 @@ pub struct Tab {
 
 impl Tab {
     pub fn new(name: &str) -> Self {
+        
+        let name = name.to_owned();
+        
         Self {
-            name: name.to_string(),
-            button: Button::new().on_press(Event::new(CheckboxEvent::Switch)),
-            check: Checkable::new(false).on_checked(
-                Event::new(TabEvent::SwitchTab(name.to_string())).propagate(Propagation::Up),
+            name: name.clone(),
+            button: Button::new().on_press(|_, state, entity|
+                state.insert_event(
+                    Event::new(CheckboxEvent::Switch).target(entity)
+                )
+            ),
+
+            
+
+            check: Checkable::new(false).on_checked(move |checkable, state, entity|
+                state.insert_event(
+                    Event::new(TabEvent::SwitchTab(name.clone())).propagate(Propagation::Up).target(entity),
+                )
             ),
             //.check_on_press()
         }

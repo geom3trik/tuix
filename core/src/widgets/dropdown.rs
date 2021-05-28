@@ -217,7 +217,12 @@ impl Widget for Dropdown {
 
         // (entity, self.header, self.container)
 
-        self.button = Button::new().on_release(Event::new(PopupEvent::Open).target(self.container));
+        let container = self.container;
+        self.button = Button::new().on_release(move |_, state, entity|
+            state.insert_event(
+                Event::new(PopupEvent::Open).target(container)
+            )
+        );
 
         (entity, self.header, self.container)
     }

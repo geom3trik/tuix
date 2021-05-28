@@ -20,7 +20,7 @@ pub trait Widget: std::marker::Sized + 'static {
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
     fn build<F>(mut self, state: &mut State, parent: Entity, mut builder: F) -> Self::Ret
     where
-        F: FnMut(Builder) -> Builder,
+        F: FnMut(Builder<Self>) -> Builder<Self>,
         Self: std::marker::Sized + 'static,
     {
         // Create a new entity
