@@ -17,6 +17,24 @@ impl Switch {
                 .with_icon_unchecked(""),
         }
     }
+
+    pub fn on_checked<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Checkbox, &mut State, Entity)
+    {
+        self.checkbox = self.checkbox.on_checked(callback);
+
+        self
+    }
+
+    pub fn on_unchecked<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Checkbox, &mut State, Entity)
+    {
+        self.checkbox = self.checkbox.on_unchecked(callback);
+
+        self
+    }
 }
 
 impl Widget for Switch {

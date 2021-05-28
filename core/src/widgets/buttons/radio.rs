@@ -14,7 +14,6 @@ impl Radio {
     pub fn new() -> Self {
         Self {
             marker: Entity::null(),
-            check: CheckButton::new(false),
         }
     }
 

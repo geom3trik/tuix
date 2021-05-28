@@ -48,6 +48,10 @@ name = "checkbox"
 path = "examples/widgets/checkbox.rs"
 
 [[example]]
+name = "switch"
+path = "examples/widgets/switch.rs"
+
+[[example]]
 name = "vector_edit"
 path = "examples/widgets/vector_edit.rs"
 

@@ -13,5 +13,5 @@ pub use checkbox::*;
 // pub mod radio;
 // pub use radio::*;
 
-// pub mod switch;
-// pub use switch::*;
+pub mod switch;
+pub use switch::*;
