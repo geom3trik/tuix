@@ -107,7 +107,7 @@ pub struct VectorEdit<T> {
     pub w: T,
     pub num_of_dims: u8,
 
-    // Events
+    // Callbacks
     on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }
 

@@ -56,8 +56,16 @@ name = "vector_edit"
 path = "examples/widgets/vector_edit.rs"
 
 [[example]]
+name = "vector"
+path = "examples/widgets/vector.rs"
+
+[[example]]
 name = "spinbox"
 path = "examples/widgets/spinbox.rs"
+
+[[example]]
+name = "slider"
+path = "examples/widgets/slider.rs"
 
 [workspace]
 members = [

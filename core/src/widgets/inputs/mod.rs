@@ -12,3 +12,6 @@ pub use textbox::*;
 
 // pub mod vector_edit;
 // pub use vector_edit::*;
+
+pub mod vector;
+pub use vector::*;

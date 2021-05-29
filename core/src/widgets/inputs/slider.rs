@@ -19,9 +19,9 @@ pub struct Slider {
     thumb: Entity,
 
     // Event sent when the slider value has changed
-    on_change: Option<Box<dyn Fn(&Self, &mut State, Entity) -> Event>>,
+    on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     // event sent when the slider value is changing
-    on_changing: Option<Box<dyn Fn(f32) -> Event>>,
+    on_changing: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     // Event sent when the slider reaches the minimum value
     on_min: Option<Box<dyn Fn(f32) -> Event>>,
     // Event sent when the slider reaches the maximum value
@@ -104,7 +104,7 @@ impl Slider {
         self
     }
 
-    /// Set the event sent when the slider value has changed.
+    /// Set the callback triggered when the slider value has changed.
     ///
     /// Takes a closure which provides the current value and returns an event to be sent when the slider
     /// value has changed after releasing the slider. If the slider thumb is pressed but not moved, and thus
@@ -116,15 +116,15 @@ impl Slider {
     ///    .on_change(|val| Event::new(WindowEvent::Debug(format!("Slider on_change: {}", val))))
     ///    .build(state, parent, |builder| builder)
     /// ```
-    pub fn on_change<F>(mut self, message: F) -> Self
+    pub fn on_change<F>(mut self, callback: F) -> Self
     where
-        F: 'static + Fn(&Self, &mut State, Entity) -> Event,
+        F: 'static + Fn(&mut Self, &mut State, Entity),
     {
-        self.on_change = Some(Box::new(message));
+        self.on_change = Some(Box::new(callback));
         self
     }
 
-    /// Set the event sent when the slider value is changing (dragging).
+    /// Set the callback triggered when the slider value is changing (dragging).
     ///
     /// Takes a closure which provides the current value and returns an event to be sent when the slider
     /// is value is changing, either by pressing the track or dragging the thumb along the track.
@@ -132,14 +132,14 @@ impl Slider {
     /// # Example
     /// ```
     /// Slider::new()
-    ///    .on_changing(|val| Event::new(WindowEvent::Debug(format!("Slider on_changing: {}", val))))
+    ///    .on_changing(|slider, state, entity| state.insert_event(Event::new(WindowEvent::Debug(format!("Slider on_changing: {}", val)))).target(entity))
     ///    .build(state, parent, |builder| builder)
     /// ```
-    pub fn on_changing<F>(mut self, message: F) -> Self
+    pub fn on_changing<F>(mut self, callback: F) -> Self
     where
-        F: 'static + Fn(f32) -> Event,
+        F: 'static + Fn(&mut Self, &mut State, Entity),
     {
-        self.on_changing = Some(Box::new(message));
+        self.on_changing = Some(Box::new(callback));
         self
     }
 
@@ -410,7 +410,10 @@ impl Widget for Slider {
 
                         self.update_value(state, entity, dx);
 
-                        self.send_value_event(state, entity, &self.on_changing);
+                        if let Some(callback) = self.on_changing.take() {
+                            (callback)(self, state, entity);
+                            self.on_changing = Some(callback);
+                        }
 
                         state.insert_event(
                             Event::new(SliderEvent::ValueChanged(self.value)).target(entity),
@@ -426,15 +429,9 @@ impl Widget for Slider {
 
                         if self.prev != self.value {
                             //self.send_value_event(state, entity, &self.on_change);
-                            if let Some(on_event) = &self.on_change {
-                                let mut event = (on_event)(self, state, entity);
-                                event.origin = entity;
-                    
-                                if event.target == Entity::null() {
-                                    event.target = entity;
-                                }
-                    
-                                state.insert_event(event);
+                            if let Some(callback) = self.on_change.take() {
+                                (callback)(self, state, entity);
+                                self.on_change = Some(callback);
                             }
 
                         }
@@ -448,7 +445,11 @@ impl Widget for Slider {
                         let dx = *x - state.data.get_posx(entity);
 
                         self.update_value(state, entity, dx);
-                        self.send_value_event(state, entity, &self.on_changing);
+                        
+                        if let Some(callback) = self.on_changing.take() {
+                            (callback)(self, state, entity);
+                            self.on_changing = Some(callback);
+                        }
                     }
                 }
 

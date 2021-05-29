@@ -125,7 +125,9 @@ impl Widget for Animations {
 
         // Background Color Button
         self.background_color_button = Button::with_label("Background Color")
-            .on_press(Event::new(AnimationsEvent::Play))
+            .on_press(|_,state,entity|
+                state.insert_event(Event::new(AnimationsEvent::Play).target(entity))
+            )
             .build(state, column, |builder| builder);
 
         // Position Animation
@@ -165,17 +167,17 @@ impl Widget for Animations {
                     })
             );
 
-        // // Size Animation
-        // let size_animation_state = AnimationState::new()
-        //     .with_duration(std::time::Duration::from_secs(2))
-        //     .with_keyframe((0.0, Units::Pixels(50.0)))
-        //     .with_keyframe((1.0, Units::Pixels(200.0)))
-        //     .set_persistent(true);
+        // Size Animation
+        let size_animation_state = AnimationState::new()
+            .with_duration(std::time::Duration::from_secs(2))
+            .with_keyframe((0.0, Units::Pixels(50.0)))
+            .with_keyframe((1.0, Units::Pixels(200.0)))
+            .set_persistent(true);
 
-        // self.width_animation = state
-        //     .style
-        //     .width
-        //     .insert_animation(size_animation_state.clone());
+        self.width_animation = state
+            .style
+            .width
+            .insert_animation(size_animation_state.clone());
 
         // // Reuse animation state from position animation above
         // self.height_animation = state
@@ -183,9 +185,11 @@ impl Widget for Animations {
         //     .height
         //     .insert_animation(position_animation_state.clone());
 
-        // self.size_button = Button::with_label("Size")
-        //     .on_press(Event::new(AnimationsEvent::Play))
-        //     .build(state, column, |builder| builder);
+        self.size_button = Button::with_label("Size")
+            .on_press(|_,state,entity|
+                state.insert_event(Event::new(AnimationsEvent::Play).target(entity))
+            )
+            .build(state, column, |builder| builder);
 
         // // Margins, Padding, Border & Border Radius Animation
         // let animation_state = AnimationState::new()
@@ -292,19 +296,19 @@ impl Widget for Animations {
                         self.position_button.set_checked(state, false);
                     }
 
-                    // if event.target == self.size_button {
-                    //     state
-                    //         .style
-                    //         .width
-                    //         .play_animation(self.element, self.width_animation);
-                    //     state
-                    //         .style
-                    //         .height
-                    //         .play_animation(self.element, self.height_animation);
-                    //     self.size_button.set_checked(state, true);
-                    // } else {
-                    //     self.size_button.set_checked(state, false);
-                    // }
+                    if event.target == self.size_button {
+                        state
+                            .style
+                            .width
+                            .play_animation(self.element, self.width_animation);
+                        state
+                            .style
+                            .height
+                            .play_animation(self.element, self.height_animation);
+                        self.size_button.set_checked(state, true);
+                    } else {
+                        self.size_button.set_checked(state, false);
+                    }
 
                     // if event.target == self.margins_button {
                     //     state
