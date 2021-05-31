@@ -67,6 +67,10 @@ path = "examples/widgets/spinbox.rs"
 name = "slider"
 path = "examples/widgets/slider.rs"
 
+[[example]]
+name = "popup"
+path = "examples/widgets/popup.rs"
+
 [workspace]
 members = [
     "winit",
