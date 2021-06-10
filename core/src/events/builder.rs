@@ -144,6 +144,17 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
+    // pub fn set_tooltip<F>(mut self, val: &str) -> Self 
+    // where F: FnOnce(&mut State, Entity)
+    // {
+    //     self.state
+    //         .style
+    //         .tooltip
+    //         .insert(self.entity, val.to_string());
+
+    //     self
+    // }
+
     // Display
     /// Sets the display type of the entity
     pub fn set_display(mut self, val: Display) -> Self {

@@ -114,7 +114,9 @@ fn main() {
         Button::with_label("Item 1").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 3")
-            .on_press(Event::new(WindowEvent::WindowClose))
+            .on_press(|widget, state, button|{
+                button.emit(state, button, Event::new(WindowEvent::WindowClose));
+            })
             .build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
 
@@ -129,7 +131,9 @@ fn main() {
         Button::with_label("Item 1").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 3")
-            .on_press(Event::new(WindowEvent::WindowClose))
+            .on_press(|widget, state, button|{
+                button.emit(state, button, Event::new(WindowEvent::WindowClose));
+            })
             .build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
 

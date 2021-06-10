@@ -122,10 +122,10 @@ impl Widget for Calculator {
                 .class("display")
         );
 
-        // Currently using flexbox to create the layout but would be good to use grid when working
-
         self.clear = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('C')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Operator('C')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(1)
@@ -135,7 +135,9 @@ impl Widget for Calculator {
             );
 
         self.plus_minus = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('¬')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('¬')));
+            })
             .build(state, entity, |builder| {
                 builder
                     .set_row(1)
@@ -146,7 +148,9 @@ impl Widget for Calculator {
 
         // Percentage
         self.percent = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('%')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('%')));
+            })
             .build(state, entity, |builder| {
                 builder
                     .set_row(1)
@@ -157,7 +161,9 @@ impl Widget for Calculator {
 
         // Divide
         self.divide = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('/')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Operator('/')));
+            })
             .build(state, entity, |builder| {
                 builder
                     .set_row(1)
@@ -170,7 +176,9 @@ impl Widget for Calculator {
 
         // Digit Seven
         self.seven = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('7')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('7')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(2)
@@ -181,7 +189,9 @@ impl Widget for Calculator {
 
         // Digit Eight
         self.eight = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('8')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('8')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(2)
@@ -192,7 +202,9 @@ impl Widget for Calculator {
 
         // Digit Nine
         self.nine = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('9')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('9')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(2)
@@ -203,7 +215,9 @@ impl Widget for Calculator {
 
         // Multiply
         self.multiply = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('*')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Operator('*')));
+            })
             .build(state, entity, |builder|
                 builder
                     .set_row(2)
@@ -216,7 +230,9 @@ impl Widget for Calculator {
 
         // Digit Four
         self.four = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('4')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('4')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(3)
@@ -227,7 +243,9 @@ impl Widget for Calculator {
 
         // Digit Five
         self.five = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('5')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('5')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(3)
@@ -238,7 +256,9 @@ impl Widget for Calculator {
 
         // Digit Six
         self.six = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('6')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('6')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(3)
@@ -249,7 +269,9 @@ impl Widget for Calculator {
 
         // Subtract
         self.subtract = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('-')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Operator('-')));
+            })
             .build(state, entity, |builder| {
                 builder
                     .set_row(3)
@@ -262,7 +284,9 @@ impl Widget for Calculator {
 
         // Digit One
         self.one = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('1')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('1')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(4)
@@ -273,7 +297,9 @@ impl Widget for Calculator {
 
         // Digit Two
         self.two = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('2')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('2')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(4)
@@ -284,7 +310,9 @@ impl Widget for Calculator {
 
         // Digit Three
         self.three = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('3')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('3')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(4)
@@ -295,7 +323,9 @@ impl Widget for Calculator {
 
         // Add
         self.add = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('+')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Operator('+')));
+            })
             .build(state, entity, |builder|
                 builder
                     .set_row(4)
@@ -308,7 +338,9 @@ impl Widget for Calculator {
 
         // Digit Zero
         self.zero = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('0')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Digit('0')));
+            })
             .build(state, entity, |builder|
                 builder
                     .set_row(5)
@@ -321,7 +353,9 @@ impl Widget for Calculator {
 
         // Decimal Point
         self.decimal_point = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('.')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Operator('.')));
+            })
             .build(state, entity, |builder| 
                 builder
                     .set_row(5)
@@ -332,7 +366,9 @@ impl Widget for Calculator {
 
         // Equals
         self.equals = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('=')))
+            .on_press(move |button, state, id| {
+                id.emit(state, entity, Event::new(CalculatorEvent::Operator('=')));
+            })
             .build(state, entity, |builder|
                 builder
                     .set_row(5)

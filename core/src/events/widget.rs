@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, Entity, Hierarchy, State, Node, Update};
+use crate::{AsEntity, Entity, Hierarchy, State, Node, Update, NodeMap};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -15,6 +15,8 @@ pub type Canvas = femtovg::Canvas<OpenGl>;
 use std::any::Any;
 pub trait Widget: std::marker::Sized + 'static {
     type Ret;
+    type Data;
+
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret;
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
@@ -39,7 +41,7 @@ pub trait Widget: std::marker::Sized + 'static {
     }
 
     // Called when data bound to this widget is changed
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {}
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Self::Data, nodes: &NodeMap) {}
 
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
@@ -570,11 +572,14 @@ pub trait Widget: std::marker::Sized + 'static {
 // Implement EventHandler for any type implementing Widget
 impl<T: Widget> EventHandler for T
 where
-    T: Widget + 'static,
+    T: std::marker::Sized + Widget + 'static,
 {
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
-        <T as Widget>::on_update(self, state, entity, node, nodes);
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node, nodes: &NodeMap) {
+        if let Some(data) = node.downcast_ref() {
+             <T as Widget>::on_update(self, state, entity, data, nodes);
+        }
+       
     }
 
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -585,3 +590,5 @@ where
         <T as Widget>::on_draw(self, state, entity, canvas);
     }
 }
+
+

@@ -1,6 +1,6 @@
 use crate::{
     events::{Event, EventManager, Message},
-    state, Node
+    state, Node, NodeMap
 };
 
 use fnv::FnvHashMap;
@@ -25,7 +25,7 @@ pub type Canvas = femtovg::Canvas<OpenGl>;
 
 pub trait EventHandler: Any {
 
-    fn  on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {}
+    fn  on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node, nodes: &NodeMap) {}
 
     // Called when events are flushed
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}

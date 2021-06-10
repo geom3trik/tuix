@@ -57,8 +57,6 @@ impl Tab {
                 )
             ),
 
-            
-
             check: Checkable::new(false).on_checked(move |checkable, state, entity|
                 state.insert_event(
                     Event::new(TabEvent::SwitchTab(name.clone())).propagate(Propagation::Up).target(entity),

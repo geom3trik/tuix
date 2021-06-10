@@ -6,6 +6,8 @@ use crate::{Event, WindowEvent};
 
 use crate::state::hierarchy::*;
 
+use std::rc::Rc;
+
 pub trait PropSet: AsEntity + Sized {
 
     // This could fail
@@ -15,63 +17,230 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    fn insert_event(&self, state: &mut State, mut event: Event) -> Entity
+    ///fn bind_with()
+
+    fn emit(&self, state: &mut State, target: Entity, mut event: Event) -> Entity
     where
         Self: 'static,
     {
-        state.insert_event(event.target(self.entity()));
+        state.insert_event(event.target(target).origin(self.entity()));
+
+        self.entity()
+    }
+
+    fn update(&self, state: &mut State, mut event: Event) -> Entity
+    where
+        Self: 'static,
+    {
+        state.insert_update(event.origin(self.entity()));
 
         self.entity()
     }
 
     /// Add a class name to an entity
-    fn class(self, state: &mut State, class_name: &str) -> Self;
+    fn class(self, state: &mut State, class_name: &str) -> Entity {
+        state.style.insert_class(self.entity(), class_name);
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // TODO move to PropGet
-    fn get_parent(self, state: &mut State) -> Option<Entity>;
+    fn get_parent(self, state: &mut State) -> Option<Entity> {
+        self.entity().parent(&state.hierarchy)
+    }
 
     // Pseudoclass
-    fn set_enabled(self, state: &mut State, value: bool) -> Self;
-    fn set_disabled(self, state: &mut State, value: bool) -> Self;
-    fn set_checked(self, state: &mut State, value: bool) -> Self;
-    fn set_over(self, state: &mut State, value: bool) -> Self;
-    fn set_active(self, state: &mut State, value: bool) -> Self;
-    fn set_hover(self, state: &mut State, value: bool) -> Self;
-    fn set_focus(self, state: &mut State, value: bool) -> Self;
+    fn set_enabled(self, state: &mut State, value: bool) -> Entity {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
+            pseudo_classes.set_enabled(value);
+            pseudo_classes.set_disabled(!value);
+        }
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+
+    fn set_disabled(self, state: &mut State, value: bool) -> Entity {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
+            pseudo_classes.set_disabled(value);
+            pseudo_classes.set_enabled(!value);
+        }
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_checked(self, state: &mut State, value: bool) -> Entity {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
+            pseudo_classes.set_checked(value);
+        }
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_over(self, state: &mut State, value: bool) -> Entity {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
+            pseudo_classes.set_over(value);
+        }
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_active(self, state: &mut State, value: bool) -> Entity {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
+            pseudo_classes.set_active(value);
+        }
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_hover(self, state: &mut State, value: bool) -> Entity {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
+            pseudo_classes.set_hover(value);
+        }
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_focus(self, state: &mut State, value: bool) -> Entity {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
+            pseudo_classes.set_focus(value);
+        }
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Style
-    fn set_element(self, state: &mut State, value: &str) -> Self;
-    fn set_id(self, state: &mut State, value: &str) -> Self;
-    fn set_class(self, state: &mut State, value: &str) -> Self;
+    fn set_element(self, state: &mut State, value: &str) -> Entity {
+        state.style.insert_element(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_id(self, state: &mut State, value: &str) -> Entity {
+        state.style.insert_id(self.entity(), value);
+
+        self.entity()
+    }
+
+    fn set_class(self, state: &mut State, value: &str) -> Entity {
+        state.style.insert_class(self.entity(), value);
+
+        self.entity()
+    }
 
     // Visibility
-    fn set_visibility(self, state: &mut State, value: Visibility) -> Self;
-    fn set_hoverability(self, state: &mut State, value: bool) -> Self;
-    fn set_focusability(self, state: &mut State, value: bool) -> Self;
+    fn set_visibility(self, state: &mut State, value: Visibility) -> Entity {
+        state.style.visibility.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_hoverability(self, state: &mut State, value: bool) -> Entity {
+        state.data.set_hoverability(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_focusability(self, state: &mut State, value: bool) -> Entity {
+        state.data.set_focusability(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Overflow
-    fn set_overflow(self, state: &mut State, value: Overflow) -> Self;
+    fn set_overflow(self, state: &mut State, value: Overflow) -> Entity {
+        state.style.overflow.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Display
-    fn set_display(self, state: &mut State, value: Display) -> Self;
+    fn set_display(self, state: &mut State, value: Display) -> Entity {
+        state.style.display.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     //Opacity
-    fn set_opacity(self, state: &mut State, value: f32) -> Self;
+    fn set_opacity(self, state: &mut State, value: f32) -> Entity {
+        state.style.opacity.insert(self.entity(), Opacity(value));
+
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Rotate
-    fn set_rotate(self, state: &mut State, value: f32) -> Self;
+    fn set_rotate(self, state: &mut State, value: f32) -> Entity {
+        state.style.rotate.insert(self.entity(), value);
 
-    // Grid Container
-    //fn set_grid_columns(self, state: &mut State, value: Vec<f32>) -> Self;
-    //fn set_grid_rows(self, state: &mut State, value: Vec<f32>) -> Self;
+        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
-    // Grid Item
-    //fn set_grid_column_start(self, state: &mut State, value: u32) -> Self;
-    //fn set_grid_column_span(self, state: &mut State, value: u32) -> Self
+        self.entity()
+    }
 
     // Position
     fn set_position_type(self, state: &mut State, value: PositionType) -> Entity {
         state.style.positioning_type.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -82,17 +251,54 @@ pub trait PropSet: AsEntity + Sized {
         state.style.top.insert(self.entity(), value);
         state.style.bottom.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     } 
 
-    fn set_left(self, state: &mut State, value: Units) -> Self;
-    fn set_right(self, state: &mut State, value: Units) -> Self;
-    fn set_top(self, state: &mut State, value: Units) -> Self;
-    fn set_bottom(self, state: &mut State, value: Units) -> Self;
+    fn set_left(self, state: &mut State, value: Units) -> Entity {
+        state.style.left.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_right(self, state: &mut State, value: Units) -> Entity {
+        state.style.right.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_top(self, state: &mut State, value: Units) -> Entity {
+        state.style.top.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_bottom(self, state: &mut State, value: Units) -> Entity {
+        state.style.bottom.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Position Constraints
     fn set_min_left(self, state: &mut State, value: Units) -> Entity {
         state.style.min_left.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -100,11 +306,17 @@ pub trait PropSet: AsEntity + Sized {
     fn set_max_left(self, state: &mut State, value: Units) -> Entity {
         state.style.max_left.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     }
 
     fn set_min_right(self, state: &mut State, value: Units) -> Entity {
         state.style.min_right.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -112,11 +324,17 @@ pub trait PropSet: AsEntity + Sized {
     fn set_max_right(self, state: &mut State, value: Units) -> Entity {
         state.style.max_right.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     }
 
     fn set_min_top(self, state: &mut State, value: Units) -> Entity {
         state.style.min_top.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -124,11 +342,17 @@ pub trait PropSet: AsEntity + Sized {
     fn set_max_top(self, state: &mut State, value: Units) -> Entity {
         state.style.max_top.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     }
 
     fn set_min_bottom(self, state: &mut State, value: Units) -> Entity {
         state.style.min_bottom.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -136,68 +360,264 @@ pub trait PropSet: AsEntity + Sized {
     fn set_max_bottom(self, state: &mut State, value: Units) -> Entity {
         state.style.max_bottom.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     }
 
     // Size
-    fn set_width(self, state: &mut State, value: Units) -> Self;
-    fn set_height(self, state: &mut State, value: Units) -> Self;
+    fn set_width(self, state: &mut State, value: Units) -> Entity {
+        state.style.width.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_height(self, state: &mut State, value: Units) -> Entity {
+        state.style.height.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Size Constraints
-    fn set_min_width(self, state: &mut State, value: Units) -> Self;
-    fn set_max_width(self, state: &mut State, value: Units) -> Self;
-    fn set_min_height(self, state: &mut State, value: Units) -> Self;
-    fn set_max_height(self, state: &mut State, value: Units) -> Self;
+    fn set_min_width(self, state: &mut State, value: Units) -> Entity {
+        state.style.min_width.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_max_width(self, state: &mut State, value: Units) -> Entity {
+        state.style.max_width.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_min_height(self, state: &mut State, value: Units) -> Entity {
+        state.style.min_height.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_max_height(self, state: &mut State, value: Units) -> Entity {
+        state.style.max_height.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Text
-    fn set_text(self, state: &mut State, text: &str) -> Self;
+    fn set_text(self, state: &mut State, text: &str) -> Entity {
+        state.style.text.insert(self.entity(), text.to_owned());
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Text Font
-    fn set_font(self, state: &mut State, font: &str) -> Self;
-    fn set_font_size(self, state: &mut State, size: f32) -> Self;
-    fn set_color(self, state: &mut State, color: Color) -> Self;
+    fn set_font(self, state: &mut State, font: &str) -> Entity {
+        state.style.font.insert(self.entity(), font.to_owned());
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_font_size(self, state: &mut State, value: f32) -> Entity {
+        state.style.font_size.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_color(self, state: &mut State, value: Color) -> Entity {
+        state.style.font_color.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Tooltip
-    fn set_tooltip(self, state: &mut State, text: &str) -> Self;
+    fn set_tooltip(self, state: &mut State, text: &str) -> Entity {
+        state.style.tooltip.insert(self.entity(), text.to_owned());
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Background
-    fn set_background_color(self, state: &mut State, value: Color) -> Self;
-    fn set_background_image(self, state: &mut State, value: std::rc::Rc<()>) -> Self;
+    fn set_background_color(self, state: &mut State, value: Color) -> Entity {
+        state.style.background_color.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_background_image(self, state: &mut State, value: Rc<()>) -> Entity {
+        state.style.background_image.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Border
-    fn set_border_width(self, state: &mut State, value: Units) -> Self;
-    fn set_border_color(self, state: &mut State, value: Color) -> Self;
+    fn set_border_width(self, state: &mut State, value: Units) -> Entity {
+        state.style.border_width.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_border_color(self, state: &mut State, value: Color) -> Entity {
+        state.style.border_color.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Border Radius
-    fn set_border_radius(self, state: &mut State, value: Units) -> Self;
-    fn set_border_radius_top_left(self, state: &mut State, value: Units) -> Self;
-    fn set_border_radius_top_right(self, state: &mut State, value: Units) -> Self;
-    fn set_border_radius_bottom_left(self, state: &mut State, value: Units) -> Self;
-    fn set_border_radius_bottom_right(self, state: &mut State, value: Units) -> Self;
+    fn set_border_radius(self, state: &mut State, value: Units) -> Entity {
+        state.style.border_radius_top_left.insert(self.entity(), value);
+        state.style.border_radius_top_right.insert(self.entity(), value);
+        state.style.border_radius_bottom_left.insert(self.entity(), value);
+        state.style.border_radius_bottom_right.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+
+    fn set_border_radius_top_left(self, state: &mut State, value: Units) -> Entity {
+        state.style.border_radius_top_left.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_border_radius_top_right(self, state: &mut State, value: Units) -> Entity {
+        state.style.border_radius_top_right.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_border_radius_bottom_left(self, state: &mut State, value: Units) -> Entity {
+        state.style.border_radius_bottom_left.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_border_radius_bottom_right(self, state: &mut State, value: Units) -> Entity {
+        state.style.border_radius_bottom_right.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
 
     // Clipping
-    fn set_clip_widget(self, state: &mut State, value: Entity) -> Self;
+    fn set_clip_widget(self, state: &mut State, value: Entity) -> Entity {
+        state.style.clip_widget.insert(self.entity(), value);
 
-    fn set_z_order(self, state: &mut State, vaale: i32) -> Self;
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
-    fn set_next_focus(self, state: &mut State, value: Entity) -> Self;
-    fn set_prev_focus(self, state: &mut State, value: Entity) -> Self;
-    fn set_focus_order(self, state: &mut State, next: Entity, prev: Entity) -> Self;
+        self.entity()
+    }
+
+    fn set_z_order(self, state: &mut State, value: i32) -> Entity {
+        state.style.z_order.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_next_focus(self, state: &mut State, value: Entity) -> Entity {
+        if let Some(entity) = state.style.focus_order.get_mut(self.entity()) {
+            entity.next = value;
+        } else {
+            state.style.focus_order.insert(
+                self.entity(),
+                FocusOrder {
+                    next: value,
+                    ..Default::default()
+                },
+            );
+        }
+
+        self.entity()
+    }
+
+    fn set_prev_focus(self, state: &mut State, value: Entity) -> Entity {
+        if let Some(focus_order) = state.style.focus_order.get_mut(self.entity()) {
+            focus_order.prev = value;
+        } else {
+            state.style.focus_order.insert(
+                self.entity(),
+                FocusOrder {
+                    prev: value,
+                    ..Default::default()
+                },
+            );
+        }
+
+        self.entity()
+    }
+
+    fn set_focus_order(self, state: &mut State, prev: Entity, next: Entity) -> Entity {
+        if let Some(focus_order) = state.style.focus_order.get_mut(self.entity()) {
+            focus_order.prev = prev;
+            focus_order.next = next;
+        } else {
+            state.style.focus_order.insert(
+                self.entity(),
+                FocusOrder {
+                    prev,
+                    next,
+                },
+            );
+        }
+
+        self.entity()
+    }
+
 
     fn mutate<F: FnMut(Builder<Self>) -> Builder<Self>>(self, state: &mut State, builder: F) -> Self;
 
-    // fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>;
-
-    // fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
-    //     self,
-    //     state: &mut State,
-    //     mutator: F,
-    // ) -> Self;
-
-    // Layout
-
     fn set_layout_type(&self, state: &mut State, value: LayoutType) -> Entity {
         state.style.layout_type.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -208,11 +628,17 @@ pub trait PropSet: AsEntity + Sized {
         state.style.child_top.insert(self.entity(), value);
         state.style.child_bottom.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     }
 
     fn set_child_left(&self, state: &mut State, value: Units) -> Entity {
         state.style.child_left.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -220,11 +646,17 @@ pub trait PropSet: AsEntity + Sized {
     fn set_child_between(&self, state: &mut State, value: Units) -> Entity {
         state.style.child_between.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     }
 
     fn set_child_right(&self, state: &mut State, value: Units) -> Entity {
         state.style.child_right.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -232,11 +664,17 @@ pub trait PropSet: AsEntity + Sized {
     fn set_child_top(&self, state: &mut State, value: Units) -> Entity {
         state.style.child_top.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     }
 
     fn set_child_bottom(&self, state: &mut State, value: Units) -> Entity {
         state.style.child_bottom.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -244,35 +682,98 @@ pub trait PropSet: AsEntity + Sized {
     fn set_grid_rows(&self, state: &mut State, value: Vec<Units>) -> Entity {
         state.style.grid_rows.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     }
 
     fn set_grid_cols(&self, state: &mut State, value: Vec<Units>) -> Entity {
         state.style.grid_cols.insert(self.entity(), value);
 
-        self.entity()
-    }
-
-    fn set_row_item(&self, state: &mut State, value: (u32, u32)) -> Entity {
-        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
-            grid_item.row_index = value.0;
-            grid_item.row_span = value.1;
-        }
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
 
-    fn set_col_item(&self, state: &mut State, value: (u32, u32)) -> Entity {
+    fn set_row(&self, state: &mut State, value: u32) -> Entity {
         if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
-            grid_item.col_index = value.0;
-            grid_item.col_span = value.1;
+            grid_item.row_index = value;
+        } else {
+            state.style.grid_item.insert(self.entity(), GridItem {
+                row_index: value,
+                row_span: 1,
+                col_index: 0,
+                col_span: 1,
+            });
         }
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
+    }
+
+    fn set_col(&self, state: &mut State, value: u32) -> Entity {
+        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
+            grid_item.col_index = value;
+        } else {
+            state.style.grid_item.insert(self.entity(), GridItem {
+                row_index: 0,
+                row_span: 1,
+                col_index: value,
+                col_span: 1,
+            });
+        }
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_row_span(&self, state: &mut State, value: u32) -> Entity {
+        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
+            grid_item.row_span = value;
+        } else {
+            state.style.grid_item.insert(self.entity(), GridItem {
+                row_index: 0,
+                row_span: value,
+                col_index: 0,
+                col_span: 1,
+            });
+        }
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_col_span(mut self, state: &mut State, value: u32) -> Self {
+        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
+            grid_item.col_span = value;
+        } else {
+            state.style.grid_item.insert(self.entity(), GridItem {
+                row_index: 0,
+                row_span: 1,
+                col_index: 0,
+                col_span: value,
+            });
+        }
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self
     }
 
     fn set_row_between(&self, state: &mut State, value: Units) -> Entity {
         state.style.row_between.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
@@ -280,39 +781,27 @@ pub trait PropSet: AsEntity + Sized {
     fn set_col_between(&self, state: &mut State, value: Units) -> Entity {
         state.style.col_between.insert(self.entity(), value);
 
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
         self.entity()
     }
 
 }
 
 impl PropSet for Entity {
-    // fn testy<B: EventHandler + 'static>(self, state: &mut State) -> Option<&mut B>
-    // where
-    //     Self: std::marker::Sized + 'static,
-    // {
-    //     let t = state.event_handlers.get_mut(&self).unwrap().borrow_mut();
+    fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
+    where
+        F: FnMut(Builder<Self>) -> Builder<Self>,
+    {
+        builder(Builder::new(state, self));
 
-    //     let t1 = t.downcast::<B>();
+        self
+    }
+}
 
-    //     t1
-    // }
-
-    // fn testy2<B: EventHandler + 'static, F: FnMut(&mut B)>(
-    //     self,
-    //     state: &mut State,
-    //     mut mutator: F,
-    // ) -> Self
-    // where
-    //     Self: std::marker::Sized + 'static,
-    // {
-    //     let t = state.event_handlers.get_mut(&self).unwrap().borrow_mut();
-
-    //     let t1 = t.downcast::<B>().expect("Failed to cast");
-
-    //     mutator(t1);
-
-    //     self
-    // }
+/*
+impl PropSet for Entity {
 
     fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
     where
@@ -778,7 +1267,7 @@ impl PropSet for Entity {
         self
     }
 }
-
+*/
 pub trait PropGet: AsEntity {
     fn is_enabled(self, state: &mut State) -> bool;
     fn is_disabled(self, state: &mut State) -> bool;

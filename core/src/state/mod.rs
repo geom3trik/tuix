@@ -249,6 +249,7 @@ impl State {
 
     // This should probably be moved to state.mouse
     pub fn capture(&mut self, entity: Entity) {
+
         if entity != Entity::null() && self.captured != entity {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureEvent)
@@ -271,15 +272,16 @@ impl State {
 
     // This should probably be moved to state.mouse
     pub fn release(&mut self, id: Entity) {
-        if self.captured == id {
+        if self.captured != id {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureOutEvent)
                     .target(self.captured)
                     .propagate(Propagation::Direct),
             );
-            self.captured = Entity::null();
-            self.active = Entity::null();
         }
+
+        self.captured = Entity::null();
+        self.active = Entity::null();
     }
 
     pub fn set_focus(&mut self, entity: Entity) {

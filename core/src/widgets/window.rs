@@ -17,7 +17,7 @@ impl WindowWidget {
 
 impl Widget for WindowWidget {
     type Ret = Entity;
-
+    type Data = ();
     fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }

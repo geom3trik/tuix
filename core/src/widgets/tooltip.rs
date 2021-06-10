@@ -1,10 +1,14 @@
 use crate::widgets::*;
 
-pub struct Tooltip {}
+pub struct Tooltip {
+    text: String,
+}
 
 impl Tooltip {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(text: &str) -> Self {
+        Self {
+            text: text.to_owned(),
+        }
     }
 }
 

@@ -5,6 +5,7 @@ use crate::widgets::*;
 pub enum PopupEvent {
     Open,
     Close,
+    Switch,
 }
 
 pub struct Popup {
@@ -25,6 +26,7 @@ impl Widget for Popup {
             .set_element(state, "popup")
             .set_overflow(state, Overflow::Visible)
             .set_position_type(state, PositionType::SelfDirected)
+            .set_opacity(state, 0.0)
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -41,12 +43,27 @@ impl Widget for Popup {
                     state.release(entity);
                     entity.set_opacity(state, 0.0);
                 }
+
+                PopupEvent::Switch => {
+                    if self.open {
+                        println!("Close");
+                        self.open = false;
+                        state.release(entity);
+                        entity.set_opacity(state, 0.0);
+                    } else {
+                        println!("Open");
+                        self.open = true;
+                        state.capture(entity);
+                        entity.set_opacity(state, 1.0);
+                    }
+                }
             }
         }
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseCaptureOutEvent => {
+                    println!("Hide");
                     // state
                     //     .style
                     //     .opacity
@@ -56,6 +73,7 @@ impl Widget for Popup {
                 }
 
                 WindowEvent::MouseCaptureEvent => {
+                    println!("Show");
                     // state
                     //     .style
                     //     .opacity

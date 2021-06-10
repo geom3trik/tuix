@@ -56,6 +56,10 @@ name = "vector_edit"
 path = "examples/widgets/vector_edit.rs"
 
 [[example]]
+name = "combobox"
+path = "examples/widgets/combobox.rs"
+
+[[example]]
 name = "vector"
 path = "examples/widgets/vector.rs"
 
@@ -70,6 +74,18 @@ path = "examples/widgets/slider.rs"
 [[example]]
 name = "popup"
 path = "examples/widgets/popup.rs"
+
+[[example]]
+name = "tooltip"
+path = "examples/widgets/tooltip.rs"
+
+[[example]]
+name = "temp"
+path = "examples/7guis/temp.rs"
+
+[[example]]
+name = "temp_reactive"
+path = "examples/7guis/temp_reactive.rs"
 
 [workspace]
 members = [
@@ -98,3 +114,4 @@ femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}
 image = "0.23.12"
 fnv = "1.0.7"
 rand = "0.8.3"
+english-numbers="0.3.3"

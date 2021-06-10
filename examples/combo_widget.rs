@@ -34,11 +34,7 @@ impl AppState {
 }
 
 impl Node for AppState {
-    fn get_data(&self) -> Option<&dyn Any> {
-        Some(self)
-    }
-
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+    fn on_mutate(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(app_event) = event.message.downcast() {
             match app_event {
                 AppEvent::SetName(index, new_name) => {
@@ -69,12 +65,14 @@ impl ContactFilter {
     }
 }
 
-impl Node for ContactFilter {
-    fn get_data(&self) -> Option<&dyn Any> {
-        Some(self)
+impl ToString for ContactFilter {
+    fn to_string(&self) -> String {
+        self.contact.name.clone()
     }
+}
 
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+impl Node for ContactFilter {
+    fn on_mutate(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(app_event) = event.message.downcast() {
             match app_event {
                 AppEvent::SetIndex(new_index) => {
@@ -92,7 +90,7 @@ impl Node for ContactFilter {
         }
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node, nodes: &NodeMap) {
         if let Some(app_state) = node.downcast_ref::<AppState>() {
             self.contact = app_state.contacts[self.index].clone();
         } 
@@ -102,19 +100,25 @@ impl Node for ContactFilter {
 struct AppWidget {
     name_label: Entity,
     name_edit: Entity,
+
+    filter: Entity,
 }
 
 impl AppWidget {
-    pub fn new() -> Self {
+    pub fn new(filter: Entity) -> Self {
         Self {
             name_label: Entity::null(),
             name_edit: Entity::null(),
+
+            filter,
         }
     }
 }
 
 impl Widget for AppWidget {
     type Ret = Entity;
+    type Data = AppState;
+
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         entity.set_layout_type(state, LayoutType::Grid);
@@ -122,7 +126,7 @@ impl Widget for AppWidget {
         entity.set_grid_cols(state, vec![Stretch(1.0), Stretch(1.0), Stretch(1.0)]);
 
         let app_entity = entity;
-        self.name_edit = Textbox::new("Name")
+        self.name_edit = Textbox::<ContactFilter>::new("Name")
             .on_submit(move |textbox, state, entity| {
                 let new_name = textbox.text.clone();
                 state.insert_update(Event::new(AppEvent::SetName(2, new_name)).origin(app_entity));
@@ -132,9 +136,10 @@ impl Widget for AppWidget {
                     .set_row(0)
                     .set_col(0)
                     .set_col_span(3)
-            );
+            )
+            .bind(state, self.filter);
         
-        self.name_label = Textbox::new("Name")
+        self.name_label = Textbox::<ContactFilter>::new("Name")
             .on_submit(move |textbox, state, entity| {
                 let new_name = textbox.text.clone();
                 state.insert_update(Event::new(AppEvent::SetName(2, new_name)).origin(app_entity));
@@ -144,32 +149,33 @@ impl Widget for AppWidget {
                     .set_row(1)
                     .set_col(0)
                     .set_col_span(3)
-            );
+            )
+            .bind(state, self.filter);
 
-        Spinbox::new(0)
-            .with_min(0)
-            .with_max(1)
-            .on_change(move |spinbox, state, entity|{
-                let new_index = spinbox.value;
-                state.insert_update(Event::new(AppEvent::SetIndex(new_index)).origin(app_entity));
-            })
-            .build(state, entity, |builder| 
-                builder
-                    .set_row(2)
-                    .set_col(0)
-                    .set_col_span(3)
-                    //.set_height(Pixels(30.0))
-            );
+        // Spinbox::new(0)
+        //     .with_min(0)
+        //     .with_max(1)
+        //     .on_change(move |spinbox, state, entity|{
+        //         let new_index = spinbox.value;
+        //         state.insert_update(Event::new(AppEvent::SetIndex(new_index)).origin(app_entity));
+        //     })
+        //     .build(state, entity, |builder| 
+        //         builder
+        //             .set_row(2)
+        //             .set_col(0)
+        //             .set_col_span(3)
+        //             //.set_height(Pixels(30.0))
+        //     );
 
         entity
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
-        if let Some(filter) = node.downcast_ref::<ContactFilter>() {
-            let new_name = filter.contact.name.clone();
-            self.name_label.set_text(state, &new_name);
-            self.name_edit.set_text(state, &new_name);
-        }
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Self::Data, nodes: &NodeMap) {
+        //if let Some(filter) = node.downcast_ref::<ContactFilter>() {
+            //let new_name = filter.contact.name.clone();
+            //self.name_label.set_text(state, &new_name);
+            //self.name_edit.set_text(state, &new_name);
+        //}
     }
 }
 
@@ -182,7 +188,7 @@ fn main() {
         let app_state = AppState::new().build(state, window);
         let filter1 = ContactFilter::new(0).build(state, app_state);
         let filter2 = ContactFilter::new(1).build(state, app_state);
-        AppWidget::new().build(state, window, |builder| builder).bind(state, filter1);
+        AppWidget::new(filter1).build(state, window, |builder| builder).bind(state, filter1);
         //AppWidget::new().build(state, window, |builder| builder).bind(state, filter2);
     });
     app.run();

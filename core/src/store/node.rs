@@ -1,17 +1,15 @@
-use crate::{Entity, State, Event};
+use crate::{Entity, Event, NodeMap, State};
 use fnv::FnvHashMap;
 
 use std::any::{Any, TypeId};
 pub trait Node: Any {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+    fn on_mutate(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node, nodes: &NodeMap) {
 
     }
-
-    fn get_data(&self) -> Option<&dyn Any>;
 
     //fn on_update(&self, state: &mut State, entity: Entity, data: &Box<dyn Node>) {}
 
@@ -30,7 +28,7 @@ pub trait Node: Any {
 
 impl dyn Node {
     // Check if a message is a certain type
-    pub fn is<T: Node + 'static>(&self) -> bool {
+    pub fn is<T: Any + 'static>(&self) -> bool {
         // Get TypeId of the type this function is instantiated with
         let t = TypeId::of::<T>();
 
@@ -55,13 +53,31 @@ impl dyn Node {
 
     pub fn downcast_ref<T>(&self) -> Option<&T>
     where
-        T: Node + 'static,
+        T: Any + 'static,
     {
         if self.is::<T>() {
             unsafe { Some(&*(self as *const dyn Node as *const T)) }
         } else {
             None
         }
+    }
+}
+
+trait Downcast {
+    fn as_any (self: &'_ Self)
+      -> &'_ dyn Any
+    where
+        Self : 'static,
+    ;
+}
+
+impl<T: Node> Downcast for T {
+    fn as_any (self: &'_ Self)
+      -> &'_ dyn Any
+    where
+        Self : 'static,
+    {
+        self
     }
 }
 

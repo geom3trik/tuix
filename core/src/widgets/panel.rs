@@ -77,7 +77,7 @@ impl Widget for Panel {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_focusability(state, false)
-            //.set_width(state, Stretch(1.0))
+            //.set_width(state, Auto);
             .set_height(state, Auto);
 
         self.header = Button::new()

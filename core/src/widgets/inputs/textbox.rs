@@ -1,8 +1,10 @@
 #![allow(dead_code)]
 
+use std::marker::PhantomData;
+
 use crate::entity::Entity;
 use crate::events::*;
-use crate::{Direction, Justify, PropGet, PropSet, State, Units, Visibility, WindowEvent};
+use crate::{Direction, Justify, PropGet, PropSet, State, Units, Visibility, WindowEvent, NodeMap};
 
 use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
 
@@ -17,7 +19,7 @@ pub enum TextboxEvent {
 
 //impl Message for TextboxEvent {}
 
-pub struct Textbox {
+pub struct Textbox<T> {
     entity: Entity,
     pub text: String,
 
@@ -35,9 +37,11 @@ pub struct Textbox {
     // Events
     on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     on_submit: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+
+    a: PhantomData<*const T>,
 }
 
-impl Textbox {
+impl<T> Textbox<T> {
     pub fn new(text: &str) -> Self {
         // id.set_text(state, "Test".to_string())
         //     .set_background(state, nanovg::Color::from_rgb(100, 50, 50));
@@ -61,6 +65,8 @@ impl Textbox {
 
             on_change: None,
             on_submit: None,
+
+            a: PhantomData::default(),
         }
     }
 
@@ -98,8 +104,9 @@ impl Textbox {
     // }
 }
 
-impl Widget for Textbox {
+impl<T: ToString + 'static> Widget for Textbox<T> {
     type Ret = Entity;
+    type Data = T;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &(self.text.to_owned() + &self.units));
 
@@ -392,6 +399,12 @@ impl Widget for Textbox {
                 _ => {}
             }
         }
+    }
+
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data, nodes: &NodeMap) {
+        self.text = data.to_string();
+        entity.set_text(state, &self.text);
     }
 
     fn on_draw(

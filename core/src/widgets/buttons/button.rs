@@ -83,6 +83,7 @@ impl Button {
 
 impl Widget for Button {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // If there is a specified label then set the text of the button entity to this
         if let Some(text) = &self.text {
@@ -110,8 +111,6 @@ impl Widget for Button {
                             (callback)(self, state, entity);
                             self.on_press = Some(callback);
                         }
-
-                        
 
                         entity.set_active(state, true);
                     }

@@ -4,8 +4,24 @@ use crate::{Entity, EventManager, Graph, Node, State, Update, Event};
 
 use fnv::FnvHashMap;
 
+pub struct NodeMap {
+    nodes: FnvHashMap<Entity, Box<dyn Node>>,
+}
+
+impl NodeMap {
+    pub fn new() -> Self {
+        Self {
+            nodes: FnvHashMap::default(),
+        }
+    }
+
+    pub fn get(&self, entity: Entity) -> Option<&dyn Node> {
+        self.nodes.get(&entity).map(|v| &(**v))
+    }
+}
+
 pub struct DataManager {
-    pub nodes: FnvHashMap<Entity, Box<dyn Node>>,
+    pub nodes: NodeMap,
     pub graph: Graph,
     pub update_queue: Vec<Event>,
 }
@@ -14,7 +30,7 @@ impl DataManager {
 
     pub fn new() -> Self {
         Self {
-            nodes: FnvHashMap::default(),
+            nodes: NodeMap::new(),
             graph: Graph::new(),
             update_queue: Vec::new(),
         }
@@ -29,7 +45,7 @@ impl DataManager {
 
         self.update_queue.clear();
 
-        self.nodes.extend(state.data_nodes.drain());
+        self.nodes.nodes.extend(state.data_nodes.drain());
 
         let update_queue = state.update_queue.clone();
         self.update_queue = update_queue.into_iter().collect::<Vec<Event>>();
@@ -54,38 +70,34 @@ impl DataManager {
 
 
 
-    fn apply_updates(&mut self, mutated_nodes: &mut Vec<Entity>, state: &mut State, event_manager: &mut EventManager) {
-        for mutated_node in mutated_nodes.iter() {
+    // fn apply_updates(&mut self, mutated_nodes: &mut Vec<Entity>, state: &mut State, event_manager: &mut EventManager) {
+    //     for mutated_node in mutated_nodes.iter() {
             
-            if let Some(data_node) = self.nodes.remove(&mutated_node) {
-                let data = data_node.get_data().unwrap();
-                if let Some(children) = self.graph.get_children(*mutated_node) {
-                    //println!("Loop Over Children");
-                    for child in children.iter() {
-                        //println!("Child: {}", child);
-                        if let Some(event_handler) = event_manager.event_handlers.get_mut(child) {
-                            event_handler.on_update(state, *child, data, &self.nodes);
-                        } else if let Some(mut event_handler) = self.nodes.remove(child) {
-                            event_handler.on_update(state, *child, data, &self.nodes);
-                            self.nodes.insert(*child, event_handler);
-                        }
-                    }                       
-                }
+    //         if let Some(data_node) = self.nodes.remove(&mutated_node) {
+    //             if let Some(children) = self.graph.get_children(*mutated_node) {
+    //                 //println!("Loop Over Children");
+    //                 for child in children.iter() {
+    //                     //println!("Child: {}", child);
+    //                     if let Some(event_handler) = event_manager.event_handlers.get_mut(child) {
+    //                         event_handler.on_update(state, *child, &(*data_node), &self.nodes);
+    //                     } else if let Some(mut event_handler) = self.nodes.remove(child) {
+    //                         event_handler.on_update(state, *child, &(*data_node), &self.nodes);
+    //                         self.nodes.insert(*child, event_handler);
+    //                     }
+    //                 }                       
+    //             }
 
-                self.nodes.insert(*mutated_node, data_node);
-            }
-        } 
-    }
+    //             self.nodes.insert(*mutated_node, data_node);
+    //         }
+    //     } 
+    // }
 } 
 
-fn apply_mutations(state: &mut State, graph: &Graph, nodes: &mut FnvHashMap<Entity, Box<dyn Node>>, mutated_nodes: &mut Vec<Entity>, update: &mut Event, id: Entity) {     
-    println!("Apply Mutations");
+fn apply_mutations(state: &mut State, graph: &Graph, nodes: &mut NodeMap, mutated_nodes: &mut Vec<Entity>, update: &mut Event, id: Entity) {     
     if let Some(parents) = graph.get_parents(id) {
         for parent in parents.iter() {
-            println!("Parent: {}", parent);
-
-            if let Some(data_node) = nodes.get_mut(parent) {
-                (*data_node).on_event(state,*parent, update);
+            if let Some(data_node) = nodes.nodes.get_mut(parent) {
+                (*data_node).on_mutate(state,*parent, update);
                 mutated_nodes.push(*parent);
             }
 
@@ -96,19 +108,18 @@ fn apply_mutations(state: &mut State, graph: &Graph, nodes: &mut FnvHashMap<Enti
     }
 }
 
-fn apply_updates(graph: &Graph, nodes: &mut FnvHashMap<Entity, Box<dyn Node>>, state: &mut State, event_manager: &mut EventManager, mutated_node: Entity) {
+fn apply_updates(graph: &Graph, nodes: &mut NodeMap, state: &mut State, event_manager: &mut EventManager, mutated_node: Entity) {
 
-        if let Some(data_node) = nodes.remove(&mutated_node) {
-            let data = data_node.get_data().unwrap();
+        if let Some(data_node) = nodes.nodes.remove(&mutated_node) {
             if let Some(children) = graph.get_children(mutated_node) {
                 //println!("Loop Over Children");
                 for child in children.iter() {
                     //println!("Child: {}", child);
                     if let Some(event_handler) = event_manager.event_handlers.get_mut(child) {
-                        event_handler.on_update(state, *child, data, &nodes);
-                    } else if let Some(mut event_handler) = nodes.remove(child) {
-                        event_handler.on_update(state, *child, data, &nodes);
-                        nodes.insert(*child, event_handler);
+                        event_handler.on_update(state, *child, &(*data_node), &nodes);
+                    } else if let Some(mut event_handler) = nodes.nodes.remove(child) {
+                        event_handler.on_update(state, *child, &(*data_node), &nodes);
+                        nodes.nodes.insert(*child, event_handler);
                     }
 
                     apply_updates(graph, nodes, state, event_manager, *child);
@@ -116,7 +127,7 @@ fn apply_updates(graph: &Graph, nodes: &mut FnvHashMap<Entity, Box<dyn Node>>, s
                 }                       
             }
 
-            nodes.insert(mutated_node, data_node);
+            nodes.nodes.insert(mutated_node, data_node);
         }
 
         

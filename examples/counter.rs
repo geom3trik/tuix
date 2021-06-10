@@ -26,18 +26,22 @@ impl Counter {
 
 impl Widget for Counter {
     type Ret = Entity;
-
+    type Data = ();
     // Build
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Button::with_label("increment")
-            .on_press(Event::new(CounterMessage::Increment))
+            .on_press(|widget, state, button|{
+                button.emit(state, button, Event::new(CounterMessage::Increment));
+            })
             .build(state, entity, |builder| builder.class("increment"));
 
         Button::with_label("decrement")
-            .on_press(Event::new(CounterMessage::Decrement))
+            .on_press(|widget, state, button|{
+                button.emit(state, button, Event::new(CounterMessage::Decrement));
+            })
             .build(state, entity, |builder| builder.class("decrement"));
 
-        self.label = Label::new(&self.value.to_string()).build(state, entity, |builder| builder);
+        self.label = Label::<String>::new(&self.value.to_string()).build(state, entity, |builder| builder);
 
         entity.set_element(state, "counter").set_layout_type(state, LayoutType::Row)
     }

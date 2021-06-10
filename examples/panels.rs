@@ -10,6 +10,7 @@ const STYLE: &str = r#"
 
     panel>.header {
         background-color: #ff5e1a;
+        height: 30px;
     }
 
     panel .container1 {
@@ -24,42 +25,18 @@ const STYLE: &str = r#"
         child_bottom: 10px;
         child_between: 10px;
     }
-
-    button {
-        background-color: #ff5e1a;
-    }
-
-    button:hover {
-        background-color: #ff7033;
-    }
     
     panel.one {
         left: 10px;
         top: 10px;
         width: 300px;
-        flex-direction: column;
+        height: auto;
         background-color: cyan;
     }
 
-    panel.one>.header {
-        height: 30px;
-        flex-direction: row;
-    }
-
-    panel.two {
-        margin: 10px;
-        height: 100px;
-        flex-direction: row;
-    }
-
-    panel.two>.header {
-        flex-basis: 80px;
-        flex-direction: column;
-    }
-
-    panel.two>.header>label {
-        text-align: start;
-        text-justify: center;
+    panel>.header>label {
+        child-space: 1s;
+        child-left: 0px;
     }
     
 "#;
@@ -93,7 +70,7 @@ fn main() {
         //     builder
         //         .set_width(Units::Pixels(100.0))
         //         .set_height(Units::Pixels(30.0))
-        //         .set_text_justify(Justify::Center)
+        //         .set_child_space(Stretch(1.0))
         // });
     });
 
