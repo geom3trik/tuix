@@ -38,9 +38,6 @@ pub trait Widget: std::marker::Sized + 'static {
         ret
     }
 
-    // Called when data bound to this widget is changed
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {}
-
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
@@ -572,11 +569,6 @@ impl<T: Widget> EventHandler for T
 where
     T: Widget + 'static,
 {
-
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Any, nodes: &FnvHashMap<Entity, Box<dyn Node>>) {
-        <T as Widget>::on_update(self, state, entity, node, nodes);
-    }
-
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         <T as Widget>::on_event(self, state, entity, event);
     }

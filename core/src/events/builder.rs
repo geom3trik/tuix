@@ -4,7 +4,7 @@ use crate::{Entity, EventHandler, State, Widget};
 use std::{cell::RefCell, marker::PhantomData};
 use std::rc::Rc;
 
-/// Contains an entity id and a mutable reference to state and can be used to set properties
+/// Contains an entity id and a mutable reference to state and can be used to set properties of a widget at build time
 pub struct Builder<'a,T> {
     pub entity: Entity,
     pub state: &'a mut State,
@@ -18,7 +18,7 @@ impl<'a,T> Builder<'a,T> {
         Builder::<T> { entity, state, phantom: PhantomData}
     }
 
-    // Builds the widget into State
+    /// Builds the widget into State
     pub(crate) fn build(mut self, event_handler: T) -> Entity
     where
         T: EventHandler + 'static + Sized,
@@ -40,6 +40,7 @@ impl<'a,T> Builder<'a,T> {
         self.entity
     }
 
+    /// Sets the general callback for pressing a widget
     pub fn on_press<F>(mut self, mut handler: F) -> Self
     where 
         T: Widget,

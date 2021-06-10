@@ -36,7 +36,6 @@ pub struct Application {
     pub state: State,
     event_loop: EventLoop<()>,
     pub event_manager: EventManager,
-    pub data_manager: DataManager,
 }
 
 impl Application {
@@ -54,16 +53,9 @@ impl Application {
 
         event_manager.hierarchy = state.hierarchy.clone();
 
-        let mut data_manager = DataManager::new();
-
         state.data_graph.add(Entity::root(), Entity::null());
 
-        data_manager.graph = state.data_graph.clone();
-
-        //let window_description = win(WindowDescription::new());
-        //let mut window_builder = WindowBuilder::new(root);
         app(&mut state, root);
-        //let window_description = window_builder.get_window_description();
 
         let mut window = Window::new(&event_loop, &window_description);
 
@@ -137,18 +129,17 @@ impl Application {
             window: window,
             event_loop: event_loop,
             event_manager: event_manager,
-            data_manager: data_manager,
             state: state,
         }
     }
 
     pub fn run(self) {
+
         let mut state = self.state;
+
         let mut event_manager = self.event_manager;
         event_manager.hierarchy = state.hierarchy.clone();
-        
-        let mut data_manager = self.data_manager;
-        data_manager.graph = state.data_graph.clone();
+    
 
         //println!("Event Manager: {:?}", event_manager.hierarchy);
 
@@ -179,7 +170,6 @@ impl Application {
                     
                     while !state.event_queue.is_empty() || !state.update_queue.is_empty() {
                         event_manager.flush_events(&mut state);
-                        data_manager.flush_updates(&mut state, &mut event_manager);
                     }
 
                     if state.apply_animations() {
