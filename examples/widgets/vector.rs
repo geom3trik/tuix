@@ -28,9 +28,11 @@ impl Widget for Container {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         self.vector = Vector::new()
+            .with_x(1.0)
+            .with_y(1.0)
+            .with_z(1.0)
             .on_change(|vector, state, entity| {
-                
-                state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba(255, 255, 255, 255))).target(entity));
+                state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba((vector.x * 255.0) as u8, (vector.y * 255.0) as u8, (vector.z * 255.0) as u8, 255))).target(entity));
             })
             .build(state, entity, |builder| {
                 builder

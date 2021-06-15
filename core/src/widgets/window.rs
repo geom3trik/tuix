@@ -61,6 +61,8 @@ impl Widget for WindowWidget {
                 }
 
                 WindowEvent::Redraw => {
+                    let hierarchy = state.hierarchy.clone();
+                    apply_z_ordering(state, &hierarchy);
                     state.needs_redraw = true;
                 }
 

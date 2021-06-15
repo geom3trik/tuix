@@ -19,8 +19,8 @@ pub use scrollbar::*;
 pub mod progress;
 pub use progress::*;
 
-// pub mod tab;
-// pub use tab::*;
+pub mod tab;
+pub use tab::*;
 
 // pub mod dropdown;
 // pub use dropdown::*;

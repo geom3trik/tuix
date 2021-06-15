@@ -11,6 +11,7 @@ pub enum ListEvent {
 pub struct List {
     checked_entity: Entity,
     single: bool,
+    selected_index: usize,
 }
 
 impl List {
@@ -18,6 +19,7 @@ impl List {
         Self {
             checked_entity: Entity::null(),
             single: true,
+            selected_index: 0,
         }
     }
 
@@ -30,7 +32,7 @@ impl List {
 impl Widget for List {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        //state.focused = entity;
+        state.focused = entity;
         entity.set_focusability(state, false);
         entity.set_element(state, "list")
     }
@@ -43,6 +45,8 @@ impl Widget for List {
                         if let Some(next_entity) =
                             state.hierarchy.get_next_sibling(self.checked_entity)
                         {
+                            self.selected_index += 1;
+
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)
                                     .target(self.checked_entity)
@@ -65,6 +69,9 @@ impl Widget for List {
                         if let Some(prev_entity) =
                             state.hierarchy.get_prev_sibling(self.checked_entity)
                         {
+
+                            self.selected_index -= 1;
+
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)
                                     .target(self.checked_entity)

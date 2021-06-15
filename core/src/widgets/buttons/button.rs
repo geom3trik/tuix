@@ -89,7 +89,6 @@ impl Widget for Button {
             entity.set_text(state, text);
         }
 
-        // Set the element name to 'button'
         entity.set_element(state, "button")
     }
 

@@ -71,6 +71,18 @@ path = "examples/widgets/slider.rs"
 name = "popup"
 path = "examples/widgets/popup.rs"
 
+[[example]]
+name = "listbox"
+path = "examples/widgets/listbox.rs"
+
+[[example]]
+name = "stack"
+path = "examples/widgets/stack.rs"
+
+[[example]]
+name = "gallery"
+path = "examples/widgets/gallery.rs"
+
 [workspace]
 members = [
     "winit",
