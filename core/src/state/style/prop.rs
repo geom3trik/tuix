@@ -208,10 +208,30 @@ pub trait PropSet: AsEntity + Sized {
 
     // Rotate
     fn set_rotate(self, state: &mut State, value: f32) -> Entity {
-        state.style.rotate.insert(self.entity(), value);
+        state.style.rotate.insert(self.entity(), value * std::f32::consts::PI / 180.0);
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_translate(self, state: &mut State, value: (f32, f32)) -> Entity {
+        state.style.translate.insert(self.entity(), value);
+
+        //state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_scale(self, state: &mut State, value: f32) -> Entity {
+        state.style.scale.insert(self.entity(), value);
+
+        //state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()

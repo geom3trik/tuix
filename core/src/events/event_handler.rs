@@ -180,7 +180,6 @@ pub trait EventHandler: Any {
 
         // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
-        let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
         canvas.save();
         canvas.translate(posx + width / 2.0, posy + height / 2.0);

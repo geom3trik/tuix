@@ -54,7 +54,7 @@ pub mod color;
 pub use color::Color;
 
 pub mod transform;
-pub use transform::Scale;
+pub use transform::*;
 
 use std::rc::Rc;
 
@@ -72,8 +72,10 @@ pub struct Style {
 
     // Transform
     pub rotate: AnimatableStorage<f32>,   // in degrees
-    pub scalex: AnimatableStorage<Scale>, // TODO
-    pub scaley: AnimatableStorage<Scale>, // TODO
+    pub scalex: StyleStorage<Transform2D>, // TODO
+    //pub scaley: AnimatableStorage<Scale>, // TODO
+    pub translate: StyleStorage<(f32, f32)>,
+    pub scale: StyleStorage<f32>,
 
     // General
     pub display: StyleStorage<Display>,
@@ -173,6 +175,8 @@ pub struct Style {
     pub child_bottom: AnimatableStorage<Units>,
     pub child_between: AnimatableStorage<Units>,
     // pub child_wrap: AnimatableStorage<Units>,
+
+    pub geometry: DenseStorage<femtovg::Path>,
 }
 
 impl Style {

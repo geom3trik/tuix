@@ -182,18 +182,23 @@ pub trait Widget: std::marker::Sized + 'static {
             return;
         }
 
+        let mut clip_region = state.data.get_clip_region(entity);
+        canvas.scissor(
+            clip_region.x,
+            clip_region.y,
+            clip_region.w,
+            clip_region.h,
+        );
+
         // Apply transformations
-        let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
-        let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
+        //let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
+        let mut transform = state.data.get_transform(entity);
+
 
         canvas.save();
-        canvas.translate(bounds.x + bounds.w / 2.0, bounds.y + bounds.h / 2.0);
-        canvas.rotate(rotate.to_radians());
-        canvas.translate(-(bounds.x + bounds.w / 2.0), -(bounds.y + bounds.h / 2.0));
-        //canvas.restore();
+        canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
 
-        //canvas.save();
-        canvas.translate(bounds.x, bounds.y);
+        //canvas.translate(bounds.x, bounds.y);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
         //canvas.translate(posx + width / 2.0, posy + width / 2.0);
@@ -202,13 +207,34 @@ pub trait Widget: std::marker::Sized + 'static {
         // canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let mut clip_region = state.data.get_clip_region(entity);
-        canvas.scissor(
-            clip_region.x - bounds.x,
-            clip_region.y - bounds.y,
-            clip_region.w,
-            clip_region.h,
-        );
+        // let mut clip_region = state.data.get_clip_region(entity);
+
+        // let scale = state.data.get_scale(entity);
+
+        // transform.inverse();
+        // let (mut clip_x, mut clip_y) = transform.transform_point(clip_region.x, clip_region.y);
+        // let (mut clip_w, mut clip_h) = transform.transform_point(clip_region.w - clip_region.x, clip_region.h - clip_region.y);
+
+        // clip_x = clip_region.x;
+        // clip_y = clip_region.y;
+        // clip_w += clip_x;
+        // clip_h += clip_y;
+
+        // canvas.scissor(
+        //     clip_x,
+        //     clip_y,
+        //     clip_w,
+        //     clip_h,
+        // );
+
+        // canvas.scissor(
+        //     clip_region.x,
+        //     clip_region.y,
+        //     clip_region.w,
+        //     clip_region.h,
+        // );
+
+        //println!("Entity: {} x: {} y: {} w: {} h: {}", entity,  clip_x, clip_y, clip_w, clip_h);
 
         let outer_shadow_h_offset = match state
             .style
@@ -350,15 +376,15 @@ pub trait Widget: std::marker::Sized + 'static {
             && border_radius_top_right == (bounds.w - 2.0 * border_width) / 2.0
         {
             path.circle(
-                0.0 + (border_width / 2.0) + (bounds.w - border_width) / 2.0,
-                0.0 + (border_width / 2.0) + (bounds.h - border_width) / 2.0,
+                bounds.x + (border_width / 2.0) + (bounds.w - border_width) / 2.0,
+                bounds.y + (border_width / 2.0) + (bounds.h - border_width) / 2.0,
                 bounds.w / 2.0,
             );
         } else {
             // Draw rounded rect
             path.rounded_rect_varying(
-                (border_width / 2.0),
-                (border_width / 2.0),
+                bounds.x + (border_width / 2.0),
+                bounds.y + (border_width / 2.0),
                 bounds.w - border_width,
                 bounds.h - border_width,
                 border_radius_top_left,
@@ -444,6 +470,7 @@ pub trait Widget: std::marker::Sized + 'static {
         );
         canvas.fill_path(&mut path, paint);
 
+        
         // Draw text
         if let Some(text) = state.style.text.get_mut(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
@@ -459,8 +486,8 @@ pub trait Widget: std::marker::Sized + 'static {
             // let mut x = posx + (border_width / 2.0);
             // let mut y = posy + (border_width / 2.0);
 
-            let mut x = 0.0;
-            let mut y = 0.0;
+            let mut x = bounds.x;
+            let mut y = bounds.y;
 
             let text_string = text.to_owned();
 
@@ -558,9 +585,11 @@ pub trait Widget: std::marker::Sized + 'static {
 
             canvas.fill_text(x, y, &text_string, paint);
         }
-
-        canvas.translate(-bounds.x, -bounds.y);
+        
+        //canvas.translate(-bounds.x, -bounds.y);
         canvas.restore();
+
+        //canvas.reset_scissor();
     }
 }
 

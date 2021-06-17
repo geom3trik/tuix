@@ -1,4 +1,4 @@
-use crate::{Display, Entity, Event, PropGet, Propagation, State, Units, Visibility, WindowEvent};
+use crate::{Display, Entity, Event, PropGet, Propagation, State, Transform2D, Units, Visibility, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
@@ -53,19 +53,36 @@ pub fn apply_hover(state: &mut State) {
 
         let clip_region = state.data.get_clip_region(entity);
 
+        let mut transform = state.data.get_transform(entity);
+
+        //let scale = state.data.get_scale(entity);
+        //let mut scale_transform = Transform2D::identity();
+        //scale_transform.scale(scale, scale);
+        //scale_transform.inverse();
+
+        //transform.premultiply(&scale_transform);
+
+
+        let origin = state.data.get_origin(entity);
+
+        //transform.translate(origin.0, origin.1);
+        transform.inverse();
+        //transform.translate(-origin.0, -origin.1);
+        
+        let (cx, cy) = transform.transform_point(cursorx, cursory);
         // let clip_posx = state.data.get_posx(clip_widget);
         // let clip_posy = state.data.get_posy(clip_widget);
         // let clip_width = state.data.get_width(clip_widget);
         // let clip_height = state.data.get_height(clip_widget);
 
-        if cursorx >= posx
-            && cursorx >= clip_region.x
-            && cursorx < (posx + width)
-            && cursorx < (clip_region.x + clip_region.w)
-            && cursory >= posy
-            && cursory >= clip_region.y
-            && cursory < (posy + height)
-            && cursory < (clip_region.y + clip_region.h)
+        if cx >= posx
+            //&& cx >= clip_region.x
+            && cx < (posx + width)
+            //&& cx < (clip_region.x + clip_region.w)
+            && cy >= posy
+            //&& cy >= clip_region.y
+            && cy < (posy + height)
+            //&& cy < (clip_region.y + clip_region.h)
         {
             hovered_widget = entity;
             if entity.is_over(state) == false {
@@ -132,7 +149,7 @@ pub fn apply_hover(state: &mut State) {
         state.insert_event(Event::new(WindowEvent::MouseEnter).target(hovered_widget));
         state.insert_event(Event::new(WindowEvent::MouseLeave).target(state.hovered));
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
 
         state.hovered = hovered_widget;
         state.active = Entity::null();

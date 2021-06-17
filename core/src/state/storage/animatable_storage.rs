@@ -559,7 +559,7 @@ where
 
                     LinkType::NoRule => {
                         self.unlink(entity);
-                        return true;
+                        //return true;
                     }
 
                     //LinkType::NoData => {

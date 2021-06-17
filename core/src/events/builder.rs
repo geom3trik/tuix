@@ -500,15 +500,6 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
-    pub fn set_scaley(mut self, scaley: f32) -> Self {
-        self.state
-            .style
-            .scaley
-            .insert(self.entity, Scale::new(scaley));
-
-        self
-    }
-
     pub fn set_child_left(mut self, value: Units) -> Self {
         self.state.style.child_left.insert(self.entity, value);
         self

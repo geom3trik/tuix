@@ -3,6 +3,87 @@ use crate::style::*;
 
 use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};
 
+
+pub fn apply_transform(state: &mut State, hierarchy: &Hierarchy) {
+    //println!("Apply Transform");
+    for entity in hierarchy.into_iter() {
+        
+        if entity == Entity::root() {
+            continue;
+        }
+        
+        let parent = hierarchy.get_parent(entity).unwrap();
+
+        let parent_rotate = state.data.get_rotate(parent);
+        let parent_translate = state.data.get_translate(parent);
+        let parent_scale = state.data.get_scale(parent);
+        let parent_bounds = state.data.get_bounds(parent);
+        let parent_origin = state.data.get_origin(parent);
+
+
+        let parent_transform = state.data.get_transform(parent);
+
+        //state.data.set_transform(entity, Transform2D::identity());
+        state.data.set_transform(entity, parent_transform);
+
+        //let mut transform = Transform2D::identity();
+
+        let bounds = state.data.get_bounds(entity);
+
+        // if let Some(rotate) = state.style.rotate.get(entity) {
+        //     state.data.set_rotate(entity, *rotate);
+        //     let x = (bounds.x + bounds.w) / 2.0;
+        //     let y = (bounds.y + bounds.h) / 2.0;
+        //     state.data.set_origin(entity, (x,y));
+        // } else {
+        //     state.data.set_rotate(entity, parent_rotate);
+        //     //let x = (parent_bounds.x + parent_bounds.w) / 2.0;
+        //     //let y = (parent_bounds.y + parent_bounds.h) / 2.0;
+        //     state.data.set_origin(entity, parent_origin);
+        // }
+
+        
+        if let Some(translate) = state.style.translate.get(entity) {
+            state.data.set_translate(entity, *translate);
+        } else {
+            //state.data.set_translate(entity, parent_translate);
+        }
+
+        if let Some(rotate) = state.style.rotate.get(entity) {
+            let x = (bounds.x + bounds.w) / 2.0;
+            let y = (bounds.y + bounds.h) / 2.0;
+            state.data.set_translate(entity, (x,y));
+            state.data.set_rotate(entity, *rotate);
+            state.data.set_translate(entity, (-x,-y));
+            // state.data.set_rotate(entity, *rotate);
+            // let x = (bounds.x + bounds.w) / 2.0;
+            // let y = (bounds.y + bounds.h) / 2.0;
+            // state.data.set_origin(entity, (x,y));
+        } else {
+            //state.data.set_rotate(entity, parent_rotate);
+            //let x = (parent_bounds.x + parent_bounds.w) / 2.0;
+            //let y = (parent_bounds.y + parent_bounds.h) / 2.0;
+            state.data.set_origin(entity, parent_origin);
+        }
+
+        if let Some(scale) = state.style.scale.get(entity) {
+            let x = (bounds.x + bounds.w) / 2.0;
+            let y = (bounds.y + bounds.h) / 2.0;
+            state.data.set_translate(entity, (x,y));
+            state.data.set_scale(entity, *scale);
+            state.data.set_translate(entity, (-x,-y));
+            //state.data.set_origin(entity, (x,y));
+        } else {
+            //state.data.set_scale(entity, parent_scale);
+            state.data.set_origin(entity, parent_origin);
+        }
+
+        
+
+    }
+}
+
+
 #[derive(Debug)]
 enum Axis {
     Before,
@@ -11,6 +92,7 @@ enum Axis {
 }
 
 pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
+    //println!("Apply Layout");
     let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
 
     // for entity in layout_hierarchy.iter() {
