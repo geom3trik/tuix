@@ -338,7 +338,7 @@ impl Widget for Textbox {
                             return;
                         }
                         if self.edit {
-                            println!("Input: {}", input);
+                            //println!("Input: {}", input);
                             let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
                             //let start = text_data.select_pos as usize;
