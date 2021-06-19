@@ -1,13 +1,13 @@
-[Join the Discord channel](https://discord.gg/aNkTPsRm2w)
-
-<img src="https://github.com/geom3trik/tuix/blob/main/docs/tuix-logo.png" width="320" height="180">
+<p align="center"><img src="https://github.com/geom3trik/tuix/blob/main/docs/tuix-logo.png" width="320" height="180" alt="logo"></p>
 
 ---
 A cross-platform GUI toolkit written in the Rust programming langauge.
 
 The driving principle behind tuix is to be a self-contained, small-as-possible, but still fast, toolkit for creating graphical user interfaces in Rust. 
 
-![calculator](https://github.com/geom3trik/tuix/blob/develop/docs/calculator.png?raw=true)
+<p align="center"><a href="https://github.com/geom3trik/tuix/blob/main/examples/calculator.rs"><img src="https://github.com/geom3trik/tuix/blob/develop/docs/calculator.png" alt="calculator"></a></p>
+
+[Join the Discord channel!](https://discord.gg/aNkTPsRm2w)
 
 ## Features
 
@@ -198,7 +198,7 @@ The first line of the closure adds the stylsheet to the app. Next, we create an 
 
 And we're done! 
 
-![counter](https://github.com/geom3trik/tuix/blob/develop/docs/counter.png?raw=true)
+<p align="center"><a href="https://github.com/geom3trik/tuix/blob/main/examples/counter.rs"><img src="https://github.com/geom3trik/tuix/blob/develop/docs/counter.png" alt="counter"></a></p>
 
 You can find the full code for this example in the examples folder under the name 'counter.rs'. Run it with:
 ```Bash
@@ -343,7 +343,7 @@ After styling, the widgets are drawn to the window. The visual look of the widge
 
 ## Building a simple synth
 
-![alt text](https://github.com/geom3trik/tuix_audio_synth/blob/main/screenshot.png?raw=true)
+<p align="center"><a href="https://github.com/geom3trik/tuix_audio_synth"><img src="https://github.com/geom3trik/tuix_audio_synth/blob/main/screenshot.png" alt="calculator"></a></p>
 
 You can find a more complex example application and a tutorial for building a simple synth with a tuix gui here: https://github.com/geom3trik/tuix_audio_synth
 
