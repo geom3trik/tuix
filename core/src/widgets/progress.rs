@@ -1,5 +1,3 @@
-use std::alloc::Layout;
-
 use crate::state::style::*;
 use crate::widgets::slider::SliderEvent;
 use crate::widgets::*;

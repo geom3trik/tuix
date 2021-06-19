@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::state::style::*;
 
 use crate::{MouseButton, State};

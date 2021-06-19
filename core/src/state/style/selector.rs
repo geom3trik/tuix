@@ -167,7 +167,6 @@ pub struct Selector {
     pub id: Option<u64>,
     pub element: Option<String>,
     pub classes: HashSet<String>,
-    //pub pseudo_classes: HashSet<PseudoClass>,
     pub pseudo_classes: PseudoClasses,
     pub relation: Relation,
     pub asterisk: bool,

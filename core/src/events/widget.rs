@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, Entity, Hierarchy, State, Node, Update};
+use crate::{AsEntity, Entity, Hierarchy, State};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,

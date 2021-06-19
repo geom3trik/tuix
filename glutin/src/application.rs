@@ -13,8 +13,6 @@ use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 
 use tuix_core::events::{Event, EventManager, Propagation};
 
-use tuix_core::store::{Node, DataManager};
-
 use tuix_core::state::hierarchy::IntoHierarchyIterator;
 
 use tuix_core::state::Fonts;
@@ -52,8 +50,6 @@ impl Application {
         state.hierarchy.add(Entity::root(), None);
 
         event_manager.hierarchy = state.hierarchy.clone();
-
-        state.data_graph.add(Entity::root(), Entity::null());
 
         app(&mut state, root);
 
@@ -168,7 +164,7 @@ impl Application {
                 GEvent::MainEventsCleared => {
 
                     
-                    while !state.event_queue.is_empty() || !state.update_queue.is_empty() {
+                    while !state.event_queue.is_empty() {
                         event_manager.flush_events(&mut state);
                     }
 

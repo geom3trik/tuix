@@ -1,9 +1,5 @@
 #![allow(dead_code)]
 
-// pub use femtovg::*;
-
-// pub mod store;
-// pub use store::*;
 
 pub mod state;
 pub use state::*;
@@ -13,9 +9,6 @@ pub use text::*;
 
 pub mod events;
 pub use events::*;
-
-pub mod store;
-pub use store::*;
 
 pub mod widgets;
 pub use crate::widgets::*;

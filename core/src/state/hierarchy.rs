@@ -3,10 +3,21 @@
 use crate::entity::Entity;
 
 #[derive(Debug)]
-pub enum HierarchyErrorKind {}
+pub enum HierarchyErrorKind {
+    // Parent does not exist in the hierarchy
+    InvalidParent,
+    // Sibling does not exist in the hierarchy
+    InvalidSibling,
+    // Entity is null
+    NullEntity,
+    // Desired sibling is already the sibling
+    AlreadySibling,
+}
 
 #[derive(Debug)]
-pub struct HierarchyError {}
+pub struct HierarchyError {
+    kind: HierarchyErrorKind,
+}
 
 #[derive(Debug, Clone)]
 pub struct Hierarchy {
@@ -200,15 +211,19 @@ impl Hierarchy {
     // Makes the entity the first child of its parent
     pub fn set_first_child(&mut self, entity: Entity) -> Result<(), HierarchyError> {
         if let Some(index) = entity.index() {
-            // Check is sibline exists in the hierarchy
+            // Check is sibling exists in the hierarchy
             if index >= self.parent.len() {
-                return Err(HierarchyError {});
+                return Err(HierarchyError {
+                    kind: HierarchyErrorKind::InvalidSibling,
+                });
             }
 
             // Check if the parent is in the hierarchy
             if let Some(parent) = self.get_parent(entity) {
                 if parent.index_unchecked() >= self.parent.len() {
-                    return Err(HierarchyError {});
+                    return Err(HierarchyError {
+                        kind: HierarchyErrorKind::InvalidParent,
+                    });
                 }
             }
 
@@ -240,7 +255,9 @@ impl Hierarchy {
 
             Ok(())
         } else {
-            Err(HierarchyError {})
+            Err(HierarchyError {
+                kind: HierarchyErrorKind::NullEntity,
+            })
         }
     }
 
@@ -250,23 +267,31 @@ impl Hierarchy {
         sibling: Entity,
     ) -> Result<(), HierarchyError> {
         if self.next_sibling[entity.index_unchecked()] == Some(sibling) {
-            return Err(HierarchyError {});
+            return Err(HierarchyError {
+                kind: HierarchyErrorKind::AlreadySibling,
+            });
         }
 
-        // Check is sibline exists in the hierarchy
+        // Check is sibling exists in the hierarchy
         if sibling.index_unchecked() >= self.parent.len() {
-            return Err(HierarchyError {});
+            return Err(HierarchyError {
+                kind: HierarchyErrorKind::InvalidSibling,
+            });
         }
 
         // Check if sibling has the same parent
         if let Some(parent) = self.get_parent(entity) {
             if let Some(sibling_parent) = self.get_parent(entity) {
                 if parent != sibling_parent {
-                    return Err(HierarchyError {});
+                    return Err(HierarchyError {
+                        kind: HierarchyErrorKind::InvalidSibling,
+                    });
                 }
             }
         } else {
-            return Err(HierarchyError {});
+            return Err(HierarchyError {
+                kind: HierarchyErrorKind::InvalidParent,
+            });
         }
 
         // Safe to unwrap because we already checked if it has a parent
@@ -315,23 +340,31 @@ impl Hierarchy {
         sibling: Entity,
     ) -> Result<(), HierarchyError> {
         if self.prev_sibling[entity.index_unchecked()] == Some(sibling) {
-            return Err(HierarchyError {});
+            return Err(HierarchyError {
+                kind: HierarchyErrorKind::InvalidSibling,
+            });
         }
 
-        // Check is sibline exists in the hierarchy
+        // Check is sibling exists in the hierarchy
         if sibling.index_unchecked() >= self.parent.len() {
-            return Err(HierarchyError {});
+            return Err(HierarchyError {
+                kind: HierarchyErrorKind::InvalidSibling,
+            });
         }
 
         // Check if sibling has the same parent
         if let Some(parent) = self.get_parent(entity) {
             if let Some(sibling_parent) = self.get_parent(entity) {
                 if parent != sibling_parent {
-                    return Err(HierarchyError {});
+                    return Err(HierarchyError {
+                        kind: HierarchyErrorKind::InvalidSibling,
+                    });
                 }
             }
         } else {
-            return Err(HierarchyError {});
+            return Err(HierarchyError {
+                kind: HierarchyErrorKind::InvalidParent,
+            });
         }
 
         // Safe to unwrap because we already checked if it has a parent

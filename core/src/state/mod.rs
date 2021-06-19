@@ -23,10 +23,8 @@ pub mod resource;
 pub use resource::*;
 
 
-pub use crate::events::{Builder, Event, Propagation, Widget};
+pub use crate::events::{Builder, Event, Propagation, Widget, EventHandler};
 pub use crate::window_event::WindowEvent;
-
-use crate::{EventHandler, Node, Update, Graph};
 
 use femtovg::FontId;
 
@@ -46,34 +44,45 @@ pub struct Fonts {
 }
 
 pub struct State {
-    pub(crate) entity_manager: EntityManager, // Creates and destroys entities
-    pub hierarchy: Hierarchy,      // The widget tree
-    pub style: Style,              // The style properties for every widget
-    pub data: Data,                // Computed data
-
-    pub data_graph: Graph, // Hierarchy of data nodes
-
+    // Creates and destroys entities
+    pub(crate) entity_manager: EntityManager, 
+    // The widget tree
+    pub hierarchy: Hierarchy,
+    // The style properties for every widget
+    pub style: Style,
+    // Computed data for every widget
+    pub data: Data,
+    // Mouse state
     pub mouse: MouseState,
+    // Modifiers state
     pub modifiers: ModifiersState,
+
+    // Hovered entity
     pub hovered: Entity,
+    // Active entity
     pub active: Entity,
+    // Captured entity
     pub captured: Entity,
+    // Focused entity
     pub focused: Entity,
+
 
     pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
 
+    // Map of widgets
     pub(crate) event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
-    pub data_nodes: FnvHashMap<Entity, Box<dyn Node>>,
 
+    // List of removed entities
     pub(crate) removed_entities: Vec<Entity>,
-    pub event_queue: VecDeque<Event>,
 
-    pub update_queue: VecDeque<Event>,
+    // Queue of events
+    pub event_queue: VecDeque<Event>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
     pub(crate) resource_manager: ResourceManager, //TODO
 
+    // Flag which signifies that a restyle is required
     pub needs_restyle: bool,
     pub needs_relayout: bool,
     pub needs_redraw: bool,
@@ -83,7 +92,6 @@ impl State {
     pub fn new() -> Self {
         let entity_manager = EntityManager::new();
         let hierarchy = Hierarchy::new();
-        let data_graph = Graph::new();
         let mut style = Style::default();
         let mut data = Data::default();
         let mouse = MouseState::default();
@@ -103,7 +111,6 @@ impl State {
             hierarchy,
             style,
             data,
-            data_graph,
             mouse,
             modifiers,
             hovered: Entity::root(),
@@ -112,9 +119,7 @@ impl State {
             focused: Entity::root(),
             callbacks: FnvHashMap::default(),
             event_handlers: FnvHashMap::default(),
-            data_nodes: FnvHashMap::default(),
             event_queue: VecDeque::new(),
-            update_queue: VecDeque::new(),
             removed_entities: Vec::new(),
             fonts: Fonts {
                 regular: None,
@@ -238,15 +243,6 @@ impl State {
         self.event_queue.push_back(event);
     }
 
-    pub fn insert_update(&mut self, update: Event) {
-        self.update_queue.push_back(update);
-    }
-
-    // TODO
-    // pub fn id2entity(&self, id: &str) -> Option<Entity> {
-    //     self.style.ids.get_by_left(&id.to_string()).cloned()
-    // }
-
     // This should probably be moved to state.mouse
     pub fn capture(&mut self, entity: Entity) {
         if entity != Entity::null() && self.captured != entity {
@@ -316,19 +312,6 @@ impl State {
         entity
     }
 
-    // TODO
-    // pub fn add_with_sibling(&mut self, sibling: Entity) -> Entity {
-    //     let entity = self
-    //         .entity_manager
-    //         .create_entity()
-    //         .expect("Failed to create entity");
-    //     //self.hierarchy.add_with_sibling(entity, sibling);
-    //     self.transform.add(entity);
-    //     self.style.add(entity);
-
-    //     entity
-    // }
-
     //  TODO
     pub fn remove(&mut self, entity: Entity) {
         // Collect all entities below the removed entity on the same branch of the hierarchy
@@ -349,7 +332,7 @@ impl State {
     }
 
     // Run all pending animations
-    // TODO - This should probably be moved to style
+    // TODO - This should probably be moved to style or an animation handling system
     pub fn apply_animations(&mut self) -> bool {
 
         let time = std::time::Instant::now();
