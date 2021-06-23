@@ -13,6 +13,7 @@ pub enum TextboxEvent {
     SetValue(String),
     ValueChanged(String),
     ResetValue,
+    Clear,
 }
 
 //impl Message for TextboxEvent {}
@@ -125,6 +126,13 @@ impl Widget for Textbox {
 
                         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                     }
+                }
+
+                TextboxEvent::Clear => {
+                    self.text.clear();
+                    self.buffer.clear();
+                    entity.set_text(state, "");
+                    state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                 }
 
                 // TextboxEvent::ResetValue => {

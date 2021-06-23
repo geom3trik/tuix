@@ -12,6 +12,8 @@ pub enum HierarchyErrorKind {
     NullEntity,
     // Desired sibling is already the sibling
     AlreadySibling,
+
+    AlreadyFirstChild,
 }
 
 #[derive(Debug)]
@@ -230,6 +232,12 @@ impl Hierarchy {
             let parent = self.get_parent(entity).unwrap();
 
             let previous_first_child = self.first_child[parent.index_unchecked()];
+
+            if previous_first_child == Some(entity) {
+                return Err(HierarchyError {
+                    kind: HierarchyErrorKind::AlreadyFirstChild
+                });
+            }
 
             let entity_prev_sibling = self.get_prev_sibling(entity);
             let entity_next_sibling = self.get_next_sibling(entity);
