@@ -23,17 +23,17 @@ pub struct Slider {
     // event sent when the slider value is changing
     on_changing: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     // Event sent when the slider reaches the minimum value
-    on_min: Option<Box<dyn Fn(f32) -> Event>>,
+    on_min: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     // Event sent when the slider reaches the maximum value
-    on_max: Option<Box<dyn Fn(f32) -> Event>>,
+    on_max: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     // Event sent when the slider is pressed
-    on_press: Option<Event>,
+    on_press: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     // Event sent when the slider is released
-    on_release: Option<Event>,
+    on_release: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     // Event sent when the mouse cursor enters the slider
-    on_over: Option<Event>,
+    on_over: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     // Event sent when the mouse cusor leaves the slider
-    on_out: Option<Event>,
+    on_out: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 
     pub value: f32,
     prev: f32,
@@ -73,18 +73,40 @@ impl Default for Slider {
 
 impl Slider {
     /// Create a new slider widget with default values (min: 0.0, max: 1.0, val: 0.0).
+    ///
+    /// # Example
+    /// 
+    /// ```
+    /// Slider::new().build(state, parent, |builder| builder);
+    /// ```
     pub fn new() -> Self {
         Self::default()
     }
 
     /// Set the initial value of the slider.
-    pub fn with_initial_value(mut self, val: f32) -> Self {
+    ///
+    /// # Example
+    /// 
+    /// ```
+    /// Slider::new()
+    ///    .with_init(0.5)
+    ///    .build(state, parent, |builder| builder)
+    /// ```
+    pub fn with_init(mut self, val: f32) -> Self {
         self.value = val;
 
         self
     }
 
     /// Set the range of the slider. Min and Max values are extracted from the range.
+    ///
+    /// # Example
+    /// 
+    /// ```
+    /// Slider::new()
+    ///     .with_range(0.0..5.0)
+    ///     .build(state, parent, |builder| builder)
+    /// ```
     pub fn with_range(mut self, range: std::ops::Range<f32>) -> Self {
         self.min = range.start;
         self.max = range.end;
@@ -92,13 +114,29 @@ impl Slider {
         self
     }
 
-    /// Set the min value of the slider.
+    /// Set the minimum value of the slider.
+    ///
+    /// # Example
+    /// 
+    /// ```
+    /// Slider::new()
+    ///     .with_min(0.2)
+    ///     .build(state, parent, |builder| builder)
+    /// ```
     pub fn with_min(mut self, val: f32) -> Self {
         self.min = val;
         self
     }
 
-    /// Set the max value of the slider.
+    /// Set the maximum value of the slider.
+    ///
+    /// # Example
+    /// 
+    /// ```
+    /// Slider::new()
+    ///     .with_max()
+    ///     .build(state, parent, |builder| builder)
+    /// ```
     pub fn with_max(mut self, val: f32) -> Self {
         self.max = val;
         self
@@ -111,10 +149,13 @@ impl Slider {
     /// the value is not changed, then the event will not be sent.
     ///
     /// # Example
+    /// 
     /// ```
     /// Slider::new()
-    ///    .on_change(|val| Event::new(WindowEvent::Debug(format!("Slider on_change: {}", val))))
-    ///    .build(state, parent, |builder| builder)
+    ///     .on_change(|slider, state, entity| {
+    ///         entity.emit(WindowEvent::Debug(format!("Slider on_change: {}", slider.value)));
+    ///     })
+    ///     .build(state, parent, |builder| builder);
     /// ```
     pub fn on_change<F>(mut self, callback: F) -> Self
     where
@@ -126,14 +167,17 @@ impl Slider {
 
     /// Set the callback triggered when the slider value is changing (dragging).
     ///
-    /// Takes a closure which provides the current value and returns an event to be sent when the slider
-    /// is value is changing, either by pressing the track or dragging the thumb along the track.
+    /// Takes a closure which triggers when the slider value is changing, 
+    /// either by pressing the track or dragging the thumb along the track.
     ///
     /// # Example
+    /// 
     /// ```
     /// Slider::new()
-    ///    .on_changing(|slider, state, entity| state.insert_event(Event::new(WindowEvent::Debug(format!("Slider on_changing: {}", val)))).target(entity))
-    ///    .build(state, parent, |builder| builder)
+    ///     .on_changing(|slider, state, entity| {
+    ///         entity.emit(WindowEvent::Debug(format!("Slider on_changing: {}", slider.value)));
+    ///     })
+    ///     .build(state, parent, |builder| builder);
     /// ```
     pub fn on_changing<F>(mut self, callback: F) -> Self
     where
@@ -143,43 +187,49 @@ impl Slider {
         self
     }
 
-    /// Set the event sent when the slider value reaches the minimum.
+    /// Set the callback triggered when the slider value reaches the minimum.
     ///
-    /// Takes a closure which provides the minimum value and returns an event to be sent when the slider
-    /// reaches the minimum value, either by pressing the track at the start or dragging the thumb to the start
+    /// Takes a closure which triggers when the slider reaches the minimum value, 
+    /// either by pressing the track at the start or dragging the thumb to the start
     /// of the track. The event is sent once for each time the value reaches the minimum.
     ///
     /// # Example
+    /// 
     /// ```
     /// Slider::new()
-    ///    .on_min(|minimum| Event::new(WindowEvent::Debug(format!("Slider on_min: {}", minimum))))
-    ///    .build(state, parent, |builder| builder)
+    ///     .on_min(|slider, state, entity| {
+    ///         entity.emit(WindowEvent::Debug(format!("Slider on_min: {}", slider.value)));
+    ///     })
+    ///     .build(state, parent, |builder| builder);
     /// ```
-    pub fn on_min<F>(mut self, message: F) -> Self
+    pub fn on_min<F>(mut self, callback: F) -> Self
     where
-        F: 'static + Fn(f32) -> Event,
+        F: 'static + Fn(&mut Self, &mut State, Entity),
     {
-        self.on_min = Some(Box::new(message));
+        self.on_min = Some(Box::new(callback));
         self
     }
 
-    /// Set the event sent when the slider value reaches the maximum.
+    /// Set the callback triggered when the slider value reaches the maximum.
     ///
-    /// Takes a closure which provides the maximum value and returns an event to be sent when the slider
-    /// reaches the maximum value, either by pressing the track at the end or dragging the thumb to the end
+    /// Takes a closure which triggers when the slider reaches the maximum value, 
+    /// either by pressing the track at the end or dragging the thumb to the end
     /// of the track. The event is sent once for each time the value reaches the maximum.
     ///
     /// # Example
+    /// 
     /// ```
     /// Slider::new()
-    ///    .on_max(|maximum| Event::new(WindowEvent::Debug(format!("Slider on_max: {}", maximum))))
-    ///    .build(state, parent, |builder| builder)
+    ///     .on_max(|slider, state, entity| {
+    ///         entity.emit(WindowEvent::Debug(format!("Slider on_min: {}", slider.value)));
+    ///     })
+    ///     .build(state, parent, |builder| builder);
     /// ```
-    pub fn on_max<F>(mut self, message: F) -> Self
+    pub fn on_max<F>(mut self, callback: F) -> Self
     where
-        F: 'static + Fn(f32) -> Event,
+        F: 'static + Fn(&mut Self, &mut State, Entity),
     {
-        self.on_max = Some(Box::new(message));
+        self.on_max = Some(Box::new(callback));
         self
     }
 
@@ -188,28 +238,40 @@ impl Slider {
     /// The event is sent when the left mouse button is pressed on any part of the slider.
     ///
     /// # Example
+    /// 
     /// ```
     /// Slider::new()
-    ///    .on_press(Event::new(WindowEvent::Debug("Slider on_press".to_owned())))
-    ///    .build(state, parent, |builder| builder)
+    ///     .on_max(|slider, state, entity| {
+    ///         entity.emit(WindowEvent::Debug(format!("Slider on_min: {}", slider.value)));
+    ///     })
+    ///     .build(state, parent, |builder| builder);
     /// ```
-    pub fn on_press(mut self, event: Event) -> Self {
-        self.on_press = Some(event);
-        self
-    }
+    // pub fn on_press<F>(mut self, callback: F) -> Self 
+    // where
+    //     F: 'static + Fn(&mut Self, &mut State, Entity),
+    // {
+    //     self.on_press = Some(Box::new(callback));
+    //     self
+    // }
 
     /// Set the event sent when the slider is released.
     ///
     /// The event is sent when the left mouse button is released after being pressed on any part of the slider.
     ///
     /// # Example
+    /// 
     /// ```
     /// Slider::new()
-    ///    .on_release(Event::new(WindowEvent::Debug("Slider on_release".to_owned())))
-    ///    .build(state, parent, |builder| builder)
+    ///     .on_max(|slider, state, entity| {
+    ///         entity.emit(WindowEvent::Debug(format!("Slider on_min: {}", slider.value)));
+    ///     })
+    ///     .build(state, parent, |builder| builder);
     /// ```
-    pub fn on_release(mut self, event: Event) -> Self {
-        self.on_release = Some(event);
+    pub fn on_release<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity),
+    {
+        self.on_release = Some(Box::new(callback));
         self
     }
 
@@ -218,13 +280,19 @@ impl Slider {
     /// The event is sent when the mouse cursor enters the bounding box of the slider.
     ///
     /// # Example
+    /// 
     /// ```
     /// Slider::new()
-    ///    .on_over(Event::new(WindowEvent::Debug("Slider on_over".to_owned())))
-    ///    .build(state, parent, |builder| builder)
+    ///     .on_max(|slider, state, entity| {
+    ///         entity.emit(WindowEvent::Debug(format!("Slider on_min: {}", slider.value)));
+    ///     })
+    ///     .build(state, parent, |builder| builder);
     /// ```
-    pub fn on_over(mut self, event: Event) -> Self {
-        self.on_over = Some(event);
+    pub fn on_over<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity),
+    {
+        self.on_over = Some(Box::new(callback));
         self
     }
 
@@ -233,13 +301,19 @@ impl Slider {
     /// The event is sent when the mouse cursor leaves the bounding box of the slider.
     ///
     /// # Example
+    /// 
     /// ```
     /// Slider::new()
-    ///    .on_out(Event::new(WindowEvent::Debug("Slider on_out".to_owned())))
-    ///    .build(state, parent, |builder| builder)
+    ///     .on_max(|slider, state, entity| {
+    ///         entity.emit(WindowEvent::Debug(format!("Slider on_min: {}", slider.value)));
+    ///     })
+    ///     .build(state, parent, |builder| builder);
     /// ```
-    pub fn on_out(mut self, event: Event) -> Self {
-        self.on_out = Some(event);
+    pub fn on_out<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity),
+    {
+        self.on_out = Some(Box::new(callback));
         self
     }
 
@@ -269,7 +343,11 @@ impl Slider {
         if self.value == self.min {
             if !self.is_min {
                 self.is_min = true;
-                self.send_value_event(state, entity, &self.on_min);
+                //self.send_value_event(state, entity, &self.on_min);
+                if let Some(callback) = self.on_min.take() {
+                    (callback)(self, state, entity);
+                    self.on_min = Some(callback);
+                }
             }
         } else {
             self.is_min = false;
@@ -278,7 +356,10 @@ impl Slider {
         if self.value == self.max {
             if !self.is_max {
                 self.is_max = true;
-                self.send_value_event(state, entity, &self.on_max);
+                if let Some(callback) = self.on_max.take() {
+                    (callback)(self, state, entity);
+                    self.on_max = Some(callback);
+                }
             }
         } else {
             self.is_max = false;
@@ -294,36 +375,6 @@ impl Slider {
         let dx = normalised_value * (width - thumb_width) + thumb_width / 2.0;
 
         self.update_value(state, entity, dx);
-    }
-
-    // Helper function for sending events in response to on_changing, on_changed, on_min, and on_max
-    fn send_value_event<F>(&self, state: &mut State, entity: Entity, message: &Option<F>)
-    where
-        F: 'static + Fn(f32) -> Event,
-    {
-        if let Some(on_event) = &message {
-            let mut event = (on_event)(self.value);
-            event.origin = entity;
-
-            if event.target == Entity::null() {
-                event.target = entity;
-            }
-
-            state.insert_event(event);
-        }
-    }
-
-    // Helper function for sending events in response to on_press, on_release, on_over, on_out
-    fn send_event(&self, state: &mut State, entity: Entity, on_event: Option<Event>) {
-        if let Some(mut event) = on_event {
-            event.origin = entity;
-
-            if event.target == Entity::null() {
-                event.target = entity;
-            }
-
-            state.insert_event(event);
-        }
     }
 
     fn clamp_value(&mut self) {
@@ -389,11 +440,17 @@ impl Widget for Slider {
                 }
 
                 WindowEvent::MouseOver if event.target == entity => {
-                    self.send_event(state, entity, self.on_over.clone());
+                    if let Some(callback) = self.on_over.take() {
+                        (callback)(self, state, entity);
+                        self.on_over = Some(callback);
+                    }
                 }
 
                 WindowEvent::MouseOut if event.target == entity => {
-                    self.send_event(state, entity, self.on_out.clone());
+                    if let Some(callback) = self.on_out.take() {
+                        (callback)(self, state, entity);
+                        self.on_out = Some(callback);
+                    }
                 }
 
                 WindowEvent::MouseDown(button) if event.target == entity => {
@@ -404,7 +461,10 @@ impl Widget for Slider {
 
                         entity.set_active(state, true);
 
-                        self.send_event(state, entity, self.on_press.clone());
+                        if let Some(callback) = self.on_press.take() {
+                            (callback)(self, state, entity);
+                            self.on_press = Some(callback);
+                        }
 
                         let dx = state.mouse.left.pos_down.0 - state.data.get_posx(entity);
 
@@ -436,7 +496,10 @@ impl Widget for Slider {
 
                         }
 
-                        self.send_event(state, entity, self.on_release.clone());
+                        if let Some(callback) = self.on_release.take() {
+                            (callback)(self, state, entity);
+                            self.on_release = Some(callback);
+                        }
                     }
                 }
 

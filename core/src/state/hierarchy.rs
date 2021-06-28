@@ -1,9 +1,9 @@
-// The hierarchy describes the tree of widgets
-
 use crate::entity::Entity;
 
-#[derive(Debug)]
-pub enum HierarchyErrorKind {
+#[derive(Debug, Clone, Copy)]
+pub enum HierarchyError {
+    // The entity does not exist in the hierarchy
+    NoEntity,
     // Parent does not exist in the hierarchy
     InvalidParent,
     // Sibling does not exist in the hierarchy
@@ -12,18 +12,13 @@ pub enum HierarchyErrorKind {
     NullEntity,
     // Desired sibling is already the sibling
     AlreadySibling,
-
+    // Desired first child id already the first child
     AlreadyFirstChild,
 }
 
-#[derive(Debug)]
-pub struct HierarchyError {
-    kind: HierarchyErrorKind,
-}
-
+/// The hierarchy describes a tree of entities
 #[derive(Debug, Clone)]
 pub struct Hierarchy {
-    pub entities: Vec<Entity>,
     pub parent: Vec<Option<Entity>>,
     pub first_child: Vec<Option<Entity>>,
     pub next_sibling: Vec<Option<Entity>>,
@@ -32,20 +27,16 @@ pub struct Hierarchy {
 }
 
 impl Hierarchy {
-    /// Creates a new hierarchy 
+    /// Creates a new hierarchy with a root entity
     pub fn new() -> Hierarchy {
+
         Hierarchy {
-            entities: Vec::new(),
-            parent: Vec::new(),
-            first_child: Vec::new(),
-            next_sibling: Vec::new(),
-            prev_sibling: Vec::new(),
+            parent: vec![None],
+            first_child: vec![None],
+            next_sibling: vec![None],
+            prev_sibling: vec![None],
             changed: false,
         }
-    }
-
-    pub fn root(&self) -> Option<Entity> {
-        return *self.parent.first().unwrap();
     }
 
     /// Returns the last child of an entity
@@ -166,9 +157,6 @@ impl Hierarchy {
         false
     }
 
-    // Not decided yet how this should work
-    pub fn remove_children(&mut self, _entity: Entity) {}
-
     /// Returns true if the entity has children
     pub fn has_children(&self, entity: Entity) -> bool {
         if let Some(index) = entity.index() {
@@ -178,36 +166,55 @@ impl Hierarchy {
         }
     }
 
-    pub fn remove(&mut self, entity: Entity) {
-        // if let Some(first_child) = self.get_first_child(entity) {
-        //     self.recursive_remove(first_child);
-        // }
+    /// Removes an entity from the hierarchy
+    ///
+    /// This method assumes that a check if the entity is alive has already been done prior to calling this method
+    pub fn remove(&mut self, entity: Entity) -> Result<(), HierarchyError> {
 
-        if let Some(index) = entity.index() {
-            if let Some((index, _)) = self.entities.iter().enumerate().find(|(_, &e)| e == entity) {
-                self.entities.remove(index);
-            }
-
-            if let Some(parent) = self.get_parent(entity) {
-                if self.is_first_child(entity) {
-                    self.first_child[parent.index_unchecked()] = self.get_next_sibling(entity);
-                }
-            }
-
-            if let Some(prev_sibling) = self.get_prev_sibling(entity) {
-                self.next_sibling[prev_sibling.index_unchecked()] = self.get_next_sibling(entity);
-            }
-
-            if let Some(next_sibling) = self.get_next_sibling(entity) {
-                self.prev_sibling[next_sibling.index_unchecked()] = self.get_prev_sibling(entity);
-            }
-
-            self.next_sibling[index] = None;
-            self.prev_sibling[index] = None;
-            self.parent[index] = None;
-
-            self.changed = true;
+        // Check if the entity is null
+        if entity == Entity::null() {
+            return Err(HierarchyError::NullEntity);
         }
+
+        // Check if the entity to be removed exists in the hierarchy
+        let entity_index = entity.index_unchecked();
+
+        if entity_index >= self.parent.len() {
+            return Err(HierarchyError::NoEntity);
+        }
+
+        // If the entity was is the first child of its parent then set its next sibling to be the new first child
+        if let Some(parent) = self.get_parent(entity) {
+            if self.is_first_child(entity) {
+                self.first_child[parent.index_unchecked()] = self.get_next_sibling(entity);
+            }
+        }
+
+        // Set the next sibling of the previous sibling of the entity to the next sibling of the entity
+        // from:    [PS] -> [E] -> [NS] 
+        // to:      [PS] -> [NS]
+        // where:   PS - Previous Sibling, E - Entity, NS - Next Sibling
+        if let Some(prev_sibling) = self.get_prev_sibling(entity) {
+            self.next_sibling[prev_sibling.index_unchecked()] = self.get_next_sibling(entity);
+        }
+
+        // Set the previous sibling of the next sibling of the entity to the previous sibling of the entity
+        // from:    [PS] <- [E] <- [NS] 
+        // to:      [PS] <- [NS]
+        // where:   PS - Previous Sibling, E - Entity, NS - Next Sibling
+        if let Some(next_sibling) = self.get_next_sibling(entity) {
+            self.prev_sibling[next_sibling.index_unchecked()] = self.get_prev_sibling(entity);
+        }
+
+        // Set the next sibling, previous sibling and parent of the removed entity to None
+        self.next_sibling[entity_index] = None;
+        self.prev_sibling[entity_index] = None;
+        self.parent[entity_index] = None;
+
+        // Set the changed flag
+        self.changed = true;
+
+        Ok(())
     }
 
     // Makes the entity the first child of its parent
@@ -215,17 +222,13 @@ impl Hierarchy {
         if let Some(index) = entity.index() {
             // Check is sibling exists in the hierarchy
             if index >= self.parent.len() {
-                return Err(HierarchyError {
-                    kind: HierarchyErrorKind::InvalidSibling,
-                });
+                return Err(HierarchyError::InvalidSibling);
             }
 
             // Check if the parent is in the hierarchy
             if let Some(parent) = self.get_parent(entity) {
                 if parent.index_unchecked() >= self.parent.len() {
-                    return Err(HierarchyError {
-                        kind: HierarchyErrorKind::InvalidParent,
-                    });
+                    return Err(HierarchyError::InvalidParent);
                 }
             }
 
@@ -234,9 +237,7 @@ impl Hierarchy {
             let previous_first_child = self.first_child[parent.index_unchecked()];
 
             if previous_first_child == Some(entity) {
-                return Err(HierarchyError {
-                    kind: HierarchyErrorKind::AlreadyFirstChild
-                });
+                return Err(HierarchyError::AlreadyFirstChild);
             }
 
             let entity_prev_sibling = self.get_prev_sibling(entity);
@@ -263,9 +264,7 @@ impl Hierarchy {
 
             Ok(())
         } else {
-            Err(HierarchyError {
-                kind: HierarchyErrorKind::NullEntity,
-            })
+            Err(HierarchyError::NullEntity)
         }
     }
 
@@ -275,31 +274,23 @@ impl Hierarchy {
         sibling: Entity,
     ) -> Result<(), HierarchyError> {
         if self.next_sibling[entity.index_unchecked()] == Some(sibling) {
-            return Err(HierarchyError {
-                kind: HierarchyErrorKind::AlreadySibling,
-            });
+            return Err(HierarchyError::AlreadySibling);
         }
 
         // Check is sibling exists in the hierarchy
         if sibling.index_unchecked() >= self.parent.len() {
-            return Err(HierarchyError {
-                kind: HierarchyErrorKind::InvalidSibling,
-            });
+            return Err(HierarchyError::InvalidSibling);
         }
 
         // Check if sibling has the same parent
         if let Some(parent) = self.get_parent(entity) {
             if let Some(sibling_parent) = self.get_parent(entity) {
                 if parent != sibling_parent {
-                    return Err(HierarchyError {
-                        kind: HierarchyErrorKind::InvalidSibling,
-                    });
+                    return Err(HierarchyError::InvalidSibling);
                 }
             }
         } else {
-            return Err(HierarchyError {
-                kind: HierarchyErrorKind::InvalidParent,
-            });
+            return Err(HierarchyError::InvalidParent);
         }
 
         // Safe to unwrap because we already checked if it has a parent
@@ -348,31 +339,23 @@ impl Hierarchy {
         sibling: Entity,
     ) -> Result<(), HierarchyError> {
         if self.prev_sibling[entity.index_unchecked()] == Some(sibling) {
-            return Err(HierarchyError {
-                kind: HierarchyErrorKind::InvalidSibling,
-            });
+            return Err(HierarchyError::InvalidSibling);
         }
 
         // Check is sibling exists in the hierarchy
         if sibling.index_unchecked() >= self.parent.len() {
-            return Err(HierarchyError {
-                kind: HierarchyErrorKind::InvalidSibling,
-            });
+            return Err(HierarchyError::InvalidSibling);
         }
 
         // Check if sibling has the same parent
         if let Some(parent) = self.get_parent(entity) {
             if let Some(sibling_parent) = self.get_parent(entity) {
                 if parent != sibling_parent {
-                    return Err(HierarchyError {
-                        kind: HierarchyErrorKind::InvalidSibling,
-                    });
+                    return Err(HierarchyError::InvalidSibling);
                 }
             }
         } else {
-            return Err(HierarchyError {
-                kind: HierarchyErrorKind::InvalidParent,
-            });
+            return Err(HierarchyError::InvalidParent);
         }
 
         // Safe to unwrap because we already checked if it has a parent
@@ -450,74 +433,87 @@ impl Hierarchy {
         self.changed = true;
     }
 
-    pub fn add(&mut self, entity: Entity, parent: Option<Entity>) {
-        if let Some(index) = entity.index() {
-            self.entities.push(entity);
+    /// Adds an entity to the hierarchy with the specified parent
+    pub fn add(&mut self, entity: Entity, parent: Entity) -> Result<(), HierarchyError> {
 
-            if index >= self.parent.len() {
-                self.parent.resize(index + 1, None);
-                self.first_child.resize(index + 1, None);
-                self.next_sibling.resize(index + 1, None);
-                self.prev_sibling.resize(index + 1, None);
-            }
-
-            self.parent[index] = parent;
-            self.first_child[index] = None;
-            self.next_sibling[index] = None;
-            self.prev_sibling[index] = None;
-
-            if let Some(p) = parent {
-                // If the parent has no first child then this entity is the first child
-                if self.first_child[p.index_unchecked()] == None {
-                    self.first_child[p.index_unchecked()] = Some(entity);
-                } else {
-                    let mut temp = self.first_child[p.index_unchecked()];
-
-                    loop {
-                        if self.next_sibling[temp.unwrap().index_unchecked()] == None {
-                            break;
-                        }
-
-                        temp = self.next_sibling[temp.unwrap().index_unchecked()];
-                    }
-
-                    self.next_sibling[temp.unwrap().index_unchecked()] = Some(entity);
-                    self.prev_sibling[index] = temp;
-                }
-            }
-
-            self.changed = true;
+        if entity == Entity::null() || parent == Entity::null() {
+            return Err(HierarchyError::NullEntity);
         }
+
+        let parent_index = parent.index_unchecked();
+
+        if parent_index >= self.parent.len() {
+            return Err(HierarchyError::InvalidParent);
+        }
+
+        let entity_index = entity.index_unchecked();
+
+        if entity_index >= self.parent.len() {
+            self.parent.resize(entity_index + 1, None);
+            self.first_child.resize(entity_index + 1, None);
+            self.next_sibling.resize(entity_index + 1, None);
+            self.prev_sibling.resize(entity_index + 1, None);
+        }
+
+        self.parent[entity_index] = Some(parent);
+        self.first_child[entity_index] = None;
+        self.next_sibling[entity_index] = None;
+        self.prev_sibling[entity_index] = None;
+
+
+        // If the parent has no first child then this entity is the first child
+        if self.first_child[parent_index] == None {
+            self.first_child[parent_index] = Some(entity);
+        } else {
+            let mut temp = self.first_child[parent_index];
+
+            loop {
+                if self.next_sibling[temp.unwrap().index_unchecked()] == None {
+                    break;
+                }
+
+                temp = self.next_sibling[temp.unwrap().index_unchecked()];
+            }
+
+            self.next_sibling[temp.unwrap().index_unchecked()] = Some(entity);
+            self.prev_sibling[entity_index] = temp;
+        }
+        
+
+        self.changed = true;
+
+        Ok(())
+        
     }
 
-    pub fn add_with_sibling(&mut self, entity: Entity, sibling: Entity) {
-        if let Some(index) = entity.index() {
-            if let Some(sibling) = self.entities.iter_mut().find(|e| **e == sibling) {
-                let sibling = sibling.to_owned();
-                self.entities.push(entity);
+    // pub fn add_with_sibling(&mut self, entity: Entity, sibling: Entity) {
+    //     if let Some(index) = entity.index() {
+    //         if let Some(sibling) = self.entities.iter_mut().find(|e| **e == sibling) {
+    //             let sibling = sibling.to_owned();
+    //             self.entities.push(entity);
 
-                if index >= self.parent.len() {
-                    self.parent.resize(index + 1, None);
-                    self.first_child.resize(index + 1, None);
-                    self.next_sibling.resize(index + 1, None);
-                    self.prev_sibling.resize(index + 1, None);
-                }
+    //             if index >= self.parent.len() {
+    //                 self.parent.resize(index + 1, None);
+    //                 self.first_child.resize(index + 1, None);
+    //                 self.next_sibling.resize(index + 1, None);
+    //                 self.prev_sibling.resize(index + 1, None);
+    //             }
 
-                if let Some(next_sib) = self.get_next_sibling(sibling) {
-                    self.prev_sibling[next_sib.index_unchecked()] = Some(entity);
-                }
+    //             if let Some(next_sib) = self.get_next_sibling(sibling) {
+    //                 self.prev_sibling[next_sib.index_unchecked()] = Some(entity);
+    //             }
 
-                self.parent[index] = self.get_parent(sibling);
-                self.first_child[index] = None;
-                self.next_sibling[index] = self.get_next_sibling(sibling);
-                self.prev_sibling[index] = Some(sibling);
+    //             self.parent[index] = self.get_parent(sibling);
+    //             self.first_child[index] = None;
+    //             self.next_sibling[index] = self.get_next_sibling(sibling);
+    //             self.prev_sibling[index] = Some(sibling);
 
-                self.next_sibling[sibling.index_unchecked()] = Some(entity);
-            }
+    //             self.next_sibling[sibling.index_unchecked()] = Some(entity);
+    //         }
 
-            self.changed = true;
-        }
-    }
+    //         self.changed = true;
+    //     }
+    // }
 }
 
 impl<'a> IntoIterator for &'a Hierarchy {
@@ -527,12 +523,12 @@ impl<'a> IntoIterator for &'a Hierarchy {
     fn into_iter(self) -> Self::IntoIter {
         HierarchyIterator {
             hierarchy: self,
-            current_node: Some(*self.entities.first().unwrap()),
-            //current_back: Some(*self.entities.last().unwrap()),
+            current_node: Some(Entity::root()),
         }
     }
 }
 
+/// An iterator for a branch of the hierarchy tree
 pub struct BranchIterator<'a> {
     hierarchy: &'a Hierarchy,
     start_node: Entity,
@@ -574,7 +570,7 @@ impl<'a> Iterator for BranchIterator<'a> {
     }
 }
 
-// Iterator for iterating through the hierarchy from top to bottom
+/// Iterator for iterating through the hierarchy from top to bottom in depth first order
 pub struct HierarchyIterator<'a> {
     hierarchy: &'a Hierarchy,
     current_node: Option<Entity>,
@@ -647,7 +643,7 @@ impl<'a> Iterator for HierarchyIterator<'a> {
 //     }
 // }
 
-// Iterator for iterating through the parents of widgets.
+/// Iterator for iterating through the ancestors of an entity
 pub struct ParentIterator<'a> {
     hierarchy: &'a Hierarchy,
     current: Option<Entity>,
@@ -683,7 +679,7 @@ impl<'a> IntoParentIterator<'a> for &'a Entity {
     }
 }
 
-// Iterator for iterating through the children of widgets.
+/// Iterator for iterating through the children of an entity.
 pub struct ChildIterator<'a> {
     hierarchy: &'a Hierarchy,
     current_forward: Option<Entity>,
@@ -769,7 +765,7 @@ impl<'a> IntoBranchIterator<'a> for &'a Entity {
     }
 }
 
-//Think of better name for this
+/// Trait which provides methods for investigating entity relations within the hierarchy.
 pub trait HierarchyTree<'a> {
     fn parent(&self, hierarchy: &'a Hierarchy) -> Option<Entity>;
     fn is_sibling(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool;
@@ -815,19 +811,4 @@ impl<'a> HierarchyTree<'a> for Entity {
 
         false
     }
-
-    // TODO
-    //fn is_descendant_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool {
-    //    return false;
-
-    // if let Some(parent) = hierarchy.get_parent(*self) {
-    //     if parent == entity {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // } else {
-    //     return false;
-    // }
-    //}
 }

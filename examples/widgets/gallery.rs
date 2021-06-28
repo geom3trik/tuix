@@ -145,25 +145,25 @@ impl Widget for WidgetGallery {
         
         CheckButton::with_label("Button")
         .on_checked(move |_, state, button| {
-            button.emit(state, widget_view, Event::new(StackEvent::SetIndex(0)));
+            button.emit_to(state, widget_view, StackEvent::SetIndex(0));
         })
         .build(state, widget_list, |builder| builder.set_height(Pixels(30.0)));
         
         CheckButton::with_label("Checkbox")
         .on_checked(move |_, state, button| {
-            button.emit(state, widget_view, Event::new(StackEvent::SetIndex(1)));
+            button.emit_to(state, widget_view, StackEvent::SetIndex(1));
         })
         .build(state, widget_list, |builder| builder.set_height(Pixels(30.0)));
 
         CheckButton::with_label("Spinbox")
         .on_checked(move |_, state, button| {
-            button.emit(state, widget_view, Event::new(StackEvent::SetIndex(2)));
+            button.emit_to(state, widget_view, StackEvent::SetIndex(2));
         })
         .build(state, widget_list, |builder| builder.set_height(Pixels(30.0)));
 
         CheckButton::with_label("Slider")
         .on_checked(move |_, state, button| {
-            button.emit(state, widget_view, Event::new(StackEvent::SetIndex(3)));
+            button.emit_to(state, widget_view, StackEvent::SetIndex(3));
         })
         .build(state, widget_list, |builder| builder.set_height(Pixels(30.0)));
         

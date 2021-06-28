@@ -1,25 +1,37 @@
-#![allow(dead_code)]
-
 use crate::widgets::*;
 
+/// Events sent when interacting with a button and events to set properties of a button
 #[derive(Debug, Clone, PartialEq)]
 pub enum ButtonEvent {
-    // Emitted by a button when the button is pressed
+    /// Emitted by a button when the button is pressed
     Pressed,
-    // Emitted by a button when the button is released
+    /// Emitted by a button when the button is released
     Released,
-    // Received by the button and triggers the on_press event to be emitted
+    /// Received by the button and triggers the on_press event to be emitted
     Press,
-    // Received by the button and triggers the on_release event to be emitted
+    /// Received by the button and triggers the on_release event to be emitted
     Release,
-    //
+    /// Sets the label of the button
     SetLabel(String),
-
+    /// Sets the keycode for triggering the button with the keyboard
     SetKey(Code),
 }
 
 #[derive(Default)]
-// A Widget that can be pressed and released and may emit an event on_press and on_release
+/// A basic button widget with an optional label.
+///
+/// A Widget that can be pressed and released and may emit an event on_press and on_release.
+/// The button can also be triggered with a keyboard key (default space bar).
+///
+/// # Example
+/// Create a button which closes the window when pressed:
+/// ```
+/// Button::new()
+///     .on_press(|_, state, button| {
+///         button.emit(state, WindowEvent::CloseWindow);
+///     })
+///    .build(state, parent, |builder| builder);
+/// ```
 pub struct Button {
     on_press: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     on_release: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
@@ -28,7 +40,12 @@ pub struct Button {
 }
 
 impl Button {
-    /// Create a new button widget
+    /// Create a new button widget with no callbacks.
+    ///
+    /// # Example
+    /// ```
+    /// Button::new().build(state, parent, |builder| builder);
+    /// ```
     pub fn new() -> Self {
         Button {
             on_press: None,
@@ -38,7 +55,12 @@ impl Button {
         }
     }
 
-    /// Create a new button widget with a specified text label
+    /// Create a new button widget with a specified text label.
+    ///
+    /// # Example
+    /// ```
+    /// Button::with_label("A Button").build(state, parent, |builder| builder);
+    /// ```
     pub fn with_label(text: &str) -> Self {
         Button {
             on_press: None,
@@ -48,7 +70,17 @@ impl Button {
         }
     }
 
-    /// Set the callback triggered when the button is pressed
+    /// Set the callback triggered when the button is pressed.
+    ///
+    /// # Example
+    /// Creates a button which closes the window when pressed:
+    /// ```
+    /// Button::new()
+    ///     .on_press(|_, state, button| {
+    ///         button.emit(state, WindowEvent::CloseWindow);
+    ///     })
+    ///    .build(state, parent, |builder| builder);
+    /// ```
     pub fn on_press<F>(mut self, callback: F) -> Self 
     where
         F: 'static + Fn(&mut Self, &mut State, Entity)
@@ -57,7 +89,17 @@ impl Button {
         self
     }
 
-    /// Set the callback triggered when the button is released
+    /// Set the callback triggered when the button is released.
+    ///
+    /// # Example
+    /// Create a button which closes the window when released:
+    /// ```
+    /// Button::new()
+    ///     .on_release(|_, state, button| {
+    ///         button.emit(state, WindowEvent::CloseWindow);
+    ///     })
+    ///    .build(state, parent, |builder| builder);
+    /// ```
     pub fn on_release<F>(mut self, callback: F) -> Self 
     where
         F: 'static + Fn(&mut Self, &mut State, Entity)
@@ -66,19 +108,28 @@ impl Button {
         self
     }
 
-    /// Set the keyboard key which triggers the button
+    /// Set the keyboard key which triggers the button.
+    ///
+    /// # Example
+    /// Triggers the button's on_press callback when the Enter key is pressed and the button has focus.
+    /// ```
+    /// Button::new()
+    ///     .with_key(Code::Enter)
+    ///    .build(state, parent, |builder| builder);
+    /// ```
     pub fn with_key(mut self, key: Code) -> Self {
         self.key = key;
-        self
-    }
-
-    /// Resets the stored events to None
-    pub fn reset(mut self) -> Self {
-        self.on_press = None;
-        self.on_release = None;
 
         self
     }
+
+    // Resets the stored events to None
+    // pub fn reset(mut self) -> Self {
+    //     self.on_press = None;
+    //     self.on_release = None;
+
+    //     self
+    // }
 }
 
 impl Widget for Button {
@@ -110,8 +161,6 @@ impl Widget for Button {
                             self.on_press = Some(callback);
                         }
 
-                        
-
                         entity.set_active(state, true);
                     }
                 }
@@ -142,8 +191,6 @@ impl Widget for Button {
                             .propagate(Propagation::Direct),
                     );
                 }
-
-                _ => {}
             }
         }
 

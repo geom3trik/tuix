@@ -1,4 +1,4 @@
-use crate::State;
+use crate::{Message, State};
 use crate::{entity::Entity, Builder, EventHandler, Propagation};
 use crate::{state::style::*, AsEntity, Pos};
 
@@ -10,11 +10,19 @@ use std::rc::Rc;
 
 pub trait PropSet: AsEntity + Sized {
 
-    fn emit(&self, state: &mut State, target: Entity, mut event: Event) -> Entity
+    /// Helper method for sending an event to self with default propagation
+    fn emit(&self, state: &mut State, message: impl Message) -> Entity
     where
         Self: 'static,
     {
-        state.insert_event(event.target(target).origin(self.entity()));
+        state.insert_event(Event::new(message).target(self.entity()).origin(self.entity()));
+
+        self.entity()
+    }
+
+    /// Helper method for sending an event to target with default propagation
+    fn emit_to(&self, state: &mut State, target: Entity, message: impl Message) -> Entity {
+        state.insert_event(Event::new(message).target(target).origin(self.entity()));
 
         self.entity()
     }
@@ -37,6 +45,12 @@ pub trait PropSet: AsEntity + Sized {
 
     // Pseudoclass
     fn set_enabled(self, state: &mut State, value: bool) -> Entity {
+
+        // Check if the entity is alive
+        if !state.entity_manager.is_alive(self.entity()) {
+            return self.entity();
+        }
+
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
             pseudo_classes.set_enabled(value);
             pseudo_classes.set_disabled(!value);

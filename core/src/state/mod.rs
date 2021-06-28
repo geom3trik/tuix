@@ -90,7 +90,8 @@ pub struct State {
 
 impl State {
     pub fn new() -> Self {
-        let entity_manager = EntityManager::new();
+        let mut entity_manager = EntityManager::new();
+        let root = entity_manager.create_entity();
         let hierarchy = Hierarchy::new();
         let mut style = Style::default();
         let mut data = Data::default();
@@ -105,6 +106,8 @@ impl State {
         style.clip_widget.set(root, root);
 
         style.background_color.insert(root, Color::rgb(80, 80, 80));
+
+        
 
         State {
             entity_manager,
@@ -301,7 +304,8 @@ impl State {
             .entity_manager
             .create_entity()
             .expect("Failed to create entity");
-        self.hierarchy.add(entity, Some(parent));
+        println!("Entity: {:?}", entity.index());
+        self.hierarchy.add(entity, parent);
         self.data.add(entity);
         self.style.add(entity);
 

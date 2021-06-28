@@ -48,7 +48,7 @@ impl Widget for Container {
         CheckButton::with_label("Red")
         .set_checked(true)
         .on_checked(|_, state, button|{
-            button.emit(state, button, Event::new(CustomEvent::ChangeColor(Color::rgb(200, 50, 50))));
+            button.emit(state, CustomEvent::ChangeColor(Color::rgb(200, 50, 50)));
         })
         .build(state, self.listbox, |builder| 
             builder
@@ -57,7 +57,7 @@ impl Widget for Container {
 
         CheckButton::with_label("Green")
         .on_checked(|_, state, button|{
-            button.emit(state, button, Event::new(CustomEvent::ChangeColor(Color::rgb(50, 200, 50))));
+            button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 200, 50)));
         })
         .build(state, self.listbox, |builder| 
             builder
@@ -66,7 +66,7 @@ impl Widget for Container {
 
         CheckButton::with_label("Blue")
         .on_checked(|_, state, button|{
-            button.emit(state, button, Event::new(CustomEvent::ChangeColor(Color::rgb(50, 50, 200))));
+            button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 50, 200)));
         })
         .build(state, self.listbox, |builder| 
             builder

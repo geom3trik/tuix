@@ -73,7 +73,7 @@ fn main() {
             state.add_theme(STYLE);
             
             Container::default().build(state, window, |builder| builder);
-
+            println!("Hierarchy: {:?}", state.hierarchy);
         },
     );
 

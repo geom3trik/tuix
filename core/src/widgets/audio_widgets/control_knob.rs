@@ -173,7 +173,7 @@ impl Widget for ControlKnob {
 
                             if let Some(on_change) = &self.on_change {
                                 let mut event = (on_change.lock().unwrap())(self.value);
-                                if !event.target {
+                                if event.target == Entity::null() {
                                     event.target = entity;
                                 }
 

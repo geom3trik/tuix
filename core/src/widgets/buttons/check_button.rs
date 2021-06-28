@@ -77,9 +77,9 @@ impl Widget for CheckButton {
         }
 
         if self.checked {
-            entity.emit(state, entity, Event::new(CheckboxEvent::Checked));
+            entity.emit(state, CheckboxEvent::Checked);
         } else {
-            entity.emit(state, entity, Event::new(CheckboxEvent::Unchecked));
+            entity.emit(state, CheckboxEvent::Unchecked);
         }
         
 

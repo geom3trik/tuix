@@ -47,7 +47,7 @@ impl Application {
         let mut event_manager = EventManager::new();
 
         let root = Entity::root();
-        state.hierarchy.add(Entity::root(), None);
+        //state.hierarchy.add(Entity::root(), None);
 
         event_manager.hierarchy = state.hierarchy.clone();
 

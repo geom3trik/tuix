@@ -1,3 +1,4 @@
+/*
 use tuix::*;
 
 const STYLE: &str = r#"
@@ -109,4 +110,9 @@ fn main() {
     );
 
     app.run();
+}
+*/
+
+fn main() {
+
 }
