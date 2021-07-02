@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, Entity, Hierarchy, State};
+use crate::{AsEntity, Entity, Hierarchy, PropType, State};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -40,6 +40,8 @@ pub trait Widget: std::marker::Sized + 'static {
 
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
+
+    fn on_style(&mut self, state: &mut State, entity: Entity, property: (String, PropType)) {}
 
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
@@ -600,6 +602,10 @@ where
 {
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         <T as Widget>::on_event(self, state, entity, event);
+    }
+
+    fn on_style(&mut self, state: &mut State, entity: Entity, property: (String, PropType)) {
+        <T as Widget>::on_style(self, state, entity, property);
     }
 
     fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {

@@ -68,6 +68,10 @@ name = "slider"
 path = "examples/widgets/slider.rs"
 
 [[example]]
+name = "knob"
+path = "examples/widgets/knob.rs"
+
+[[example]]
 name = "popup"
 path = "examples/widgets/popup.rs"
 

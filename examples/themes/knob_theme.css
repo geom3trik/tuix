@@ -1,0 +1,32 @@
+
+
+knob {
+    width: 76px;
+    height: 76px;
+    background-color: #262a2d;
+    border-radius: 38px;
+    border-width: 2px;
+    border-color: #363636;
+}
+
+knob>.value_track {
+    background-color: #4f4f4f;
+    radius: 30px;
+    span: 5px;
+}
+
+knob>.value_track>.active {
+    background-color: #ffb74d;
+}
+
+knob>.mod_track {
+    background-color: #262a2d;
+    radius: 35px;
+    span: 3px;
+    angle-start: -45.0;
+    angle-end: 20.0;
+}
+
+knob>.mod_track>.active {
+    background-color: #1fe9b8;
+}

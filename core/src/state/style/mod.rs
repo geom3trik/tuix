@@ -228,6 +228,10 @@ impl Style {
                         //
                     }
 
+                    Property::Unknown(ident, prop) => {
+
+                    }
+
                     Property::Display(value) => {
                         self.display.insert_rule(rule_id, value);
                     }

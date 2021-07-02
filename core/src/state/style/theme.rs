@@ -381,13 +381,15 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
 
             "z-index" => Property::ZIndex(parse_z_index(input)?),
 
-            _ => {
-                let basic_error = BasicParseError {
-                    kind: BasicParseErrorKind::UnexpectedToken(input.next()?.to_owned()),
-                    location: SourceLocation { line: 0, column: 0 },
-                };
-                return Err(basic_error.into());
-            }
+            ident => Property::Unknown(ident.to_owned(), parse_unknown(input)?),
+
+            // _ => {
+            //     let basic_error = BasicParseError {
+            //         kind: BasicParseErrorKind::UnexpectedToken(input.next()?.to_owned()),
+            //         location: SourceLocation { line: 0, column: 0 },
+            //     };
+            //     return Err(basic_error.into());
+            // }
         })
     }
 }
@@ -425,6 +427,47 @@ fn css_color(name: &str) -> Option<Color> {
 
 fn css_string(name: &str) -> Option<String> {
     Some(String::from(name))
+}
+
+fn parse_unknown<'i, 't>(
+    input: &mut Parser<'i, 't>,
+) -> Result<PropType, ParseError<'i, CustomParseError>> {
+    Ok(match input.next()? {
+        Token::QuotedString(s) => match css_string(&s) {
+            Some(string) => PropType::String(string),
+            None => {
+                return Err(CustomParseError::InvalidStringName(s.to_owned().to_string()).into())
+            }
+        },
+
+        Token::Number { value: x, .. } => PropType::Units(Units::Pixels(*x as f32)),
+        Token::Percentage { unit_value: x, .. } => PropType::Units(Units::Percentage(*x as f32)),
+
+        Token::Dimension {
+            has_sign: _,
+            value: v,
+            int_value: _,
+            unit: u,
+        } if u == &"px" => PropType::Units(Units::Pixels(*v as f32)),
+
+        Token::Dimension {
+            has_sign: _,
+            value: v,
+            int_value: _,
+            unit: u,
+        } if u == &"s" => PropType::Units(Units::Stretch(*v as f32)),
+
+        Token::Ident(name) if name == &"auto" => PropType::Units(Units::Auto),
+
+        t => {
+            let basic_error = BasicParseErrorKind::UnexpectedToken(t.to_owned());
+            let parse_error = ParseError {
+                kind: ParseErrorKind::Basic(basic_error),
+                location: SourceLocation { line: 0, column: 0 },
+            };
+            return Err(parse_error);
+        }
+    })
 }
 
 fn parse_string<'i, 't>(

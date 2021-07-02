@@ -147,6 +147,14 @@ impl State {
         Builder::new(self, entity)
     }
 
+    pub fn query<E: EventHandler>(&mut self, entity: Entity) -> Option<&mut E> {
+        if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
+            event_handler.downcast::<E>()
+        } else {
+            None
+        }
+    }
+
     /// Adds a stylesheet to the application
     ///
     /// This function adds the stylesheet path to the application allowing for hot reloading of syles

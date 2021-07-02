@@ -8,9 +8,17 @@ use crate::state::style::*;
 
 use crate::state::animation::Transition;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum PropType {
+    Units(Units),
+    String(String),
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Property {
     None,
+
+    Unknown(String, PropType),
 
     // General
     Display(Display),
@@ -83,6 +91,35 @@ impl std::fmt::Display for Property {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Property::None => write!(f, ""),
+
+            Property::Unknown(ident, prop) => {
+                write!(f, "display: {};", match prop {
+                    PropType::Units(val) => {
+                        match val {
+                            Units::Pixels(px) => {
+                                format!("{}px", px)
+                            }
+
+                            Units::Percentage(p) => {
+                                format!("{}%", p)
+                            }
+
+                            Units::Stretch(s) => {
+                                format!("{}s", s)
+                            }
+
+                            Units::Auto => {
+                                format!("auto")
+                            }
+
+                        }
+                    }
+
+                    PropType::String(string) => {
+                        string.clone()
+                    }
+                })
+            }   
             // General
             Property::Display(val) => write!(f, "display: {};", 1),
             Property::Visibility(val) => write!(f, "visibility: {};", 2),

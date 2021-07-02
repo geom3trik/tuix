@@ -1,7 +1,4 @@
-use crate::{
-    events::{Event, EventManager, Message},
-    state,
-};
+use crate::{PropType, events::{Event, EventManager, Message}, state};
 
 use fnv::FnvHashMap;
 
@@ -30,6 +27,9 @@ pub trait EventHandler: Any {
 
     //fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas);
     // Called when a redraw occurs
+
+
+    fn on_style(&mut self, state: &mut State, entity: Entity, property: (String, PropType)) {}
 
     fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
         // Skip window
