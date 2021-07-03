@@ -144,6 +144,7 @@ pub struct Knob {
     tick: Entity,
 
     normalized_value: f32,
+    default_normal: f32,
 
     is_dragging: bool,
     prev_drag_y: f32,
@@ -153,7 +154,7 @@ pub struct Knob {
     wheel_scalar: f32,
     modifier_scalar: f32,
 
-    shift_down: bool,
+    modifier_down: bool,
 }
 
 impl Knob {
@@ -165,6 +166,7 @@ impl Knob {
             tick: Default::default(),
 
             normalized_value: 0.5,
+            default_normal: 0.5,
 
             is_dragging: false,
             prev_drag_y: 0.0,
@@ -174,7 +176,7 @@ impl Knob {
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
 
-            shift_down: false,
+            modifier_down: false,
         }
     }
 }
@@ -202,15 +204,12 @@ impl Widget for Knob {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        let mut move_virtual_slider = |_self: &mut Self, mut normalized_delta: f32| {
-            if _self.shift_down {
-                normalized_delta *= _self.modifier_scalar;
-            }
+        let mut move_virtual_slider = |_self: &mut Self, new_normal: f32| {
+            _self.continuous_normal = new_normal.clamp(0.0, 1.0);
 
-            _self.normalized_value = (_self.continuous_normal - normalized_delta).clamp(0.0, 1.0);
+            // TODO: Snap normalized value if using an integer mapping.
+            _self.normalized_value = _self.continuous_normal;
             
-            _self.continuous_normal = _self.normalized_value;
-
             println!("Value: {}", _self.normalized_value);
 
             if let Some(track) = state.query::<ArcTrack>(_self.value_track) {
@@ -246,35 +245,55 @@ impl Widget for Knob {
                 WindowEvent::MouseMove(_, y) => {
                     if event.target == entity {
                         if self.is_dragging {
-                            let normalized_delta = (*y - self.prev_drag_y) * self.drag_scalar;
+                            let mut delta_normal = (*y - self.prev_drag_y) * self.drag_scalar;
 
                             self.prev_drag_y = *y;
 
-                            move_virtual_slider(self, normalized_delta);
+                            if self.modifier_down {
+                                delta_normal *= self.modifier_scalar;
+                            }
+                
+                            let new_normal = self.continuous_normal - delta_normal;
+
+                            move_virtual_slider(self, new_normal);
                         }
                     }
                 }
 
                 WindowEvent::MouseScroll(_, y) => {
                     if *y != 0.0 {
-                        let normalized_delta = -*y * self.wheel_scalar;
+                        let mut delta_normal = -*y * self.wheel_scalar;
 
-                        move_virtual_slider(self, normalized_delta);
+                        if self.modifier_down {
+                            delta_normal *= self.modifier_scalar;
+                        }
+            
+                        let new_normal = self.continuous_normal - delta_normal;
+
+                        move_virtual_slider(self, new_normal);
+                    }
+                }
+
+                WindowEvent::MouseDoubleClick(button) => {
+                    if event.target == entity && *button == MouseButton::Left {
+                        self.is_dragging = false;
+
+                        move_virtual_slider(self, self.default_normal);
                     }
                 }
 
                 WindowEvent::KeyDown(_, key) => {
                     if let Some(keyboard_types::Key::Shift) = key {
-                        self.shift_down = true;
+                        self.modifier_down = true;
                     }
                 }
                 WindowEvent::KeyUp(_, key) => {
                     if let Some(keyboard_types::Key::Shift) = key {
-                        self.shift_down = false;
+                        self.modifier_down = false;
                     }
                 }
                 WindowEvent::FocusOut => {
-                    self.shift_down = false;
+                    self.modifier_down = false;
                 }
 
                 _ => {}
