@@ -262,12 +262,8 @@ impl Widget for Knob {
 
                 WindowEvent::MouseScroll(_, y) => {
                     if *y != 0.0 {
-                        let mut delta_normal = -*y * self.wheel_scalar;
+                        let delta_normal = -*y * self.wheel_scalar;
 
-                        if self.modifier_down {
-                            delta_normal *= self.modifier_scalar;
-                        }
-            
                         let new_normal = self.continuous_normal - delta_normal;
 
                         move_virtual_slider(self, new_normal);
