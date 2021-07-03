@@ -3,7 +3,11 @@ use crate::style::*;
 use crate::widgets::*;
 use femtovg::*;
 
-const PI: f32 = std::f32::consts::PI;
+use std::f32::consts::PI;
+
+static DEFAULT_DRAG_SCALAR: f32 = 0.0042;
+static DEFAULT_WHEEL_SCALAR: f32 = 0.005;
+static DEFAULT_MODIFIER_SCALAR: f32 = 0.04;
 
 pub struct ArcTrack {
     angle_start: f32,
@@ -13,7 +17,7 @@ pub struct ArcTrack {
 
     front: Entity,
 
-    value: f32,
+    normalized_value: f32,
 }
 
 impl ArcTrack {
@@ -26,7 +30,7 @@ impl ArcTrack {
 
             front: Entity::null(),
 
-            value: 0.5,
+            normalized_value: 0.5,
         }
     }
 }
@@ -122,7 +126,7 @@ impl Widget for ArcTrack {
         paint.set_line_cap(LineCap::Butt);
         canvas.stroke_path(&mut path, paint);
 
-        let current = self.value * (end - start) + start;
+        let current = self.normalized_value * (end - start) + start;
 
         let mut path = Path::new();
         path.arc(cx, cy, radius - span/2.0, current, start, Solidity::Solid);
@@ -133,21 +137,47 @@ impl Widget for ArcTrack {
     }
 }
 
-#[derive(Default)]
 pub struct Knob {
     thumb: Entity,
     value_track: Entity,
     mod_track: Entity,
     tick: Entity,
 
-    mouse_down_posy: f32,
+    normalized_value: f32,
 
-    sliding: bool,
-    value: f32,
-    temp: f32,
+    is_dragging: bool,
+    prev_drag_y: f32,
+    continuous_normal: f32,
+    
+    drag_scalar: f32,
+    wheel_scalar: f32,
+    modifier_scalar: f32,
+
+    shift_down: bool,
 }
 
+impl Knob {
+    pub fn new() -> Self {
+        Self {
+            thumb: Default::default(),
+            value_track: Default::default(),
+            mod_track: Default::default(),
+            tick: Default::default(),
 
+            normalized_value: 0.5,
+
+            is_dragging: false,
+            prev_drag_y: 0.0,
+            continuous_normal: 0.5,
+
+            drag_scalar: DEFAULT_DRAG_SCALAR,
+            wheel_scalar: DEFAULT_WHEEL_SCALAR,
+            modifier_scalar: DEFAULT_MODIFIER_SCALAR,
+
+            shift_down: false,
+        }
+    }
+}
 
 impl Widget for Knob {
     type Ret = Entity;
@@ -172,57 +202,79 @@ impl Widget for Knob {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        let mut move_virtual_slider = |_self: &mut Self, mut normalized_delta: f32| {
+            if _self.shift_down {
+                normalized_delta *= _self.modifier_scalar;
+            }
+
+            _self.normalized_value = (_self.continuous_normal - normalized_delta).clamp(0.0, 1.0);
+            
+            _self.continuous_normal = _self.normalized_value;
+
+            println!("Value: {}", _self.normalized_value);
+
+            if let Some(track) = state.query::<ArcTrack>(_self.value_track) {
+                track.normalized_value = _self.normalized_value;
+            }
+
+            state.insert_event(
+                Event::new(WindowEvent::Redraw).target(Entity::root()),
+            );
+        };
+
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseDown(button) => {
                     if event.target == entity && *button == MouseButton::Left {
-                        self.sliding = true;
-                        self.mouse_down_posy = state.mouse.left.pos_down.1;
+                        self.is_dragging = true;
+                        self.prev_drag_y = state.mouse.left.pos_down.1;
+
                         state.capture(entity);
                         state.focused = entity;
-                        self.temp = self.value;
                     }
                 }
 
                 WindowEvent::MouseUp(button) => {
-                    if event.target == entity && *button == MouseButton::Left {
-                        self.sliding = false;
+                    if *button == MouseButton::Left {
+                        self.is_dragging = false;
+                        self.continuous_normal = self.normalized_value;
+
                         state.release(entity);
-                        self.temp = self.value;
                     }
                 }
 
                 WindowEvent::MouseMove(_, y) => {
                     if event.target == entity {
-                        if self.sliding {
-                            let dy = self.mouse_down_posy - *y;
+                        if self.is_dragging {
+                            let normalized_delta = (*y - self.prev_drag_y) * self.drag_scalar;
 
-                            let normalised = if state.modifiers.shift {
-                                dy / 1000.0
-                            } else {
-                                dy / 200.0
-                            };
+                            self.prev_drag_y = *y;
 
-                            let new_val = self.temp + normalised;
-                            
-
-                            self.value = new_val.clamp(0.0, 1.0);
-
-                            println!("Value: {}", self.value);
-
-                            if let Some(track) = state.query::<ArcTrack>(self.value_track) {
-                                track.value = self.value;
-                            }
-
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::root()),
-                            );
+                            move_virtual_slider(self, normalized_delta);
                         }
                     }
                 }
 
-                WindowEvent::MouseScroll(x, y) => {
-                    
+                WindowEvent::MouseScroll(_, y) => {
+                    if *y != 0.0 {
+                        let normalized_delta = -*y * self.wheel_scalar;
+
+                        move_virtual_slider(self, normalized_delta);
+                    }
+                }
+
+                WindowEvent::KeyDown(_, key) => {
+                    if let Some(keyboard_types::Key::Shift) = key {
+                        self.shift_down = true;
+                    }
+                }
+                WindowEvent::KeyUp(_, key) => {
+                    if let Some(keyboard_types::Key::Shift) = key {
+                        self.shift_down = false;
+                    }
+                }
+                WindowEvent::FocusOut => {
+                    self.shift_down = false;
                 }
 
                 _ => {}

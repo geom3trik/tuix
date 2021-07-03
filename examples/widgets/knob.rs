@@ -25,7 +25,7 @@ impl Widget for Container {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
-        self.knob = Knob::default()
+        self.knob = Knob::new()
             .build(state, entity, |builder| {
                 builder
                     .set_space(Stretch(1.0))
