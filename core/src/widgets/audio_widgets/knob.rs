@@ -23,6 +23,7 @@ pub struct ArcTrack {
 impl ArcTrack {
     pub fn new() -> Self {
         Self {
+
             angle_start: -150.0,
             angle_end: 150.0,
             radius: Units::Pixels(30.0),
@@ -39,6 +40,7 @@ impl Widget for ArcTrack {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
+        // Non-displayed element used for setting the color of the active arc
         self.front = Element::new().build(state, entity, |builder|
             builder
                 .set_hoverability(false)
@@ -105,20 +107,23 @@ impl Widget for ArcTrack {
         let width = state.data.get_width(entity);
         let height = state.data.get_height(entity);
 
+        // Clalculate arc center
         let cx = posx + 0.5 * width;
         let cy = posy + 0.5 * height;
 
+        // Convert start and end angles to radians and rotate origin direction to be upwards instead of to the right
         let start = self.angle_start.to_radians() - PI/2.0;
         let end = self.angle_end.to_radians() - PI/2.0;
 
         let parent = entity.get_parent(state).unwrap();
 
         let parent_width = state.data.get_width(parent);
-        let parent_height = state.data.get_height(parent);
 
+        // Convert radius and span into screen coordinates
         let radius = self.radius.get_value(parent_width);
         let span = self.span.get_value(parent_width);
         
+        // Draw the track arc
         let mut path = Path::new();
         path.arc(cx, cy, radius - span/2.0, end, start, Solidity::Solid);
         let mut paint = Paint::color(background_color);
@@ -128,6 +133,7 @@ impl Widget for ArcTrack {
 
         let current = self.normalized_value * (end - start) + start;
 
+        // Draw the active arc
         let mut path = Path::new();
         path.arc(cx, cy, radius - span/2.0, current, start, Solidity::Solid);
         let mut paint = Paint::color(foreground_color);
@@ -153,8 +159,6 @@ pub struct Knob {
     drag_scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
-
-    modifier_down: bool,
 }
 
 impl Knob {
@@ -175,8 +179,6 @@ impl Knob {
             drag_scalar: DEFAULT_DRAG_SCALAR,
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
-
-            modifier_down: false,
         }
     }
 }
@@ -204,12 +206,13 @@ impl Widget for Knob {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        let mut move_virtual_slider = |_self: &mut Self, new_normal: f32| {
+        let move_virtual_slider = |_self: &mut Self, state: &mut State, new_normal: f32| {
             _self.continuous_normal = new_normal.clamp(0.0, 1.0);
 
             // TODO: Snap normalized value if using an integer mapping.
             _self.normalized_value = _self.continuous_normal;
             
+            // TODO - Remove when done
             println!("Value: {}", _self.normalized_value);
 
             if let Some(track) = state.query::<ArcTrack>(_self.value_track) {
@@ -249,13 +252,13 @@ impl Widget for Knob {
 
                             self.prev_drag_y = *y;
 
-                            if self.modifier_down {
+                            if state.modifiers.shift {
                                 delta_normal *= self.modifier_scalar;
                             }
                 
                             let new_normal = self.continuous_normal - delta_normal;
 
-                            move_virtual_slider(self, new_normal);
+                            move_virtual_slider(self, state, new_normal);
                         }
                     }
                 }
@@ -266,7 +269,7 @@ impl Widget for Knob {
 
                         let new_normal = self.continuous_normal - delta_normal;
 
-                        move_virtual_slider(self, new_normal);
+                        move_virtual_slider(self, state, new_normal);
                     }
                 }
 
@@ -274,22 +277,8 @@ impl Widget for Knob {
                     if event.target == entity && *button == MouseButton::Left {
                         self.is_dragging = false;
 
-                        move_virtual_slider(self, self.default_normal);
+                        move_virtual_slider(self, state, self.default_normal);
                     }
-                }
-
-                WindowEvent::KeyDown(_, key) => {
-                    if let Some(keyboard_types::Key::Shift) = key {
-                        self.modifier_down = true;
-                    }
-                }
-                WindowEvent::KeyUp(_, key) => {
-                    if let Some(keyboard_types::Key::Shift) = key {
-                        self.modifier_down = false;
-                    }
-                }
-                WindowEvent::FocusOut => {
-                    self.modifier_down = false;
                 }
 
                 _ => {}

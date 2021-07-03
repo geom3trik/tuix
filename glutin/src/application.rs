@@ -151,6 +151,11 @@ impl Application {
 
         state.needs_redraw = true;
 
+        let mut click_time = std::time::Instant::now();
+        let DOUBLE_CLICK_INTERVAL = std::time::Duration::from_millis(500);
+        let mut double_click = false;
+        let mut click_pos = (0.0, 0.0);
+
         self.event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
 
@@ -420,6 +425,8 @@ impl Application {
                             }
                         }
 
+
+                        // Window Resize Event
                         glutin::event::WindowEvent::Resized(physical_size) => {
                             window.handle.resize(physical_size);
 
@@ -455,6 +462,7 @@ impl Application {
 
                         }
 
+                        // Cursor Moved Event 
                         glutin::event::WindowEvent::CursorMoved {
                             device_id: _,
                             position,
@@ -482,6 +490,7 @@ impl Application {
                             }
                         }
 
+                        // Mouse Input Event
                         glutin::event::WindowEvent::MouseInput {
                             device_id: _,
                             state: s,
@@ -525,6 +534,36 @@ impl Application {
                                         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
                                         state.needs_restyle = true;
                                     }
+
+                                    let new_click_time = std::time::Instant::now();
+                                    let click_duration = new_click_time - click_time;
+                                    let new_click_pos = (state.mouse.cursorx, state.mouse.cursory);
+
+                                    if click_duration <= DOUBLE_CLICK_INTERVAL && new_click_pos == click_pos{
+                                        if !double_click {
+                                            let target = if state.captured != Entity::null() {
+                                                state.insert_event(
+                                                    Event::new(WindowEvent::MouseDoubleClick(b))
+                                                        .target(state.captured)
+                                                        .propagate(Propagation::Direct),
+                                                );
+                                                state.captured
+                                            } else {
+                                                state.insert_event(
+                                                    Event::new(WindowEvent::MouseDoubleClick(b))
+                                                        .target(state.hovered),
+                                                );
+                                                state.hovered
+                                            };
+                                            double_click = true;
+                                        }
+                                        
+                                    } else {
+                                        double_click = false;
+                                    }
+                                    
+                                    click_time = new_click_time;
+                                    click_pos = new_click_pos;
 
                                     let target = if state.captured != Entity::null() {
                                         state.insert_event(
