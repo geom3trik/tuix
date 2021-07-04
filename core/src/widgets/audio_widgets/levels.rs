@@ -30,9 +30,7 @@ impl Widget for AudioLevelBar {
             //.set_height(Length::Percentage(1.0))
         });
 
-        state.style.insert_element(entity, "level_bar");
-
-        entity
+        entity.set_element(state, "level_bar")
     }
 
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {

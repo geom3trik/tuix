@@ -49,7 +49,7 @@ impl TuixWindow {
                 let mut state = State::new();
 
                 let root = Entity::root();
-                state.hierarchy.add(Entity::root(), None);
+                //state.hierarchy.add(Entity::root(), None);
 
                 (app)(&mut state, root);
 
@@ -81,7 +81,7 @@ impl TuixWindow {
                 let mut state = State::new();
 
                 let root = Entity::root();
-                state.hierarchy.add(Entity::root(), None);
+                //state.hierarchy.add(Entity::root(), None);
 
                 (app)(&mut state, root);
 
@@ -113,7 +113,7 @@ impl TuixWindow {
                 let mut state = State::new();
 
                 let root = Entity::root();
-                state.hierarchy.add(Entity::root(), None);
+                //state.hierarchy.add(Entity::root(), None);
 
                 let win_desc = WindowDescription::new();
                 (app)(&mut state, root);

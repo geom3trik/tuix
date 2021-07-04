@@ -26,11 +26,7 @@ impl Widget for TabBar {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.list.on_build(state, entity);
 
-        //entity.set_flex_direction(state, FlexDirection::Row);
-
-        state.style.insert_element(entity, "tab_bar");
-
-        entity
+        entity.set_element(state, "tab_bar")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

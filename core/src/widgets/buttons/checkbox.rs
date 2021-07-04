@@ -128,9 +128,7 @@ impl Widget for Checkbox {
             );
         }
 
-        state.style.insert_element(entity, "checkbox");
-
-        entity
+        entity.set_element(state, "checkbox")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

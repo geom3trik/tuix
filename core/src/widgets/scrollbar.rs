@@ -86,9 +86,7 @@ impl Widget for Scrollbar {
             }
         }
 
-        state.style.insert_element(entity, "scrollbar");
-
-        entity
+        entity.set_element(state, "scrollbar")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

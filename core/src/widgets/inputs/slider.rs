@@ -426,9 +426,7 @@ impl Widget for Slider {
                 .class("thumb")
         });
 
-        state.style.insert_element(entity, "slider");
-
-        entity
+        entity.set_element(state, "slider")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

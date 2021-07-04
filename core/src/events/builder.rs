@@ -58,23 +58,27 @@ impl<'a,T> Builder<'a,T> {
     }
 
     /// Adds a class name to the entity
-    pub fn class(mut self, class: &str) -> Self {
-        self.state.style.insert_class(self.entity, class);
+    pub fn class(mut self, class_name: &str) -> Self {
+        //self.state.style.insert_class(self.entity, class);
+        self.entity.class(self.state, class_name);
 
         self
     }
 
     /// Sets the element name of the entity
     pub fn set_element(mut self, element: &str) -> Self {
-        self.state.style.insert_element(self.entity, element);
+        //self.state.style.insert_element(self.entity, element);
+
+        self.entity.set_element(self.state, element);
 
         self
     }
 
     /// Sets the id of the entity
     pub fn set_id(mut self, id: &str) -> Self {
-        self.state.style.insert_id(self.entity, id);
+        //self.state.style.insert_id(self.entity, id);
 
+        todo!();
         self
     }
 
