@@ -34,7 +34,7 @@ pub enum CheckboxEvent {
     Unchecked,
 }
 
-// A checkable with an added icon
+
 #[derive(Default)]
 pub struct Checkbox {
     icon_unchecked: Option<String>,
