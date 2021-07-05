@@ -188,6 +188,10 @@ impl<T: NormalizedMap> Knob<T> {
             map,
         }
     }
+
+    pub fn map(&self) -> &T {
+        &self.map
+    }
 }
 
 impl<T: NormalizedMap> Widget for Knob<T> {
