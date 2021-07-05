@@ -25,11 +25,68 @@ impl Widget for Container {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
-        self.knob = Knob::new()
+        /*
+        // Generic float range
+
+        let map = GenericMap::new(-1.0, 1.0, Gradient::Linear, DisplayDecimals::Two, None);
+        let normalized_default = map.value_to_normalized(-0.5);
+
+        self.knob = Knob::new(map, normalized_default)
             .build(state, entity, |builder| {
                 builder
                     .set_space(Stretch(1.0))
             });
+        */
+
+        // Decibel range
+
+        let map = DecibelMap::new(-90.0, 3.0, Gradient::Power(0.15), DisplayDecimals::One, true);
+        let normalized_default = map.db_to_normalized(0.0);
+        
+        self.knob = Knob::new(map, normalized_default)
+        .build(state, entity, |builder| {
+            builder
+                .set_space(Stretch(1.0))
+        });
+
+        /*
+        // Frequency range
+
+        let map = FrequencyMap::new(20.0, 20_000.0, Gradient::Frequency, FrequencyDisplayMode::default(), true);
+        let normalized_default = map.hz_to_normalized(1_000.0);
+
+        self.knob = Knob::new(map, normalized_default)
+        .build(state, entity, |builder| {
+            builder
+                .set_space(Stretch(1.0))
+        });
+        */
+
+        /*
+        // Integer range
+
+        let map = IntMap::new(
+            0,
+            6,
+            Some(&|int: i32| -> String {
+                String::from(match int {
+                    0 => "A",
+                    1 => "B",
+                    2 => "C",
+                    3 => "D",
+                    4 => "E",
+                    5 => "F",
+                    _ => "G",
+                })
+            }));
+        let normalized_default = map.int_to_normalized(2);
+
+        self.knob = Knob::new(map, normalized_default)
+        .build(state, entity, |builder| {
+            builder
+                .set_space(Stretch(1.0))
+        });
+        */
 
         entity.set_background_color(state, Color::rgb(79,79,79))
     }
