@@ -35,10 +35,10 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
         self.listbox = List::new()
-            .build(state, entity, |builder| {
+            .build(state, container, |builder| {
                 builder
                     .set_width(Pixels(210.0))
                     .set_height(Auto)
@@ -46,34 +46,34 @@ impl Widget for Container {
             });
         
         CheckButton::with_label("Red")
-        .set_checked(true)
-        .on_checked(|_, state, button|{
-            button.emit(state, CustomEvent::ChangeColor(Color::rgb(200, 50, 50)));
-        })
-        .build(state, self.listbox, |builder| 
-            builder
-                .set_color(Color::black())
-        );
+            .set_checked(true)
+            .on_checked(|_, state, button|{
+                button.emit(state, CustomEvent::ChangeColor(Color::rgb(200, 50, 50)));
+            })
+            .build(state, self.listbox, |builder| 
+                builder
+                    .set_color(Color::black())
+            );
 
         CheckButton::with_label("Green")
-        .on_checked(|_, state, button|{
-            button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 200, 50)));
-        })
-        .build(state, self.listbox, |builder| 
-            builder
-                .set_color(Color::black())
-        );
+            .on_checked(|_, state, button|{
+                button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 200, 50)));
+            })
+            .build(state, self.listbox, |builder| 
+                builder
+                    .set_color(Color::black())
+            );
 
         CheckButton::with_label("Blue")
-        .on_checked(|_, state, button|{
-            button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 50, 200)));
-        })
-        .build(state, self.listbox, |builder| 
-            builder
-                .set_color(Color::black())
-        );
+            .on_checked(|_, state, button|{
+                button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 50, 200)));
+            })
+            .build(state, self.listbox, |builder| 
+                builder
+                    .set_color(Color::black())
+            );
 
-        entity.set_background_color(state, Color::white()).set_focusability(state, false)
+        container.set_background_color(state, Color::white()).set_focusability(state, false)
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
