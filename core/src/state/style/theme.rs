@@ -218,6 +218,7 @@ fn parse_selectors<'i, 't>(
 
                 match pseudo_class_str.as_ref() {
                     "hover" => selector.pseudo_classes.set_hover(true),
+                    "over" => selector.pseudo_classes.set_over(true),
                     "active" => selector.pseudo_classes.set_active(true),
                     "focus" => selector.pseudo_classes.set_focus(true),
                     "enabled" => selector.pseudo_classes.set_enabled(true),
@@ -226,19 +227,6 @@ fn parse_selectors<'i, 't>(
 
                     _ => {}
                 }
-
-                // let pseudo_class = match pseudo_class_str.as_ref() {
-                //     "hover" => PseudoClass::Hover,
-                //     "active" => PseudoClass::Active,
-                //     "focus" => PseudoClass::Focus,
-                //     "enabled" => PseudoClass::Enabled,
-                //     "disabled" => PseudoClass::Disabled,
-                //     "checked" => PseudoClass::Checked,
-                //     "over" => PseudoClass::Over,
-                //     _ => PseudoClass::None,
-                // };
-
-                // selector.pseudo_classes.insert(pseudo_class);
             }
 
             // This selector is done, on to the next one

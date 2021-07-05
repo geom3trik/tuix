@@ -42,9 +42,10 @@ impl Widget for Container {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         self.slider = Slider::new()
-            .on_changing(|slider, state, entity| {
-                let val = (slider.value * 255.0) as u8;
-                state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba(val, val, val, 255))).target(entity));
+            .with_init(1.0)
+            .on_changing(|slider_data, state, slider| {
+                let val = (slider_data.value * 255.0) as u8;
+                slider.emit(state, CustomEvent::ChangeColor(Color::rgba(val, val, val, 255)));
             })
             .build(state, entity, |builder| {
                 builder

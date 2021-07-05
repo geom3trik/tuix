@@ -29,7 +29,13 @@ pub trait PropSet: AsEntity + Sized {
 
     /// Add a class name to an entity
     fn class(self, state: &mut State, class_name: &str) -> Entity {
-        state.style.insert_class(self.entity(), class_name);
+        if let Some(class_list) = state.style.classes.get_mut(self.entity()) {
+            class_list.insert(class_name.to_string());
+        } else {
+            let mut class_list = HashSet::new();
+            class_list.insert(class_name.to_string());
+            state.style.classes.insert(self.entity(), class_list);
+        }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -139,19 +145,14 @@ pub trait PropSet: AsEntity + Sized {
 
     // Style
     fn set_element(self, state: &mut State, value: &str) -> Entity {
-        state.style.insert_element(self.entity(), value);
+
+        state.style.elements.insert(self.entity(), value.to_string());
 
         self.entity()
     }
 
     fn set_id(self, state: &mut State, value: &str) -> Entity {
-        state.style.insert_id(self.entity(), value);
-
-        self.entity()
-    }
-
-    fn set_class(self, state: &mut State, value: &str) -> Entity {
-        state.style.insert_class(self.entity(), value);
+        todo!();
 
         self.entity()
     }

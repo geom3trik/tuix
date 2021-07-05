@@ -31,8 +31,9 @@ impl Widget for Container {
             .with_x(1.0)
             .with_y(1.0)
             .with_z(1.0)
-            .on_change(|vector, state, entity| {
-                state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba((vector.x * 255.0) as u8, (vector.y * 255.0) as u8, (vector.z * 255.0) as u8, 255))).target(entity));
+            .on_change(|vector, state, id| {
+                //state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba((vector.x * 255.0) as u8, (vector.y * 255.0) as u8, (vector.z * 255.0) as u8, 255))).target(entity));
+                id.emit(state, CustomEvent::ChangeColor(Color::rgba((vector.x * 255.0) as u8, (vector.y * 255.0) as u8, (vector.z * 255.0) as u8, 255)));
             })
             .build(state, entity, |builder| {
                 builder

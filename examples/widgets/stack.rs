@@ -21,11 +21,6 @@ const STYLE: &str = r#"
 
 "#;
 
-#[derive(Debug, Clone, PartialEq)]
-enum CustomEvent {
-    ChangeColor(Color),
-}
-
 #[derive(Default)]
 struct Container {
     stack: Entity,
@@ -51,7 +46,7 @@ impl Widget for Container {
         Label::new("Red Page").build(state, first, |builder| builder.set_color(Color::black()));
         Button::with_label("Next")
             .on_press(|_, state, button|{
-                button.emit(state, button, Event::new(StackEvent::SetIndex(1)));
+                button.emit(state, StackEvent::SetIndex(1));
             })
             .build(state, first, |builder|
                 builder
@@ -70,7 +65,7 @@ impl Widget for Container {
         Label::new("Green Page").build(state, second, |builder| builder.set_color(Color::black()));
         Button::with_label("Next")
             .on_press(|_, state, button|{
-                button.emit(state, button, Event::new(StackEvent::SetIndex(2)));
+                button.emit(state, StackEvent::SetIndex(2));
             })
             .build(state, second, |builder|
                 builder
@@ -83,7 +78,7 @@ impl Widget for Container {
 
         Button::with_label("Prev")
         .on_press(|_, state, button|{
-            button.emit(state, button, Event::new(StackEvent::SetIndex(0)));
+            button.emit(state, StackEvent::SetIndex(0));
         })
         .build(state, second, |builder|
             builder
@@ -102,7 +97,7 @@ impl Widget for Container {
         Label::new("Blue Page").build(state, third, |builder| builder.set_color(Color::black()));
         Button::with_label("Prev")
             .on_press(|_, state, button|{
-                button.emit(state, button, Event::new(StackEvent::SetIndex(1)));
+                button.emit(state, StackEvent::SetIndex(1));
             })
             .build(state, third, |builder|
                 builder
@@ -115,22 +110,12 @@ impl Widget for Container {
 
         entity.set_background_color(state, Color::white())
     }
-
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        if let Some(custom_event) = event.message.downcast() {
-            match custom_event {
-                CustomEvent::ChangeColor(color) => {
-                    entity.set_background_color(state, *color);
-                }
-            }
-        }
-    }
 }
 
 fn main() {
     let app = Application::new(
     WindowDescription::new()
-            .with_title("Spinbox")
+            .with_title("Stack")
             .with_inner_size(300, 300),
     |state, window| {
 

@@ -100,7 +100,7 @@ impl Widget for ScrollContainerH {
         self.horizontal_scroll.set_disabled(state, true);
         self.horizontal_scroll.set_enabled(state, false);
 
-        state.style.insert_element(entity, "scroll_containerh");
+        entity.set_element(state, "scroll_containerh");
 
         let vertical_scroll_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
@@ -433,7 +433,7 @@ impl Widget for ScrollContainer {
         //             .set_background_color(Color::rgb(50, 50, 100))
         //     });
 
-        state.style.insert_element(entity, "scroll_container");
+        entity.set_element(state, "scroll_container");
 
         let vertical_scroll_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
@@ -824,7 +824,7 @@ impl Widget for ScrollContainerHV {
         //             .set_background_color(Color::rgb(50, 50, 100))
         //     });
 
-        state.style.insert_element(entity, "scroll_containerhv");
+        entity.set_element(state, "scroll_containerhv");
 
         self.container
     }

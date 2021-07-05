@@ -140,7 +140,7 @@ impl Widget for Panel {
                 .set_height(Auto)
         });
 
-        state.style.insert_element(entity, "panel");
+        entity.set_element(state, "panel");
 
         // Animations
         let container_expand_animation = AnimationState::new()

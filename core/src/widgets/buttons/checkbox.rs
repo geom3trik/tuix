@@ -34,7 +34,7 @@ pub enum CheckboxEvent {
     Unchecked,
 }
 
-// A checkable with an added icon
+
 #[derive(Default)]
 pub struct Checkbox {
     icon_unchecked: Option<String>,
@@ -128,9 +128,7 @@ impl Widget for Checkbox {
             );
         }
 
-        state.style.insert_element(entity, "checkbox");
-
-        entity
+        entity.set_element(state, "checkbox")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

@@ -108,9 +108,7 @@ impl Widget for Textbox {
 
         entity.set_clip_widget(state, entity);
 
-        state.style.insert_element(entity, "textbox");
-
-        entity
+        entity.set_element(state, "textbox")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

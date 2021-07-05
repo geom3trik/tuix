@@ -124,7 +124,7 @@ impl Widget for Calculator {
 
         self.clear = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Operator('C')));
+                id.emit_to(state, entity, CalculatorEvent::Operator('C'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -136,7 +136,7 @@ impl Widget for Calculator {
 
         self.plus_minus = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('¬')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('¬'));
             })
             .build(state, entity, |builder| {
                 builder
@@ -149,7 +149,7 @@ impl Widget for Calculator {
         // Percentage
         self.percent = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('%')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('%'));
             })
             .build(state, entity, |builder| {
                 builder
@@ -162,7 +162,7 @@ impl Widget for Calculator {
         // Divide
         self.divide = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Operator('/')));
+                id.emit_to(state, entity, CalculatorEvent::Operator('/'));
             })
             .build(state, entity, |builder| {
                 builder
@@ -177,7 +177,7 @@ impl Widget for Calculator {
         // Digit Seven
         self.seven = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('7')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('7'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -190,7 +190,7 @@ impl Widget for Calculator {
         // Digit Eight
         self.eight = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('8')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('8'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -203,7 +203,7 @@ impl Widget for Calculator {
         // Digit Nine
         self.nine = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('9')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('9'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -216,7 +216,7 @@ impl Widget for Calculator {
         // Multiply
         self.multiply = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Operator('*')));
+                id.emit_to(state, entity, CalculatorEvent::Operator('*'));
             })
             .build(state, entity, |builder|
                 builder
@@ -231,7 +231,7 @@ impl Widget for Calculator {
         // Digit Four
         self.four = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('4')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('4'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -244,7 +244,7 @@ impl Widget for Calculator {
         // Digit Five
         self.five = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('5')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('5'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -257,7 +257,7 @@ impl Widget for Calculator {
         // Digit Six
         self.six = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('6')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('6'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -270,7 +270,7 @@ impl Widget for Calculator {
         // Subtract
         self.subtract = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Operator('-')));
+                id.emit_to(state, entity, CalculatorEvent::Operator('-'));
             })
             .build(state, entity, |builder| {
                 builder
@@ -285,7 +285,7 @@ impl Widget for Calculator {
         // Digit One
         self.one = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('1')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('1'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -298,7 +298,7 @@ impl Widget for Calculator {
         // Digit Two
         self.two = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('2')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('2'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -311,7 +311,7 @@ impl Widget for Calculator {
         // Digit Three
         self.three = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('3')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('3'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -324,7 +324,7 @@ impl Widget for Calculator {
         // Add
         self.add = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Operator('+')));
+                id.emit_to(state, entity, CalculatorEvent::Operator('+'));
             })
             .build(state, entity, |builder|
                 builder
@@ -339,7 +339,7 @@ impl Widget for Calculator {
         // Digit Zero
         self.zero = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Digit('0')));
+                id.emit_to(state, entity, CalculatorEvent::Digit('0'));
             })
             .build(state, entity, |builder|
                 builder
@@ -354,7 +354,7 @@ impl Widget for Calculator {
         // Decimal Point
         self.decimal_point = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Operator('.')));
+                id.emit_to(state, entity, CalculatorEvent::Operator('.'));
             })
             .build(state, entity, |builder| 
                 builder
@@ -367,7 +367,7 @@ impl Widget for Calculator {
         // Equals
         self.equals = Button::new()
             .on_press(move |button, state, id| {
-                id.emit(state, entity, Event::new(CalculatorEvent::Operator('=')));
+                id.emit_to(state, entity, CalculatorEvent::Operator('='));
             })
             .build(state, entity, |builder|
                 builder

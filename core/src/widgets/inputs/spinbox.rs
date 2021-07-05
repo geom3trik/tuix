@@ -211,9 +211,7 @@ where
             self.on_change = Some(callback);
         }
 
-        state.style.insert_element(entity, "spinbox");
-
-        entity
+        entity.set_element(state, "spinbox")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

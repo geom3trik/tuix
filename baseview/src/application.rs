@@ -285,11 +285,11 @@ impl ApplicationRunner {
                         self.state.hovered
                     };
 
-                    if let Some(event_handler) = self.event_manager.event_handlers.get_mut(&target) {
-                        if let Some(callback) = self.event_manager.callbacks.get_mut(&target) {
-                            (callback)(event_handler, &mut self.state, target);
-                        }
-                    }
+                    // if let Some(event_handler) = self.event_manager.event_handlers.get_mut(&target) {
+                    //     if let Some(callback) = self.event_manager.callbacks.get_mut(&target) {
+                    //         (callback)(event_handler, &mut self.state, target);
+                    //     }
+                    // }
 
                     match b {
                         MouseButton::Left => {
