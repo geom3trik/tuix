@@ -504,6 +504,12 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
+    pub fn set_scale(mut self, scale: f32) -> Self {
+        self.state.style.scale.insert(self.entity, scale);
+
+        self
+    }
+
     pub fn set_child_left(mut self, value: Units) -> Self {
         self.state.style.child_left.insert(self.entity, value);
         self

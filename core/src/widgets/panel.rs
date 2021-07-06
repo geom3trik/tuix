@@ -115,6 +115,8 @@ impl Widget for Panel {
                 .set_width(Stretch(1.0))
                 .set_height(Stretch(1.0))
                 .set_left(Pixels(10.0))
+                .set_child_top(Stretch(1.0))
+                .set_child_bottom(Stretch(1.0))
                 .set_hoverability(false)
                 .set_focusability(false)
                 .class("label")
@@ -264,6 +266,7 @@ impl Widget for Panel {
                                         .style
                                         .rotate
                                         .play_animation(self.arrow, self.arrow_cw_animation);
+                                    
                                     self.arrow.set_rotate(state, 0.0);
                                 }
 
@@ -420,6 +423,7 @@ impl Widget for Panel {
                                         .style
                                         .rotate
                                         .play_animation(self.arrow, self.arrow_cw_animation);
+
                                     self.arrow.set_rotate(state, 0.0);
                                 }
 
@@ -436,7 +440,7 @@ impl Widget for Panel {
                                 .top
                                 .play_animation(self.container2, self.move_up_animation);
 
-                            //self.container2.set_opacity(state, 0.0);
+                            self.container2.set_opacity(state, 0.0);
                         }
                     }
                 }
