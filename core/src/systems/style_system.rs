@@ -138,14 +138,10 @@ fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
         .unwrap_or_default();
 
     if state.active == entity {
-        entity_selector.pseudo_classes.set_active(true);
+        entity_selector.pseudo_classes.insert(PseudoClasses::ACTIVE);
     }
 
-    if state.focused == entity {
-        entity_selector.pseudo_classes.set_focus(true);
-    } else {
-        entity_selector.pseudo_classes.set_focus(false);
-    }
+    entity_selector.pseudo_classes.set(PseudoClasses::FOCUS, state.focused == entity);
 
     return selector.matches(&entity_selector);
 }

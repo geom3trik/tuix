@@ -217,13 +217,14 @@ fn parse_selectors<'i, 't>(
                 let pseudo_class_str = input.expect_ident()?.to_owned();
 
                 match pseudo_class_str.as_ref() {
-                    "hover" => selector.pseudo_classes.set_hover(true),
-                    "over" => selector.pseudo_classes.set_over(true),
-                    "active" => selector.pseudo_classes.set_active(true),
-                    "focus" => selector.pseudo_classes.set_focus(true),
-                    "enabled" => selector.pseudo_classes.set_enabled(true),
-                    "disabled" => selector.pseudo_classes.set_disabled(true),
-                    "checked" => selector.pseudo_classes.set_checked(true),
+                    "hover" => selector.pseudo_classes.insert(PseudoClasses::HOVER),
+                    "over" => selector.pseudo_classes.insert(PseudoClasses::OVER),
+                    "active" => selector.pseudo_classes.insert(PseudoClasses::ACTIVE),
+                    "focus" => selector.pseudo_classes.insert(PseudoClasses::FOCUS),
+                    "disabled" => selector.pseudo_classes.insert(PseudoClasses::DISABLED),
+                    "checked" => selector.pseudo_classes.insert(PseudoClasses::CHECKED),
+                    "selected" => selector.pseudo_classes.insert(PseudoClasses::SELECTED),
+                    "custom" => selector.pseudo_classes.insert(PseudoClasses::CUSTOM),
 
                     _ => {}
                 }

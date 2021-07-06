@@ -98,7 +98,6 @@ impl Widget for ScrollContainerH {
         }
 
         self.horizontal_scroll.set_disabled(state, true);
-        self.horizontal_scroll.set_enabled(state, false);
 
         entity.set_element(state, "scroll_containerh");
 
@@ -138,7 +137,7 @@ impl Widget for ScrollContainerH {
                             }
 
                             if scrollh < 1.0 {
-                                self.horizontal_scroll.set_enabled(state, true);
+                                self.horizontal_scroll.set_disabled(state, false);
                             }
 
                             if !state.style.left.is_animating(self.horizontal_scroll) {
@@ -423,8 +422,6 @@ impl Widget for ScrollContainer {
         });
 
         entity.set_disabled(state, true);
-        entity.set_enabled(state, false);
-
         // self.vertical_scroll =
         //     Scrollbar::new(self.container, Direction::Vertical).build(state, entity, |builder| {
         //         builder
@@ -474,7 +471,7 @@ impl Widget for ScrollContainer {
                             }
 
                             if scrollh < 1.0 {
-                                entity.set_enabled(state, true);
+                                entity.set_disabled(state, false);
                             }
 
                             if !state.style.top.is_animating(self.vertical_scroll) {
@@ -847,7 +844,7 @@ impl Widget for ScrollContainerHV {
                         }
 
                         if scrollv < 1.0 {
-                            self.vertical_scroll.set_enabled(state, true);
+                            self.vertical_scroll.set_disabled(state, false);
                         }
 
                         let mut scrollh =
@@ -859,7 +856,7 @@ impl Widget for ScrollContainerHV {
                         }
 
                         if scrollh < 1.0 {
-                            self.horizontal_scroll.set_enabled(state, true);
+                            self.horizontal_scroll.set_disabled(state, false);
                         }
 
                         // BUG: fast scrolling causes smaller scroll because the animation hasn't finished when this function is called again

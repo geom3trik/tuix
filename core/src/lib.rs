@@ -1,5 +1,8 @@
 #![allow(dead_code)]
 
+#[macro_use]
+extern crate bitflags;
+
 
 pub mod state;
 pub use state::*;

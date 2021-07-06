@@ -50,30 +50,10 @@ pub trait PropSet: AsEntity + Sized {
     }
 
     // Pseudoclass
-    fn set_enabled(self, state: &mut State, value: bool) -> Entity {
-
-        // Check if the entity is alive
-        if !state.entity_manager.is_alive(self.entity()) {
-            return self.entity();
-        }
-
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_enabled(value);
-            pseudo_classes.set_disabled(!value);
-        }
-
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self.entity()
-    }
-
 
     fn set_disabled(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_disabled(value);
-            pseudo_classes.set_enabled(!value);
+            pseudo_classes.set(PseudoClasses::DISABLED, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -85,7 +65,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_checked(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_checked(value);
+            pseudo_classes.set(PseudoClasses::CHECKED, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -97,7 +77,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_over(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_over(value);
+            pseudo_classes.set(PseudoClasses::OVER, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -109,7 +89,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_active(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_active(value);
+            pseudo_classes.set(PseudoClasses::ACTIVE, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -121,7 +101,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_hover(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_hover(value);
+            pseudo_classes.set(PseudoClasses::HOVER, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -133,7 +113,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_focus(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_focus(value);
+            pseudo_classes.set(PseudoClasses::FOCUS, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -1286,12 +1266,13 @@ impl PropSet for Entity {
 }
 */
 pub trait PropGet: AsEntity {
-    fn is_enabled(self, state: &mut State) -> bool;
     fn is_disabled(self, state: &mut State) -> bool;
     fn is_checked(self, state: &mut State) -> bool;
     fn is_over(self, state: &mut State) -> bool;
     fn is_active(self, state: &mut State) -> bool;
     fn is_focused(self, state: &mut State) -> bool;
+    fn is_selected(self, state: &mut State) -> bool;
+    fn is_hovered(self, state: &mut State) -> bool;
 
     //
     fn get_overflow(&self, state: &mut State) -> Overflow;
@@ -1341,44 +1322,51 @@ pub trait PropGet: AsEntity {
 }
 
 impl PropGet for Entity {
-    fn is_enabled(self, state: &mut State) -> bool {
+    fn is_disabled(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_enabled()
+            pseudo_classes.contains(PseudoClasses::DISABLED)
         } else {
             false
         }
     }
-    fn is_disabled(self, state: &mut State) -> bool {
+    fn is_hovered(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_disabled()
+            pseudo_classes.contains(PseudoClasses::HOVER)
+        } else {
+            false
+        }
+    }
+    fn is_selected(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.contains(PseudoClasses::SELECTED)
         } else {
             false
         }
     }
     fn is_checked(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_checked()
+            pseudo_classes.contains(PseudoClasses::CHECKED)
         } else {
             false
         }
     }
     fn is_over(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_over()
+            pseudo_classes.contains(PseudoClasses::OVER)
         } else {
             false
         }
     }
     fn is_active(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_active()
+            pseudo_classes.contains(PseudoClasses::ACTIVE)
         } else {
             false
         }
     }
     fn is_focused(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_focus()
+            pseudo_classes.contains(PseudoClasses::FOCUS)
         } else {
             false
         }

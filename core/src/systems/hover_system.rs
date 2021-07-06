@@ -1,4 +1,4 @@
-use crate::{Display, Entity, Event, PropGet, Propagation, State, Transform2D, Units, Visibility, WindowEvent};
+use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, PseudoClasses, State, Transform2D, Units, Visibility, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
@@ -92,9 +92,8 @@ pub fn apply_hover(state: &mut State) {
                         .target(entity)
                         .propagate(Propagation::Direct),
                 );
-                if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(entity) {
-                    pseudo_classes.set_over(true);
-                }
+                
+                entity.set_over(state, true);
             }
         } else {
             if entity.is_over(state) == true {
@@ -103,9 +102,8 @@ pub fn apply_hover(state: &mut State) {
                         .target(entity)
                         .propagate(Propagation::Direct),
                 );
-                if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(entity) {
-                    pseudo_classes.set_over(false);
-                }
+
+                entity.set_over(state, false);
             }
         }
     }
@@ -125,13 +123,16 @@ pub fn apply_hover(state: &mut State) {
             state.data.get_z_order(hovered_widget),
         );
 
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
-            pseudo_classes.set_hover(true);
-        }
+        hovered_widget.set_hover(state, true);
+        state.hovered.set_hover(state, false);
 
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(state.hovered) {
-            pseudo_classes.set_hover(false);
-        }
+        // if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(hovered_widget) {
+        //     pseudo_classes.set_hover(true);
+        // }
+
+        // if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(state.hovered) {
+        //     pseudo_classes.set_hover(false);
+        // }
 
         // if state.captured != Entity::null() {
         //     state.insert_event(

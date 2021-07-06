@@ -145,7 +145,7 @@ impl Widget for Scrollbar {
                         entity.set_disabled(state, true);
                     } else {
                         //state.style.enabled.set(entity, true);
-                        entity.set_enabled(state, true);
+                        entity.set_disabled(state, false);
                     }
                     state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
                 }
@@ -180,7 +180,7 @@ impl Widget for Scrollbar {
                             entity.set_disabled(state, true);
                         } else {
                             //state.style.enabled.set(entity, true);
-                            entity.set_enabled(state, true);
+                            entity.set_disabled(state, false);
                         }
 
                         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));

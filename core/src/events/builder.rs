@@ -105,9 +105,7 @@ impl<'a,T> Builder<'a,T> {
 
     /// Sets the checked state of the entity
     pub fn set_checked(mut self, val: bool) -> Self {
-        if let Some(pseudo_classes) = self.state.style.pseudo_classes.get_mut(self.entity) {
-            pseudo_classes.set_checked(val);
-        }
+        self.entity().set_checked(self.state, val);
 
         self
     }
