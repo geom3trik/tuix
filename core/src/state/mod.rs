@@ -22,6 +22,9 @@ pub use mouse::*;
 pub mod resource;
 pub use resource::*;
 
+pub mod geometry;
+pub use geometry::*;
+
 
 pub use crate::events::{Builder, Event, Propagation, Widget, EventHandler};
 pub use crate::window_event::WindowEvent;

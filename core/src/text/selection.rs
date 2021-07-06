@@ -1,19 +1,5 @@
 
-// Adapted from xi-editor
-
-// Copyright 2017 The xi-editor Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+use std::ops::Range;
 
 /// The affinity of a cursor on a line break
 pub enum Affinity {
@@ -21,14 +7,42 @@ pub enum Affinity {
     Upstream,
 }
 
-pub struct SelectionRegion {
-    pub start: usize,
-    pub end: usize,
-    pub affinity: Affinity,
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Selection {
+    pub anchor: usize,
+    pub active: usize,
 }
 
-pub struct Selection {
-    regions: Vec<SelectionRegion>,
+impl Selection {
+    pub fn new() -> Self {
+        Self {
+            anchor: 0,
+            active: 0,
+        }
+    }
+
+    pub fn carret(carret_position: usize) -> Self {
+        Self {
+            anchor: carret_position,
+            active: carret_position,
+        }
+    }
+
+    pub fn min(&self) -> usize {
+        self.anchor.min(self.active)
+    }
+
+    pub fn max(&self) -> usize {
+        self.anchor.max(self.active)
+    }
+
+    pub fn len(&self) -> usize {
+        self.max() - self.min()
+    }
+
+    pub fn range(&self) -> Range<usize> {
+        self.min()..self.max()
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]

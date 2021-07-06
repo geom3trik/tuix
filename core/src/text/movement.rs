@@ -1,55 +1,48 @@
-// Adapted from xi-editor
-
-// Copyright 2017 The xi-editor Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
+pub enum TextDirection {
+    LeftToRight,
+    Downstream,
+}
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Movement {
-    /// Move to the left by one grapheme cluster.
-    Left,
-    /// Move to the right by one grapheme cluster.
-    Right,
-    /// Move to the left by one word.
-    LeftWord,
+    /// Move bytewise backwards by one grapheme cluster. 
+    /// For left-to-right text this is equivalent to moving left by one grapheme cluster.
+    Upstream,
+
+    /// Move bytewise forwards by one grapheme cluster. 
+    /// For left-to-right text this is equivalent to moving right by one grapheme cluster.
+    Downstream,
+
+    /// Move bytewise backwards by one word.
+    UpstreamWord,
+
     /// Move to the right by one word.
-    RightWord,
-    /// Move to left end of visible line.
-    LeftOfLine,
-    /// Move to right end of visible line.
-    RightOfLine,
+    DownstreamWord,
+
+    /// Move to start of visible line.
+    UpstreamLine,
+
+    /// Move to end of visible line.
+    DownstreamLine,
+
     /// Move up one visible line.
-    Up,
+    UpLine,
+
     /// Move down one visible line.
-    Down,
+    DownLine,
+
     /// Move up one viewport height.
     UpPage,
+
     /// Move down one viewport height.
     DownPage,
-    /// Move up to the next line that can preserve the cursor position.
-    UpExactPosition,
-    /// Move down to the next line that can preserve the cursor position.
-    DownExactPosition,
-    /// Move to the start of the text line.
-    StartOfParagraph,
-    /// Move to the end of the text line.
-    EndOfParagraph,
-    /// Move to the end of the text line, or next line if already at end.
-    EndOfParagraphKill,
+
     /// Move to the start of the document.
     StartOfDocument,
+
     /// Move to the end of the document
     EndOfDocument,
+
+    
 }
 
