@@ -24,9 +24,9 @@ pub fn apply_transform(state: &mut State, hierarchy: &Hierarchy) {
 
         //state.data.set_origin(entity, parent_origin);
         
-        // if let Some(translate) = state.style.translate.get(entity) {
-        //     state.data.set_translate(entity, *translate);
-        // }
+        if let Some(translate) = state.style.translate.get(entity) {
+            state.data.set_translate(entity, *translate);
+        }
 
         if let Some(rotate) = state.style.rotate.get(entity) {
             let x = bounds.x + (bounds.w / 2.0);
