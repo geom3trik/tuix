@@ -4,20 +4,32 @@ pub enum TextDirection {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub enum Movement {
+pub enum MovementOperation {
+
+    NoMove,
+
+    /// Move to the start of a document
+    Start,
+
+    /// Move to the start of the current line
+    StartOfLine,
+
+    /// Move to the start of the current block
+    StartOfBlock,
+
     /// Move bytewise backwards by one grapheme cluster. 
     /// For left-to-right text this is equivalent to moving left by one grapheme cluster.
-    Upstream,
+    Left,
 
     /// Move bytewise forwards by one grapheme cluster. 
     /// For left-to-right text this is equivalent to moving right by one grapheme cluster.
-    Downstream,
+    Right,
 
     /// Move bytewise backwards by one word.
-    UpstreamWord,
+    Up,
 
     /// Move to the right by one word.
-    DownstreamWord,
+    Down,
 
     /// Move to start of visible line.
     UpstreamLine,
@@ -43,6 +55,6 @@ pub enum Movement {
     /// Move to the end of the document
     EndOfDocument,
 
-    
+
 }
 

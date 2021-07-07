@@ -57,3 +57,15 @@ pub trait TextHandler {
 //     }
 // }
 
+// Random ideas for text handling
+
+// text string
+// split into text runs
+// font lookup (with fallback)
+// font read 
+// shaping (iterate till all characters in all runs are shaped) -> 
+// cache shaping results
+// reshape only the parts that change
+// word breaking & line breaking
+// 
+// What about rich text?  

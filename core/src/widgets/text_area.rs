@@ -48,17 +48,16 @@ impl Widget for TextArea {
                     
                     Some(Key::Character(c)) if !state.modifiers.ctrl && !state.modifiers.alt => {
                         self.text_state = self.text_state.handle_message(TextMessage::Insert(c.to_owned()), &mut self.text_data);
+                    
                     }
                     
                     
                     Some(Key::ArrowLeft) => {
                         self.text_state = self.text_state.handle_message(TextMessage::Move(Movement::Upstream), &mut self.text_data);
-                        
                         entity.emit_to(state, Entity::root(), WindowEvent::Redraw);
                     }
 
                     Some(Key::ArrowRight) => {
-                        println!("Do This");
                         self.text_state = self.text_state.handle_message(TextMessage::Move(Movement::Downstream), &mut self.text_data);
                         entity.emit_to(state, Entity::root(), WindowEvent::Redraw);
                     }
@@ -68,6 +67,7 @@ impl Widget for TextArea {
 
                 WindowEvent::CharInput(c) => {
                     self.text_state.handle_message(TextMessage::Insert(c.to_string()), &mut self.text_data);
+                    entity.emit_to(state, Entity::root(), WindowEvent::Redraw);
                 }
 
                 _ => {}
