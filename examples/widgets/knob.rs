@@ -40,7 +40,7 @@ impl Widget for Container {
 
         // Decibel range
 
-        let map = DecibelMap::new(-90.0, 3.0, Gradient::Power(0.15), DisplayDecimals::One, true);
+        let map = DecibelMap::new(-90.0, 3.0, ValueScaling::Power(0.15), DisplayDecimals::One, true);
         let normalized_default = map.db_to_normalized(0.0);
         
         self.knob = Knob::new(map, normalized_default)

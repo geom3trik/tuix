@@ -36,13 +36,13 @@ impl Default for DisplayDecimals {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Gradient {
+pub enum ValueScaling {
     Linear,
     Power(f32),
     Frequency,
 }
 
-impl Gradient {
+impl ValueScaling {
     pub fn normalized_to_value(&self, normalized: f32, min: f32, max: f32) -> f32 {
         if normalized <= 0.0 {
             return min;
@@ -55,11 +55,11 @@ impl Gradient {
         };
     
         match self {
-            Gradient::Linear => map(normalized),
+            ValueScaling::Linear => map(normalized),
     
-            Gradient::Power(exponent) => map(normalized.powf(*exponent)),
+            ValueScaling::Power(exponent) => map(normalized.powf(*exponent)),
     
-            Gradient::Frequency => {
+            ValueScaling::Frequency => {
                 let minl = min.log2();
                 let range = max.log2() - minl;
                 2.0f32.powf((normalized * range) + minl)
@@ -79,11 +79,11 @@ impl Gradient {
         };
     
         match self {
-            Gradient::Linear => unmap(value),
+            ValueScaling::Linear => unmap(value),
     
-            Gradient::Power(exponent) => unmap(value).powf(1.0 / *exponent),
+            ValueScaling::Power(exponent) => unmap(value).powf(1.0 / *exponent),
     
-            Gradient::Frequency => {
+            ValueScaling::Frequency => {
                 let minl = min.log2();
                 let range = max.log2() - minl;
                 (value.log2() - minl) / range
@@ -98,21 +98,21 @@ pub struct GenericMap {
     max: f32,
     span_recip: f32, // Small optimization to avoid division operations.
 
-    gradient: Gradient,
+    value_scaling: ValueScaling,
 
     display_decimals: DisplayDecimals,
     units: Option<String>,
 }
 
 impl GenericMap {
-    pub fn new(min: f32, max: f32, gradient: Gradient, display_decimals: DisplayDecimals, units: Option<String>) -> Self {
+    pub fn new(min: f32, max: f32, value_scaling: ValueScaling, display_decimals: DisplayDecimals, units: Option<String>) -> Self {
         assert!(min < max);
 
         Self {
             min,
             max,
             span_recip: 1.0 / (max - min),
-            gradient,
+            value_scaling,
             display_decimals,
             units,
         }
@@ -125,18 +125,18 @@ impl GenericMap {
         self.max
     }
 
-    pub fn gradient(&self) -> &Gradient {
-        &self.gradient
+    pub fn value_scaling(&self) -> &ValueScaling {
+        &self.value_scaling
     }
 
     #[inline]
     pub fn normalized_to_value(&self, normalized: f32) -> f32 {
-        self.gradient.normalized_to_value(normalized, self.min, self.max)
+        self.value_scaling.normalized_to_value(normalized, self.min, self.max)
     }
 
     #[inline]
     pub fn value_to_normalized(&self, value: f32) -> f32 {
-        self.gradient.value_to_normalized(value, self.min, self.max)
+        self.value_scaling.value_to_normalized(value, self.min, self.max)
     }
 
     #[inline]
@@ -160,20 +160,20 @@ pub struct DecibelMap {
     min: f32,
     max: f32,
 
-    gradient: Gradient,
+    value_scaling: ValueScaling,
 
     display_decimals: DisplayDecimals,
     display_units: bool,
 }
 
 impl DecibelMap {
-    pub fn new(min_db: f32, max_db: f32, gradient: Gradient, display_decimals: DisplayDecimals, display_units: bool) -> Self {
+    pub fn new(min_db: f32, max_db: f32, value_scaling: ValueScaling, display_decimals: DisplayDecimals, display_units: bool) -> Self {
         assert!(min_db < max_db);
 
         Self {
             min: min_db,
             max: max_db,
-            gradient,
+            value_scaling,
             display_decimals,
             display_units,
         }
@@ -186,23 +186,23 @@ impl DecibelMap {
         self.max
     }
 
-    pub fn gradient(&self) -> &Gradient {
-        &self.gradient
+    pub fn value_scaling(&self) -> &ValueScaling {
+        &self.value_scaling
     }
 
     #[inline]
     pub fn normalized_to_db(&self, normalized: f32) -> f32 {
-        self.gradient.normalized_to_value(normalized, self.min, self.max)
+        self.value_scaling.normalized_to_value(normalized, self.min, self.max)
     }
 
     #[inline]
     pub fn normalized_to_amplitude(&self, normalized: f32) -> f32 {
-        db_to_amplitude(self.gradient.normalized_to_value(normalized, self.min, self.max))
+        db_to_amplitude(self.value_scaling.normalized_to_value(normalized, self.min, self.max))
     }
 
     #[inline]
     pub fn db_to_normalized(&self, db: f32) -> f32 {
-        self.gradient.value_to_normalized(db, self.min, self.max)
+        self.value_scaling.value_to_normalized(db, self.min, self.max)
     }
 
     #[inline]
@@ -250,7 +250,7 @@ pub struct FrequencyMap {
     min: f32,
     max: f32,
 
-    gradient: Gradient,
+    value_scaling: ValueScaling,
 
     display_mode: FrequencyDisplayMode,
     display_units: bool,
@@ -260,7 +260,7 @@ impl FrequencyMap {
     pub fn new(
         min_hz: f32,
         max_hz: f32,
-        gradient: Gradient,
+        value_scaling: ValueScaling,
         display_mode: FrequencyDisplayMode,
         display_units: bool,
     ) -> Self {
@@ -269,7 +269,7 @@ impl FrequencyMap {
         Self {
             min: min_hz,
             max: max_hz,
-            gradient,
+            value_scaling,
             display_mode,
             display_units,
         }
@@ -282,18 +282,18 @@ impl FrequencyMap {
         self.max
     }
 
-    pub fn gradient(&self) -> &Gradient {
-        &self.gradient
+    pub fn value_scaling(&self) -> &ValueScaling {
+        &self.value_scaling
     }
 
     #[inline]
     pub fn normalized_to_hz(&self, normalized: f32) -> f32 {
-        self.gradient.normalized_to_value(normalized, self.min, self.max)
+        self.value_scaling.normalized_to_value(normalized, self.min, self.max)
     }
 
     #[inline]
     pub fn hz_to_normalized(&self, hz: f32) -> f32 {
-        self.gradient.value_to_normalized(hz, self.min, self.max)
+        self.value_scaling.value_to_normalized(hz, self.min, self.max)
     }
 
     #[inline]

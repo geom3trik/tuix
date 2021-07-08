@@ -32,7 +32,7 @@ impl ArcTrack {
 
             front: Entity::null(),
 
-            normalized_value: normalized_value.min(1.0).max(0.0),
+            normalized_value: normalized_value.clamp(0.0, 1.0),
         }
     }
 }
@@ -166,7 +166,7 @@ pub struct Knob<T: NormalizedMap> {
 
 impl<T: NormalizedMap> Knob<T> {
     pub fn new(map: T, normalized_default: f32) -> Self {
-        let normalized_default = normalized_default.min(1.0).max(0.0);
+        let normalized_default = normalized_default.clamp(0.0, 1.0);
 
         Self {
             thumb: Default::default(),
@@ -217,17 +217,17 @@ impl<T: NormalizedMap> Widget for Knob<T> {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        let move_virtual_slider = |_self: &mut Self, state: &mut State, new_normal: f32| {
-            _self.continuous_normal = new_normal.clamp(0.0, 1.0);
+        let move_virtual_slider = |self_ref: &mut Self, state: &mut State, new_normal: f32| {
+            self_ref.continuous_normal = new_normal.clamp(0.0, 1.0);
 
             // This will cause the knob to "snap" when using an `IntMap`.
-            _self.normalized_value = _self.map.snap(_self.continuous_normal);
+            self_ref.normalized_value = self_ref.map.snap(self_ref.continuous_normal);
             
             // TODO - Remove when done
-            println!("Normalized: {}, Display: {}", _self.normalized_value, _self.map.normalized_to_display(_self.normalized_value));
+            println!("Normalized: {}, Display: {}", self_ref.normalized_value, self_ref.map.normalized_to_display(self_ref.normalized_value));
 
-            if let Some(track) = state.query::<ArcTrack>(_self.value_track) {
-                track.normalized_value = _self.normalized_value;
+            if let Some(track) = state.query::<ArcTrack>(self_ref.value_track) {
+                track.normalized_value = self_ref.normalized_value;
             }
 
             state.insert_event(
