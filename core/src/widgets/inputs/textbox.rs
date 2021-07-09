@@ -338,13 +338,14 @@ impl Widget for Textbox {
                 }
 
                 WindowEvent::CharInput(input) => {
+                    println!("Char Event");
                     if *input as u8 != 8 && *input as u8 != 13 {
                         // Ignore input when ctrl is being held
                         if state.modifiers.ctrl {
                             return;
                         }
                         if self.edit {
-                            //println!("Input: {}", input);
+                            println!("Input: {}", input);
                             let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
                             //let start = text_data.select_pos as usize;
@@ -379,8 +380,12 @@ impl Widget for Textbox {
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::root()),
                             );
+
+                            event.consume();
                         }
                     }
+
+                    event.consume();
                 }
 
 
