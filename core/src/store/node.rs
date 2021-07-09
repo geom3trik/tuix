@@ -1,29 +1,9 @@
-use crate::{Entity, Event, NodeMap, State};
+use crate::{Entity, Event, State};
 use fnv::FnvHashMap;
 
 use std::any::{Any, TypeId};
 pub trait Node: Any {
-    fn on_mutate(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        
-    }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node, nodes: &NodeMap) {
-
-    }
-
-    //fn on_update(&self, state: &mut State, entity: Entity, data: &Box<dyn Node>) {}
-
-    fn build(mut self, state: &mut State, parent: Entity) -> Entity 
-    where Self: std::marker::Sized + 'static
-    {
-        let entity = state.entity_manager.create_entity().unwrap();
-
-        state.data_graph.add(entity, parent);
-
-        state.data_nodes.insert(entity, Box::new(self));
-
-        entity
-    }
 }
 
 impl dyn Node {

@@ -70,7 +70,7 @@ pub struct State {
     pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
 
     // Map of widgets
-    pub(crate) event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
 
     // List of removed entities
     pub(crate) removed_entities: Vec<Entity>,

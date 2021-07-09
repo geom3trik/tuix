@@ -22,8 +22,8 @@ pub use inputs::*;
 // pub mod combobox;
 // pub use combobox::*;
 
-pub mod tab;
-pub use tab::*;
+// pub mod tab;
+// pub use tab::*;
 
 // pub mod dropdown;
 // pub use dropdown::*;

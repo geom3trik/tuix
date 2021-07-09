@@ -7,6 +7,9 @@ extern crate bitflags;
 pub mod state;
 pub use state::*;
 
+pub mod store;
+pub use store::*;
+
 pub mod text;
 pub use text::*;
 

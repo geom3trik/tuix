@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 
 use crate::entity::Entity;
 use crate::events::*;
-use crate::{Direction, Justify, PropGet, PropSet, State, Units, Visibility, WindowEvent, NodeMap};
+use crate::{Direction, Justify, PropGet, PropSet, State, Units, Visibility, WindowEvent};
 
 use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
 
@@ -408,7 +408,7 @@ impl<T: ToString + 'static> Widget for Textbox<T> {
     }
 
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data, nodes: &NodeMap) {
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
         self.text = data.to_string();
         entity.set_text(state, &self.text);
     }

@@ -69,6 +69,7 @@ impl CheckButton {
 
 impl Widget for CheckButton {
     type Ret = Entity;
+    type Data = bool;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
 
