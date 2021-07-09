@@ -138,14 +138,10 @@ fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
         .unwrap_or_default();
 
     if state.active == entity {
-        entity_selector.pseudo_classes.set_active(true);
+        entity_selector.pseudo_classes.insert(PseudoClasses::ACTIVE);
     }
 
-    if state.focused == entity {
-        entity_selector.pseudo_classes.set_focus(true);
-    } else {
-        entity_selector.pseudo_classes.set_focus(false);
-    }
+    entity_selector.pseudo_classes.set(PseudoClasses::FOCUS, state.focused == entity);
 
     return selector.matches(&entity_selector);
 }
@@ -507,6 +503,25 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
         if state.style.child_between.link_rule(entity, &matched_rules) {
             should_relayout = true;
             should_redraw = true;
+        }
+
+        for rule_index in matched_rules.iter() {
+            // TODO - remove cloned
+            if let Some(rule) = state.style.rules.get(*rule_index as usize).cloned() {
+                for property in rule.properties.iter() {
+                    match property {
+                        Property::Unknown(ident, prop) => {
+                            if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
+                                event_handler.on_style(state, entity, (ident.clone(), prop.clone()));
+
+                                state.event_handlers.insert(entity, event_handler);
+                            }
+                        }
+
+                        _=> {}
+                    }
+                }
+            }
         }
 
         if should_relayout {

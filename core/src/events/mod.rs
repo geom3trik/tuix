@@ -20,6 +20,3 @@ pub use window_description::*;
 
 pub mod widget;
 pub use widget::*;
-
-// pub mod inspectable;
-// pub use inspectable::*;

@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+
 use prop::PropGet;
 
 use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};

@@ -4,7 +4,7 @@ use crate::{Entity, EventHandler, State, Widget};
 use std::{cell::RefCell, marker::PhantomData};
 use std::rc::Rc;
 
-/// Contains an entity id and a mutable reference to state and can be used to set properties
+/// Contains an entity id and a mutable reference to state and can be used to set properties of a widget at build time
 pub struct Builder<'a,T> {
     pub entity: Entity,
     pub state: &'a mut State,
@@ -18,7 +18,7 @@ impl<'a,T> Builder<'a,T> {
         Builder::<T> { entity, state, phantom: PhantomData}
     }
 
-    // Builds the widget into State
+    /// Builds the widget into State
     pub(crate) fn build(mut self, event_handler: T) -> Entity
     where
         T: EventHandler + 'static + Sized,
@@ -40,6 +40,7 @@ impl<'a,T> Builder<'a,T> {
         self.entity
     }
 
+    /// Sets the general callback for pressing a widget
     pub fn on_press<F>(mut self, mut handler: F) -> Self
     where 
         T: Widget,
@@ -57,23 +58,27 @@ impl<'a,T> Builder<'a,T> {
     }
 
     /// Adds a class name to the entity
-    pub fn class(mut self, class: &str) -> Self {
-        self.state.style.insert_class(self.entity, class);
+    pub fn class(mut self, class_name: &str) -> Self {
+        //self.state.style.insert_class(self.entity, class);
+        self.entity.class(self.state, class_name);
 
         self
     }
 
     /// Sets the element name of the entity
     pub fn set_element(mut self, element: &str) -> Self {
-        self.state.style.insert_element(self.entity, element);
+        //self.state.style.insert_element(self.entity, element);
+
+        self.entity.set_element(self.state, element);
 
         self
     }
 
     /// Sets the id of the entity
     pub fn set_id(mut self, id: &str) -> Self {
-        self.state.style.insert_id(self.entity, id);
+        //self.state.style.insert_id(self.entity, id);
 
+        todo!();
         self
     }
 
@@ -100,9 +105,7 @@ impl<'a,T> Builder<'a,T> {
 
     /// Sets the checked state of the entity
     pub fn set_checked(mut self, val: bool) -> Self {
-        if let Some(pseudo_classes) = self.state.style.pseudo_classes.get_mut(self.entity) {
-            pseudo_classes.set_checked(val);
-        }
+        self.entity().set_checked(self.state, val);
 
         self
     }
@@ -510,11 +513,8 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
-    pub fn set_scaley(mut self, scaley: f32) -> Self {
-        self.state
-            .style
-            .scaley
-            .insert(self.entity, Scale::new(scaley));
+    pub fn set_scale(mut self, scale: f32) -> Self {
+        self.state.style.scale.insert(self.entity, scale);
 
         self
     }

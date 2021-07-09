@@ -92,7 +92,7 @@ impl Widget for Vector {
             .build(state, entity, |builder|
                 builder
                     .set_background_color(Color::rgb(200, 50, 50))
-                    .set_color(Color::black())
+                    .set_color(Color::white())
                     .set_width(Pixels(20.0))
                     .set_height(Stretch(1.0))
                     .set_child_space(Stretch(1.0))
@@ -108,7 +108,7 @@ impl Widget for Vector {
             .build(state, entity, |builder|
                 builder
                     .set_background_color(Color::rgb(50, 200, 50))
-                    .set_color(Color::black())
+                    .set_color(Color::white())
                     .set_width(Pixels(20.0))
                     .set_height(Stretch(1.0))
                     .set_child_space(Stretch(1.0))
@@ -124,7 +124,7 @@ impl Widget for Vector {
             .build(state, entity, |builder|
                 builder
                     .set_background_color(Color::rgb(50, 50, 200))
-                    .set_color(Color::black())
+                    .set_color(Color::white())
                     .set_width(Pixels(20.0))
                     .set_height(Stretch(1.0))
                     .set_child_space(Stretch(1.0))

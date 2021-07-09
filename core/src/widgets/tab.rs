@@ -26,11 +26,7 @@ impl Widget for TabBar {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.list.on_build(state, entity);
 
-        //entity.set_flex_direction(state, FlexDirection::Row);
-
-        state.style.insert_element(entity, "tab_bar");
-
-        entity
+        entity.set_element(state, "tab_bar")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -40,8 +36,12 @@ impl Widget for TabBar {
 
 pub struct Tab {
     pub name: String,
-    button: Button,
-    check: Checkable,
+    checked: bool,
+
+    on_checked: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    on_unchecked: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+
+    key: Code,
 }
 
 impl Tab {
@@ -51,19 +51,31 @@ impl Tab {
         
         Self {
             name: name.clone(),
-            button: Button::new().on_press(|_, state, entity|
-                state.insert_event(
-                    Event::new(CheckboxEvent::Switch).target(entity)
-                )
-            ),
+            checked: false,
 
-            check: Checkable::new(false).on_checked(move |checkable, state, entity|
-                state.insert_event(
-                    Event::new(TabEvent::SwitchTab(name.clone())).propagate(Propagation::Up).target(entity),
-                )
-            ),
-            //.check_on_press()
+            on_checked: None,
+            on_unchecked: None,
+
+            key: Code::Space,
         }
+    }
+
+    pub fn on_checked<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_checked = Some(Box::new(callback));
+
+        self
+    }
+
+    pub fn on_unchecked<F>(mut self, callback: F) -> Self 
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_unchecked = Some(Box::new(callback));
+
+        self
     }
 }
 
@@ -74,13 +86,11 @@ impl Widget for Tab {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        self.button.on_event(state, entity, event);
-        self.check.on_event(state, entity, event);
-
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
                 TabEvent::SwitchTab(name) => {
                     if name == &self.name && event.origin != entity {
+                        println!("Switch the tab!");
                         state.insert_event(
                             Event::new(CheckboxEvent::Checked)
                                 .target(entity)
@@ -94,6 +104,123 @@ impl Widget for Tab {
                         state.remove(entity);
                     }
                 }
+            }
+        }
+
+        if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
+            match checkbox_event {
+                CheckboxEvent::Switch => {
+                    if event.target == entity {
+                        if self.checked {
+
+                            //entity.set_checked(state, false);
+
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Unchecked)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
+                        } else {
+
+                            //entity.set_checked(state, true);
+
+                            state.insert_event(
+                                Event::new(CheckboxEvent::Checked)
+                                    .target(entity)
+                                    .origin(entity),
+                            );
+                        }
+                    }
+                }
+
+                CheckboxEvent::Check => {
+                    self.checked = true;
+                    entity.set_checked(state, true);
+                }
+
+                CheckboxEvent::Uncheck => {
+                    self.checked = false;
+                    entity.set_checked(state, false);
+                }
+
+                CheckboxEvent::Checked => {
+                    println!("Do This");
+                    self.checked = true;
+
+                    entity.set_checked(state, true);
+
+                    if let Some(callback) = self.on_checked.take() {
+                        (callback)(self, state, entity);
+                        self.on_checked = Some(callback);
+                    }
+                }
+
+                CheckboxEvent::Unchecked => {
+                    self.checked = false;
+
+                    entity.set_checked(state, false);
+
+                    if let Some(callback) = self.on_unchecked.take() {
+                        (callback)(self, state, entity);
+                        self.on_unchecked = Some(callback);
+                    }
+                }
+            }
+        }
+        
+        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+            match window_event {
+                WindowEvent::MouseDown(button) if *button == MouseButton::Left => {
+                    if entity == event.target && !entity.is_disabled(state) {
+                        state.capture(entity);
+                    }
+                }
+
+                WindowEvent::MouseUp(button) if *button == MouseButton::Left => {
+                    if entity == event.target && state.mouse.left.pressed == entity {
+                        state.release(entity);
+                        entity.set_active(state, false);
+                        if !entity.is_disabled(state) {
+                            if state.hovered == entity {
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Switch)
+                                        .target(entity)
+                                        .origin(entity),
+                                );
+                            }
+
+                            state.insert_event(
+                                Event::new(TabEvent::SwitchTab(self.name.clone())).propagate(Propagation::Up).target(entity).origin(entity),
+                            )
+                        }
+                    }
+                }
+
+                WindowEvent::KeyDown(code, _) if *code == self.key => {
+                    if state.focused == entity && !entity.is_disabled(state) {
+                        state.insert_event(
+                            Event::new(ButtonEvent::Pressed)
+                                .target(entity)
+                                .origin(entity),
+                        );
+
+                        state.insert_event(
+                            Event::new(CheckboxEvent::Switch)
+                                .target(entity)
+                                .origin(entity),
+                        );
+                    }
+                }
+
+                WindowEvent::KeyUp(code, _) if *code == self.key => {
+                    state.insert_event(
+                        Event::new(ButtonEvent::Released)
+                            .target(entity)
+                            .origin(entity),
+                    );
+                }
+
+                _ => {}
             }
         }
     }
@@ -116,7 +243,7 @@ impl TabView {
 impl Widget for TabView {
     type Ret = (Entity, Entity);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.tab_bar = TabBar2::new().build(state, entity, |builder| builder);
+        self.tab_bar = TabBar::new().build(state, entity, |builder| builder);
 
         self.tab_page = Element::new().build(state, entity, |builder| builder.class("viewport"));
 
@@ -144,7 +271,7 @@ impl Widget for TabView {
                             );
                         }
 
-                        event.consume();
+                        // event.consume();
                     }
                 }
 
@@ -193,7 +320,7 @@ impl Widget for TabContainer {
         if let Some(tab_event) = event.message.downcast::<TabEvent>() {
             match tab_event {
                 TabEvent::SwitchTab(name) => {
-                    println!("Switch Tab: {}", name);
+                    //println!("Switch Tab: {}", name);
 
                     if name == &self.name {
                         entity.set_display(state, Display::Flexbox);

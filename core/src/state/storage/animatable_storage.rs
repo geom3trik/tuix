@@ -1,13 +1,55 @@
 use crate::state::animation::{Animation, AnimationState, Interpolator};
 use crate::state::Entity;
 
+
+// Animatable storage contains both style data and animation data using a sparse set
+
+// 
+
+const INDEX_INLINE_BITS: u64 = 1;
+const INDEX_INLINE_MASK: u64 = (1<<INDEX_INLINE_BITS)-1;
+
+const INDEX_INDEX_BITS: u64 = 31;
+const INDEX_INDEX_MASK: u64 = (1<<INDEX_INDEX_BITS)-1;
+
+// 1st bit - inline flag
+// 
+pub struct Id(u64);
+
+impl Id {
+
+    pub fn set_inline(&mut self, flag: bool) {
+        self.0 |= (flag as u64) << INDEX_INDEX_BITS;
+    }
+
+    pub fn is_inline(&self) -> bool {
+        ((self.0 >> INDEX_INDEX_BITS) & INDEX_INLINE_MASK) != 0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn inline() {
+        let mut id = Id(0);
+        //println!("ID: {:#066b}", id.0);
+        assert_eq!(id.is_inline(), false);
+        id.set_inline(true);
+        //println!("ID: {:#066b}", id.0);
+        assert_eq!(id.is_inline(), true);
+    }
+}
+
+
 #[derive(Copy, Clone)]
 pub struct Index(usize);
 
 impl Index {
     pub fn new(val: usize) -> Self {
-        let mask = std::usize::MAX / 4;
-        Index(val & mask)
+        // let mask = std::usize::MAX / 4;
+        const MASK: usize = std::usize::MAX / 4;
+        Index(val & MASK)
     }
 
     pub fn inherited(mut self, val: bool) -> Self {
@@ -139,6 +181,10 @@ impl Default for AnimationIndex {
     }
 }
 
+
+// Entities can be linked to style properties by the style system
+
+// TODO - Convert to error type
 pub enum LinkType {
     NewLink,
     AlreadyLinked,
@@ -184,16 +230,20 @@ impl Default for DataIndex {
     }
 }
 
+pub enum StorageError {
+    InvalidEntity,
+
+}
+
 #[derive(Clone, Default)]
 pub struct AnimatableStorage<T: Interpolator> {
     // Mapping from entity index to data and animations
     pub entity_indices: Vec<DataIndex>,
     // Mapping from rule index to data
     pub rule_indices: Vec<DataIndex>,
-    // An index to the animation either in definitions or active
-    //pub animation_indices: Vec<usize>,
-    // The actual data as determined by the rules
+    // Shared data determined by style rules
     pub data: Vec<T>,
+    // Data defined on a specific entity
     pub inline_data: Vec<T>,
     // Animation descriptions
     pub animations: Vec<AnimationState<T>>,
@@ -206,19 +256,11 @@ where
     T: Default + Clone + Interpolator + std::fmt::Debug + PartialEq + 'static,
 {
     pub fn new() -> Self {
-        AnimatableStorage {
-            entity_indices: Vec::new(),
-            rule_indices: Vec::new(),
-            //animation_indices: Vec::new(),
-            data: Vec::new(),
-            inline_data: Vec::new(),
-            animations: Vec::new(),
-            active_animations: Vec::new(),
-        }
+        AnimatableStorage::default()
     }
 
     // Insert inline data
-    pub fn insert(&mut self, entity: Entity, value: T) {
+    pub fn insert(&mut self, entity: Entity, value: T) -> Result<(), StorageError> {
         if let Some(index) = entity.index() {
             if index >= self.entity_indices.len() {
                 // Resize entity indices to include new entity
@@ -252,14 +294,17 @@ where
                         .inline(true);
                     self.inline_data.push(value);
                 }
-
-                //self.entity_indices[entity.index()].animation_index = std::usize::MAX - 1;
             }
+
+            Ok(())
+        } else {
+            Err(StorageError::InvalidEntity)
         }
     }
 
     // Insert an animation definition
     pub fn insert_animation(&mut self, animation_state: AnimationState<T>) -> Animation {
+        // 
         let animation_id = self.animations.len();
 
         self.animations.push(animation_state);
@@ -406,6 +451,7 @@ where
     //     }
     // }
 
+    /// Return the index of the shared data rule
     pub fn get_rule_id(&self, entity: Entity) -> Option<usize> {
         if entity.index_unchecked() >= self.entity_indices.len() {
             return None;
@@ -538,6 +584,7 @@ where
         }
     }
 
+    /// Links an entity to any matching rules
     pub fn link_rule(&mut self, entity: Entity, rule_list: &Vec<usize>) -> bool {
         if let Some(index) = entity.index() {
             // Check if the entity already has an inline style. If so then rules don't affect it.
@@ -559,7 +606,7 @@ where
 
                     LinkType::NoRule => {
                         self.unlink(entity);
-                        return true;
+                        //return true;
                     }
 
                     //LinkType::NoData => {
@@ -580,7 +627,7 @@ where
         }
     }
 
-    // Insert rule data
+    /// Insert shared data assocaited with a specified rule index
     pub fn insert_rule(&mut self, rule: usize, value: T) {
         if rule >= self.rule_indices.len() {
             self.rule_indices.resize(rule + 1, Default::default());
@@ -641,7 +688,7 @@ where
         }
     }
 
-    // Returns true if the entity is linked to a currently active animation
+    /// Returns true if the entity is linked to a currently active animation
     pub fn is_animating(&self, entity: Entity) -> bool {
         if entity.index_unchecked() >= self.entity_indices.len() {
             return false;
@@ -656,6 +703,7 @@ where
         true
     }
 
+    /// Returns a mutable reference to the shared data associated with the specified rule index
     pub fn get_rule_mut(&mut self, rule: usize) -> Option<&mut T> {
         if rule >= self.rule_indices.len() {
             return None;
@@ -670,6 +718,7 @@ where
         Some(&mut self.data[data_index])
     }
 
+    /// Set the value of shared data associated with the specified rule index
     pub fn set_rule(&mut self, rule: usize, value: T) {
         if rule >= self.rule_indices.len() {
             self.insert_rule(rule, value);
@@ -686,7 +735,9 @@ where
         self.data[data_index] = value;
     }
 
+    /// Return true if the specified rule index has shared data in the storage
     pub fn has_rule(&self, rule: usize) -> bool {
+        
         if rule >= self.rule_indices.len() {
             return false;
         }

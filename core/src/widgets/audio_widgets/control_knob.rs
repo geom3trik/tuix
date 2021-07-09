@@ -101,9 +101,7 @@ impl Widget for ControlKnob {
                 .class("tick")
         });
 
-        state.style.insert_element(entity, "knob");
-
-        entity
+        entity.set_element(state, "knob")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -173,7 +171,7 @@ impl Widget for ControlKnob {
 
                             if let Some(on_change) = &self.on_change {
                                 let mut event = (on_change.lock().unwrap())(self.value);
-                                if !event.target {
+                                if event.target == Entity::null() {
                                     event.target = entity;
                                 }
 

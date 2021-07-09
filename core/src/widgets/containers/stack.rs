@@ -2,6 +2,8 @@
 
 use crate::{IntoChildIterator, widgets::*};
 use crate::style::*;
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum StackEvent {
     SetIndex(i32),
     IndexChanged(i32, Entity),
@@ -46,8 +48,6 @@ impl Stack {
         if new_index != self.current_index {
             self.current_index = new_index;
 
-            println!("Switch to: {}", new_index);
-
             if let Some(current_child) = state.hierarchy.get_child(entity, self.current_index as usize) {
                 for page in self.pages.iter() {
                     page.set_display(state, Display::None);
@@ -71,16 +71,29 @@ impl Stack {
 impl Widget for Stack {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
+        entity.set_element(state, "stack")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast() {
             match window_event {
                 WindowEvent::ChildAdded(child) => {
+                    if self.current_index != 0 {
+                        child.set_display(state, Display::None);
+                    }
                     self.pages.push(*child);
                     self.set_current_index(state, entity, self.pages.len() as i32 - 1);
                 }
+                _=> {}
+            }
+        }
+
+        if let Some(stack_event) = event.message.downcast() {
+            match stack_event {
+                StackEvent::SetIndex(index) => {
+                    self.set_current_index(state, entity, *index)
+                }
+
                 _=> {}
             }
         }

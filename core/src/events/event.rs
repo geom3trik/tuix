@@ -93,6 +93,7 @@ impl<S: 'static + PartialEq + Clone + Debug> Message for S {
     }
 }
 
+/// An event is a wrapper around a message and provides metadata on how the event should be propagated through the hierarchy
 #[derive(Clone, Debug)]
 pub struct Event {
     // The entity that produced the event. Entity::null() for OS events or unspecified.
@@ -134,7 +135,7 @@ impl Event {
             propagation: Propagation::DownUp,
             consumable: true,
             consumed: false,
-            unique: false,
+            unique: true,
             order: 0,
             message: Box::new(message),
         }

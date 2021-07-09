@@ -43,20 +43,20 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
-        self.spinbox = Spinbox::new(255u8)
-            .on_change(|spinbox, state, entity| {
-                state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba(spinbox.value, spinbox.value, spinbox.value, 255))).target(entity));
+        self.spinbox = Spinbox::new(128u8)
+            .on_change(|spinbox_data, state, spinbox| {
+                spinbox.emit(state, CustomEvent::ChangeColor(Color::rgb(spinbox_data.value, spinbox_data.value, spinbox_data.value)));
             })
-            .build(state, entity, |builder| {
+            .build(state, container, |builder| {
                 builder
                     .set_width(Pixels(210.0))
                     .set_height(Pixels(30.0))
                     .set_space(Stretch(1.0))
             });
 
-        entity.set_background_color(state, Color::white())
+        container.set_background_color(state, Color::white())
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

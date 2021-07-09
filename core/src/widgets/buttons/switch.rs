@@ -46,11 +46,10 @@ impl Widget for Switch {
             builder.class("front").set_hoverability(false)
         });
 
-        state.style.insert_element(entity, "switch");
-
         entity
             .set_child_top(state, Stretch(1.0))
             .set_child_bottom(state, Stretch(1.0))
+            .set_element(state, "switch")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

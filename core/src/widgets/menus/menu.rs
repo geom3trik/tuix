@@ -51,7 +51,7 @@ impl Widget for Menu {
                 .class("container")
         });
 
-        state.style.insert_element(entity, "menu");
+        entity.set_element(state, "menu");
 
         self.container
     }

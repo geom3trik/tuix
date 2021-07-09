@@ -3,6 +3,7 @@ use crate::widgets::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PopupEvent {
+    OpenAtCursor,
     Open,
     Close,
     Switch,
@@ -32,6 +33,49 @@ impl Widget for Popup {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(popup_event) = event.message.downcast::<PopupEvent>() {
             match popup_event {
+
+                PopupEvent::OpenAtCursor => {
+
+                    let cursor_x = state.mouse.cursorx;
+                    let cursor_y = state.mouse.cursory;
+
+                    let width = state.data.get_width(entity);
+                    let height = state.data.get_height(entity);
+
+                    let right_edge = cursor_x + width;
+                    let bottom_edge = cursor_y + height;
+
+                    let window_width = state.data.get_width(Entity::root());
+                    let window_height = state.data.get_height(Entity::root());
+
+                    let mut new_posx = if right_edge > window_width {
+                        cursor_x - width
+                    } else {
+                        cursor_x
+                    };
+
+                    let mut new_posy = if bottom_edge > window_height {
+                        window_height - height
+                    } else {
+                        cursor_y
+                    };
+
+                    if new_posx < 0.0 {
+                        new_posx = 0.0;
+                    }
+
+                    if new_posy < 0.0 {
+                        new_posy = 0.0;
+                    }
+
+                    entity.set_left(state, Pixels(new_posx)).set_top(state, Pixels(new_posy));
+
+                    self.open = true;
+                    state.capture(entity);
+                    entity.set_opacity(state, 1.0);
+
+                }
+
                 PopupEvent::Open => {
                     self.open = true;
                     state.capture(entity);
@@ -46,12 +90,10 @@ impl Widget for Popup {
 
                 PopupEvent::Switch => {
                     if self.open {
-                        println!("Close");
                         self.open = false;
                         state.release(entity);
                         entity.set_opacity(state, 0.0);
                     } else {
-                        println!("Open");
                         self.open = true;
                         state.capture(entity);
                         entity.set_opacity(state, 1.0);
@@ -84,9 +126,13 @@ impl Widget for Popup {
                     //self.container.set_z_order(state, 1);
                 }
 
-                WindowEvent::MouseDown(button) => match button {
-                    MouseButton::Left => {
-                        if event.target == entity && event.origin != entity {
+                WindowEvent::MouseDown(button) => {
+                    if event.target == entity && event.origin != entity {
+                        if !entity.is_over(state) {
+
+                            entity.emit(state, PopupEvent::Close);
+                        
+                        } else {
                             state.insert_event(
                                 Event::new(WindowEvent::MouseDown(*button))
                                     .target(state.hovered)
@@ -95,8 +141,7 @@ impl Widget for Popup {
                             );
                         }
                     }
-
-                    _=> {}
+                    
                 }
 
                 WindowEvent::MouseUp(button) => match button {

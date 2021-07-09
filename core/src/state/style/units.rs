@@ -1,6 +1,6 @@
 use crate::animation::Interpolator;
 
-// Experimental new layout system
+
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Units {
     Auto,

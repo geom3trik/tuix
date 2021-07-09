@@ -1,3 +1,4 @@
+/*
 use tuix::*;
 
 fn main() {
@@ -33,4 +34,9 @@ fn main() {
         });
     });
     app.run();
+}
+*/
+
+fn main() {
+    
 }

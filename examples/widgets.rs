@@ -1,5 +1,5 @@
 // Example which shows all of the supported widgets
-
+/*
 extern crate tuix;
 
 use tuix::*;
@@ -490,4 +490,9 @@ fn main() {
         // });
     })
     .run();
+}
+*/
+
+fn main() {
+    
 }

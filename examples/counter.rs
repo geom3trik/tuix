@@ -30,14 +30,14 @@ impl Widget for Counter {
     // Build
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Button::with_label("increment")
-            .on_press(|widget, state, button|{
-                button.emit(state, button, Event::new(CounterMessage::Increment));
+            .on_press(|_,state,button|{
+                button.emit(state,CounterMessage::Increment);
             })
             .build(state, entity, |builder| builder.class("increment"));
 
         Button::with_label("decrement")
-            .on_press(|widget, state, button|{
-                button.emit(state, button, Event::new(CounterMessage::Decrement));
+            .on_press(|_,state,button|{
+                button.emit(state,CounterMessage::Decrement);
             })
             .build(state, entity, |builder| builder.class("decrement"));
 

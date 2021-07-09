@@ -1,6 +1,7 @@
 use crate::entity::Entity;
 
 use crate::state::style::Visibility;
+use crate::state::style::Transform2D;
 
 /// Computed properties used for layout and drawing
 
@@ -81,6 +82,12 @@ pub struct Data {
     pub(crate) prev_size: Vec<Pos>,
     pub clip_region: Vec<BoundingBox>,
 
+    rotate: Vec<f32>,
+    scale: Vec<(f32, f32)>,
+    transform: Vec<Transform2D>,
+
+    origin: Vec<(f32, f32)>,
+
     margins: Vec<Margins>,
     cross_stretch_sum: Vec<f32>,
     cross_free_space: Vec<f32>,
@@ -108,6 +115,12 @@ impl Data {
             self.prev_size.resize(key + 1, Default::default());
 
             self.opacity.resize(key + 1, 0.0);
+
+            self.rotate.resize(key + 1, 0.0);
+            self.scale.resize(key + 1, (1.0, 1.0));
+            self.transform.resize(key + 1, Transform2D::identity());
+            self.origin.resize(key + 1, (0.0, 0.0));
+
             self.z_order.resize(key + 1, 0);
 
             self.clip_region.resize(key + 1, Default::default());
@@ -321,6 +334,53 @@ impl Data {
             .unwrap()
     }
 
+    pub fn get_rotate(&self, entity: Entity) -> f32 {
+        self.transform
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()[0]
+            .acos()
+    }
+
+    pub fn get_translate(&self, entity: Entity) -> (f32, f32) {
+        let transform = self.transform
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap();
+
+        (transform[4], transform[5])
+    }
+
+    pub fn get_scale(&self, entity: Entity) -> f32 {
+        let scale = self.scale
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap();
+
+        scale.0
+    }
+
+    pub fn get_origin(&self, entity: Entity) -> (f32, f32) {
+        self.origin
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
+    }
+
+    pub fn get_transform(&self, entity: Entity) -> Transform2D {
+        self.transform
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap()
+    }
+
+    pub fn get_transform_mut(&mut self, entity: Entity) -> &mut Transform2D {
+        self.transform
+            .get_mut(entity.index_unchecked())
+            .unwrap()
+    }
+
+
     // SETTERS
 
     // pub fn set_clip_widget(&mut self, entity: Entity, val: Entity) {
@@ -506,6 +566,42 @@ impl Data {
     pub fn set_opacity(&mut self, entity: Entity, val: f32) {
         if let Some(opacity) = self.opacity.get_mut(entity.index_unchecked()) {
             *opacity = val;
+        }
+    }
+
+    pub fn set_rotate(&mut self, entity: Entity, val: f32) {
+        if let Some(transform) = self.transform.get_mut(entity.index_unchecked()) {
+            let mut t = Transform2D::identity();
+            t.rotate(val);
+            transform.premultiply(&t);
+        }
+    }
+
+    pub fn set_translate(&mut self, entity: Entity, val: (f32, f32)) {
+        if let Some(transform) = self.transform.get_mut(entity.index_unchecked()) {
+            let mut t = Transform2D::identity();
+            t.translate(val.0, val.1);
+            transform.premultiply(&t);
+        }
+    }
+
+    pub fn set_scale(&mut self, entity: Entity, val: f32) {
+        if let Some(transform) = self.transform.get_mut(entity.index_unchecked()) {
+            let mut t = Transform2D::identity();
+            t.scale(val, val);
+            transform.premultiply(&t);
+        }
+    }
+
+    pub fn set_origin(&mut self, entity: Entity, val: (f32, f32)) {
+        if let Some(origin) = self.origin.get_mut(entity.index_unchecked()) {
+            *origin = val;
+        }
+    }
+
+    pub fn set_transform(&mut self, entity: Entity, val: Transform2D) {
+        if let Some(transform) = self.transform.get_mut(entity.index_unchecked()) {
+            *transform = val;
         }
     }
 }

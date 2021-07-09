@@ -72,6 +72,10 @@ name = "slider"
 path = "examples/widgets/slider.rs"
 
 [[example]]
+name = "knob"
+path = "examples/widgets/knob.rs"
+
+[[example]]
 name = "popup"
 path = "examples/widgets/popup.rs"
 
@@ -86,6 +90,22 @@ path = "examples/7guis/temp.rs"
 [[example]]
 name = "temp_reactive"
 path = "examples/7guis/temp_reactive.rs"
+
+[[example]]
+name = "listbox"
+path = "examples/widgets/listbox.rs"
+
+[[example]]
+name = "radio"
+path = "examples/widgets/radio.rs"
+
+[[example]]
+name = "stack"
+path = "examples/widgets/stack.rs"
+
+[[example]]
+name = "gallery"
+path = "examples/widgets/gallery.rs"
 
 [workspace]
 members = [
@@ -106,8 +126,6 @@ tuix_core = { version = "0.1.0", path = "core" }
 tuix_winit = { version = "0.1.0", path = "winit", optional = true }
 tuix_glutin = { version = "0.1.0", path = "glutin", optional = true }
 tuix_baseview = { version = "0.1.0", path = "baseview", optional = true }
-
-tuix_inspector_derive = {path = "inspector-derive"}
 
 [dev-dependencies]
 femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}

@@ -13,8 +13,6 @@ use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 
 use tuix_core::events::{Event, EventManager, Propagation};
 
-use tuix_core::store::{Node, DataManager};
-
 use tuix_core::state::hierarchy::IntoHierarchyIterator;
 
 use tuix_core::state::Fonts;
@@ -36,7 +34,6 @@ pub struct Application {
     pub state: State,
     event_loop: EventLoop<()>,
     pub event_manager: EventManager,
-    pub data_manager: DataManager,
 }
 
 impl Application {
@@ -50,20 +47,11 @@ impl Application {
         let mut event_manager = EventManager::new();
 
         let root = Entity::root();
-        state.hierarchy.add(Entity::root(), None);
+        //state.hierarchy.add(Entity::root(), None);
 
         event_manager.hierarchy = state.hierarchy.clone();
 
-        let mut data_manager = DataManager::new();
-
-        state.data_graph.add(Entity::root(), Entity::null());
-
-        data_manager.graph = state.data_graph.clone();
-
-        //let window_description = win(WindowDescription::new());
-        //let mut window_builder = WindowBuilder::new(root);
         app(&mut state, root);
-        //let window_description = window_builder.get_window_description();
 
         let mut window = Window::new(&event_loop, &window_description);
 
@@ -138,18 +126,17 @@ impl Application {
             window: window,
             event_loop: event_loop,
             event_manager: event_manager,
-            data_manager: data_manager,
             state: state,
         }
     }
 
     pub fn run(self) {
+
         let mut state = self.state;
+
         let mut event_manager = self.event_manager;
         event_manager.hierarchy = state.hierarchy.clone();
-        
-        let mut data_manager = self.data_manager;
-        data_manager.graph = state.data_graph.clone();
+    
 
         //println!("Event Manager: {:?}", event_manager.hierarchy);
 
@@ -165,6 +152,11 @@ impl Application {
 
         state.needs_redraw = true;
 
+        let mut click_time = std::time::Instant::now();
+        let DOUBLE_CLICK_INTERVAL = std::time::Duration::from_millis(500);
+        let mut double_click = false;
+        let mut click_pos = (0.0, 0.0);
+
         self.event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
 
@@ -178,9 +170,8 @@ impl Application {
                 GEvent::MainEventsCleared => {
 
                     
-                    while !state.event_queue.is_empty() || !state.update_queue.is_empty() {
+                    while !state.event_queue.is_empty() {
                         event_manager.flush_events(&mut state);
-                        data_manager.flush_updates(&mut state, &mut event_manager);
                     }
 
                     if state.apply_animations() {
@@ -435,6 +426,8 @@ impl Application {
                             }
                         }
 
+
+                        // Window Resize Event
                         glutin::event::WindowEvent::Resized(physical_size) => {
                             window.handle.resize(physical_size);
 
@@ -470,6 +463,7 @@ impl Application {
 
                         }
 
+                        // Cursor Moved Event 
                         glutin::event::WindowEvent::CursorMoved {
                             device_id: _,
                             position,
@@ -497,6 +491,7 @@ impl Application {
                             }
                         }
 
+                        // Mouse Input Event
                         glutin::event::WindowEvent::MouseInput {
                             device_id: _,
                             state: s,
@@ -541,6 +536,36 @@ impl Application {
                                         state.needs_restyle = true;
                                     }
 
+                                    let new_click_time = std::time::Instant::now();
+                                    let click_duration = new_click_time - click_time;
+                                    let new_click_pos = (state.mouse.cursorx, state.mouse.cursory);
+
+                                    if click_duration <= DOUBLE_CLICK_INTERVAL && new_click_pos == click_pos{
+                                        if !double_click {
+                                            let target = if state.captured != Entity::null() {
+                                                state.insert_event(
+                                                    Event::new(WindowEvent::MouseDoubleClick(b))
+                                                        .target(state.captured)
+                                                        .propagate(Propagation::Direct),
+                                                );
+                                                state.captured
+                                            } else {
+                                                state.insert_event(
+                                                    Event::new(WindowEvent::MouseDoubleClick(b))
+                                                        .target(state.hovered),
+                                                );
+                                                state.hovered
+                                            };
+                                            double_click = true;
+                                        }
+                                        
+                                    } else {
+                                        double_click = false;
+                                    }
+                                    
+                                    click_time = new_click_time;
+                                    click_pos = new_click_pos;
+
                                     let target = if state.captured != Entity::null() {
                                         state.insert_event(
                                             Event::new(WindowEvent::MouseDown(b))
@@ -556,11 +581,11 @@ impl Application {
                                         state.hovered
                                     };
 
-                                    if let Some(event_handler) = event_manager.event_handlers.get_mut(&target) {
-                                        if let Some(callback) = event_manager.callbacks.get_mut(&target) {
-                                            (callback)(event_handler, &mut state, target);
-                                        }
-                                    }
+                                    // if let Some(event_handler) = state.event_handlers.get_mut(&target) {
+                                    //     if let Some(callback) = event_manager.callbacks.get_mut(&target) {
+                                    //         (callback)(event_handler, &mut state, target);
+                                    //     }
+                                    // }
 
                                     match b {
                                         MouseButton::Left => {

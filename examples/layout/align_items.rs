@@ -1,5 +1,5 @@
 use tuix::*;
-
+/*
 fn main() {
     let app = Application::new(|state, window| {
         let window_flex_direction = FlexDirection::Row;
@@ -139,4 +139,9 @@ fn main() {
     });
 
     app.run();
+}
+*/
+
+fn main() {
+    
 }

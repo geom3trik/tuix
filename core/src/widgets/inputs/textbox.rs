@@ -15,6 +15,7 @@ pub enum TextboxEvent {
     SetValue(String),
     ValueChanged(String),
     ResetValue,
+    Clear,
 }
 
 //impl Message for TextboxEvent {}
@@ -114,9 +115,7 @@ impl<T: ToString + 'static> Widget for Textbox<T> {
 
         entity.set_clip_widget(state, entity);
 
-        state.style.insert_element(entity, "textbox");
-
-        entity
+        entity.set_element(state, "textbox")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -132,6 +131,13 @@ impl<T: ToString + 'static> Widget for Textbox<T> {
 
                         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                     }
+                }
+
+                TextboxEvent::Clear => {
+                    self.text.clear();
+                    self.buffer.clear();
+                    entity.set_text(state, "");
+                    state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                 }
 
                 // TextboxEvent::ResetValue => {
@@ -345,7 +351,7 @@ impl<T: ToString + 'static> Widget for Textbox<T> {
                             return;
                         }
                         if self.edit {
-                            println!("Input: {}", input);
+                            //println!("Input: {}", input);
                             let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
                             //let start = text_data.select_pos as usize;
@@ -559,14 +565,10 @@ impl<T: ToString + 'static> Widget for Textbox<T> {
         }
 
         // Apply transformations
-        let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
-        //let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
+        let transform = state.data.get_transform(entity);
 
         canvas.save();
-        canvas.translate(posx + width / 2.0, posy + height / 2.0);
-        canvas.rotate(rotate.to_radians());
-        canvas.translate(-(posx + width / 2.0), -(posy + height / 2.0));
-
+        canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
         canvas.translate(posx, posy);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
@@ -577,12 +579,12 @@ impl<T: ToString + 'static> Widget for Textbox<T> {
 
         // Apply Scissor
         let clip_region = state.data.get_clip_region(entity);
-        canvas.scissor(
-            clip_region.x - posx,
-            clip_region.y - posy,
-            clip_region.w,
-            clip_region.h,
-        );
+        // canvas.scissor(
+        //     clip_region.x - posx,
+        //     clip_region.y - posy,
+        //     clip_region.w,
+        //     clip_region.h,
+        // );
 
         let outer_shadow_h_offset = match state
             .style
@@ -803,7 +805,8 @@ impl<T: ToString + 'static> Widget for Textbox<T> {
         canvas.restore();
 
         canvas.save();
-        canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
+        canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
+        //canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
 
         if let Some(text) = state.style.text.get_mut(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();

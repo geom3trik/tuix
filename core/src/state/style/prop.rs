@@ -1,4 +1,4 @@
-use crate::State;
+use crate::{Message, State};
 use crate::{entity::Entity, Builder, EventHandler, Propagation};
 use crate::{state::style::*, AsEntity, Pos};
 
@@ -10,36 +10,32 @@ use std::rc::Rc;
 
 pub trait PropSet: AsEntity + Sized {
 
-    // This could fail
-    fn bind(&self, state: &mut State, node: Entity) -> Entity {
-        state.data_graph.add(self.entity(), node);
+    /// Helper method for sending an event to self with default propagation
+    fn emit(&self, state: &mut State, message: impl Message) -> Entity
+    where
+        Self: 'static,
+    {
+        state.insert_event(Event::new(message).target(self.entity()).origin(self.entity()));
 
         self.entity()
     }
 
-    ///fn bind_with()
-
-    fn emit(&self, state: &mut State, target: Entity, mut event: Event) -> Entity
-    where
-        Self: 'static,
-    {
-        state.insert_event(event.target(target).origin(self.entity()));
-
-        self.entity()
-    }
-
-    fn update(&self, state: &mut State, mut event: Event) -> Entity
-    where
-        Self: 'static,
-    {
-        state.insert_update(event.origin(self.entity()));
+    /// Helper method for sending an event to target with default propagation
+    fn emit_to(&self, state: &mut State, target: Entity, message: impl Message) -> Entity {
+        state.insert_event(Event::new(message).target(target).origin(self.entity()));
 
         self.entity()
     }
 
     /// Add a class name to an entity
     fn class(self, state: &mut State, class_name: &str) -> Entity {
-        state.style.insert_class(self.entity(), class_name);
+        if let Some(class_list) = state.style.classes.get_mut(self.entity()) {
+            class_list.insert(class_name.to_string());
+        } else {
+            let mut class_list = HashSet::new();
+            class_list.insert(class_name.to_string());
+            state.style.classes.insert(self.entity(), class_list);
+        }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -54,24 +50,10 @@ pub trait PropSet: AsEntity + Sized {
     }
 
     // Pseudoclass
-    fn set_enabled(self, state: &mut State, value: bool) -> Entity {
-        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_enabled(value);
-            pseudo_classes.set_disabled(!value);
-        }
-
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self.entity()
-    }
-
 
     fn set_disabled(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_disabled(value);
-            pseudo_classes.set_enabled(!value);
+            pseudo_classes.set(PseudoClasses::DISABLED, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -83,7 +65,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_checked(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_checked(value);
+            pseudo_classes.set(PseudoClasses::CHECKED, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -95,7 +77,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_over(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_over(value);
+            pseudo_classes.set(PseudoClasses::OVER, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -107,7 +89,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_active(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_active(value);
+            pseudo_classes.set(PseudoClasses::ACTIVE, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -119,7 +101,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_hover(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_hover(value);
+            pseudo_classes.set(PseudoClasses::HOVER, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -131,7 +113,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_focus(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set_focus(value);
+            pseudo_classes.set(PseudoClasses::FOCUS, value);
         }
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
@@ -143,19 +125,14 @@ pub trait PropSet: AsEntity + Sized {
 
     // Style
     fn set_element(self, state: &mut State, value: &str) -> Entity {
-        state.style.insert_element(self.entity(), value);
+
+        state.style.elements.insert(self.entity(), value.to_string());
 
         self.entity()
     }
 
     fn set_id(self, state: &mut State, value: &str) -> Entity {
-        state.style.insert_id(self.entity(), value);
-
-        self.entity()
-    }
-
-    fn set_class(self, state: &mut State, value: &str) -> Entity {
-        state.style.insert_class(self.entity(), value);
+        todo!();
 
         self.entity()
     }
@@ -228,8 +205,28 @@ pub trait PropSet: AsEntity + Sized {
     fn set_rotate(self, state: &mut State, value: f32) -> Entity {
         state.style.rotate.insert(self.entity(), value);
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_translate(self, state: &mut State, value: (f32, f32)) -> Entity {
+        state.style.translate.insert(self.entity(), value);
+
+        //state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_scale(self, state: &mut State, value: f32) -> Entity {
+        state.style.scale.insert(self.entity(), value);
+
+        //state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
@@ -1269,12 +1266,13 @@ impl PropSet for Entity {
 }
 */
 pub trait PropGet: AsEntity {
-    fn is_enabled(self, state: &mut State) -> bool;
     fn is_disabled(self, state: &mut State) -> bool;
     fn is_checked(self, state: &mut State) -> bool;
     fn is_over(self, state: &mut State) -> bool;
     fn is_active(self, state: &mut State) -> bool;
     fn is_focused(self, state: &mut State) -> bool;
+    fn is_selected(self, state: &mut State) -> bool;
+    fn is_hovered(self, state: &mut State) -> bool;
 
     //
     fn get_overflow(&self, state: &mut State) -> Overflow;
@@ -1324,44 +1322,51 @@ pub trait PropGet: AsEntity {
 }
 
 impl PropGet for Entity {
-    fn is_enabled(self, state: &mut State) -> bool {
+    fn is_disabled(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_enabled()
+            pseudo_classes.contains(PseudoClasses::DISABLED)
         } else {
             false
         }
     }
-    fn is_disabled(self, state: &mut State) -> bool {
+    fn is_hovered(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_disabled()
+            pseudo_classes.contains(PseudoClasses::HOVER)
+        } else {
+            false
+        }
+    }
+    fn is_selected(self, state: &mut State) -> bool {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
+            pseudo_classes.contains(PseudoClasses::SELECTED)
         } else {
             false
         }
     }
     fn is_checked(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_checked()
+            pseudo_classes.contains(PseudoClasses::CHECKED)
         } else {
             false
         }
     }
     fn is_over(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_over()
+            pseudo_classes.contains(PseudoClasses::OVER)
         } else {
             false
         }
     }
     fn is_active(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_active()
+            pseudo_classes.contains(PseudoClasses::ACTIVE)
         } else {
             false
         }
     }
     fn is_focused(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.get_focus()
+            pseudo_classes.contains(PseudoClasses::FOCUS)
         } else {
             false
         }

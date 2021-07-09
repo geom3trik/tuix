@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::state::style::*;
 
 use crate::{MouseButton, State};
@@ -100,9 +98,8 @@ impl Widget for ScrollContainerH {
         }
 
         self.horizontal_scroll.set_disabled(state, true);
-        self.horizontal_scroll.set_enabled(state, false);
 
-        state.style.insert_element(entity, "scroll_containerh");
+        entity.set_element(state, "scroll_containerh");
 
         let vertical_scroll_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
@@ -140,7 +137,7 @@ impl Widget for ScrollContainerH {
                             }
 
                             if scrollh < 1.0 {
-                                self.horizontal_scroll.set_enabled(state, true);
+                                self.horizontal_scroll.set_disabled(state, false);
                             }
 
                             if !state.style.left.is_animating(self.horizontal_scroll) {
@@ -425,8 +422,6 @@ impl Widget for ScrollContainer {
         });
 
         entity.set_disabled(state, true);
-        entity.set_enabled(state, false);
-
         // self.vertical_scroll =
         //     Scrollbar::new(self.container, Direction::Vertical).build(state, entity, |builder| {
         //         builder
@@ -435,7 +430,7 @@ impl Widget for ScrollContainer {
         //             .set_background_color(Color::rgb(50, 50, 100))
         //     });
 
-        state.style.insert_element(entity, "scroll_container");
+        entity.set_element(state, "scroll_container");
 
         let vertical_scroll_animation = AnimationState::new()
             .with_duration(std::time::Duration::from_millis(100))
@@ -476,7 +471,7 @@ impl Widget for ScrollContainer {
                             }
 
                             if scrollh < 1.0 {
-                                entity.set_enabled(state, true);
+                                entity.set_disabled(state, false);
                             }
 
                             if !state.style.top.is_animating(self.vertical_scroll) {
@@ -826,7 +821,7 @@ impl Widget for ScrollContainerHV {
         //             .set_background_color(Color::rgb(50, 50, 100))
         //     });
 
-        state.style.insert_element(entity, "scroll_containerhv");
+        entity.set_element(state, "scroll_containerhv");
 
         self.container
     }
@@ -849,7 +844,7 @@ impl Widget for ScrollContainerHV {
                         }
 
                         if scrollv < 1.0 {
-                            self.vertical_scroll.set_enabled(state, true);
+                            self.vertical_scroll.set_disabled(state, false);
                         }
 
                         let mut scrollh =
@@ -861,7 +856,7 @@ impl Widget for ScrollContainerHV {
                         }
 
                         if scrollh < 1.0 {
-                            self.horizontal_scroll.set_enabled(state, true);
+                            self.horizontal_scroll.set_disabled(state, false);
                         }
 
                         // BUG: fast scrolling causes smaller scroll because the animation hasn't finished when this function is called again

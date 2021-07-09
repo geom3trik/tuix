@@ -1,7 +1,4 @@
-use crate::{
-    events::{Event, EventManager, Message},
-    state, Node, NodeMap
-};
+use crate::{Node, PropType, events::{Event, EventManager, Message}, state};
 
 use fnv::FnvHashMap;
 
@@ -25,13 +22,16 @@ pub type Canvas = femtovg::Canvas<OpenGl>;
 
 pub trait EventHandler: Any {
 
-    fn  on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node, nodes: &NodeMap) {}
+    fn  on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
 
     // Called when events are flushed
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
     //fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas);
     // Called when a redraw occurs
+
+
+    fn on_style(&mut self, state: &mut State, entity: Entity, property: (String, PropType)) {}
 
     fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
         // Skip window
@@ -180,7 +180,6 @@ pub trait EventHandler: Any {
 
         // Apply transformations
         let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
-        let scaley = state.style.scaley.get(entity).cloned().unwrap_or_default();
 
         canvas.save();
         canvas.translate(posx + width / 2.0, posy + height / 2.0);

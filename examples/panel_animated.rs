@@ -1,3 +1,4 @@
+/*
 extern crate tuix;
 
 use tuix::*;
@@ -290,4 +291,9 @@ fn main() {
     // Button::new().build(state, panel, |builder| builder.class("img"));
 
     app.run();
+}
+*/
+
+fn main() {
+    
 }

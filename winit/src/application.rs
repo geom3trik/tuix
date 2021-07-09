@@ -43,7 +43,7 @@ impl Application {
         let event_manager = EventManager::new();
 
         let root = Entity::root();
-        state.hierarchy.add(Entity::root(), None);
+        //state.hierarchy.add(Entity::root(), None);
 
         //let window_description = win(WindowDescription::new());
         let window_description = app(WindowDescription::new(), &mut state, root);

@@ -54,7 +54,7 @@ pub mod color;
 pub use color::Color;
 
 pub mod transform;
-pub use transform::Scale;
+pub use transform::*;
 
 use std::rc::Rc;
 
@@ -71,9 +71,9 @@ pub struct Style {
     pub z_order: StyleStorage<i32>,
 
     // Transform
-    pub rotate: AnimatableStorage<f32>,   // in degrees
-    pub scalex: AnimatableStorage<Scale>, // TODO
-    pub scaley: AnimatableStorage<Scale>, // TODO
+    pub rotate: AnimatableStorage<f32>,   
+    pub translate: StyleStorage<(f32, f32)>,
+    pub scale: StyleStorage<f32>,
 
     // General
     pub display: StyleStorage<Display>,
@@ -222,6 +222,10 @@ impl Style {
 
                     Property::None => {
                         //
+                    }
+
+                    Property::Unknown(ident, prop) => {
+
                     }
 
                     Property::Display(value) => {
@@ -1174,35 +1178,5 @@ impl Style {
         self.outer_shadow_v_offset.remove_styles();
         self.outer_shadow_blur.remove_styles();
         self.outer_shadow_color.remove_styles();
-    }
-
-    pub(crate) fn insert_id(&mut self, entity: Entity, id: &str) -> &mut Self {
-        // let mut s = DefaultHasher::new();
-        // id.hash(&mut s);
-        // self.ids.insert(entity, s.finish());
-
-        //self.ids.insert(id.to_string(), entity);
-
-        self
-    }
-
-    pub(crate) fn insert_element(&mut self, entity: Entity, element: &str) -> &mut Self {
-        //let mut s = DefaultHasher::new();
-        //element.hash(&mut s);
-        self.elements.insert(entity, element.to_owned());
-
-        self
-    }
-
-    pub(crate) fn insert_class(&mut self, entity: Entity, class: &str) -> &mut Self {
-        if let Some(class_list) = self.classes.get_mut(entity) {
-            class_list.insert(class.to_string());
-        } else {
-            let mut class_list = HashSet::new();
-            class_list.insert(class.to_string());
-            self.classes.insert(entity, class_list);
-        }
-
-        self
     }
 }

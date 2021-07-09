@@ -22,7 +22,7 @@ use femtovg::{
 use fnv::FnvHashMap;
 
 pub struct EventManager {
-    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    //pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
     pub callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut State, Entity)>>,
 
     // Queue of events to be processed
@@ -39,7 +39,7 @@ pub struct EventManager {
 impl EventManager {
     pub fn new() -> Self {
         EventManager {
-            event_handlers: FnvHashMap::default(),
+            //event_handlers: FnvHashMap::default(),
             callbacks: FnvHashMap::default(),
             event_queue: Vec::new(),
 
@@ -63,14 +63,14 @@ impl EventManager {
         self.event_queue.clear();
 
         // Move event handlers from state to event manager
-        self.event_handlers.extend(state.event_handlers.drain());
+        //self.event_handlers.extend(state.event_handlers.drain());
 
         // Remove widgets that should be removed
-        for entity in state.removed_entities.iter() {
-            self.event_handlers.remove(entity);
-        }
+        // for entity in state.removed_entities.iter() {
+        //     self.event_handlers.remove(entity);
+        // }
 
-        state.removed_entities.clear();
+        //state.removed_entities.clear();
 
         // Clone events from state into event manager
         let event_queue = state.event_queue.clone();
@@ -109,8 +109,10 @@ impl EventManager {
             // A null entity as target means send event to all entities
             if event.propagation == Propagation::All {
                 for entity in self.hierarchy.into_iter() {
-                    if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
+                    if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
                         event_handler.on_event_(state, entity, event);
+
+                        state.event_handlers.insert(entity, event_handler);
 
                         if event.consumed {
                             break;
@@ -141,8 +143,10 @@ impl EventManager {
                     }
 
                     // Send event to all ancestors before the target
-                    if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
+                    if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
                         event_handler.on_event_(state, *entity, event);
+
+                        state.event_handlers.insert(*entity, event_handler);
 
                         // Skip to the next event if the current event is consumed
                         if event.consumed {
@@ -155,9 +159,10 @@ impl EventManager {
             // Direct
             if event.propagation != Propagation::Fall {
                 // Send event to target
-                if let Some(event_handler) = self.event_handlers.get_mut(&event.target) {
+                if let Some(mut event_handler) = state.event_handlers.remove(&event.target) {
                     event_handler.on_event_(state, event.target, event);
 
+                    state.event_handlers.insert(event.target, event_handler);
                     // if let Some(test) = self.callbacks.get_mut(&event.target) {
                     //     (test)(event_handler, state, event.target);
                     // }
@@ -178,9 +183,10 @@ impl EventManager {
                     }
 
                     // Send event to all entities before the target
-                    if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
+                    if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
                         event_handler.on_event_(state, entity, event);
 
+                        state.event_handlers.insert(entity, event_handler);
                         // Skip to the next event if the current event is consumed
                         if event.consumed {
                             continue 'events;
@@ -199,9 +205,10 @@ impl EventManager {
                     }
 
                     // Send event to all entities after the target on the same branch
-                    if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
+                    if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
                         event_handler.on_event_(state, entity, event);
 
+                        state.event_handlers.insert(entity, event_handler);
                         // Skip to the next event if the current event is consumed
                         if event.consumed {
                             continue 'events;
@@ -277,8 +284,9 @@ impl EventManager {
 
         // Call the on_draw() method for each widget
         for widget in draw_hierarchy.into_iter() {
-            if let Some(event_handler) = self.event_handlers.get_mut(&widget) {
+            if let Some(mut event_handler) = state.event_handlers.remove(&widget) {
                 event_handler.on_draw_(state, widget, canvas);
+                state.event_handlers.insert(widget, event_handler);
             }
         }
 

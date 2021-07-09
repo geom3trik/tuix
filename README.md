@@ -10,8 +10,8 @@ The driving principle behind tuix is to be a self-contained, small-as-possible, 
 ## Features
 
  - Cross-platform
- - GPU based drawing using opengl (powered by [femtovg](https://github.com/femtovg/femtovg))
- - Flexbox-based layout system
+ - GPU based drawing using OpenGl (powered by [femtovg](https://github.com/femtovg/femtovg))
+ - Flexible layout system
  - CSS-like styling
  - Animatable style properties
  - Built-in widgets
@@ -41,17 +41,16 @@ Since it's probably best to learn by example, here is the "hello world" of GUI a
 use tuix::*;
 
 fn main() {
-    let app = Application::new(|state, window| {
-        
-        window.set_title("Hello GUI");
+
+    let app = Application::new(WindowDescription::new().with_title("Hello GUI"), |state, window| {
         
         Button::with_label("Button")
             .build(state, window.entity(), |builder| {
                 builder
-                    .set_width(Length::Pixels(100.0))
-                    .set_height(Length::Pixels(30.0))
+                    .set_width(Pixels(100.0))
+                    .set_height(Pixels(30.0))
                     .set_background_color(Color::from("#ff5e1a"))
-                    .set_text_justify(Justify::Center)
+                    .set_child_space(Stretch(1.0)
             });
     });
 
@@ -202,6 +201,6 @@ cargo run --example counter
 
 # Tuix Guide (In Development)
 
-You can find a guide to getting started with Tuix here: [Guide](https://geom3trik.github.io)
+You can find a guide to getting started with Tuix here: [Guide](https://geom3trik.github.io/tuix-book/)
 
 

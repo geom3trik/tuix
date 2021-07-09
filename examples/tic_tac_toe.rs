@@ -81,7 +81,9 @@ impl Widget for Board {
             Label::new("").build(state, self.overlay, |builder| builder.class("winner"));
 
         Button::with_label("Play Again")
-            .on_release(Event::new(GameEvent::Restart).target(entity))
+            .on_release(move |_,state,button|{
+                button.emit_to(state, entity, GameEvent::Restart);
+            })
             .build(state, self.overlay, |builder| builder.class("replay"));
 
         entity.set_element(state, "board")
@@ -160,7 +162,9 @@ pub struct Square {
 
 impl Square {
     pub fn on_press(mut self, event: Event) -> Self {
-        self.button = self.button.on_press(event);
+        self.button = self.button.on_press(move |_,state,entity|{
+            entity.emit_event(state, event.clone());
+        });
 
         self
     }
