@@ -61,6 +61,13 @@ impl<T: Node> Downcast for T {
     }
 }
 
+impl Node for () {}
+
+impl Node for String {}
+
+impl<T: 'static> Node for Vec<T> {}
+
+impl Node for bool {}
 // Can't do this apparently, that's annoying
 // impl<T: Node> EventHandler for T
 // where

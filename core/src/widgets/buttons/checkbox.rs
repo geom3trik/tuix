@@ -96,6 +96,7 @@ impl Checkbox {
 
 impl Widget for Checkbox {
     type Ret = Entity;
+    type Data = bool;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_font(state, "icons")

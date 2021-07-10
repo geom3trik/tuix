@@ -20,7 +20,7 @@ pub enum TextboxEvent {
 
 //impl Message for TextboxEvent {}
 
-pub struct Textbox<T> {
+pub struct Textbox {
     entity: Entity,
     pub text: String,
 
@@ -38,11 +38,9 @@ pub struct Textbox<T> {
     // Events
     on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     on_submit: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
-
-    a: PhantomData<*const T>,
 }
 
-impl<T> Textbox<T> {
+impl Textbox {
     pub fn new(text: &str) -> Self {
         // id.set_text(state, "Test".to_string())
         //     .set_background(state, nanovg::Color::from_rgb(100, 50, 50));
@@ -66,8 +64,6 @@ impl<T> Textbox<T> {
 
             on_change: None,
             on_submit: None,
-
-            a: PhantomData::default(),
         }
     }
 
@@ -105,9 +101,9 @@ impl<T> Textbox<T> {
     // }
 }
 
-impl<T: ToString + 'static> Widget for Textbox<T> {
+impl Widget for Textbox {
     type Ret = Entity;
-    type Data = T;
+    type Data = String;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &(self.text.to_owned() + &self.units));
 

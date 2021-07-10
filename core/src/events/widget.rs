@@ -15,7 +15,7 @@ pub type Canvas = femtovg::Canvas<OpenGl>;
 use std::any::Any;
 pub trait Widget: std::marker::Sized + 'static {
     type Ret;
-    type Data;
+    type Data: Node;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret;
 

@@ -104,6 +104,7 @@ impl Calculator {
 
 impl Widget for Calculator {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         entity

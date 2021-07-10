@@ -8,3 +8,5 @@ pub use tuix_glutin::application::Application;
 pub use tuix_baseview::Application;
 
 pub use tuix_core::*;
+
+pub use tuix_derive::*;

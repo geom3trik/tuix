@@ -70,6 +70,7 @@ impl Stack {
 
 impl Widget for Stack {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_element(state, "stack")
     }
