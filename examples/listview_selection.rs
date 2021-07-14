@@ -29,11 +29,16 @@ const STYLE: &str = r#"
         color: black;
     }
 
+    label {
+        child-space: 1s;
+        color: black;
+    }
+
 "#;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CustomEvent {
-    ChangeUser,
+    SelectUser(usize),
 }
 
 #[derive(Debug, Clone, Data, Lens)]
@@ -43,15 +48,46 @@ pub struct User {
     age: i32,
 }
 
+impl Default for User {
+    fn default() -> Self {
+        Self {
+            first_name: "Unknown".to_string(),
+            last_name: "Unknown".to_string(),
+            age: 0,
+        }
+    }
+}
+
 impl std::fmt::Display for User {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.first_name)
     }
 }
 
+// TODO - Move this to a utilities folder
+#[derive(Debug, Clone)]
+pub struct CheckList<T> {
+    pub list: Vec<T>,
+    pub selected: usize,
+}
+
+impl<T> CheckList<T> {
+    pub fn new() -> Self {
+        Self {
+            list: Vec::new(),
+            selected: 0,
+        }
+    }
+
+    pub fn get_selected(&self) -> Option<&T> {
+        self.list.get(self.selected)
+    }
+}
+
+// Widget to manage the data store
 #[derive(Debug, Clone, Data, Lens)]
 pub struct UserData {
-    users: Vec<User>,
+    users: CheckList<User>,
 }
 
 impl UserData {
@@ -63,7 +99,10 @@ impl UserData {
         users.push(User{first_name: "Sammy".to_string(), last_name: "Doe".to_string(), age: 13});
 
         Self {
-            users,
+            users: CheckList {
+                list: users,
+                selected: 0,
+            },
         }
     }
 }
@@ -76,21 +115,21 @@ impl Widget for UserData {
         entity
     }
 
-    // fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-    //     if let Some(custom_event) = event.message.downcast() {
-    //         match custom_event {
-    //             CustomEvent::ChangeUser => {
-    //                 if let Some(first) = self.users.first_mut() {
-    //                     first.name = "Testy".to_string();
-    //                     first.age = 27;
-    //                     entity.emit(state, BindEvent::Update);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    // React to events to update the data
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(custom_event) = event.message.downcast() {
+            match custom_event {
+                CustomEvent::SelectUser(index) => {
+                    self.users.selected = *index;
+                    // Would be better to have this sent automatically somehow
+                    entity.emit(state, BindEvent::Update);
+                }
+            }
+        }
+    }
 }
 
+// Widget describing the table view of the data
 #[derive(Default)]
 struct UserWidget {
 
@@ -129,7 +168,7 @@ impl Widget for UserWidget {
                 builder
                     .set_hoverability(false)
                     .set_col(0)
-                    .set_row(0)
+                    .set_row(1)
                 );
     
         Label::new("")
@@ -138,7 +177,7 @@ impl Widget for UserWidget {
                 builder
                     .set_hoverability(false)
                     .set_col(1)
-                    .set_row(0)
+                    .set_row(1)
                 );
 
         Label::new("Age: ")
@@ -146,7 +185,7 @@ impl Widget for UserWidget {
                 builder
                     .set_hoverability(false)
                     .set_col(0)
-                    .set_row(0)
+                    .set_row(2)
                 );
         
         Label::new("")
@@ -155,7 +194,7 @@ impl Widget for UserWidget {
                 builder
                     .set_hoverability(false)
                     .set_col(1)
-                    .set_row(0)
+                    .set_row(2)
                 );
             
         
@@ -175,40 +214,28 @@ impl Widget for Container {
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
         self.listview = ListView::new(|item: &User| CheckButton::with_label(&item.to_string()) )
-            .bind(UserData::users, |users| users.to_vec())
+            .on_change(|list_data, state, list|{
+                list.emit(state, CustomEvent::SelectUser(list_data.selected));
+            })
+            .bind(UserData::users, |users| users.list.to_vec())
             .build(state, container, |builder| {
                 builder
                     .set_width(Pixels(210.0))
                     .set_height(Auto)
                     .set_space(Stretch(1.0))
+                    .set_background_color(Color::blue())
             });
 
-        UserWidget::default().build(state, container, |builder| builder.set_width(Pixels(250.0)).set_height(Auto));
-        
-        
-
-        state.set_focus(container);
+        UserWidget::default()
+            .bind(UserData::users, |users| users.get_selected().cloned().unwrap_or_default())
+            .build(state, container, |builder| 
+                builder
+                    .set_width(Pixels(250.0))
+                    .set_height(Pixels(90.0))
+                    .set_space(Stretch(1.0))
+            );
 
         container.set_background_color(state, Color::white()).set_focusability(state, false)
-    }
-    
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        if let Some(window_event) = event.message.downcast() {
-            match window_event {
-                WindowEvent::KeyDown(code, key) => {
-                    println!("Pressed: {:?} {:?}", code, key);
-                    match key {
-                        Some(Key::Enter) => {
-                            entity.emit(state, CustomEvent::ChangeUser);
-                        }
-
-                        _=> {}
-                    }
-                }
-
-                _=> {}
-            }
-        }
     }
 }
 

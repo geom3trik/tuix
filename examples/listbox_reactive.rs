@@ -41,6 +41,12 @@ pub struct User {
     age: i32,
 }
 
+impl std::fmt::Display for User {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
 #[derive(Debug, Clone, Data, Lens)]
 pub struct UserData {
     users: Vec<User>,
@@ -122,7 +128,7 @@ impl Widget for Container {
     type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
-        self.listview = ListView::new(|| UserWidget::default() )
+        self.listview = ListView::new(|item| UserWidget::default() )
         .bind(UserData::users, |users| users.to_vec())
         .build(state, container, |builder| {
             builder

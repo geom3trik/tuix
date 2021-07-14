@@ -5,7 +5,7 @@ use std::collections::HashSet;
 
 pub use node::*;
 
-use crate::widgets::*;
+use crate::{IntoChildIterator, widgets::*};
 
 pub struct Store<D> {
     data_widget: D,
@@ -75,6 +75,11 @@ pub enum BindEvent {
     //Init,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum UpdateEvent<'a, T> {
+    Update(&'a T),
+}
+
 
 // A wrapper on a widget which adds the setup for binding as well as the conversion of data + lensing
 pub struct Wrapper<L: Lens, W: Widget, > {
@@ -109,6 +114,17 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
+        // if let Some(update_event) = event.message.downcast() {
+        //     match update_event {
+        //         UpdateEvent::Update::<Self::Data>(value) => {
+        //             let view_data = self.lens.view(value);
+        //             let value = (self.converter)(&view_data);
+        //             entity.emit(state, UpdateEvent::Update(&value));
+        //         }
+        //     }
+        // }
+
         self.widget.on_event(state, entity, event)
     }
 
@@ -117,6 +133,17 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         let view_data = self.lens.view(data);
         // Apply the converter function
         let value = (self.converter)(&view_data);
+
+        // Update children
+        for (index, child) in entity.child_iter(&state.hierarchy.clone()).enumerate() {
+            
+            if let Some(mut event_handler) = state.event_handlers.remove(&child) {
+                event_handler.on_update(state, child, &value);
+
+                state.event_handlers.insert(child, event_handler);
+            }
+        }
+
         // Update the underlying widget with the lensed and converted data
         self.widget.on_update(state, entity, &value);
     }

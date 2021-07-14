@@ -21,7 +21,7 @@ pub enum Propagation {
 }
 
 // A message is a wrapper around an Any but with the added ability to Clone the message
-pub trait Message: Any + MessageClone + Debug {
+pub trait Message: Any {
     // An &Any can be cast to a reference to a concrete type.
     fn as_any(&self) -> &dyn Any;
 
@@ -30,26 +30,26 @@ pub trait Message: Any + MessageClone + Debug {
 }
 
 // An Any is not normally clonable. This is a way around that.
-pub trait MessageClone {
-    fn clone_message(&self) -> Box<Message>;
-}
+// pub trait MessageClone {
+//     fn clone_message(&self) -> Box<Message>;
+// }
 
 // Implements MessageClone for any type that Implements Message and Clone
-impl<T> MessageClone for T
-where
-    T: 'static + Message + Clone,
-{
-    fn clone_message(&self) -> Box<Message> {
-        Box::new(self.clone())
-    }
-}
+// impl<T> MessageClone for T
+// where
+//     T: 'static + Message + Clone,
+// {
+//     fn clone_message(&self) -> Box<Message> {
+//         Box::new(self.clone())
+//     }
+// }
 
 // An implementation of clone for boxed messages
-impl Clone for Box<Message> {
-    fn clone(&self) -> Box<Message> {
-        self.clone_message()
-    }
-}
+// impl Clone for Box<Message> {
+//     fn clone(&self) -> Box<Message> {
+//         self.clone_message()
+//     }
+// }
 
 impl dyn Message {
     // Check if a message is a certain type
@@ -78,13 +78,16 @@ impl dyn Message {
 }
 
 // Implements message for any static type that implements Clone
-impl<S: 'static + PartialEq + Clone + Debug> Message for S {
+impl<S: 'static + PartialEq> Message for S {
     fn as_any(&self) -> &dyn Any {
         self
     }
 
     fn equals_a(&self, other: &dyn Message) -> bool {
         //other.as_any().type_id() == self.as_any().type_id()
+
+        //println!("{:?} {:?}", other.as_any().type_id(), self.as_any().type_id());
+        //println!("{:?} {:?}", other, self);
 
         other
             .as_any()
@@ -94,7 +97,6 @@ impl<S: 'static + PartialEq + Clone + Debug> Message for S {
 }
 
 /// An event is a wrapper around a message and provides metadata on how the event should be propagated through the hierarchy
-#[derive(Clone, Debug)]
 pub struct Event {
     // The entity that produced the event. Entity::null() for OS events or unspecified.
     pub origin: Entity,

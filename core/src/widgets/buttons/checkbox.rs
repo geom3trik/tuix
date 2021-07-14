@@ -34,6 +34,19 @@ pub enum CheckboxEvent {
     Unchecked,
 }
 
+pub struct Atom<T> {
+    key: &'static str,
+    default: T,
+}
+
+impl<T> Atom<T> {
+    pub const fn new(key: &'static str, default: T) -> Self {
+        Self {
+            key,
+            default,
+        }
+    }
+}
 
 #[derive(Default)]
 pub struct Checkbox {
@@ -61,6 +74,10 @@ impl Checkbox {
 
             key: Code::Space,
         }
+    }
+
+    pub fn bind<T>(self, state: &mut State, atom: Atom<T>) -> Self {
+        self
     }
 
     pub fn with_icon_checked(mut self, icon_checked: &str) -> Self {

@@ -76,8 +76,8 @@ pub struct Data {
 
     pub z_order: Vec<i32>,
 
-    pub(crate) child_sum: Vec<f32>, // Sum of child widths
-    pub(crate) child_max: Vec<f32>, // Max child width
+    pub(crate) child_sum: Vec<(f32, f32)>, // Sum of child (widths, heights)
+    pub(crate) child_max: Vec<(f32, f32)>, // Max child (widths, heights)
 
     pub(crate) prev_size: Vec<Pos>,
     pub clip_region: Vec<BoundingBox>,
@@ -110,8 +110,8 @@ impl Data {
             self.visibility.resize(key + 1, Default::default());
             self.hoverability.resize(key + 1, true);
             self.focusability.resize(key + 1, true);
-            self.child_sum.resize(key + 1, 0.0);
-            self.child_max.resize(key + 1, 0.0);
+            self.child_sum.resize(key + 1, (0.0, 0.0));
+            self.child_max.resize(key + 1, (0.0, 0.0));
             self.prev_size.resize(key + 1, Default::default());
 
             self.opacity.resize(key + 1, 0.0);
@@ -240,18 +240,32 @@ impl Data {
         self.z_order.get(entity.index_unchecked()).cloned().unwrap()
     }
 
-    pub fn get_child_sum(&self, entity: Entity) -> f32 {
+    pub fn get_child_width_sum(&self, entity: Entity) -> f32 {
         self.child_sum
             .get(entity.index_unchecked())
             .cloned()
-            .unwrap()
+            .unwrap().0
     }
 
-    pub fn get_child_max(&self, entity: Entity) -> f32 {
+    pub fn get_child_height_sum(&self, entity: Entity) -> f32 {
+        self.child_sum
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap().1
+    }
+
+    pub fn get_child_width_max(&self, entity: Entity) -> f32 {
         self.child_max
             .get(entity.index_unchecked())
             .cloned()
-            .unwrap()
+            .unwrap().0
+    }
+
+    pub fn get_child_height_max(&self, entity: Entity) -> f32 {
+        self.child_max
+            .get(entity.index_unchecked())
+            .cloned()
+            .unwrap().1
     }
 
     pub fn get_posx(&self, entity: Entity) -> f32 {
@@ -476,15 +490,27 @@ impl Data {
         }
     }
 
-    pub fn set_child_sum(&mut self, entity: Entity, val: f32) {
+    pub fn set_child_width_sum(&mut self, entity: Entity, val: f32) {
         if let Some(child_sum) = self.child_sum.get_mut(entity.index_unchecked()) {
-            *child_sum = val;
+            child_sum.0 = val;
         }
     }
 
-    pub fn set_child_max(&mut self, entity: Entity, val: f32) {
+    pub fn set_child_height_sum(&mut self, entity: Entity, val: f32) {
+        if let Some(child_sum) = self.child_sum.get_mut(entity.index_unchecked()) {
+            child_sum.1 = val;
+        }
+    }
+
+    pub fn set_child_width_max(&mut self, entity: Entity, val: f32) {
         if let Some(child_max) = self.child_max.get_mut(entity.index_unchecked()) {
-            *child_max = val;
+            child_max.0 = val;
+        }
+    }
+
+    pub fn set_child_height_max(&mut self, entity: Entity, val: f32) {
+        if let Some(child_max) = self.child_max.get_mut(entity.index_unchecked()) {
+            child_max.1 = val;
         }
     }
 

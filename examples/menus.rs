@@ -1,5 +1,5 @@
 
-/*
+
 extern crate tuix;
 
 use tuix::*;
@@ -117,7 +117,7 @@ fn main() {
         Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 3")
             .on_press(|widget, state, button|{
-                button.emit(state, button, Event::new(WindowEvent::WindowClose));
+                button.emit(state, WindowEvent::WindowClose);
             })
             .build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
@@ -134,7 +134,7 @@ fn main() {
         Button::with_label("Item 2").build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 3")
             .on_press(|widget, state, button|{
-                button.emit(state, button, Event::new(WindowEvent::WindowClose));
+                button.emit(state, WindowEvent::WindowClose);
             })
             .build(state, menu1, |builder| builder.class("item"));
         Button::with_label("Item 4").build(state, menu1, |builder| builder.class("item"));
@@ -196,9 +196,4 @@ fn main() {
     });
 
     app.run();
-}
-*/
-
-fn main() {
-    
 }

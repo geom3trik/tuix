@@ -196,7 +196,9 @@ impl<W: Widget> Widget for ListItem<W> {
 pub struct ListView<T, W> {
     checked_entity: Entity,
     single: bool,
-    selected_index: usize,
+    pub selected: usize,
+
+    on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 
     creator: Box<dyn Fn(&T) -> W>,
 
@@ -210,11 +212,22 @@ impl<T: ToString + Node, W: Widget> ListView<T, W> {
         Self {
             checked_entity: Entity::null(),
             single: true,
-            selected_index: 0,
+            selected: 0,
+            on_change: None,
             creator: Box::new(creator),
             t: PhantomData::default(),
         }
     }
+
+    pub fn on_change<F>(mut self, callback: F) -> Self 
+    where F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_change = Some(Box::new(callback));
+
+        self
+    }
+
+
 
     // pub fn default() -> Self {
 
@@ -307,7 +320,7 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
                         if let Some(next_entity) =
                             state.hierarchy.get_next_sibling(self.checked_entity)
                         {
-                            self.selected_index += 1;
+                            self.selected += 1;
 
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)
@@ -323,6 +336,12 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
                             );
                             self.checked_entity = next_entity;
 
+                            if let Some(callback) = self.on_change.take() {
+                                (callback)(self, state, entity);
+
+                                self.on_change = Some(callback);
+                            } 
+
                             event.consume();
                         }
                     }
@@ -332,7 +351,13 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
                             state.hierarchy.get_prev_sibling(self.checked_entity)
                         {
 
-                            self.selected_index -= 1;
+                            self.selected -= 1;
+
+                            if let Some(callback) = self.on_change.take() {
+                                (callback)(self, state, entity);
+
+                                self.on_change = Some(callback);
+                            } 
 
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)

@@ -96,9 +96,6 @@ fn main() {
 
         CounterWidget::new()
             .build(state, data_widget, |builder| builder);
-
-        CounterWidget::new()
-            .build(state, data_widget, |builder| builder);
         
         Label::new("Zero")
             .bind(CounterState::value, |value| english_numbers::convert_all_fmt(*value as i64))

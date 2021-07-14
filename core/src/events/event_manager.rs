@@ -23,7 +23,7 @@ use fnv::FnvHashMap;
 
 pub struct EventManager {
     //pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
-    pub callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut State, Entity)>>,
+    //pub callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut State, Entity)>>,
 
     // Queue of events to be processed
     pub event_queue: Vec<Event>,
@@ -40,7 +40,7 @@ impl EventManager {
     pub fn new() -> Self {
         EventManager {
             //event_handlers: FnvHashMap::default(),
-            callbacks: FnvHashMap::default(),
+            //callbacks: FnvHashMap::default(),
             event_queue: Vec::new(),
 
             hierarchy: Hierarchy::new(),
@@ -73,16 +73,19 @@ impl EventManager {
         //state.removed_entities.clear();
 
         // Clone events from state into event manager
-        let event_queue = state.event_queue.clone();
+        //let event_queue = state.event_queue.clone();
+
+        // Move events from state to event manager
+        self.event_queue.extend(state.event_queue.drain(0..));
 
         // Sort the events by order
-        self.event_queue = event_queue.into_iter().collect::<Vec<Event>>();
+        //self.event_queue = event_queue.into_iter().collect::<Vec<Event>>();
         self.event_queue.sort_by_cached_key(|event| event.order);
 
         // Clear the event queue in state
-        state.event_queue.clear();
+        //state.event_queue.clear();
 
-        self.callbacks.extend(state.callbacks.drain());
+        //self.callbacks.extend(state.callbacks.drain());
 
         // Loop over the events in the event manager queue
         'events: for event in self.event_queue.iter_mut() {

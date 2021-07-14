@@ -2,6 +2,7 @@
 
 use std::marker::PhantomData;
 
+use crate::BindEvent;
 use crate::Lens;
 use crate::Wrapper;
 use crate::widgets::*;
@@ -40,5 +41,16 @@ impl Widget for Label {
         self.text = data.to_owned();
         entity.set_text(state, &self.text);
     }
+
+    // fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+    //     if let Some(update_event) = event.message.downcast() {
+    //         match update_event {
+    //             UpdateEvent::Update::<Self::Data>(value) => {
+    //                 self.text = value.to_owned();
+    //                 entity.set_text(state, &self.text);
+    //             } 
+    //         }
+    //     }
+    // }
 }
 

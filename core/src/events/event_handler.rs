@@ -20,9 +20,14 @@ use std::any::{Any, TypeId};
 
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
+pub enum UpdateEvent<'a> {
+    UpdateValue(&'a dyn Node),
+}
+
 pub trait EventHandler: Any {
 
-    fn  on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
 
     // Called when events are flushed
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
