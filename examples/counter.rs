@@ -41,7 +41,7 @@ impl Widget for Counter {
             })
             .build(state, entity, |builder| builder.class("decrement"));
 
-        self.label = Label::<String>::new(&self.value.to_string()).build(state, entity, |builder| builder);
+        self.label = Label::new(&self.value.to_string()).build(state, entity, |builder| builder);
 
         entity.set_element(state, "counter").set_layout_type(state, LayoutType::Row)
     }

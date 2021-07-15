@@ -5,14 +5,51 @@ use std::collections::HashSet;
 
 pub use node::*;
 
-use crate::{IntoChildIterator, widgets::*};
+use crate::{EventHandler, IntoChildIterator, PropType, widgets::*};
+
+pub trait Model {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
+
+    /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
+    fn build(mut self, state: &mut State, parent: Entity) -> Entity
+    where Self: std::marker::Sized + Model + Node
+    {
+
+        Store::new(self).build(state, parent, |builder| builder)
+        // Create a new entity
+        //let entity = state.add(parent);
+
+        // Call the on_build function of the widget
+        //let ret = self.on_build(state, entity);
+
+        // Call the builder closure
+        //builder(Builder::new(state, entity)).build(self);
+
+        // Return the entity or entities returned by the on_build method
+        //ret
+    }
+}
+
+// impl<T> EventHandler for T 
+// where T: Model
+// {
+//     fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
+
+//     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+//         <T as Model>::on_event(self, state, entity, event);
+//     }
+
+//     fn on_style(&mut self, state: &mut State, entity: Entity, property: (String, PropType)) {}
+
+//     fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {}
+// }
 
 pub struct Store<D> {
     data_widget: D,
     observers: HashSet<Entity>,
 }
 
-impl<D: Widget> Store<D> {
+impl<D: Model> Store<D> {
     pub fn new(data_widget: D) -> Self {
         Self {
             data_widget,
@@ -21,11 +58,11 @@ impl<D: Widget> Store<D> {
     }
 }
 
-impl<D: Widget + Node> Widget for Store<D> {
-    type Ret = <D as Widget>::Ret;
+impl<D: Model + Node> Widget for Store<D> {
+    type Ret = Entity;
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.data_widget.on_build(state, entity)
+        entity
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

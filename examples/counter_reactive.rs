@@ -1,30 +1,22 @@
 use tuix::*;
-use fnv::FnvHashMap;
-use std::{any::Any, collections::HashSet, hash::Hash};
 
 static THEME: &'static str = include_str!("themes/counter_theme.css");
 
-
+// The state of the application
 #[derive(Default, Data, Lens)]
 pub struct CounterState {
     value: i32,
 }
 
-
+// Messages for mutating the application state
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CounterMessage {
     Increment,
     Decrement,
 }
 
-impl Widget for CounterState {
-    type Ret = Entity;
-    type Data = ();
-
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-    }
-
+// The Model allows the state to be mutated in response to messages
+impl Model for CounterState {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(counter_event) = event.message.downcast() {
             match counter_event {
@@ -44,28 +36,16 @@ impl Widget for CounterState {
     }
 }
 
-
-
+// A widget for the counter, with 2 buttons and a label
 #[derive(Default)]
-struct CounterWidget {
-
-}
-
-impl CounterWidget {
-
-    pub fn new() -> Self {
-        Self {
-
-        }
-    }
-}
+struct CounterWidget {}
 
 impl Widget for CounterWidget {
     type Ret = Entity;
-    type Data = CounterState;
+    type Data = ();
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-
+  
         Button::with_label("increment")
             .on_press(|_, state, button|{
                 button.emit(state, CounterMessage::Increment);
@@ -78,6 +58,7 @@ impl Widget for CounterWidget {
             })
             .build(state, entity, |builder| builder.class("decrement"));
 
+        // Using a lens, the label is bound to the value field of the app data
         Label::new("0")
             .bind(CounterState::value, |value| value.to_string())
             .build(state, entity, |builder| builder);
@@ -87,16 +68,20 @@ impl Widget for CounterWidget {
 }
 
 fn main() {
-    // Create the app
+
     let window_description = WindowDescription::new().with_title("Counter").with_inner_size(400, 100);
     let app = Application::new(window_description, |state, window| {
+
         state.add_theme(THEME);
 
-        let data_widget = Store::new(CounterState::default()).build(state, window, |builder| builder);
+        // Build the app data at the root of the visual tree
+        let data_widget = CounterState::default().build(state, window);
 
-        CounterWidget::new()
+        CounterWidget::default()
             .build(state, data_widget, |builder| builder);
         
+        // Another label is bound to the counter value, but with a conversion closure 
+        // which converts the value to english text form
         Label::new("Zero")
             .bind(CounterState::value, |value| english_numbers::convert_all_fmt(*value as i64))
             .build(state, data_widget, |builder| 
