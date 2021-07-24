@@ -9,6 +9,7 @@ use crate::hierarchy::Hierarchy;
 use crate::state::storage::animatable_storage::AnimatableStorage;
 use crate::state::storage::dense_storage::DenseStorage;
 use crate::state::storage::style_storage::StyleStorage;
+use crate::theme::StyleParseError;
 use crate::{entity::Entity, Transition};
 
 use crate::Interpolator;
@@ -198,7 +199,17 @@ impl Style {
         };
 
         let mut rule_list: Vec<StyleRule> =
-            rules.into_iter().filter_map(|rule| rule.ok()).collect();
+            rules.into_iter().filter_map(|rule| {
+                match rule {
+                    Ok(style_rule) => Some(style_rule),
+                    Err(parse_error) => {
+                        let style_parse_error = StyleParseError(parse_error.0);
+                        println!("{}", style_parse_error);
+                        None
+                    }
+                }
+                //rule.ok()
+        }).collect();
 
         self.rules.append(&mut rule_list);
 

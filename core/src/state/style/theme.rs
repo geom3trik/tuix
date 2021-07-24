@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::{fs::File, io::BufReader, io::Read, mem, path::Path, sync::Arc};
 
 use cssparser::{
@@ -17,13 +18,14 @@ use crate::state::style::*;
 
 use crate::state::style::color::Color;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub enum CustomParseError {
     InvalidLengthUnits(String),
     InvalidValue(String),
-    InvalidColorName(String),
+    UnrecognisedColorName(String),
     InvalidColorHex(String),
     InvalidStringName(String),
+    UnrecognisedPseudoclass(String),
 }
 
 impl<'t> From<CustomParseError> for ParseError<'t, CustomParseError> {
@@ -31,6 +33,56 @@ impl<'t> From<CustomParseError> for ParseError<'t, CustomParseError> {
         ParseError {
             kind: ParseErrorKind::Custom(e),
             location: SourceLocation { line: 0, column: 0 },
+        }
+    }
+}
+
+pub struct StyleParseError<'t>(pub ParseError<'t, CustomParseError>);
+
+impl<'t> std::fmt::Display for StyleParseError<'t> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+
+        let error_message = match &self.0.kind {
+            ParseErrorKind::Custom(custom_error) => {
+                format!("{:?}", custom_error)
+            }
+
+            ParseErrorKind::Basic(basic_error) => {
+                format!("{:?}", basic_error)
+            }
+        };
+
+        write!(f, "Warning: {}", error_message)
+    }
+}
+
+impl Debug for CustomParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+
+            CustomParseError::InvalidValue(error_string) => {
+                write!(f, "Invalid value: {}", error_string)
+            }
+
+            CustomParseError::UnrecognisedPseudoclass(error_string) => {
+                write!(f, "Unrecognised pseudoclass: {}", error_string)
+            }
+
+            CustomParseError::InvalidLengthUnits(error_string) => {
+                write!(f, "Invalid length units: {}", error_string)
+            }
+
+            CustomParseError::InvalidStringName(error_string) => {
+                write!(f, "Invalid string name: {}", error_string)
+            }
+
+            CustomParseError::UnrecognisedColorName(error_string) => {
+                write!(f, "Unrecognised color name: {}", error_string)
+            }
+
+            CustomParseError::InvalidColorHex(error_string) => {
+                write!(f, "Invalid color hex: {}", error_string)
+            }
         }
     }
 }
@@ -226,7 +278,14 @@ fn parse_selectors<'i, 't>(
                     "selected" => selector.pseudo_classes.insert(PseudoClasses::SELECTED),
                     "custom" => selector.pseudo_classes.insert(PseudoClasses::CUSTOM),
 
-                    _ => {}
+                    _ => {
+                        let parse_error = ParseError {
+                            kind: ParseErrorKind::Custom(CustomParseError::UnrecognisedPseudoclass(pseudo_class_str.to_string())),
+                            location: input.current_source_location(),
+                        };
+
+                        return Err(parse_error);
+                    }
                 }
             }
 
@@ -488,7 +547,7 @@ fn parse_basic_color<'i, 't>(
         Token::Ident(s) => match css_color(&s) {
             Some(color) => color,
             None => {
-                return Err(CustomParseError::InvalidColorName(s.to_owned().to_string()).into());
+                return Err(CustomParseError::UnrecognisedColorName(s.to_owned().to_string()).into());
             }
         },
 
@@ -957,7 +1016,7 @@ fn parse_color<'i, 't>(
                 Some(color) => color,
                 None => {
                     return Err(
-                        CustomParseError::InvalidColorName(name.to_owned().to_string()).into(),
+                        CustomParseError::UnrecognisedColorName(name.to_owned().to_string()).into(),
                     );
                 }
             }
@@ -988,7 +1047,7 @@ fn parse_color2<'i>(token: &Token<'i>) -> Result<Color, ParseError<'i, CustomPar
                 Some(color) => Ok(color),
                 None => {
                     return Err(
-                        CustomParseError::InvalidColorName(name.to_owned().to_string()).into(),
+                        CustomParseError::UnrecognisedColorName(name.to_owned().to_string()).into(),
                     );
                 }
             }
