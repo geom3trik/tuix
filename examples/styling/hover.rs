@@ -18,12 +18,12 @@ fn main() {
 
         // Create a shared style rule for hovered buttons
         let hover_rule: StyleRule = StyleRule::new()
-            .selector(Selector::element("button").set_hover())
+            .selector(Selector::element("button").set(PseudoClasses::HOVER))
             .set_background_color(Color::from("#ff701a"));
 
         // Create a shared style rule for hovered buttons
         let active_rule: StyleRule = StyleRule::new()
-            .selector(Selector::element("button").set_active())
+            .selector(Selector::element("button").set(PseudoClasses::ACTIVE))
             .set_background_color(Color::from("#ee5a1d"));
 
         // Add the shared style rule to state

@@ -421,6 +421,10 @@ impl Style {
                             .insert_rule(rule_id, box_shadow.color);
                     }
 
+                    Property::OuterShadowColor(color) => {
+                        self.outer_shadow_color.insert_rule(rule_id, color);
+                    }
+
                     // Inner Shadow
                     Property::InnerShadow(box_shadow) => {
                         self.inner_shadow_h_offset
@@ -464,6 +468,7 @@ impl Style {
                     // Transitions
                     Property::Transition(transitions) => {
                         for transition in transitions {
+                            println!("{:?}", transition);
                             match transition.property.as_ref() {
                                 "background-color" => {
                                     self.background_color.insert_transition(
@@ -604,10 +609,19 @@ impl Style {
                                     );
                                 }
 
+                                "outer-shadow-color" => {
+                                    self.outer_shadow_color.insert_transition(
+                                        rule_id,
+                                        self.add_transition(transition),
+                                    );
+                                }
+
                                 _ => {}
                             }
                         }
                     }
+
+                    _=> {}
                 }
             }
         }

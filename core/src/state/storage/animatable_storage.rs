@@ -365,6 +365,8 @@ where
             let start = state.keyframes.first().unwrap();
             let end = state.keyframes.last().unwrap();
 
+            println!("Animate: {:?} {:?}", start, end);
+
             if start.1 == end.1 {
                 state.t0 = 1.0;
                 state.output = Some(end.1.clone());
@@ -501,6 +503,8 @@ where
 
             // Get the animation id for any transition on the rule
             let rule_animation_id = self.rule_indices[rule].animation_id;
+
+            println!("Rule Animation: {} {:?}", rule_animation_id, self.animations);
 
             // Check if the entity is already animating with a transition
 

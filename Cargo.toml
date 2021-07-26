@@ -40,6 +40,10 @@ path = "examples/styling/hover.rs"
 # Widget Examples
 
 [[example]]
+name = "label"
+path = "examples/widgets/label.rs"
+
+[[example]]
 name = "button"
 path = "examples/widgets/button.rs"
 

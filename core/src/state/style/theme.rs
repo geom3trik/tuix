@@ -421,7 +421,16 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "overflow" => Property::Overflow(parse_overflow(input)?),
 
             "outer-shadow" => Property::OuterShadow(parse_box_shadow(input)?),
+            "outer-shadow-h-offset" => Property::OuterShadowHOffset(parse_units(input)?),
+            "outer-shadow-v-offset" => Property::OuterShadowVOffset(parse_units(input)?),
+            "outer-shadow-blur" => Property::OuterShadowBlur(parse_units(input)?),
+            "outer-shadow-color" => Property::OuterShadowColor(parse_color(input)?),
+
             "inner-shadow" => Property::InnerShadow(parse_box_shadow(input)?),
+            "inner-shadow-h-offset" => Property::InnerShadowHOffset(parse_units(input)?),
+            "inner-shadow-v-offset" => Property::InnerShadowVOffset(parse_units(input)?),
+            "inner-shadow-blur" => Property::InnerShadowBlur(parse_units(input)?),
+            "inner-shadow-color" => Property::InnerShadowColor(parse_color(input)?),
 
             "transition" => {
                 Property::Transition(input.parse_comma_separated(|F| parse_transition2(F))?)
