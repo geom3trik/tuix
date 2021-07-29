@@ -82,23 +82,23 @@ panel>.container {
 
 label {
     height: 30px;
-    padding-left: 5px;
+    child-left: 5px;
 }
 
 label.level1 {
-    padding-left: 50px;
+    child-left: 50px;
 }
 
 label.level2 {
-    padding-left: 65px;
+    child-left: 65px;
 }
 
 label.level3 {
-    padding-left: 80px;
+    child-left: 80px;
 }
 
 label.level4 {
-    padding-left: 95px;
+    child-left: 95px;
 }
 
 label:hover {

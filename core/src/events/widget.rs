@@ -344,8 +344,8 @@ pub trait Widget: std::marker::Sized + 'static {
         // Draw outer shadow
         let mut path = Path::new();
         path.rounded_rect_varying(
-            0.0 - outer_shadow_blur + outer_shadow_h_offset,
-            0.0 - outer_shadow_blur + outer_shadow_v_offset,
+            bounds.x - outer_shadow_blur + outer_shadow_h_offset,
+            bounds.y - outer_shadow_blur + outer_shadow_v_offset,
             bounds.w + 2.0 * outer_shadow_blur,
             bounds.h + 2.0 * outer_shadow_blur,
             border_radius_top_left,
@@ -354,8 +354,8 @@ pub trait Widget: std::marker::Sized + 'static {
             border_radius_bottom_left,
         );
         path.rounded_rect_varying(
-            0.0,
-            0.0,
+            bounds.x,
+            bounds.y,
             bounds.w,
             bounds.h,
             border_radius_top_left,
@@ -366,8 +366,8 @@ pub trait Widget: std::marker::Sized + 'static {
         path.solidity(Solidity::Hole);
 
         let mut paint = Paint::box_gradient(
-            0.0 + outer_shadow_h_offset,
-            0.0 + outer_shadow_v_offset,
+            bounds.x + outer_shadow_h_offset,
+            bounds.y + outer_shadow_v_offset,
             bounds.w,
             bounds.h,
             border_radius_top_left

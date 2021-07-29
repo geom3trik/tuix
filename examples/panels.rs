@@ -18,12 +18,11 @@ const STYLE: &str = r#"
     }
 
     panel .container2 {
-        padding: 10px;
-        child_left: 1s;
-        child_right: 1s;
-        child_top: 10px;
-        child_bottom: 10px;
-        child_between: 10px;
+        child-left: 1s;
+        child-right: 1s;
+        child-top: 10px;
+        child-bottom: 10px;
+        child-between: 10px;
     }
     
     panel.one {

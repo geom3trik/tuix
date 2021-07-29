@@ -23,6 +23,7 @@ pub fn apply_hover(state: &mut State) {
             continue;
         }
 
+        // Skip non-displayed widgets
         if entity.get_display(state) == Display::None {
             continue;
         }

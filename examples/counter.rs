@@ -30,13 +30,13 @@ impl Widget for Counter {
     // Build
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         Button::with_label("increment")
-            .on_press(|_,state,button|{
+            .on_press(|_, state, button|{
                 button.emit(state,CounterMessage::Increment);
             })
             .build(state, entity, |builder| builder.class("increment"));
 
         Button::with_label("decrement")
-            .on_press(|_,state,button|{
+            .on_press(|_, state, button|{
                 button.emit(state,CounterMessage::Decrement);
             })
             .build(state, entity, |builder| builder.class("decrement"));
@@ -71,6 +71,8 @@ fn main() {
     let window_description = WindowDescription::new().with_title("Counter").with_inner_size(400, 100);
     let app = Application::new(window_description, |state, window| {
         state.add_theme(THEME);
+
+        window.set_background_color(state, Color::rgb(250, 250, 250));
 
         Counter::default()
             // Set local state

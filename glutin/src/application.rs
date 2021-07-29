@@ -114,6 +114,9 @@ impl Application {
             .set_height(Entity::root(), window_description.inner_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
 
+    
+        Entity::root().set_element(&mut state, "window");
+
         let mut bounding_box = BoundingBox::default();
         bounding_box.w = window_description.inner_size.width as f32;
         bounding_box.h = window_description.inner_size.height as f32;
