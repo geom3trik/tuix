@@ -18,13 +18,6 @@ impl Label {
             text: text.to_string(),
         }
     }
-
-    // This method will be part of a trait (maybe the Widget trait)
-    pub fn bind<L: Lens, F>(self, lens: L, converter: F) -> Wrapper<L, Self> 
-    where F: 'static + Fn(&<L as Lens>::Target) -> <Self as Widget>::Data
-    {
-        Wrapper::new(self, lens, converter)
-    }
 }
 
 impl Widget for Label {
@@ -41,16 +34,5 @@ impl Widget for Label {
         self.text = data.to_owned();
         entity.set_text(state, &self.text);
     }
-
-    // fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-    //     if let Some(update_event) = event.message.downcast() {
-    //         match update_event {
-    //             UpdateEvent::Update::<Self::Data>(value) => {
-    //                 self.text = value.to_owned();
-    //                 entity.set_text(state, &self.text);
-    //             } 
-    //         }
-    //     }
-    // }
 }
 

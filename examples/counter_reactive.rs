@@ -2,8 +2,9 @@ use tuix::*;
 
 static THEME: &'static str = include_str!("themes/counter_theme.css");
 
+
 // The state of the application
-#[derive(Default, Data, Lens)]
+#[derive(Default, Lens)]
 pub struct CounterState {
     value: i32,
 }

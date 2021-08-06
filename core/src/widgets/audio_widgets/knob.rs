@@ -20,6 +20,8 @@ pub struct ArcTrack {
     front: Entity,
 
     normalized_value: f32,
+
+    center: bool,
 }
 
 impl ArcTrack {
@@ -33,12 +35,20 @@ impl ArcTrack {
             front: Entity::null(),
 
             normalized_value: normalized_value.clamp(0.0, 1.0),
+
+            center: true,
         }
+    }
+
+    pub fn set_centered(mut self, val: bool) -> Self {
+        self.center = val;
+        self
     }
 }
 
 impl Widget for ArcTrack {
     type Ret = Entity;
+    type Data = f32;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         // Non-displayed element used for setting the color of the active arc
@@ -132,11 +142,27 @@ impl Widget for ArcTrack {
         paint.set_line_cap(LineCap::Butt);
         canvas.stroke_path(&mut path, paint);
 
-        let current = self.normalized_value * (end - start) + start;
+        
+        
 
         // Draw the active arc
         let mut path = Path::new();
-        path.arc(cx, cy, radius - span/2.0, current, start, Solidity::Solid);
+
+        if self.center {
+            let center = -PI/2.0;
+            if self.normalized_value <= 0.5 {
+                let current = self.normalized_value * 2.0 * (center - start) + start;
+                path.arc(cx, cy, radius - span/2.0, center, current, Solidity::Solid);
+            } else {
+                let current = (self.normalized_value * 2.0 - 1.0) * (end - center) + center;
+                path.arc(cx, cy, radius - span/2.0, current, center, Solidity::Solid);
+            }
+        } else {
+            let current = self.normalized_value * (end - start) + start;
+            path.arc(cx, cy, radius - span/2.0, current, start, Solidity::Solid);
+        }
+
+
         let mut paint = Paint::color(foreground_color);
         paint.set_line_width(span);
         paint.set_line_cap(LineCap::Butt);
@@ -150,7 +176,7 @@ pub struct Knob<T: NormalizedMap> {
     mod_track: Entity,
     tick: Entity,
 
-    normalized_value: f32,
+    pub normalized_value: f32,
     default_normal: f32,
 
     is_dragging: bool,
@@ -161,7 +187,17 @@ pub struct Knob<T: NormalizedMap> {
     wheel_scalar: f32,
     modifier_scalar: f32,
 
-    map: T,
+    centered: bool,
+
+    pub map: T,
+
+    // event sent when the knob value is changing
+    on_changing: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    // Event sent when the knob is pressed
+    on_press: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    // Event sent when the knob is released
+    on_release: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+  
 }
 
 impl<T: NormalizedMap> Knob<T> {
@@ -185,20 +221,56 @@ impl<T: NormalizedMap> Knob<T> {
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
 
+            centered: false,
+
             map,
+
+            on_changing: None,
+            on_press: None,
+            on_release: None,
         }
     }
 
     pub fn map(&self) -> &T {
         &self.map
     }
+
+    /// Set the callback triggered when the slider value is changing (dragging).
+    ///
+    /// Takes a closure which triggers when the slider value is changing, 
+    /// either by pressing the track or dragging the thumb along the track.
+    ///
+    /// # Example
+    /// 
+    /// ```
+    /// Slider::new()
+    ///     .on_changing(|slider, state, entity| {
+    ///         entity.emit(WindowEvent::Debug(format!("Slider on_changing: {}", slider.value)));
+    ///     })
+    ///     .build(state, parent, |builder| builder);
+    /// ```
+    pub fn on_changing<F>(mut self, callback: F) -> Self
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity),
+    {
+        self.on_changing = Some(Box::new(callback));
+        self
+    }
+
+    pub fn set_centered(mut self, val: bool) -> Self {
+        self.centered = val;
+        self
+    }  
 }
 
 impl<T: NormalizedMap> Widget for Knob<T> {
     type Ret = Entity;
+    type Data = f32;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
-        self.value_track = ArcTrack::new(self.normalized_value).build(state, entity, |builder| 
+        self.value_track = ArcTrack::new(self.normalized_value)
+        .set_centered(self.centered)
+        .build(state, entity, |builder| 
             builder
                 .set_position_type(PositionType::SelfDirected)
                 .set_hoverability(false)
@@ -216,6 +288,22 @@ impl<T: NormalizedMap> Widget for Knob<T> {
         entity.set_element(state, "knob")
     }
 
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        if !self.is_dragging {
+            self.normalized_value = *data;
+
+            if let Some(track) = state.query::<ArcTrack>(self.value_track) {
+                track.normalized_value = self.normalized_value;
+            }
+
+            self.continuous_normal = self.normalized_value;
+
+            state.insert_event(
+                Event::new(WindowEvent::Redraw).target(Entity::root()),
+            );            
+        }
+    }
+
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         let move_virtual_slider = |self_ref: &mut Self, state: &mut State, new_normal: f32| {
             self_ref.continuous_normal = new_normal.clamp(0.0, 1.0);
@@ -225,6 +313,11 @@ impl<T: NormalizedMap> Widget for Knob<T> {
             
             // TODO - Remove when done
             println!("Normalized: {}, Display: {}", self_ref.normalized_value, self_ref.map.normalized_to_display(self_ref.normalized_value));
+
+            if let Some(callback) = self_ref.on_changing.take() {
+                (callback)(self_ref, state, entity);
+                self_ref.on_changing = Some(callback);
+            }
 
             if let Some(track) = state.query::<ArcTrack>(self_ref.value_track) {
                 track.normalized_value = self_ref.normalized_value;
@@ -244,6 +337,11 @@ impl<T: NormalizedMap> Widget for Knob<T> {
 
                         state.capture(entity);
                         state.focused = entity;
+
+                        if let Some(callback) = self.on_press.take() {
+                            (callback)(self, state, entity);
+                            self.on_press = Some(callback);
+                        }
                     }
                 }
 
@@ -253,6 +351,11 @@ impl<T: NormalizedMap> Widget for Knob<T> {
                         self.continuous_normal = self.normalized_value;
 
                         state.release(entity);
+
+                        if let Some(callback) = self.on_release.take() {
+                            (callback)(self, state, entity);
+                            self.on_release = Some(callback);
+                        }
                     }
                 }
 

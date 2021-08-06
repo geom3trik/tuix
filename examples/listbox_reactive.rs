@@ -35,7 +35,7 @@ pub enum CustomEvent {
     ChangeUser,
 }
 
-#[derive(Debug, Clone, Data, Lens)]
+#[derive(Debug, Clone, Lens)]
 pub struct User {
     name: String,
     age: i32,
@@ -47,7 +47,7 @@ impl std::fmt::Display for User {
     }
 }
 
-#[derive(Debug, Clone, Data, Lens)]
+#[derive(Debug, Clone, Lens)]
 pub struct UserData {
     users: Vec<User>,
 }

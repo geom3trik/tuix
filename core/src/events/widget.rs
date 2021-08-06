@@ -47,7 +47,7 @@ pub trait Widget: std::marker::Sized + 'static {
     }
 
     // Called when data bound to this widget is changed
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &Self::Data) {}
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {}
 
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
@@ -615,10 +615,7 @@ where
     fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {
         if let Some(data) = node.downcast_ref() {
              <T as Widget>::on_update(self, state, entity, data);
-        } else {
-            println!("Failed to convert data");
         }
-       
     }
 
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

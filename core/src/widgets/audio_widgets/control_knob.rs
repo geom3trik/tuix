@@ -81,6 +81,7 @@ impl ControlKnob {
 
 impl Widget for ControlKnob {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.back = Element::new().build(state, entity, |builder| {
             builder

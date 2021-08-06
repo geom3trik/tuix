@@ -1,9 +1,11 @@
 
 
 pub mod node;
+pub mod lens;
 use std::collections::HashSet;
 
 pub use node::*;
+pub use lens::*;
 
 use crate::{EventHandler, IntoChildIterator, PropType, widgets::*};
 
@@ -82,11 +84,13 @@ impl<D: Model + Node> Widget for Store<D> {
 
                 BindEvent::Update => {
                     for observer in self.observers.iter() {
-                        if let Some(mut event_handler) = state.event_handlers.remove(observer) {
-                            event_handler.on_update(state, *observer, &self.data_widget);
+                        if *observer != event.origin {
+                            if let Some(mut event_handler) = state.event_handlers.remove(observer) {
+                                event_handler.on_update(state, *observer, &self.data_widget);
 
-                            state.event_handlers.insert(*observer, event_handler);
-                        }
+                                state.event_handlers.insert(*observer, event_handler);
+                            }
+                        } 
                     }                        
                     
                 }
@@ -97,13 +101,7 @@ impl<D: Model + Node> Widget for Store<D> {
     }
 }
 
-pub trait Lens {
 
-    type Source: Node;
-    type Target;
-
-    fn view<'a>(&self, data: &'a Self::Source) -> &'a Self::Target;
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum BindEvent {
@@ -183,5 +181,9 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
 
         // Update the underlying widget with the lensed and converted data
         self.widget.on_update(state, entity, &value);
+    }
+
+    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+        self.widget.on_draw(state, entity, canvas)
     }
 }

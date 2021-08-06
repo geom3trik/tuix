@@ -56,8 +56,8 @@ pub use window::WindowWidget;
 // pub use text_area::*;
 
 // Audio Widgets
-// pub mod audio_widgets;
-// pub use audio_widgets::*;
+pub mod audio_widgets;
+pub use audio_widgets::*;
 
 // pub mod debug_container;
 // pub use debug_container::*;

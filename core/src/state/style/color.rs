@@ -1,5 +1,7 @@
 use std::fmt;
 
+use crate::Node;
+
 // Describes a color
 #[derive(Copy, Clone)]
 #[repr(packed)]
