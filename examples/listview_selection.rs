@@ -107,15 +107,7 @@ impl UserData {
     }
 }
 
-impl Widget for UserData {
-    type Ret = Entity;
-    type Data = ();
-
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-    }
-
-    // React to events to update the data
+impl Model for UserData {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(custom_event) = event.message.downcast() {
             match custom_event {

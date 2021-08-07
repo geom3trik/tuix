@@ -4,15 +4,9 @@ use std::any::Any;
 
 static THEME: &'static str = include_str!("themes/counter_theme.css");
 
-#[derive(Default, Node)]
+#[derive(Default, Atom)]
 pub struct CounterState {
     value: i32,
-}
-
-impl ToString for CounterState {
-    fn to_string(&self) -> String {
-        self.value.to_string()
-    }
 }
 
 #[derive(Default)]
@@ -33,25 +27,31 @@ impl Widget for CounterWidget {
     type Ret = Entity;
     type Data = ();
 
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, state: &mut State, entity: Entity, store: &Store) -> Self::Ret {
+
+
+        let (counter, set_counter) = use_state(store, CounterState::value);
 
         Button::with_label("increment")
             .on_press(|_, state, button|{
-                button.mutate(state, |data: &mut CounterState|{
-                    data.value += 1;
-                });
+
+                set_counter(state, |value| value += 1);
+
+                // button.mutate(state, |data: &mut CounterState|{
+                //     data.value += 1;
+                // });
             })
-            .build(state, entity, |builder| builder.class("increment"))
-            .bind(state, self.data);
+            .build(state, entity, |builder| builder.class("increment"));
+            //.bind(state, self.data);
 
         Button::with_label("decrement")
             .on_press(|_, state, button|{
-                button.mutate(state, |data: &mut CounterState|{
-                    data.value -= 1;
-                });
+                // button.mutate(state, |data: &mut CounterState|{
+                //     data.value -= 1;
+                // });
             })
-            .build(state, entity, |builder| builder.class("decrement"))
-            .bind(state, self.data);
+            .build(state, entity, |builder| builder.class("decrement"));
+            //.bind(state, self.data);
 
         Label::<CounterState>::new(&self.value.to_string())
             .build(state, entity, |builder| builder)
@@ -67,6 +67,7 @@ fn main() {
     let app = Application::new(window_description, |state, window| {
         state.add_theme(THEME);
 
+        // Represents an atom of state
         let app_data = CounterState::default().build(state, window);
 
         CounterWidget::new(app_data)
