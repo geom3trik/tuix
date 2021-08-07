@@ -12,16 +12,16 @@ pub enum DropdownEvent {
     SetText(String),
 }
 
-pub struct Item {
+pub struct DropdownItem {
     //checkbox: Entity,
     text: String,
     proxy: String,
     pressed: bool,
 }
 
-impl Item {
+impl DropdownItem {
     pub fn new(txt: &str, proxy: &str) -> Self {
-        Item {
+        DropdownItem {
             //checkbox: Entity::null(),
             text: txt.to_string(),
             proxy: proxy.to_string(),
@@ -30,7 +30,7 @@ impl Item {
     }
 }
 
-impl Widget for Item {
+impl Widget for DropdownItem {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &self.text).class(state, "item");
@@ -85,20 +85,8 @@ pub struct Dropdown {
     pub container: Entity,
     pub header: Entity,
     pub label: Entity,
-    //options: Vec<(Entity, String, String)>,
+
     text: String,
-
-    open: bool,
-
-    multi: bool,
-
-    //other_container: Entity,
-    expand_animation: Animation,
-    fade_in_animation: Animation,
-
-    collapse_animation: Animation,
-    fade_out_animation: Animation,
-    //container_height: f32,
 }
 
 impl Dropdown {
@@ -108,34 +96,13 @@ impl Dropdown {
             container: Entity::null(),
             header: Entity::null(),
             label: Entity::null(),
-            //options: Vec::new(),
             text: text.to_string(),
-            open: false,
-            multi: false,
-            //other_container: Entity::null(),
-            expand_animation: Animation::default(),
-            fade_in_animation: Animation::default(),
-            collapse_animation: Animation::default(),
-            fade_out_animation: Animation::default(),
-            //container_height: 0.0,
         }
     }
-
-    pub fn set_multi(mut self) -> Self {
-        self.multi = true;
-        self
-    }
-
-    // pub fn add_item(mut self, name: &str, proxy: &str) -> Self {
-    //     self.options.push((Entity::null(), name.to_string(), proxy.to_string()));
-
-    //     // self.options.insert(name.to_string(), v: V)
-    //     self
-    // }
 }
 
 impl Widget for Dropdown {
-    type Ret = (Entity, Entity, Entity);
+    type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.header = Element::new().build(state, entity, |builder| {
             builder
@@ -167,53 +134,28 @@ impl Widget for Dropdown {
                 .set_focusability(false)
                 //.set_background_color(Color::rgb(100,100,100))
                 .set_text(ICON_DOWN_DIR)
-                //.set_width(Length::Pixels(20.0))
+                .set_width(Pixels(20.0))
                 .set_child_space(Stretch(1.0))
                 .class("icon")
         });
 
-        if self.multi {
-            self.container = Popup::new().build(state, entity, |builder| {
-                builder
-                    .set_position_type(PositionType::SelfDirected)
-                    .set_opacity(0.0)
-                    .set_z_order(1)
-                    .set_clip_widget(Entity::root())
-                    .class("container")
-            });
-        } else {
-            self.container = Popup::new().build(state, entity, |builder| {
-                builder
-                    .set_position_type(PositionType::SelfDirected)
-                    .set_opacity(0.0)
-                    .set_z_order(1)
-                    .set_clip_widget(Entity::root())
-                    .class("container")
-            });
-        }
+        self.container = Popup::new().build(state, entity, |builder| {
+            builder
+                .set_position_type(PositionType::SelfDirected)
+                .set_top(Percentage(1.0))
+                .set_width(Percentage(1.0))
+                .set_height(Pixels(50.0))
+                .set_z_order(1)
+                .set_clip_widget(Entity::root())
+                .class("container")
+        });
 
-        state.style.insert_element(entity, "dropdown");
+        let list = List::new().build(state, self.container, |builder| 
+            builder
+                .set_height(Auto)
+        );
 
-        let container_fade_in_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            //.with_delay(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Opacity(0.0)))
-            .with_keyframe((1.0, Opacity(1.0)));
-
-        self.fade_in_animation = state
-            .style
-            .opacity
-            .insert_animation(container_fade_in_animation);
-
-        let container_fade_out_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Opacity(1.0)))
-            .with_keyframe((1.0, Opacity(0.0)));
-
-        self.fade_out_animation = state
-            .style
-            .opacity
-            .insert_animation(container_fade_out_animation);
+        entity.set_element(state, "dropdown");
 
         // (entity, self.header, self.container)
 
@@ -224,7 +166,7 @@ impl Widget for Dropdown {
             )
         );
 
-        (entity, self.header, self.container)
+        list
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -235,7 +177,6 @@ impl Widget for Dropdown {
             match dropdown_event {
                 DropdownEvent::SetText(text) => {
                     self.label.set_text(state, text);
-                    self.open = false;
                 }
             }
         }
@@ -304,16 +245,16 @@ impl Widget for Dropdown {
 
                 //     _ => {}
                 // },
-                WindowEvent::KeyDown(code, key) => match code {
-                    Code::Escape => {
-                        state.insert_event(
-                            Event::new(WindowEvent::KeyDown(*code, key.clone()))
-                                .target(self.container)
-                                .propagate(Propagation::Direct),
-                        );
-                    }
-                    _ => {}
-                },
+                // WindowEvent::KeyDown(code, key) => match code {
+                //     Code::Escape => {
+                //         state.insert_event(
+                //             Event::new(WindowEvent::KeyDown(*code, key.clone()))
+                //                 .target(self.container)
+                //                 .propagate(Propagation::Direct),
+                //         );
+                //     }
+                //     _ => {}
+                // },
 
                 _ => {}
             }

@@ -84,6 +84,10 @@ name = "listbox"
 path = "examples/widgets/listbox.rs"
 
 [[example]]
+name = "dropdown"
+path = "examples/widgets/dropdown.rs"
+
+[[example]]
 name = "radio"
 path = "examples/widgets/radio.rs"
 

@@ -152,13 +152,13 @@ impl Widget for CheckButton {
             match window_event {
                 WindowEvent::MouseDown(button) if *button == MouseButton::Left => {
                     if entity == event.target && !entity.is_disabled(state) {
-                        state.capture(entity);
+                        //state.capture(entity);
                     }
                 }
 
                 WindowEvent::MouseUp(button) if *button == MouseButton::Left => {
                     if entity == event.target && state.mouse.left.pressed == entity {
-                        state.release(entity);
+                        //state.release(entity);
                         entity.set_active(state, false);
                         if !entity.is_disabled(state) {
                             if state.hovered == entity {
