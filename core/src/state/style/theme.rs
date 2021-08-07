@@ -216,6 +216,7 @@ fn parse_selectors<'i, 't>(
                 selectors.push(selector);
                 //selector = Selector::from(&input.expect_ident()?.to_string());
                 selector = Selector::default();
+                whitespace = false;
                 // if let Some(selec) = selectors.last_mut() {
                 //     selec.relation = Relation::Parent;
                 // }

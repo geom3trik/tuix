@@ -504,8 +504,6 @@ where
             // Get the animation id for any transition on the rule
             let rule_animation_id = self.rule_indices[rule].animation_id;
 
-            println!("Rule Animation: {} {:?}", rule_animation_id, self.animations);
-
             // Check if the entity is already animating with a transition
 
             let animation_index = self.entity_indices[index].animation_id;

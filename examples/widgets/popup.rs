@@ -6,20 +6,25 @@ const STYLE: &str = r#"
         background-color: #d2d2d2;
     }
 
-    popup>button {
+    popup check_button {
         height: 30px;
         child-space: 1s;
         color: black;
         background-color: #d2d2d2;
     }
 
-    popup>button:hover {
+    popup check_button:hover {
         background-color: #e2e2e2;
     }
 
-    popup>button:active {
+    popup check_button:active {
         background-color: #c2c2c2;
     }
+
+    popup check_button:checked {
+        background-color: #c2c2FF;
+    }
+
 "#;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -51,65 +56,98 @@ impl Widget for Container {
                     .set_height(Auto)
             });
 
+        let list = List::new().build(state, self.popup, |builder| 
+            builder
+                .set_height(Auto)
+        );
+
         // Spacer
-        Element::new().build(state, self.popup, |builder| 
+        Element::new().build(state, list, |builder| 
             builder
                 .set_height(Pixels(5.0))
         );
 
-        Button::with_label("Red")
-            .on_release(|_, state, button| {
-                button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 0, 0)));
+        CheckButton::with_label("Red")
+            .set_checked(true)
+            .on_checked(|_, state, button|{
+                button.emit(state, CustomEvent::ChangeColor(Color::rgb(200, 50, 50)));
             })
-            .build(state, self.popup, |builder| 
+            .build(state, list, |builder| 
                 builder
-        );
+                    .set_color(Color::black())
+            );
 
-        Button::with_label("Green")
-            .on_release(|_, state, button| {
-                button.emit(state, CustomEvent::ChangeColor(Color::rgb(0, 255, 0)));
+        CheckButton::with_label("Green")
+            .on_checked(|_, state, button|{
+                button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 200, 50)));
             })
-            .build(state, self.popup, |builder| 
+            .build(state, list, |builder| 
                 builder
-        );
+                    .set_color(Color::black())
+            );
 
-        Button::with_label("Blue")
-            .on_release(|_, state, button| {
-                button.emit(state, CustomEvent::ChangeColor(Color::rgb(0, 0, 255)));
+        CheckButton::with_label("Blue")
+            .on_checked(|_, state, button|{
+                button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 50, 200)));
             })
-            .build(state, self.popup, |builder| 
+            .build(state, list, |builder| 
                 builder
-        );
+                    .set_color(Color::black())
+            );
 
-        Button::with_label("Yellow")
-            .on_release(|_, state, button| {
-                button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 255, 0)));
-            })
-            .build(state, self.popup, |builder| 
-                builder
-        );
+        // Button::with_label("Red")
+        //     .on_release(|_, state, button| {
+        //         button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 0, 0)));
+        //     })
+        //     .build(state, list, |builder| 
+        //         builder
+        // );
 
-        Button::with_label("Fuchsia")
-            .on_release(|_, state, button| {
-                button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 0, 255)));
-            })
-            .build(state, self.popup, |builder| 
-                builder
-        );
+        // Button::with_label("Green")
+        //     .on_release(|_, state, button| {
+        //         button.emit(state, CustomEvent::ChangeColor(Color::rgb(0, 255, 0)));
+        //     })
+        //     .build(state, list, |builder| 
+        //         builder
+        // );
 
-        Button::with_label("Aqua")
-            .on_release(|_, state, button| {
-                button.emit(state, CustomEvent::ChangeColor(Color::rgb(0, 255, 255)));
-            })
-            .build(state, self.popup, |builder| 
-                builder
-        );
+        // Button::with_label("Blue")
+        //     .on_release(|_, state, button| {
+        //         button.emit(state, CustomEvent::ChangeColor(Color::rgb(0, 0, 255)));
+        //     })
+        //     .build(state, list, |builder| 
+        //         builder
+        // );
 
-        // Spacer
-        Element::new().build(state, self.popup, |builder| 
-            builder
-                .set_height(Pixels(5.0))
-        );
+        // Button::with_label("Yellow")
+        //     .on_release(|_, state, button| {
+        //         button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 255, 0)));
+        //     })
+        //     .build(state, list, |builder| 
+        //         builder
+        // );
+
+        // Button::with_label("Fuchsia")
+        //     .on_release(|_, state, button| {
+        //         button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 0, 255)));
+        //     })
+        //     .build(state, list, |builder| 
+        //         builder
+        // );
+
+        // Button::with_label("Aqua")
+        //     .on_release(|_, state, button| {
+        //         button.emit(state, CustomEvent::ChangeColor(Color::rgb(0, 255, 255)));
+        //     })
+        //     .build(state, list, |builder| 
+        //         builder
+        // );
+
+        // // Spacer
+        // Element::new().build(state, self.popup, |builder| 
+        //     builder
+        //         .set_height(Pixels(5.0))
+        // );
 
         container.set_background_color(state, Color::white())
     }
