@@ -113,6 +113,8 @@ impl Application {
             .data
             .set_height(Entity::root(), window_description.inner_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
+    
+        //state.data.set_focusability(Entity::root(), false);
 
     
         Entity::root().set_element(&mut state, "window");
@@ -369,8 +371,12 @@ impl Application {
                                                     temp = match iter.next() {
                                                         Some(e) => e,
                                                         None => {
-                                                            break;
+                                                            Entity::root()
                                                         }
+                                                    };
+
+                                                    if temp == Entity::root() {
+                                                        break;
                                                     }
                                                 }
 

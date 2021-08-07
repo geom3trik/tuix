@@ -64,7 +64,7 @@ impl<D: Model + Node> Widget for Store<D> {
     type Ret = Entity;
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
+        entity.set_hoverability(state, false).set_focusability(state, false)
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

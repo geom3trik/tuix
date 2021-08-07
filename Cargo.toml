@@ -104,6 +104,10 @@ name = "dropdown"
 path = "examples/widgets/dropdown.rs"
 
 [[example]]
+name = "dropdown2"
+path = "examples/widgets/dropdown2.rs"
+
+[[example]]
 name = "radio"
 path = "examples/widgets/radio.rs"
 

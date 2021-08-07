@@ -58,6 +58,9 @@ impl Widget for List {
                         {
                             self.selected_index += 1;
 
+                            //TODO
+                            // if state.data.get_checkable(next_sibling)
+
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)
                                     .target(self.checked_entity)
@@ -81,6 +84,7 @@ impl Widget for List {
                             state.hierarchy.get_prev_sibling(self.checked_entity)
                         {
 
+                            // TODO - prevent underflow
                             self.selected_index -= 1;
 
                             state.insert_event(

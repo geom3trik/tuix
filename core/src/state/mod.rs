@@ -279,7 +279,8 @@ impl State {
 
     // This should probably be moved to state.mouse
     pub fn release(&mut self, id: Entity) {
-        if self.captured != id {
+
+        if self.captured == id {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureOutEvent)
                     .target(self.captured)
@@ -303,8 +304,6 @@ impl State {
                 entity.set_focus(self, true);
                 self.insert_event(Event::new(WindowEvent::FocusIn).target(self.focused));
             }
-            
-            
         }  
     }
 

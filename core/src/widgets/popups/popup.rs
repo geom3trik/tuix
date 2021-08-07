@@ -21,6 +21,7 @@ impl Popup {
 
 impl Widget for Popup {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_focusability(state, false)
@@ -77,6 +78,7 @@ impl Widget for Popup {
                 }
 
                 PopupEvent::Open => {
+                    println!("Open");
                     self.open = true;
                     state.capture(entity);
                     entity.set_opacity(state, 1.0);
@@ -105,7 +107,7 @@ impl Widget for Popup {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseCaptureOutEvent => {
-                    println!("Hide");
+                    //println!("Hide");
                     // state
                     //     .style
                     //     .opacity
@@ -115,7 +117,7 @@ impl Widget for Popup {
                 }
 
                 WindowEvent::MouseCaptureEvent => {
-                    println!("Show");
+                    //println!("Show");
                     // state
                     //     .style
                     //     .opacity
@@ -129,7 +131,6 @@ impl Widget for Popup {
                 WindowEvent::MouseDown(button) => {
                     if event.target == entity && event.origin != entity {
                         if !entity.is_over(state) {
-
                             entity.emit(state, PopupEvent::Close);
                         
                         } else {
@@ -151,6 +152,7 @@ impl Widget for Popup {
                                 if !self.open {
                                     state.capture(entity);
                                 } else {
+                                    println!("Release");
                                     state.release(entity);
                                 }
 

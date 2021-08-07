@@ -87,6 +87,16 @@ impl Widget for CheckButton {
         entity.set_element(state, "check_button")
     }
 
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        if *data != self.checked {
+            if *data {
+                entity.emit(state, CheckboxEvent::Checked);
+            } else {
+                entity.emit(state, CheckboxEvent::Unchecked);
+            }
+        }
+    }
+
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
      
         if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
@@ -99,6 +109,7 @@ impl Widget for CheckButton {
 
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)
+                                    .propagate(Propagation::Up)
                                     .target(entity)
                                     .origin(entity),
                             );
@@ -108,6 +119,7 @@ impl Widget for CheckButton {
 
                             state.insert_event(
                                 Event::new(CheckboxEvent::Checked)
+                                    .propagate(Propagation::Up)
                                     .target(entity)
                                     .origin(entity),
                             );
@@ -126,6 +138,7 @@ impl Widget for CheckButton {
                 }
 
                 CheckboxEvent::Checked => {
+                    println!("Checked {} {}",entity,  event.origin);
                     self.checked = true;
 
                     entity.set_checked(state, true);

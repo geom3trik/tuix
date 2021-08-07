@@ -32,6 +32,7 @@ impl DropdownItem {
 
 impl Widget for DropdownItem {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &self.text).class(state, "item");
 
@@ -80,7 +81,7 @@ impl Widget for DropdownItem {
 }
 
 pub struct Dropdown {
-    button: Button,
+    button: CheckButton,
 
     pub container: Entity,
     pub header: Entity,
@@ -92,7 +93,7 @@ pub struct Dropdown {
 impl Dropdown {
     pub fn new(text: &str) -> Self {
         Dropdown {
-            button: Button::default(),
+            button: CheckButton::default(),
             container: Entity::null(),
             header: Entity::null(),
             label: Entity::null(),
@@ -103,6 +104,7 @@ impl Dropdown {
 
 impl Widget for Dropdown {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.header = Element::new().build(state, entity, |builder| {
             builder
@@ -160,9 +162,14 @@ impl Widget for Dropdown {
         // (entity, self.header, self.container)
 
         let container = self.container;
-        self.button = Button::new().on_release(move |_, state, entity|
+        self.button = CheckButton::new().on_checked(move |_, state, entity|
             state.insert_event(
                 Event::new(PopupEvent::Open).target(container)
+            )
+        )
+        .on_unchecked(move |_, state, entity|
+            state.insert_event(
+                Event::new(PopupEvent::Close).target(container)
             )
         );
 

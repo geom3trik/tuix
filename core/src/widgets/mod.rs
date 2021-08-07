@@ -7,8 +7,8 @@ pub use buttons::*;
 pub mod inputs;
 pub use inputs::*;
 
-// pub mod popups;
-// pub use popups::*;
+pub mod popups;
+pub use popups::*;
 
 // pub mod menus;
 // pub use menus::*;
