@@ -1,7 +1,17 @@
 use tuix::*;
 
-static THEME: &'static str = include_str!("themes/counter_theme.css");
+static THEME: &'static str = include_str!("../themes/counter_theme.css");
 
+#[derive(Default, Lens)]
+pub struct SomeOtherState {
+    value: String,
+}
+
+impl Model for SomeOtherState {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        
+    }
+}
 
 // The state of the application
 #[derive(Default, Lens)]
@@ -73,16 +83,15 @@ fn main() {
     let window_description = WindowDescription::new().with_title("Counter").with_inner_size(400, 100);
     let app = Application::new(window_description, |state, window| {
 
-
-        window.set_background_color(state, Color::rgb(240, 240, 240));
-
         state.add_theme(THEME);
 
         // Build the app data at the root of the visual tree
         let data_widget = CounterState::default().build(state, window);
 
+        let some_other_data = SomeOtherState::default().build(state, data_widget);
+
         CounterWidget::default()
-            .build(state, data_widget, |builder| builder);
+            .build(state, some_other_data, |builder| builder);
         
         // Another label is bound to the counter value, but with a conversion closure 
         // which converts the value to english text form

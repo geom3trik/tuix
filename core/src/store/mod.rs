@@ -2,7 +2,7 @@
 
 pub mod node;
 pub mod lens;
-use std::collections::HashSet;
+use std::{any::TypeId, collections::HashSet};
 
 pub use node::*;
 pub use lens::*;
@@ -71,15 +71,22 @@ impl<D: Model + Node> Widget for Store<D> {
         
         if let Some(bind_event) = event.message.downcast() {
             match bind_event {
-                BindEvent::Bind(target) => {
+                BindEvent::Bind(target, type_id) => {
                     println!("Bind: {}", target);
-                    self.observers.insert(*target);
-                    //entity.emit(state, BindEvent::Update);
-                    if let Some(mut event_handler) = state.event_handlers.remove(target) {
-                        event_handler.on_update(state, *target, &self.data_widget);
-
-                        state.event_handlers.insert(*target, event_handler);
+                    if *type_id == TypeId::of::<D>() {
+                        println!("Compatible");
+                        self.observers.insert(*target);
+                        //entity.emit(state, BindEvent::Update);
+                        if let Some(mut event_handler) = state.event_handlers.remove(target) {
+                            event_handler.on_update(state, *target, &self.data_widget);
+    
+                            state.event_handlers.insert(*target, event_handler);
+                        }
+                        event.consume();
+                    } else {
+                        println!("Not Compatible");
                     }
+                    
                 }
 
                 BindEvent::Update => {
@@ -105,7 +112,7 @@ impl<D: Model + Node> Widget for Store<D> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum BindEvent {
-    Bind(Entity),
+    Bind(Entity, TypeId),
     Update,
     //Init,
 }
@@ -143,7 +150,8 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
-        state.insert_event(Event::new(BindEvent::Bind(entity)).target(entity).propagate(Propagation::Up));
+        let type_id = TypeId::of::<Self::Data>();
+        state.insert_event(Event::new(BindEvent::Bind(entity, type_id)).target(entity).propagate(Propagation::Up));
 
         self.widget.on_build(state, entity)
     }

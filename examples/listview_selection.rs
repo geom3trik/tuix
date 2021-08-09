@@ -41,7 +41,7 @@ pub enum CustomEvent {
     SelectUser(usize),
 }
 
-#[derive(Debug, Clone, Data, Lens)]
+#[derive(Debug, Clone, Lens)]
 pub struct User {
     first_name: String,
     last_name: String,
@@ -85,7 +85,7 @@ impl<T> CheckList<T> {
 }
 
 // Widget to manage the data store
-#[derive(Debug, Clone, Data, Lens)]
+#[derive(Debug, Clone, Lens)]
 pub struct UserData {
     users: CheckList<User>,
 }

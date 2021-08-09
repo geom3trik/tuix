@@ -306,7 +306,7 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
         
         if let Some(bind_event) = event.message.downcast() {
             match bind_event {
-                BindEvent::Bind(target) => {
+                BindEvent::Bind(target, type_id) => {
                     if *target != entity {
                         event.consume();
                     }

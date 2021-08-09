@@ -119,6 +119,16 @@ path = "examples/widgets/stack.rs"
 name = "gallery"
 path = "examples/widgets/gallery.rs"
 
+# Binding
+
+[[example]]
+name = "multiple_stores"
+path = "examples/binding/multiple_stores.rs"
+
+[[example]]
+name = "converter"
+path = "examples/binding/converter.rs"
+
 [workspace]
 members = [
     "winit",
