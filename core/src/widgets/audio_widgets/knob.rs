@@ -3,6 +3,8 @@ use crate::style::*;
 use crate::widgets::*;
 use femtovg::*;
 
+use super::NormalizedMap;
+
 use std::f32::consts::PI;
 
 static DEFAULT_DRAG_SCALAR: f32 = 0.0042;
@@ -21,9 +23,8 @@ pub struct ArcTrack {
 }
 
 impl ArcTrack {
-    pub fn new() -> Self {
+    pub fn new(normalized_value: f32) -> Self {
         Self {
-
             angle_start: -150.0,
             angle_end: 150.0,
             radius: Units::Pixels(30.0),
@@ -31,7 +32,7 @@ impl ArcTrack {
 
             front: Entity::null(),
 
-            normalized_value: 0.5,
+            normalized_value: normalized_value.clamp(0.0, 1.0),
         }
     }
 }
@@ -143,7 +144,7 @@ impl Widget for ArcTrack {
     }
 }
 
-pub struct Knob {
+pub struct Knob<T: NormalizedMap> {
     thumb: Entity,
     value_track: Entity,
     mod_track: Entity,
@@ -159,42 +160,52 @@ pub struct Knob {
     drag_scalar: f32,
     wheel_scalar: f32,
     modifier_scalar: f32,
+
+    map: T,
 }
 
-impl Knob {
-    pub fn new() -> Self {
+impl<T: NormalizedMap> Knob<T> {
+    pub fn new(map: T, normalized_default: f32) -> Self {
+        let normalized_default = normalized_default.clamp(0.0, 1.0);
+
         Self {
             thumb: Default::default(),
             value_track: Default::default(),
             mod_track: Default::default(),
             tick: Default::default(),
 
-            normalized_value: 0.5,
-            default_normal: 0.5,
+            normalized_value: normalized_default,
+            default_normal: normalized_default,
 
             is_dragging: false,
             prev_drag_y: 0.0,
-            continuous_normal: 0.5,
+            continuous_normal: normalized_default,
 
             drag_scalar: DEFAULT_DRAG_SCALAR,
             wheel_scalar: DEFAULT_WHEEL_SCALAR,
             modifier_scalar: DEFAULT_MODIFIER_SCALAR,
+
+            map,
         }
+    }
+
+    pub fn map(&self) -> &T {
+        &self.map
     }
 }
 
-impl Widget for Knob {
+impl<T: NormalizedMap> Widget for Knob<T> {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
-        self.value_track = ArcTrack::new().build(state, entity, |builder| 
+        self.value_track = ArcTrack::new(self.normalized_value).build(state, entity, |builder| 
             builder
                 .set_position_type(PositionType::SelfDirected)
                 .set_hoverability(false)
                 .class("value_track")
         );
         
-        self.mod_track = ArcTrack::new().build(state, entity, |builder| 
+        self.mod_track = ArcTrack::new(self.normalized_value).build(state, entity, |builder| 
             builder
                 .set_position_type(PositionType::SelfDirected)
                 .set_hoverability(false)
@@ -206,17 +217,17 @@ impl Widget for Knob {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        let move_virtual_slider = |_self: &mut Self, state: &mut State, new_normal: f32| {
-            _self.continuous_normal = new_normal.clamp(0.0, 1.0);
+        let move_virtual_slider = |self_ref: &mut Self, state: &mut State, new_normal: f32| {
+            self_ref.continuous_normal = new_normal.clamp(0.0, 1.0);
 
-            // TODO: Snap normalized value if using an integer mapping.
-            _self.normalized_value = _self.continuous_normal;
+            // This will cause the knob to "snap" when using an `IntMap`.
+            self_ref.normalized_value = self_ref.map.snap(self_ref.continuous_normal);
             
             // TODO - Remove when done
-            println!("Value: {}", _self.normalized_value);
+            println!("Normalized: {}, Display: {}", self_ref.normalized_value, self_ref.map.normalized_to_display(self_ref.normalized_value));
 
-            if let Some(track) = state.query::<ArcTrack>(_self.value_track) {
-                track.normalized_value = _self.normalized_value;
+            if let Some(track) = state.query::<ArcTrack>(self_ref.value_track) {
+                track.normalized_value = self_ref.normalized_value;
             }
 
             state.insert_event(

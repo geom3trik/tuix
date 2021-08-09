@@ -40,6 +40,10 @@ path = "examples/styling/hover.rs"
 # Widget Examples
 
 [[example]]
+name = "label"
+path = "examples/widgets/label.rs"
+
+[[example]]
 name = "button"
 path = "examples/widgets/button.rs"
 
@@ -78,6 +82,10 @@ path = "examples/widgets/popup.rs"
 [[example]]
 name = "listbox"
 path = "examples/widgets/listbox.rs"
+
+[[example]]
+name = "dropdown"
+path = "examples/widgets/dropdown.rs"
 
 [[example]]
 name = "radio"

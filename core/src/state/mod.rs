@@ -315,7 +315,7 @@ impl State {
             .entity_manager
             .create_entity()
             .expect("Failed to create entity");
-        println!("Entity: {:?}", entity.index());
+
         self.hierarchy.add(entity, parent);
         self.data.add(entity);
         self.style.add(entity);

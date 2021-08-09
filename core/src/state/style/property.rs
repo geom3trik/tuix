@@ -80,7 +80,16 @@ pub enum Property {
     FontColor(Color),
 
     OuterShadow(BoxShadow),
+    OuterShadowHOffset(Units),
+    OuterShadowVOffset(Units),
+    OuterShadowBlur(Units),
+    OuterShadowColor(Color),
+
     InnerShadow(BoxShadow),
+    InnerShadowHOffset(Units),
+    InnerShadowVOffset(Units),
+    InnerShadowBlur(Units),
+    InnerShadowColor(Color),
 
     Transition(Vec<Transition>),
 
@@ -90,6 +99,7 @@ pub enum Property {
 impl std::fmt::Display for Property {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+
             Property::None => write!(f, ""),
 
             Property::Unknown(ident, prop) => {
@@ -189,6 +199,8 @@ impl std::fmt::Display for Property {
             Property::Transition(val) => write!(f, "transition: {:?};", val),
 
             Property::ZIndex(val) => write!(f, "z-index: {};", val),
+
+            _=> write!(f, ""),
         }
     }
 }
