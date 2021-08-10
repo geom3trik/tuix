@@ -3,6 +3,8 @@
 #[macro_use]
 extern crate bitflags;
 
+pub mod accessibility;
+pub use accessibility::*;
 
 pub mod state;
 pub use state::*;
