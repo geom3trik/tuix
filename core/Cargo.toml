@@ -14,3 +14,4 @@ bitflags = "1.2.1"
 fnv = "1.0.7"
 num-traits = "0.2.14"
 image = { version = "0.23.6"}
+morphorm = {git = "https://github.com/geom3trik/morphorm", branch = "main"}

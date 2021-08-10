@@ -4,7 +4,7 @@ use fnv::FnvHashMap;
 
 use crate::builder::Builder;
 
-use crate::{Entity, Hierarchy, State};
+use crate::{Entity, Tree, State};
 
 use std::collections::{HashMap, VecDeque};
 
@@ -20,13 +20,9 @@ use std::any::{Any, TypeId};
 
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
-pub enum UpdateEvent<'a> {
-    UpdateValue(&'a dyn Node),
-}
-
 pub trait EventHandler: Any {
 
-
+    // Called when a widget needs to be informed of a change in a data store
     fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
 
     // Called when events are flushed
@@ -103,7 +99,7 @@ pub trait EventHandler: Any {
             .unwrap_or_default();
 
         let parent = state
-            .hierarchy
+            .tree
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 

@@ -145,7 +145,7 @@ impl Widget for TextArea {
         let bounds = state.data.get_bounds(entity);
 
         let parent = state
-            .hierarchy
+            .tree
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 

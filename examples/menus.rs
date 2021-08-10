@@ -59,7 +59,7 @@ static THEME: &'static str = include_str!("themes/menus_theme.css");
 //         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
 //             match window_event {
 //                 WindowEvent::MouseMove(x, y) => {
-//                     for child in id.child_iter(&state.hierarchy) {
+//                     for child in id.child_iter(&state.tree) {
 //                         if child == state.hovered {
 //                             //event_manager.insert_event(Event::new(MenuEvent::Open(child)).target(child).propagate(false));
 

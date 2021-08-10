@@ -159,7 +159,7 @@ To react to events we override the `on_event()` method. This function is similar
 It's worth spending a moment to discuss what's happening here. How does the counter receive the messages? This is roughly the order of events happening in tuix when the user presses the increment button:
 
 1. Increment button pushes the 'on_press' event (in this case an event with a `CounterMessage::Increment` message) into an event queue in `State`.
-2. Events from state are moved to an `EventManager` which then propagates those events through the hierarchy of widgets. By default event are sent down the hierarchy to the target and then back up to the root. We didn't specify a target for the `on_press` event so it defaults to the button itself.
+2. Events from state are moved to an `EventManager` which then propagates those events through the tree of widgets. By default event are sent down the tree to the target and then back up to the root. We didn't specify a target for the `on_press` event so it defaults to the button itself.
 3. Because our counter widget is the parent of the button it receives the event during the down phase of propagation and also on the up phase. We intercept this event and react to it, incrementing the value and changing the label text. To prevent the counter incrementing again during the up phase we consume the event with `event.consume()`.
 4. Because we set the text on the label, which is a style property, this automatically triggers a redraw of the UI. In general, relayout and redraw will only trigger when a property that would affect the layout or visuals of the app changes (there is also a way to manually trigger them).
 
@@ -186,7 +186,7 @@ fn main() {
     app.run();
 }
 ```
-Now we create an app which gives us a closure with three arguments. The first is a `WindowDescription` we can use to set the properties of the window like the title and size, which we do last because the closure expects the window description to be returned. The second is the `State` which is created by the app and passed to all widgets during building, events, and drawing. The final argument of the closure is an `Entity` id to the window which acts as the top level widget in the hierarchy.  
+Now we create an app which gives us a closure with three arguments. The first is a `WindowDescription` we can use to set the properties of the window like the title and size, which we do last because the closure expects the window description to be returned. The second is the `State` which is created by the app and passed to all widgets during building, events, and drawing. The final argument of the closure is an `Entity` id to the window which acts as the top level widget in the tree.  
 
 The first line of the closure adds the stylsheet to the app. Next, we create an instance of our counter, set the initial value, and then build the widget into the app the same way we did with the sub-widgets of the counter. Then, as mentioned before, we set the window title and intial size and return the window description.
 

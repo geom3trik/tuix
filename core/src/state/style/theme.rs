@@ -6,7 +6,7 @@ use cssparser::{
     ParseError, ParseErrorKind, Parser, ParserInput, RuleListParser, SourceLocation, Token,
 };
 
-use crate::layout::{Align, Justify};
+use crate::style::layout::{Align, Justify};
 
 use crate::state::style::property::Property;
 use crate::state::style::selector::{Relation, Selector};
@@ -15,6 +15,7 @@ use crate::state::animation::Transition;
 use crate::state::style::StyleRule;
 
 use crate::state::style::*;
+
 
 use crate::state::style::color::Color;
 
@@ -399,8 +400,8 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "child-right" => Property::ChildRight(parse_units(input)?),
             "child-top" => Property::ChildTop(parse_units(input)?),
             "child-bottom" => Property::ChildBottom(parse_units(input)?),
-            "child-between" => Property::ChildBetween(parse_units(input)?),
-
+            "row-between" => Property::RowBetween(parse_units(input)?),
+            "col-between" => Property::ColBetween(parse_units(input)?),
             "font-size" => Property::FontSize(parse_font_size(input)?),
 
             // Border

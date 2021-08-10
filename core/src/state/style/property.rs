@@ -8,6 +8,8 @@ use crate::state::style::*;
 
 use crate::state::animation::Transition;
 
+use morphorm::{LayoutType, PositionType, Units};
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum PropType {
     Units(Units),
@@ -60,7 +62,8 @@ pub enum Property {
     ChildRight(Units),
     ChildTop(Units),
     ChildBottom(Units),
-    ChildBetween(Units),
+    RowBetween(Units),
+    ColBetween(Units),
 
     // Border
     BorderRadius(Units),
@@ -96,6 +99,7 @@ pub enum Property {
     ZIndex(i32),
 }
 
+/*
 impl std::fmt::Display for Property {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -204,3 +208,4 @@ impl std::fmt::Display for Property {
         }
     }
 }
+*/

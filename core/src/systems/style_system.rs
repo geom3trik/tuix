@@ -1,15 +1,15 @@
-use crate::{BoundingBox, Entity, Event, HierarchyTree, IntoParentIterator, State, WindowEvent};
+use crate::{BoundingBox, Entity, Event, TreeExt, IntoParentIterator, State, WindowEvent};
 
-use crate::hierarchy::*;
+use crate::tree::*;
 use crate::state::animation::*;
 
-pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
-    for entity in hierarchy.into_iter() {
+pub fn apply_z_ordering(state: &mut State, tree: &Tree) {
+    for entity in tree.into_iter() {
         if entity == Entity::root() {
             continue;
         }
 
-        let parent = hierarchy.get_parent(entity).unwrap();
+        let parent = tree.get_parent(entity).unwrap();
 
         if let Some(z_order) = state.style.z_order.get(entity) {
             state.data.set_z_order(entity, *z_order);
@@ -20,14 +20,14 @@ pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
     }
 }
 
-pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_clipping(state: &mut State, tree: &Tree) {
     //println!("Apply Clipping");
-    for entity in hierarchy.into_iter() {
+    for entity in tree.into_iter() {
         if entity == Entity::root() {
             continue;
         }
 
-        let parent = hierarchy.get_parent(entity).unwrap();
+        let parent = tree.get_parent(entity).unwrap();
 
         let parent_clip_region = state.data.get_clip_region(parent);
         let root_clip_region = state.data.get_clip_region(Entity::root());
@@ -65,12 +65,12 @@ pub fn apply_clipping(state: &mut State, hierarchy: &Hierarchy) {
     }
 }
 
-pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_visibility(state: &mut State, tree: &Tree) {
     //println!("Apply Visibility");
-    let mut draw_hierarchy: Vec<Entity> = hierarchy.into_iter().collect();
-    draw_hierarchy.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
+    let mut draw_tree: Vec<Entity> = tree.into_iter().collect();
+    draw_tree.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
-    for widget in draw_hierarchy.into_iter() {
+    for widget in draw_tree.into_iter() {
         let visibility = state
             .style
             .visibility
@@ -89,7 +89,7 @@ pub fn apply_visibility(state: &mut State, hierarchy: &Hierarchy) {
             state.data.set_visibility(widget, Visibility::Invisible);
         }
 
-        if let Some(parent) = widget.parent(hierarchy) {
+        if let Some(parent) = widget.parent(tree) {
             let parent_visibility = state.data.get_visibility(parent);
             if parent_visibility == Visibility::Invisible {
                 state.data.set_visibility(widget, Visibility::Invisible);
@@ -146,10 +146,10 @@ fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
     return selector.matches(&entity_selector);
 }
 
-pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_styles(state: &mut State, tree: &Tree) {
     //println!("RESTYLE");
     // Loop through all entities
-    for entity in hierarchy.into_iter() {
+    for entity in tree.into_iter() {
         // Skip the root
         if entity == Entity::root() {
             continue;
@@ -176,7 +176,7 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
                         // Get the parent
                         // Contrust the selector for the parent
                         // Check if the parent selector matches the rule_seletor
-                        if let Some(parent) = relation_entity.parent(hierarchy) {
+                        if let Some(parent) = relation_entity.parent(tree) {
                             if !check_match(state, parent, rule_selector) {
                                 continue 'rule_loop;
                             }
@@ -188,11 +188,11 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     Relation::Ancestor => {
-                        // Walk up the hierarchy
+                        // Walk up the tree
                         // Check if each entity matches the selector
                         // If any of them match, move on to the next selector
                         // If none of them do, move on to the next rule
-                        for ancestor in relation_entity.parent_iter(hierarchy) {
+                        for ancestor in relation_entity.parent_iter(tree) {
                             if ancestor == relation_entity {
                                 continue;
                             }
@@ -500,10 +500,16 @@ pub fn apply_styles(state: &mut State, hierarchy: &Hierarchy) {
             should_redraw = true;
         }
 
-        if state.style.child_between.link_rule(entity, &matched_rules) {
+        if state.style.row_between.link_rule(entity, &matched_rules) {
             should_relayout = true;
             should_redraw = true;
         }
+
+        if state.style.col_between.link_rule(entity, &matched_rules) {
+            should_relayout = true;
+            should_redraw = true;
+        }
+
 
         for rule_index in matched_rules.iter() {
             // TODO - remove cloned

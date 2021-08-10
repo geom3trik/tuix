@@ -66,7 +66,7 @@ impl Default for BoundingBox {
 }
 
 #[derive(Clone, Default)]
-pub struct Data {
+pub struct CachedData {
     pub bounds: Vec<BoundingBox>,
     pub visibility: Vec<Visibility>,
     pub opacity: Vec<f32>,
@@ -92,16 +92,19 @@ pub struct Data {
     cross_stretch_sum: Vec<f32>,
     cross_free_space: Vec<f32>,
 
-    horizontal_used_space: Vec<f32>,
+    horizontal_free_space: Vec<f32>,
     horizontal_stretch_sum: Vec<f32>,
-    vertical_used_space: Vec<f32>,
+    vertical_free_space: Vec<f32>,
     vertical_stretch_sum: Vec<f32>,
+
+    grid_row_max: Vec<f32>,
+    grid_col_max: Vec<f32>,
 
     // is_first_child, is_last_child
     stack_child: Vec<(bool, bool)>,
 }
 
-impl Data {
+impl CachedData {
     pub fn add(&mut self, entity: Entity) {
         let key = entity.index_unchecked();
 
@@ -128,16 +131,31 @@ impl Data {
             self.cross_stretch_sum.resize(key + 1, Default::default());
             self.cross_free_space.resize(key + 1, Default::default());
 
-            self.horizontal_used_space
+            self.horizontal_free_space
                 .resize(key + 1, Default::default());
             self.horizontal_stretch_sum
                 .resize(key + 1, Default::default());
-            self.vertical_used_space.resize(key + 1, Default::default());
+            self.vertical_free_space.resize(key + 1, Default::default());
             self.vertical_stretch_sum
                 .resize(key + 1, Default::default());
             self.stack_child.resize(key + 1, (false, false));
+
+            self.grid_row_max.resize(key + 1, 0.0);
+            self.grid_col_max.resize(key + 1, 0.0);
         }
     }
+
+    pub fn reset(&mut self) {
+        for (width, height) in self.child_sum.iter_mut() {
+            *width = Default::default();
+            *height = Default::default();
+        }
+
+        for (width, height) in self.child_max.iter_mut() {
+            *width = Default::default();
+            *height = Default::default();
+        }
+    } 
 
     pub fn remove(&mut self, _entity: Entity) {}
 
@@ -150,6 +168,14 @@ impl Data {
     //         .cloned()
     //         .unwrap()
     // }
+
+    pub fn get_grid_row_max(&self, entity: Entity) -> f32 {
+        self.grid_row_max.get(entity.index_unchecked()).cloned().unwrap_or_default()
+    }
+
+    pub fn get_grid_col_max(&self, entity: Entity) -> f32 {
+        self.grid_col_max.get(entity.index_unchecked()).cloned().unwrap_or_default()
+    }
 
     pub fn get_stack_child(&self, entity: Entity) -> (bool, bool) {
         self.stack_child
@@ -320,8 +346,8 @@ impl Data {
         self.opacity.get(entity.index_unchecked()).cloned().unwrap()
     }
 
-    pub fn get_horizontal_used_space(&self, entity: Entity) -> f32 {
-        self.horizontal_used_space
+    pub fn get_horizontal_free_space(&self, entity: Entity) -> f32 {
+        self.horizontal_free_space
             .get(entity.index_unchecked())
             .cloned()
             .unwrap()
@@ -334,8 +360,8 @@ impl Data {
             .unwrap()
     }
 
-    pub fn get_vertical_used_space(&self, entity: Entity) -> f32 {
-        self.vertical_used_space
+    pub fn get_vertical_free_space(&self, entity: Entity) -> f32 {
+        self.vertical_free_space
             .get(entity.index_unchecked())
             .cloned()
             .unwrap()
@@ -415,11 +441,11 @@ impl Data {
         }
     }
 
-    pub fn set_horizontal_used_space(&mut self, entity: Entity, value: f32) {
-        if let Some(horizontal_used_space) =
-            self.horizontal_used_space.get_mut(entity.index_unchecked())
+    pub fn set_horizontal_free_space(&mut self, entity: Entity, value: f32) {
+        if let Some(horizontal_free_space) =
+            self.horizontal_free_space.get_mut(entity.index_unchecked())
         {
-            *horizontal_used_space = value;
+            *horizontal_free_space = value;
         }
     }
 
@@ -432,11 +458,11 @@ impl Data {
         }
     }
 
-    pub fn set_vertical_used_space(&mut self, entity: Entity, value: f32) {
-        if let Some(vertical_used_space) =
-            self.vertical_used_space.get_mut(entity.index_unchecked())
+    pub fn set_vertical_free_space(&mut self, entity: Entity, value: f32) {
+        if let Some(vertical_free_space) =
+            self.vertical_free_space.get_mut(entity.index_unchecked())
         {
-            *vertical_used_space = value;
+            *vertical_free_space = value;
         }
     }
 

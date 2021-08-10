@@ -1,6 +1,6 @@
 use crate::{apply_hover, Entity, Event, State, Widget, WindowEvent};
 
-use crate::systems::{apply_layout2, apply_styles, apply_visibility, apply_z_ordering, apply_transform};
+use crate::systems::{apply_styles, apply_visibility, apply_z_ordering, apply_transform};
 
 #[derive(Clone)]
 pub struct WindowWidget {}
@@ -36,35 +36,36 @@ impl Widget for WindowWidget {
                 WindowEvent::Restyle => {
                     //state.needs_restyle = true;
                     //println!("Restyle");
-                    //apply_styles2(state, &state.hierarchy.clone(), event.origin);
-                    // apply_styles(state, &state.hierarchy.clone());
-                    // apply_visibility(state, &state.hierarchy.clone());
-                    let hierarchy = state.hierarchy.clone();
-                    apply_styles(state, &hierarchy);
+                    //apply_styles2(state, &state.tree.clone(), event.origin);
+                    // apply_styles(state, &state.tree.clone());
+                    // apply_visibility(state, &state.tree.clone());
+                    let tree = state.tree.clone();
+                    apply_styles(state, &tree);
                 }
 
                 WindowEvent::Relayout => {
                     //state.needs_relayout = true;
-                    let hierarchy = state.hierarchy.clone();
+                    let tree = state.tree.clone();
                     state.needs_redraw = true;
                     //println!("Relayout");
-                    // apply_z_ordering(state, &state.hierarchy.clone());
-                    // apply_visibility(state, &state.hierarchy.clone());
-                    // apply_clipping(state, &state.hierarchy.clone());
-                    // apply_layout(state, &state.hierarchy.clone());
+                    // apply_z_ordering(state, &state.tree.clone());
+                    // apply_visibility(state, &state.tree.clone());
+                    // apply_clipping(state, &state.tree.clone());
+                    // apply_layout(state, &state.tree.clone());
                     // apply_hover(state);
-                    apply_z_ordering(state, &hierarchy);
-                    apply_transform(state, &hierarchy);
-                    apply_visibility(state, &hierarchy);
-                    //apply_layout(state, &hierarchy);
-                    apply_layout2(state, &hierarchy);
+                    apply_z_ordering(state, &tree);
+                    apply_transform(state, &tree);
+                    apply_visibility(state, &tree);
+                    //apply_layout(state, &tree);
+                    //apply_layout2(state, &tree);
+                    morphorm::layout(&mut state.data, &state.tree, &mut state.style);
                     apply_hover(state);
                 }
 
                 WindowEvent::Redraw => {
-                    let hierarchy = state.hierarchy.clone();
-                    //apply_z_ordering(state, &hierarchy);
-                    apply_transform(state, &hierarchy);
+                    let tree = state.tree.clone();
+                    //apply_z_ordering(state, &tree);
+                    apply_transform(state, &tree);
                     state.needs_redraw = true;
                 }
 

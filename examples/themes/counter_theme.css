@@ -40,7 +40,7 @@ label:hover {
 
 counter {
     layout-type: row;
-    child-between: 1s;
+    col-between: 1s;
     width: 1s;
     child-space: 1s;
 }

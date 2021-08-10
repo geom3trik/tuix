@@ -84,7 +84,7 @@ impl Widget for ArcTrack {
         if property.0 == "angle-start" {
             match property.1 {
                 PropType::Units(value) => {
-                    self.angle_start = value.get_value(0.0);
+                    self.angle_start = value.value_or(0.0, 0.0);
                     println!("Start: {}", self.angle_start);
                 }
                 _=> {}
@@ -94,7 +94,7 @@ impl Widget for ArcTrack {
         if property.0 == "angle-end" {
             match property.1 {
                 PropType::Units(value) => {
-                    self.angle_end = value.get_value(0.0);
+                    self.angle_end = value.value_or(0.0, 0.0);
                     println!("End: {}", self.angle_end);
                 }
                 _=> {}
@@ -131,8 +131,8 @@ impl Widget for ArcTrack {
         let parent_width = state.data.get_width(parent);
 
         // Convert radius and span into screen coordinates
-        let radius = self.radius.get_value(parent_width);
-        let span = self.span.get_value(parent_width);
+        let radius = self.radius.value_or(parent_width, 0.0);
+        let span = self.span.value_or(parent_width, 0.0);
         
         // Draw the track arc
         let mut path = Path::new();

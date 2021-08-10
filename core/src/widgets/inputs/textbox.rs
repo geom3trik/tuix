@@ -480,7 +480,7 @@ impl Widget for Textbox {
             .unwrap_or_default();
 
         let parent = state
-            .hierarchy
+            .tree
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 

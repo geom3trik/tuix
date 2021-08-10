@@ -1,6 +1,6 @@
 use crate::{
-    hierarchy, Builder, CursorIcon, Entity, Event, Hierarchy, HierarchyTree, ImageOrId,
-    IntoBranchIterator, IntoHierarchyIterator, IntoParentIterator, PropSet, Propagation, State,
+    tree, Builder, CursorIcon, Entity, Event, Tree, TreeExt, ImageOrId,
+    IntoBranchIterator, IntoTreeIterator, IntoParentIterator, PropSet, Propagation, State,
     WindowEvent,
 };
 
@@ -22,14 +22,12 @@ use femtovg::{
 use fnv::FnvHashMap;
 
 pub struct EventManager {
-    //pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
-    //pub callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut State, Entity)>>,
 
     // Queue of events to be processed
     pub event_queue: Vec<Event>,
 
-    // A copy of the hierarchy for iteration
-    pub hierarchy: Hierarchy,
+    // A copy of the tree for iteration
+    pub tree: Tree,
 
     prev_width: f32,
     prev_height: f32,
@@ -39,11 +37,9 @@ pub struct EventManager {
 impl EventManager {
     pub fn new() -> Self {
         EventManager {
-            //event_handlers: FnvHashMap::default(),
-            //callbacks: FnvHashMap::default(),
             event_queue: Vec::new(),
 
-            hierarchy: Hierarchy::new(),
+            tree: Tree::new(),
 
             prev_width: 0.0,
             prev_height: 0.0,
@@ -54,16 +50,13 @@ impl EventManager {
     pub fn flush_events(&mut self, state: &mut State) -> bool {
         let mut needs_redraw = false;
 
-        if state.hierarchy.changed {
-            self.hierarchy = state.hierarchy.clone();
-            state.hierarchy.changed = false;
+        if state.tree.changed {
+            self.tree = state.tree.clone();
+            state.tree.changed = false;
         }
 
         // Clear the event queue in the event manager
         self.event_queue.clear();
-
-        // Move event handlers from state to event manager
-        //self.event_handlers.extend(state.event_handlers.drain());
 
         // Remove widgets that should be removed
         // for entity in state.removed_entities.iter() {
@@ -72,22 +65,13 @@ impl EventManager {
 
         //state.removed_entities.clear();
 
-        // Clone events from state into event manager
-        //let event_queue = state.event_queue.clone();
-
         // Move events from state to event manager
         self.event_queue.extend(state.event_queue.drain(0..));
 
         // Sort the events by order
-        //self.event_queue = event_queue.into_iter().collect::<Vec<Event>>();
         self.event_queue.sort_by_cached_key(|event| event.order);
 
-        // Clear the event queue in state
-        //state.event_queue.clear();
-
-        //self.callbacks.extend(state.callbacks.drain());
-
-        // Loop over the events in the event manager queue
+        // Loop over the events in the event queue
         'events: for event in self.event_queue.iter_mut() {
             //println!("Event: {:?}", event);
 
@@ -111,7 +95,7 @@ impl EventManager {
 
             // A null entity as target means send event to all entities
             if event.propagation == Propagation::All {
-                for entity in self.hierarchy.into_iter() {
+                for entity in self.tree.into_iter() {
                     if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
                         event_handler.on_event_(state, entity, event);
 
@@ -130,7 +114,7 @@ impl EventManager {
                 // Construct the list of widgets to walk down by going up from the target
                 let ancestors: Vec<Entity> = event
                     .target
-                    .parent_iter(&self.hierarchy)
+                    .parent_iter(&self.tree)
                     .collect::<Vec<Entity>>();
 
                 // Walk down the list of ancestors
@@ -178,8 +162,8 @@ impl EventManager {
 
             // Propagate up from target to root (not including target)
             if event.propagation == Propagation::Up || event.propagation == Propagation::DownUp {
-                // Walk up the hierarchy from parent to parent
-                for entity in target.parent_iter(&self.hierarchy) {
+                // Walk up the tree from parent to parent
+                for entity in target.parent_iter(&self.tree) {
                     // Skip the target entity
                     if entity == event.target {
                         continue;
@@ -200,8 +184,8 @@ impl EventManager {
 
             // Propagate down from target to leaf of current branch
             if event.propagation == Propagation::Fall {
-                // Walk hierarchy from the target down the branch
-                for entity in target.branch_iter(&self.hierarchy) {
+                // Walk tree from the target down the branch
+                for entity in target.branch_iter(&self.tree) {
                     // Skip the target entity
                     if entity == event.target {
                         continue;
@@ -281,12 +265,12 @@ impl EventManager {
         // Reset any canvas transforms
         canvas.reset();
 
-        // Sort the hierarchy by z order
-        let mut draw_hierarchy: Vec<Entity> = self.hierarchy.into_iter().collect();
-        draw_hierarchy.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
+        // Sort the tree by z order
+        let mut draw_tree: Vec<Entity> = self.tree.into_iter().collect();
+        draw_tree.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
         // Call the on_draw() method for each widget
-        for widget in draw_hierarchy.into_iter() {
+        for widget in draw_tree.into_iter() {
             if let Some(mut event_handler) = state.event_handlers.remove(&widget) {
                 event_handler.on_draw_(state, widget, canvas);
                 state.event_handlers.insert(widget, event_handler);

@@ -1,4 +1,4 @@
-use crate::{mouse::MouseButton, HierarchyTree, Visibility};
+use crate::{mouse::MouseButton, TreeTree, Visibility};
 
 use crate::style::*;
 use crate::{widgets::*, Units};
@@ -35,11 +35,11 @@ impl Widget for ContextMenu {
                         let px = state.mouse.right.pos_down.0
                             - state
                                 .data
-                                .get_posx(entity.parent(&state.hierarchy).unwrap());
+                                .get_posx(entity.parent(&state.tree).unwrap());
                         let py = state.mouse.right.pos_down.1
                             - state
                                 .data
-                                .get_posy(entity.parent(&state.hierarchy).unwrap());
+                                .get_posy(entity.parent(&state.tree).unwrap());
                         self.context_menu
                             .set_left(state, Units::Pixels(px))
                             .set_top(state, Units::Pixels(py))

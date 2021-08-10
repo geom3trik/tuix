@@ -31,7 +31,7 @@ impl Widget for Controller {
                 }
 
                 AddRemoveEvent::Remove => {
-                    if let Some(first_child) = state.hierarchy.get_first_child(entity) {
+                    if let Some(first_child) = state.tree.get_first_child(entity) {
                         state.remove(first_child);
                     }
                 }

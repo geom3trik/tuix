@@ -5,7 +5,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
-use crate::hierarchy::Hierarchy;
+use crate::tree::Tree;
 use crate::state::storage::animatable_storage::AnimatableStorage;
 use crate::state::storage::dense_storage::DenseStorage;
 use crate::state::storage::style_storage::StyleStorage;
@@ -26,9 +26,10 @@ pub use prop::{PropGet, PropSet};
 pub mod layout;
 pub use layout::*;
 
-pub mod units;
-pub use units::Units;
+pub use morphorm::{LayoutType, PositionType, Units};
 pub use Units::*;
+
+pub mod units;
 
 pub mod gradient;
 pub use gradient::*;
@@ -161,18 +162,20 @@ pub struct Style {
 
     // Grid
     pub grid_rows: StyleStorage<Vec<Units>>,
-    pub row_between: StyleStorage<Units>,
+    pub row_between: AnimatableStorage<Units>,
     pub grid_cols: StyleStorage<Vec<Units>>,
-    pub col_between: StyleStorage<Units>,
+    pub col_between: AnimatableStorage<Units>,
 
-    pub grid_item: StyleStorage<GridItem>,
+    pub row_index: StyleStorage<usize>,
+    pub col_index: StyleStorage<usize>,
+    pub row_span: StyleStorage<usize>,
+    pub col_span: StyleStorage<usize>,
 
     // Child Spacing
     pub child_left: AnimatableStorage<Units>,
     pub child_right: AnimatableStorage<Units>,
     pub child_top: AnimatableStorage<Units>,
     pub child_bottom: AnimatableStorage<Units>,
-    pub child_between: AnimatableStorage<Units>,
     // pub child_wrap: AnimatableStorage<Units>,
 }
 
@@ -461,8 +464,12 @@ impl Style {
                         self.child_bottom.insert_rule(rule_id, value);
                     }
 
-                    Property::ChildBetween(value) => {
-                        self.child_between.insert_rule(rule_id, value);
+                    Property::RowBetween(value) => {
+                        self.row_between.insert_rule(rule_id, value);
+                    }
+
+                    Property::ColBetween(value) => {
+                        self.col_between.insert_rule(rule_id, value);
                     }
 
                     // Transitions

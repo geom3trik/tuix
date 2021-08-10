@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::hierarchy::*;
+use crate::tree::*;
 use crate::state::style::*;
 use crate::widgets::*;
 use crate::AnimationState;
@@ -258,11 +258,11 @@ impl Widget for TabView {
                 TabEvent::SwitchTab(name) => {
                     if event
                         .origin
-                        .is_descendant_of(&state.hierarchy, self.tab_bar)
+                        .is_descendant_of(&state.tree, self.tab_bar)
                         || event.target == self.tab_bar
                     {
                         println!("Received request to switch tab: {}", name);
-                        for child in self.tab_page.child_iter(&state.hierarchy.clone()) {
+                        for child in self.tab_page.child_iter(&state.tree.clone()) {
                             state.insert_event(
                                 Event::new(TabEvent::SwitchTab(name.clone()))
                                     .target(child)
@@ -278,10 +278,10 @@ impl Widget for TabView {
                 TabEvent::CloseTab(name) => {
                     if event
                         .origin
-                        .is_descendant_of(&state.hierarchy, self.tab_bar)
+                        .is_descendant_of(&state.tree, self.tab_bar)
                         || event.target == self.tab_bar
                     {
-                        for child in self.tab_page.child_iter(&state.hierarchy.clone()) {
+                        for child in self.tab_page.child_iter(&state.tree.clone()) {
                             state.insert_event(
                                 Event::new(TabEvent::CloseTab(name.clone()))
                                     .target(child)
@@ -421,7 +421,7 @@ impl Widget for TabBar2 {
                     self.phantom_tab2.set_display(state, Display::Flexbox);
 
                     state
-                        .hierarchy
+                        .tree
                         .set_prev_sibling(*tab, self.phantom_tab1)
                         .unwrap();
 
@@ -444,14 +444,14 @@ impl Widget for TabBar2 {
                     self.phantom_tab2.set_width(state, Units::Pixels(0.0));
 
                     // Move the tab to the end unless already at the end
-                    if let Some(last_child) = state.hierarchy.get_last_child(entity) {
+                    if let Some(last_child) = state.tree.get_last_child(entity) {
                         if last_child != *tab {
-                            state.hierarchy.set_next_sibling(last_child, *tab).unwrap();
+                            state.tree.set_next_sibling(last_child, *tab).unwrap();
                         }
                     }
 
                     state
-                        .hierarchy
+                        .tree
                         .set_next_sibling(*tab, self.phantom_tab2)
                         .unwrap();
 
@@ -465,12 +465,12 @@ impl Widget for TabBar2 {
                     // This can be done by checking which one has a non-zero width (for row)
                     if state.data.get_width(self.phantom_tab1) > 0.0 {
                         state
-                            .hierarchy
+                            .tree
                             .set_prev_sibling(self.phantom_tab1, *tab)
                             .unwrap();
                     } else if state.data.get_width(self.phantom_tab2) > 0.0 {
                         state
-                            .hierarchy
+                            .tree
                             .set_prev_sibling(self.phantom_tab2, *tab)
                             .unwrap();
                     }
@@ -483,11 +483,11 @@ impl Widget for TabBar2 {
                 MovableTabEvent::Switch(position_state) => {
                     if self.tab_moving {
                         if *position_state {
-                            if state.hierarchy.get_next_sibling(event.target)
+                            if state.tree.get_next_sibling(event.target)
                                 == Some(self.phantom_tab1)
                             {
                                 state
-                                    .hierarchy
+                                    .tree
                                     .set_prev_sibling(event.target, self.phantom_tab2)
                                     .unwrap();
 
@@ -502,11 +502,11 @@ impl Widget for TabBar2 {
 
                                 self.phantom_tab1.set_width(state, Units::Pixels(0.0));
                                 self.phantom_tab2.set_width(state, Units::Pixels(100.0));
-                            } else if state.hierarchy.get_next_sibling(event.target)
+                            } else if state.tree.get_next_sibling(event.target)
                                 == Some(self.phantom_tab2)
                             {
                                 state
-                                    .hierarchy
+                                    .tree
                                     .set_prev_sibling(event.target, self.phantom_tab1)
                                     .unwrap();
 
@@ -523,11 +523,11 @@ impl Widget for TabBar2 {
                                 self.phantom_tab1.set_width(state, Units::Pixels(100.0));
                             }
                         } else {
-                            if state.hierarchy.get_prev_sibling(event.target)
+                            if state.tree.get_prev_sibling(event.target)
                                 == Some(self.phantom_tab1)
                             {
                                 state
-                                    .hierarchy
+                                    .tree
                                     .set_next_sibling(event.target, self.phantom_tab2)
                                     .unwrap();
 
@@ -542,11 +542,11 @@ impl Widget for TabBar2 {
 
                                 self.phantom_tab1.set_width(state, Units::Pixels(0.0));
                                 self.phantom_tab2.set_width(state, Units::Pixels(100.0));
-                            } else if state.hierarchy.get_prev_sibling(event.target)
+                            } else if state.tree.get_prev_sibling(event.target)
                                 == Some(self.phantom_tab2)
                             {
                                 state
-                                    .hierarchy
+                                    .tree
                                     .set_next_sibling(event.target, self.phantom_tab1)
                                     .unwrap();
 
@@ -624,7 +624,7 @@ impl Widget for MovableTab {
                         entity.set_height(state, Units::Pixels(state.data.get_height(entity)));
                         entity.set_width(state, Units::Pixels(state.data.get_width(entity)));
 
-                        let parent = state.hierarchy.get_parent(entity).unwrap();
+                        let parent = state.tree.get_parent(entity).unwrap();
                         let parent_posx = state.data.get_posx(parent);
                         let parent_posy = state.data.get_posy(parent);
 
@@ -662,7 +662,7 @@ impl Widget for MovableTab {
 
                 WindowEvent::MouseMove(x, y) => {
                     if self.moving {
-                        let parent = state.hierarchy.get_parent(entity).unwrap();
+                        let parent = state.tree.get_parent(entity).unwrap();
                         let parent_posx = state.data.get_posx(parent);
                         //let parent_posy = state.data.get_posy(parent);
 
@@ -682,7 +682,7 @@ impl Widget for MovableTab {
                             //entity.set_top(state, Units::Pixels(self.pos_down_y - parent_posy + (*y - state.mouse.left.pos_down.1)));
                         }
 
-                        if !state.hovered.is_descendant_of(&state.hierarchy, entity) {
+                        if !state.hovered.is_descendant_of(&state.tree, entity) {
                             state.insert_event(
                                 Event::new(WindowEvent::MouseMove(*x, *y)).target(state.hovered),
                             );

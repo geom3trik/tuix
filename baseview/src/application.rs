@@ -4,7 +4,7 @@ use crate::Renderer;
 use baseview::{Window, WindowScalePolicy};
 use femtovg::Canvas;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use tuix_core::state::hierarchy::IntoHierarchyIterator;
+use tuix_core::state::tree::IntoTreeIterator;
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 use tuix_core::state::Fonts;
 use tuix_core::window::WindowWidget;
@@ -14,7 +14,7 @@ use tuix_core::{
     BoundingBox
 };
 use tuix_core::{
-    Entity, EventManager, Hierarchy, PropSet, Size, State, Units, Visibility, WindowDescription,
+    Entity, EventManager, Tree, PropSet, Size, State, Units, Visibility, WindowDescription,
     WindowEvent,
 };
 
@@ -75,7 +75,7 @@ pub(crate) struct ApplicationRunner {
     state: State,
     event_manager: EventManager,
     canvas: Canvas<Renderer>,
-    hierarchy: Hierarchy,
+    tree: Tree,
     pos: (f32, f32),
     should_redraw: bool,
     scale_policy: WindowScalePolicy,
@@ -150,15 +150,15 @@ impl ApplicationRunner {
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
 
-        let hierarchy = state.hierarchy.clone();
+        let tree = state.tree.clone();
 
-        //tuix_core::systems::apply_styles(&mut state, &hierarchy);
+        //tuix_core::systems::apply_styles(&mut state, &tree);
 
         ApplicationRunner {
             event_manager,
             state,
             canvas,
-            hierarchy,
+            tree,
             pos: (0.0, 0.0),
             should_redraw: true,
             scale_policy,
@@ -202,8 +202,8 @@ impl ApplicationRunner {
     }
 
     pub fn render(&mut self) {
-        let hierarchy = self.state.hierarchy.clone();
-        tuix_core::apply_clipping(&mut self.state, &hierarchy);
+        let tree = self.state.tree.clone();
+        tuix_core::apply_clipping(&mut self.state, &tree);
         self.event_manager.draw(&mut self.state, &mut self.canvas);
         self.should_redraw = false;
     }
@@ -454,8 +454,8 @@ impl ApplicationRunner {
                             self.state.focused = prev_focus;
                             self.state.focused.set_focus(&mut self.state, true);
                         } else {
-                            // TODO impliment reverse iterator for hierarchy
-                            // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
+                            // TODO impliment reverse iterator for tree
+                            // state.focused = match state.focused.into_iter(&state.tree).next() {
                             //     Some(val) => val,
                             //     None => Entity::root(),
                             // };
@@ -468,7 +468,7 @@ impl ApplicationRunner {
                         } else {
                             self.state.focused.set_focus(&mut self.state, false);
                             self.state.focused =
-                                match self.state.focused.into_iter(&self.hierarchy).next() {
+                                match self.state.focused.into_iter(&self.tree).next() {
                                     Some(val) => val,
                                     None => Entity::root(),
                                 };

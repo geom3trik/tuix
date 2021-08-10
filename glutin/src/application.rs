@@ -13,7 +13,7 @@ use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 
 use tuix_core::events::{Event, EventManager, Propagation};
 
-use tuix_core::state::hierarchy::IntoHierarchyIterator;
+use tuix_core::state::tree::IntoTreeIterator;
 
 use tuix_core::state::Fonts;
 
@@ -47,9 +47,9 @@ impl Application {
         let mut event_manager = EventManager::new();
 
         let root = Entity::root();
-        //state.hierarchy.add(Entity::root(), None);
+        //state.tree.add(Entity::root(), None);
 
-        event_manager.hierarchy = state.hierarchy.clone();
+        event_manager.tree = state.tree.clone();
 
         app(&mut state, root);
 
@@ -140,15 +140,15 @@ impl Application {
         let mut state = self.state;
 
         let mut event_manager = self.event_manager;
-        event_manager.hierarchy = state.hierarchy.clone();
+        event_manager.tree = state.tree.clone();
     
 
-        //println!("Event Manager: {:?}", event_manager.hierarchy);
+        //println!("Event Manager: {:?}", event_manager.tree);
 
         let mut window = self.window;
         let mut should_quit = false;
 
-        //let hierarchy = state.hierarchy.clone();
+        //let tree = state.tree.clone();
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -191,11 +191,11 @@ impl Application {
                         *control_flow = ControlFlow::Wait;
                     }
 
-                    let hierarchy = state.hierarchy.clone();
+                    let tree = state.tree.clone();
 
                     if state.needs_redraw {
                         // TODO - Move this to EventManager
-                        apply_clipping(&mut state, &hierarchy);
+                        apply_clipping(&mut state, &tree);
                         window.handle.window().request_redraw();
                         state.needs_redraw = false;
                     }
@@ -299,12 +299,12 @@ impl Application {
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::H && s == MouseButtonState::Pressed {
-                                    println!("Focused Widget: {}", state.focused);
+                                    //println!("Focused Widget: {}", state.focused);
                                     
-                                    //println!("Hierarchy");
-                                    //for entity in state.hierarchy.into_iter() {
-                                        //println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity));
-                                    //}
+                                    println!("Tree");
+                                    for entity in state.tree.into_iter() {
+                                        println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity));
+                                    }
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::Tab
@@ -332,14 +332,14 @@ impl Application {
                                             // state.focused.set_focus(&mut state, true);
                                             state.set_focus(prev_focus);
                                         } else {
-                                            // TODO impliment reverse iterator for hierarchy
-                                            // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
+                                            // TODO impliment reverse iterator for tree
+                                            // state.focused = match state.focused.into_iter(&state.tree).next() {
                                             //     Some(val) => val,
                                             //     None => Entity::root(),
                                             // };
                                         }
                                     } else {
-                                        let hierarchy = state.hierarchy.clone();
+                                        let tree = state.tree.clone();
 
 
                                         //let next = iter.next();
@@ -358,7 +358,7 @@ impl Application {
 
                                             //state.focused.set_focus(&mut state, false);
 
-                                            let mut iter =  state.focused.into_iter(&hierarchy);
+                                            let mut iter =  state.focused.into_iter(&tree);
                                             iter.next();
 
 

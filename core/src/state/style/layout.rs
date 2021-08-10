@@ -3,8 +3,6 @@ use std::fmt::write;
 use crate::animation::Interpolator;
 use crate::entity::Entity;
 
-use super::units::Units;
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct MaxWidth(pub f32);
 
@@ -90,94 +88,6 @@ impl Default for Scroll {
             y: 0.0,
             w: 1.0,
             h: 1.0,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct AxisAlign {
-    pub space_before_first: Units,
-    pub space_between: Units,
-    pub space_after_last: Units,
-}
-
-impl Default for AxisAlign {
-    fn default() -> Self {
-        Self {
-            space_before_first: Units::Stretch(1.0),
-            space_between: Units::Stretch(1.0),
-            space_after_last: Units::Stretch(1.0),
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum LayoutType {
-    None,
-    Row,
-    Column,
-    Grid,
-}
-
-impl Default for LayoutType {
-    fn default() -> Self {
-        Self::Column
-    }
-}
-
-impl std::fmt::Display for LayoutType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
-            LayoutType::None => write!(f, "none"),
-            LayoutType::Row => write!(f, "row"),
-            LayoutType::Column => write!(f, "column"),
-            LayoutType::Grid => write!(f, "grid"),
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum PositionType {
-    SelfDirected,
-    ParentDirected,
-}
-
-impl Default for PositionType {
-    fn default() -> Self {
-        Self::ParentDirected
-    }
-}
-
-impl std::fmt::Display for PositionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
-            PositionType::SelfDirected => write!(f, "self-directed"),
-            PositionType::ParentDirected => write!(f, "parent-directed"),
-        }
-    }
-}
-
-#[derive(Default, Debug, Clone, PartialEq)]
-pub struct GridAxis {
-    pub items: Vec<Units>,
-    pub align: AxisAlign,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct GridItem {
-    pub row_index: u32,
-    pub row_span: u32,
-    pub col_index: u32,
-    pub col_span: u32,
-}
-
-impl Default for GridItem {
-    fn default() -> Self {
-        Self {
-            row_index: 0,
-            row_span: 1,
-            col_index: 0,
-            col_span: 1,
         }
     }
 }

@@ -4,7 +4,9 @@ use crate::{state::style::*, AsEntity, Pos};
 
 use crate::{Event, WindowEvent};
 
-use crate::state::hierarchy::*;
+use crate::state::tree::*;
+
+use morphorm::{LayoutType, PositionType, Units};
 
 use std::rc::Rc;
 
@@ -46,7 +48,7 @@ pub trait PropSet: AsEntity + Sized {
 
     // TODO move to PropGet
     fn get_parent(self, state: &mut State) -> Option<Entity> {
-        self.entity().parent(&state.hierarchy)
+        self.entity().parent(&state.tree)
     }
 
     // Pseudoclass
@@ -640,8 +642,17 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    fn set_child_between(&self, state: &mut State, value: Units) -> Entity {
-        state.style.child_between.insert(self.entity(), value);
+    fn set_row_between(&self, state: &mut State, value: Units) -> Entity {
+        state.style.row_between.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_col_between(&self, state: &mut State, value: Units) -> Entity {
+        state.style.col_between.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -694,17 +705,8 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    fn set_row(&self, state: &mut State, value: u32) -> Entity {
-        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
-            grid_item.row_index = value;
-        } else {
-            state.style.grid_item.insert(self.entity(), GridItem {
-                row_index: value,
-                row_span: 1,
-                col_index: 0,
-                col_span: 1,
-            });
-        }
+    fn set_row_index(&self, state: &mut State, value: usize) -> Entity {
+        state.style.row_index.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -712,17 +714,8 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    fn set_col(&self, state: &mut State, value: u32) -> Entity {
-        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
-            grid_item.col_index = value;
-        } else {
-            state.style.grid_item.insert(self.entity(), GridItem {
-                row_index: 0,
-                row_span: 1,
-                col_index: value,
-                col_span: 1,
-            });
-        }
+    fn set_col_index(&self, state: &mut State, value: usize) -> Entity {
+        state.style.col_index.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -730,17 +723,8 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    fn set_row_span(&self, state: &mut State, value: u32) -> Entity {
-        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
-            grid_item.row_span = value;
-        } else {
-            state.style.grid_item.insert(self.entity(), GridItem {
-                row_index: 0,
-                row_span: value,
-                col_index: 0,
-                col_span: 1,
-            });
-        }
+    fn set_row_span(&self, state: &mut State, value: usize) -> Entity {
+        state.style.row_span.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
@@ -748,40 +732,13 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    fn set_col_span(mut self, state: &mut State, value: u32) -> Self {
-        if let Some(grid_item) = state.style.grid_item.get_mut(self.entity()) {
-            grid_item.col_span = value;
-        } else {
-            state.style.grid_item.insert(self.entity(), GridItem {
-                row_index: 0,
-                row_span: 1,
-                col_index: 0,
-                col_span: value,
-            });
-        }
+    fn set_col_span(mut self, state: &mut State, value: usize) -> Self {
+        state.style.col_span.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self
-    }
-
-    fn set_row_between(&self, state: &mut State, value: Units) -> Entity {
-        state.style.row_between.insert(self.entity(), value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self.entity()
-    }
-
-    fn set_col_between(&self, state: &mut State, value: Units) -> Entity {
-        state.style.col_between.insert(self.entity(), value);
-
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
-        self.entity()
     }
 
 }
@@ -816,7 +773,7 @@ impl PropSet for Entity {
     }
 
     fn get_parent(self, state: &mut State) -> Option<Entity> {
-        self.parent(&state.hierarchy)
+        self.parent(&state.tree)
     }
 
     // PseudoClass

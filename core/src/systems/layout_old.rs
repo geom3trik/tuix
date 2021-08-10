@@ -2,20 +2,20 @@ use prop::PropGet;
 
 use crate::{Entity, GeometryChanged, Propagation, State};
 
-use crate::hierarchy::*;
+use crate::tree::*;
 use crate::style::*;
 
 use crate::{Event, WindowEvent};
 
 use crate::flexbox::AlignItems;
 
-pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
-    for entity in hierarchy.into_iter() {
+pub fn apply_z_ordering(state: &mut State, tree: &Tree) {
+    for entity in tree.into_iter() {
         if entity == Entity::root() {
             continue;
         }
 
-        let parent = hierarchy.get_parent(entity).unwrap();
+        let parent = tree.get_parent(entity).unwrap();
 
         if let Some(z_order) = state.style.z_order.get(entity) {
             state.data.set_z_order(entity, *z_order);
@@ -26,26 +26,26 @@ pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
     }
 }
 
-pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_layout(state: &mut State, tree: &Tree) {
     //println!("Relayout");
     // Reset
-    for entity in hierarchy.entities.iter() {
+    for entity in tree.entities.iter() {
         state.data.set_child_sum(*entity, 0.0);
         state.data.set_child_pos(*entity, 0.0);
         state.data.set_child_grow_sum(*entity, 0.0);
         state.data.set_child_shrink_sum(*entity, 0.0);
     }
 
-    //let mut hierarchy_up_iterator = hierarchy.entities.iter();
+    //let mut tree_up_iterator = tree.entities.iter();
 
-    let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
-    //let layout_hierarchy = hierarchy.entities.clone();
+    let layout_tree = tree.into_iter().collect::<Vec<Entity>>();
+    //let layout_tree = tree.entities.clone();
 
     //////////////////////
     // Walk up the tree //
     //////////////////////
-    //while let Some(entity) = layout_hierarchy.iter().next_back() {
-    for entity in layout_hierarchy.iter().rev() {
+    //while let Some(entity) = layout_tree.iter().next_back() {
+    for entity in layout_tree.iter().rev() {
         // Stop before the window
         if *entity == Entity::root() {
             break;
@@ -62,7 +62,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             continue;
         }
 
-        let parent = hierarchy.get_parent(*entity).unwrap();
+        let parent = tree.get_parent(*entity).unwrap();
 
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
@@ -523,8 +523,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
     ////////////////////////
     // Walk down the tree //
     ////////////////////////
-    //while let Some(parent) = hierarchy_down_iterator.next() {
-    for parent in layout_hierarchy.iter() {
+    //while let Some(parent) = tree_down_iterator.next() {
+    for parent in layout_tree.iter() {
         // Parent properties
 
         let parent_width = state.data.get_width(*parent);
@@ -597,7 +597,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         //TEMP - Move to the walk up phase
         let mut num_children = 0;
-        for _ in parent.child_iter(&hierarchy) {
+        for _ in parent.child_iter(&tree) {
             num_children += 1;
         }
 
@@ -658,7 +658,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         let mut proportion_numerator = 0.0f32;
         let mut flex_length_sum = 0.0f32;
 
-        for child in parent.child_iter(&hierarchy) {
+        for child in parent.child_iter(&tree) {
             // Skip non-displayed widgets
             let display = state.style.display.get(child).cloned().unwrap_or_default();
 
@@ -1477,9 +1477,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             }
 
             if !should_continue {
-                // if let Some(ns) = hierarchy.get_next_sibling(*parent) {
+                // if let Some(ns) = tree.get_next_sibling(*parent) {
                 //     next_sibling = ns;
-                //     hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
+                //     tree_down_iterator = next_sibling.into_iter(tree);
                 // }
             } else {
                 state.insert_event(
@@ -1495,26 +1495,26 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
     }
 }
 
-pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_layout2(state: &mut State, tree: &Tree) {
     //println!("Relayout");
     // Reset
-    for entity in hierarchy.entities.iter() {
+    for entity in tree.entities.iter() {
         state.data.set_child_sum(*entity, 0.0);
         state.data.set_child_pos(*entity, 0.0);
         state.data.set_child_grow_sum(*entity, 0.0);
         state.data.set_child_shrink_sum(*entity, 0.0);
     }
 
-    //let mut hierarchy_up_iterator = hierarchy.entities.iter();
+    //let mut tree_up_iterator = tree.entities.iter();
 
-    let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
-    //let layout_hierarchy = hierarchy.entities.clone();
+    let layout_tree = tree.into_iter().collect::<Vec<Entity>>();
+    //let layout_tree = tree.entities.clone();
 
     //////////////////////
     // Walk up the tree //
     //////////////////////
-    //while let Some(entity) = layout_hierarchy.iter().next_back() {
-    for entity in layout_hierarchy.iter().rev() {
+    //while let Some(entity) = layout_tree.iter().next_back() {
+    for entity in layout_tree.iter().rev() {
         // Stop before the window
         if *entity == Entity::root() {
             break;
@@ -1531,7 +1531,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             continue;
         }
 
-        let parent = hierarchy.get_parent(*entity).unwrap();
+        let parent = tree.get_parent(*entity).unwrap();
 
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
@@ -1981,8 +1981,8 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
     ////////////////////////
     // Walk down the tree //
     ////////////////////////
-    //while let Some(parent) = hierarchy_down_iterator.next() {
-    for parent in layout_hierarchy.iter() {
+    //while let Some(parent) = tree_down_iterator.next() {
+    for parent in layout_tree.iter() {
         // Parent properties
 
         let parent_width = state.data.get_width(*parent);
@@ -2055,7 +2055,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
         //TEMP - Move to the walk up phase
         let mut num_children = 0;
-        for _ in parent.child_iter(&hierarchy) {
+        for _ in parent.child_iter(&tree) {
             num_children += 1;
         }
 
@@ -2116,7 +2116,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         let mut proportion_numerator = 0.0f32;
         let mut flex_length_sum = 0.0f32;
 
-        for child in parent.child_iter(&hierarchy) {
+        for child in parent.child_iter(&tree) {
             // Skip non-displayed widgets
             let display = state.style.display.get(child).cloned().unwrap_or_default();
 
@@ -2902,9 +2902,9 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             }
 
             if !should_continue {
-                // if let Some(ns) = hierarchy.get_next_sibling(*parent) {
+                // if let Some(ns) = tree.get_next_sibling(*parent) {
                 //     next_sibling = ns;
-                //     hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
+                //     tree_down_iterator = next_sibling.into_iter(tree);
                 // }
             } else {
                 state.insert_event(
@@ -2922,26 +2922,26 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
 
 /* 
-pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_layout3(state: &mut State, tree: &Tree) {
     //println!("Relayout");
     // Reset
-    for entity in hierarchy.entities.iter() {
+    for entity in tree.entities.iter() {
         state.data.set_child_sum(*entity, 0.0);
         state.data.set_child_pos(*entity, 0.0);
         state.data.set_child_grow_sum(*entity, 0.0);
         state.data.set_child_shrink_sum(*entity, 0.0);
     }
 
-    //let mut hierarchy_up_iterator = hierarchy.entities.iter();
+    //let mut tree_up_iterator = tree.entities.iter();
 
-    let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
-    //let layout_hierarchy = hierarchy.entities.clone();
+    let layout_tree = tree.into_iter().collect::<Vec<Entity>>();
+    //let layout_tree = tree.entities.clone();
 
     //////////////////////
     // Walk up the tree //
     //////////////////////
-    //while let Some(entity) = layout_hierarchy.iter().next_back() {
-    for entity in layout_hierarchy.iter().rev() {
+    //while let Some(entity) = layout_tree.iter().next_back() {
+    for entity in layout_tree.iter().rev() {
         // Stop before the window
         if *entity == Entity::root() {
             break;
@@ -2958,7 +2958,7 @@ pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
             continue;
         }
 
-        let parent = hierarchy.get_parent(*entity).unwrap();
+        let parent = tree.get_parent(*entity).unwrap();
 
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
@@ -3145,7 +3145,7 @@ pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
     ////////////////////////
     // Walk down the tree //
     ////////////////////////
-    for parent in layout_hierarchy.iter() {
+    for parent in layout_tree.iter() {
         // Parent properties
 
         let parent_width = state.data.get_width(*parent);
@@ -3166,7 +3166,7 @@ pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
 
         //TEMP - Move to the walk up phase
         let mut num_children = 0;
-        for _ in parent.child_iter(&hierarchy) {
+        for _ in parent.child_iter(&tree) {
             num_children += 1;
         }
 
@@ -3223,7 +3223,7 @@ pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
         let mut flex_length_sum = 0.0f32;
 
         // Sort child elements so that inflexible ones are iterated first
-        let mut children = parent.child_iter(&hierarchy).collect::<Vec<Entity>>();
+        let mut children = parent.child_iter(&tree).collect::<Vec<Entity>>();
         children.sort_by_cached_key(|child| child.get_flex_grow(state) != 0.0);
 
 
@@ -3641,9 +3641,9 @@ pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
             }
 
             // if !should_continue {
-            //     // if let Some(ns) = hierarchy.get_next_sibling(*parent) {
+            //     // if let Some(ns) = tree.get_next_sibling(*parent) {
             //     //     next_sibling = ns;
-            //     //     hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
+            //     //     tree_down_iterator = next_sibling.into_iter(tree);
             //     // }
             // } else {
             if geometry_changed.width || geometry_changed.height {
@@ -3681,7 +3681,7 @@ pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
 
         // Position Children
         // This step has to de done after children have been sized due to percentage sized children
-        for child in parent.child_iter(&hierarchy) {
+        for child in parent.child_iter(&tree) {
             let mut new_posx = 0.0;
             let mut new_posy = 0.0;
 
@@ -3932,9 +3932,9 @@ pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
             }
 
             // if !should_continue {
-            //     // if let Some(ns) = hierarchy.get_next_sibling(*parent) {
+            //     // if let Some(ns) = tree.get_next_sibling(*parent) {
             //     //     next_sibling = ns;
-            //     //     hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
+            //     //     tree_down_iterator = next_sibling.into_iter(tree);
             //     // }
             // } else {
             if geometry_changed.posx || geometry_changed.posy {
@@ -3957,26 +3957,26 @@ pub fn apply_layout3(state: &mut State, hierarchy: &Hierarchy) {
 
 
 
-pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_layout2(state: &mut State, tree: &Tree) {
     //println!("Relayout");
     // Reset
-    for entity in hierarchy.entities.iter() {
+    for entity in tree.entities.iter() {
         state.data.set_child_sum(*entity, 0.0);
         state.data.set_child_pos(*entity, 0.0);
         state.data.set_child_grow_sum(*entity, 0.0);
         state.data.set_child_shrink_sum(*entity, 0.0);
     }
 
-    //let mut hierarchy_up_iterator = hierarchy.entities.iter();
+    //let mut tree_up_iterator = tree.entities.iter();
 
-    let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
-    //let layout_hierarchy = hierarchy.entities.clone();
+    let layout_tree = tree.into_iter().collect::<Vec<Entity>>();
+    //let layout_tree = tree.entities.clone();
 
     //////////////////////
     // Walk up the tree //
     //////////////////////
-    //while let Some(entity) = layout_hierarchy.iter().next_back() {
-    for entity in layout_hierarchy.iter().rev() {
+    //while let Some(entity) = layout_tree.iter().next_back() {
+    for entity in layout_tree.iter().rev() {
         // Stop before the window
         if *entity == Entity::root() {
             break;
@@ -3993,7 +3993,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             continue;
         }
 
-        let parent = hierarchy.get_parent(*entity).unwrap();
+        let parent = tree.get_parent(*entity).unwrap();
 
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
@@ -4454,8 +4454,8 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
     ////////////////////////
     // Walk down the tree //
     ////////////////////////
-    //while let Some(parent) = hierarchy_down_iterator.next() {
-    for parent in layout_hierarchy.iter() {
+    //while let Some(parent) = tree_down_iterator.next() {
+    for parent in layout_tree.iter() {
         // Parent properties
 
         let parent_width = state.data.get_width(*parent);
@@ -4528,7 +4528,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
         //TEMP - Move to the walk up phase
         let mut num_children = 0;
-        for _ in parent.child_iter(&hierarchy) {
+        for _ in parent.child_iter(&tree) {
             num_children += 1;
         }
 
@@ -4589,7 +4589,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         let mut proportion_numerator = 0.0f32;
         let mut flex_length_sum = 0.0f32;
 
-        for child in parent.child_iter(&hierarchy) {
+        for child in parent.child_iter(&tree) {
             // Skip non-displayed widgets
             let display = state.style.display.get(child).cloned().unwrap_or_default();
 
@@ -5408,9 +5408,9 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             }
 
             if !should_continue {
-                // if let Some(ns) = hierarchy.get_next_sibling(*parent) {
+                // if let Some(ns) = tree.get_next_sibling(*parent) {
                 //     next_sibling = ns;
-                //     hierarchy_down_iterator = next_sibling.into_iter(hierarchy);
+                //     tree_down_iterator = next_sibling.into_iter(tree);
                 // }
             } else {
                 state.insert_event(

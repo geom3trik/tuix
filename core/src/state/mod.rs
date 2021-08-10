@@ -1,8 +1,8 @@
 pub mod entity;
 pub use entity::*;
 
-pub mod hierarchy;
-pub use hierarchy::*;
+pub mod tree;
+pub use tree::*;
 
 pub mod storage;
 pub use storage::*;
@@ -47,11 +47,11 @@ pub struct State {
     // Creates and destroys entities
     pub(crate) entity_manager: EntityManager, 
     // The widget tree
-    pub hierarchy: Hierarchy,
+    pub tree: Tree,
     // The style properties for every widget
     pub style: Style,
     // Computed data for every widget
-    pub data: Data,
+    pub data: CachedData,
     // Mouse state
     pub mouse: MouseState,
     // Modifiers state
@@ -92,9 +92,9 @@ impl State {
     pub fn new() -> Self {
         let mut entity_manager = EntityManager::new();
         let root = entity_manager.create_entity();
-        let hierarchy = Hierarchy::new();
+        let tree = Tree::new();
         let mut style = Style::default();
-        let mut data = Data::default();
+        let mut data = CachedData::default();
         let mouse = MouseState::default();
         let modifiers = ModifiersState::default();
 
@@ -111,7 +111,7 @@ impl State {
 
         State {
             entity_manager,
-            hierarchy,
+            tree,
             style,
             data,
             mouse,
@@ -313,7 +313,7 @@ impl State {
             .entity_manager
             .create_entity()
             .expect("Failed to create entity");
-        self.hierarchy.add(entity, parent);
+        self.tree.add(entity, parent);
         self.data.add(entity);
         self.style.add(entity);
 
@@ -326,12 +326,12 @@ impl State {
 
     //  TODO
     pub fn remove(&mut self, entity: Entity) {
-        // Collect all entities below the removed entity on the same branch of the hierarchy
-        let delete_list = entity.branch_iter(&self.hierarchy).collect::<Vec<_>>();
+        // Collect all entities below the removed entity on the same branch of the tree
+        let delete_list = entity.branch_iter(&self.tree).collect::<Vec<_>>();
 
         for entity in delete_list.iter().rev() {
-            self.hierarchy.remove(*entity);
-            //self.hierarchy.remove(*entity);
+            self.tree.remove(*entity);
+            //self.tree.remove(*entity);
             self.data.remove(*entity);
             self.style.remove(*entity);
             self.removed_entities.push(*entity);
@@ -382,7 +382,8 @@ impl State {
         self.style.child_right.animate(time);
         self.style.child_top.animate(time);
         self.style.child_bottom.animate(time);
-        self.style.child_between.animate(time);
+        self.style.row_between.animate(time);
+        self.style.col_between.animate(time);
 
         self.style.opacity.animate(time);
         self.style.rotate.animate(time);
@@ -431,7 +432,8 @@ impl State {
             || self.style.child_right.has_animations()
             || self.style.child_top.has_animations()
             || self.style.child_bottom.has_animations()
-            || self.style.child_between.has_animations()
+            || self.style.row_between.has_animations()
+            || self.style.col_between.has_animations()
             //
             || self.style.opacity.has_animations()
             || self.style.rotate.has_animations()

@@ -539,10 +539,17 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
-    pub fn set_child_between(mut self, value: Units) -> Self {
-        self.state.style.child_between.insert(self.entity, value);
+    pub fn set_row_between(mut self, value: Units) -> Self {
+        self.state.style.row_between.insert(self.entity, value);
         self
     }
+
+
+    pub fn set_col_between(mut self, value: Units) -> Self {
+        self.state.style.col_between.insert(self.entity, value);
+        self
+    }
+
 
     pub fn set_child_space(mut self, value: Units) -> Self {
         self.state.style.child_left.insert(self.entity, value);
@@ -562,62 +569,26 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
-    pub fn set_row(mut self, value: u32) -> Self {
-        if let Some(grid_item) = self.state.style.grid_item.get_mut(self.entity) {
-            grid_item.row_index = value;
-        } else {
-            self.state.style.grid_item.insert(self.entity, GridItem {
-                row_index: value,
-                row_span: 1,
-                col_index: 0,
-                col_span: 1,
-            });
-        }
+    pub fn set_row_index(mut self, value: usize) -> Self {
+        self.state.style.row_index.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_col(mut self, value: u32) -> Self {
-        if let Some(grid_item) = self.state.style.grid_item.get_mut(self.entity) {
-            grid_item.col_index = value;
-        } else {
-            self.state.style.grid_item.insert(self.entity, GridItem {
-                row_index: 0,
-                row_span: 1,
-                col_index: value,
-                col_span: 1,
-            });
-        }
+    pub fn set_col_index(mut self, value: usize) -> Self {
+        self.state.style.col_index.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_row_span(mut self, value: u32) -> Self {
-        if let Some(grid_item) = self.state.style.grid_item.get_mut(self.entity) {
-            grid_item.row_span = value;
-        } else {
-            self.state.style.grid_item.insert(self.entity, GridItem {
-                row_index: 0,
-                row_span: value,
-                col_index: 0,
-                col_span: 1,
-            });
-        }
+    pub fn set_row_span(mut self, value: usize) -> Self {
+        self.state.style.row_span.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_col_span(mut self, value: u32) -> Self {
-        if let Some(grid_item) = self.state.style.grid_item.get_mut(self.entity) {
-            grid_item.col_span = value;
-        } else {
-            self.state.style.grid_item.insert(self.entity, GridItem {
-                row_index: 0,
-                row_span: 1,
-                col_index: 0,
-                col_span: value,
-            });
-        }
+    pub fn set_col_span(mut self, value: usize) -> Self {
+        self.state.style.col_span.insert(self.entity, value);
 
         self
     }

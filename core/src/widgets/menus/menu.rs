@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::hierarchy::*;
+use crate::tree::*;
 use crate::style::*;
 use crate::widgets::*;
 
@@ -95,7 +95,7 @@ impl Widget for Menu {
                             }
                         } else {
                             if self.open {
-                                if state.hovered.is_descendant_of(&state.hierarchy, entity) {
+                                if state.hovered.is_descendant_of(&state.tree, entity) {
                                     state.insert_event(
                                         Event::new(WindowEvent::MouseDown(*button))
                                             .target(state.hovered),

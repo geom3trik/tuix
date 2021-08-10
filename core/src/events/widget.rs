@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, Entity, Hierarchy, Lens, Node, PropType, State, Wrapper};
+use crate::{AsEntity, Entity, Tree, Lens, Node, PropType, State, Wrapper};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -115,7 +115,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default();
 
         let parent = state
-            .hierarchy
+            .tree
             .get_parent(entity)
             .expect("Failed to find parent somehow");
 

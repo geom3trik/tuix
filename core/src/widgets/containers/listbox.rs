@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use crate::BindEvent;
 use crate::Color;
-use crate::Data;
+use crate::CachedData;
 use crate::IntoBranchIterator;
 use crate::IntoChildIterator;
 use crate::Lens;
@@ -10,7 +10,7 @@ use crate::Node;
 use crate::Wrapper;
 use crate::widgets::*;
 
-use crate::HierarchyTree;
+use crate::TreeExt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ListEvent {
@@ -54,7 +54,7 @@ impl Widget for List {
                 WindowEvent::KeyDown(_, key) => match key {
                     Some(Key::ArrowDown) | Some(Key::ArrowRight) => {
                         if let Some(next_entity) =
-                            state.hierarchy.get_next_sibling(self.checked_entity)
+                            state.tree.get_next_sibling(self.checked_entity)
                         {
                             self.selected_index += 1;
 
@@ -81,7 +81,7 @@ impl Widget for List {
 
                     Some(Key::ArrowUp) | Some(Key::ArrowLeft) => {
                         if let Some(prev_entity) =
-                            state.hierarchy.get_prev_sibling(self.checked_entity)
+                            state.tree.get_prev_sibling(self.checked_entity)
                         {
 
                             // TODO - prevent underflow
@@ -124,7 +124,7 @@ impl Widget for List {
 
                 CheckboxEvent::Checked => {
                     if self.single {
-                        if event.target.is_descendant_of(&state.hierarchy, entity) {
+                        if event.target.is_descendant_of(&state.tree, entity) {
                             if event.target != entity && event.origin != entity {
                                 state.insert_event(
                                     Event::new(CheckboxEvent::Unchecked)
@@ -184,7 +184,7 @@ impl<W: Widget> Widget for ListItem<W> {
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
 
-        for child in entity.child_iter(&state.hierarchy.clone()) {
+        for child in entity.child_iter(&state.tree.clone()) {
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
                 event_handler.on_update(state, child, data);
 
@@ -270,7 +270,7 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Vec<T>) {
 
-        if state.hierarchy.get_num_children(entity).unwrap() as usize != data.len() {
+        if state.tree.get_num_children(entity).unwrap() as usize != data.len() {
             for (index, item) in data.iter().enumerate() {
                 // let item = CheckButton::new()
                 //     .set_checked(true)
@@ -292,7 +292,7 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
         }
 
 
-        for (index, child) in entity.child_iter(&state.hierarchy.clone()).enumerate() {
+        for (index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
             
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
                 event_handler.on_update(state, child, &data[index]);
@@ -322,7 +322,7 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
                 WindowEvent::KeyDown(_, key) => match key {
                     Some(Key::ArrowDown) | Some(Key::ArrowRight) => {
                         if let Some(next_entity) =
-                            state.hierarchy.get_next_sibling(self.checked_entity)
+                            state.tree.get_next_sibling(self.checked_entity)
                         {
                             self.selected += 1;
 
@@ -352,7 +352,7 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
 
                     Some(Key::ArrowUp) | Some(Key::ArrowLeft) => {
                         if let Some(prev_entity) =
-                            state.hierarchy.get_prev_sibling(self.checked_entity)
+                            state.tree.get_prev_sibling(self.checked_entity)
                         {
 
                             self.selected -= 1;
@@ -400,7 +400,7 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
 
                 CheckboxEvent::Checked => {
                     if self.single {
-                        if event.target.is_descendant_of(&state.hierarchy, entity) {
+                        if event.target.is_descendant_of(&state.tree, entity) {
                             if event.target != entity && event.origin != entity {
                                 state.insert_event(
                                     Event::new(CheckboxEvent::Unchecked)

@@ -141,7 +141,7 @@ pub fn main() {
                 // This is a terrible idea because you lose all the saved state of a child!!!
 
                 // Remove previous children
-                for child in list.child_iter(&state.hierarchy.clone()) {
+                for child in list.child_iter(&state.tree.clone()) {
                     state.remove(child);
                 }
 

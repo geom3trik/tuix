@@ -1,18 +1,18 @@
-use crate::hierarchy::*;
+use crate::tree::*;
 use crate::style::*;
 
 use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};
 
 
-pub fn apply_transform(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_transform(state: &mut State, tree: &Tree) {
     //println!("Apply Transform");
-    for entity in hierarchy.into_iter() {
+    for entity in tree.into_iter() {
         
         if entity == Entity::root() {
             continue;
         }
         
-        let parent = hierarchy.get_parent(entity).unwrap();
+        let parent = tree.get_parent(entity).unwrap();
         let parent_origin = state.data.get_origin(parent);
         let parent_transform = state.data.get_transform(parent);
 
@@ -57,16 +57,17 @@ enum Axis {
     After,
 }
 
-pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
+/*
+pub fn apply_layout2(state: &mut State, tree: &Tree) {
     //println!("Apply Layout");
-    let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
+    let layout_tree = tree.into_iter().collect::<Vec<Entity>>();
 
-    // for entity in layout_hierarchy.iter() {
+    // for entity in layout_tree.iter() {
     //     state.data.set_child_sum(*entity, 0.0);
     //     state.data.set_child_max(*entity, 0.0);
     // }
 
-    for parent in layout_hierarchy.iter() {
+    for parent in layout_tree.iter() {
 
         // Skip non-displayed entities
         let parent_display = parent.get_display(state);
@@ -89,7 +90,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             .data
             .set_prev_height(*parent, state.data.get_height(*parent));
 
-        for child in parent.child_iter(hierarchy) {
+        for child in parent.child_iter(tree) {
 
             let child_display = child.get_display(state);
             if child_display == Display::None {
@@ -124,8 +125,8 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         state.data.set_stack_last_child(last_child, true);
     }
 
-    // Walk up the hierarchy
-    for child in layout_hierarchy.iter().rev() {
+    // Walk up the tree
+    for child in layout_tree.iter().rev() {
         // Stop before the window
         if *child == Entity::root() {
             break;
@@ -139,7 +140,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
     
 
-        // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
+        // Safe to unwrap because every entity in the tree has a parent except window which is skipped
         let parent = child.get_parent(state).unwrap();
 
         let parent_layout_type = state
@@ -585,7 +586,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
     }
 
     // Depth first traversal of all nodes from root
-    for parent in layout_hierarchy.into_iter() {
+    for parent in layout_tree.into_iter() {
 
 
         // Skip non-displayed entities
@@ -657,7 +658,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 // ////////////////////////////////
                 // Calculate inflexible children //
                 ///////////////////////////////////
-                for child in parent.child_iter(&hierarchy) {
+                for child in parent.child_iter(&tree) {
 
                     let child_display = child.get_display(state);
                     if child_display == Display::None {
@@ -1325,7 +1326,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 ///////////////////////
                 // Position Children //
                 ///////////////////////
-                for child in parent.child_iter(&hierarchy) {
+                for child in parent.child_iter(&tree) {
 
                     let child_display = child.get_display(state);
                     if child_display == Display::None {
@@ -1514,7 +1515,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 let col_widths_len = col_widths.len() - 1;
                 col_widths[col_widths_len].0 = current_col_pos;
 
-                for child in parent.child_iter(&hierarchy) {
+                for child in parent.child_iter(&tree) {
 
                     let child_display = child.get_display(state);
                     if child_display == Display::None {
@@ -1592,3 +1593,4 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         }
     }
 }
+*/

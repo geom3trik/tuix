@@ -178,7 +178,7 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         let value = (self.converter)(&view_data);
 
         // Update children
-        for (index, child) in entity.child_iter(&state.hierarchy.clone()).enumerate() {
+        for (index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
             
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
                 event_handler.on_update(state, child, &value);

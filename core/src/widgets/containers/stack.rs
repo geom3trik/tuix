@@ -48,7 +48,7 @@ impl Stack {
         if new_index != self.current_index {
             self.current_index = new_index;
 
-            if let Some(current_child) = state.hierarchy.get_child(entity, self.current_index as usize) {
+            if let Some(current_child) = state.tree.get_child(entity, self.current_index as usize) {
                 for page in self.pages.iter() {
                     page.set_display(state, Display::None);
                 }

@@ -1,12 +1,12 @@
 use crate::entity::Entity;
 
 #[derive(Debug, Clone, Copy)]
-pub enum HierarchyError {
-    // The entity does not exist in the hierarchy
+pub enum TreeError {
+    // The entity does not exist in the tree
     NoEntity,
-    // Parent does not exist in the hierarchy
+    // Parent does not exist in the tree
     InvalidParent,
-    // Sibling does not exist in the hierarchy
+    // Sibling does not exist in the tree
     InvalidSibling,
     // Entity is null
     NullEntity,
@@ -16,9 +16,9 @@ pub enum HierarchyError {
     AlreadyFirstChild,
 }
 
-/// The hierarchy describes a tree of entities
+/// The tree describes a tree of entities
 #[derive(Debug, Clone)]
-pub struct Hierarchy {
+pub struct Tree {
     pub parent: Vec<Option<Entity>>,
     pub first_child: Vec<Option<Entity>>,
     pub next_sibling: Vec<Option<Entity>>,
@@ -26,11 +26,11 @@ pub struct Hierarchy {
     pub changed: bool,
 }
 
-impl Hierarchy {
-    /// Creates a new hierarchy with a root entity
-    pub fn new() -> Hierarchy {
+impl Tree {
+    /// Creates a new tree with a root entity
+    pub fn new() -> Tree {
 
-        Hierarchy {
+        Tree {
             parent: vec![None],
             first_child: vec![None],
             next_sibling: vec![None],
@@ -104,25 +104,29 @@ impl Hierarchy {
         }
     }
 
-    /// Returns the first child of an entity
+    /// Returns the first child of an entity or `None` if there isn't one
     pub fn get_first_child(&self, entity: Entity) -> Option<Entity> {
         if let Some(index) = entity.index() {
-            self.first_child[index]
-        } else {
-            None
+            if let Some(first_child) = self.first_child.get(index) {
+                return *first_child;
+            }            
         }
+
+        None
     }
 
-    /// Returns the next sibling of an entity
+    /// Returns the next sibling of an entity or `None` if there isn't one
     pub fn get_next_sibling(&self, entity: Entity) -> Option<Entity> {
         if let Some(index) = entity.index() {
-            self.next_sibling[index]
-        } else {
-            None
+            if let Some(next_sibling) = self.next_sibling.get(index) {
+                return *next_sibling;
+            }            
         }
+
+        None
     }
 
-    /// Returns the previous sibling of an entity
+    /// Returns the previous sibling of an entity or `None` if there isn't one
     pub fn get_prev_sibling(&self, entity: Entity) -> Option<Entity> {
         if let Some(index) = entity.index() {
             self.prev_sibling[index]
@@ -139,6 +143,22 @@ impl Hierarchy {
                     return true;
                 } else {
                     return false;
+                }
+            }
+        }
+
+        false
+    }
+
+    pub fn is_last_child(&self, entity: Entity) -> bool {
+        if let Some(parent) = self.get_parent(entity) {
+            if let Some(mut temp) = self.get_first_child(parent) {
+                while let Some(next_sibling) = self.get_next_sibling(temp) {
+                    temp = next_sibling;
+                }
+
+                if temp == entity {
+                    return true;
                 }
             }
         }
@@ -166,21 +186,21 @@ impl Hierarchy {
         }
     }
 
-    /// Removes an entity from the hierarchy
+    /// Removes an entity from the tree
     ///
     /// This method assumes that a check if the entity is alive has already been done prior to calling this method
-    pub fn remove(&mut self, entity: Entity) -> Result<(), HierarchyError> {
+    pub fn remove(&mut self, entity: Entity) -> Result<(), TreeError> {
 
         // Check if the entity is null
         if entity == Entity::null() {
-            return Err(HierarchyError::NullEntity);
+            return Err(TreeError::NullEntity);
         }
 
-        // Check if the entity to be removed exists in the hierarchy
+        // Check if the entity to be removed exists in the tree
         let entity_index = entity.index_unchecked();
 
         if entity_index >= self.parent.len() {
-            return Err(HierarchyError::NoEntity);
+            return Err(TreeError::NoEntity);
         }
 
         // If the entity was is the first child of its parent then set its next sibling to be the new first child
@@ -218,17 +238,17 @@ impl Hierarchy {
     }
 
     // Makes the entity the first child of its parent
-    pub fn set_first_child(&mut self, entity: Entity) -> Result<(), HierarchyError> {
+    pub fn set_first_child(&mut self, entity: Entity) -> Result<(), TreeError> {
         if let Some(index) = entity.index() {
-            // Check is sibling exists in the hierarchy
+            // Check is sibling exists in the tree
             if index >= self.parent.len() {
-                return Err(HierarchyError::InvalidSibling);
+                return Err(TreeError::InvalidSibling);
             }
 
-            // Check if the parent is in the hierarchy
+            // Check if the parent is in the tree
             if let Some(parent) = self.get_parent(entity) {
                 if parent.index_unchecked() >= self.parent.len() {
-                    return Err(HierarchyError::InvalidParent);
+                    return Err(TreeError::InvalidParent);
                 }
             }
 
@@ -237,7 +257,7 @@ impl Hierarchy {
             let previous_first_child = self.first_child[parent.index_unchecked()];
 
             if previous_first_child == Some(entity) {
-                return Err(HierarchyError::AlreadyFirstChild);
+                return Err(TreeError::AlreadyFirstChild);
             }
 
             let entity_prev_sibling = self.get_prev_sibling(entity);
@@ -264,7 +284,7 @@ impl Hierarchy {
 
             Ok(())
         } else {
-            Err(HierarchyError::NullEntity)
+            Err(TreeError::NullEntity)
         }
     }
 
@@ -272,25 +292,25 @@ impl Hierarchy {
         &mut self,
         entity: Entity,
         sibling: Entity,
-    ) -> Result<(), HierarchyError> {
+    ) -> Result<(), TreeError> {
         if self.next_sibling[entity.index_unchecked()] == Some(sibling) {
-            return Err(HierarchyError::AlreadySibling);
+            return Err(TreeError::AlreadySibling);
         }
 
-        // Check is sibling exists in the hierarchy
+        // Check is sibling exists in the tree
         if sibling.index_unchecked() >= self.parent.len() {
-            return Err(HierarchyError::InvalidSibling);
+            return Err(TreeError::InvalidSibling);
         }
 
         // Check if sibling has the same parent
         if let Some(parent) = self.get_parent(entity) {
             if let Some(sibling_parent) = self.get_parent(entity) {
                 if parent != sibling_parent {
-                    return Err(HierarchyError::InvalidSibling);
+                    return Err(TreeError::InvalidSibling);
                 }
             }
         } else {
-            return Err(HierarchyError::InvalidParent);
+            return Err(TreeError::InvalidParent);
         }
 
         // Safe to unwrap because we already checked if it has a parent
@@ -337,25 +357,25 @@ impl Hierarchy {
         &mut self,
         entity: Entity,
         sibling: Entity,
-    ) -> Result<(), HierarchyError> {
+    ) -> Result<(), TreeError> {
         if self.prev_sibling[entity.index_unchecked()] == Some(sibling) {
-            return Err(HierarchyError::InvalidSibling);
+            return Err(TreeError::InvalidSibling);
         }
 
-        // Check is sibling exists in the hierarchy
+        // Check is sibling exists in the tree
         if sibling.index_unchecked() >= self.parent.len() {
-            return Err(HierarchyError::InvalidSibling);
+            return Err(TreeError::InvalidSibling);
         }
 
         // Check if sibling has the same parent
         if let Some(parent) = self.get_parent(entity) {
             if let Some(sibling_parent) = self.get_parent(entity) {
                 if parent != sibling_parent {
-                    return Err(HierarchyError::InvalidSibling);
+                    return Err(TreeError::InvalidSibling);
                 }
             }
         } else {
-            return Err(HierarchyError::InvalidParent);
+            return Err(TreeError::InvalidParent);
         }
 
         // Safe to unwrap because we already checked if it has a parent
@@ -433,17 +453,17 @@ impl Hierarchy {
         self.changed = true;
     }
 
-    /// Adds an entity to the hierarchy with the specified parent
-    pub fn add(&mut self, entity: Entity, parent: Entity) -> Result<(), HierarchyError> {
+    /// Adds an entity to the tree with the specified parent
+    pub fn add(&mut self, entity: Entity, parent: Entity) -> Result<(), TreeError> {
 
         if entity == Entity::null() || parent == Entity::null() {
-            return Err(HierarchyError::NullEntity);
+            return Err(TreeError::NullEntity);
         }
 
         let parent_index = parent.index_unchecked();
 
         if parent_index >= self.parent.len() {
-            return Err(HierarchyError::InvalidParent);
+            return Err(TreeError::InvalidParent);
         }
 
         let entity_index = entity.index_unchecked();
@@ -516,21 +536,21 @@ impl Hierarchy {
     // }
 }
 
-impl<'a> IntoIterator for &'a Hierarchy {
+impl<'a> IntoIterator for &'a Tree {
     type Item = Entity;
-    type IntoIter = HierarchyIterator<'a>;
+    type IntoIter = TreeIterator<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        HierarchyIterator {
-            hierarchy: self,
+        TreeIterator {
+            tree: self,
             current_node: Some(Entity::root()),
         }
     }
 }
 
-/// An iterator for a branch of the hierarchy tree
+/// An iterator for a branch of the tree tree
 pub struct BranchIterator<'a> {
-    hierarchy: &'a Hierarchy,
+    tree: &'a Tree,
     start_node: Entity,
     current_node: Option<Entity>,
 }
@@ -541,19 +561,19 @@ impl<'a> Iterator for BranchIterator<'a> {
         let r = self.current_node;
 
         if let Some(current) = self.current_node {
-            if let Some(child) = self.hierarchy.first_child[current.index_unchecked()] {
+            if let Some(child) = self.tree.first_child[current.index_unchecked()] {
                 self.current_node = Some(child);
             } else {
                 if self.current_node != Some(self.start_node) {
                     let mut temp = Some(current);
                     while temp.is_some() {
                         if let Some(sibling) =
-                            self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
+                            self.tree.next_sibling[temp.unwrap().index_unchecked()]
                         {
                             self.current_node = Some(sibling);
                             return r;
                         } else {
-                            temp = self.hierarchy.parent[temp.unwrap().index_unchecked()];
+                            temp = self.tree.parent[temp.unwrap().index_unchecked()];
                             if Some(self.start_node) == temp {
                                 self.current_node = None;
                                 temp = None;
@@ -570,26 +590,26 @@ impl<'a> Iterator for BranchIterator<'a> {
     }
 }
 
-/// Iterator for iterating through the hierarchy from top to bottom in depth first order
-pub struct HierarchyIterator<'a> {
-    hierarchy: &'a Hierarchy,
-    current_node: Option<Entity>,
+/// Iterator for iterating through the tree from top to bottom in depth first order
+pub struct TreeIterator<'a> {
+    pub tree: &'a Tree,
+    pub current_node: Option<Entity>,
     //current_back: Option<Entity>,
 }
 
-impl<'a> HierarchyIterator<'a> {
+impl<'a> TreeIterator<'a> {
     /// Skip to next branch
     pub fn next_branch(&mut self) -> Option<Entity> {
         let r = self.current_node;
         if let Some(current) = self.current_node {
             let mut temp = Some(current);
             while temp.is_some() {
-                if let Some(sibling) = self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
+                if let Some(sibling) = self.tree.next_sibling[temp.unwrap().index_unchecked()]
                 {
                     self.current_node = Some(sibling);
                     return r;
                 } else {
-                    temp = self.hierarchy.parent[temp.unwrap().index_unchecked()];
+                    temp = self.tree.parent[temp.unwrap().index_unchecked()];
                 }
             }
         } else {
@@ -600,24 +620,24 @@ impl<'a> HierarchyIterator<'a> {
     }
 }
 
-impl<'a> Iterator for HierarchyIterator<'a> {
+impl<'a> Iterator for TreeIterator<'a> {
     type Item = Entity;
     fn next(&mut self) -> Option<Entity> {
         let r = self.current_node;
 
         if let Some(current) = self.current_node {
-            if let Some(child) = self.hierarchy.first_child[current.index_unchecked()] {
+            if let Some(child) = self.tree.first_child[current.index_unchecked()] {
                 self.current_node = Some(child);
             } else {
                 let mut temp = Some(current);
                 while temp.is_some() {
                     if let Some(sibling) =
-                        self.hierarchy.next_sibling[temp.unwrap().index_unchecked()]
+                        self.tree.next_sibling[temp.unwrap().index_unchecked()]
                     {
                         self.current_node = Some(sibling);
                         return r;
                     } else {
-                        temp = self.hierarchy.parent[temp.unwrap().index_unchecked()];
+                        temp = self.tree.parent[temp.unwrap().index_unchecked()];
                     }
                 }
 
@@ -630,11 +650,11 @@ impl<'a> Iterator for HierarchyIterator<'a> {
 }
 
 // TODO
-// impl<'a> DoubleEndedIterator for HierarchyIterator<'a> {
+// impl<'a> DoubleEndedIterator for TreeIterator<'a> {
 //     fn next_back(&mut self) -> Option<Self::Item> {
 //         let r = self.current_back;
 //         if let Some(current) = self.current_node {
-//             if let Some(prev_sibling) = self.hierarchy.prev_sibling[current.index()] {
+//             if let Some(prev_sibling) = self.tree.prev_sibling[current.index()] {
 //                 self.current_node = Some(prev_sibling)
 //             }
 //         }
@@ -645,7 +665,7 @@ impl<'a> Iterator for HierarchyIterator<'a> {
 
 /// Iterator for iterating through the ancestors of an entity
 pub struct ParentIterator<'a> {
-    hierarchy: &'a Hierarchy,
+    tree: &'a Tree,
     current: Option<Entity>,
 }
 
@@ -653,7 +673,7 @@ impl<'a> Iterator for ParentIterator<'a> {
     type Item = Entity;
     fn next(&mut self) -> Option<Entity> {
         if let Some(entity) = self.current {
-            self.current = self.hierarchy.parent[entity.index_unchecked()];
+            self.current = self.tree.parent[entity.index_unchecked()];
             return Some(entity);
         }
 
@@ -664,16 +684,16 @@ impl<'a> Iterator for ParentIterator<'a> {
 pub trait IntoParentIterator<'a> {
     type Item;
     type IntoIter: Iterator<Item = Self::Item>;
-    fn parent_iter(self, hierarchy: &'a Hierarchy) -> Self::IntoIter;
+    fn parent_iter(self, tree: &'a Tree) -> Self::IntoIter;
 }
 
 impl<'a> IntoParentIterator<'a> for &'a Entity {
     type Item = Entity;
     type IntoIter = ParentIterator<'a>;
 
-    fn parent_iter(self, h: &'a Hierarchy) -> Self::IntoIter {
+    fn parent_iter(self, h: &'a Tree) -> Self::IntoIter {
         ParentIterator {
-            hierarchy: h,
+            tree: h,
             current: Some(*self),
         }
     }
@@ -681,16 +701,16 @@ impl<'a> IntoParentIterator<'a> for &'a Entity {
 
 /// Iterator for iterating through the children of an entity.
 pub struct ChildIterator<'a> {
-    hierarchy: &'a Hierarchy,
-    current_forward: Option<Entity>,
-    current_backward: Option<Entity>,
+    pub tree: &'a Tree,
+    pub current_forward: Option<Entity>,
+    pub current_backward: Option<Entity>,
 }
 
 impl<'a> Iterator for ChildIterator<'a> {
     type Item = Entity;
-    fn next(&mut self) -> Option<Entity> {
+    fn next(&mut self) -> Option<Self::Item> {
         if let Some(entity) = self.current_forward {
-            self.current_forward = self.hierarchy.next_sibling[entity.index_unchecked()];
+            self.current_forward = self.tree.get_next_sibling(entity);
             return Some(entity);
         }
 
@@ -701,7 +721,7 @@ impl<'a> Iterator for ChildIterator<'a> {
 impl<'a> DoubleEndedIterator for ChildIterator<'a> {
     fn next_back(&mut self) -> Option<Entity> {
         if let Some(entity) = self.current_backward {
-            self.current_backward = self.hierarchy.prev_sibling[entity.index_unchecked()];
+            self.current_backward = self.tree.prev_sibling[entity.index_unchecked()];
             return Some(entity);
         }
 
@@ -712,35 +732,35 @@ impl<'a> DoubleEndedIterator for ChildIterator<'a> {
 pub trait IntoChildIterator<'a> {
     type Item;
     type IntoIter: Iterator<Item = Self::Item>;
-    fn child_iter(self, hierarchy: &'a Hierarchy) -> Self::IntoIter;
+    fn child_iter(self, tree: &'a Tree) -> Self::IntoIter;
 }
 
 impl<'a> IntoChildIterator<'a> for &'a Entity {
     type Item = Entity;
     type IntoIter = ChildIterator<'a>;
 
-    fn child_iter(self, h: &'a Hierarchy) -> Self::IntoIter {
+    fn child_iter(self, h: &'a Tree) -> Self::IntoIter {
         ChildIterator {
-            hierarchy: h,
+            tree: h,
             current_forward: h.first_child[self.index_unchecked()],
             current_backward: h.get_last_child(*self),
         }
     }
 }
 
-pub trait IntoHierarchyIterator<'a> {
+pub trait IntoTreeIterator<'a> {
     type Item;
     type IntoIter: Iterator<Item = Self::Item>;
-    fn into_iter(self, hierarchy: &'a Hierarchy) -> Self::IntoIter;
+    fn into_iter(self, tree: &'a Tree) -> Self::IntoIter;
 }
 
-impl<'a> IntoHierarchyIterator<'a> for &'a Entity {
+impl<'a> IntoTreeIterator<'a> for &'a Entity {
     type Item = Entity;
-    type IntoIter = HierarchyIterator<'a>;
+    type IntoIter = TreeIterator<'a>;
 
-    fn into_iter(self, h: &'a Hierarchy) -> Self::IntoIter {
-        HierarchyIterator {
-            hierarchy: h,
+    fn into_iter(self, h: &'a Tree) -> Self::IntoIter {
+        TreeIterator {
+            tree: h,
             current_node: Some(*self),
         }
     }
@@ -749,45 +769,45 @@ impl<'a> IntoHierarchyIterator<'a> for &'a Entity {
 pub trait IntoBranchIterator<'a> {
     type Item;
     type IntoIter: Iterator<Item = Self::Item>;
-    fn branch_iter(self, hierarchy: &'a Hierarchy) -> Self::IntoIter;
+    fn branch_iter(self, tree: &'a Tree) -> Self::IntoIter;
 }
 
 impl<'a> IntoBranchIterator<'a> for &'a Entity {
     type Item = Entity;
     type IntoIter = BranchIterator<'a>;
 
-    fn branch_iter(self, h: &'a Hierarchy) -> Self::IntoIter {
+    fn branch_iter(self, h: &'a Tree) -> Self::IntoIter {
         BranchIterator {
-            hierarchy: h,
+            tree: h,
             start_node: *self,
             current_node: Some(*self),
         }
     }
 }
 
-/// Trait which provides methods for investigating entity relations within the hierarchy.
-pub trait HierarchyTree<'a> {
-    fn parent(&self, hierarchy: &'a Hierarchy) -> Option<Entity>;
-    fn is_sibling(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool;
-    fn is_child_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool;
-    fn is_descendant_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool;
+/// Trait which provides methods for investigating entity relations within the tree.
+pub trait TreeExt {
+    fn parent(&self, tree: &Tree) -> Option<Entity>;
+    fn is_sibling(&self, tree: &Tree, entity: Entity) -> bool;
+    fn is_child_of(&self, tree: &Tree, entity: Entity) -> bool;
+    fn is_descendant_of(&self, tree: &Tree, entity: Entity) -> bool;
 }
 
-impl<'a> HierarchyTree<'a> for Entity {
-    fn parent(&self, hierarchy: &'a Hierarchy) -> Option<Entity> {
-        hierarchy.get_parent(*self)
+impl TreeExt for Entity {
+    fn parent(&self, tree: &Tree) -> Option<Entity> {
+        tree.get_parent(*self)
     }
 
-    fn is_sibling(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool {
-        hierarchy.is_sibling(*self, entity)
+    fn is_sibling(&self, tree: &Tree, entity: Entity) -> bool {
+        tree.is_sibling(*self, entity)
     }
 
-    fn is_child_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool {
+    fn is_child_of(&self, tree: &Tree, entity: Entity) -> bool {
         if *self == Entity::null() {
             return false;
         }
 
-        if let Some(parent) = hierarchy.get_parent(*self) {
+        if let Some(parent) = tree.get_parent(*self) {
             if parent == entity {
                 return true;
             } else {
@@ -798,12 +818,12 @@ impl<'a> HierarchyTree<'a> for Entity {
         }
     }
 
-    fn is_descendant_of(&self, hierarchy: &'a Hierarchy, entity: Entity) -> bool {
+    fn is_descendant_of(&self, tree: &Tree, entity: Entity) -> bool {
         if *self == Entity::null() {
             return false;
         }
 
-        for parent in self.parent_iter(hierarchy) {
+        for parent in self.parent_iter(tree) {
             if parent == entity {
                 return true;
             }

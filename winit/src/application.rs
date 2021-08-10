@@ -10,7 +10,7 @@ use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 
 use tuix_core::events::{Event, EventManager, Propagation};
 
-use tuix_core::state::hierarchy::IntoHierarchyIterator;
+use tuix_core::state::tree::IntoTreeIterator;
 
 use tuix_core::state::Fonts;
 
@@ -43,7 +43,7 @@ impl Application {
         let event_manager = EventManager::new();
 
         let root = Entity::root();
-        //state.hierarchy.add(Entity::root(), None);
+        //state.tree.add(Entity::root(), None);
 
         //let window_description = win(WindowDescription::new());
         let window_description = app(WindowDescription::new(), &mut state, root);
@@ -118,7 +118,7 @@ impl Application {
 
         let mut should_quit = false;
 
-        let hierarchy = state.hierarchy.clone();
+        let tree = state.tree.clone();
 
         //state.insert_event(Event::new(WindowEvent::Restyle));
         //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
@@ -145,7 +145,7 @@ impl Application {
                     }
 
                     if first_time {
-                        apply_styles(&mut state, &hierarchy);
+                        apply_styles(&mut state, &tree);
                         first_time = false;
                     }
 
@@ -161,12 +161,12 @@ impl Application {
 
                     // event_manager.flush_events(&mut state);
 
-                    // apply_z_ordering(&mut state, &hierarchy);
-                    // apply_visibility(&mut state, &hierarchy);
-                    // apply_clipping(&mut state, &hierarchy);
-                    // layout_fun(&mut state, &hierarchy);
+                    // apply_z_ordering(&mut state, &tree);
+                    // apply_visibility(&mut state, &tree);
+                    // apply_clipping(&mut state, &tree);
+                    // layout_fun(&mut state, &tree);
 
-                    // event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
+                    // event_manager.draw(&mut state, &tree, &mut window.canvas);
                     // window
                     //     .handle
                     //     .swap_buffers()
@@ -177,7 +177,7 @@ impl Application {
                 WEvent::RedrawRequested(_) => {
                     window.context.make_current();
 
-                    event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
+                    event_manager.draw(&mut state, &tree, &mut window.canvas);
 
                     window.context.swap_buffers();
                     window.context.make_not_current();
@@ -275,8 +275,8 @@ impl Application {
                                             state.focused = prev_focus;
                                             state.focused.set_focus(&mut state, true);
                                         } else {
-                                            // TODO impliment reverse iterator for hierarchy
-                                            // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
+                                            // TODO impliment reverse iterator for tree
+                                            // state.focused = match state.focused.into_iter(&state.tree).next() {
                                             //     Some(val) => val,
                                             //     None => Entity::root(),
                                             // };
@@ -289,7 +289,7 @@ impl Application {
                                         } else {
                                             state.focused.set_focus(&mut state, false);
                                             state.focused =
-                                                match state.focused.into_iter(&hierarchy).next() {
+                                                match state.focused.into_iter(&tree).next() {
                                                     Some(val) => val,
                                                     None => Entity::root(),
                                                 };
