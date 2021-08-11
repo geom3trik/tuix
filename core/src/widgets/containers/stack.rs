@@ -53,7 +53,7 @@ impl Stack {
                     page.set_display(state, Display::None);
                 }
 
-                current_child.set_display(state, Display::Flexbox);
+                current_child.set_display(state, Display::Flex);
                 
             }
 

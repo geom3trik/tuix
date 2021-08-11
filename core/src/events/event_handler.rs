@@ -22,6 +22,10 @@ pub type Canvas = femtovg::Canvas<OpenGl>;
 
 pub trait EventHandler: Any {
 
+    fn widget_name(&self) -> String {
+        String::new()
+    }
+
     // Called when a widget needs to be informed of a change in a data store
     fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
 

@@ -23,6 +23,11 @@ button:active {
     background-color: #a56bf5;
 }
 
+button:focus {
+    border-color: red;
+    border-width: 1px;
+}
+
 label {
     border-color: #9e9e9e;
     color: black;
@@ -38,9 +43,19 @@ label:hover {
     border-color: black;
 }
 
+label:focus {
+    border-color: red;
+    border-width: 1px;
+}
+
 counter {
     layout-type: row;
     col-between: 1s;
     width: 1s;
     child-space: 1s;
+}
+
+counter:focus {
+    border-width: 1px;
+    border-color: red;
 }

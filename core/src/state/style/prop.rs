@@ -29,6 +29,12 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    fn set_name(self, state: &mut State, name: &str) -> Entity {
+        state.style.name.insert(self.entity(), name.to_string());
+
+        self.entity()
+    }
+
     /// Add a class name to an entity
     fn class(self, state: &mut State, class_name: &str) -> Entity {
         if let Some(class_list) = state.style.classes.get_mut(self.entity()) {
@@ -1223,6 +1229,16 @@ impl PropSet for Entity {
 }
 */
 pub trait PropGet: AsEntity {
+
+
+    fn name(&self, state: &mut State) -> String {
+        state.style.name.get(self.entity()).cloned().unwrap_or_default()
+    }
+
+    fn element(&self, state: &mut State) -> String {
+        state.style.elements.get(self.entity()).cloned().unwrap_or_default()
+    }
+
     fn is_disabled(self, state: &mut State) -> bool;
     fn is_checked(self, state: &mut State) -> bool;
     fn is_over(self, state: &mut State) -> bool;

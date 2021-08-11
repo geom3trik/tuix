@@ -1,4 +1,4 @@
-use crate::{apply_hover, Entity, Event, State, Widget, WindowEvent};
+use crate::{Entity, Event, PropSet, State, Widget, WindowEvent, apply_hover};
 
 use crate::systems::{apply_styles, apply_visibility, apply_z_ordering, apply_transform};
 
@@ -18,7 +18,7 @@ impl WindowWidget {
 impl Widget for WindowWidget {
     type Ret = Entity;
     type Data = ();
-    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }
 

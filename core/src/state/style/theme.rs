@@ -909,7 +909,7 @@ fn parse_display<'i, 't>(
     Ok(match input.next()? {
         Token::Ident(name) => match name.as_ref() {
             "none" => Display::None,
-            "flex" => Display::Flexbox,
+            "flex" => Display::Flex,
 
             _ => {
                 return Err(

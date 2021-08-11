@@ -177,6 +177,8 @@ pub struct Style {
     pub child_top: AnimatableStorage<Units>,
     pub child_bottom: AnimatableStorage<Units>,
     // pub child_wrap: AnimatableStorage<Units>,
+
+    pub name: StyleStorage<String>,
 }
 
 impl Style {

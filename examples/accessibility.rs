@@ -23,6 +23,7 @@ impl Model for CounterState {
             match counter_event {
                 CounterMessage::Increment => {
                     self.value += 1;
+                    entity.emit(state, TtsEvent::Speak(format!("counter value incremented to {}",self.value), false));
                     entity.emit(state, BindEvent::Update);
                     event.consume();
                 }
@@ -30,6 +31,7 @@ impl Model for CounterState {
                 CounterMessage::Decrement => {
                     self.value -= 1;
                     entity.emit(state, BindEvent::Update);
+                    entity.emit(state, TtsEvent::Speak(format!("counter value decremented to {}",self.value), false));
                     event.consume();
                 }
             }            
@@ -49,20 +51,31 @@ impl Widget for CounterWidget {
   
         Button::with_label("increment")
             .on_press(|_, state, button|{
+                button.emit(state, TtsEvent::Speak("button increment pressed".to_string(), true));
                 button.emit(state, CounterMessage::Increment);
             })
-            .build(state, entity, |builder| builder.class("increment"));
+            .build(state, entity, |builder| 
+                builder
+                    .class("increment")
+            );
 
         Button::with_label("decrement")
             .on_press(|_, state, button|{
+                button.emit(state, TtsEvent::Speak("button decrement pressed".to_string(), true));
                 button.emit(state,  CounterMessage::Decrement);
             })
-            .build(state, entity, |builder| builder.class("decrement"));
+            .build(state, entity, |builder| 
+                builder
+                    .class("decrement")
+                );
 
         // Using a lens, the label is bound to the value field of the app data
         Label::new("0")
             .bind(CounterState::value, |value| value.to_string())
-            .build(state, entity, |builder| builder);
+            .build(state, entity, |builder| 
+                builder
+                    .set_name("counter numeric value")
+            );
 
         entity.set_element(state, "counter").set_layout_type(state, LayoutType::Row)
     }
@@ -78,10 +91,10 @@ fn main() {
 
         state.add_theme(THEME);
 
-        let text_to_speach = TextToSpeach::new().build(state, window, |builder| builder);
+        let text_to_speech = TextToSpeach::new().build(state, window, |builder| builder);
 
         // Build the app data at the root of the visual tree
-        let data_widget = CounterState::default().build(state, text_to_speach);
+        let data_widget = CounterState::default().build(state, text_to_speech);
 
         CounterWidget::default()
             .build(state, data_widget, |builder| builder);
@@ -94,6 +107,7 @@ fn main() {
                 builder
                     .set_width(Stretch(1.0))
                     .set_space(Pixels(5.0))
+                    .set_name("counter english text value")
             );
     });
 

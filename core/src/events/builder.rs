@@ -65,6 +65,12 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
+    pub fn set_name(mut self, name: &str) -> Self {
+        self.state.style.name.insert(self.entity(), name.to_string());
+    
+        self
+    }
+
     /// Sets the element name of the entity
     pub fn set_element(mut self, element: &str) -> Self {
         //self.state.style.insert_element(self.entity, element);

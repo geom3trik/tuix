@@ -17,6 +17,10 @@ pub trait Widget: std::marker::Sized + 'static {
     type Ret;
     type Data: Node;
 
+    fn widget_name(&self) -> String {
+        String::new()
+    }
+
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret;
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
@@ -611,6 +615,10 @@ impl<T: Widget> EventHandler for T
 where
     T: std::marker::Sized + Widget + 'static,
 {
+
+    fn widget_name(&self) -> String {
+        <T as Widget>::widget_name(self)
+    }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {
         if let Some(data) = node.downcast_ref() {

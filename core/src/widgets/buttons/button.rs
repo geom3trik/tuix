@@ -135,6 +135,11 @@ impl Button {
 impl Widget for Button {
     type Ret = Entity;
     type Data = ();
+
+    fn widget_name(&self) -> String {
+        "button".to_string()
+    }
+
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // If there is a specified label then set the text of the button entity to this
         if let Some(text) = &self.text {
