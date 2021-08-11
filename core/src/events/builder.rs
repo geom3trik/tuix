@@ -88,6 +88,11 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
+    pub fn set_disabled(mut self, value: bool) -> Self {
+        self.entity().set_disabled(self.state, value);
+
+        self
+    }
 
 
     /// Sets whether the entity can be hovered
