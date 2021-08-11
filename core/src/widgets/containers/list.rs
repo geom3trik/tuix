@@ -18,7 +18,7 @@ impl Widget for Row {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_layout_type(state, LayoutType::Row)
-            .set_focusability(state, false)
+            .set_focusable(state, false)
             .set_element(state, "row")
         //.set_width(state, Auto)
         //.set_height(state, Auto)
@@ -39,7 +39,7 @@ impl Widget for Column {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_layout_type(state, LayoutType::Column)
-            .set_focusability(state, false)
+            .set_focusable(state, false)
             .set_element(state, "column")
         //.set_width(state, Auto)
         //.set_height(state, Auto)

@@ -88,16 +88,18 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
+
+
     /// Sets whether the entity can be hovered
-    pub fn set_hoverability(mut self, val: bool) -> Self {
-        self.state.data.set_hoverability(self.entity, val);
+    pub fn set_hoverable(mut self, val: bool) -> Self {
+        self.state.data.set_hoverable(self.entity, val);
 
         self
     }
 
     /// Sets whether the entity can be focused
-    pub fn set_focusability(mut self, val: bool) -> Self {
-        self.state.data.set_focusability(self.entity, val);
+    pub fn set_focusable(mut self, val: bool) -> Self {
+        self.state.data.set_focusable(self.entity, val);
 
         self
     }

@@ -616,7 +616,7 @@ impl Widget for MovableTab {
                         self.pos_down_x = state.data.get_posx(entity);
                         self.pos_down_y = state.data.get_posy(entity);
 
-                        state.data.set_hoverability(entity, false);
+                        state.data.set_hoverable(entity, false);
 
                         self.previous_height = entity.get_height(state);
                         self.previous_width = entity.get_width(state);
@@ -647,7 +647,7 @@ impl Widget for MovableTab {
                         entity.set_height(state, self.previous_height);
                         entity.set_width(state, self.previous_width);
                         entity.set_position_type(state, PositionType::ParentDirected);
-                        state.data.set_hoverability(entity, true);
+                        state.data.set_hoverable(entity, true);
                         entity.set_left(state, Units::Auto);
                         entity.set_top(state, Units::Auto);
                         entity.set_z_order(state, 0);

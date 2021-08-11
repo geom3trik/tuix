@@ -43,7 +43,7 @@ impl Widget for Switch {
         self.checkbox.on_build(state, entity);
 
         self.front = Element::new().build(state, entity, |builder| {
-            builder.class("front").set_hoverability(false)
+            builder.class("front").set_hoverable(false)
         });
 
         entity

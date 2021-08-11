@@ -76,7 +76,7 @@ impl Widget for Panel {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_focusability(state, false)
+            .set_focusable(state, false)
             //.set_width(state, Auto);
             .set_height(state, Auto);
 
@@ -103,8 +103,8 @@ impl Widget for Panel {
                 .set_bottom(Stretch(1.0))
                 .set_width(Pixels(20.0))
                 .set_height(Pixels(20.0))
-                .set_hoverability(false)
-                .set_focusability(false)
+                .set_hoverable(false)
+                .set_focusable(false)
                 //.set_background_color(Color::rgb(100, 100, 100))
                 .class("icon")
         });
@@ -117,15 +117,15 @@ impl Widget for Panel {
                 .set_left(Pixels(10.0))
                 .set_child_top(Stretch(1.0))
                 .set_child_bottom(Stretch(1.0))
-                .set_hoverability(false)
-                .set_focusability(false)
+                .set_hoverable(false)
+                .set_focusable(false)
                 .class("label")
         });
 
         self.container1 = Element::new().build(state, entity, |builder| {
             builder
                 .class("container1")
-                .set_focusability(false)
+                .set_focusable(false)
                 .set_width(Stretch(1.0))
                 .set_height(Auto)
                 .set_min_height(Pixels(0.0))
@@ -134,7 +134,7 @@ impl Widget for Panel {
         self.container2 = Element::new().build(state, self.container1, |builder| {
             builder
                 .class("container2")
-                .set_focusability(false)
+                .set_focusable(false)
                 .set_clip_widget(self.container1)
                 //.set_child_left(Stretch(1.0))
                 //.set_child_right(Stretch(1.0))

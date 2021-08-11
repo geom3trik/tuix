@@ -141,7 +141,7 @@ impl Widget for UserWidget {
         Label::new("First Name: ")
             .build(state, entity, |builder| 
                 builder
-                    .set_hoverability(false)
+                    .set_hoverable(false)
                     .set_col(0)
                     .set_row(0)
                 );
@@ -150,7 +150,7 @@ impl Widget for UserWidget {
             .bind(User::first_name, |first_name| first_name.to_owned())
             .build(state, entity, |builder| 
                 builder
-                    .set_hoverability(false)
+                    .set_hoverable(false)
                     .set_col(1)
                     .set_row(0)
                 );
@@ -158,7 +158,7 @@ impl Widget for UserWidget {
         Label::new("Last Name: ")
             .build(state, entity, |builder| 
                 builder
-                    .set_hoverability(false)
+                    .set_hoverable(false)
                     .set_col(0)
                     .set_row(1)
                 );
@@ -167,7 +167,7 @@ impl Widget for UserWidget {
             .bind(User::last_name, |last_name| last_name.to_owned())
             .build(state, entity, |builder| 
                 builder
-                    .set_hoverability(false)
+                    .set_hoverable(false)
                     .set_col(1)
                     .set_row(1)
                 );
@@ -175,7 +175,7 @@ impl Widget for UserWidget {
         Label::new("Age: ")
             .build(state, entity, |builder| 
                 builder
-                    .set_hoverability(false)
+                    .set_hoverable(false)
                     .set_col(0)
                     .set_row(2)
                 );
@@ -184,7 +184,7 @@ impl Widget for UserWidget {
             .bind(User::age, |age| age.to_string())
             .build(state, entity, |builder| 
                 builder
-                    .set_hoverability(false)
+                    .set_hoverable(false)
                     .set_col(1)
                     .set_row(2)
                 );
@@ -227,7 +227,7 @@ impl Widget for Container {
                     .set_space(Stretch(1.0))
             );
 
-        container.set_background_color(state, Color::white()).set_focusability(state, false)
+        container.set_background_color(state, Color::white()).set_focusable(state, false)
     }
 }
 

@@ -45,8 +45,8 @@ impl Widget for ComboBox {
         self.header = Element::new().build(state, entity, |builder| {
             builder
                 //.set_background_color(Color::rgb(100,100,50))
-                .set_hoverability(false)
-                .set_focusability(false)
+                .set_hoverable(false)
+                .set_focusable(false)
                 .set_layout_type(LayoutType::Row)
                 .set_width(Stretch(1.0))
                 .set_height(Stretch(1.0))
@@ -56,8 +56,8 @@ impl Widget for ComboBox {
         self.label = Label::new(&self.current_text).build(state, self.header, |builder| {
             builder
                 //.set_background_color(Color::rgb(100,50,50))
-                .set_hoverability(false)
-                .set_focusability(false)
+                .set_hoverable(false)
+                .set_focusable(false)
                 .set_child_left(Pixels(10.0))
                 .set_child_top(Stretch(10.0))
                 .set_child_bottom(Stretch(10.0))
@@ -68,8 +68,8 @@ impl Widget for ComboBox {
         Element::new().build(state, self.header, |builder| {
             builder
                 .set_font("icons")
-                .set_hoverability(false)
-                .set_focusability(false)
+                .set_hoverable(false)
+                .set_focusable(false)
                 //.set_background_color(Color::rgb(100,100,100))
                 .set_text(ICON_DOWN_DIR)
                 .set_width(Pixels(30.0))

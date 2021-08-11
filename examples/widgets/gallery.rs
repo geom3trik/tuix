@@ -256,7 +256,7 @@ fn main() {
     WindowDescription::new().with_title("Widget Gallery"),
     |state, window| {
 
-            window.set_background_color(state, Color::white()).set_focusability(state, false);
+            window.set_background_color(state, Color::white()).set_focusable(state, false);
 
             state.add_theme(STYLE);
             

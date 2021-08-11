@@ -29,7 +29,7 @@ pub fn apply_hover(state: &mut State) {
         }
 
         // Skip non-hoverable widgets
-        if state.data.get_hoverability(entity) != true {
+        if state.data.get_hoverable(entity) != true {
             continue;
         }
 

@@ -47,9 +47,9 @@ impl Widget for Radio {
         
         self.marker = Element::new().build(state, entity, |builder| {
             builder
-                .set_hoverability(false)
+                .set_hoverable(false)
                 .class("marker")
-                .set_hoverability(false)
+                .set_hoverable(false)
         });
 
         entity.set_element(state, "radio")

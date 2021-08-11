@@ -76,7 +76,7 @@ impl Widget for ScrollContainerH {
                 // .set_align_self(AlignSelf::FlexStart)
                 //.set_background_color(Color::rgb(200, 70, 70))
                 .class("container")
-            //.set_hoverability(false)
+            //.set_hoverable(false)
         });
 
         state.style.clip_widget.insert(self.container, entity);

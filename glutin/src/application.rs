@@ -114,7 +114,7 @@ impl Application {
             .set_height(Entity::root(), window_description.inner_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
     
-        //state.data.set_focusability(Entity::root(), false);
+        //state.data.set_focusable(Entity::root(), false);
 
     
         Entity::root().set_element(&mut state, "window");
@@ -363,7 +363,7 @@ impl Application {
 
 
                                             if let Some(mut temp) = iter.next() {
-                                                while !state.data.get_focusability(temp)
+                                                while !state.data.get_focusable(temp)
                                                     || state.data.get_visibility(temp) == Visibility::Invisible
                                                     || state.data.get_opacity(temp) == 0.0
                                                     || state.style.display.get(temp) == Some(&Display::None)

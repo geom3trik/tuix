@@ -297,12 +297,12 @@ impl Widget for CheckItem {
     type Ret = Entity;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.checkbox = Checkbox::new(self.checked).build(state, entity, |builder| {
-            builder.set_hoverability(false).set_focusability(false)
+            builder.set_hoverable(false).set_focusable(false)
         });
         self.label = Label::new(&self.name).build(state, entity, |builder| {
             builder
-                .set_hoverability(false)
-                .set_focusability(false)
+                .set_hoverable(false)
+                .set_focusable(false)
                 .set_left(Pixels(5.0))
         });
 

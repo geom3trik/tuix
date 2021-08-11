@@ -156,8 +156,8 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    fn set_hoverability(self, state: &mut State, value: bool) -> Entity {
-        state.data.set_hoverability(self.entity(), value);
+    fn set_hoverable(self, state: &mut State, value: bool) -> Entity {
+        state.data.set_hoverable(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -166,8 +166,8 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    fn set_focusability(self, state: &mut State, value: bool) -> Entity {
-        state.data.set_focusability(self.entity(), value);
+    fn set_focusable(self, state: &mut State, value: bool) -> Entity {
+        state.data.set_focusable(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
@@ -886,14 +886,14 @@ impl PropSet for Entity {
         self
     }
 
-    fn set_hoverability(self, state: &mut State, value: bool) -> Self {
-        state.data.set_hoverability(self, value);
+    fn set_hoverable(self, state: &mut State, value: bool) -> Self {
+        state.data.set_hoverable(self, value);
 
         self
     }
 
-    fn set_focusability(self, state: &mut State, value: bool) -> Self {
-        state.data.set_focusability(self, value);
+    fn set_focusable(self, state: &mut State, value: bool) -> Self {
+        state.data.set_focusable(self, value);
 
         self
     }

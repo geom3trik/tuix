@@ -24,7 +24,7 @@ impl Widget for Popup {
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
-            .set_focusability(state, false)
+            .set_focusable(state, false)
             .set_element(state, "popup")
             .set_overflow(state, Overflow::Visible)
             .set_position_type(state, PositionType::SelfDirected)

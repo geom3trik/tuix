@@ -45,7 +45,7 @@ impl Widget for ValueSlider {
                 .set_position(Position::Absolute)
                 .set_text(&self.label_text)
                 .set_padding_left(Units::Pixels(5.0))
-                .set_hoverability(false)
+                .set_hoverable(false)
         });
 
         state.style.insert_element(entity, "value_slider");

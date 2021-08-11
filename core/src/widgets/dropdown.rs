@@ -36,9 +36,9 @@ impl Widget for DropdownItem {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &self.text).class(state, "item");
 
-        //self.checkbox = Checkbox::new(false).build(state, entity, |builder| builder.set_hoverability(false));
+        //self.checkbox = Checkbox::new(false).build(state, entity, |builder| builder.set_hoverable(false));
         // Element::new().build(state, entity, |builder| {
-        //     builder.set_text(&self.text).set_flex_grow(1.0).set_hoverability(false)
+        //     builder.set_text(&self.text).set_flex_grow(1.0).set_hoverable(false)
         // });
 
         entity
@@ -109,8 +109,8 @@ impl Widget for Dropdown {
         self.header = Element::new().build(state, entity, |builder| {
             builder
                 //.set_background_color(Color::rgb(100,100,50))
-                .set_hoverability(false)
-                .set_focusability(false)
+                .set_hoverable(false)
+                .set_focusable(false)
                 .set_layout_type(LayoutType::Row)
                 .set_width(Stretch(1.0))
                 .set_height(Stretch(1.0))
@@ -122,8 +122,8 @@ impl Widget for Dropdown {
         self.label = Label::new(&self.text).build(state, self.header, |builder| {
             builder
                 //.set_background_color(Color::rgb(100,50,50))
-                .set_hoverability(false)
-                .set_focusability(false)
+                .set_hoverable(false)
+                .set_focusable(false)
                 .set_width(Stretch(1.0))
                 .class("label")
         });
@@ -132,8 +132,8 @@ impl Widget for Dropdown {
         Element::new().build(state, self.header, |builder| {
             builder
                 .set_font("icons")
-                .set_hoverability(false)
-                .set_focusability(false)
+                .set_hoverable(false)
+                .set_focusable(false)
                 //.set_background_color(Color::rgb(100,100,100))
                 .set_text(ICON_DOWN_DIR)
                 .set_width(Pixels(20.0))

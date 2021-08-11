@@ -54,7 +54,7 @@ impl Widget for ArcTrack {
         // Non-displayed element used for setting the color of the active arc
         self.front = Element::new().build(state, entity, |builder|
             builder
-                .set_hoverability(false)
+                .set_hoverable(false)
                 .set_display(Display::None)
                 .class("active")
         );
@@ -273,14 +273,14 @@ impl<T: NormalizedMap> Widget for Knob<T> {
         .build(state, entity, |builder| 
             builder
                 .set_position_type(PositionType::SelfDirected)
-                .set_hoverability(false)
+                .set_hoverable(false)
                 .class("value_track")
         );
         
         self.mod_track = ArcTrack::new(self.normalized_value).build(state, entity, |builder| 
             builder
                 .set_position_type(PositionType::SelfDirected)
-                .set_hoverability(false)
+                .set_hoverable(false)
                 .class("mod_track")
             
         );

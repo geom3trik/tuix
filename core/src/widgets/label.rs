@@ -32,7 +32,7 @@ impl Widget for Label {
         entity
             .set_text(state, &self.text.to_string())
             .set_element(state, "label")
-            //.set_focusability(state, false)
+            //.set_focusable(state, false)
     }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {

@@ -85,19 +85,19 @@ impl Widget for ControlKnob {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.back = Element::new().build(state, entity, |builder| {
             builder
-                .set_hoverability(false)
+                .set_hoverable(false)
                 .set_display(Display::None)
                 .class("back")
         });
         self.slider = Element::new().build(state, entity, |builder| {
             builder
-                .set_hoverability(false)
+                .set_hoverable(false)
                 .set_display(Display::None)
                 .class("slider")
         });
         self.tick = Element::new().build(state, entity, |builder| {
             builder
-                .set_hoverability(false)
+                .set_hoverable(false)
                 .set_display(Display::None)
                 .class("tick")
         });

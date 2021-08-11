@@ -104,13 +104,13 @@ impl Widget for UserWidget {
             .bind(User::name, |name| name.to_owned())
             .build(state, entity, |builder| 
                 builder
-                    .set_hoverability(false)
+                    .set_hoverable(false)
                 );
         Label::new("age")
             .bind(User::age, |age| age.to_string())
             .build(state, entity, |builder| 
                 builder
-                    .set_hoverability(false)
+                    .set_hoverable(false)
                 );
         
         entity.set_layout_type(state, LayoutType::Row)
@@ -139,7 +139,7 @@ impl Widget for Container {
 
         state.set_focus(container);
 
-        container.set_background_color(state, Color::white()).set_focusability(state, false)
+        container.set_background_color(state, Color::white()).set_focusable(state, false)
     }
     
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

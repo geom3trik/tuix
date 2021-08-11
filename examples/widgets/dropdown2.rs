@@ -111,7 +111,7 @@ impl Widget for Container {
         Element::new().build(state, self.dropdown, |builder| 
             builder
                 .set_height(Pixels(5.0))
-                .set_focusability(false)
+                .set_focusable(false)
         );
         
 
@@ -150,12 +150,12 @@ impl Widget for Container {
         Element::new().build(state, self.dropdown, |builder| 
             builder
                 .set_height(Pixels(5.0))
-                .set_focusability(false)
+                .set_focusable(false)
         );
 
         //state.set_focus(container);
 
-        container.set_background_color(state, Color::white()).set_focusability(state, false)
+        container.set_background_color(state, Color::white()).set_focusable(state, false)
     }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
@@ -208,7 +208,7 @@ fn main() {
             .with_inner_size(300, 300),
     |state, window| {
 
-            window.set_background_color(state, Color::white()).set_focusability(state, false);
+            window.set_background_color(state, Color::white()).set_focusable(state, false);
 
             state.add_theme(STYLE);
 

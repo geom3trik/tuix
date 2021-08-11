@@ -44,7 +44,7 @@ impl Widget for List {
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         state.focused = entity;
-        entity.set_focusability(state, false);
+        entity.set_focusable(state, false);
         entity.set_element(state, "list")
     }
 
@@ -264,7 +264,7 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
     type Data = Vec<T>;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         state.focused = entity;
-        entity.set_focusability(state, false);
+        entity.set_focusable(state, false);
         entity.set_element(state, "list")
     }
 
@@ -285,7 +285,7 @@ impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
                 ListItem::new((self.creator)(item)).build(state, entity, |builder| 
                     builder
                         .set_height(Pixels(30.0))
-                        //.set_hoverability(false)
+                        //.set_hoverable(false)
                         .set_color(Color::black())
                 );
             }            
