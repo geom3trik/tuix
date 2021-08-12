@@ -129,6 +129,7 @@ pub struct Wrapper<L: Lens, W: Widget, > {
     widget: W,
     lens: L,
     converter: Box<dyn Fn(&<L as Lens>::Target) -> <W as Widget>::Data>,
+    on_update: Option<Box<dyn Fn(&mut W, &mut State, Entity)>>,
 }
 
 impl<L: Lens, W: Widget> Wrapper<L,W> {
@@ -140,7 +141,15 @@ impl<L: Lens, W: Widget> Wrapper<L,W> {
             widget,
             lens,
             converter: Box::new(converter),
+            on_update: None,
         }
+    }
+
+    pub fn on_update<F>(mut self, callback: F) -> Self 
+    where F: 'static + Fn(&mut W, &mut State, Entity)
+    {
+        self.on_update = Some(Box::new(callback));
+        self
     }
 }
 
@@ -189,6 +198,13 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
 
         // Update the underlying widget with the lensed and converted data
         self.widget.on_update(state, entity, &value);
+
+        // Call the on_update callback
+        if let Some(callback) = self.on_update.take() {
+            (callback)(&mut self.widget, state, entity);
+
+            self.on_update = Some(callback);
+        }
     }
 
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
