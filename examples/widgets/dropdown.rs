@@ -73,13 +73,13 @@ impl Widget for Container {
                     .set_space(Stretch(1.0))
             });
 
-            Button::with_label("Red")
-            .on_release(|_, state, button| {
-                button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 0, 0)));
-            })
-            .build(state, self.dropdown, |builder| 
-                builder
-        );
+        // Button::with_label("Red")
+        //     .on_release(|_, state, button| {
+        //         button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 0, 0)));
+        //     })
+        //     .build(state, self.dropdown, |builder| 
+        //         builder
+        //     );
         
 
         // Spacer

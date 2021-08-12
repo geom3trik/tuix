@@ -144,9 +144,9 @@ impl Widget for Dropdown {
         self.container = Popup::new().build(state, entity, |builder| {
             builder
                 .set_position_type(PositionType::SelfDirected)
-                .set_top(Percentage(1.0))
-                .set_width(Percentage(1.0))
-                .set_height(Pixels(50.0))
+                .set_top(Percentage(100.0))
+                .set_width(Auto)
+                .set_height(Auto)
                 .set_z_order(1)
                 .set_clip_widget(Entity::root())
                 .class("container")
