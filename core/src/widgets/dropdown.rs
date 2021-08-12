@@ -106,18 +106,18 @@ impl Widget for Dropdown {
     type Ret = Entity;
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.header = Element::new().build(state, entity, |builder| {
-            builder
-                //.set_background_color(Color::rgb(100,100,50))
-                .set_hoverable(false)
-                .set_focusable(false)
-                .set_layout_type(LayoutType::Row)
-                .set_width(Stretch(1.0))
-                .set_height(Stretch(1.0))
-                .class("header")
-        });
+        // self.header = Element::new().build(state, entity, |builder| {
+        //     builder
+        //         //.set_background_color(Color::rgb(100,100,50))
+        //         .set_hoverable(false)
+        //         .set_focusable(false)
+        //         .set_layout_type(LayoutType::Row)
+        //         .set_width(Stretch(1.0))
+        //         .set_height(Stretch(1.0))
+        //         .class("header")
+        // });
 
-        self.label = Label::new(&self.text).build(state, self.header, |builder| {
+        self.label = Label::new(&self.text).build(state, entity, |builder| {
             builder
                 //.set_background_color(Color::rgb(100,50,50))
                 .set_hoverable(false)
@@ -128,7 +128,7 @@ impl Widget for Dropdown {
         });
 
         // Icon
-        Element::new().build(state, self.header, |builder| {
+        Element::new().build(state, entity, |builder| {
             builder
                 .set_font("icons")
                 .set_hoverable(false)
@@ -159,7 +159,7 @@ impl Widget for Dropdown {
                 .set_height(Auto)
         );
 
-        entity.set_element(state, "dropdown");
+        entity.set_element(state, "dropdown").set_layout_type(state, LayoutType::Row);
 
         // (entity, self.header, self.container)
 

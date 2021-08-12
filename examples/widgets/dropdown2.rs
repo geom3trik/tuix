@@ -2,15 +2,19 @@ use tuix::*;
 
 const STYLE: &str = r#"
 
+    /*
+    * {
+        border-width: 1px;
+        border-color: green;
+    }
+    */
+    
     dropdown {
         border-width: 1px;
         border-color: #555555;
-    }
-
-    dropdown>.header {
         background-color: white;
     }
-
+    
     dropdown .label {
         child-space: 1s;
         color: black;
@@ -48,7 +52,7 @@ const STYLE: &str = r#"
         border-width: 1px;
         border-color: black;
     }
-
+    
 "#;
 
 #[derive(Debug, Clone, PartialEq)]
