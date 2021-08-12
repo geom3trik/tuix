@@ -114,8 +114,6 @@ impl Widget for Dropdown {
                 .set_layout_type(LayoutType::Row)
                 .set_width(Stretch(1.0))
                 .set_height(Stretch(1.0))
-                .set_child_top(Stretch(1.0))
-                .set_child_bottom(Stretch(1.0))
                 .class("header")
         });
 
@@ -125,6 +123,7 @@ impl Widget for Dropdown {
                 .set_hoverable(false)
                 .set_focusable(false)
                 .set_width(Stretch(1.0))
+                .set_height(Stretch(1.0))
                 .class("label")
         });
 
@@ -137,6 +136,9 @@ impl Widget for Dropdown {
                 //.set_background_color(Color::rgb(100,100,100))
                 .set_text(ICON_DOWN_DIR)
                 .set_width(Pixels(20.0))
+                .set_height(Pixels(20.0))
+                .set_top(Stretch(1.0))
+                .set_bottom(Stretch(1.0))
                 .set_child_space(Stretch(1.0))
                 .class("icon")
         });
