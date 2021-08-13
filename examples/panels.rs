@@ -1,6 +1,11 @@
 use tuix::*;
 
 const STYLE: &str = r#"
+
+    * {
+        border-width: 1px;
+        border-color: green;
+    }
     
     *:focus {
         border-width: 1px;
@@ -22,7 +27,7 @@ const STYLE: &str = r#"
         child-right: 1s;
         child-top: 10px;
         child-bottom: 10px;
-        child-between: 10px;
+        col-between: 10px;
     }
     
     panel.one {
@@ -47,6 +52,9 @@ fn main() {
         let panel =
             Panel::new("Panel 1").build(state, window.entity(), |builder| builder.class("one"));
 
+
+        panel.set_row_between(state, Pixels(20.0));
+
         Button::with_label("1").build(state, panel, |builder| {
             builder
                 .set_width(Units::Pixels(100.0))
@@ -59,7 +67,7 @@ fn main() {
             builder
                 .set_width(Units::Pixels(100.0))
                 .set_height(Units::Pixels(30.0))
-                .set_background_color(Color::blue())
+                .set_background_color(Color::red())
                 .set_child_space(Stretch(1.0))
         });
 

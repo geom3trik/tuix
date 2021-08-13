@@ -66,6 +66,7 @@ impl ScrollContainerH {
 
 impl Widget for ScrollContainerH {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_layout_type(state, LayoutType::Column);
 
@@ -387,6 +388,7 @@ impl ScrollContainer {
 
 impl Widget for ScrollContainer {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_layout_type(state, LayoutType::Row)
@@ -765,6 +767,7 @@ impl ScrollContainerHV {
 
 impl Widget for ScrollContainerHV {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_layout_type(state, LayoutType::Row);
 

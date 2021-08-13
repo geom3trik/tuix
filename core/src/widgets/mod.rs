@@ -28,8 +28,8 @@ pub use popups::*;
 pub mod dropdown;
 pub use dropdown::*;
 
-// pub mod scroll_container;
-// pub use scroll_container::*;
+pub mod scroll_container;
+pub use scroll_container::*;
 
 // pub mod value_slider;
 // pub use value_slider::ValueSlider;
@@ -37,8 +37,8 @@ pub use dropdown::*;
 // pub mod length_box;
 // pub use length_box::LengthBox;
 
-// pub mod panel;
-// pub use panel::*;
+pub mod panel;
+pub use panel::*;
 
 pub mod label;
 pub use label::*;
