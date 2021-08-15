@@ -365,8 +365,6 @@ where
             let start = state.keyframes.first().unwrap();
             let end = state.keyframes.last().unwrap();
 
-            println!("Animate: {:?} {:?}", start, end);
-
             if start.1 == end.1 {
                 state.t0 = 1.0;
                 state.output = Some(end.1.clone());
