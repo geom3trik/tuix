@@ -181,12 +181,22 @@ impl Widget for Dropdown {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.button.on_event(state, entity, event);
 
-        if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
+        if let Some(dropdown_event) = event.message.downcast() {
             //if event.target == entity {
             match dropdown_event {
                 DropdownEvent::SetText(text) => {
                     self.label.set_text(state, text);
                 }
+            }
+        }
+
+        if let Some(popup_event) = event.message.downcast() {
+            match popup_event {
+                PopupEvent::Close => {
+                    entity.emit(state, CheckboxEvent::Uncheck);
+                }
+
+                _=> {}
             }
         }
 

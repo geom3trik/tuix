@@ -16,6 +16,10 @@ const STYLE: &str = r#"
         background-color: #e2e2e2;
     }
 
+    list>check_button:active {
+        background-color: #c2c2c2;
+    }
+
     list>check_button:checked {
         background-color: #AAAAFF;
     }

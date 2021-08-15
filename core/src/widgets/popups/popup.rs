@@ -78,13 +78,13 @@ impl Widget for Popup {
                 }
 
                 PopupEvent::Open => {
-                    println!("Open");
                     self.open = true;
                     state.capture(entity);
                     entity.set_opacity(state, 1.0);
                 }
 
                 PopupEvent::Close => {
+                    println!("Close");
                     self.open = false;
                     state.release(entity);
                     entity.set_opacity(state, 0.0);
@@ -107,23 +107,23 @@ impl Widget for Popup {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseCaptureOutEvent => {
-                    //println!("Hide");
+                    println!("Hide");
                     // state
                     //     .style
                     //     .opacity
                     //     .play_animation(self.container, self.fade_out_animation);
-
-                    entity.set_opacity(state, 0.0);
+                    entity.emit(state, PopupEvent::Close);
+                    //entity.set_opacity(state, 0.0);
                 }
 
                 WindowEvent::MouseCaptureEvent => {
-                    //println!("Show");
+                    println!("Show");
                     // state
                     //     .style
                     //     .opacity
                     //     .play_animation(self.container, self.fade_in_animation);
-
-                    entity.set_opacity(state, 1.0);
+                    entity.emit(state, PopupEvent::Open);
+                    //entity.set_opacity(state, 1.0);
                     // Shouldn't need to do this but it's required for some reason. TODO: Investigate
                     //self.container.set_z_order(state, 1);
                 }

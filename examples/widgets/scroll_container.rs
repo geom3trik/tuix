@@ -1,27 +1,6 @@
 use tuix::*;
 
 const STYLE: &str = r#"
-
-    dropdown {
-        border-width: 1px;
-        border-color: #555555;
-        background-color: white;
-    }
-    
-    dropdown .label {
-        child-space: 1s;
-        color: black;
-    }
-
-    dropdown .icon {
-        color: #555555;
-    }
-
-    popup {
-        background-color: #d2d2d2;
-    }
-
-
     list {
         border-width: 1px;
         border-color: #555555;
@@ -30,7 +9,7 @@ const STYLE: &str = r#"
     list>check_button {
         height: 30px;
         child-space: 1s;
-        background-color: #d2d2d2;
+        background-color: white;
     }
 
     list>check_button:hover {
@@ -42,14 +21,14 @@ const STYLE: &str = r#"
     }
 
     list>check_button:checked {
-        background-color: #c2c2ff;
+        background-color: #AAAAFF;
     }
 
     list>check_button:focus {
         border-width: 1px;
         border-color: black;
     }
-    
+
 "#;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -59,7 +38,7 @@ enum CustomEvent {
 
 #[derive(Default)]
 struct Container {
-    dropdown: Entity,
+    listbox: Entity,
 }
 
 impl Widget for Container {
@@ -67,28 +46,22 @@ impl Widget for Container {
     type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
-        self.dropdown = Dropdown::new("Test")
+        let scroll = ScrollContainer::new().build(state, container, |builder| builder);
+
+        self.listbox = List::new()
             .build(state, container, |builder| {
                 builder
                     .set_width(Pixels(210.0))
-                    .set_height(Pixels(30.0))
+                    .set_height(Auto)
                     .set_space(Stretch(1.0))
             });
-            
-        self.dropdown.set_width(state, Pixels(100.0));
-            
-        // Spacer
-        Element::new().build(state, self.dropdown, |builder| 
-            builder
-                .set_height(Pixels(5.0))
-        );
-
+        
         CheckButton::with_label("Red")
             .set_checked(true)
             .on_checked(|_, state, button|{
                 button.emit(state, CustomEvent::ChangeColor(Color::rgb(200, 50, 50)));
             })
-            .build(state, self.dropdown, |builder| 
+            .build(state, self.listbox, |builder| 
                 builder
                     .set_color(Color::black())
             );
@@ -97,7 +70,7 @@ impl Widget for Container {
             .on_checked(|_, state, button|{
                 button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 200, 50)));
             })
-            .build(state, self.dropdown, |builder| 
+            .build(state, self.listbox, |builder| 
                 builder
                     .set_color(Color::black())
             );
@@ -106,16 +79,10 @@ impl Widget for Container {
             .on_checked(|_, state, button|{
                 button.emit(state, CustomEvent::ChangeColor(Color::rgb(50, 50, 200)));
             })
-            .build(state, self.dropdown, |builder| 
+            .build(state, self.listbox, |builder| 
                 builder
                     .set_color(Color::black())
             );
-
-        // Spacer
-        Element::new().build(state, self.dropdown, |builder| 
-            builder
-                .set_height(Pixels(5.0))
-        );
 
         container.set_background_color(state, Color::white()).set_focusable(state, false)
     }

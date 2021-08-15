@@ -41,6 +41,10 @@ const STYLE: &str = r#"
     }
 
     list>check_button:hover {
+        background-color: #e2e2e2;
+    }
+
+    list>check_button:active {
         background-color: #c2c2c2;
     }
 
