@@ -1,9 +1,8 @@
 #![allow(dead_code)]
 
-use crate::style::*;
-use crate::widgets::*;
+use crate::*;
 
-use crate::widgets::slider::SliderEvent;
+use crate::slider::SliderEvent;
 
 use femtovg::{renderer::OpenGl, Canvas, LineCap, Paint, Path, Solidity};
 

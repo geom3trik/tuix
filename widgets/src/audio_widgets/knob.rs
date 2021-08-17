@@ -1,6 +1,5 @@
 
-use crate::style::*;
-use crate::widgets::*;
+use crate::*;
 use femtovg::*;
 
 use super::NormalizedMap;
@@ -102,7 +101,7 @@ impl Widget for ArcTrack {
         }
     }
 
-    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut crate::widget::Canvas) {
+    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut crate::Canvas) {
         
         let opacity = state.data.get_opacity(entity);
         

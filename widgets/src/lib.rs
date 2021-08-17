@@ -1,3 +1,4 @@
+
 pub mod element;
 pub use element::Element;
 
@@ -46,9 +47,6 @@ pub use label::*;
 pub mod containers;
 pub use containers::*;
 
-pub mod window;
-pub use window::WindowWidget;
-
 // pub mod tooltip;
 // pub use tooltip::*;
 
@@ -62,40 +60,14 @@ pub use audio_widgets::*;
 // pub mod debug_container;
 // pub use debug_container::*;
 
-pub use crate::entity::Entity;
-pub use crate::events::{Event, Propagation, Widget, WindowEvent};
-pub use crate::mouse::*;
-pub use crate::state::State;
-pub use crate::{Animation, AnimationState, PropGet, PropSet};
-pub use crate::{Code, Key};
+pub use tuix_core::entity::Entity;
+pub use tuix_core::events::{Event, Propagation, Widget, WindowEvent};
+pub use tuix_core::mouse::*;
+pub use tuix_core::state::State;
+pub use tuix_core::{Animation, AnimationState, PropGet, PropSet};
+pub use tuix_core::{Code, Key};
 pub type Canvas = femtovg::Canvas<femtovg::renderer::OpenGl>;
-pub use crate::Units::*;
+pub use tuix_core::Units::*;
+pub use tuix_core::state::style::*;
+pub use tuix_core::{Model, Wrapper, BindEvent};
 
-#[derive(Default)]
-pub struct BaseWidget {
-    on_hover: Option<Event>,
-}
-
-impl BaseWidget {
-    pub fn on_hover(&mut self, event: Event) -> &mut Self {
-        self.on_hover = Some(event);
-
-        self
-    }
-}
-
-// pub trait BasicWidget: Sized {
-//     fn get_base_widget(&mut self) -> &mut BaseWidget;
-
-//     fn on_hover(mut self, event: Event) -> Self
-//     {
-//         self.get_base_widget().on_hover(event);
-
-//         self
-//     }
-
-//     fn on_active(mut self, event: Event) -> Self
-//     {
-//         self
-//     }
-// }

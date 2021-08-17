@@ -2,11 +2,8 @@
 
 use std::marker::PhantomData;
 
-use crate::BindEvent;
-use crate::Lens;
-use crate::Wrapper;
-use crate::widgets::*;
-use crate::style::*;
+
+use crate::*;
 
 pub struct Label {
     text: String,

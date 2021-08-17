@@ -1,7 +1,4 @@
-use crate::widgets::*;
-use crate::widgets::{ControlKnob, Label, SliderEvent, Textbox, TextboxEvent};
-
-use crate::state::style::*;
+use crate::*;
 
 use std::sync::{Arc, Mutex};
 // const VALUE_SLIDER_STYLE: &str = r#"

@@ -21,9 +21,6 @@ pub use text::*;
 pub mod events;
 pub use events::*;
 
-pub mod widgets;
-pub use crate::widgets::*;
-
 pub mod systems;
 pub use crate::systems::*;
 

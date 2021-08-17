@@ -1,7 +1,7 @@
 // A container for a stack of widgets where only one widget is visible at a time
 
-use crate::{IntoChildIterator, widgets::*};
-use crate::style::*;
+
+use crate::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum StackEvent {

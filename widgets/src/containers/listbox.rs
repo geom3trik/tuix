@@ -1,16 +1,9 @@
 use std::marker::PhantomData;
 
-use crate::BindEvent;
-use crate::Color;
-use crate::CachedData;
-use crate::IntoBranchIterator;
-use crate::IntoChildIterator;
-use crate::Lens;
-use crate::Node;
-use crate::Wrapper;
-use crate::widgets::*;
+use crate::*;
+use tuix_core::{Node, Lens, IntoChildIterator};
 
-use crate::TreeExt;
+use tuix_core::TreeExt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ListEvent {

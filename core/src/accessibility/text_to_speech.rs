@@ -1,4 +1,4 @@
-use crate::widgets::*;
+use crate::{State, Entity, Event, Widget, WindowEvent, PropSet, PropGet};
 use tts::*;
 
 

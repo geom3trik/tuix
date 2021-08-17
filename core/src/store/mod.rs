@@ -7,7 +7,10 @@ use std::{any::TypeId, collections::HashSet};
 pub use node::*;
 pub use lens::*;
 
-use crate::{EventHandler, IntoChildIterator, PropType, widgets::*};
+use crate::{EventHandler, IntoChildIterator, PropType};
+use crate::{State, Entity, Event, Widget, Propagation, PropSet};
+
+use crate::events::event_handler::Canvas;
 
 pub trait Model {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}

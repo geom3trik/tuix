@@ -1,5 +1,4 @@
-use crate::style::*;
-use crate::widgets::*;
+use crate::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PopupEvent {

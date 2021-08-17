@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 
-use crate::state::style::*;
-use crate::widgets::*;
+use crate::*;
 
 const ICON_DOWN_OPEN: &str = "\u{e75c}";
 

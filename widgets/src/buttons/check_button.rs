@@ -1,5 +1,4 @@
-use crate::style::*;
-use crate::widgets::*;
+use crate::*;
 
 // An element that switches between checked and unchecked when pressed / released
 

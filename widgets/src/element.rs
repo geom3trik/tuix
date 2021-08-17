@@ -1,4 +1,4 @@
-use crate::widgets::*;
+use crate::*;
 
 /// The unit widget
 ///

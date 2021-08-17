@@ -1,15 +1,44 @@
-use crate::state::style::*;
+use crate::*;
 
-use crate::{MouseButton, State};
-
-use crate::widgets::*;
-use crate::widgets::{Button, Column, Element, Row};
-use crate::AnimationState;
+use tuix_derive::Lens;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ScrollEvent {
     ScrollV(f32),
     ScrollH(f32),
+}
+
+
+#[derive(Debug, Default)]
+pub struct Scroll {
+    pub scroll: f32,
+    pub overflow: f32,
+}
+
+#[derive(Debug, Default, tuix_derive::Lens)]
+pub struct ScrollData {
+    horizontal: Scroll,
+    vertical: Scroll,    
+}
+
+impl Model for ScrollData {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(scroll_event) = event.message.downcast() {
+            match scroll_event {
+                ScrollEvent::ScrollH(val) => {
+                    self.horizontal.scroll = *val;
+                    entity.emit(state, BindEvent::Update);
+                    event.consume();
+                }
+
+                ScrollEvent::ScrollV(val) => {
+                    self.vertical.scroll = *val;
+                    entity.emit(state, BindEvent::Update);
+                    event.consume();
+                }
+            }
+        }
+    }
 }
 
 pub struct ScrollContainerH {

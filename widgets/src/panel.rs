@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 
-use crate::style::*;
-use crate::widgets::*;
+use crate::*;
 
 const ICON_DOWN_OPEN_BIG: &str = "\u{e75c}";
 const ICON_RIGHT_OPEN_BIG: &str = "\u{e75e}";

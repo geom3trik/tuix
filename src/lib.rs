@@ -9,4 +9,7 @@ pub use tuix_baseview::Application;
 
 pub use tuix_core::*;
 
+
 pub use tuix_derive::*;
+
+pub use tuix_widgets::*;

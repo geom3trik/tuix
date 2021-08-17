@@ -1,4 +1,4 @@
-use crate::widgets::*;
+use crate::*;
 
 /// Events sent when interacting with a button and events to set properties of a button
 #[derive(Debug, Clone, PartialEq)]

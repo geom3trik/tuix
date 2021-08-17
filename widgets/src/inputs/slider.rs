@@ -1,5 +1,5 @@
-use crate::state::style::*;
-use crate::widgets::*;
+use crate::{State, Entity, Event, Units, Element, PositionType, LayoutType, Widget, WindowEvent, PropSet, PropGet, MouseButton};
+use crate::Units::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SliderEvent {

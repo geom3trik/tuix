@@ -29,15 +29,26 @@ pub fn apply_clipping(state: &mut State, tree: &Tree) {
 
         let parent = tree.get_parent(entity).unwrap();
 
-        let parent_clip_region = state.data.get_clip_region(parent);
+        let mut parent_clip_region = state.data.get_clip_region(parent);
+        let parent_border_width = state.style.border_width.get(parent).cloned().unwrap_or_default().value_or(0.0, 0.0);
+
+        //println!("Parent border width: {}", parent_border_width);
+        parent_clip_region.x += parent_border_width / 2.0;
+        parent_clip_region.y += parent_border_width / 2.0;
+        parent_clip_region.w -= parent_border_width;
+        parent_clip_region.h -= parent_border_width;
+
+
+
         let root_clip_region = state.data.get_clip_region(Entity::root());
 
         if entity.get_overflow(state) == Overflow::Hidden {
-            if let Some(clip_widget) = state.style.clip_widget.get(entity) {
-                let clip_x = state.data.get_posx(*clip_widget);
-                let clip_y = state.data.get_posy(*clip_widget);
-                let clip_w = state.data.get_width(*clip_widget);
-                let clip_h = state.data.get_height(*clip_widget);
+            if let Some(clip_widget) = state.style.clip_widget.get(entity).cloned() {
+                let clip_widget_border_width = state.style.border_width.get(clip_widget).cloned().unwrap_or_default().value_or(0.0, 0.0);
+                let clip_x = state.data.get_posx(clip_widget) + clip_widget_border_width;
+                let clip_y = state.data.get_posy(clip_widget) + clip_widget_border_width;
+                let clip_w = state.data.get_width(clip_widget) - 2.0 * clip_widget_border_width;
+                let clip_h = state.data.get_height(clip_widget) - 2.0 * clip_widget_border_width;
 
                 let mut intersection = BoundingBox::default();
                 intersection.x = clip_x.max(parent_clip_region.x);
@@ -62,6 +73,9 @@ pub fn apply_clipping(state: &mut State, tree: &Tree) {
         } else {
             state.data.set_clip_region(entity, root_clip_region);
         }
+
+        //let clip_region = state.data.get_clip_region(entity);
+        //println!("Entity: {}  Clip Region: {:?}", entity, clip_region);
     }
 }
 

@@ -1,8 +1,7 @@
 #![allow(dead_code)]
 
-use crate::style::*;
-use crate::widgets::*;
-use crate::CursorIcon;
+use crate::*;
+use tuix_core::CursorIcon;
 
 pub struct Row {}
 
