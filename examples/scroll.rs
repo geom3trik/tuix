@@ -69,7 +69,7 @@ impl Widget for Container {
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
 
-        let scroll_data = ScrollData::defualt().build(state, container);
+        let scroll_data = ScrollData::default().build(state, container);
 
         let scroll = ScrollContainer::new().build(state, scroll_data, |builder| 
             builder

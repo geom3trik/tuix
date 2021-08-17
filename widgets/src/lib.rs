@@ -70,4 +70,5 @@ pub type Canvas = femtovg::Canvas<femtovg::renderer::OpenGl>;
 pub use tuix_core::Units::*;
 pub use tuix_core::state::style::*;
 pub use tuix_core::{Model, Wrapper, BindEvent};
+pub use tuix_core::Lens;
 

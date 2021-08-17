@@ -15,10 +15,10 @@ pub struct Scroll {
     pub overflow: f32,
 }
 
-#[derive(Debug, Default, tuix_derive::Lens)]
+#[derive(Debug, Default, Lens)]
 pub struct ScrollData {
     horizontal: Scroll,
-    vertical: Scroll,    
+    vertical: Scroll,
 }
 
 impl Model for ScrollData {

@@ -145,7 +145,7 @@ fn derive_struct(input: &syn::DeriveInput) -> Result<proc_macro2::TokenStream, s
 
         quote! {
 
-            impl #impl_generics tuix_core::Lens for #twizzled_name::#field_name#lens_ty_generics #where_clause {
+            impl #impl_generics Lens for #twizzled_name::#field_name#lens_ty_generics #where_clause {
 
                 type Source = #struct_type#ty_generics;
                 type Target = #field_ty;
