@@ -1,7 +1,4 @@
-use crate::{mouse::MouseButton, TreeTree, Visibility};
-
-use crate::style::*;
-use crate::{widgets::*, Units};
+use crate::common::*;
 
 // Wrap a widget in a context menu to add a right-click menu to a widget
 pub struct ContextMenu {

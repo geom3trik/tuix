@@ -1,8 +1,4 @@
-#![allow(dead_code)]
-
-use std::marker::PhantomData;
-
-use crate::*;
+use crate::common::*;
 
 use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
 

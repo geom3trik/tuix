@@ -1,4 +1,4 @@
-use crate::widgets::*;
+use crate::common::*;
 use crate::widgets::{Label, Slider, SliderEvent, Textbox, TextboxEvent};
 
 use crate::state::style::*;

@@ -1,8 +1,5 @@
-#![allow(dead_code)]
+use crate::common::*;
 
-use crate::tree::*;
-use crate::state::style::*;
-use crate::widgets::*;
 use crate::AnimationState;
 
 #[derive(Clone, Debug, PartialEq)]

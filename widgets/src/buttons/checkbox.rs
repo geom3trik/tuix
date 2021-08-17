@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
-use crate::*;
+use crate::common::*;
+use crate::ButtonEvent;
 
 const ICON_CHECK: &str = "\u{2713}";
 

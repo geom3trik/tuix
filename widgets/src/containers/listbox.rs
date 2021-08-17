@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 
-use crate::*;
+use crate::common::*;
+use crate::{CheckboxEvent};
 use tuix_core::{Node, Lens, IntoChildIterator};
 
 use tuix_core::TreeExt;

@@ -1,14 +1,11 @@
-#![allow(dead_code)]
-
 const ICON_LEFT_OPEN_BIG: &str = "\u{e761}";
 const ICON_RIGHT_OPEN_BIG: &str = "\u{e762}";
 
 const ICON_DOWN_OPEN_MINI: &str = "\u{e760}";
 const ICON_UP_OPEN_MINI: &str = "\u{e763}";
 
-use crate::widgets::*;
-use crate::style::*;
-use crate::widgets::{Element, Textbox, TextboxEvent};
+use crate::common::*;
+use crate::{Textbox, TextboxEvent};
 use num_traits::{Bounded, Num, One, CheckedSub, CheckedAdd};
 
 pub struct Spinbox<T> {

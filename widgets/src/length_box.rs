@@ -1,7 +1,5 @@
-use crate::state::{Entity, State};
-
-use crate::widgets::*;
-use crate::widgets::{Dropdown, DropdownEvent, Item, Textbox, TextboxEvent};
+use crate::common::*;
+use crate::{Dropdown, DropdownEvent, Item, Textbox, TextboxEvent};
 
 use crate::state::style::*;
 

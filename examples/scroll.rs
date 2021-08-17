@@ -5,7 +5,7 @@ const STYLE: &str = r#"
     scroll_container {
         height: 1s;
         background-color: #262626;
-        border-width: 5px;
+        border-width: 0px;
         border-color: black;
     }
 
@@ -71,7 +71,21 @@ impl Widget for Container {
 
         let scroll_data = ScrollData::default().build(state, container);
 
-        let scroll = ScrollContainer::new().build(state, scroll_data, |builder| 
+        let row = Row::new().build(state, scroll_data, |builder| builder);
+
+
+        Scrollbar::new()
+        .bind(ScrollData::vertical, |scroll| *scroll)
+        .build(state, row, |builder| 
+            builder
+                .set_width(Pixels(10.0))
+                .set_height(Stretch(1.0))
+                .set_background_color(Color::rgb(150, 150, 150))
+        );
+
+        let scroll = ScrollContainer::new()
+        .bind(ScrollData::vertical, |scroll| *scroll)
+        .build(state, row, |builder| 
             builder
                 .set_height(Pixels(100.0))
                 .set_width(Pixels(210.0))

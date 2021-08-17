@@ -1,21 +1,22 @@
-use crate::*;
+use crate::common::*;
+use crate::{Row, Column, Button};
 
 use tuix_derive::Lens;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ScrollEvent {
-    ScrollV(f32),
+    ScrollV(f32, f32),
     ScrollH(f32),
 }
 
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Scroll {
     pub scroll: f32,
     pub overflow: f32,
 }
 
-#[derive(Debug, Default, Lens)]
+#[derive(Debug, Default, Lens, Clone, Copy)]
 pub struct ScrollData {
     horizontal: Scroll,
     vertical: Scroll,
@@ -31,8 +32,9 @@ impl Model for ScrollData {
                     event.consume();
                 }
 
-                ScrollEvent::ScrollV(val) => {
+                ScrollEvent::ScrollV(val, overflow) => {
                     self.vertical.scroll = *val;
+                    self.vertical.overflow = *overflow;
                     entity.emit(state, BindEvent::Update);
                     event.consume();
                 }
@@ -266,7 +268,7 @@ impl Widget for ScrollContainerH {
                             .set_left(state, Units::Percentage(self.scrolly * overflow2 * 100.0));
 
                         state.insert_event(
-                            Event::new(ScrollEvent::ScrollV(self.scrolly * overflow))
+                            Event::new(ScrollEvent::ScrollV(self.scrolly, overflow))
                                 .target(entity),
                         );
 
@@ -386,7 +388,6 @@ impl Widget for ScrollContainerH {
 
 pub struct ScrollContainer {
     container: Entity,
-    horizontal_scroll: Entity,
     vertical_scroll: Entity,
     scrolly: f32,
 
@@ -404,7 +405,6 @@ impl ScrollContainer {
     pub fn new() -> Self {
         ScrollContainer {
             container: Entity::null(),
-            horizontal_scroll: Entity::null(),
             vertical_scroll: Entity::null(),
             scrolly: 0.0,
 
@@ -421,7 +421,7 @@ impl ScrollContainer {
 
 impl Widget for ScrollContainer {
     type Ret = Entity;
-    type Data = ();
+    type Data = Scroll;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_layout_type(state, LayoutType::Row)
@@ -484,6 +484,24 @@ impl Widget for ScrollContainer {
             .insert_animation(vertical_container_animation);
 
         self.container
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        self.scrolly = data.scroll;
+
+        let overflow = 1.0
+            - (state.data.get_height(self.container)
+                / state.data.get_height(entity));
+        let overflow2 = 1.0
+            - (state.data.get_height(entity)
+                / state.data.get_height(self.container));
+
+        self.container
+            .set_top(state, Units::Percentage(self.scrolly * overflow * 100.0));
+        // self.vertical_scroll
+        //     .set_top(state, Units::Percentage(self.scrolly * overflow2 * 100.0));
+        
+
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -600,26 +618,26 @@ impl Widget for ScrollContainer {
                     //     scrollh = 1.0;
                     // }
 
-                    let _current_scroll_top = state
-                        .style
-                        .top
-                        .get(self.vertical_scroll)
-                        .cloned()
-                        .unwrap_or_default();
-                    let _current_container_top = state
-                        .style
-                        .top
-                        .get(self.container)
-                        .cloned()
-                        .unwrap_or_default();
+                    // let _current_scroll_top = state
+                    //     .style
+                    //     .top
+                    //     .get(self.vertical_scroll)
+                    //     .cloned()
+                    //     .unwrap_or_default();
+                    // let _current_container_top = state
+                    //     .style
+                    //     .top
+                    //     .get(self.container)
+                    //     .cloned()
+                    //     .unwrap_or_default();
 
-                    self.container
-                        .set_top(state, Units::Percentage(self.scrolly * overflow * 100.0));
-                    self.vertical_scroll
-                        .set_top(state, Units::Percentage(self.scrolly * overflow2 * 100.0));
+                    // self.container
+                    //     .set_top(state, Units::Percentage(self.scrolly * overflow * 100.0));
+                    // self.vertical_scroll
+                    //     .set_top(state, Units::Percentage(self.scrolly * overflow2 * 100.0));
 
                     state.insert_event(
-                        Event::new(ScrollEvent::ScrollV(self.scrolly * overflow)).target(entity),
+                        Event::new(ScrollEvent::ScrollV(self.scrolly, overflow2)).target(entity),
                     );
 
                     /*
@@ -739,7 +757,7 @@ impl Widget for ScrollContainer {
                             .set_top(state, Units::Percentage(self.scrolly * overflow2 * 100.0));
 
                         state.insert_event(
-                            Event::new(ScrollEvent::ScrollV(self.scrolly * overflow))
+                            Event::new(ScrollEvent::ScrollV(self.scrolly, overflow2))
                                 .target(entity),
                         );
 

@@ -1,8 +1,6 @@
-#![allow(dead_code)]
-
-use crate::state::style::*;
-use crate::widgets::Button;
-use crate::widgets::*;
+use crate::common::*;
+use crate::Button;
+use crate::scroll_container::Scroll;
 
 pub enum ScrollDirection {
     Horizontal,
@@ -10,10 +8,8 @@ pub enum ScrollDirection {
 }
 
 pub struct Scrollbar {
-    entity: Entity,
-
     front: Entity,
-    direction: ScrollDirection,
+    scroll: f32,
 
     pub position: f32,
     pub pos_ratio: f32,
@@ -25,12 +21,10 @@ pub struct Scrollbar {
 }
 
 impl Scrollbar {
-    pub fn new(entity: Entity, direction: ScrollDirection) -> Self {
+    pub fn new() -> Self {
         Scrollbar {
-            entity,
             front: Entity::null(),
-
-            direction: direction,
+            scroll: 0.0,
 
             position: 0.0,
             pos_ratio: 0.2,
@@ -58,35 +52,27 @@ impl Scrollbar {
 
 impl Widget for Scrollbar {
     type Ret = Entity;
+    type Data = Scroll;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.front = Button::new().build(state, entity, |builder| builder.class("front"));
-        match self.direction {
-            ScrollDirection::Horizontal => {
-                // entity
-                //     .set_width(state, Units::Pixels(100.0))
-                //     .set_height(state, Units::Pixels(10.0));
+        self.front = Button::new().build(state, entity, |builder| 
+            builder
+                .set_background_color(Color::rgb(50, 50, 100))
+                .class("front")
+        );
 
-                //self.front.set_height(state, 1.0);
-                //.set_background_color(state, Color::rgb(80, 50, 50));
-            }
 
-            ScrollDirection::Vertical => {
-                //entity
-                //    .set_height(state, 1.0);
-                //.set_flex_basis(state, 10.0)
-                //.set_flex_grow(state, 0.0);
-                //.set_background_color(state, Color::rgb(38, 38, 38));
+        self.front
+            .set_width(state, Units::Percentage(100.0))
+            .set_height(state, Units::Percentage(100.0));
+    
 
-                self.front
-                    .set_width(state, Units::Percentage(1.0))
-                    .set_height(state, Units::Percentage(1.0));
-                //.set_background_color(state, Color::rgb(100, 100, 100));
-                //.set_margin_left(state, 1.0)
-                //.set_margin_right(state, 1.0);
-            }
-        }
 
         entity.set_element(state, "scrollbar")
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        self.scroll = data.scroll;
+        entity.set_top(state, Percentage(self.scroll * data.overflow * 100.0));
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -124,6 +110,7 @@ impl Widget for Scrollbar {
         }
         */
 
+        /*
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 // When a relayout occurs, determine the new height of the scroll bar
@@ -266,5 +253,6 @@ impl Widget for Scrollbar {
                 _ => {}
             }
         }
+        */
     }
 }

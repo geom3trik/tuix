@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use crate::widgets::*;
-use crate::widgets::{Checkbox, Element};
+use crate::common::*;
+use crate::{Checkbox};
 
 pub struct Switch {
     front: Entity,

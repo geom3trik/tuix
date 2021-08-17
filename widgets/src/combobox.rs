@@ -1,8 +1,7 @@
 
 
 
-use crate::widgets::*;
-use crate::style::*;
+use crate::common::*;
 
 const ICON_DOWN_DIR: &str = "\u{25be}";
 

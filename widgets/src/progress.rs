@@ -1,6 +1,4 @@
-use crate::state::style::*;
-use crate::widgets::slider::SliderEvent;
-use crate::widgets::*;
+use crate::common::*;
 
 pub struct ProgressBar {
     front: Entity,

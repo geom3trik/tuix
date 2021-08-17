@@ -1,8 +1,4 @@
-#![allow(dead_code)]
-
-use crate::tree::*;
-use crate::style::*;
-use crate::widgets::*;
+use crate::common::*;
 
 // Notes:
 // When user clicks menu, the container should appear

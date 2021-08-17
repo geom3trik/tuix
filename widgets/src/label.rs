@@ -1,9 +1,4 @@
-#![allow(dead_code)]
-
-use std::marker::PhantomData;
-
-
-use crate::*;
+use crate::common::*;
 
 pub struct Label {
     text: String,

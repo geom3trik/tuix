@@ -1,7 +1,6 @@
 const ICON_CHECK: &str = "\u{2713}";
 
-use crate::style::*;
-use crate::widgets::*;
+use crate::common::*;
 
 pub struct Radio {
     marker: Entity,

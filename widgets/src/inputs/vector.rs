@@ -1,8 +1,5 @@
 
-
-
-use crate::widgets::*;
-use crate::style::*;
+use crate::common::*;
 
 pub struct Vector {
     // Subwidgets

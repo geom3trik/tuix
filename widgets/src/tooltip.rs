@@ -1,4 +1,4 @@
-use crate::widgets::*;
+use crate::common::*;
 
 pub struct Tooltip {
     text: String,

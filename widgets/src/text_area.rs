@@ -1,5 +1,5 @@
-use crate::style::*;
-use crate::widgets::*;
+use crate::common::*;
+
 use femtovg::{Align, Baseline, Paint, Path};
 
 #[derive(Default)]

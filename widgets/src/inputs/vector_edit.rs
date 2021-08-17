@@ -1,6 +1,5 @@
-use crate::state::style::*;
-use crate::widgets::*;
-use crate::widgets::{Dropdown, DropdownEvent, Textbox, TextboxEvent};
+use crate::common::*;
+use crate::{Dropdown, DropdownEvent, Textbox, TextboxEvent};
 use crate::AnimationState;
 
 const VEC_EDIT_STYLE: &str = r#"

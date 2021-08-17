@@ -1,5 +1,4 @@
-use crate::style::*;
-use crate::widgets::*;
+use crate::common::*;
 
 pub struct RangeSlider {
     first: Entity,

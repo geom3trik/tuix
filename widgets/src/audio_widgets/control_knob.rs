@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::*;
+use crate::common::*;
 
 use crate::slider::SliderEvent;
 
