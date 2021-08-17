@@ -1,3 +1,4 @@
+use morphorm::GeometryChanged;
 use crate::entity::Entity;
 
 use crate::state::style::Visibility;
@@ -47,12 +48,20 @@ pub struct BoundingBox {
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
-pub struct Margins {
+pub struct Space {
     pub left: f32,
     pub right: f32,
     pub top: f32,
     pub bottom: f32,
 }
+
+#[derive(Debug, Default, Clone, PartialEq)]
+pub struct Size {
+    pub width: f32,
+    pub height: f32,
+}
+
+
 
 impl Default for BoundingBox {
     fn default() -> Self {
@@ -88,7 +97,8 @@ pub struct CachedData {
 
     origin: Vec<(f32, f32)>,
 
-    margins: Vec<Margins>,
+    pub space: Vec<Space>,
+    pub size: Vec<Size>,
     cross_stretch_sum: Vec<f32>,
     cross_free_space: Vec<f32>,
 
@@ -102,6 +112,8 @@ pub struct CachedData {
 
     // is_first_child, is_last_child
     stack_child: Vec<(bool, bool)>,
+
+    pub geometry_changed: Vec<GeometryChanged>,
 }
 
 impl CachedData {
@@ -127,7 +139,8 @@ impl CachedData {
             self.z_order.resize(key + 1, 0);
 
             self.clip_region.resize(key + 1, Default::default());
-            self.margins.resize(key + 1, Default::default());
+            self.space.resize(key + 1, Default::default());
+            self.size.resize(key + 1, Default::default());
             self.cross_stretch_sum.resize(key + 1, Default::default());
             self.cross_free_space.resize(key + 1, Default::default());
 
@@ -142,20 +155,11 @@ impl CachedData {
 
             self.grid_row_max.resize(key + 1, 0.0);
             self.grid_col_max.resize(key + 1, 0.0);
+
+            self.geometry_changed.resize(key + 1, Default::default());
         }
     }
 
-    pub fn reset(&mut self) {
-        for (width, height) in self.child_sum.iter_mut() {
-            *width = Default::default();
-            *height = Default::default();
-        }
-
-        for (width, height) in self.child_max.iter_mut() {
-            *width = Default::default();
-            *height = Default::default();
-        }
-    } 
 
     pub fn remove(&mut self, _entity: Entity) {}
 
@@ -220,7 +224,7 @@ impl CachedData {
     }
 
     pub fn get_space_left(&self, entity: Entity) -> f32 {
-        self.margins
+        self.space
             .get(entity.index_unchecked())
             .cloned()
             .unwrap()
@@ -228,7 +232,7 @@ impl CachedData {
     }
 
     pub fn get_space_right(&self, entity: Entity) -> f32 {
-        self.margins
+        self.space
             .get(entity.index_unchecked())
             .cloned()
             .unwrap()
@@ -236,7 +240,7 @@ impl CachedData {
     }
 
     pub fn get_space_top(&self, entity: Entity) -> f32 {
-        self.margins
+        self.space
             .get(entity.index_unchecked())
             .cloned()
             .unwrap()
@@ -244,15 +248,15 @@ impl CachedData {
     }
 
     pub fn get_space_bottom(&self, entity: Entity) -> f32 {
-        self.margins
+        self.space
             .get(entity.index_unchecked())
             .cloned()
             .unwrap()
             .bottom
     }
 
-    pub fn get_space(&self, entity: Entity) -> Margins {
-        self.margins.get(entity.index_unchecked()).cloned().unwrap()
+    pub fn get_space(&self, entity: Entity) -> Space {
+        self.space.get(entity.index_unchecked()).cloned().unwrap()
     }
 
     pub fn get_clip_region(&self, entity: Entity) -> BoundingBox {
@@ -474,33 +478,33 @@ impl CachedData {
         }
     }
 
-    pub fn set_margins(&mut self, entity: Entity, val: Margins) {
-        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
-            *margins = val;
+    pub fn set_space(&mut self, entity: Entity, val: Space) {
+        if let Some(space) = self.space.get_mut(entity.index_unchecked()) {
+            *space = val;
         }
     }
 
     pub fn set_space_left(&mut self, entity: Entity, val: f32) {
-        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
-            margins.left = val;
+        if let Some(space) = self.space.get_mut(entity.index_unchecked()) {
+            space.left = val;
         }
     }
 
     pub fn set_space_right(&mut self, entity: Entity, val: f32) {
-        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
-            margins.right = val;
+        if let Some(space) = self.space.get_mut(entity.index_unchecked()) {
+            space.right = val;
         }
     }
 
     pub fn set_space_top(&mut self, entity: Entity, val: f32) {
-        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
-            margins.top = val;
+        if let Some(space) = self.space.get_mut(entity.index_unchecked()) {
+            space.top = val;
         }
     }
 
     pub fn set_space_bottom(&mut self, entity: Entity, val: f32) {
-        if let Some(margins) = self.margins.get_mut(entity.index_unchecked()) {
-            margins.bottom = val;
+        if let Some(space) = self.space.get_mut(entity.index_unchecked()) {
+            space.bottom = val;
         }
     }
 

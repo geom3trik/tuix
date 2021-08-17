@@ -1,6 +1,7 @@
 use crate::{Entity, Event, PropSet, State, Widget, WindowEvent, apply_hover};
 
 use crate::systems::{apply_styles, apply_visibility, apply_z_ordering, apply_transform};
+use crate::layout::geometry_changed;
 
 #[derive(Clone)]
 pub struct WindowWidget {}
@@ -59,6 +60,7 @@ impl Widget for WindowWidget {
                     //apply_layout(state, &tree);
                     //apply_layout2(state, &tree);
                     morphorm::layout(&mut state.data, &state.tree, &mut state.style);
+                    geometry_changed(state, &tree);
                     apply_hover(state);
                 }
 

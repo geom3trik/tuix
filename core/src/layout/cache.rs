@@ -1,6 +1,6 @@
 
 
-use morphorm::Cache;
+use morphorm::{Cache, GeometryChanged};
 
 use crate::{CachedData, Entity};
 
@@ -8,8 +8,34 @@ impl Cache for CachedData {
 
     type Item = Entity;
 
-    fn reset(&mut self) {
-        self.reset();
+    fn geometry_changed(&self, node: Self::Item) -> GeometryChanged {
+        self.geometry_changed.get(node.index_unchecked()).cloned().unwrap_or_default()
+    }
+
+    fn set_geo_changed(&mut self, node: Self::Item, flag: GeometryChanged, value: bool) {
+        if let Some(geometry_changed) = self.geometry_changed.get_mut(node.index_unchecked()) {
+            geometry_changed.set(flag, value);
+        }
+    }
+
+    fn new_width(&self, node: Self::Item) -> f32 {
+        self.size.get(node.index_unchecked()).cloned().unwrap_or_default().width
+    }
+
+    fn new_height(&self, node: Self::Item) -> f32 {
+        self.size.get(node.index_unchecked()).cloned().unwrap_or_default().height
+    }
+
+    fn set_new_width(&mut self, node: Self::Item, value: f32) {
+        if let Some(size) = self.size.get_mut(node.index_unchecked()) {
+            size.width = value;
+        }
+    }
+
+    fn set_new_height(&mut self, node: Self::Item, value: f32) {
+        if let Some(size) = self.size.get_mut(node.index_unchecked()) {
+            size.height = value;
+        }
     }
 
     // Width
