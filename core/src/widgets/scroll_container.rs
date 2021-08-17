@@ -68,11 +68,14 @@ impl Widget for ScrollContainerH {
     type Ret = Entity;
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_layout_type(state, LayoutType::Column);
+        entity
+            .set_layout_type(state, LayoutType::Column)
+            .set_min_width(state, Pixels(0.0));
 
         self.container = Button::new().build(state, entity, |builder| {
             builder
                 .set_position_type(PositionType::SelfDirected)
+                .set_width(Auto)
                 // .set_left(Units::Percentage(0.0))
                 // .set_align_self(AlignSelf::FlexStart)
                 //.set_background_color(Color::rgb(200, 70, 70))
@@ -82,10 +85,11 @@ impl Widget for ScrollContainerH {
 
         state.style.clip_widget.insert(self.container, entity);
 
-        if self.scrollbar {
+        //if self.scrollbar {
             self.horizontal_scroll = Element::new().build(state, entity, |builder| {
                 builder
                     .set_position_type(PositionType::SelfDirected)
+                    .set_min_width(Pixels(0.0))
                     // .set_left(Units::Percentage(0.0))
                     //.set_height(Units::Pixels(10.0))
                     // .set_width(Units::Percentage(0.0))
@@ -96,9 +100,9 @@ impl Widget for ScrollContainerH {
 
                 //
             });
-        }
+        //}
 
-        self.horizontal_scroll.set_disabled(state, true);
+        entity.set_disabled(state, true);
 
         entity.set_element(state, "scroll_containerh");
 
@@ -134,11 +138,11 @@ impl Widget for ScrollContainerH {
 
                             if scrollh >= 1.0 {
                                 scrollh = 1.0;
-                                self.horizontal_scroll.set_disabled(state, true);
+                                entity.set_disabled(state, true);
                             }
 
                             if scrollh < 1.0 {
-                                self.horizontal_scroll.set_disabled(state, false);
+                                entity.set_disabled(state, false);
                             }
 
                             if !state.style.left.is_animating(self.horizontal_scroll) {
@@ -184,14 +188,14 @@ impl Widget for ScrollContainerH {
                                 Units::Percentage(self.scrolly * overflow2 * 100.0),
                             );
 
-                            state.insert_event(Event::new(WindowEvent::Relayout).origin(entity));
+                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()).origin(entity));
                         }
                     }
                 }
 
                 WindowEvent::MouseScroll(_, y) => {
                     if self.scroll_wheel {
-                        let overflow = state.data.get_height(entity)
+                        let overflow = state.data.get_width(entity)
                             - state.data.get_width(self.horizontal_scroll);
 
                         if overflow == 0.0 {
@@ -339,7 +343,7 @@ impl Widget for ScrollContainerH {
 
                         state.insert_event(Event::new(WindowEvent::Restyle));
                         state
-                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                         state.insert_event(Event::new(WindowEvent::Redraw));
                         //println!("overflow: {}, dist: {}, ratio: {}, scrolly: {}", overflow, dist_y, r, self.scrolly);
                     }
@@ -393,8 +397,6 @@ impl Widget for ScrollContainer {
         entity
             .set_layout_type(state, LayoutType::Row)
             .set_min_height(state, Pixels(0.0));
-
-        //println!("Container: {}", self.container);
 
         self.container = Element::new().build(state, entity, |builder| {
             builder
@@ -459,11 +461,8 @@ impl Widget for ScrollContainer {
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::GeometryChanged(geometry_changed) => {
-                    //println!("Geometry Changed");
-
                     if event.target == self.container || event.target == entity {
                         if geometry_changed.width || geometry_changed.height {
-                            //println!("Geometry Changed");
                             let mut scrollh = state.data.get_height(entity)
                                 / state.data.get_height(self.container);
 
@@ -717,7 +716,7 @@ impl Widget for ScrollContainer {
 
                         state.insert_event(Event::new(WindowEvent::Restyle));
                         state
-                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
+                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                         state.insert_event(Event::new(WindowEvent::Redraw));
                         //println!("overflow: {}, dist: {}, ratio: {}, scrolly: {}", overflow, dist_y, r, self.scrolly);
                     }
