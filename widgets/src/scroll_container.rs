@@ -119,7 +119,7 @@ impl Widget for ScrollContainerH {
 
         self.container = Element::new().build(state, entity, |builder| {
             builder
-                .set_position_type(PositionType::SelfDirected)
+                //.set_position_type(PositionType::SelfDirected)
                 .set_width(Auto)
                 // .set_left(Units::Percentage(0.0))
                 // .set_align_self(AlignSelf::FlexStart)
@@ -133,7 +133,7 @@ impl Widget for ScrollContainerH {
         //if self.scrollbar {
             self.horizontal_scroll = Element::new().build(state, entity, |builder| {
                 builder
-                    .set_position_type(PositionType::SelfDirected)
+                    //.set_position_type(PositionType::SelfDirected)
                     .set_min_width(Pixels(0.0))
                     // .set_left(Units::Percentage(0.0))
                     //.set_height(Units::Pixels(10.0))
@@ -503,7 +503,7 @@ impl Widget for ScrollContainer {
 
         self.container = Element::new().build(state, entity, |builder| {
             builder
-                .set_position_type(PositionType::SelfDirected)
+                //.set_position_type(PositionType::SelfDirected)
                 .set_height(Auto)
                 //.set_top(Units::Percentage(0.0))
                 //.set_flex_grow(1.0)
@@ -515,7 +515,7 @@ impl Widget for ScrollContainer {
 
         self.vertical_scroll = Element::new().build(state, entity, |builder| {
             builder
-                .set_position_type(PositionType::SelfDirected)
+                //.set_position_type(PositionType::SelfDirected)
                 .set_min_height(Pixels(0.0))
                 //.set_top(Units::Percentage(0.0))
                 // .set_width(Units::Pixels(10.0))
