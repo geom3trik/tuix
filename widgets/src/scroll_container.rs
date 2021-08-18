@@ -1,5 +1,5 @@
 use crate::common::*;
-use crate::{Row, Column, Button};
+use crate::{Row, Column};
 
 use tuix_derive::Lens;
 
@@ -100,7 +100,7 @@ impl Widget for ScrollContainerH {
             .set_layout_type(state, LayoutType::Column)
             .set_min_width(state, Pixels(0.0));
 
-        self.container = Button::new().build(state, entity, |builder| {
+        self.container = Element::new().build(state, entity, |builder| {
             builder
                 .set_position_type(PositionType::SelfDirected)
                 .set_width(Auto)
@@ -793,7 +793,7 @@ impl Widget for ScrollContainerHV {
 
         let column = Column::new().build(state, row, |builder| builder);
 
-        self.container = Button::new().build(state, column, |builder| {
+        self.container = Element::new().build(state, column, |builder| {
             builder
                 .set_top(Units::Percentage(0.0))
                 //.set_align_self(AlignSelf::FlexStart)
