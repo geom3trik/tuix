@@ -107,7 +107,11 @@ impl<D: Model + Node> Widget for Store<D> {
             }
         }
 
-        self.data_widget.on_event(state, entity, event);
+        //println!("Origin: {} Observers: {:?}", event.origin, self.observers);
+
+        if self.observers.contains(&event.origin) {
+            self.data_widget.on_event(state, entity, event);
+        }
     }
 }
 

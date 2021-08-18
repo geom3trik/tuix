@@ -237,7 +237,7 @@ impl Widget for ScrollContainerH {
                             state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()).origin(entity));
                         
                             state.insert_event(
-                                Event::new(ScrollEvent::Scroll(self.scrolly, self.scrollh, overflow)).target(entity),
+                                Event::new(ScrollEvent::Scroll(self.scrolly, self.scrollh, overflow)).target(entity).origin(entity),
                             );  
                         }
                     }
@@ -288,7 +288,7 @@ impl Widget for ScrollContainerH {
 
                         state.insert_event(
                             Event::new(ScrollEvent::Scroll(self.scrolly, self.scrollh, overflow))
-                                .target(entity),
+                                .target(entity).origin(entity),
                         );
 
                         // Capture the event to stop it triggering twice
@@ -388,7 +388,7 @@ impl Widget for ScrollContainerH {
 
                         state.insert_event(
                             Event::new(ScrollEvent::Scroll(self.scrolly, self.scrollh, overflow))
-                                .target(entity),
+                                .target(entity).origin(entity),
                         );
 
                         state.insert_event(Event::new(WindowEvent::Restyle));
@@ -592,7 +592,7 @@ impl Widget for ScrollContainer {
                             );
 
                             state.insert_event(
-                                Event::new(ScrollEvent::Scroll(self.scrolly, self.scrollh, overflow)).target(entity),
+                                Event::new(ScrollEvent::Scroll(self.scrolly, self.scrollh, overflow)).target(entity).origin(entity),
                             );        
                         }
                     }
@@ -630,7 +630,7 @@ impl Widget for ScrollContainer {
                         .set_top(state, Units::Percentage(self.scrolly * overflow2 * 100.0));
 
                     state.insert_event(
-                        Event::new(ScrollEvent::Scroll(self.scrolly, self.scrollh, overflow)).target(entity),
+                        Event::new(ScrollEvent::Scroll(self.scrolly, self.scrollh, overflow)).target(entity).origin(entity),
                     );
 
                     event.consume();
@@ -730,7 +730,7 @@ impl Widget for ScrollContainer {
 
                         state.insert_event(
                             Event::new(ScrollEvent::Scroll(self.scrolly, self.scrollh, overflow))
-                                .target(entity),
+                                .target(entity).origin(entity),
                         );
 
                         state.insert_event(Event::new(WindowEvent::Restyle));

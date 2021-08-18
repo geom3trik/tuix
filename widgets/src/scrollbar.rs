@@ -165,7 +165,7 @@ impl Widget for Scrollbar {
                     }
 
                     state.insert_event(
-                        Event::new(ScrollEvent::Scroll(self.scroll_pos, self.scroll_size, self.overflow)).target(entity),
+                        Event::new(ScrollEvent::Scroll(self.scroll_pos, self.scroll_size, self.overflow)).target(entity).origin(entity),
                     );
 
                     
