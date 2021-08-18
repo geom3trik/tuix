@@ -57,7 +57,7 @@ pub fn apply_clipping(state: &mut State, tree: &Tree) {
                 intersection.w = if clip_x + clip_w < parent_clip_region.x + parent_clip_region.w {
                     clip_x + clip_w - intersection.x
                 } else {
-                    parent_clip_region.x + parent_clip_region.w - -intersection.x
+                    parent_clip_region.x + parent_clip_region.w - intersection.x
                 };
 
                 intersection.h = if clip_y + clip_h < parent_clip_region.y + parent_clip_region.h {
