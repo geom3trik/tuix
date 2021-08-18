@@ -329,7 +329,7 @@ impl Widget for ScrollContainerH {
                         // );
 
                         // Capture the event to stop it triggering twice
-                        event.consume();
+                        //event.consume();
                     }
                 }
 
@@ -707,7 +707,7 @@ impl Widget for ScrollContainer {
                     //     Event::new(ScrollEvent::Scroll(self.scroll.scroll_pos, self.scroll.scroll_size, overflow)).target(entity).origin(entity),
                     // );
 
-                    event.consume();
+                    //event.consume();
                 }
 
                 WindowEvent::WindowResize(_, _) => {

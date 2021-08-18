@@ -191,7 +191,7 @@ impl Widget for Scrollbar {
 
                     
 
-                    event.consume();
+                    //event.consume();
                 }
 
                 WindowEvent::MouseDown(button) => match button {
