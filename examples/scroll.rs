@@ -50,6 +50,10 @@ const STYLE: &str = r#"
         border-color: black;
     }
 
+    scrollbar>.front {
+        background-color: red;
+    }
+
 "#;
 
 

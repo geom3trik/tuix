@@ -303,7 +303,7 @@ impl Application {
                                     
                                     println!("Tree");
                                     for entity in state.tree.into_iter() {
-                                        println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity));
+                                        println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?} clip: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity), state.data.get_clip_region(entity));
                                     }
                                 }
 
