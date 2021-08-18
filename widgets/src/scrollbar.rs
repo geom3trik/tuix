@@ -75,7 +75,7 @@ impl Widget for Scrollbar {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.front = Element::new().build(state, entity, |builder| 
             builder
-                .set_background_color(Color::rgb(50, 50, 100))
+                //.set_background_color(Color::rgb(50, 50, 100))
                 .class("front")
         );
 

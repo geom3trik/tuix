@@ -454,6 +454,8 @@ pub struct ScrollContainer {
     vertical_scroll: Entity,
     pub scroll: Scroll,
 
+    scrollbar: bool,
+
     pressedx: f32,
     pressedy: f32,
     moving: bool,
@@ -473,6 +475,8 @@ impl ScrollContainer {
             vertical_scroll: Entity::null(),
             scroll: Scroll::default(),
 
+            scrollbar: true,
+
             pressedx: 0.0,
             pressedy: 0.0,
             moving: false,
@@ -483,6 +487,12 @@ impl ScrollContainer {
 
             on_scroll: None,
         }
+    }
+
+    pub fn disable_scrollbar(mut self) -> Self {
+        self.scrollbar = false;
+
+        self
     }
 
     pub fn on_scroll<F>(mut self, callback: F) -> Self 
