@@ -121,6 +121,7 @@ impl Widget for ScrollContainerH {
             builder
                 //.set_position_type(PositionType::SelfDirected)
                 .set_width(Auto)
+                .set_height(Stretch(1.0))
                 // .set_left(Units::Percentage(0.0))
                 // .set_align_self(AlignSelf::FlexStart)
                 //.set_background_color(Color::rgb(200, 70, 70))
@@ -505,6 +506,7 @@ impl Widget for ScrollContainer {
             builder
                 //.set_position_type(PositionType::SelfDirected)
                 .set_height(Auto)
+                .set_width(Stretch(1.0))
                 //.set_top(Units::Percentage(0.0))
                 //.set_flex_grow(1.0)
                 //.set_align_self(AlignSelf::FlexStart)
