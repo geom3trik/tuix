@@ -153,7 +153,7 @@ impl Widget for Scrollbar {
                 // When a relayout occurs, determine the new height of the scroll bar
                 WindowEvent::Relayout => {}
 
-                WindowEvent::MouseScroll(_, y) => {
+                WindowEvent::MouseScroll(x, y) => {
 
                     let overflow2 = 1.0 - (1.0 / (1.0 - self.scroll.overflow));
 
@@ -161,7 +161,7 @@ impl Widget for Scrollbar {
                     if self.direction == ScrollDirection::Vertical {
                         self.scroll.scroll_pos += (30.0 * *y) / (state.data.get_height(entity) * self.scroll.overflow);
                     } else {
-                        self.scroll.scroll_pos += (30.0 * *y) / (state.data.get_width(entity) * self.scroll.overflow);
+                        self.scroll.scroll_pos += (30.0 * *x) / (state.data.get_width(entity) * self.scroll.overflow);
                     }
                         
 
