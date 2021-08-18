@@ -1,13 +1,13 @@
-use crate::{Pos, PositionType, entity::*};
+use crate::{Pos, PositionType, entity::*, Size};
 
-pub struct Size {
+pub struct WindowSize {
     pub width: u32,
     pub height: u32,
 }
 
-impl Size {
+impl WindowSize {
     pub fn new(width: u32, height: u32) -> Self {
-        Size { width, height }
+        Self { width, height }
     }
 }
 
@@ -25,9 +25,9 @@ impl Position {
 /// Passed to the window to set various window properties
 pub struct WindowDescription {
     pub title: String,
-    pub inner_size: Size,
-    pub min_inner_size: Size,
-    pub max_inner_size: Option<Size>,
+    pub inner_size: WindowSize,
+    pub min_inner_size: WindowSize,
+    pub max_inner_size: Option<WindowSize>,
     pub position: Option<Position>,
     pub resizable: bool,
     //pub fullscreen: 
@@ -47,8 +47,8 @@ impl Default for WindowDescription {
     fn default() -> Self {
         Self {
             title: "Tuix Application".to_string(),
-            inner_size: Size::new(800, 600),
-            min_inner_size: Size::new(100, 100),
+            inner_size: WindowSize::new(800, 600),
+            min_inner_size: WindowSize::new(100, 100),
             max_inner_size: None,
             position: None,
             resizable: true,
@@ -77,19 +77,19 @@ impl WindowDescription {
     }
 
     pub fn with_inner_size(mut self, width: u32, height: u32) -> Self {
-        self.inner_size = Size::new(width, height);
+        self.inner_size = WindowSize::new(width, height);
 
         self
     }
 
     pub fn with_min_inner_size(mut self, width: u32, height: u32) -> Self {
-        self.min_inner_size = Size::new(width, height);
+        self.min_inner_size = WindowSize::new(width, height);
 
         self
     }
 
     pub fn with_max_inner_size(mut self, width: u32, height: u32) -> Self {
-        self.max_inner_size = Some(Size::new(width, height));
+        self.max_inner_size = Some(WindowSize::new(width, height));
 
         self
     }

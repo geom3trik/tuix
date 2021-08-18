@@ -53,6 +53,32 @@ const STYLE: &str = r#"
 "#;
 
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ScrollEvent {
+    Scroll(Scroll),
+}
+
+
+#[derive(Debug, Default, Clone, Copy, Lens)]
+pub struct ScrollData {
+    scroll: Scroll,
+}
+
+impl Model for ScrollData {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(scroll_event) = event.message.downcast() {
+            match scroll_event {
+                ScrollEvent::Scroll(scroll) => {
+                    self.scroll = *scroll;
+                    entity.emit(state, BindEvent::Update);
+                    event.consume();
+                }
+            }
+        }
+    }
+}
+
+
 #[derive(Debug, Clone, PartialEq)]
 enum CustomEvent {
     ChangeColor(Color),
@@ -75,6 +101,9 @@ impl Widget for Container {
 
 
         Scrollbar::new(ScrollDirection::Horizontal)
+        .on_scroll(|data, state, scrollbar|{
+            scrollbar.emit(state, ScrollEvent::Scroll(data.scroll));
+        })
         .bind(ScrollData::scroll, |scroll| *scroll)
         .build(state, row, |builder| 
             builder
@@ -84,6 +113,9 @@ impl Widget for Container {
         );
 
         let scroll = ScrollContainer::new()
+        .on_scroll(|data, state, scroll_container|{
+            scroll_container.emit(state, ScrollEvent::Scroll(data.scroll));
+        })
         .bind(ScrollData::scroll, |scroll| *scroll)
         .build(state, row, |builder| 
             builder

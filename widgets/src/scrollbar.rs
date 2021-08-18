@@ -1,4 +1,4 @@
-use crate::ScrollEvent;
+
 use crate::common::*;
 use crate::Button;
 use crate::scroll_container::Scroll;
@@ -12,9 +12,7 @@ pub enum ScrollDirection {
 
 pub struct Scrollbar {
     front: Entity,
-    scroll_pos: f32,
-    scroll_size: f32,
-    overflow: f32,
+    pub scroll: Scroll,
 
     direction: ScrollDirection,
 
@@ -24,16 +22,18 @@ pub struct Scrollbar {
     pressed_x: f32,
     pressed_y: f32,
     moving: bool,
-    //on_scroll: Option<Box<dyn Fn(f32) -> Message>>,
+    on_scroll: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }
 
 impl Scrollbar {
     pub fn new(direction: ScrollDirection) -> Self {
         Scrollbar {
             front: Entity::null(),
-            scroll_pos: 0.0,
-            scroll_size: 0.0,
-            overflow: 0.0,
+            // scroll_pos: 0.0,
+            // scroll_size: 0.0,
+            // overflow: 0.0,
+
+            scroll: Scroll::default(),
 
             direction,
 
@@ -43,14 +43,22 @@ impl Scrollbar {
             pressed_x: 0.0,
             pressed_y: 0.0,
             moving: false,
-            //on_scroll: None,
+            on_scroll: None,
         }
     }
 
-    pub fn set_posx(&self, state: &mut State, value: f32) {
-        //self.back.set_left(state, value);
-        self.front.set_left(state, Units::Pixels(value));
+    pub fn on_scroll<F>(mut self, callback: F) -> Self 
+    where F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_scroll = Some(Box::new(callback));
+
+        self
     }
+
+    // pub fn set_posx(&self, state: &mut State, value: f32) {
+    //     //self.back.set_left(state, value);
+    //     self.front.set_left(state, Units::Pixels(value));
+    // }
 
     // pub fn on_scroll<F>(mut self, pos: F) -> Self
     // where
@@ -82,22 +90,24 @@ impl Widget for Scrollbar {
     }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        self.scroll_pos = data.scroll_pos;
-        self.scroll_size = data.scroll_size;
-        self.overflow = data.overflow;
-        let overflow2 = 1.0 - (1.0 / (1.0 - self.overflow));
+        // self.scroll_pos = data.scroll_pos;
+        // self.scroll_size = data.scroll_size;
+        // self.overflow = data.overflow;
+
+        self.scroll = *data;
+        let overflow2 = 1.0 - (1.0 / (1.0 - self.scroll.overflow));
         if self.direction == ScrollDirection::Vertical {
-            self.front.set_top(state, Percentage(self.scroll_pos * overflow2 * 100.0));
+            self.front.set_top(state, Percentage(self.scroll.scroll_pos * overflow2 * 100.0));
             state
                 .style
                 .height
-                .insert(self.front, Percentage(self.scroll_size * 100.0));
+                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0));
         } else {
-            self.front.set_left(state, Percentage(self.scroll_pos * overflow2 * 100.0));
+            self.front.set_left(state, Percentage(self.scroll.scroll_pos * overflow2 * 100.0));
             state
                 .style
                 .width
-                .insert(self.front, Percentage(self.scroll_size * 100.0));
+                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0));
         }
 
     }
@@ -145,33 +155,39 @@ impl Widget for Scrollbar {
 
                 WindowEvent::MouseScroll(_, y) => {
 
-                    let overflow2 = 1.0 - (1.0 / (1.0 - self.overflow));
+                    let overflow2 = 1.0 - (1.0 / (1.0 - self.scroll.overflow));
 
                     // TODO - Need a way to configure this
                     if self.direction == ScrollDirection::Vertical {
-                        self.scroll_pos += (30.0 * *y) / (state.data.get_height(entity) * self.overflow);
+                        self.scroll.scroll_pos += (30.0 * *y) / (state.data.get_height(entity) * self.scroll.overflow);
                     } else {
-                        self.scroll_pos += (30.0 * *y) / (state.data.get_width(entity) * self.overflow);
+                        self.scroll.scroll_pos += (30.0 * *y) / (state.data.get_width(entity) * self.scroll.overflow);
                     }
                         
 
-                    if self.scroll_pos < 0.0 {
-                        self.scroll_pos = 0.0;
+                    if self.scroll.scroll_pos < 0.0 {
+                        self.scroll.scroll_pos = 0.0;
                     }
 
-                    if self.scroll_pos > 1.0 {
-                        self.scroll_pos = 1.0;
+                    if self.scroll.scroll_pos > 1.0 {
+                        self.scroll.scroll_pos = 1.0;
                     }
 
                     if self.direction == ScrollDirection::Vertical {
-                        self.front.set_top(state, Units::Percentage(self.scroll_pos * overflow2 * 100.0));
+                        self.front.set_top(state, Units::Percentage(self.scroll.scroll_pos * overflow2 * 100.0));
                     } else {
-                        self.front.set_left(state, Units::Percentage(self.scroll_pos * overflow2 * 100.0));
+                        self.front.set_left(state, Units::Percentage(self.scroll.scroll_pos * overflow2 * 100.0));
                     }
 
-                    state.insert_event(
-                        Event::new(ScrollEvent::Scroll(self.scroll_pos, self.scroll_size, self.overflow)).target(entity).origin(entity),
-                    );
+                    if let Some(callback) = self.on_scroll.take() {
+                        (callback)(self, state, entity);
+
+                        self.on_scroll = Some(callback);
+                    }
+
+                    // state.insert_event(
+                    //     Event::new(ScrollEvent::Scroll(self.scroll_pos, self.scroll_size, self.overflow)).target(entity).origin(entity),
+                    // );
 
                     
 

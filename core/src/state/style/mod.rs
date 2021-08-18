@@ -84,7 +84,7 @@ pub struct Style {
     pub opacity: AnimatableStorage<Opacity>,
 
     pub overflow: StyleStorage<Overflow>, // TODO
-    pub scroll: DenseStorage<Scroll>,     // TODO
+    //pub scroll: DenseStorage<Scroll>,     // TODO
 
     // Spacing
     pub left: AnimatableStorage<Units>,
@@ -1147,7 +1147,7 @@ impl Style {
         //self.z_order.insert(entity, 0);
 
         self.overflow.insert(entity, Default::default());
-        self.scroll.insert(entity, Default::default());
+        //self.scroll.insert(entity, Default::default());
 
         self.visibility.insert(entity, Default::default());
         self.focus_order.insert(entity, Default::default());

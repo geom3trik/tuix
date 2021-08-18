@@ -14,7 +14,7 @@ use tuix_core::{
     BoundingBox
 };
 use tuix_core::{
-    Entity, EventManager, Tree, PropSet, Size, State, Units, Visibility, WindowDescription,
+    Entity, EventManager, Tree, PropSet, WindowSize, State, Units, Visibility, WindowDescription,
     WindowEvent,
 };
 
@@ -98,7 +98,7 @@ impl ApplicationRunner {
         };
 
         let logical_size = win_desc.inner_size;
-        let physical_size = Size {
+        let physical_size = WindowSize {
             width: (logical_size.width as f64 * scale).round() as u32,
             height: (logical_size.height as f64 * scale).round() as u32,
         };

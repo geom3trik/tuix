@@ -73,21 +73,21 @@ impl Default for Overflow {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct Scroll {
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
-}
+// #[derive(Copy, Clone, Debug, PartialEq)]
+// pub struct Scroll {
+//     pub x: f32,
+//     pub y: f32,
+//     pub w: f32,
+//     pub h: f32,
+// }
 
-impl Default for Scroll {
-    fn default() -> Self {
-        Scroll {
-            x: 0.0,
-            y: 0.0,
-            w: 1.0,
-            h: 1.0,
-        }
-    }
-}
+// impl Default for Scroll {
+//     fn default() -> Self {
+//         Scroll {
+//             x: 0.0,
+//             y: 0.0,
+//             w: 1.0,
+//             h: 1.0,
+//         }
+//     }
+// }
