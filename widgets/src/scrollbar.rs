@@ -148,7 +148,12 @@ impl Widget for Scrollbar {
                     let overflow2 = 1.0 - (1.0 / (1.0 - self.overflow));
 
                     // TODO - Need a way to configure this
-                    self.scroll_pos += (30.0 * *y) / (state.data.get_height(entity) * self.overflow);
+                    if self.direction == ScrollDirection::Vertical {
+                        self.scroll_pos += (30.0 * *y) / (state.data.get_height(entity) * self.overflow);
+                    } else {
+                        self.scroll_pos += (30.0 * *y) / (state.data.get_width(entity) * self.overflow);
+                    }
+                        
 
                     if self.scroll_pos < 0.0 {
                         self.scroll_pos = 0.0;
