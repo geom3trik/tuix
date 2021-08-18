@@ -77,13 +77,13 @@ pub fn apply_hover(state: &mut State) {
         // let clip_height = state.data.get_height(clip_widget);
 
         if cx >= posx
-            //&& cx >= clip_region.x
+            && cx >= clip_region.x
             && cx < (posx + width)
-            //&& cx < (clip_region.x + clip_region.w)
+            && cx < (clip_region.x + clip_region.w)
             && cy >= posy
-            //&& cy >= clip_region.y
+            && cy >= clip_region.y
             && cy < (posy + height)
-            //&& cy < (clip_region.y + clip_region.h)
+            && cy < (clip_region.y + clip_region.h)
         {
             hovered_widget = entity;
             if entity.is_over(state) == false {

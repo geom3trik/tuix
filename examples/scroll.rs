@@ -71,15 +71,15 @@ impl Widget for Container {
 
         let scroll_data = ScrollData::default().build(state, container);
 
-        let row = Row::new().build(state, scroll_data, |builder| builder);
+        let row = Column::new().build(state, scroll_data, |builder| builder);
 
 
-        Scrollbar::new()
+        Scrollbar::new(ScrollDirection::Horizontal)
         .bind(ScrollData::vertical, |scroll| *scroll)
         .build(state, row, |builder| 
             builder
-                .set_width(Pixels(10.0))
-                .set_height(Stretch(1.0))
+                .set_width(Stretch(1.0))
+                .set_height(Pixels(10.0))
                 .set_background_color(Color::rgb(150, 150, 150))
         );
 

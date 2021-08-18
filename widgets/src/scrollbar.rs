@@ -1,7 +1,10 @@
+use crate::ScrollEvent;
 use crate::common::*;
 use crate::Button;
 use crate::scroll_container::Scroll;
 
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ScrollDirection {
     Horizontal,
     Vertical,
@@ -9,7 +12,11 @@ pub enum ScrollDirection {
 
 pub struct Scrollbar {
     front: Entity,
-    scroll: f32,
+    scroll_pos: f32,
+    scroll_size: f32,
+    overflow: f32,
+
+    direction: ScrollDirection,
 
     pub position: f32,
     pub pos_ratio: f32,
@@ -21,10 +28,14 @@ pub struct Scrollbar {
 }
 
 impl Scrollbar {
-    pub fn new() -> Self {
+    pub fn new(direction: ScrollDirection) -> Self {
         Scrollbar {
             front: Entity::null(),
-            scroll: 0.0,
+            scroll_pos: 0.0,
+            scroll_size: 0.0,
+            overflow: 0.0,
+
+            direction,
 
             position: 0.0,
             pos_ratio: 0.2,
@@ -71,8 +82,24 @@ impl Widget for Scrollbar {
     }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        self.scroll = data.scroll;
-        entity.set_top(state, Percentage(self.scroll * data.overflow * 100.0));
+        self.scroll_pos = data.scroll_pos;
+        self.scroll_size = data.scroll_size;
+        self.overflow = data.overflow;
+        let overflow2 = 1.0 - (1.0 / (1.0 - self.overflow));
+        if self.direction == ScrollDirection::Vertical {
+            self.front.set_top(state, Percentage(self.scroll_pos * overflow2 * 100.0));
+            state
+                .style
+                .height
+                .insert(self.front, Percentage(self.scroll_size * 100.0));
+        } else {
+            self.front.set_left(state, Percentage(self.scroll_pos * overflow2 * 100.0));
+            state
+                .style
+                .width
+                .insert(self.front, Percentage(self.scroll_size * 100.0));
+        }
+
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -110,149 +137,62 @@ impl Widget for Scrollbar {
         }
         */
 
-        /*
+        
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 // When a relayout occurs, determine the new height of the scroll bar
                 WindowEvent::Relayout => {}
 
-                WindowEvent::WindowResize(_, _) => {
-                    let scroll = state
-                        .style
-                        .scroll
-                        .get(self.entity)
-                        .cloned()
-                        .unwrap_or_default();
-                    self.front
-                        .set_top(state, Units::Percentage(scroll.y * (1.0 - scroll.h)));
-                    self.front.set_height(state, Units::Percentage(scroll.h));
-
-                    if scroll.h == 1.0 {
-                        //state.style.enabled.set(entity, false);
-                        entity.set_disabled(state, true);
-                    } else {
-                        //state.style.enabled.set(entity, true);
-                        entity.set_disabled(state, false);
-                    }
-                    state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                }
-
                 WindowEvent::MouseScroll(_, y) => {
-                    //scroll.y += (10.0 * y);
-                    if event.target == entity || event.target == self.front {
-                        if let Some(scroll) = state.style.scroll.get_mut(self.entity) {
-                            scroll.y -= 0.1 * *y;
 
-                            if scroll.y < 0.0 {
-                                scroll.y = 0.0;
-                            }
+                    let overflow2 = 1.0 - (1.0 / (1.0 - self.overflow));
 
-                            if scroll.y > 1.0 {
-                                scroll.y = 1.0;
-                            }
-                        }
+                    // TODO - Need a way to configure this
+                    self.scroll_pos += (30.0 * *y) / (state.data.get_height(entity) * self.overflow);
 
-                        let scroll = state
-                            .style
-                            .scroll
-                            .get(self.entity)
-                            .cloned()
-                            .unwrap_or_default();
-                        self.front
-                            .set_top(state, Units::Percentage(scroll.y * (1.0 - scroll.h)));
-                        self.front.set_height(state, Units::Percentage(scroll.h));
-
-                        if scroll.h == 1.0 {
-                            //state.style.enabled.set(entity, false);
-                            entity.set_disabled(state, true);
-                        } else {
-                            //state.style.enabled.set(entity, true);
-                            entity.set_disabled(state, false);
-                        }
-
-                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                        state
-                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                        println!(
-                            "Scroll: {}",
-                            state
-                                .style
-                                .scroll
-                                .get(self.entity)
-                                .cloned()
-                                .unwrap_or_default()
-                                .y
-                        );
+                    if self.scroll_pos < 0.0 {
+                        self.scroll_pos = 0.0;
                     }
-                    //println!("y: {}", y);
 
-                    //println!("Size: {}", state.data.get_height(self.front));
+                    if self.scroll_pos > 1.0 {
+                        self.scroll_pos = 1.0;
+                    }
+
+                    if self.direction == ScrollDirection::Vertical {
+                        self.front.set_top(state, Units::Percentage(self.scroll_pos * overflow2 * 100.0));
+                    } else {
+                        self.front.set_left(state, Units::Percentage(self.scroll_pos * overflow2 * 100.0));
+                    }
+
+                    state.insert_event(
+                        Event::new(ScrollEvent::ScrollV(self.scroll_pos, self.scroll_size, self.overflow)).target(entity),
+                    );
+
+                    
+
+                    event.consume();
                 }
 
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
-                        self.pressed_x = state.mouse.cursorx;
-                        self.pressed_y = state.mouse.cursory;
-                        self.moving = true;
-                        let scroll = state
-                            .style
-                            .scroll
-                            .get(self.entity)
-                            .cloned()
-                            .unwrap_or_default();
-                        self.position = scroll.y;
-                        state.capture(entity);
+                        
                     }
                     _ => {}
                 },
 
                 WindowEvent::MouseUp(button) => match button {
-                    MouseButton::Left => {
-                        self.moving = false;
-                        state.release(entity);
-                    }
+                   
 
                     _ => {}
                 },
 
                 WindowEvent::MouseMove(_, y) => {
-                    if self.moving {
-                        let dist_y = *y - self.pressed_y;
-                        let overflow =
-                            state.data.get_height(entity) - state.data.get_height(self.front);
-                        let ratio = dist_y / overflow;
-                        let r = self.position + ratio;
-                        if let Some(scroll) = state.style.scroll.get_mut(self.entity) {
-                            scroll.y = r;
 
-                            if scroll.y < 0.0 {
-                                scroll.y = 0.0;
-                            }
-
-                            if scroll.y > 1.0 {
-                                scroll.y = 1.0;
-                            }
-                        }
-
-                        let scroll = state
-                            .style
-                            .scroll
-                            .get(self.entity)
-                            .cloned()
-                            .unwrap_or_default();
-                        self.front
-                            .set_top(state, Units::Percentage(scroll.y * (1.0 - scroll.h)));
-
-                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                        state
-                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                        //println!("overflow: {}, dist: {}, ratio: {}", overflow, dist_y, r);
-                    }
                 }
 
                 _ => {}
             }
         }
-        */
+        
     }
 }
