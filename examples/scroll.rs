@@ -75,7 +75,7 @@ impl Widget for Container {
 
 
         Scrollbar::new(ScrollDirection::Horizontal)
-        .bind(ScrollData::vertical, |scroll| *scroll)
+        .bind(ScrollData::scroll, |scroll| *scroll)
         .build(state, row, |builder| 
             builder
                 .set_width(Stretch(1.0))
@@ -84,7 +84,7 @@ impl Widget for Container {
         );
 
         let scroll = ScrollContainer::new()
-        .bind(ScrollData::vertical, |scroll| *scroll)
+        .bind(ScrollData::scroll, |scroll| *scroll)
         .build(state, row, |builder| 
             builder
                 .set_height(Pixels(100.0))
