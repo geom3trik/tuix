@@ -379,14 +379,14 @@ impl Widget for ScrollContainerH {
                 WindowEvent::MouseMove(x, _) => {
                     if self.moving {
                         let dist_x = *x - self.pressedx;
-                        self.scroll.overflow = state.data.get_width(entity)
+                        let scroll_bar_overflow = state.data.get_width(entity)
                             - state.data.get_width(self.horizontal_scroll);
 
-                        if self.scroll.overflow == 0.0 {
+                        if scroll_bar_overflow == 0.0 {
                             return;
                         }
 
-                        let ratio = dist_x / self.scroll.overflow;
+                        let ratio = dist_x / scroll_bar_overflow;
                         let r = self.position + ratio;
 
                         // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);
@@ -756,14 +756,14 @@ impl Widget for ScrollContainer {
                 WindowEvent::MouseMove(_, y) => {
                     if self.moving {
                         let dist_y = *y - self.pressedy;
-                        self.scroll.overflow = state.data.get_height(entity)
+                        let scroll_bar_overflow = state.data.get_height(entity)
                             - state.data.get_height(self.vertical_scroll);
 
-                        if self.scroll.overflow == 0.0 {
+                        if scroll_bar_overflow == 0.0 {
                             return;
                         }
 
-                        let ratio = dist_y / self.scroll.overflow;
+                        let ratio = dist_y / scroll_bar_overflow;
                         let r = self.position + ratio;
 
                         // let mut scrollh = state.data.get_height(entity) / state.data.get_height(self.container);

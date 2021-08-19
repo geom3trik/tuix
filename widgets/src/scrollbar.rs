@@ -16,7 +16,7 @@ pub struct Scrollbar {
 
     direction: ScrollDirection,
 
-    pub position: f32,
+    position: f32,
     pub pos_ratio: f32,
 
     pressed_x: f32,
@@ -36,7 +36,6 @@ impl Scrollbar {
             scroll: Scroll::default(),
 
             direction,
-
             position: 0.0,
             pos_ratio: 0.2,
 
@@ -196,19 +195,76 @@ impl Widget for Scrollbar {
 
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
-                        
+                        if event.target == self.front {
+                            println!("Do This");
+                            self.pressed_x = state.mouse.cursorx;
+                            self.pressed_y = state.mouse.cursory;
+                            self.moving = true;
+                            self.position = self.scroll.scroll_pos;
+                            state.capture(entity);
+                        }
                     }
                     _ => {}
                 },
 
                 WindowEvent::MouseUp(button) => match button {
-                   
+                    MouseButton::Left => {
+                        if event.target == entity {
+                            self.moving = false;
+                            state.release(entity);
+                        }
+                    }
 
                     _ => {}
                 },
 
-                WindowEvent::MouseMove(_, y) => {
+                WindowEvent::MouseMove(x, y) => {
+                    if self.moving {
+                        
+                        let (dist, scroll_bar_overflow) = if self.direction == ScrollDirection::Vertical {
+                            (*y - self.pressed_y, state.data.get_height(entity)
+                            - state.data.get_height(self.front))
+                        } else {
+                            (*x - self.pressed_x, state.data.get_width(entity)
+                            - state.data.get_width(self.front))
+                        };
 
+                        if scroll_bar_overflow == 0.0 {
+                            return;
+                        }
+
+
+                        let ratio = dist / scroll_bar_overflow;
+                        let r = self.position + ratio;
+
+                        self.scroll.scroll_pos = r;
+
+                        if self.scroll.scroll_pos < 0.0 {
+                            self.scroll.scroll_pos = 0.0;
+                        }
+
+                        if self.scroll.scroll_pos > 1.0 {
+                            self.scroll.scroll_pos = 1.0;
+                        }
+
+                        let overflow2 = 1.0 - (1.0 / (1.0 - self.scroll.overflow));
+
+                        if self.direction == ScrollDirection::Vertical {
+                            self.front.set_top(state, Units::Percentage(self.scroll.scroll_pos * overflow2 * 100.0));
+                        } else {
+                            self.front.set_left(state, Units::Percentage(self.scroll.scroll_pos * overflow2 * 100.0));
+                        }
+
+                        if let Some(callback) = self.on_scroll.take() {
+                            (callback)(self, state, entity);
+
+                            self.on_scroll = Some(callback);
+                        }
+
+                        state.insert_event(Event::new(WindowEvent::Restyle));
+                        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+                        state.insert_event(Event::new(WindowEvent::Redraw));
+                    }
                 }
 
                 _ => {}
