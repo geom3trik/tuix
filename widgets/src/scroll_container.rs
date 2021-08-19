@@ -288,7 +288,7 @@ impl Widget for ScrollContainerH {
                         let overflow2 = 1.0
                             - (state.data.get_width(entity) / state.data.get_width(self.container));
 
-                        self.scroll.scroll_pos += (30.0 * *x) / (state.data.get_width(entity) * self.scroll.overflow);
+                        self.scroll.scroll_pos += (30.0 * -*x) / (state.data.get_width(entity) * self.scroll.overflow);
 
                         if self.scroll.scroll_pos < 0.0 {
                             self.scroll.scroll_pos = 0.0;

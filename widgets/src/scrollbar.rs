@@ -160,7 +160,7 @@ impl Widget for Scrollbar {
                     if self.direction == ScrollDirection::Vertical {
                         self.scroll.scroll_pos += (30.0 * *y) / (state.data.get_height(entity) * self.scroll.overflow);
                     } else {
-                        self.scroll.scroll_pos += (30.0 * *x) / (state.data.get_width(entity) * self.scroll.overflow);
+                        self.scroll.scroll_pos += (30.0 * -*x) / (state.data.get_width(entity) * self.scroll.overflow);
                     }
                         
 
