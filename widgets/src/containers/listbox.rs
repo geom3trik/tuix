@@ -203,7 +203,7 @@ pub struct ListView<T, W> {
     t: PhantomData<T>,
 }
 
-impl<T: ToString + Node, W: Widget> ListView<T, W> {
+impl<T: std::fmt::Debug + Node, W: Widget> ListView<T, W> {
     pub fn new<F>(creator: F) -> Self 
     where F: 'static + Fn(&T) -> W,
     {
@@ -253,7 +253,7 @@ impl<T: ToString + Node, W: Widget> ListView<T, W> {
     }
 }
 
-impl<T: ToString + Node, W: Widget> Widget for ListView<T, W> {
+impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
     type Ret = Entity;
     type Data = Vec<T>;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {

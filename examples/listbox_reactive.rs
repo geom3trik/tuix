@@ -66,14 +66,7 @@ impl UserData {
     }
 }
 
-impl Widget for UserData {
-    type Ret = Entity;
-    type Data = ();
-
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity
-    }
-
+impl Model for UserData {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(custom_event) = event.message.downcast() {
             match custom_event {
@@ -169,7 +162,7 @@ fn main() {
 
             state.add_theme(STYLE);
 
-            let data = Store::new(UserData::new()).build(state, window, |builder| builder);
+            let data = UserData::new().build(state, window);
             
             Container::default().build(state, data, |builder| builder);
 
