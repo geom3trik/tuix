@@ -106,7 +106,7 @@ impl Widget for UserWidget {
                     .set_hoverable(false)
                 );
         
-        entity.set_layout_type(state, LayoutType::Row)
+        entity.set_layout_type(state, LayoutType::Row).set_height(state, Pixels(50.0))
     }
 }
 

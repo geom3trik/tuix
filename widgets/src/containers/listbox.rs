@@ -279,8 +279,8 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
                 ListItem::new((self.creator)(item)).build(state, entity, |builder| 
                     builder
                         //.set_height(Pixels(30.0))
-                        .set_height(Auto)
-                        .set_width(Auto)
+                        //.set_height(Auto)
+                        //.set_width(Auto)
                         //.set_hoverable(false)
                         .set_color(Color::black())
                 );
