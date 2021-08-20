@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, Entity, Tree, Lens, Node, PropType, State, Wrapper};
+use crate::{AsEntity, Entity, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -48,6 +48,10 @@ pub trait Widget: std::marker::Sized + 'static {
     where F: 'static + Fn(&<L as Lens>::Target) -> <Self as Widget>::Data
     {
         Wrapper::new(self, lens, converter)
+    }
+
+    fn bind2<L: Lens>(self, lens: L) -> LensWrap<L, Self> {
+        LensWrap::new(self, lens)
     }
 
     // Called when data bound to this widget is changed

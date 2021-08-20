@@ -109,9 +109,9 @@ impl<D: Model + Node> Widget for Store<D> {
 
         //println!("Origin: {} Observers: {:?}", event.origin, self.observers);
 
-        if self.observers.contains(&event.origin) {
+        //if self.observers.contains(&event.origin) {
             self.data_widget.on_event(state, entity, event);
-        }
+        //}
     }
 }
 
@@ -130,8 +130,70 @@ pub enum UpdateEvent<'a, T> {
 }
 
 
+pub struct LensWrap<L: Lens, W: Widget> {
+    widget: W,
+    lens: L,
+}
+
+impl<L: Lens, W: Widget> LensWrap<L,W> {
+    pub fn new(widget: W, lens: L) -> Self {
+        Self {
+            widget,
+            lens,
+        }
+    }
+}
+
+impl<L: 'static + Lens, W> Widget for LensWrap<L,W>
+where W: Widget<Data = <L as Lens>::Target>,
+{
+    type Ret = <W as Widget>::Ret;
+    type Data = <L as Lens>::Source;
+
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        let type_id = TypeId::of::<Self::Data>();
+        state.insert_event(Event::new(BindEvent::Bind(entity, type_id)).target(entity).propagate(Propagation::Up));
+
+        self.widget.on_build(state, entity)
+    }
+
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        self.widget.on_event(state, entity, event)
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        // Apply the lens
+        let value = self.lens.view(data);
+
+        // // Update children
+        // for (index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
+            
+        //     if let Some(mut event_handler) = state.event_handlers.remove(&child) {
+        //         event_handler.on_update(state, child, &value);
+
+        //         state.event_handlers.insert(child, event_handler);
+        //     }
+        // }
+
+        // Update the underlying widget with the lensed and converted data
+        self.widget.on_update(state, entity, value);
+
+        // // Call the on_update callback
+        // if let Some(callback) = self.on_update.take() {
+        //     (callback)(&mut self.widget, state, entity);
+
+        //     self.on_update = Some(callback);
+        // }
+    }
+
+    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+        self.widget.on_draw(state, entity, canvas)
+    }
+}
+
+
 // A wrapper on a widget which adds the setup for binding as well as the conversion of data + lensing
-pub struct Wrapper<L: Lens, W: Widget, > {
+pub struct Wrapper<L: Lens, W: Widget> {
 
     widget: W,
     lens: L,
@@ -173,17 +235,6 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-
-        // if let Some(update_event) = event.message.downcast() {
-        //     match update_event {
-        //         UpdateEvent::Update::<Self::Data>(value) => {
-        //             let view_data = self.lens.view(value);
-        //             let value = (self.converter)(&view_data);
-        //             entity.emit(state, UpdateEvent::Update(&value));
-        //         }
-        //     }
-        // }
-
         self.widget.on_event(state, entity, event)
     }
 

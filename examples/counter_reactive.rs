@@ -2,7 +2,6 @@ use tuix::*;
 
 static THEME: &'static str = include_str!("themes/counter_theme.css");
 
-
 // The state of the application
 #[derive(Default, Lens)]
 pub struct CounterState {
@@ -39,11 +38,13 @@ impl Model for CounterState {
 
 // A widget for the counter, with 2 buttons and a label
 #[derive(Default)]
-struct CounterWidget {}
+struct CounterWidget {
+    label: Entity,
+}
 
 impl Widget for CounterWidget {
     type Ret = Entity;
-    type Data = ();
+    type Data = i32;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
   
@@ -60,11 +61,15 @@ impl Widget for CounterWidget {
             .build(state, entity, |builder| builder.class("decrement"));
 
         // Using a lens, the label is bound to the value field of the app data
-        Label::new("0")
-            .bind(CounterState::value, |value| value.to_string())
+        self.label = Label::new("0")
+            //.bind(CounterState::value, |value| value.to_string())
             .build(state, entity, |builder| builder);
 
         entity.set_element(state, "counter").set_layout_type(state, LayoutType::Row)
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        self.label.set_text(state, &data.to_string());
     }
 }
 
@@ -82,6 +87,7 @@ fn main() {
         let data_widget = CounterState::default().build(state, window);
 
         CounterWidget::default()
+            .bind2(CounterState::value)
             .build(state, data_widget, |builder| builder);
         
         // Another label is bound to the counter value, but with a conversion closure 
