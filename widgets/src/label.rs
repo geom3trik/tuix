@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::common::*;
 
 pub struct Label {
@@ -27,8 +29,8 @@ impl Widget for Label {
             //.set_focusable(state, false)
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        self.text = data.to_owned();
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Self::Data>) {
+        self.text = data.to_string();
         entity.set_text(state, &self.text);
         //entity.set_name(state, &self.text);
     }

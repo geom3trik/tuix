@@ -2,6 +2,7 @@
 
 pub mod node;
 pub mod lens;
+use std::borrow::Cow;
 use std::{any::TypeId, collections::HashSet};
 
 pub use node::*;
@@ -109,9 +110,9 @@ impl<D: Model + Node> Widget for Store<D> {
 
         //println!("Origin: {} Observers: {:?}", event.origin, self.observers);
 
-        if self.observers.contains(&event.origin) {
+        //if self.observers.contains(&event.origin) {
             self.data_widget.on_event(state, entity, event);
-        }
+        //}
     }
 }
 
@@ -187,7 +188,7 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         self.widget.on_event(state, entity, event)
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<Self::Data>) {
         // Apply the lens
         let view_data = self.lens.view(data);
         // Apply the converter function
@@ -204,7 +205,7 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         }
 
         // Update the underlying widget with the lensed and converted data
-        self.widget.on_update(state, entity, &value);
+        self.widget.on_update(state, entity, Cow::Borrowed(&value));
 
         // Call the on_update callback
         if let Some(callback) = self.on_update.take() {

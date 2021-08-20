@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::common::*;
 use crate::{CheckboxEvent, ButtonEvent};
 // An element that switches between checked and unchecked when pressed / released
@@ -86,7 +88,7 @@ impl Widget for CheckButton {
         entity.set_element(state, "check_button")
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Self::Data>) {
         if *data != self.checked {
             if *data {
                 entity.emit(state, CheckboxEvent::Checked);

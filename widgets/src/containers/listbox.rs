@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::marker::PhantomData;
 
 use crate::common::*;
@@ -176,11 +177,12 @@ impl<W: Widget> Widget for ListItem<W> {
         self.widget.on_event(state, entity, event)
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Self::Data>) {
 
         for child in entity.child_iter(&state.tree.clone()) {
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
-                event_handler.on_update(state, child, data);
+                event_handler.on_update(state, child, data.as_ref());
+
 
                 state.event_handlers.insert(child, event_handler);
             }
@@ -203,7 +205,7 @@ pub struct ListView<T, W> {
     t: PhantomData<T>,
 }
 
-impl<T: std::fmt::Debug + Node, W: Widget> ListView<T, W> {
+impl<T: std::fmt::Debug + Node + Clone, W: Widget> ListView<T, W> {
     pub fn new<F>(creator: F) -> Self 
     where F: 'static + Fn(&T) -> W,
     {
@@ -253,7 +255,7 @@ impl<T: std::fmt::Debug + Node, W: Widget> ListView<T, W> {
     }
 }
 
-impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
+impl<T: std::fmt::Debug + Clone + Node, W: Widget> Widget for ListView<T, W> {
     type Ret = Entity;
     type Data = Vec<T>;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
@@ -262,7 +264,7 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
         entity.set_element(state, "list")
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Vec<T>) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Vec<T>>) {
 
         if state.tree.get_num_children(entity).unwrap() as usize != data.len() {
             for (index, item) in data.iter().enumerate() {

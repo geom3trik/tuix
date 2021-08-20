@@ -7,6 +7,7 @@ pub enum TtsEvent {
     Speak(String, bool),
 }
 
+#[derive(Clone)]
 pub struct TextToSpeachConfig {
 
 }

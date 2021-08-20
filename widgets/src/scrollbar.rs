@@ -1,4 +1,6 @@
 
+use std::borrow::Cow;
+
 use crate::common::*;
 use crate::Button;
 use crate::scroll_container::Scroll;
@@ -88,7 +90,7 @@ impl Widget for Scrollbar {
         entity.set_element(state, "scrollbar")
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Self::Data>) {
         // self.scroll_pos = data.scroll_pos;
         // self.scroll_size = data.scroll_size;
         // self.overflow = data.overflow;

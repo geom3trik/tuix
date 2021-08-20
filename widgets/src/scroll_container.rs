@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::common::*;
 use crate::{Row, Column};
 
@@ -173,7 +175,7 @@ impl Widget for ScrollContainerH {
         self.container
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Self::Data>) {
         //self.scroll.scroll_pos = data.scroll_pos;
         //self.scroll.scroll_size = data.scroll_size;
 
@@ -572,7 +574,7 @@ impl Widget for ScrollContainer {
         self.container
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Self::Data>) {
         self.scroll = *data;
 
         

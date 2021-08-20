@@ -4,7 +4,7 @@ static THEME: &'static str = include_str!("themes/counter_theme.css");
 
 
 // The state of the application
-#[derive(Default, Lens)]
+#[derive(Default, Clone, Lens)]
 pub struct CounterState {
     value: i32,
 }
@@ -23,6 +23,7 @@ impl Model for CounterState {
             match counter_event {
                 CounterMessage::Increment => {
                     self.value += 1;
+                    println!("Increment Value: {}", self.value);
                     entity.emit(state, BindEvent::Update);
                     event.consume();
                 }

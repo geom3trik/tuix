@@ -1,13 +1,13 @@
-use std::marker::PhantomData;
+use std::{borrow::Cow, marker::PhantomData, ops::Deref};
 
 use crate::Node;
 
-pub trait Lens {
+pub trait Lens: 'static {
 
-    type Source: Node;
-    type Target;
+    type Source: Clone + Node;
+    type Target: Clone;
 
-    fn view<'a>(&self, data: &'a Self::Source) -> &'a Self::Target;
+    fn view<'a>(&self, data: Cow<'a, Self::Source>) -> Cow<'a, Self::Target>;
 }
 
 
@@ -51,14 +51,14 @@ impl<Left, Right> Then<Left, Right> {
 
 impl<Left, Right> Lens for Then<Left, Right>
 where
-    Left: Lens + 'static,
-    Right: Lens<Source = <Left as Lens>::Target> + 'static,
+    Left: Lens,
+    Right: Lens<Source = <Left as Lens>::Target>,
 {
 
     type Source = <Left as Lens>::Source;
     type Target = <Right as Lens>::Target;
 
-    fn view<'a>(&self, data: &'a Self::Source) -> &'a Self::Target {
+    fn view<'a>(&self, data: Cow<'a,Self::Source>) -> Cow<'a, Self::Target> {
         self.right.view(self.left.view(data))
     }
 }
@@ -69,5 +69,24 @@ impl<T: Clone, U: Clone> Clone for Then<T, U> {
             left: self.left.clone(),
             right: self.right.clone(),
         }
+    }
+}
+
+
+pub struct And<Left, Right> {
+    left: Left,
+    right: Right,
+}
+
+impl<Left, Right> Lens for And<Left, Right> 
+where 
+    Left: Lens,
+    Right: Lens<Source = <Left as Lens>::Source>,
+{
+    type Source = <Left as Lens>::Source;
+    type Target = (Left::Target, Right::Target);
+
+    fn view<'a>(&self, data: Cow<'a,Self::Source>) -> Cow<'a, Self::Target> {
+        Cow::Owned((self.left.view(data.clone()).into_owned(), self.right.view(data.clone()).into_owned()))
     }
 }

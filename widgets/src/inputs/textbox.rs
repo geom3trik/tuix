@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::common::*;
 
 use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
@@ -398,7 +400,7 @@ impl Widget for Textbox {
     }
 
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Self::Data>) {
         self.text = data.to_string();
         entity.set_text(state, &self.text);
     }

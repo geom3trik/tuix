@@ -13,9 +13,10 @@ use fnv::FnvHashMap;
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
 use std::any::Any;
+use std::borrow::Cow;
 pub trait Widget: std::marker::Sized + 'static {
     type Ret;
-    type Data: Node;
+    type Data: Clone + Node;
 
     fn widget_name(&self) -> String {
         String::new()
@@ -51,7 +52,7 @@ pub trait Widget: std::marker::Sized + 'static {
     }
 
     // Called when data bound to this widget is changed
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {}
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Self::Data>) {}
 
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
@@ -620,9 +621,9 @@ where
         <T as Widget>::widget_name(self)
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {
         if let Some(data) = node.downcast_ref() {
-             <T as Widget>::on_update(self, state, entity, data);
+             <T as Widget>::on_update(self, state, entity, Cow::Borrowed(data));
         }
     }
 

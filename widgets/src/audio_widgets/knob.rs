@@ -3,7 +3,7 @@ use femtovg::*;
 
 use super::NormalizedMap;
 
-use std::f32::consts::PI;
+use std::{borrow::Cow, f32::consts::PI};
 
 static DEFAULT_DRAG_SCALAR: f32 = 0.0042;
 static DEFAULT_WHEEL_SCALAR: f32 = 0.005;
@@ -286,7 +286,7 @@ impl<T: NormalizedMap> Widget for Knob<T> {
         entity.set_element(state, "knob")
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: Cow<'a,Self::Data>) {
         if !self.is_dragging {
             self.normalized_value = *data;
 
