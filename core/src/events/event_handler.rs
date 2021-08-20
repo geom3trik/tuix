@@ -27,7 +27,7 @@ pub trait EventHandler: Any {
     }
 
     // Called when a widget needs to be informed of a change in a data store
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
 
     // Called when events are flushed
     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}

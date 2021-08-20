@@ -45,9 +45,9 @@ pub trait Widget: std::marker::Sized + 'static {
     }
 
     fn bind<L: Lens, F>(self, lens: L, converter: F) -> Wrapper<L, Self> 
-    where F: 'static + Fn(&<L as Lens>::Target) -> <Self as Widget>::Data
+    where F: 'static + Fn(<L as Lens>::Target<'_>) -> <Self as Widget>::Data + Clone
     {
-        Wrapper::new(self, lens, converter)
+        Wrapper::new(self, lens, converter.clone())
     }
 
     // Called when data bound to this widget is changed

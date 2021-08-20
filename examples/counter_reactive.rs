@@ -1,3 +1,5 @@
+#![feature(generic_associated_types)]
+
 use tuix::*;
 
 static THEME: &'static str = include_str!("themes/counter_theme.css");
@@ -61,7 +63,7 @@ impl Widget for CounterWidget {
 
         // Using a lens, the label is bound to the value field of the app data
         Label::new("0")
-            .bind(CounterState::value, |value| value.to_string())
+            .bind(CounterState::value, &|value: &i32| value.to_string())
             .build(state, entity, |builder| builder);
 
         entity.set_element(state, "counter").set_layout_type(state, LayoutType::Row)
@@ -87,7 +89,7 @@ fn main() {
         // Another label is bound to the counter value, but with a conversion closure 
         // which converts the value to english text form
         Label::new("Zero")
-            .bind(CounterState::value, |value| english_numbers::convert_all_fmt(*value as i64))
+            .bind(CounterState::value, &|value: &i32| english_numbers::convert_all_fmt(*value as i64))
             .build(state, data_widget, |builder| 
                 builder
                     .set_width(Stretch(1.0))

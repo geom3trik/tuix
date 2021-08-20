@@ -148,9 +148,9 @@ fn derive_struct(input: &syn::DeriveInput) -> Result<proc_macro2::TokenStream, s
             impl #impl_generics Lens for #twizzled_name::#field_name#lens_ty_generics #where_clause {
 
                 type Source = #struct_type#ty_generics;
-                type Target = #field_ty;
+                type Target<'a> = &'a #field_ty;
 
-                fn view<'a>(&self, data: &'a#struct_type#ty_generics) -> &'a#field_ty {
+                fn view<'a>(&self, data: &'a#struct_type#ty_generics) -> Self::Target<'a> {
                     &data.#field_name
                 }
             }

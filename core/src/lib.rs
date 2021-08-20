@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 #![allow(dead_code)]
 
 #[macro_use]

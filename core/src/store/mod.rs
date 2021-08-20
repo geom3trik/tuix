@@ -2,6 +2,7 @@
 
 pub mod node;
 pub mod lens;
+use std::marker::PhantomData;
 use std::{any::TypeId, collections::HashSet};
 
 pub use node::*;
@@ -109,9 +110,9 @@ impl<D: Model + Node> Widget for Store<D> {
 
         //println!("Origin: {} Observers: {:?}", event.origin, self.observers);
 
-        if self.observers.contains(&event.origin) {
+        //if self.observers.contains(&event.origin) {
             self.data_widget.on_event(state, entity, event);
-        }
+        //}
     }
 }
 
@@ -131,17 +132,17 @@ pub enum UpdateEvent<'a, T> {
 
 
 // A wrapper on a widget which adds the setup for binding as well as the conversion of data + lensing
-pub struct Wrapper<L: Lens, W: Widget, > {
+pub struct Wrapper<L: Lens, W: Widget> {
 
     widget: W,
     lens: L,
-    converter: Box<dyn Fn(&<L as Lens>::Target) -> <W as Widget>::Data>,
+    converter: Box<dyn Fn(<L as Lens>::Target<'_>) -> <W as Widget>::Data>,
     on_update: Option<Box<dyn Fn(&mut W, &mut State, Entity)>>,
 }
 
-impl<L: Lens, W: Widget> Wrapper<L,W> {
+impl<L: Lens, W: Widget> Wrapper<L, W> {
     pub fn new<F>(widget: W, lens: L, converter: F) -> Self 
-    where F: 'static + Fn(&<L as Lens>::Target) -> <W as Widget>::Data
+    where F: 'static + for<'a> Fn(<L as Lens>::Target<'a>) -> <W as Widget>::Data
     {
         Self {
 
@@ -191,7 +192,7 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         // Apply the lens
         let view_data = self.lens.view(data);
         // Apply the converter function
-        let value = (self.converter)(&view_data);
+        let value = (self.converter)(view_data);
 
         // Update children
         for (index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
