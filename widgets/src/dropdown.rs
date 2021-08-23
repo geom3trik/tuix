@@ -31,7 +31,7 @@ impl DropdownItem {
 
 impl Widget for DropdownItem {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &self.text).class(state, "item");
 
@@ -103,7 +103,7 @@ impl Dropdown {
 
 impl Widget for Dropdown {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // self.header = Element::new().build(state, entity, |builder| {
         //     builder

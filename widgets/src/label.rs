@@ -14,7 +14,7 @@ impl Label {
 
 impl Widget for Label {
     type Ret = Entity;
-    type Data = String;
+    type Data<'a> = &'a String;
 
     fn widget_name(&self) -> String {
         "label".to_string()
@@ -27,8 +27,8 @@ impl Widget for Label {
             //.set_focusable(state, false)
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        self.text = data.to_owned();
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
+        self.text = (*data).to_string();
         entity.set_text(state, &self.text);
         //entity.set_name(state, &self.text);
     }

@@ -2,9 +2,11 @@
 
 pub mod node;
 pub mod lens;
+use std::any::Any;
 use std::marker::PhantomData;
 use std::{any::TypeId, collections::HashSet};
 
+use better_any::TidAble;
 pub use node::*;
 pub use lens::*;
 
@@ -64,9 +66,10 @@ impl<D: Model> Store<D> {
     }
 }
 
-impl<D: Model + Node> Widget for Store<D> {
+impl<D: Model + Any> Widget for Store<D> 
+{
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_hoverable(state, false).set_focusable(state, false)
     }
@@ -82,7 +85,7 @@ impl<D: Model + Node> Widget for Store<D> {
                         self.observers.insert(*target);
                         //entity.emit(state, BindEvent::Update);
                         if let Some(mut event_handler) = state.event_handlers.remove(target) {
-                            event_handler.on_update(state, *target, &self.data_widget);
+                            event_handler.on_update(state, *target, (&self.data_widget).into());
     
                             state.event_handlers.insert(*target, event_handler);
                         }
@@ -97,7 +100,7 @@ impl<D: Model + Node> Widget for Store<D> {
                     for observer in self.observers.iter() {
                         if *observer != event.origin {
                             if let Some(mut event_handler) = state.event_handlers.remove(observer) {
-                                event_handler.on_update(state, *observer, &self.data_widget);
+                                event_handler.on_update(state, *observer, (&self.data_widget).into());
 
                                 state.event_handlers.insert(*observer, event_handler);
                             }
@@ -136,19 +139,16 @@ pub struct Wrapper<L: Lens, W: Widget> {
 
     widget: W,
     lens: L,
-    converter: Box<dyn Fn(<L as Lens>::Target<'_>) -> <W as Widget>::Data>,
     on_update: Option<Box<dyn Fn(&mut W, &mut State, Entity)>>,
 }
 
 impl<L: Lens, W: Widget> Wrapper<L, W> {
-    pub fn new<F>(widget: W, lens: L, converter: F) -> Self 
-    where F: 'static + for<'a> Fn(<L as Lens>::Target<'a>) -> <W as Widget>::Data
+    pub fn new(widget: W, lens: L) -> Self
     {
         Self {
 
             widget,
             lens,
-            converter: Box::new(converter),
             on_update: None,
         }
     }
@@ -161,13 +161,15 @@ impl<L: Lens, W: Widget> Wrapper<L, W> {
     }
 }
 
-impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
+impl<L: 'static + Lens, W> Widget for Wrapper<L,W> 
+where for<'a> W: Widget<Data<'a> = <L as Lens>::Target<'a>>
+{
     type Ret = <W as Widget>::Ret;
-    type Data = <L as Lens>::Source;
+    type Data<'a> = &'a <L as Lens>::Source;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
-        let type_id = TypeId::of::<Self::Data>();
+        let type_id = TypeId::of::<Self::Data<'_>>();
         state.insert_event(Event::new(BindEvent::Bind(entity, type_id)).target(entity).propagate(Propagation::Up));
 
         self.widget.on_build(state, entity)
@@ -188,24 +190,24 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         self.widget.on_event(state, entity, event)
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
         // Apply the lens
         let view_data = self.lens.view(data);
         // Apply the converter function
-        let value = (self.converter)(view_data);
+        //let value = (self.converter)(view_data);
 
-        // Update children
-        for (index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
+        // // Update children
+        // for (index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
             
-            if let Some(mut event_handler) = state.event_handlers.remove(&child) {
-                event_handler.on_update(state, child, &value);
+        //     if let Some(mut event_handler) = state.event_handlers.remove(&child) {
+        //         event_handler.on_update(state, child, view_data);
 
-                state.event_handlers.insert(child, event_handler);
-            }
-        }
+        //         state.event_handlers.insert(child, event_handler);
+        //     }
+        // }
 
         // Update the underlying widget with the lensed and converted data
-        self.widget.on_update(state, entity, &value);
+        self.widget.on_update(state, entity, &view_data);
 
         // Call the on_update callback
         if let Some(callback) = self.on_update.take() {

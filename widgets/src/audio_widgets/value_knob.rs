@@ -140,7 +140,7 @@ impl ValueKnob {
 
 impl Widget for ValueKnob {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {        
         Label::new(&self.label).build(state, entity, |builder| {
             builder

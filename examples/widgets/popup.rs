@@ -39,7 +39,7 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
         Label::new("Right click for popup.").build(state, container, |builder| 

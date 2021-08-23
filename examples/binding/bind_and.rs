@@ -2,8 +2,7 @@
 
 use tuix::*;
 
-
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Tid)]
 pub enum AppEvent {
     SetData(String),
     SetOther(i32),
@@ -44,7 +43,7 @@ pub struct AppWidget {
 
 impl Widget for AppWidget {
     type Ret = Entity;
-    type Data = (String, i32);
+    type Data<'a> = (&'a String, &'a i32);
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         
 
@@ -66,7 +65,7 @@ impl Widget for AppWidget {
         entity
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
         println!("{:?}", data);
     }
 }
@@ -79,7 +78,7 @@ fn main() {
         let app_data = AppData::default().build(state, window);
         
         AppWidget::default()
-        .bind(AppData::data.and(AppData::other), &|data: (&String, &i32)| (data.0.clone(), data.1.clone()))
+        .bind(AppData::data.and(AppData::other))
         .build(state, app_data, |builder| builder);
     });
 

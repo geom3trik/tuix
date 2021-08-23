@@ -72,7 +72,7 @@ impl Panel {
 
 impl Widget for Panel {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_focusable(state, false)

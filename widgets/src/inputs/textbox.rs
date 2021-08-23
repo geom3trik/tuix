@@ -97,7 +97,7 @@ impl Textbox {
 
 impl Widget for Textbox {
     type Ret = Entity;
-    type Data = String;
+    type Data<'a> = &'a String;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_text(state, &(self.text.to_owned() + &self.units));
 
@@ -398,7 +398,7 @@ impl Widget for Textbox {
     }
 
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
         self.text = data.to_string();
         entity.set_text(state, &self.text);
     }

@@ -14,7 +14,7 @@ impl Element {
 
 impl Widget for Element {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
     }

@@ -43,7 +43,7 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
         let scroll = ScrollContainer::new().build(state, container, |builder| builder);

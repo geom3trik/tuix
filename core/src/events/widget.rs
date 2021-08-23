@@ -1,5 +1,6 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
 use crate::{AsEntity, Entity, Tree, Lens, Node, PropType, State, Wrapper};
+use better_any::{Tid, TidAble, TidExt};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -15,7 +16,7 @@ pub type Canvas = femtovg::Canvas<OpenGl>;
 use std::any::Any;
 pub trait Widget: std::marker::Sized + 'static {
     type Ret;
-    type Data: Node;
+    type Data<'a>: TidAble<'a>;
 
     fn widget_name(&self) -> String {
         String::new()
@@ -44,14 +45,13 @@ pub trait Widget: std::marker::Sized + 'static {
         ret
     }
 
-    fn bind<L: Lens, F>(self, lens: L, converter: F) -> Wrapper<L, Self> 
-    where F: 'static + Fn(<L as Lens>::Target<'_>) -> <Self as Widget>::Data + Clone
+    fn bind<L: Lens>(self, lens: L) -> Wrapper<L, Self>
     {
-        Wrapper::new(self, lens, converter.clone())
+        Wrapper::new(self, lens)
     }
 
     // Called when data bound to this widget is changed
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {}
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {}
 
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
@@ -620,8 +620,9 @@ where
         <T as Widget>::widget_name(self)
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {
-        if let Some(data) = node.downcast_ref() {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, node: &dyn Tid<'a>)
+    {
+        if let Some(data) = node.downcast_ref::<<T as Widget>::Data<'a>>() {
              <T as Widget>::on_update(self, state, entity, data);
         }
     }

@@ -13,7 +13,7 @@ impl Row {
 
 impl Widget for Row {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_layout_type(state, LayoutType::Row)
@@ -34,7 +34,7 @@ impl Column {
 
 impl Widget for Column {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_layout_type(state, LayoutType::Column)
@@ -61,7 +61,7 @@ impl ResizableColumn {
 
 impl Widget for ResizableColumn {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
         entity
         //.set_width(state, Units::Pixels(300.0))

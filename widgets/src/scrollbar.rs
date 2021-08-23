@@ -70,7 +70,7 @@ impl Scrollbar {
 
 impl Widget for Scrollbar {
     type Ret = Entity;
-    type Data = Scroll;
+    type Data<'a> = &'a Scroll;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.front = Element::new().build(state, entity, |builder| 
             builder
@@ -88,12 +88,12 @@ impl Widget for Scrollbar {
         entity.set_element(state, "scrollbar")
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
         // self.scroll_pos = data.scroll_pos;
         // self.scroll_size = data.scroll_size;
         // self.overflow = data.overflow;
 
-        self.scroll = *data;
+        self.scroll = **data;
         let overflow2 = 1.0 - (1.0 / (1.0 - self.scroll.overflow));
         if self.direction == ScrollDirection::Vertical {
             self.front.set_top(state, Percentage(self.scroll.scroll_pos * overflow2 * 100.0));

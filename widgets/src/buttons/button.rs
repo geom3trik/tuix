@@ -134,7 +134,7 @@ impl Button {
 
 impl Widget for Button {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
 
     fn widget_name(&self) -> String {
         "button".to_string()

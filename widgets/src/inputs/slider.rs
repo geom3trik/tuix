@@ -383,7 +383,7 @@ impl Slider {
 
 impl Widget for Slider {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         if self.min > self.max {
             panic!("minimum value must be less than maximum value")

@@ -111,7 +111,7 @@ impl ScrollContainerH {
 
 impl Widget for ScrollContainerH {
     type Ret = Entity;
-    type Data = Scroll;
+    type Data<'a> = &'a Scroll;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_layout_type(state, LayoutType::Column)
@@ -173,11 +173,11 @@ impl Widget for ScrollContainerH {
         self.container
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
         //self.scroll.scroll_pos = data.scroll_pos;
         //self.scroll.scroll_size = data.scroll_size;
 
-        self.scroll = *data;
+        self.scroll = **data;
 
         // let overflow = 1.0
         //     - (state.data.get_width(self.container)
@@ -506,7 +506,7 @@ impl ScrollContainer {
 
 impl Widget for ScrollContainer {
     type Ret = Entity;
-    type Data = Scroll;
+    type Data<'a> = &'a Scroll;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_layout_type(state, LayoutType::Row)
@@ -572,8 +572,8 @@ impl Widget for ScrollContainer {
         self.container
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        self.scroll = *data;
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
+        self.scroll = **data;
 
         
         let overflow2 = 1.0

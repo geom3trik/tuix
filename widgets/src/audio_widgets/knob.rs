@@ -46,7 +46,7 @@ impl ArcTrack {
 
 impl Widget for ArcTrack {
     type Ret = Entity;
-    type Data = f32;
+    type Data<'a> = &'a f32;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         // Non-displayed element used for setting the color of the active arc
@@ -263,7 +263,7 @@ impl<T: NormalizedMap> Knob<T> {
 
 impl<T: NormalizedMap> Widget for Knob<T> {
     type Ret = Entity;
-    type Data = f32;
+    type Data<'a> = &'a f32;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         self.value_track = ArcTrack::new(self.normalized_value)
@@ -286,9 +286,9 @@ impl<T: NormalizedMap> Widget for Knob<T> {
         entity.set_element(state, "knob")
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
         if !self.is_dragging {
-            self.normalized_value = *data;
+            self.normalized_value = **data;
 
             if let Some(track) = state.query::<ArcTrack>(self.value_track) {
                 track.normalized_value = self.normalized_value;

@@ -25,7 +25,7 @@ impl TextToSpeach {
 
 impl Widget for TextToSpeach {
     type Ret = Entity;
-    type Data = TextToSpeachConfig;
+    type Data<'a> = TextToSpeachConfig;
     
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_focusable(state, false).set_hoverable(state, false)

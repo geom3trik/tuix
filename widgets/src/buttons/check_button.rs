@@ -68,7 +68,7 @@ impl CheckButton {
 
 impl Widget for CheckButton {
     type Ret = Entity;
-    type Data = bool;
+    type Data<'a> = &'a bool;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
 
@@ -86,9 +86,9 @@ impl Widget for CheckButton {
         entity.set_element(state, "check_button")
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        if *data != self.checked {
-            if *data {
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
+        if **data != self.checked {
+            if **data {
                 entity.emit(state, CheckboxEvent::Checked);
             } else {
                 entity.emit(state, CheckboxEvent::Unchecked);
