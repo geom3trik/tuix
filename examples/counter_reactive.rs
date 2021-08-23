@@ -4,9 +4,10 @@ use tuix::*;
 
 static THEME: &'static str = include_str!("themes/counter_theme.css");
 
+use better_any::{Tid, TidAble};
 
 // The state of the application
-#[derive(Default, Lens)]
+#[derive(Default, Lens, Tid)]
 pub struct CounterState {
     value: i32,
 }
@@ -25,12 +26,14 @@ impl Model for CounterState {
             match counter_event {
                 CounterMessage::Increment => {
                     self.value += 1;
+                    println!("Increment");
                     entity.emit(state, BindEvent::Update);
                     event.consume();
                 }
 
                 CounterMessage::Decrement => {
                     self.value -= 1;
+                    println!("Decrement");
                     entity.emit(state, BindEvent::Update);
                     event.consume();
                 }
@@ -41,11 +44,13 @@ impl Model for CounterState {
 
 // A widget for the counter, with 2 buttons and a label
 #[derive(Default)]
-struct CounterWidget {}
+struct CounterWidget {
+    label: Entity,
+}
 
 impl Widget for CounterWidget {
     type Ret = Entity;
-    type Data = ();
+    type Data<'a> = &'a i32;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
   
@@ -62,11 +67,16 @@ impl Widget for CounterWidget {
             .build(state, entity, |builder| builder.class("decrement"));
 
         // Using a lens, the label is bound to the value field of the app data
-        Label::new("0")
-            .bind(CounterState::value, &|value: &i32| value.to_string())
+        self.label = Label::new("0")
+            //.bind(CounterState::value, &|value: &i32| value.to_string())
             .build(state, entity, |builder| builder);
 
         entity.set_element(state, "counter").set_layout_type(state, LayoutType::Row)
+    }
+
+    fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
+        println!("Set label to: {:?}", (*data));
+        self.label.set_text(state, &(*data).to_string());
     }
 }
 
@@ -81,20 +91,21 @@ fn main() {
         state.add_theme(THEME);
 
         // Build the app data at the root of the visual tree
-        let data_widget = CounterState::default().build(state, window);
+        let data_widget = CounterState{value: 22}.build(state, window);
 
         CounterWidget::default()
+            .bind(CounterState::value)
             .build(state, data_widget, |builder| builder);
         
         // Another label is bound to the counter value, but with a conversion closure 
         // which converts the value to english text form
-        Label::new("Zero")
-            .bind(CounterState::value, &|value: &i32| english_numbers::convert_all_fmt(*value as i64))
-            .build(state, data_widget, |builder| 
-                builder
-                    .set_width(Stretch(1.0))
-                    .set_space(Pixels(5.0))
-            );
+        // Label::new("Zero")
+        //     .bind(CounterState::value, &|value: &i32| english_numbers::convert_all_fmt(*value as i64))
+        //     .build(state, data_widget, |builder| 
+        //         builder
+        //             .set_width(Stretch(1.0))
+        //             .set_space(Pixels(5.0))
+        //     );
     });
 
     app.run();

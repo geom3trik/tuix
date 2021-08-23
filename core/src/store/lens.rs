@@ -2,11 +2,14 @@
 
 use std::marker::PhantomData;
 
+use better_any::{tid, type_id, Tid, TidAble, TidExt};
+
+
 use crate::Node;
 
 pub trait Lens: 'static {
 
-    type Source: Node;
+    type Source;
     type Target<'a>;
 
     fn view<'a>(&self, data: &'a Self::Source) -> Self::Target<'a>;
@@ -106,9 +109,20 @@ where
     Right: Lens<Source = <Left as Lens>::Source>,
 {
     type Source = <Left as Lens>::Source;
-    type Target<'a> = (Left::Target<'a>, Right::Target<'a>);
+    // type Target<'a> = (Left::Target<'a>, Right::Target<'a>);
+    type Target<'a> = Pair<Left::Target<'a>, Right::Target<'a>>;
+
 
     fn view<'a>(&self, data: &'a Self::Source) -> Self::Target<'a> {
-        (self.left.view(data), self.right.view(data))
+        Pair {
+            left: self.left.view(data), 
+            right: self.right.view(data),
+        }
     }
 } 
+
+#[derive(Tid)]
+pub struct Pair<Left, Right> {
+    pub left: Left,
+    pub right: Right,
+}

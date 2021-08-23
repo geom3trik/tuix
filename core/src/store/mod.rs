@@ -15,12 +15,12 @@ use crate::{State, Entity, Event, Widget, Propagation, PropSet};
 
 use crate::events::event_handler::Canvas;
 
-pub trait Model {
+pub trait Model: 'static {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
     fn build(mut self, state: &mut State, parent: Entity) -> Entity
-    where Self: std::marker::Sized + Model + Node
+    where for<'a> Self: std::marker::Sized + Model + TidAble<'a>
     {
 
         Store::new(self).build(state, parent, |builder| builder)
@@ -66,7 +66,8 @@ impl<D: Model> Store<D> {
     }
 }
 
-impl<D: Model + Any> Widget for Store<D> 
+impl<D: Model> Widget for Store<D> 
+where for<'a> D: TidAble<'a>
 {
     type Ret = Entity;
     type Data<'a> = &'a ();
@@ -80,19 +81,19 @@ impl<D: Model + Any> Widget for Store<D>
             match bind_event {
                 BindEvent::Bind(target, type_id) => {
                     println!("Bind: {}", target);
-                    if *type_id == TypeId::of::<D>() {
-                        println!("Compatible");
+                    //if *type_id == TypeId::of::<D>() {
+                        //println!("Compatible");
                         self.observers.insert(*target);
                         //entity.emit(state, BindEvent::Update);
                         if let Some(mut event_handler) = state.event_handlers.remove(target) {
-                            event_handler.on_update(state, *target, (&self.data_widget).into());
+                            event_handler.on_update(state, *target, &self.data_widget);
     
                             state.event_handlers.insert(*target, event_handler);
                         }
                         event.consume();
-                    } else {
-                        println!("Not Compatible");
-                    }
+                    //} else {
+                    //    println!("Not Compatible");
+                    //}
                     
                 }
 
@@ -100,7 +101,7 @@ impl<D: Model + Any> Widget for Store<D>
                     for observer in self.observers.iter() {
                         if *observer != event.origin {
                             if let Some(mut event_handler) = state.event_handlers.remove(observer) {
-                                event_handler.on_update(state, *observer, (&self.data_widget).into());
+                                event_handler.on_update(state, *observer, &self.data_widget);
 
                                 state.event_handlers.insert(*observer, event_handler);
                             }
@@ -162,10 +163,12 @@ impl<L: Lens, W: Widget> Wrapper<L, W> {
 }
 
 impl<L: 'static + Lens, W> Widget for Wrapper<L,W> 
-where for<'a> W: Widget<Data<'a> = <L as Lens>::Target<'a>>
+where
+    for<'a> W: Widget<Data<'a> = <L as Lens>::Target<'a>>,
+    for<'a> <L as lens::Lens>::Source: TidAble<'a>
 {
     type Ret = <W as Widget>::Ret;
-    type Data<'a> = &'a <L as Lens>::Source;
+    type Data<'a> = <L as Lens>::Source;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 

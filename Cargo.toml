@@ -157,7 +157,7 @@ tuix-derive = {version = "0.1.0", path = "tuix-derive"}
 
 [dev-dependencies]
 femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}
-better_any = {git = "https://github.com/rrevenantt/better_any", branch = "main"}
+better_any = {git = "https://github.com/rrevenantt/better_any", branch = "main", features = ["derive"]}
 image = "0.23.12"
 fnv = "1.0.7"
 rand = "0.8.3"

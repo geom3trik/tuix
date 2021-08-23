@@ -622,8 +622,11 @@ where
 
     fn on_update<'a>(&mut self, state: &mut State, entity: Entity, node: &dyn Tid<'a>)
     {
+        println!("Update");
         if let Some(data) = node.downcast_ref::<<T as Widget>::Data<'a>>() {
              <T as Widget>::on_update(self, state, entity, data);
+        } else {
+            println!("Failed to downcast");
         }
     }
 

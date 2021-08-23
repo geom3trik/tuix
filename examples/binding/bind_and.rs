@@ -2,13 +2,15 @@
 
 use tuix::*;
 
-#[derive(Debug, Clone, PartialEq, Tid)]
+use better_any::{Tid, TidAble};
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum AppEvent {
     SetData(String),
     SetOther(i32),
 }
 
-#[derive(Default, Lens)]
+#[derive(Default, Lens, Tid)]
 pub struct AppData {
     data: String,
     other: i32,
@@ -43,7 +45,7 @@ pub struct AppWidget {
 
 impl Widget for AppWidget {
     type Ret = Entity;
-    type Data<'a> = (&'a String, &'a i32);
+    type Data<'a> = Pair<&'a String, &'a i32>;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         
 
@@ -66,7 +68,8 @@ impl Widget for AppWidget {
     }
 
     fn on_update<'a>(&mut self, state: &mut State, entity: Entity, data: &Self::Data<'a>) {
-        println!("{:?}", data);
+        println!("{:?}", data.left);
+        println!("{:?}", data.right);
     }
 }
 

@@ -16,4 +16,4 @@ num-traits = "0.2.14"
 tts = "0.17.3"
 image = { version = "0.23.6"}
 morphorm = {git = "https://github.com/geom3trik/morphorm", branch = "main"}
-better_any = {git = "https://github.com/rrevenantt/better_any", branch = "main"}
+better_any = {git = "https://github.com/rrevenantt/better_any", branch = "main", features = ["derive"]}
