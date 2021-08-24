@@ -10,8 +10,8 @@ pub use checkbox::*;
 pub mod check_button;
 pub use check_button::*;
 
-// pub mod radio;
-// pub use radio::*;
+pub mod radio;
+pub use radio::*;
 
-// pub mod switch;
-// pub use switch::*;
+pub mod switch;
+pub use switch::*;

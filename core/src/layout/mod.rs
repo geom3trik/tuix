@@ -23,5 +23,9 @@ pub(crate) fn geometry_changed(state: &mut State, tree: &Tree) {
             height: geometry_changed.contains(morphorm::GeometryChanged::HEIGHT_CHANGED),
         })).target(node).propagate(Propagation::Down));
 
+        state.data.set_geo_changed(node, morphorm::GeometryChanged::POSX_CHANGED, false);
+        state.data.set_geo_changed(node, morphorm::GeometryChanged::POSY_CHANGED, false);
+        state.data.set_geo_changed(node, morphorm::GeometryChanged::WIDTH_CHANGED, false);
+        state.data.set_geo_changed(node, morphorm::GeometryChanged::HEIGHT_CHANGED, false);
     }
 } 

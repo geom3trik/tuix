@@ -333,9 +333,9 @@ impl Slider {
         let nx = (dx - thumb_width / 2.0) / (width - thumb_width);
 
         self.thumb
-            .set_left(state, Units::Percentage((dx - thumb_width / 2.0) / width));
+            .set_left(state, Units::Percentage(100.0 * (dx - thumb_width / 2.0) / width));
 
-        self.active.set_width(state, Units::Percentage(nx));
+        self.active.set_width(state, Units::Percentage(nx * 100.0));
 
         self.value = self.min + nx * (self.max - self.min);
 
@@ -412,7 +412,7 @@ impl Widget for Slider {
         // Active
         self.active = Element::new().build(state, self.track, |builder| {
             builder
-                .set_width(Percentage(0.5))
+                .set_width(Percentage(50.0))
                 .set_height(Stretch(1.0))
                 .set_hoverable(false)
                 .class("active")
@@ -433,9 +433,11 @@ impl Widget for Slider {
         // Handle window events
         if let Some(window_event) = event.message.downcast() {
             match window_event {
-                WindowEvent::GeometryChanged(_) if event.target == entity => {
-                    self.update_visuals(state, entity);
-                }
+                
+                //TODO
+                // WindowEvent::GeometryChanged(_) if event.target == entity => {
+                //     self.update_visuals(state, entity);
+                // }
 
                 WindowEvent::MouseOver if event.target == entity => {
                     if let Some(callback) = self.on_over.take() {

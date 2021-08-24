@@ -303,9 +303,12 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
         if let Some(bind_event) = event.message.downcast() {
             match bind_event {
                 BindEvent::Bind(target, type_id) => {
-                    if *target != entity {
-                        event.consume();
+                    if target.is_child_of(&state.tree, entity) {
+                        if *target != entity {
+                            event.consume();
+                        }                        
                     }
+
                 }
 
                 _=> {}

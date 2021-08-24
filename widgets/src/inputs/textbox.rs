@@ -392,6 +392,18 @@ impl Widget for Textbox {
                     );
                 }
 
+                WindowEvent::MouseCaptureOutEvent => {
+                    println!("Mouse Capture Out");
+                    self.edit = false;
+                    entity.set_active(state, false);
+                    state.release(entity);
+
+
+                    state.insert_event(
+                        Event::new(WindowEvent::Redraw).target(Entity::root()),
+                    );
+                }
+
                 _ => {}
             }
         }

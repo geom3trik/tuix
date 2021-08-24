@@ -18,7 +18,7 @@ const STYLE: &str = r#"
     }
     
     radio>.marker {
-        background-color: #ff5e1a;
+        background-color: black;
         width: 10px;
         height: 10px;
         border-radius: 5px;
@@ -30,7 +30,7 @@ const STYLE: &str = r#"
     }
     
     radio:checked {
-        border-color: #ff5e1a;
+        border-color: black;
     }
     
     radio:checked>.marker {
@@ -58,6 +58,7 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
         self.listbox = List::new()

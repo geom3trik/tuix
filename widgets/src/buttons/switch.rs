@@ -39,6 +39,7 @@ impl Switch {
 
 impl Widget for Switch {
     type Ret = Entity;
+    type Data = bool;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.checkbox.on_build(state, entity);
 

@@ -1,6 +1,6 @@
 const ICON_CHECK: &str = "\u{2713}";
 
-use crate::common::*;
+use crate::{CheckButton, common::*};
 
 pub struct Radio {
     marker: Entity,
@@ -40,6 +40,7 @@ impl Radio {
 
 impl Widget for Radio {
     type Ret = Entity;
+    type Data = bool;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         
         self.check.on_build(state, entity);
