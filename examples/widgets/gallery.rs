@@ -136,6 +136,7 @@ impl WidgetGallery {
 
 impl Widget for WidgetGallery {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // Horizontal Split
         let row = Row::new().build(state, entity, |builder| builder);

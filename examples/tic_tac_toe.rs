@@ -64,6 +64,7 @@ impl Board {
 // Add the squares and the post-game overlay
 impl Widget for Board {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // Create three rows each with 3 buttons
         for r in 0..3 {
@@ -162,8 +163,9 @@ pub struct Square {
 
 impl Square {
     pub fn on_press(mut self, event: Event) -> Self {
-        self.button = self.button.on_press(move |_,state,entity|{
-            entity.emit_event(state, event.clone());
+        self.button = self.button.on_press(move |_,state, entity|{
+            //entity.emit_event(state, event);
+            state.insert_event(event.clone());
         });
 
         self
@@ -173,6 +175,7 @@ impl Square {
 // Inherits from button
 impl Widget for Square {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.button.on_build(state, entity)
     }

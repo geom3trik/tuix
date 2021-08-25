@@ -1,3 +1,5 @@
+use tuix_core::TreeExt;
+
 use crate::common::*;
 
 // Wrap a widget in a context menu to add a right-click menu to a widget
@@ -15,6 +17,7 @@ impl ContextMenu {
 
 impl Widget for ContextMenu {
     type Ret = (Entity, Entity);
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.context_menu = Element::new().build(state, entity, |builder| {
             builder

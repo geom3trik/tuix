@@ -1,4 +1,6 @@
-use crate::common::*;
+use tuix_core::TreeExt;
+
+use crate::{Popup, PopupEvent, common::*};
 
 // Notes:
 // When user clicks menu, the container should appear
@@ -21,59 +23,74 @@ pub enum MenuPosition {
     Right,
 }
 
-pub struct Menu {
-    container: Entity,
+pub struct MenuData {
     open: bool,
 }
 
+pub struct Menu {
+    container: Entity,
+    open: bool,
+    text: String,
+}
+
 impl Menu {
-    pub fn new() -> Self {
+    pub fn new(text: &str) -> Self {
         Menu {
             container: Entity::default(),
             open: false,
+            text: text.to_string(),
         }
     }
 }
 
 impl Widget for Menu {
     type Ret = Entity;
+    type Data = MenuData;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_layout_type(state, LayoutType::Column);
 
-        self.container = Element::new().build(state, entity, |builder| {
+        self.container = Popup::new().build(state, entity, |builder| {
             builder
                 .set_position_type(PositionType::SelfDirected)
+                .set_top(Percentage(100.0))
+                // .set_width(Auto)
+                // .set_height(Auto)
+                .set_width(Pixels(100.0))
+                .set_height(Pixels(300.0))
+                .set_background_color(Color::red())
                 .set_z_order(1)
+                .set_clip_widget(Entity::root())
                 .class("container")
         });
 
-        entity.set_element(state, "menu");
+        entity
+            .set_text(state, &self.text)
+            .set_element(state, "menu");
 
         self.container
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        if let Some(menu_event) = event.message.downcast::<MenuEvent>() {
-            match menu_event {
-                MenuEvent::Open(menu) => {
-                    if *menu == entity {
-                        entity.set_checked(state, true);
-                        state.capture(entity);
-                        self.open = true;
-                    }
-                }
+        // if let Some(menu_event) = event.message.downcast::<MenuEvent>() {
+        //     match menu_event {
+        //         MenuEvent::Open(menu) => {
+        //             if *menu == entity {
+        //                 entity.set_checked(state, true);
+        //                 state.capture(entity);
+        //                 self.open = true;
+        //             }
+        //         }
 
-                MenuEvent::Close(menu) => {
-                    if *menu == entity {
-                        entity.set_checked(state, false);
-                        state.release(entity);
-                        self.open = false;
-                    }
-                }
+        //         MenuEvent::Close(menu) => {
+        //             if *menu == entity {
+        //                 entity.set_checked(state, false);
+        //                 state.release(entity);
+        //                 self.open = false;
+        //             }
+        //         }
 
-                _ => {}
-            }
-        }
+        //         _ => {}
+        //     }
+        // }
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
@@ -82,36 +99,41 @@ impl Widget for Menu {
                         if state.hovered == entity {
                             if !self.open {
                                 state.insert_event(
-                                    Event::new(MenuEvent::Open(entity)).target(entity),
+                                    Event::new(PopupEvent::Open).target(self.container).propagate(Propagation::Direct),
                                 );
-                            } else {
-                                state.insert_event(
-                                    Event::new(MenuEvent::Close(entity)).target(entity),
-                                );
-                            }
-                        } else {
-                            if self.open {
-                                if state.hovered.is_descendant_of(&state.tree, entity) {
-                                    state.insert_event(
-                                        Event::new(WindowEvent::MouseDown(*button))
-                                            .target(state.hovered),
-                                    );
-                                    self.open = false;
-                                }
 
-                                state.insert_event(
-                                    Event::new(MenuEvent::Close(entity)).target(entity),
-                                );
+                                event.consume();
+                                //entity.emit(state, PopupEvent::Switch);
+                            } else {
+                                // state.insert_event(
+                                //     Event::new(MenuEvent::Close(entity)).target(entity),
+                                // );
+                                //entity.emit(state, PopupEvent::Close);
                             }
                         }
+                        // } else {
+                        //     if self.open {
+                        //         if state.hovered.is_descendant_of(&state.tree, entity) {
+                        //             state.insert_event(
+                        //                 Event::new(WindowEvent::MouseDown(*button))
+                        //                     .target(state.hovered),
+                        //             );
+                        //             self.open = false;
+                        //         }
+
+                        //         state.insert_event(
+                        //             Event::new(MenuEvent::Close(entity)).target(entity),
+                        //         );
+                        //     }
+                        // }
                     }
                 }
 
-                WindowEvent::MouseOver => {
-                    if event.target == entity {
-                        state.insert_event(Event::new(MenuEvent::Hover(entity)).target(entity));
-                    }
-                }
+                // WindowEvent::MouseOver => {
+                //     if event.target == entity {
+                //         state.insert_event(Event::new(MenuEvent::Hover(entity)).target(entity));
+                //     }
+                // }
 
                 _ => {}
             }
@@ -133,8 +155,9 @@ impl MenuBar {
 
 impl Widget for MenuBar {
     type Ret = Entity;
-    fn on_build(&mut self, _state: &mut State, entity: Entity) -> Self::Ret {
-        entity
+    type Data = ();
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        entity.set_element(state, "menu_bar")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

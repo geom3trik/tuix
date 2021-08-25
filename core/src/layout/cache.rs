@@ -2,11 +2,19 @@
 
 use morphorm::{Cache, GeometryChanged};
 
-use crate::{CachedData, Entity};
+use crate::{CachedData, Entity, Visibility};
 
 impl Cache for CachedData {
 
     type Item = Entity;
+
+    fn visible(&self, node: Self::Item) -> bool {
+        self.visibility.get(node.index_unchecked()).cloned().map_or(true, |visibility| visibility == Visibility::Visible)
+    }
+
+    fn set_visible(&mut self, node: Self::Item, value: bool) {
+        self.set_visibility(node, if value {Visibility::Visible} else {Visibility::Invisible});
+    }
 
     fn geometry_changed(&self, node: Self::Item) -> GeometryChanged {
         self.geometry_changed.get(node.index_unchecked()).cloned().unwrap_or_default()

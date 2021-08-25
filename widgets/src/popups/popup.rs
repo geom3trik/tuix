@@ -152,8 +152,8 @@ impl Widget for Popup {
                                 if !self.open {
                                     state.capture(entity);
                                 } else {
-                                    println!("Release");
-                                    state.release(entity);
+                                    // println!("Release");
+                                    // state.release(entity);
                                 }
 
                                 state.insert_event(

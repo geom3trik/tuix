@@ -142,8 +142,8 @@ impl Widget for UserWidget {
             .build(state, entity, |builder| 
                 builder
                     .set_hoverable(false)
-                    .set_col(0)
-                    .set_row(0)
+                    .set_col_index(0)
+                    .set_row_index(0)
                 );
 
         Label::new("")
@@ -151,16 +151,16 @@ impl Widget for UserWidget {
             .build(state, entity, |builder| 
                 builder
                     .set_hoverable(false)
-                    .set_col(1)
-                    .set_row(0)
+                    .set_col_index(1)
+                    .set_row_index(0)
                 );
 
         Label::new("Last Name: ")
             .build(state, entity, |builder| 
                 builder
                     .set_hoverable(false)
-                    .set_col(0)
-                    .set_row(1)
+                    .set_col_index(0)
+                    .set_row_index(1)
                 );
     
         Label::new("")
@@ -168,16 +168,16 @@ impl Widget for UserWidget {
             .build(state, entity, |builder| 
                 builder
                     .set_hoverable(false)
-                    .set_col(1)
-                    .set_row(1)
+                    .set_col_index(1)
+                    .set_row_index(1)
                 );
 
         Label::new("Age: ")
             .build(state, entity, |builder| 
                 builder
                     .set_hoverable(false)
-                    .set_col(0)
-                    .set_row(2)
+                    .set_col_index(0)
+                    .set_row_index(2)
                 );
         
         Label::new("")
@@ -185,8 +185,8 @@ impl Widget for UserWidget {
             .build(state, entity, |builder| 
                 builder
                     .set_hoverable(false)
-                    .set_col(1)
-                    .set_row(2)
+                    .set_col_index(1)
+                    .set_row_index(2)
                 );
             
         

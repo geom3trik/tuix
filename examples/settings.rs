@@ -35,6 +35,9 @@ const STYLE: &str = r#"
 
     label {
         font-size: 14px;
+        color: black;
+        child-space: 1s;
+        child-left: 5px;
     }
 "#;
 

@@ -1,18 +1,7 @@
 use tuix::*;
 
 const STYLE: &str = r#"
-
-    * {
-        border-width: 1px;
-        border-color: green;
-    }
     
-    *:focus {
-        border-width: 1px;
-        border-color: black;
-    }
-    
-
     panel>.header {
         background-color: #ff5e1a;
         height: 30px;

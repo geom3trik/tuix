@@ -66,6 +66,7 @@ impl Widget for Container {
         Button::with_label("Red")
             .on_release(|_, state, button| {
                 button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 0, 0)));
+                button.emit(state, PopupEvent::Close);
             })
             .build(state, list, |builder| 
                 builder
@@ -74,6 +75,7 @@ impl Widget for Container {
         Button::with_label("Green")
             .on_release(|_, state, button| {
                 button.emit(state, CustomEvent::ChangeColor(Color::rgb(0, 255, 0)));
+                button.emit(state, PopupEvent::Close);
             })
             .build(state, list, |builder| 
                 builder
@@ -82,6 +84,7 @@ impl Widget for Container {
         Button::with_label("Blue")
             .on_release(|_, state, button| {
                 button.emit(state, CustomEvent::ChangeColor(Color::rgb(0, 0, 255)));
+                button.emit(state, PopupEvent::Close);
             })
             .build(state, list, |builder| 
                 builder
@@ -90,6 +93,7 @@ impl Widget for Container {
         Button::with_label("Yellow")
             .on_release(|_, state, button| {
                 button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 255, 0)));
+                button.emit(state, PopupEvent::Close);
             })
             .build(state, list, |builder| 
                 builder
@@ -98,6 +102,7 @@ impl Widget for Container {
         Button::with_label("Fuchsia")
             .on_release(|_, state, button| {
                 button.emit(state, CustomEvent::ChangeColor(Color::rgb(255, 0, 255)));
+                button.emit(state, PopupEvent::Close);
             })
             .build(state, list, |builder| 
                 builder
@@ -106,6 +111,7 @@ impl Widget for Container {
         Button::with_label("Aqua")
             .on_release(|_, state, button| {
                 button.emit(state, CustomEvent::ChangeColor(Color::rgb(0, 255, 255)));
+                button.emit(state, PopupEvent::Close);
             })
             .build(state, list, |builder| 
                 builder

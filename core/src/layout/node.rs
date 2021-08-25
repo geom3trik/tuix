@@ -1,6 +1,6 @@
 use morphorm::Node;
 
-use crate::{Entity, Style};
+use crate::{Display, Entity, Style};
 
 // TODO - generate these with a macro
 impl<'a> Node<'a> for Entity {
@@ -132,11 +132,6 @@ impl<'a> Node<'a> for Entity {
 
     fn border_bottom(&self, store: &'_ Self::Data) -> Option<morphorm::Units> {
         store.border_width.get(*self).cloned()
-    }
-
-    // TODO
-    fn is_visible(&self, _store: &'_ Self::Data) -> bool {
-        true
     }
 
     fn row_index(&self, store: &'_ Self::Data) -> Option<usize> {
