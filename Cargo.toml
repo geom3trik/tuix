@@ -33,9 +33,9 @@ path = "examples/styling/inline.rs"
 name = "shared"
 path = "examples/styling/shared.rs"
 
-[[example]]
-name = "hover"
-path = "examples/styling/hover.rs"
+# [[example]]
+# name = "hover"
+# path = "examples/styling/hover.rs"
 
 # Widget Examples
 
@@ -59,13 +59,13 @@ path = "examples/widgets/switch.rs"
 name = "vector_edit"
 path = "examples/widgets/vector_edit.rs"
 
-[[example]]
-name = "combobox"
-path = "examples/widgets/combobox.rs"
+# [[example]]
+# name = "combobox"
+# path = "examples/widgets/combobox.rs"
 
-[[example]]
-name = "vector"
-path = "examples/widgets/vector.rs"
+# [[example]]
+# name = "vector"
+# path = "examples/widgets/vector.rs"
 
 [[example]]
 name = "spinbox"
@@ -83,17 +83,9 @@ path = "examples/widgets/knob.rs"
 name = "popup"
 path = "examples/widgets/popup.rs"
 
-[[example]]
-name = "tooltip"
-path = "examples/widgets/tooltip.rs"
-
-[[example]]
-name = "temp"
-path = "examples/7guis/temp.rs"
-
-[[example]]
-name = "temp_reactive"
-path = "examples/7guis/temp_reactive.rs"
+# [[example]]
+# name = "tooltip"
+# path = "examples/widgets/tooltip.rs"
 
 [[example]]
 name = "listbox"

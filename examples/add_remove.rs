@@ -14,7 +14,7 @@ struct Controller {}
 
 impl Widget for Controller {
     type Ret = Entity;
-
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         state.focused = entity;
 
