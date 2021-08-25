@@ -21,7 +21,7 @@ pub struct Textbox {
     buffer: String,
 
     units: String,
-    multiplier: f32,
+    //multiplier: f32,
 
     select_pos: u32,
     cursor_pos: u32,
@@ -48,7 +48,7 @@ impl Textbox {
 
             units: String::new(),
 
-            multiplier: 1.0,
+            //multiplier: 1.0,
 
             select_pos: 0,
             cursor_pos: 0,
@@ -454,15 +454,15 @@ impl Widget for Textbox {
             _ => &0.0,
         };
 
-        let padding_top = match state.style.child_top.get(entity).unwrap_or(&Units::Auto) {
-            Units::Pixels(val) => val,
-            _ => &0.0,
-        };
+        // let padding_top = match state.style.child_top.get(entity).unwrap_or(&Units::Auto) {
+        //     Units::Pixels(val) => val,
+        //     _ => &0.0,
+        // };
 
-        let padding_bottom = match state.style.child_bottom.get(entity).unwrap_or(&Units::Auto) {
-            Units::Pixels(val) => val,
-            _ => &0.0,
-        };
+        // let padding_bottom = match state.style.child_bottom.get(entity).unwrap_or(&Units::Auto) {
+        //     Units::Pixels(val) => val,
+        //     _ => &0.0,
+        // };
 
         let background_color = state
             .style
@@ -580,7 +580,7 @@ impl Widget for Textbox {
         // canvas.translate(-pt.0, -pt.1);
 
         // Apply Scissor
-        let clip_region = state.data.get_clip_region(entity);
+        //let clip_region = state.data.get_clip_region(entity);
         // canvas.scissor(
         //     clip_region.x - posx,
         //     clip_region.y - posy,
@@ -821,7 +821,7 @@ impl Widget for Textbox {
 
             let mut x = posx;
             let mut y = posy;
-            let mut sx = posx;
+            //let mut sx = posx;
             let mut sy = posy;
 
             let text_string = text.to_owned();

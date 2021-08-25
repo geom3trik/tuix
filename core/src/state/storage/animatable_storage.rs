@@ -230,9 +230,10 @@ impl Default for DataIndex {
     }
 }
 
+
+#[derive(Debug)]
 pub enum StorageError {
     InvalidEntity,
-
 }
 
 #[derive(Clone, Default)]

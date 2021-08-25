@@ -16,9 +16,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use proc_macro2::{Ident, Span};
+// use proc_macro2::{Ident, Span};
 use quote::quote;
-use std::collections::HashSet;
+// use std::collections::HashSet;
 use syn::{spanned::Spanned, Data, GenericParam, TypeParam};
 
 use super::attr::{FieldKind, Fields, LensAttrs};
@@ -116,28 +116,28 @@ fn derive_struct(input: &syn::DeriveInput) -> Result<proc_macro2::TokenStream, s
         }
     });
 
-    let used_params: HashSet<String> = input
-        .generics
-        .params
-        .iter()
-        .flat_map(|gp: &GenericParam| match gp {
-            GenericParam::Type(TypeParam { ident, .. }) => Some(ident.to_string()),
-            _ => None,
-        })
-        .collect();
+    // let used_params: HashSet<String> = input
+    //     .generics
+    //     .params
+    //     .iter()
+    //     .flat_map(|gp: &GenericParam| match gp {
+    //         GenericParam::Type(TypeParam { ident, .. }) => Some(ident.to_string()),
+    //         _ => None,
+    //     })
+    //     .collect();
 
-    let gen_new_param = |name: &str| {
-        let mut candidate: String = name.into();
-        let mut count = 1usize;
-        while used_params.contains(&candidate) {
-            candidate = format!("{}_{}", name, count);
-            count += 1;
-        }
-        Ident::new(&candidate, Span::call_site())
-    };
+    // let gen_new_param = |name: &str| {
+    //     let mut candidate: String = name.into();
+    //     let mut count = 1usize;
+    //     while used_params.contains(&candidate) {
+    //         candidate = format!("{}_{}", name, count);
+    //         count += 1;
+    //     }
+    //     Ident::new(&candidate, Span::call_site())
+    // };
 
-    let func_ty_par = gen_new_param("F");
-    let val_ty_par = gen_new_param("V");
+    //let func_ty_par = gen_new_param("F");
+    //let val_ty_par = gen_new_param("V");
 
     let impls = fields.iter().filter(|f| !f.attrs.ignore).map(|f| {
         let field_name = &f.ident.unwrap_named();

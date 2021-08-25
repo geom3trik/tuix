@@ -129,6 +129,15 @@ path = "examples/binding/multiple_stores.rs"
 name = "converter"
 path = "examples/binding/converter.rs"
 
+[[example]]
+name = "basic"
+path = "examples/binding/basic.rs"
+
+
+[[example]]
+name = "model"
+path = "examples/binding/model.rs"
+
 [workspace]
 members = [
     "winit",

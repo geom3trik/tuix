@@ -117,8 +117,8 @@ impl Widget for Calculator {
         // Change to label that can be copied but not edited at some point
         self.display = Label::new("0").build(state, entity, |builder| 
             builder
-                .set_row(0)
-                .set_col(0)
+                .set_row_index(0)
+                .set_col_index(0)
                 .set_col_span(4)
                 .class("display")
         );
@@ -129,8 +129,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(1)
-                    .set_col(0)
+                    .set_row_index(1)
+                    .set_col_index(0)
                     .set_text("AC")
                     .class("digit")
             );
@@ -141,8 +141,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| {
                 builder
-                    .set_row(1)
-                    .set_col(1)
+                    .set_row_index(1)
+                    .set_col_index(1)
                     .set_text("\u{00B1}")
                     .class("digit")
             });
@@ -154,8 +154,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| {
                 builder
-                    .set_row(1)
-                    .set_col(2)
+                    .set_row_index(1)
+                    .set_col_index(2)
                     .set_text("\u{0025}")
                     .class("digit")
             });
@@ -167,8 +167,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| {
                 builder
-                    .set_row(1)
-                    .set_col(3)
+                    .set_row_index(1)
+                    .set_col_index(3)
                     .set_text("\u{00F7}")
                     .class("operator")
             });
@@ -182,8 +182,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(2)
-                    .set_col(0)
+                    .set_row_index(2)
+                    .set_col_index(0)
                     .set_text("7")
                     .class("digit")
             );
@@ -195,8 +195,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(2)
-                    .set_col(1)
+                    .set_row_index(2)
+                    .set_col_index(1)
                     .set_text("8")
                     .class("digit")
             );
@@ -208,8 +208,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(2)
-                    .set_col(2)
+                    .set_row_index(2)
+                    .set_col_index(2)
                     .set_text("9")
                     .class("digit")
             );
@@ -221,8 +221,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder|
                 builder
-                    .set_row(2)
-                    .set_col(3)
+                    .set_row_index(2)
+                    .set_col_index(3)
                     .set_text("\u{00D7}")
                     .class("operator")
             );
@@ -236,8 +236,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(3)
-                    .set_col(0)
+                    .set_row_index(3)
+                    .set_col_index(0)
                     .set_text("4")
                     .class("digit")
             );
@@ -249,8 +249,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(3)
-                    .set_col(1)
+                    .set_row_index(3)
+                    .set_col_index(1)
                     .set_text("5")
                     .class("digit")
             );
@@ -262,8 +262,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(3)
-                    .set_col(2)
+                    .set_row_index(3)
+                    .set_col_index(2)
                     .set_text("6")
                     .class("digit")
             );
@@ -275,8 +275,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| {
                 builder
-                    .set_row(3)
-                    .set_col(3)
+                    .set_row_index(3)
+                    .set_col_index(3)
                     .set_text("\u{002D}")
                     .class("operator")
             });
@@ -290,8 +290,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(4)
-                    .set_col(0)
+                    .set_row_index(4)
+                    .set_col_index(0)
                     .set_text("1")
                     .class("digit")
             );
@@ -303,8 +303,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(4)
-                    .set_col(1)
+                    .set_row_index(4)
+                    .set_col_index(1)
                     .set_text("2")
                     .class("digit")
             );
@@ -316,8 +316,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(4)
-                    .set_col(2)
+                    .set_row_index(4)
+                    .set_col_index(2)
                     .set_text("3")
                     .class("digit")
             );
@@ -329,8 +329,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder|
                 builder
-                    .set_row(4)
-                    .set_col(3)
+                    .set_row_index(4)
+                    .set_col_index(3)
                     .set_text("\u{002B}")
                     .class("operator")
             );
@@ -344,8 +344,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder|
                 builder
-                    .set_row(5)
-                    .set_col(0)
+                    .set_row_index(5)
+                    .set_col_index(0)
                     .set_col_span(2)
                     .set_text("0")
                     .class("digit")
@@ -359,8 +359,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder| 
                 builder
-                    .set_row(5)
-                    .set_col(2)
+                    .set_row_index(5)
+                    .set_col_index(2)
                     .set_text(".")
                     .class("digit")
             );
@@ -372,8 +372,8 @@ impl Widget for Calculator {
             })
             .build(state, entity, |builder|
                 builder
-                    .set_row(5)
-                    .set_col(3)
+                    .set_row_index(5)
+                    .set_col_index(3)
                     .set_text("\u{003D}")
                     .class("operator")
             );

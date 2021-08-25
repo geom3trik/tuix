@@ -87,6 +87,7 @@ impl Animations {
 
 impl Widget for Animations {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         // Horizontal split

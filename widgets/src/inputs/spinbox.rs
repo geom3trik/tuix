@@ -1,6 +1,3 @@
-const ICON_LEFT_OPEN_BIG: &str = "\u{e761}";
-const ICON_RIGHT_OPEN_BIG: &str = "\u{e762}";
-
 const ICON_DOWN_OPEN_MINI: &str = "\u{e760}";
 const ICON_UP_OPEN_MINI: &str = "\u{e763}";
 
@@ -160,6 +157,7 @@ where
         + CheckedSub
 {
     type Ret = Entity;
+    type Data = T;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         if self.value <= self.min {
             self.value = self.min;
@@ -170,7 +168,7 @@ where
         }
 
         entity
-            .set_display(state, Display::Flexbox)
+            .set_display(state, Display::Flex)
             .set_layout_type(state, LayoutType::Row);
 
         self.textbox =

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 
 // Adapted from Druid data.rs
 
@@ -34,7 +36,7 @@ pub(crate) fn derive_data_impl(
 
 fn derive_struct(
     input: &syn::DeriveInput,
-    s: &DataStruct,
+    _s: &DataStruct,
 ) -> Result<proc_macro2::TokenStream, syn::Error> {
     let ident = &input.ident;
     let impl_generics = generics_bounds(&input.generics);
@@ -51,7 +53,7 @@ fn derive_struct(
 
 fn derive_enum(
     input: &syn::DeriveInput,
-    s: &DataEnum,
+    _s: &DataEnum,
 ) -> Result<proc_macro2::TokenStream, syn::Error> {
     let ident = &input.ident;
     let impl_generics = generics_bounds(&input.generics);

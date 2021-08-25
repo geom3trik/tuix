@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use crate::Node;
 
 pub trait Lens {

@@ -10,6 +10,8 @@
     color: #FFFFFF;
     background-color: #363636;
     child-right: 10px;
+    child-top: 1s;
+    child-bottom: 1s;
 }
 
 .display:focus {

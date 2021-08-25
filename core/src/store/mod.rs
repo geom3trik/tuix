@@ -7,47 +7,21 @@ use std::{any::TypeId, collections::HashSet};
 pub use node::*;
 pub use lens::*;
 
-use crate::{EventHandler, IntoChildIterator, PropType};
+use crate::{IntoChildIterator};
 use crate::{State, Entity, Event, Widget, Propagation, PropSet};
 
 use crate::events::event_handler::Canvas;
 
 pub trait Model {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
+    fn on_event(&mut self, _state: &mut State, _entity: Entity, _event: &mut Event) {}
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
-    fn build(mut self, state: &mut State, parent: Entity) -> Entity
+    fn build(self, state: &mut State, parent: Entity) -> Entity
     where Self: std::marker::Sized + Model + Node
     {
-
         Store::new(self).build(state, parent, |builder| builder)
-        // Create a new entity
-        //let entity = state.add(parent);
-
-        // Call the on_build function of the widget
-        //let ret = self.on_build(state, entity);
-
-        // Call the builder closure
-        //builder(Builder::new(state, entity)).build(self);
-
-        // Return the entity or entities returned by the on_build method
-        //ret
     }
 }
-
-// impl<T> EventHandler for T 
-// where T: Model
-// {
-//     fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
-
-//     fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-//         <T as Model>::on_event(self, state, entity, event);
-//     }
-
-//     fn on_style(&mut self, state: &mut State, entity: Entity, property: (String, PropType)) {}
-
-//     fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {}
-// }
 
 pub struct Store<D> {
     data_widget: D,
@@ -245,7 +219,7 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         let value = (self.converter)(&view_data);
 
         // Update children
-        for (index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
+        for (_index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
             
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
                 event_handler.on_update(state, child, &value);

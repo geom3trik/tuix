@@ -1,6 +1,5 @@
 
 use crate::common::*;
-use crate::Button;
 use crate::scroll_container::Scroll;
 
 
@@ -88,7 +87,7 @@ impl Widget for Scrollbar {
         entity.set_element(state, "scrollbar")
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update(&mut self, state: &mut State, _entity: Entity, data: &Self::Data) {
         // self.scroll_pos = data.scroll_pos;
         // self.scroll_size = data.scroll_size;
         // self.overflow = data.overflow;
@@ -100,13 +99,13 @@ impl Widget for Scrollbar {
             state
                 .style
                 .height
-                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0));
+                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0)).expect("Failed to set height of scrollbar front");
         } else {
             self.front.set_left(state, Percentage(self.scroll.scroll_pos * overflow2 * 100.0));
             state
                 .style
                 .width
-                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0));
+                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0)).expect("Failed to set width of scrollbar front");
         }
 
     }

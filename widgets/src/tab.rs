@@ -1,4 +1,8 @@
-use crate::common::*;
+use tuix_core::{IntoChildIterator, TreeExt};
+
+use crate::{ButtonEvent, CheckboxEvent, common::*};
+
+use crate::{List};
 
 use crate::AnimationState;
 
@@ -20,6 +24,7 @@ impl TabBar {
 
 impl Widget for TabBar {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.list.on_build(state, entity);
 
@@ -78,6 +83,7 @@ impl Tab {
 
 impl Widget for Tab {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_element(state, "tab")
     }
@@ -239,6 +245,7 @@ impl TabView {
 
 impl Widget for TabView {
     type Ret = (Entity, Entity);
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.tab_bar = TabBar::new().build(state, entity, |builder| builder);
 
@@ -309,6 +316,7 @@ impl TabContainer {
 
 impl Widget for TabContainer {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_element(state, "tab_container")
     }
@@ -320,7 +328,7 @@ impl Widget for TabContainer {
                     //println!("Switch Tab: {}", name);
 
                     if name == &self.name {
-                        entity.set_display(state, Display::Flexbox);
+                        entity.set_display(state, Display::Flex);
                     } else {
                         entity.set_display(state, Display::None);
                     }
@@ -370,6 +378,7 @@ impl TabBar2 {
 
 impl Widget for TabBar2 {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.list.on_build(state, entity);
 
@@ -414,8 +423,8 @@ impl Widget for TabBar2 {
             match movable_tab_event {
                 MovableTabEvent::StartMove(tab) => {
                     self.tab_moving = true;
-                    self.phantom_tab1.set_display(state, Display::Flexbox);
-                    self.phantom_tab2.set_display(state, Display::Flexbox);
+                    self.phantom_tab1.set_display(state, Display::Flex);
+                    self.phantom_tab2.set_display(state, Display::Flex);
 
                     state
                         .tree
@@ -426,11 +435,11 @@ impl Widget for TabBar2 {
                     //let tab_height = tab.get_height(state);
 
                     let tab_width = state.data.get_width(*tab)
-                        + tab.get_left(state).get_value(0.0)
-                        + tab.get_right(state).get_value(0.0);
+                        + tab.get_left(state).value_or(0.0, 0.0)
+                        + tab.get_right(state).value_or(0.0, 0.0);
                     let tab_height = state.data.get_width(*tab)
-                        + tab.get_top(state).get_value(0.0)
-                        + tab.get_bottom(state).get_value(0.0);
+                        + tab.get_top(state).value_or(0.0, 0.0)
+                        + tab.get_bottom(state).value_or(0.0, 0.0);
 
                     self.phantom_tab1
                         .set_height(state, Units::Pixels(tab_height));
@@ -597,6 +606,7 @@ impl MovableTab {
 
 impl Widget for MovableTab {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.tab.on_build(state, entity)
     }

@@ -91,7 +91,7 @@ pub struct State {
 impl State {
     pub fn new() -> Self {
         let mut entity_manager = EntityManager::new();
-        let root = entity_manager.create_entity();
+        let _root = entity_manager.create_entity();
         let tree = Tree::new();
         let mut style = Style::default();
         let mut data = CachedData::default();
@@ -105,7 +105,7 @@ impl State {
 
         style.clip_widget.set(root, root);
 
-        style.background_color.insert(root, Color::rgb(80, 80, 80));
+        style.background_color.insert(root, Color::rgb(80, 80, 80)).expect("");
 
         
 
@@ -313,7 +313,7 @@ impl State {
             .entity_manager
             .create_entity()
             .expect("Failed to create entity");
-        self.tree.add(entity, parent);
+        self.tree.add(entity, parent).expect("");
         self.data.add(entity);
         self.style.add(entity);
 
@@ -330,7 +330,7 @@ impl State {
         let delete_list = entity.branch_iter(&self.tree).collect::<Vec<_>>();
 
         for entity in delete_list.iter().rev() {
-            self.tree.remove(*entity);
+            self.tree.remove(*entity).expect("");
             //self.tree.remove(*entity);
             self.data.remove(*entity);
             self.style.remove(*entity);

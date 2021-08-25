@@ -1,7 +1,4 @@
 use crate::common::*;
-use crate::{Row, Column};
-
-use tuix_derive::Lens;
 
 // #[derive(Debug, Copy, Clone, PartialEq)]
 // pub enum ScrollEvent {
@@ -173,7 +170,7 @@ impl Widget for ScrollContainerH {
         self.container
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update(&mut self, state: &mut State, _entity: Entity, data: &Self::Data) {
         //self.scroll.scroll_pos = data.scroll_pos;
         //self.scroll.scroll_size = data.scroll_size;
 
@@ -237,7 +234,8 @@ impl Widget for ScrollContainerH {
                             state
                                 .style
                                 .width
-                                .insert(self.horizontal_scroll, Units::Percentage(self.scroll.scroll_size * 100.0));
+                                .insert(self.horizontal_scroll, Units::Percentage(self.scroll.scroll_size * 100.0))
+                                .expect("");
 
                             self.scroll.overflow = 1.0
                                 - (state.data.get_width(self.container)
@@ -250,12 +248,13 @@ impl Widget for ScrollContainerH {
                             state
                                 .style
                                 .left
-                                .insert(self.container, Units::Percentage(self.scroll.scroll_pos * self.scroll.overflow * 100.0));
+                                .insert(self.container, Units::Percentage(self.scroll.scroll_pos * self.scroll.overflow * 100.0))
+                                .expect("");
 
                             state.style.left.insert(
                                 self.horizontal_scroll,
                                 Units::Percentage(self.scroll.scroll_pos * overflow2 * 100.0),
-                            );
+                            ).expect("");
 
                             state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()).origin(entity));
                         
@@ -628,7 +627,8 @@ impl Widget for ScrollContainer {
                             state
                                 .style
                                 .height
-                                .insert(self.vertical_scroll, Units::Percentage(self.scroll.scroll_size * 100.0));
+                                .insert(self.vertical_scroll, Units::Percentage(self.scroll.scroll_size * 100.0))
+                                .expect("");
 
                             self.scroll.overflow = 1.0
                                 - (state.data.get_height(self.container)
@@ -640,12 +640,12 @@ impl Widget for ScrollContainer {
                             state
                                 .style
                                 .top
-                                .insert(self.container, Units::Percentage(self.scroll.scroll_pos * self.scroll.overflow * 100.0));
+                                .insert(self.container, Units::Percentage(self.scroll.scroll_pos * self.scroll.overflow * 100.0)).expect("Failed to set top position of container");
 
                             state.style.top.insert(
                                 self.vertical_scroll,
                                 Units::Percentage(self.scroll.scroll_pos * overflow2 * 100.0),
-                            );
+                            ).expect("Failed to set top position of vertical scroll bar.");
 
                             state.insert_event(
                                 Event::new(WindowEvent::Relayout)

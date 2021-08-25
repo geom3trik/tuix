@@ -265,7 +265,7 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Vec<T>) {
 
         if state.tree.get_num_children(entity).unwrap() as usize != data.len() {
-            for (index, item) in data.iter().enumerate() {
+            for (_, item) in data.iter().enumerate() {
                 // let item = CheckButton::new()
                 //     .set_checked(true)
                 //     .build(state, entity, |builder| 
@@ -302,7 +302,7 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
         
         if let Some(bind_event) = event.message.downcast() {
             match bind_event {
-                BindEvent::Bind(target, type_id) => {
+                BindEvent::Bind(target, _) => {
                     if target.is_child_of(&state.tree, entity) {
                         if *target != entity {
                             event.consume();

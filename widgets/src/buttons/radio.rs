@@ -1,4 +1,4 @@
-const ICON_CHECK: &str = "\u{2713}";
+// const ICON_CHECK: &str = "\u{2713}";
 
 use crate::{CheckButton, common::*};
 

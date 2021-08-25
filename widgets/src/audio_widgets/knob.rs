@@ -60,7 +60,7 @@ impl Widget for ArcTrack {
         entity.set_element(state, "arc")
     }
 
-    fn on_style(&mut self, state: &mut State, entity: Entity, property: (String, PropType)) {
+    fn on_style(&mut self, _state: &mut State, _entity: Entity, property: (String, PropType)) {
         if property.0 == "radius" {
             match property.1 {
                 PropType::Units(value) => {
@@ -169,10 +169,10 @@ impl Widget for ArcTrack {
 }
 
 pub struct Knob<T: NormalizedMap> {
-    thumb: Entity,
+    _thumb: Entity,
     value_track: Entity,
     mod_track: Entity,
-    tick: Entity,
+    _tick: Entity,
 
     pub normalized_value: f32,
     default_normal: f32,
@@ -203,10 +203,10 @@ impl<T: NormalizedMap> Knob<T> {
         let normalized_default = normalized_default.clamp(0.0, 1.0);
 
         Self {
-            thumb: Default::default(),
+            _thumb: Default::default(),
             value_track: Default::default(),
             mod_track: Default::default(),
-            tick: Default::default(),
+            _tick: Default::default(),
 
             normalized_value: normalized_default,
             default_normal: normalized_default,
@@ -286,7 +286,7 @@ impl<T: NormalizedMap> Widget for Knob<T> {
         entity.set_element(state, "knob")
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update(&mut self, state: &mut State, _entity: Entity, data: &Self::Data) {
         if !self.is_dragging {
             self.normalized_value = *data;
 

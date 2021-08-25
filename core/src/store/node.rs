@@ -1,6 +1,3 @@
-use crate::{Entity, Event, State};
-use fnv::FnvHashMap;
-
 use std::any::{Any, TypeId};
 pub trait Node: Any {
 
@@ -64,34 +61,3 @@ impl<T: Node> Downcast for T {
 impl<T: 'static> Node for T {
 
 }
-
-// impl Node for () {}
-
-// impl Node for String {}
-
-// impl<T: 'static> Node for Vec<T> {}
-
-// impl Node for bool {}
-
-// impl Node for f32 {}
-
-// impl Node for f64 {}
-
-// impl Node for u8 {}
-
-// impl Node for i8 {}
-
-// impl Node for u16 {}
-
-// impl Node for i16 {}
-
-// impl Node for i16 {}
-// Can't do this apparently, that's annoying
-// impl<T: Node> EventHandler for T
-// where
-//     T: Node + 'static,
-// {
-//     fn update(&mut self, data: &Self) -> bool {
-//         <T as Node>::update(self, data)
-//     }
-// }

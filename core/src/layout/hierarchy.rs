@@ -1,6 +1,6 @@
 use morphorm::Hierarchy;
 
-use crate::{ChildIterator, Entity, IntoChildIterator, TreeIterator};
+use crate::{ChildIterator, Entity, TreeIterator};
 
 use std::iter::Rev;
 

@@ -76,10 +76,6 @@ impl Checkbox {
         }
     }
 
-    pub fn bind<T>(self, state: &mut State, atom: Atom<T>) -> Self {
-        self
-    }
-
     pub fn with_icon_checked(mut self, icon_checked: &str) -> Self {
         self.icon_checked = Some(icon_checked.to_string());
 
@@ -200,7 +196,7 @@ impl Widget for Checkbox {
 
                     entity.set_checked(state, true);
 
-                    if let Some(mut callback) = self.on_checked.take() {
+                    if let Some(callback) = self.on_checked.take() {
                         (callback)(self, state, entity);
                         self.on_checked = Some(callback);
                     }
@@ -211,7 +207,7 @@ impl Widget for Checkbox {
 
                     entity.set_checked(state, false);
 
-                    if let Some(mut callback) = self.on_unchecked.take() {
+                    if let Some(callback) = self.on_unchecked.take() {
                         (callback)(self, state, entity);
                         self.on_unchecked = Some(callback);
                     }

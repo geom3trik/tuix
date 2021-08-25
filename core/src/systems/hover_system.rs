@@ -1,4 +1,4 @@
-use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, PseudoClasses, State, Transform2D, Units, Visibility, WindowEvent};
+use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, State, Units, Visibility, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
@@ -62,9 +62,6 @@ pub fn apply_hover(state: &mut State) {
         //scale_transform.inverse();
 
         //transform.premultiply(&scale_transform);
-
-
-        let origin = state.data.get_origin(entity);
 
         //transform.translate(origin.0, origin.1);
         transform.inverse();

@@ -100,11 +100,11 @@ impl Application {
         state.style.width.insert(
             Entity::root(),
             Units::Pixels(window_description.inner_size.width as f32),
-        );
+        ).expect("");
         state.style.height.insert(
             Entity::root(),
             Units::Pixels(window_description.inner_size.height as f32),
-        );
+        ).expect("");
 
         state
             .data
@@ -158,7 +158,7 @@ impl Application {
         state.needs_redraw = true;
 
         let mut click_time = std::time::Instant::now();
-        let DOUBLE_CLICK_INTERVAL = std::time::Duration::from_millis(500);
+        let double_click_interval = std::time::Duration::from_millis(500);
         let mut double_click = false;
         let mut click_pos = (0.0, 0.0);
 
@@ -443,11 +443,13 @@ impl Application {
                             state
                                 .style
                                 .width
-                                .insert(Entity::root(), Units::Pixels(physical_size.width as f32));
+                                .insert(Entity::root(), Units::Pixels(physical_size.width as f32))
+                                .expect("");
                             state
                                 .style
                                 .height
-                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32));
+                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32))
+                                .expect("");
 
                             state
                                 .data
@@ -549,9 +551,9 @@ impl Application {
                                     let click_duration = new_click_time - click_time;
                                     let new_click_pos = (state.mouse.cursorx, state.mouse.cursory);
 
-                                    if click_duration <= DOUBLE_CLICK_INTERVAL && new_click_pos == click_pos{
+                                    if click_duration <= double_click_interval && new_click_pos == click_pos{
                                         if !double_click {
-                                            let target = if state.captured != Entity::null() {
+                                            let _target = if state.captured != Entity::null() {
                                                 state.insert_event(
                                                     Event::new(WindowEvent::MouseDoubleClick(b))
                                                         .target(state.captured)
@@ -575,7 +577,7 @@ impl Application {
                                     click_time = new_click_time;
                                     click_pos = new_click_pos;
 
-                                    let target = if state.captured != Entity::null() {
+                                    let _target = if state.captured != Entity::null() {
                                         state.insert_event(
                                             Event::new(WindowEvent::MouseDown(b))
                                                 .target(state.captured)

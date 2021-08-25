@@ -12,7 +12,7 @@ fn main() {
         window
             .set_layout_type(state, LayoutType::Row);
 
-        let controls = Element::new().build(state, window.entity(), |builder| {
+        Element::new().build(state, window.entity(), |builder| {
             builder
                 .set_width(Pixels(200.0))
                 .set_child_space(Pixels(10.0))

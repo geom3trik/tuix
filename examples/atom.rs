@@ -55,7 +55,7 @@ fn main() {
             //.bind(state, darkModeAtom)
             .on_checked( move |data, state, checkbox| {
                 set_dark_mode(state, true);
-                println!("Value is: {}", dark_mode);
+                println!("Value is: {:?}", dark_mode);
                 //lens.set_property(state, |value|)
                  
             })

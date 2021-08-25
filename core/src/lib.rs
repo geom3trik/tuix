@@ -1,7 +1,5 @@
 #![allow(dead_code)]
 
-#[macro_use]
-extern crate bitflags;
 
 pub mod accessibility;
 pub use accessibility::*;
@@ -13,7 +11,6 @@ pub mod store;
 pub use store::*;
 
 pub mod layout;
-pub use layout::*;
 
 pub mod text;
 pub use text::*;

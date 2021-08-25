@@ -4,20 +4,20 @@ use tuix::*;
 
 const STYLE: &str = r#"
 
-    combobox {
+    dropdown {
         border-radius: 3px;
         color: #ababab;
         border-width: 1px;
         border-color: #ababab;
     }
 
-    combobox>.header>.label {
+    dropdown>.header>.label {
         color: black;
         child-left: 10px;
         child-right: 1s;
     }
 
-    combobox>.header>.icon {
+    dropdown>.header>.icon {
         color: #686868;
     }
 
@@ -45,6 +45,7 @@ pub struct Settings {
 
 impl Widget for Settings {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         let row = Element::new().build(state, entity, |builder| 
@@ -182,7 +183,7 @@ impl Widget for Settings {
                 .set_width(Pixels(200.0))
         );
 
-        ComboBox::new("Jack")
+        Dropdown::new("Jack")
             .build(state, row, |builder| {
                 builder
                     .set_width(Pixels(200.0))
@@ -207,7 +208,7 @@ impl Widget for Settings {
                 .set_width(Pixels(200.0))
         );
 
-        ComboBox::new("Auto")
+        Dropdown::new("Auto")
             .build(state, row, |builder| {
                 builder
                     .set_width(Pixels(200.0))
@@ -323,7 +324,7 @@ impl Widget for Settings {
                 .set_width(Pixels(170.0))
         );
 
-        ComboBox::new("system:playback_1")
+        Dropdown::new("system:playback_1")
             .build(state, row, |builder| {
                 builder
                     .set_width(Pixels(200.0))
@@ -371,7 +372,7 @@ impl Widget for Settings {
                 .set_width(Pixels(170.0))
         );
 
-        ComboBox::new("system:playback_2")
+        Dropdown::new("system:playback_2")
             .build(state, row, |builder| {
                 builder
                     .set_width(Pixels(200.0))

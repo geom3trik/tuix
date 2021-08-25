@@ -135,7 +135,7 @@ impl<'a> Node<'a> for Entity {
     }
 
     // TODO
-    fn is_visible(&self, store: &'_ Self::Data) -> bool {
+    fn is_visible(&self, _store: &'_ Self::Data) -> bool {
         true
     }
 

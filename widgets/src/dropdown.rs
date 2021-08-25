@@ -2,8 +2,6 @@
 use crate::common::*;
 use crate::{CheckButton, CheckboxEvent, Label, Popup, PopupEvent, List};
 
-const ICON_DOWN_OPEN: &str = "\u{e75c}";
-
 const ICON_DOWN_DIR: &str = "\u{25be}";
 
 #[derive(Debug, Clone, PartialEq)]
@@ -14,16 +12,13 @@ pub enum DropdownEvent {
 pub struct DropdownItem {
     //checkbox: Entity,
     text: String,
-    proxy: String,
     pressed: bool,
 }
 
 impl DropdownItem {
-    pub fn new(txt: &str, proxy: &str) -> Self {
+    pub fn new(txt: &str) -> Self {
         DropdownItem {
-            //checkbox: Entity::null(),
             text: txt.to_string(),
-            proxy: proxy.to_string(),
             pressed: false,
         }
     }
@@ -163,12 +158,12 @@ impl Widget for Dropdown {
         // (entity, self.header, self.container)
 
         let container = self.container;
-        self.button = CheckButton::new().on_checked(move |_, state, entity|
+        self.button = CheckButton::new().on_checked(move |_, state, _|
             state.insert_event(
                 Event::new(PopupEvent::Open).target(container)
             )
         )
-        .on_unchecked(move |_, state, entity|
+        .on_unchecked(move |_, state, _|
             state.insert_event(
                 Event::new(PopupEvent::Close).target(container)
             )

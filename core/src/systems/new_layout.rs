@@ -1,7 +1,7 @@
 use crate::tree::*;
 use crate::style::*;
 
-use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};
+use crate::{Entity, State};
 
 
 pub fn apply_transform(state: &mut State, tree: &Tree) {
@@ -13,7 +13,7 @@ pub fn apply_transform(state: &mut State, tree: &Tree) {
         }
         
         let parent = tree.get_parent(entity).unwrap();
-        let parent_origin = state.data.get_origin(parent);
+        //let parent_origin = state.data.get_origin(parent);
         let parent_transform = state.data.get_transform(parent);
 
         state.data.set_transform(entity, Transform2D::identity());
