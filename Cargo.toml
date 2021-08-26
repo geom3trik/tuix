@@ -139,18 +139,15 @@ members = [
 ]
 
 [features]
-default = ["glutin"]
-winit = ["tuix_winit"]
-glutin = ["tuix_glutin"]
-baseview = ["tuix_baseview"]
+default = ["tuix_glutin"]
+
+tuix_glutin = ["tuix_internal/tuix_glutin"]
+
+dynamic = ["tuix_dylib"]
 
 [dependencies]
-tuix_core = { version = "0.1.0", path = "core" }
-tuix_widgets = { version = "0.1.0", path = "widgets"}
-tuix_winit = { version = "0.1.0", path = "winit", optional = true }
-tuix_glutin = { version = "0.1.0", path = "glutin", optional = true }
-tuix_baseview = { version = "0.1.0", path = "baseview", optional = true }
-tuix-derive = {version = "0.1.0", path = "tuix-derive"}
+tuix_dylib = {version = "0.1.0", path = "dylib", optional = true}
+tuix_internal = {version = "0.1.0", path = "internal"}
 
 [dev-dependencies]
 femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}
