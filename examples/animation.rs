@@ -21,6 +21,24 @@ enum AnimationsEvent {
     Play,
 }
 
+pub struct AnimationControls {
+
+}
+
+impl AnimationControls {
+    pub fn new() -> Self {
+
+    }
+}
+
+impl Widget for AnimationControls {
+    type Ret = Entity;
+    type Data = ();
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        entity
+    }
+}
+
 pub struct Animations {
     element: Entity,
 
@@ -265,6 +283,8 @@ impl Widget for Animations {
         // self.border_radius_button = Button::with_label("Border Radius")
         //     .on_press(Event::new(AnimationsEvent::Play))
         //     .build(state, column, |builder| builder);
+
+
 
         entity
     }
