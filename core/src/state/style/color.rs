@@ -24,6 +24,37 @@ impl Color {
         }
     }
 
+    /// Returns color value specified by hue, saturation and lightness.
+    /// HSL values are all in range [0..1], alpha will be set to 1.0.
+    pub fn hsl(h: f32, s: f32, l: f32) -> Self {
+        Self::hsla(h, s, l, 1.0)
+    }
+
+    /// Returns color value specified by hue, saturation, lightness and alpha.
+    /// All values are in range [0..1]
+    pub fn hsla(h: f32, s: f32, l: f32, a: f32) -> Self {
+        let a = (a * 255.0) as u8;
+        let mut h = h % 1.0;
+
+        if h < 0.0 {
+            h += 1.0;
+        }
+
+        let s = s.max(0.0).min(1.0);
+        let l = l.max(0.0).min(1.0);
+
+        let m2 = if l <= 0.5 { l * (1.0 + s) } else { l + s - l * s };
+        let m1 = 2.0 * l - m2;
+
+        let r = (hue(h + 1.0 / 3.0, m1, m2).max(0.0).min(1.0) * 255.0) as u8;
+        let g = (hue(h, m1, m2).max(0.0).min(1.0) * 255.0) as u8;
+        let b = (hue(h - 1.0 / 3.0, m1, m2).max(0.0).min(1.0) * 255.0) as u8;
+
+        Color {
+            data: ((a as u32) << 24) | ((r as u32) << 16) | ((g as u32) << 8) | (b as u32),
+        }
+    }
+
     // Get the red value
     pub fn r(self) -> u8 {
         ((self.data & 0x00FF_0000) >> 16) as u8
@@ -156,4 +187,26 @@ impl Color {
     pub fn yellow() -> Self {
         Self { data: 0xFFFFFF00 }
     }
+}
+
+
+fn hue(mut h: f32, m1: f32, m2: f32) -> f32 {
+    if h < 0.0 {
+        h += 1.0;
+    }
+    if h > 1.0 {
+        h -= 1.0;
+    }
+
+    if h < 1.0 / 6.0 {
+        return m1 + (m2 - m1) * h * 6.0;
+    }
+    if h < 3.0 / 6.0 {
+        return m2;
+    }
+    if h < 4.0 / 6.0 {
+        return m1 + (m2 - m1) * (2.0 / 3.0 - h) * 6.0;
+    }
+
+    m1
 }

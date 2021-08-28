@@ -196,9 +196,9 @@ impl State {
     }
 
     //TODO
-    pub fn add_image(&mut self, image: image::DynamicImage) -> Rc<()> {
-        self.resource_manager.add_image(image)
-    }
+    // pub fn add_image(&mut self, image: image::DynamicImage) -> Rc<()> {
+    //     self.resource_manager.add_image(image)
+    // }
 
     //TODO
     pub fn add_font(&mut self, _name: &str, _path: &str) {

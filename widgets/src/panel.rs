@@ -71,7 +71,7 @@ impl Panel {
 }
 
 impl Widget for Panel {
-    type Ret = Entity;
+    type Ret = (Entity, Entity);
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
@@ -111,9 +111,9 @@ impl Widget for Panel {
         // Label
         Label::new(&self.title).build(state, self.header, |builder| {
             builder
-                .set_width(Stretch(1.0))
+                //.set_width(Stretch(1.0))
                 .set_height(Stretch(1.0))
-                .set_left(Pixels(10.0))
+                .set_left(Pixels(5.0))
                 .set_child_top(Stretch(1.0))
                 .set_child_bottom(Stretch(1.0))
                 .set_hoverable(false)
@@ -239,7 +239,7 @@ impl Widget for Panel {
 
         self.arrow_ccw_animation = state.style.rotate.insert_animation(arrow_ccw_animation);
 
-        self.container2
+        (self.container2, self.header)
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

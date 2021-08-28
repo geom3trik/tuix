@@ -1,5 +1,6 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
 use crate::{AsEntity, Entity, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
+use femtovg::{BlendFactor, CompositeOperation};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -24,15 +25,15 @@ pub trait Widget: std::marker::Sized + 'static {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret;
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
-    fn build<F>(mut self, state: &mut State, parent: Entity, mut builder: F) -> Self::Ret
+    fn build<F>(mut self, state: &mut State, parent: impl AsEntity, mut builder: F) -> Self::Ret
     where
         F: FnMut(Builder<Self>) -> Builder<Self>,
         Self: std::marker::Sized + 'static,
     {
         // Create a new entity
-        let entity = state.add(parent);
+        let entity = state.add(parent.entity());
 
-        state.insert_event(Event::new(WindowEvent::ChildAdded(entity)).direct(parent));
+        state.insert_event(Event::new(WindowEvent::ChildAdded(entity)).direct(parent.entity()));
 
         // Call the on_build function of the widget
         let ret = self.on_build(state, entity);
@@ -64,6 +65,7 @@ pub trait Widget: std::marker::Sized + 'static {
 
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+
         // Skip window
         if entity == Entity::root() {
             return;
@@ -80,6 +82,15 @@ pub trait Widget: std::marker::Sized + 'static {
         }
 
         let bounds = state.data.get_bounds(entity);
+
+        // Skip widgets with no width or no height
+        if bounds.w == 0.0 || bounds.h == 0.0 {
+            return;
+        }
+
+        //canvas.save();
+        //canvas.reset();
+        
 
         let padding_left = match state.style.child_left.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
@@ -138,7 +149,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_width * val,
+            Units::Percentage(val) => bounds.w.min(bounds.h) * (val / 100.0),
             _ => 0.0,
         };
 
@@ -150,7 +161,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_width * val,
+            Units::Percentage(val) => bounds.w.min(bounds.h) * (val / 100.0),
             _ => 0.0,
         };
 
@@ -162,7 +173,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_width * val,
+            Units::Percentage(val) => bounds.w.min(bounds.h) * (val / 100.0),
             _ => 0.0,
         };
 
@@ -174,7 +185,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_width * val,
+            Units::Percentage(val) => bounds.w.min(bounds.h) * (val / 100.0),
             _ => 0.0,
         };
 
@@ -194,14 +205,10 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_width * val,
+            Units::Percentage(val) => bounds.w.min(bounds.h) * (val / 100.0),
             _ => 0.0,
         };
 
-        // Skip widgets with no width or no height
-        if bounds.w == 0.0 || bounds.h == 0.0 {
-            return;
-        }
 
         let mut clip_region = state.data.get_clip_region(entity);
         canvas.scissor(
@@ -418,33 +425,33 @@ pub trait Widget: std::marker::Sized + 'static {
         // Fill with background color
         let mut paint = Paint::color(background_color);
 
-        if let Some(background_image) = state.style.background_image.get(entity) {
-            if let Some(image_id) = state.resource_manager.image_ids.get(background_image) {
-                match image_id {
-                    crate::ImageOrId::Id(id) => {
-                        paint = Paint::image(*id, 0.0, 0.0, 100.0, 100.0, 0.0, 1.0);
-                    }
+        // if let Some(background_image) = state.style.background_image.get(entity) {
+        //     if let Some(image_id) = state.resource_manager.image_ids.get(background_image) {
+        //         match image_id {
+        //             crate::ImageOrId::Id(id) => {
+        //                 paint = Paint::image(*id, 0.0, 0.0, 100.0, 100.0, 0.0, 1.0);
+        //             }
 
-                    _ => {}
-                }
-            }
-        }
+        //             _ => {}
+        //         }
+        //     }
+        // }
 
         // Gradient overrides background color
         if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
-            let (start_x, start_y, end_x, end_y) = match background_gradient.direction {
-                Direction::LeftToRight => (0.0, 0.0, bounds.w, 0.0),
-                Direction::TopToBottom => (0.0, 0.0, 0.0, bounds.h),
-                _ => (0.0, 0.0, bounds.w, 0.0),
+            let (start_x, start_y, end_x, end_y, parent_length) = match background_gradient.direction {
+                Direction::LeftToRight => (0.0, 0.0, bounds.w, 0.0, parent_width),
+                Direction::TopToBottom => (0.0, 0.0, 0.0, bounds.h, parent_height),
+                _ => (0.0, 0.0, bounds.w, 0.0, parent_width),
             };
 
             paint = Paint::linear_gradient_stops(
-                start_x,
-                start_y,
-                end_x,
-                end_y,
+                bounds.x,
+                bounds.y,
+                bounds.x + end_x,
+                bounds.y + end_y,
                 background_gradient
-                    .get_stops(parent_width)
+                    .get_stops(parent_length)
                     .iter()
                     .map(|stop| {
                         let col: femtovg::Color = stop.1.into();
@@ -454,6 +461,8 @@ pub trait Widget: std::marker::Sized + 'static {
                     .as_slice(),
             );
         }
+
+        //canvas.global_composite_blend_func(BlendFactor::DstColor, BlendFactor::OneMinusSrcAlpha);
 
         // Fill the quad
         canvas.fill_path(&mut path, paint);

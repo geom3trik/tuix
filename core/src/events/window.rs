@@ -55,11 +55,12 @@ impl Widget for WindowWidget {
                     // apply_layout(state, &state.tree.clone());
                     // apply_hover(state);
                     apply_z_ordering(state, &tree);
-                    apply_transform(state, &tree);
+                    //apply_transform(state, &tree);
                     apply_visibility(state, &tree);
                     //apply_layout(state, &tree);
                     //apply_layout2(state, &tree);
                     morphorm::layout(&mut state.data, &state.tree, &mut state.style);
+                    apply_transform(state, &tree);
                     geometry_changed(state, &tree);
                     apply_hover(state);
                 }

@@ -1,106 +1,340 @@
-use crate::common::*;
-use crate::{Dropdown, DropdownEvent, Item, Textbox, TextboxEvent};
 
-use crate::state::style::*;
+use crate::{CheckButton, Label, PopupEvent, Slider, SliderEvent, common::*};
+use crate::{Dropdown, DropdownEvent, Textbox, TextboxEvent, CheckboxEvent};
 
-#[derive(Clone)]
+
+#[derive(PartialEq)]
+pub enum LengthBoxEvent {
+    SetType(Units),
+    SetValue(f32, bool),
+    Reset(bool),
+}
+
+
 pub struct LengthBox {
-    pub value: Entity,
-    pub unit: Entity,
-    pub pixels: f32,
-    pub percentage: f32,
-    pub length_type: Units,
+
+    name: String,
+
+    slider: Entity,
+    textbox: Entity,
+    dropdown: Entity,
+    stretch: f32,
+    percentage: f32,
+    pixels: f32,
+    units: Units,
+
+    // Dropdown Check Buttons
+    check_auto: Entity,
+    check_stretch: Entity,
+    check_percentage: Entity,
+    check_pixels: Entity,
+
+    // Callbacks
+    on_changed: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }
 
 impl LengthBox {
-    pub fn new() -> Self {
+    pub fn new(name: &str) -> Self {
         LengthBox {
-            value: Entity::null(),
-            unit: Entity::null(),
-            pixels: 0.0,
+
+            name: name.to_owned(),
+
+            slider: Entity::null(),
+            textbox: Entity::null(),
+            dropdown: Entity::null(),
+            stretch: 1.0,
             percentage: 0.0,
-            length_type: Units::Auto,
+            pixels: 0.0,
+            units: Units::Auto,
+
+            check_auto: Entity::null(),
+            check_stretch: Entity::null(),
+            check_percentage: Entity::null(),
+            check_pixels: Entity::null(),
+
+            on_changed: None, 
+        }
+    }
+
+    pub fn on_changed<F>(mut self, callback: F) -> Self 
+    where F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_changed = Some(Box::new(callback));
+
+        self
+    }
+
+    pub fn value(&self) -> Units {
+        match self.units {
+            Units::Auto => {
+                Units::Auto
+            }
+
+            Units::Stretch(_) => {
+                Units::Stretch(self.stretch)
+            }
+
+            Units::Percentage(_) => {
+                Units::Percentage(self.percentage)
+            }
+
+            Units::Pixels(_) => {
+                Units::Pixels(self.pixels)
+            }
         }
     }
 }
 
 impl Widget for LengthBox {
     type Ret = Entity;
+    type Data = Units;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_layout_type(state, LayoutType::Row);
+        entity.set_layout_type(state, LayoutType::Row).set_col_between(state, Pixels(10.0));
 
-        self.value = Textbox::new("0.0").build(state, entity, |builder| builder.class("value"));
-        // self.unit = Dropdown::new("-")
-        //     .add_item("Auto", "-")
-        //     .add_item("px", "px")
-        //     .add_item("%", "%")
-        //     .add_item("Initial", "-")
-        //     .build(state, entity, |builder| builder.set_flex_basis(30.0).set_text_justify(Justify::End).class("unit")).1;
+        self.slider = Slider::new()
+            .with_min(0.0)
+            .with_max(20.0)
+            .on_changing(|data, state, slider|{
+                slider.emit(state, LengthBoxEvent::SetValue(data.value, true));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_child_top(Auto)
+                    .set_child_bottom(Auto)
+            );
+        
+        Label::new(&self.name).build(state, self.slider, |builder|
+            builder
+                .set_position_type(PositionType::SelfDirected)
+                .set_child_top(Stretch(1.0))
+                .set_child_bottom(Stretch(1.0))
+                .set_child_left(Pixels(5.0))
+                .set_hoverable(false)
+                .set_focusable(false)
+        );
 
-        self.unit = Dropdown::new("-")
+        self.textbox = Textbox::new("auto")
+        .on_submit(|data, state, textbox|{
+            if &data.text == "auto" {
+                textbox.emit(state, LengthBoxEvent::SetType(Units::Auto));
+                textbox.emit(state, LengthBoxEvent::Reset(true));
+                
+            } else {
+                if let Some(last_char) = data.text.chars().last() {
+                    let mut val_text = data.text.as_ref();
+                    let mut val_type = Units::Auto;
+                    match last_char {
+                        's' => {
+                            val_text = &data.text[0..data.text.len()-1];
+                            val_type = Units::Stretch(0.0);
+                        }
+    
+                        '%' => {
+                            val_text = &data.text[0..data.text.len()-1];
+                            val_type = Units::Percentage(0.0);
+                        }
+    
+                        'x' => {
+                            if let Some(previous_char) = data.text[0..data.text.len()-1].chars().last() {
+                                if previous_char == 'p' {
+                                    val_text = &data.text[0..data.text.len()-2];
+                                    val_type = Units::Pixels(0.0);
+                                }
+                            }
+                        }
+    
+                        _=> {},
+                    }
+
+                    //println!("{} {:?}", val_text, val_type);
+    
+                    if let Ok(val) = val_text.parse::<f32>() {
+                        if val_type != Units::Auto {
+                            textbox.emit(state, LengthBoxEvent::SetType(val_type));
+                        }
+                        textbox.emit(state, LengthBoxEvent::SetValue(val, true));
+                    } else {
+                        textbox.emit(state, LengthBoxEvent::Reset(true));
+                    }
+                } else {
+                    textbox.emit(state, LengthBoxEvent::Reset(true));
+                }
+            }            
+        })
+        .build(state, entity, |builder| 
+            builder
+                .set_width(Pixels(60.0))
+                .set_child_space(Stretch(1.0))
+        );
+
+        self.dropdown = Dropdown::new("-")
             .build(state, entity, |builder| {
                 builder
-                    .set_width(Pixels(30.0))
+                    .set_width(Pixels(60.0))
                     .set_child_left(Stretch(1.0))
                     .set_child_right(Pixels(0.0))
                     .class("unit")
+            });
+
+        self.dropdown.set_width(state, Pixels(100.0));
+
+
+        
+        // Spacer
+        // Element::new().build(state, self.dropdown, |builder| 
+        //     builder
+        //         .set_height(Pixels(5.0))
+        // );
+
+        self.check_auto = CheckButton::with_label("auto")
+            .set_checked(true)
+            .on_checked(|_, state, button|{
+                button.emit(state, LengthBoxEvent::SetType(Units::Auto));
+                button.emit(state, LengthBoxEvent::Reset(true));
+                button.emit(state, PopupEvent::Close);
+                button.emit(state, DropdownEvent::SetText("-".to_string()));
             })
-            .2;
+            .build(state, self.dropdown, |builder| 
+                builder
+                    //.set_color(Color::black())
+            );
 
-        let _auto = Item::new("auto", "-").build(state, self.unit, |builder| builder.class("item"));
-        let _pixel = Item::new("px", "px").build(state, self.unit, |builder| builder.class("item"));
-        let _percentage =
-            Item::new("%", "%").build(state, self.unit, |builder| builder.class("item"));
-        let _initial =
-            Item::new("initial", "-").build(state, self.unit, |builder| builder.class("item"));
+        self.check_stretch = CheckButton::with_label("stretch")
+            .on_checked(|_, state, button|{
+                button.emit(state, LengthBoxEvent::SetType(Units::Stretch(0.0)));
+                button.emit(state, LengthBoxEvent::Reset(true));
+                button.emit(state, PopupEvent::Close);
+            })
+            .build(state, self.dropdown, |builder| 
+                builder
+                    //.set_color(Color::black())
+            );
 
-        state.style.insert_element(entity, "length_box");
+        self.check_percentage = CheckButton::with_label("%")
+            .on_checked(|_, state, button|{
+                button.emit(state, LengthBoxEvent::SetType(Units::Percentage(0.0)));
+                button.emit(state, LengthBoxEvent::Reset(true));
+                button.emit(state, PopupEvent::Close);
+            })
+            .build(state, self.dropdown, |builder| 
+                builder
+                    //.set_color(Color::black())
+            );
 
-        self.value
+        self.check_pixels = CheckButton::with_label("px")
+            .on_checked(|_, state, button|{
+                button.emit(state, LengthBoxEvent::SetType(Units::Pixels(0.0)));
+                button.emit(state, LengthBoxEvent::Reset(true));
+                button.emit(state, PopupEvent::Close);
+            })
+            .build(state, self.dropdown, |builder| 
+                builder
+                    //.set_color(Color::black())
+            );
+
+
+        // Spacer
+        // Element::new().build(state, self.dropdown, |builder| 
+        //     builder
+        //         .set_height(Pixels(5.0))
+        // );
+
+        entity.set_element(state, "length_box");
+
+        entity
     }
 
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
-        if let Some(dropdown_event) = event.message.downcast::<DropdownEvent>() {
-            match dropdown_event {
-                DropdownEvent::SetText(text) => {
-                    if text == "auto" {
-                        self.value.set_text(state, text);
-                        self.length_type = Units::Auto;
-                    }
 
-                    if text == "stretch" {
-                        self.value.set_text(state, text);
-                        self.length_type = Units::Stretch(0.0);
-                    }
-
-                    if text == "px" {
-                        self.value.set_text(state, &self.pixels.to_string());
-                        self.length_type = Units::Pixels(0.0);
-                    }
-
-                    if text == "%" {
-                        self.value.set_text(state, &self.percentage.to_string());
-                        self.length_type = Units::Percentage(0.0);
-                    }
-                }
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        entity.emit(state, LengthBoxEvent::SetType(*data));
+        match data {
+            Units::Auto => {
+                entity.emit(state, LengthBoxEvent::SetValue(0.0, false));
+            }
+            Units::Stretch(val) | Units::Percentage(val) | Units::Pixels(val) => {
+                entity.emit(state, LengthBoxEvent::SetValue(*val, false));
             }
         }
+    }
 
-        if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
-            match textbox_event {
-                TextboxEvent::ValueChanged(value) => match self.length_type {
-                    Units::Pixels(_) => {
-                        self.pixels = value.parse::<f32>().unwrap();
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(lengthbox_event) = event.message.downcast() {
+            match lengthbox_event {
+
+                LengthBoxEvent::SetValue(val, flag) => {
+                    match self.units {
+                        Units::Auto => {
+                            entity.emit_to(state, self.dropdown, DropdownEvent::SetText("-".to_string()));
+                            entity.emit_to(state, self.textbox, TextboxEvent::SetValue("auto".to_string()));
+                            entity.emit_to(state, self.slider, SliderEvent::SetValue(0.0));
+                            entity.emit_to(state, self.check_auto, CheckboxEvent::Check);
+                            self.slider.set_disabled(state, true);
+
+                        }
+
+                        Units::Stretch(_) => {
+                            self.stretch = *val;
+                            entity.emit_to(state, self.dropdown, DropdownEvent::SetText("stretch".to_string()));
+                            entity.emit_to(state, self.textbox, TextboxEvent::SetValue(format!("{:.0}s", val)));
+                            entity.emit_to(state, self.slider, SliderEvent::SetMax(10.0));
+                            entity.emit_to(state, self.slider, SliderEvent::SetValue(*val));
+                            entity.emit_to(state, self.check_stretch, CheckboxEvent::Check);
+                            self.slider.set_disabled(state, false);
+
+                        }
+
+                        Units::Percentage(_) => {
+                            self.percentage = *val;
+                            entity.emit_to(state, self.dropdown, DropdownEvent::SetText("%".to_string()));
+                            entity.emit_to(state, self.textbox, TextboxEvent::SetValue(format!("{:.0}%", val)));
+                            entity.emit_to(state, self.slider, SliderEvent::SetMax(100.0));
+                            entity.emit_to(state, self.slider, SliderEvent::SetValue(*val));
+                            entity.emit_to(state, self.check_percentage, CheckboxEvent::Check);
+                            self.slider.set_disabled(state, false);
+
+                        }
+
+                        Units::Pixels(_) => {
+                            self.pixels = *val;
+                            entity.emit_to(state, self.dropdown, DropdownEvent::SetText("px".to_string()));
+                            entity.emit_to(state, self.textbox, TextboxEvent::SetValue(format!("{:.0}px", val)));
+                            entity.emit_to(state, self.slider, SliderEvent::SetMax(20.0));
+                            entity.emit_to(state, self.slider, SliderEvent::SetValue(*val));
+                            entity.emit_to(state, self.check_pixels, CheckboxEvent::Check);
+                            self.slider.set_disabled(state, false);
+                        }
                     }
-
-                    Units::Percentage(_) => {
-                        self.percentage = value.parse::<f32>().unwrap();
+                    if *flag {
+                        if let Some(callback) = self.on_changed.take() {
+                            (callback)(self, state, entity);
+                            self.on_changed = Some(callback);
+                        }
                     }
+                }
 
-                    _ => {}
-                },
+                LengthBoxEvent::SetType(units) => {
+                    self.units = *units;
+                }
 
-                _ => {}
+                LengthBoxEvent::Reset(flag) => {
+                    match self.units {
+                        Units::Auto => {
+                            entity.emit(state, LengthBoxEvent::SetValue(0.0, *flag));
+                        }
+
+                        Units::Stretch(_) => {
+                            entity.emit(state, LengthBoxEvent::SetValue(self.stretch, *flag));
+                        }
+
+                        Units::Percentage(_) => {
+                            entity.emit(state, LengthBoxEvent::SetValue(self.percentage, *flag));
+                        }
+
+                        Units::Pixels(_) => {
+                            entity.emit(state, LengthBoxEvent::SetValue(self.pixels, *flag));
+                        }
+                    }
+                }
             }
         }
     }

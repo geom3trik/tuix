@@ -116,6 +116,36 @@ impl Widget for List {
                     }
                 }
 
+                CheckboxEvent::Check => {
+                    if self.single {
+                        if event.target.is_descendant_of(&state.tree, entity) {
+                            if event.target != entity && event.origin != entity {
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Unchecked)
+                                        .target(entity)
+                                        .origin(event.target)
+                                        .propagate(Propagation::Fall),
+                                );
+
+                                event.consume();
+                            }
+
+                            if event.target != entity && event.origin != entity {
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Check)
+                                        .target(event.target)
+                                        .origin(entity)
+                                        .propagate(Propagation::Direct),
+                                );
+
+                                event.consume();
+                            }
+
+                            self.checked_entity = event.target;
+                        }
+                    }
+                }
+
                 CheckboxEvent::Checked => {
                     if self.single {
                         if event.target.is_descendant_of(&state.tree, entity) {

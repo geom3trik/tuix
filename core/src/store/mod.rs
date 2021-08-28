@@ -13,7 +13,7 @@ use crate::{State, Entity, Event, Widget, Propagation, PropSet};
 use crate::events::event_handler::Canvas;
 
 pub trait Model {
-    fn on_event(&mut self, _state: &mut State, _entity: Entity, _event: &mut Event) {}
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
     fn build(self, state: &mut State, parent: Entity) -> Entity

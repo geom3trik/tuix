@@ -42,9 +42,7 @@ pub fn apply_transform(state: &mut State, tree: &Tree) {
             state.data.set_translate(entity, (x,y));
             state.data.set_scale(entity, *scale);
             state.data.set_translate(entity, (-x,-y));
-        }
-
-        
+        }       
 
     }
 }

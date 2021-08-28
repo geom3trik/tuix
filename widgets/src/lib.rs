@@ -38,8 +38,11 @@ pub use scrollbar::*;
 // pub mod value_slider;
 // pub use value_slider::ValueSlider;
 
-// pub mod length_box;
-// pub use length_box::LengthBox;
+pub mod color_picker;
+pub use color_picker::*;
+
+pub mod length_box;
+pub use length_box::*;
 
 pub mod panel;
 pub use panel::*;

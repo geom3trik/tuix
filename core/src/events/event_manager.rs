@@ -1,5 +1,5 @@
 use crate::{
-    tree, Builder, CursorIcon, Entity, Event, Tree, TreeExt, ImageOrId,
+    tree, Builder, CursorIcon, Entity, Event, Tree, TreeExt,
     IntoBranchIterator, IntoTreeIterator, IntoParentIterator, PropSet, Propagation, State,
     WindowEvent,
 };
@@ -220,22 +220,22 @@ impl EventManager {
         //     }
         // }
 
-        state
-            .resource_manager
-            .image_ids
-            .iter_mut()
-            .for_each(|(_, image_or_id)| {
-                match image_or_id {
-                    ImageOrId::Image(image) => {
-                        //let img = image.clone();
-                        //let image: femtovg::ImageSource = (&img).try_into().unwrap();
-                        let image: femtovg::ImageSource = (&*image).try_into().unwrap();
-                        *image_or_id =
-                            ImageOrId::Id(canvas.create_image(image, ImageFlags::empty()).unwrap())
-                    }
-                    _ => {}
-                }
-            });
+        // state
+        //     .resource_manager
+        //     .image_ids
+        //     .iter_mut()
+        //     .for_each(|(_, image_or_id)| {
+        //         match image_or_id {
+        //             ImageOrId::Image(image) => {
+        //                 //let img = image.clone();
+        //                 //let image: femtovg::ImageSource = (&img).try_into().unwrap();
+        //                 let image: femtovg::ImageSource = (&*image).try_into().unwrap();
+        //                 *image_or_id =
+        //                     ImageOrId::Id(canvas.create_image(image, ImageFlags::empty()).unwrap())
+        //             }
+        //             _ => {}
+        //         }
+        //     });
 
         let width = state.data.get_width(Entity::root());
         let height = state.data.get_height(Entity::root());
@@ -262,6 +262,7 @@ impl EventManager {
         // Clear the canvas
         canvas.clear_rect(0, 0, width as u32, height as u32, background_color);
 
+        //canvas.save();
         // Reset any canvas transforms
         canvas.reset();
 
@@ -276,6 +277,8 @@ impl EventManager {
                 state.event_handlers.insert(widget, event_handler);
             }
         }
+
+        //canvas.restore();
 
         // Send the canvas to the GPU to draw
         canvas.flush();

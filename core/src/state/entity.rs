@@ -138,6 +138,30 @@ impl AsEntity for Entity {
     }
 }
 
+impl AsEntity for (Entity, Entity) {
+    fn entity(&self) -> Entity {
+        self.0
+    }
+}
+
+impl AsEntity for (Entity, Entity, Entity) {
+    fn entity(&self) -> Entity {
+        self.0
+    }
+}
+
+impl AsEntity for (Entity, Entity, Entity, Entity) {
+    fn entity(&self) -> Entity {
+        self.0
+    }
+}
+
+impl AsEntity for (Entity, Entity, Entity, Entity, Entity) {
+    fn entity(&self) -> Entity {
+        self.0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -383,7 +383,7 @@ impl Slider {
 
 impl Widget for Slider {
     type Ret = Entity;
-    type Data = ();
+    type Data = f32;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         if self.min > self.max {
             panic!("minimum value must be less than maximum value")
@@ -403,7 +403,7 @@ impl Widget for Slider {
         self.track = Element::new().build(state, entity, |builder| {
             builder
                 .set_width(Stretch(1.0))
-                .set_height(Pixels(4.0))
+                // .set_height(Pixels(4.0))
                 .set_bottom(Auto)
                 .set_hoverable(false)
                 .class("track")
@@ -412,7 +412,7 @@ impl Widget for Slider {
         // Active
         self.active = Element::new().build(state, self.track, |builder| {
             builder
-                .set_width(Percentage(50.0))
+                .set_width(Percentage(0.0))
                 .set_height(Stretch(1.0))
                 .set_hoverable(false)
                 .class("active")
@@ -550,5 +550,10 @@ impl Widget for Slider {
                 _ => {}
             }
         }
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        self.value = *data;
+        self.update_visuals(state, entity);
     }
 }
