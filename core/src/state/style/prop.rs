@@ -616,7 +616,7 @@ pub trait PropSet: AsEntity + Sized {
     }
 
 
-    fn mutate<F: FnMut(Builder<Self>) -> Builder<Self>>(self, state: &mut State, builder: F) -> Self;
+    //fn mutate<F: FnMut(Builder<Self>) -> Builder<Self>>(self, state: &mut State, builder: F) -> Self;
 
     fn set_layout_type(&self, state: &mut State, value: LayoutType) -> Entity {
         state.style.layout_type.insert(self.entity(), value);
@@ -749,15 +749,15 @@ pub trait PropSet: AsEntity + Sized {
 
 }
 
-impl PropSet for Entity {
-    fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
-    where
-        F: FnMut(Builder<Self>) -> Builder<Self>,
-    {
-        builder(Builder::new(state, self));
+impl<T: AsEntity> PropSet for T {
+    // fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
+    // where
+    //     F: FnMut(Builder<Self>) -> Builder<Self>,
+    // {
+    //     builder(Builder::new(state, self));
 
-        self
-    }
+    //     self
+    // }
 }
 
 /*
