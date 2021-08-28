@@ -75,13 +75,13 @@ impl Model for CounterState {
 
 // A widget for the counter, with 2 buttons and a label
 #[derive(Default)]
-struct CounterWidget {
-
+struct Counter {
+    label: Entity,
 }
 
-impl Widget for CounterWidget {
+impl Widget for Counter {
     type Ret = Entity;
-    type Data = ();
+    type Data = i32;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
   
@@ -113,9 +113,7 @@ impl Widget for CounterWidget {
                     .class("increment")
             );
 
-        // Using a lens, the label is bound to the value field of the app data
-        Label::new("0")
-            .bind(CounterState::value, |value| value.to_string())
+        self.label = Label::new("0")
             .build(state, row, |builder| 
                 builder
                     .set_width(Pixels(100.0))
@@ -124,6 +122,10 @@ impl Widget for CounterWidget {
             );
 
         entity
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        self.label.set_text(state, &data.to_string());
     }
 }
 
@@ -135,16 +137,17 @@ fn main() {
         state.add_theme(STYLE);
 
         // Build the app data at the root of the visual tree
-        let data_widget = CounterState::default().build(state, window);
+        let app_data = CounterState::default().build(state, window);
 
-        CounterWidget::default()
-            .build(state, data_widget, |builder| builder);
+        Counter::default()
+            .bind(CounterState::value, |value| *value)
+            .build(state, app_data, |builder| builder);
         
         // Another label is bound to the counter value, but with a conversion closure 
         // which converts the value to english text form
         Label::new("Zero")
             .bind(CounterState::value, |value| english_numbers::convert_all_fmt(*value as i64))
-            .build(state, data_widget, |builder| 
+            .build(state, app_data, |builder| 
                 builder
                     .set_height(Pixels(30.0))
                     .set_space(Pixels(5.0))
