@@ -68,7 +68,12 @@ pub trait Widget: std::marker::Sized + 'static {
 
 
         let bounds = state.data.get_bounds(entity);
-        
+
+        //Skip widgets with no width or no height
+        if bounds.w == 0.0 || bounds.h == 0.0 {
+            return;
+        }
+    
 
         let padding_left = match state.style.child_left.get(entity).unwrap_or(&Units::Auto) {
             Units::Pixels(val) => val,
