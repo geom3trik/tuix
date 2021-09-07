@@ -66,30 +66,8 @@ pub trait Widget: std::marker::Sized + 'static {
     // Called when a redraw occurs
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
 
-        // Skip window
-        if entity == Entity::root() {
-            return;
-        }
-
-        // Skip invisible widgets
-        if state.data.get_visibility(entity) == Visibility::Invisible {
-            return;
-        }
-
-        // Skip widgets that have 0 opacity
-        if state.data.get_opacity(entity) == 0.0 {
-            return;
-        }
 
         let bounds = state.data.get_bounds(entity);
-
-        // Skip widgets with no width or no height
-        if bounds.w == 0.0 || bounds.h == 0.0 {
-            return;
-        }
-
-        //canvas.save();
-        //canvas.reset();
         
 
         let padding_left = match state.style.child_left.get(entity).unwrap_or(&Units::Auto) {
@@ -210,59 +188,7 @@ pub trait Widget: std::marker::Sized + 'static {
         };
 
 
-        let mut clip_region = state.data.get_clip_region(entity);
-        canvas.scissor(
-            clip_region.x,
-            clip_region.y,
-            clip_region.w,
-            clip_region.h,
-        );
 
-        // Apply transformations
-        //let rotate = state.style.rotate.get(entity).unwrap_or(&0.0);
-        let mut transform = state.data.get_transform(entity);
-
-
-        canvas.save();
-        canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
-
-        //canvas.translate(bounds.x, bounds.y);
-
-        //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
-        //canvas.translate(posx + width / 2.0, posy + width / 2.0);
-        // canvas.translate(pt.0, pt.1);
-        // canvas.scale(1.0, scaley.0);
-        // canvas.translate(-pt.0, -pt.1);
-
-        // Apply Scissor
-        // let mut clip_region = state.data.get_clip_region(entity);
-
-        // let scale = state.data.get_scale(entity);
-
-        // transform.inverse();
-        // let (mut clip_x, mut clip_y) = transform.transform_point(clip_region.x, clip_region.y);
-        // let (mut clip_w, mut clip_h) = transform.transform_point(clip_region.w - clip_region.x, clip_region.h - clip_region.y);
-
-        // clip_x = clip_region.x;
-        // clip_y = clip_region.y;
-        // clip_w += clip_x;
-        // clip_h += clip_y;
-
-        // canvas.scissor(
-        //     clip_x,
-        //     clip_y,
-        //     clip_w,
-        //     clip_h,
-        // );
-
-        // canvas.scissor(
-        //     clip_region.x,
-        //     clip_region.y,
-        //     clip_region.w,
-        //     clip_region.h,
-        // );
-
-        //println!("Entity: {} x: {} y: {} w: {} h: {}", entity,  clip_x, clip_y, clip_w, clip_h);
 
         let outer_shadow_h_offset = match state
             .style
@@ -615,11 +541,6 @@ pub trait Widget: std::marker::Sized + 'static {
 
             canvas.fill_text(x, y, &text_string, paint);
         }
-        
-        //canvas.translate(-bounds.x, -bounds.y);
-        canvas.restore();
-
-        //canvas.reset_scissor();
     }
 }
 

@@ -1,8 +1,4 @@
-use crate::{
-    tree, Builder, CursorIcon, Entity, Event, Tree, TreeExt,
-    IntoBranchIterator, IntoTreeIterator, IntoParentIterator, PropSet, Propagation, State,
-    WindowEvent,
-};
+use crate::{Builder, CursorIcon, Entity, Event, IntoBranchIterator, IntoParentIterator, IntoTreeIterator, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent, tree};
 
 use crate::EventHandler;
 
@@ -271,11 +267,51 @@ impl EventManager {
         draw_tree.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
 
         // Call the on_draw() method for each widget
-        for widget in draw_tree.into_iter() {
-            if let Some(mut event_handler) = state.event_handlers.remove(&widget) {
-                event_handler.on_draw_(state, widget, canvas);
-                state.event_handlers.insert(widget, event_handler);
+        for entity in draw_tree.into_iter() {
+
+            // Skip window
+            if entity == Entity::root() {
+                continue;
             }
+
+            // Skip invisible widgets
+            if state.data.get_visibility(entity) == Visibility::Invisible {
+                continue;
+            }
+
+            // Skip widgets that have 0 opacity
+            if state.data.get_opacity(entity) == 0.0 {
+                continue;
+            }
+
+            let bounds = state.data.get_bounds(entity);
+
+            // Skip widgets with no width or no height
+            if bounds.w == 0.0 || bounds.h == 0.0 {
+                continue;
+            }
+
+            let mut clip_region = state.data.get_clip_region(entity);
+            canvas.scissor(
+                clip_region.x,
+                clip_region.y,
+                clip_region.w,
+                clip_region.h,
+            );
+    
+            // Apply transformations
+            let mut transform = state.data.get_transform(entity);
+    
+    
+            canvas.save();
+            canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
+
+            if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
+                event_handler.on_draw_(state, entity, canvas);
+                state.event_handlers.insert(entity, event_handler);
+            }
+
+            canvas.restore();
         }
 
         //canvas.restore();
