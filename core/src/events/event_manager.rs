@@ -284,12 +284,12 @@ impl EventManager {
                 continue;
             }
 
-            let bounds = state.data.get_bounds(entity);
+            //let bounds = state.data.get_bounds(entity);
 
             // Skip widgets with no width or no height
-            if bounds.w == 0.0 || bounds.h == 0.0 {
-                continue;
-            }
+            // if bounds.w == 0.0 || bounds.h == 0.0 {
+            //     continue;
+            // }
 
             let mut clip_region = state.data.get_clip_region(entity);
             canvas.scissor(
