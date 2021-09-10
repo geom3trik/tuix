@@ -13,16 +13,28 @@ pub enum ColorPickerEvent {
 
 pub struct ColorPicker {
     thumb: Entity,
-    hue: f32,
+
+    on_changing: Option<Box<dyn Fn(&mut ColorGradient, &mut State, Entity)>>,
 }
 
 impl ColorPicker {
     pub fn new() -> Self {
         Self {
             thumb: Entity::null(),
-            hue: 0.0,
+
+            on_changing: None,
         }
     }
+
+    pub fn on_changing<F>(mut self, callback: F) -> Self
+    where
+        F: 'static + Fn(&mut ColorGradient, &mut State, Entity),
+    {
+        self.on_changing = Some(Box::new(callback));
+        self
+    }
+
+
 }
 
 impl Widget for ColorPicker {
@@ -30,13 +42,22 @@ impl Widget for ColorPicker {
     type Data = Color;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        let col_grad = ColorGradient::new().build(state, entity, |builder|
-            builder
-                .set_width(Pixels(250.0))
-                .set_height(Pixels(250.0))
-        );
 
-
+        let col_grad = if let Some(callback) = self.on_changing.take() {
+            ColorGradient::new()
+            .on_changing(callback)
+            .build(state, entity, |builder|
+                builder
+                    .set_width(Pixels(250.0))
+                    .set_height(Pixels(250.0))
+            )
+        } else {
+            ColorGradient::new().build(state, entity, |builder|
+                builder
+                    .set_width(Pixels(250.0))
+                    .set_height(Pixels(250.0))
+            )
+        };
 
         HueSlider::new()
             .on_changing(move |data, state, slider|{
@@ -50,7 +71,7 @@ impl Widget for ColorPicker {
 
         entity
             .set_layout_type(state, LayoutType::Row)
-            .set_background_color(state, Color::rgb(56, 56, 56))
+            //.set_background_color(state, Color::rgb(56, 56, 56))
             .set_child_space(state, Stretch(1.0))
             .set_col_between(state, Pixels(5.0))
     }
@@ -257,6 +278,8 @@ pub struct ColorGradient {
     hue: f32,
     saturation: f32,
     value: f32,
+
+    on_changing: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }   
 
 impl ColorGradient {
@@ -267,11 +290,22 @@ impl ColorGradient {
             hue: 0.0,
             saturation: 0.0,
             value: 0.0,
+
+            on_changing: None,
         }
     }
 
     pub fn color(&self) -> Color {
-        Color::hsl(self.hue, self.saturation, self.value)
+        let (h, s, l) = hsv_to_hsl(self.hue as f64, self.saturation as f64, self.value as f64);
+        Color::hsl(h as f32, s as f32, l as f32)
+    }
+
+    pub fn on_changing<F>(mut self, callback: F) -> Self
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity),
+    {
+        self.on_changing = Some(Box::new(callback));
+        self
     }
 }
 
@@ -295,6 +329,13 @@ impl Widget for ColorGradient {
     }
     
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+
+
+        let visibility = state.data.get_visibility(entity);
+
+        if visibility == Visibility::Invisible {
+            return;
+        }
         
         if self.image.is_none() {
             let image_id = canvas
@@ -362,11 +403,18 @@ impl Widget for ColorGradient {
         }
     }
 
+    
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(color_picker_event) = event.message.downcast() {
             match color_picker_event {
                 ColorPickerEvent::HueChanged(val) => {
                     self.hue = *val;
+
+                    if let Some(callback) = self.on_changing.take() {
+                        (callback)(self, state, entity);
+
+                        self.on_changing = Some(callback);
+                    }
                 }
             }
         }
@@ -396,6 +444,12 @@ impl Widget for ColorGradient {
                             self.thumb.set_border_color(state, Color::black());
                         } else {
                             self.thumb.set_border_color(state, Color::white());
+                        }
+
+                        if let Some(callback) = self.on_changing.take() {
+                            (callback)(self, state, entity);
+    
+                            self.on_changing = Some(callback);
                         }
                     }
                 }
@@ -428,6 +482,12 @@ impl Widget for ColorGradient {
                             self.thumb.set_border_color(state, Color::black());
                         } else {
                             self.thumb.set_border_color(state, Color::white());
+                        }
+
+                        if let Some(callback) = self.on_changing.take() {
+                            (callback)(self, state, entity);
+    
+                            self.on_changing = Some(callback);
                         }
                     }
                 }

@@ -150,8 +150,8 @@ fn derive_struct(input: &syn::DeriveInput) -> Result<proc_macro2::TokenStream, s
                 type Source = #struct_type#ty_generics;
                 type Target = #field_ty;
 
-                fn view<'a>(&self, data: &'a#struct_type#ty_generics) -> &'a#field_ty {
-                    &data.#field_name
+                fn view<'a>(&self, data: &'a#struct_type#ty_generics) -> #field_ty {
+                    data.#field_name.clone()
                 }
             }
         }

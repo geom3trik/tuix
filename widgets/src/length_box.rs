@@ -23,6 +23,8 @@ pub struct LengthBox {
     pixels: f32,
     units: Units,
 
+    pixels_max: f32,
+
     // Dropdown Check Buttons
     check_auto: Entity,
     check_stretch: Entity,
@@ -47,6 +49,8 @@ impl LengthBox {
             pixels: 0.0,
             units: Units::Auto,
 
+            pixels_max: 20.0,
+
             check_auto: Entity::null(),
             check_stretch: Entity::null(),
             check_percentage: Entity::null(),
@@ -60,6 +64,12 @@ impl LengthBox {
     where F: 'static + Fn(&mut Self, &mut State, Entity)
     {
         self.on_changed = Some(Box::new(callback));
+
+        self
+    }
+
+    pub fn with_pixels_max(mut self, max: f32) -> Self {
+        self.pixels_max = max;
 
         self
     }
@@ -93,7 +103,7 @@ impl Widget for LengthBox {
 
         self.slider = Slider::new()
             .with_min(0.0)
-            .with_max(20.0)
+            .with_max(self.pixels_max)
             .on_changing(|data, state, slider|{
                 slider.emit(state, LengthBoxEvent::SetValue(data.value, true));
             })
@@ -246,15 +256,18 @@ impl Widget for LengthBox {
 
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        entity.emit(state, LengthBoxEvent::SetType(*data));
-        match data {
-            Units::Auto => {
-                entity.emit(state, LengthBoxEvent::SetValue(0.0, false));
-            }
-            Units::Stretch(val) | Units::Percentage(val) | Units::Pixels(val) => {
-                entity.emit(state, LengthBoxEvent::SetValue(*val, false));
+        if *data != self.value() {
+            entity.emit(state, LengthBoxEvent::SetType(*data));
+            match data {
+                Units::Auto => {
+                    entity.emit_to(state, entity, LengthBoxEvent::SetValue(0.0, false));
+                }
+                Units::Stretch(val) | Units::Percentage(val) | Units::Pixels(val) => {
+                    entity.emit_to(state, entity, LengthBoxEvent::SetValue(*val, false));
+                }
             }
         }
+
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -298,7 +311,7 @@ impl Widget for LengthBox {
                             self.pixels = *val;
                             entity.emit_to(state, self.dropdown, DropdownEvent::SetText("px".to_string()));
                             entity.emit_to(state, self.textbox, TextboxEvent::SetValue(format!("{:.0}px", val)));
-                            entity.emit_to(state, self.slider, SliderEvent::SetMax(20.0));
+                            entity.emit_to(state, self.slider, SliderEvent::SetMax(self.pixels_max));
                             entity.emit_to(state, self.slider, SliderEvent::SetValue(*val));
                             entity.emit_to(state, self.check_pixels, CheckboxEvent::Check);
                             self.slider.set_disabled(state, false);
@@ -310,30 +323,36 @@ impl Widget for LengthBox {
                             self.on_changed = Some(callback);
                         }
                     }
+
+                    event.consume();
                 }
 
                 LengthBoxEvent::SetType(units) => {
                     self.units = *units;
+
+                    event.consume();
                 }
 
                 LengthBoxEvent::Reset(flag) => {
                     match self.units {
                         Units::Auto => {
-                            entity.emit(state, LengthBoxEvent::SetValue(0.0, *flag));
+                            entity.emit_to(state, entity, LengthBoxEvent::SetValue(0.0, *flag));
                         }
 
                         Units::Stretch(_) => {
-                            entity.emit(state, LengthBoxEvent::SetValue(self.stretch, *flag));
+                            entity.emit_to(state, entity, LengthBoxEvent::SetValue(self.stretch, *flag));
                         }
 
                         Units::Percentage(_) => {
-                            entity.emit(state, LengthBoxEvent::SetValue(self.percentage, *flag));
+                            entity.emit_to(state, entity, LengthBoxEvent::SetValue(self.percentage, *flag));
                         }
 
                         Units::Pixels(_) => {
-                            entity.emit(state, LengthBoxEvent::SetValue(self.pixels, *flag));
+                            entity.emit_to(state, entity, LengthBoxEvent::SetValue(self.pixels, *flag));
                         }
                     }
+
+                    event.consume();
                 }
             }
         }

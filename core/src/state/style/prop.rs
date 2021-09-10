@@ -1,3 +1,4 @@
+use morphorm::GeometryChanged;
 use crate::{Message, State};
 use crate::{entity::Entity, Builder, EventHandler, Propagation};
 use crate::{state::style::*, AsEntity, Pos};
@@ -6,9 +7,29 @@ use crate::{Event, WindowEvent};
 
 use crate::state::tree::*;
 
-use morphorm::{LayoutType, PositionType, Units};
+use morphorm::{Cache, LayoutType, PositionType, Units};
 
 use std::rc::Rc;
+
+// Flag that the posx of the widget may need to update
+fn flag_geo_change(state: &mut State, entity: Entity) {
+    if let Some(parent) = entity.parent(&state.tree) {
+        if let Some(geo_changed) = state.data.geometry_changed.get_mut(parent.index_unchecked()) {
+            geo_changed.set(GeometryChanged::CHANGE_POSX, true);
+        }         
+    }
+
+    // if let Some(geo_changed) = state.data.geometry_changed.get_mut(entity.index_unchecked()) {
+    //     geo_changed.set(GeometryChanged::CHANGE_POSX, true);
+    // }
+
+}
+
+fn needs_redraw(state: &mut State, entity: Entity) {
+    if let Some(geo_changed) = state.data.geometry_changed.get_mut(entity.index_unchecked()) {
+        geo_changed.set(GeometryChanged::POSX_CHANGED, true);
+    }
+}
 
 pub trait PropSet: AsEntity + Sized {
 
@@ -17,14 +38,14 @@ pub trait PropSet: AsEntity + Sized {
     where
         Self: 'static,
     {
-        state.insert_event(Event::new(message).target(self.entity()).origin(self.entity()));
+        state.insert_event(Event::new(message).target(self.entity()).origin(self.entity()).propagate(Propagation::Up));
 
         self.entity()
     }
 
     /// Helper method for sending an event to target with default propagation
     fn emit_to(&self, state: &mut State, target: Entity, message: impl Message) -> Entity {
-        state.insert_event(Event::new(message).target(target).origin(self.entity()));
+        state.insert_event(Event::new(message).target(target).origin(self.entity()).propagate(Propagation::Direct));
 
         self.entity()
     }
@@ -49,6 +70,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        ////flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -68,6 +91,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        ////flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -79,6 +104,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        ////flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -92,6 +119,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        ////flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -103,6 +132,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -116,6 +147,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -128,6 +161,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -135,6 +170,8 @@ pub trait PropSet: AsEntity + Sized {
     fn set_element(self, state: &mut State, value: &str) -> Entity {
 
         state.style.elements.insert(self.entity(), value.to_string());
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -152,6 +189,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -194,6 +233,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -247,6 +288,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+
+
         self.entity()
     }
 
@@ -259,14 +302,18 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
         self.entity()
     } 
 
     fn set_left(self, state: &mut State, value: Units) -> Entity {
+        //println!("Set Left {} {} {:?}", self.entity(), state.style.elements.get(self.entity()).cloned().unwrap_or_default(), value);
         state.style.left.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -277,6 +324,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -286,6 +335,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -294,6 +345,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -305,6 +358,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -313,6 +368,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -323,6 +380,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -331,6 +390,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -341,6 +402,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -349,6 +412,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -359,6 +424,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -368,24 +435,32 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
     // Size
     fn set_width(self, state: &mut State, value: Units) -> Entity {
+        
         state.style.width.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
     fn set_height(self, state: &mut State, value: Units) -> Entity {
+        //println!("Set Height: {} {:?}", self.entity(), value);
         state.style.height.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -397,6 +472,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -405,6 +482,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -415,6 +494,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -423,6 +504,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -475,6 +558,8 @@ pub trait PropSet: AsEntity + Sized {
         state.style.background_color.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        needs_redraw(state, self.entity());
 
         self.entity()
     }
@@ -624,6 +709,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -636,6 +723,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -644,6 +733,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -654,6 +745,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -662,6 +755,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -672,6 +767,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -680,6 +777,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -690,6 +789,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -698,6 +799,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -708,6 +811,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -716,6 +821,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -726,6 +833,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -735,6 +844,8 @@ pub trait PropSet: AsEntity + Sized {
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
+        //flag_geo_change(state, self.entity());
+
         self.entity()
     }
 
@@ -743,6 +854,8 @@ pub trait PropSet: AsEntity + Sized {
 
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        
+        //flag_geo_change(state, self.entity());
 
         self
     }
