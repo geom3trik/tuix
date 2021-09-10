@@ -724,6 +724,7 @@ impl Widget for ScrollContainer {
                 }
 
                 WindowEvent::MouseDown(button) => match button {
+                    
                     MouseButton::Left => {
                         if state.hovered == self.vertical_scroll {
                             //println!("Clicked on scrollbar");
@@ -739,6 +740,7 @@ impl Widget for ScrollContainer {
                             //self.position = state.data.get_posy(self.vertical_scroll);
                             self.position = self.scroll.scroll_pos;
                             state.capture(entity);
+                            //event.consume();
                         }
                     }
                     _ => {}
@@ -748,12 +750,14 @@ impl Widget for ScrollContainer {
                     MouseButton::Left => {
                         self.moving = false;
                         state.release(entity);
+                        //event.consume();
                     }
 
                     _ => {}
                 },
 
                 WindowEvent::MouseMove(_, y) => {
+                    
                     if self.moving {
                         let dist_y = *y - self.pressedy;
                         let scroll_bar_overflow = state.data.get_height(entity)
