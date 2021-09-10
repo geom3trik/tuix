@@ -372,7 +372,7 @@ pub trait Widget: std::marker::Sized + 'static {
                 path.line_to(bounds.x + border_radius_bottom_left, bounds.y + bounds.h);
                 path.line_to(bounds.x, bounds.y + bounds.h - border_radius_bottom_left);
                 path.line_to(bounds.x, bounds.y + border_radius_top_left);
-                path.line_to(bounds.x + border_radius_top_left, bounds.y);
+                path.close()
             }
         }
 
