@@ -589,6 +589,14 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    fn set_border_corner_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
+        state.style.border_corner_shape.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
     // Border Radius
     fn set_border_radius(self, state: &mut State, value: Units) -> Entity {
         state.style.border_radius_top_left.insert(self.entity(), value);

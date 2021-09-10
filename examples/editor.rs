@@ -55,7 +55,12 @@ const STYLE: &str = r#"
         color: #909090;
     }
 
+    dropdown.corner popup {
+        width: 1s;
+    }
+
     popup {
+        width: 100px;
         background-color: #404040;
         outer-shadow: 0px 2px 5px #40000000;
     }
@@ -64,6 +69,7 @@ const STYLE: &str = r#"
     list {
         border-width: 1px;
         border-color: #404040;
+        width: 1s;
     }
 
     list>check_button {
@@ -153,6 +159,7 @@ pub enum AppEvent {
     SetBorderRadiusTopRight(Units),
     SetBorderRadiusBottomLeft(Units),
     SetBorderRadiusBottomRight(Units),
+    SetBorderCornerShape(BorderCornerShape),
     // Background
     SetBackgroundColor(Color),
 }
@@ -177,6 +184,7 @@ pub struct StyleData {
     pub background_color: Color,
     // Border
     pub border_width: Units,
+    pub border_corner_shape: BorderCornerShape,
     pub border_radius: Units,
     pub border_radius_top_left: Units,
     pub border_radius_top_right: Units,
@@ -259,6 +267,11 @@ impl Model for AppData {
                     entity.emit(state, BindEvent::Update);
                 }
 
+                AppEvent::SetBorderCornerShape(shape) => {
+                    self.style_data.border_corner_shape = *shape;
+                    entity.emit(state, BindEvent::Update);
+                }
+
                 AppEvent::SetBorderRadius(val) => {
                     self.style_data.border_radius = *val;
                     self.style_data.border_radius_top_left = *val;
@@ -317,6 +330,7 @@ impl Widget for App {
                 builder
                     //.set_background_color(Color::red())
             );
+
         StyleControls::default().build(state, row, |builder| 
             builder
                 .set_background_color(Color::rgb(56,56,56))
@@ -399,6 +413,7 @@ impl Widget for Canvas {
             .set_top(state, data.top)
             .set_bottom(state, data.bottom)
             //Border
+            .set_border_corner_shape(state, data.border_corner_shape)
             .set_border_width(state, data.border_width)
             .set_border_radius_top_left(state, data.border_radius_top_left)
             .set_border_radius_top_right(state, data.border_radius_top_right)
@@ -517,13 +532,54 @@ impl Widget for StyleControls {
             })
             .build(state, border_panel, |builder| builder);
 
-
         let (border_radius_panel, border_radius_panel_header) = Panel::new("")
             .build(state, border_panel, |builder| 
                 builder
                     .class("group")
             );
+
+        let dropdown = Dropdown::new("Test")
+            .build(state, border_radius_panel, |builder| {
+                builder
+                    .set_height(Pixels(30.0))
+                    .class("corner")
+            });
+
+        //dropdown.set_width(state, Percentage(100.0));
+
+
+        // Spacer
+        Element::new().build(state, dropdown, |builder| 
+            builder
+                .set_height(Pixels(5.0))
+        );
+
+        CheckButton::with_label("Round")
+            .set_checked(true)
+            .on_checked(|_, state, button|{
+                button.emit(state, AppEvent::SetBorderCornerShape(BorderCornerShape::Round));
+                button.emit(state, PopupEvent::Close);
+                button.emit(state, DropdownEvent::SetText("Round".to_string()));
+            })
+            .build(state, dropdown, |builder| 
+                builder
+            );
+
+        CheckButton::with_label("Bevel")
+            .on_checked(|_, state, button|{
+                button.emit(state, AppEvent::SetBorderCornerShape(BorderCornerShape::Bevel));
+                button.emit(state, PopupEvent::Close);
+                button.emit(state, DropdownEvent::SetText("Bevel".to_string()));
+            })
+            .build(state, dropdown, |builder| 
+                builder
+            );
         
+        Element::new().build(state, dropdown, |builder| 
+            builder
+                .set_height(Pixels(5.0))
+        );
+
         LengthBox::new("Border Radius")
             .on_changed(|data, state, lengthbox|{
                 lengthbox.emit(state, AppEvent::SetBorderRadius(data.value()));      

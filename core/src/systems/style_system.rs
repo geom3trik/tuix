@@ -338,6 +338,10 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
             should_redraw = true;
         }
 
+        if state.style.border_corner_shape.link_rule(entity, &matched_rules) {
+            should_redraw = true;
+        }
+
         if state
             .style
             .border_radius_top_left

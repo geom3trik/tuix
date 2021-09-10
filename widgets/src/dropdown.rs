@@ -141,7 +141,7 @@ impl Widget for Dropdown {
             builder
                 .set_position_type(PositionType::SelfDirected)
                 .set_top(Percentage(100.0))
-                .set_width(Auto)
+                //.set_width(Auto)
                 .set_height(Auto)
                 .set_z_order(1)
                 .set_clip_widget(Entity::root())

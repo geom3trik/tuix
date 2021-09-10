@@ -118,6 +118,7 @@ pub struct Style {
     pub border_color: AnimatableStorage<Color>,
 
     // Border Radius
+    pub border_corner_shape: StyleStorage<BorderCornerShape>,
     pub border_radius_top_left: AnimatableStorage<Units>,
     pub border_radius_top_right: AnimatableStorage<Units>,
     pub border_radius_bottom_left: AnimatableStorage<Units>,
@@ -361,6 +362,10 @@ impl Style {
 
                     Property::BorderColor(value) => {
                         self.border_color.insert_rule(rule_id, value);
+                    }
+
+                    Property::BorderCornerShape(shape) => {
+                        self.border_corner_shape.insert_rule(rule_id, shape);
                     }
 
                     // Border Radius

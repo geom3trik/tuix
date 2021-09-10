@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, Entity, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
+use crate::{AsEntity, BorderCornerShape, Entity, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
 use femtovg::{BlendFactor, CompositeOperation};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
@@ -123,6 +123,13 @@ pub trait Widget: std::marker::Sized + 'static {
 
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
+
+        let border_corner_shape = state
+            .style
+            .border_corner_shape
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
 
         let border_radius_top_left = match state
             .style
@@ -329,28 +336,44 @@ pub trait Widget: std::marker::Sized + 'static {
 
         let mut path = Path::new();
 
-        if border_radius_bottom_left == (bounds.w - 2.0 * border_width) / 2.0
-            && border_radius_bottom_right == (bounds.w - 2.0 * border_width) / 2.0
-            && border_radius_top_left == (bounds.w - 2.0 * border_width) / 2.0
-            && border_radius_top_right == (bounds.w - 2.0 * border_width) / 2.0
-        {
-            path.circle(
-                bounds.x + (border_width / 2.0) + (bounds.w - border_width) / 2.0,
-                bounds.y + (border_width / 2.0) + (bounds.h - border_width) / 2.0,
-                bounds.w / 2.0,
-            );
-        } else {
-            // Draw rounded rect
-            path.rounded_rect_varying(
-                bounds.x + (border_width / 2.0),
-                bounds.y + (border_width / 2.0),
-                bounds.w - border_width,
-                bounds.h - border_width,
-                border_radius_top_left,
-                border_radius_top_right,
-                border_radius_bottom_right,
-                border_radius_bottom_left,
-            );
+        match border_corner_shape {
+            BorderCornerShape::Round => {
+                if border_radius_bottom_left == (bounds.w - 2.0 * border_width) / 2.0
+                    && border_radius_bottom_right == (bounds.w - 2.0 * border_width) / 2.0
+                    && border_radius_top_left == (bounds.w - 2.0 * border_width) / 2.0
+                    && border_radius_top_right == (bounds.w - 2.0 * border_width) / 2.0
+                {
+                    path.circle(
+                        bounds.x + (border_width / 2.0) + (bounds.w - border_width) / 2.0,
+                        bounds.y + (border_width / 2.0) + (bounds.h - border_width) / 2.0,
+                        bounds.w / 2.0,
+                    );
+                } else {
+                    // Draw rounded rect
+                    path.rounded_rect_varying(
+                        bounds.x + (border_width / 2.0),
+                        bounds.y + (border_width / 2.0),
+                        bounds.w - border_width,
+                        bounds.h - border_width,
+                        border_radius_top_left,
+                        border_radius_top_right,
+                        border_radius_bottom_right,
+                        border_radius_bottom_left,
+                    );
+                }
+            }
+
+            BorderCornerShape::Bevel => {
+                path.move_to(bounds.x + border_radius_top_left, bounds.y);
+                path.line_to(bounds.x + bounds.w - border_radius_top_right, bounds.y);
+                path.line_to(bounds.x + bounds.w, bounds.y + border_radius_top_right);
+                path.line_to(bounds.x + bounds.w, bounds.y + bounds.h - border_radius_bottom_right);
+                path.line_to(bounds.x + bounds.w - border_radius_bottom_right, bounds.y + bounds.h);
+                path.line_to(bounds.x + border_radius_bottom_left, bounds.y + bounds.h);
+                path.line_to(bounds.x, bounds.y + bounds.h - border_radius_bottom_left);
+                path.line_to(bounds.x, bounds.y + border_radius_top_left);
+                path.line_to(bounds.x + border_radius_top_left, bounds.y);
+            }
         }
 
         // Fill with background color

@@ -407,6 +407,12 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
+    pub fn set_border_corner_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_corner_shape.insert(self.entity, value);
+
+        self
+    }
+
     pub fn set_border_radius(mut self, value: Units) -> Self {
         self.state
             .style
