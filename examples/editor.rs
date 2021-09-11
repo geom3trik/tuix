@@ -17,11 +17,8 @@ const STYLE: &str = r#"
 
     panel .container2 {
         child-space: 10px;
+        child-right: 0px;
         row-between: 10px;
-    }
-
-    panel.group {
-        right: 10px;
     }
 
     panel.group .container2 {
@@ -48,6 +45,7 @@ const STYLE: &str = r#"
     
     dropdown .label {
         child-space: 1s;
+        child-left: 5px;
         color: whte;
     }
 
@@ -60,7 +58,7 @@ const STYLE: &str = r#"
     }
 
     popup {
-        width: 100px;
+        width: 80px;
         background-color: #404040;
         outer-shadow: 0px 2px 5px #40000000;
     }
@@ -75,6 +73,7 @@ const STYLE: &str = r#"
     list>check_button {
         height: 30px;
         child-space: 1s;
+        child-left: 5px;
         background-color: #404040;
         color: white;
     }
@@ -106,6 +105,21 @@ const STYLE: &str = r#"
 
     slider>.thumb {
         width: 0px;
+    }
+
+    scroll_container>.scrollbar {
+        background-color: #464646;
+        width: 10px;
+    }
+
+    scroll_container:enabled>.scrollbar {
+        width: 10px;
+        transition: width 0.1 0.0;
+    }
+
+    scroll_container:disabled>.scrollbar {
+        width: 0px;
+        transition: width 0.1 0.0;
     }
 
 "#;
@@ -159,7 +173,11 @@ pub enum AppEvent {
     SetBorderRadiusTopRight(Units),
     SetBorderRadiusBottomLeft(Units),
     SetBorderRadiusBottomRight(Units),
-    SetBorderCornerShape(BorderCornerShape),
+    SetBorderShape(BorderCornerShape),
+    SetBorderTopLeftShape(BorderCornerShape),
+    SetBorderTopRightShape(BorderCornerShape),
+    SetBorderBottomLeftShape(BorderCornerShape),
+    SetBorderBottomRightShape(BorderCornerShape),
     // Background
     SetBackgroundColor(Color),
 }
@@ -184,7 +202,13 @@ pub struct StyleData {
     pub background_color: Color,
     // Border
     pub border_width: Units,
-    pub border_corner_shape: BorderCornerShape,
+
+    pub border_shape: BorderCornerShape,
+    pub border_top_left_shape: BorderCornerShape,
+    pub border_top_right_shape: BorderCornerShape,
+    pub border_bottom_left_shape: BorderCornerShape,
+    pub border_bottom_right_shape: BorderCornerShape,
+
     pub border_radius: Units,
     pub border_radius_top_left: Units,
     pub border_radius_top_right: Units,
@@ -267,8 +291,28 @@ impl Model for AppData {
                     entity.emit(state, BindEvent::Update);
                 }
 
-                AppEvent::SetBorderCornerShape(shape) => {
-                    self.style_data.border_corner_shape = *shape;
+                AppEvent::SetBorderShape(shape) => {
+                    self.style_data.border_shape = *shape;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetBorderTopLeftShape(shape) => {
+                    self.style_data.border_top_left_shape = *shape;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetBorderTopRightShape(shape) => {
+                    self.style_data.border_top_right_shape = *shape;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetBorderBottomLeftShape(shape) => {
+                    self.style_data.border_bottom_left_shape = *shape;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetBorderBottomRightShape(shape) => {
+                    self.style_data.border_bottom_right_shape = *shape;
                     entity.emit(state, BindEvent::Update);
                 }
 
@@ -334,8 +378,6 @@ impl Widget for App {
         StyleControls::default().build(state, row, |builder| 
             builder
                 .set_background_color(Color::rgb(56,56,56))
-                .set_child_space(Pixels(10.0))
-                .set_row_between(Pixels(10.0))
         );
 
         self.color_picker = PopupWindow::new("Window Title").build(state, entity, |builder| 
@@ -413,7 +455,11 @@ impl Widget for Canvas {
             .set_top(state, data.top)
             .set_bottom(state, data.bottom)
             //Border
-            .set_border_corner_shape(state, data.border_corner_shape)
+            .set_border_top_left_shape(state, data.border_top_left_shape)
+            .set_border_top_right_shape(state, data.border_top_right_shape)
+            .set_border_bottom_left_shape(state, data.border_bottom_left_shape)
+            .set_border_bottom_right_shape(state, data.border_bottom_right_shape)
+
             .set_border_width(state, data.border_width)
             .set_border_radius_top_left(state, data.border_radius_top_left)
             .set_border_radius_top_right(state, data.border_radius_top_right)
@@ -432,8 +478,18 @@ impl Widget for StyleControls {
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
+        let scroll = ScrollContainer::new()
+            .build(state, entity, |builder| 
+                builder 
+            );
 
-        let (background_panel) = Panel::new("Background").build(state, entity, |builder| 
+        scroll
+            .set_child_right(state, Pixels(10.0))
+            .set_child_space(state, Pixels(10.0))
+            .set_row_between(state, Pixels(10.0));
+
+
+        let (background_panel) = Panel::new("Background").build(state, scroll, |builder| 
             builder
         );
 
@@ -449,7 +505,7 @@ impl Widget for StyleControls {
             })
             .build(state, row, |builder| builder.set_background_color(Color::black()));
 
-        let (size_panel, size_panel_header) = Panel::new("").build(state, entity, |builder| 
+        let (size_panel, size_panel_header) = Panel::new("").build(state, scroll, |builder| 
             builder
                 .class("group")
         );
@@ -480,7 +536,7 @@ impl Widget for StyleControls {
 
         
         let (space_panel, space_panel_header) = Panel::new("")
-            .build(state, entity, |builder| 
+            .build(state, scroll, |builder| 
                 builder
                     .class("group")
             );
@@ -521,8 +577,9 @@ impl Widget for StyleControls {
                 .build(state, space_panel, |builder| builder);
     
         
-        let border_panel = Panel::new("Border").build(state, entity, |builder| 
+        let border_panel = Panel::new("Border").build(state, scroll, |builder| 
             builder
+                //.class("group")
                 //.set_background_color(Color::blue())
         );
 
@@ -538,46 +595,10 @@ impl Widget for StyleControls {
                     .class("group")
             );
 
-        let dropdown = Dropdown::new("Test")
-            .build(state, border_radius_panel, |builder| {
-                builder
-                    .set_height(Pixels(30.0))
-                    .class("corner")
-            });
-
-        //dropdown.set_width(state, Percentage(100.0));
-
-
-        // Spacer
-        Element::new().build(state, dropdown, |builder| 
+        let row = Row::new().build(state, border_radius_panel_header, |builder| 
             builder
-                .set_height(Pixels(5.0))
-        );
-
-        CheckButton::with_label("Round")
-            .set_checked(true)
-            .on_checked(|_, state, button|{
-                button.emit(state, AppEvent::SetBorderCornerShape(BorderCornerShape::Round));
-                button.emit(state, PopupEvent::Close);
-                button.emit(state, DropdownEvent::SetText("Round".to_string()));
-            })
-            .build(state, dropdown, |builder| 
-                builder
-            );
-
-        CheckButton::with_label("Bevel")
-            .on_checked(|_, state, button|{
-                button.emit(state, AppEvent::SetBorderCornerShape(BorderCornerShape::Bevel));
-                button.emit(state, PopupEvent::Close);
-                button.emit(state, DropdownEvent::SetText("Bevel".to_string()));
-            })
-            .build(state, dropdown, |builder| 
-                builder
-            );
-        
-        Element::new().build(state, dropdown, |builder| 
-            builder
-                .set_height(Pixels(5.0))
+                .set_col_between(Pixels(10.0))
+                .set_height(Auto)
         );
 
         LengthBox::new("Border Radius")
@@ -585,36 +606,134 @@ impl Widget for StyleControls {
                 lengthbox.emit(state, AppEvent::SetBorderRadius(data.value()));      
             })
             .bind(AppData::style_data.then(StyleData::border_radius), |val| *val)
-            .build(state, border_radius_panel_header, |builder| builder);
+            .build(state, row, |builder| builder);
+
+        border_shape_dropdown(state, row, Corner::All);
+
+        let row = Row::new().build(state, border_radius_panel, |builder| 
+            builder
+                .set_col_between(Pixels(10.0))
+                .set_height(Auto)
+        );
 
         LengthBox::new("Top Left")
             .on_changed(|data, state, lengthbox|{
                 lengthbox.emit(state, AppEvent::SetBorderRadiusTopLeft(data.value()));      
             })
             .bind(AppData::style_data.then(StyleData::border_radius_top_left), |val| *val)
-            .build(state, border_radius_panel, |builder| builder);
+            .build(state, row, |builder| builder);
+        
+        border_shape_dropdown(state, row, Corner::TopLeft);
+
+        let row = Row::new().build(state, border_radius_panel, |builder| 
+            builder
+                .set_col_between(Pixels(10.0))
+                .set_height(Auto)
+        );
 
         LengthBox::new("Top Right")
             .on_changed(|data, state, lengthbox|{
                 lengthbox.emit(state, AppEvent::SetBorderRadiusTopRight(data.value()));      
             })
             .bind(AppData::style_data.then(StyleData::border_radius_top_right), |val| *val)
-            .build(state, border_radius_panel, |builder| builder);
+            .build(state, row, |builder| builder);
+        
+        border_shape_dropdown(state, row, Corner::TopRight);
+
+        let row = Row::new().build(state, border_radius_panel, |builder| 
+            builder
+                .set_col_between(Pixels(10.0))
+                .set_height(Auto)
+        );
 
         LengthBox::new("Bottom Left")
             .on_changed(|data, state, lengthbox|{
                 lengthbox.emit(state, AppEvent::SetBorderRadiusBottomLeft(data.value()));      
             })
             .bind(AppData::style_data.then(StyleData::border_radius_bottom_left), |val| *val)
-            .build(state, border_radius_panel, |builder| builder);
-            
+            .build(state, row, |builder| builder);
+    
+        border_shape_dropdown(state, row, Corner::BottomLeft);
+
+        let row = Row::new().build(state, border_radius_panel, |builder| 
+            builder
+                .set_col_between(Pixels(10.0))
+                .set_height(Auto)
+        );
+
         LengthBox::new("Bottom Right")
                 .on_changed(|data, state, lengthbox|{
                     lengthbox.emit(state, AppEvent::SetBorderRadiusBottomRight(data.value()));      
                 })
                 .bind(AppData::style_data.then(StyleData::border_radius_bottom_right), |val| *val)
-                .build(state, border_radius_panel, |builder| builder);
+                .build(state, row, |builder| builder);
 
-        entity.set_width(state, Pixels(300.0))
+        border_shape_dropdown(state, row, Corner::BottomRight);
+
+        entity.set_width(state, Pixels(500.0))
     }
+}
+
+enum Corner {
+    All,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight,
+}
+
+fn border_shape_dropdown(state: &mut State, parent: Entity, corner: Corner) {
+
+    let (round, bevel) = match corner {
+
+        Corner::All => {
+            (AppEvent::SetBorderShape(BorderCornerShape::Round), AppEvent::SetBorderShape(BorderCornerShape::Bevel))
+        }
+
+        Corner::TopLeft => {
+            (AppEvent::SetBorderTopLeftShape(BorderCornerShape::Round), AppEvent::SetBorderTopLeftShape(BorderCornerShape::Bevel))
+        }
+
+        Corner::TopRight => {
+            (AppEvent::SetBorderTopRightShape(BorderCornerShape::Round), AppEvent::SetBorderTopRightShape(BorderCornerShape::Bevel))
+        }
+
+        Corner::BottomLeft => {
+            (AppEvent::SetBorderBottomLeftShape(BorderCornerShape::Round), AppEvent::SetBorderBottomLeftShape(BorderCornerShape::Bevel))
+        }
+
+        Corner::BottomRight => {
+            (AppEvent::SetBorderBottomRightShape(BorderCornerShape::Round), AppEvent::SetBorderBottomRightShape(BorderCornerShape::Bevel))
+        }
+    };
+
+    let dropdown = Dropdown::new("Test")
+        .build(state, parent, |builder| {
+            builder
+                .set_width(Pixels(80.0))
+                .set_height(Pixels(30.0))
+                .class("corner")
+        });
+
+    // Spacer
+    CheckButton::with_label("Round")
+        .set_checked(true)
+        .on_checked(move |_, state, button|{
+            button.emit(state, round.clone());
+            button.emit(state, PopupEvent::Close);
+            button.emit(state, DropdownEvent::SetText("Round".to_string()));
+        })
+        .build(state, dropdown, |builder| 
+            builder
+        );
+
+    CheckButton::with_label("Bevel")
+        .on_checked(move |_, state, button|{
+            button.emit(state, bevel.clone());
+            button.emit(state, PopupEvent::Close);
+            button.emit(state, DropdownEvent::SetText("Bevel".to_string()));
+        })
+        .build(state, dropdown, |builder| 
+            builder
+        );
 }

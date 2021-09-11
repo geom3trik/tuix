@@ -408,7 +408,34 @@ impl<'a,T> Builder<'a,T> {
     }
 
     pub fn set_border_corner_shape(mut self, value: BorderCornerShape) -> Self {
-        self.state.style.border_corner_shape.insert(self.entity, value);
+        self.state.style.border_shape_top_left.insert(self.entity, value);
+        self.state.style.border_shape_top_right.insert(self.entity, value);
+        self.state.style.border_shape_bottom_left.insert(self.entity, value);
+        self.state.style.border_shape_bottom_right.insert(self.entity, value);
+
+        self
+    }
+
+    pub fn set_border_top_left_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_shape_top_left.insert(self.entity, value);
+
+        self
+    }
+
+    pub fn set_border_top_right_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_shape_top_right.insert(self.entity, value);
+
+        self
+    }
+
+    pub fn set_border_bottom_left_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_shape_bottom_left.insert(self.entity, value);
+
+        self
+    }
+
+    pub fn set_border_bottom_right_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_shape_bottom_right.insert(self.entity, value);
 
         self
     }

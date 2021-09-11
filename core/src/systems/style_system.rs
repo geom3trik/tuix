@@ -338,7 +338,19 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
             should_redraw = true;
         }
 
-        if state.style.border_corner_shape.link_rule(entity, &matched_rules) {
+        if state.style.border_shape_top_left.link_rule(entity, &matched_rules) {
+            should_redraw = true;
+        }
+
+        if state.style.border_shape_top_right.link_rule(entity, &matched_rules) {
+            should_redraw = true;
+        }
+
+        if state.style.border_shape_bottom_left.link_rule(entity, &matched_rules) {
+            should_redraw = true;
+        }
+
+        if state.style.border_shape_bottom_right.link_rule(entity, &matched_rules) {
             should_redraw = true;
         }
 

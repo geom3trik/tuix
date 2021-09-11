@@ -178,7 +178,8 @@ impl Widget for CheckButton {
                                 state.insert_event(
                                     Event::new(CheckboxEvent::Switch)
                                         .target(entity)
-                                        .origin(entity),
+                                        .origin(entity)
+                                        .propagate(Propagation::Direct),
                                 );
                             }
                         }

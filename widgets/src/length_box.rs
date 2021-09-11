@@ -173,20 +173,20 @@ impl Widget for LengthBox {
         })
         .build(state, entity, |builder| 
             builder
-                .set_width(Pixels(60.0))
+                .set_width(Pixels(80.0))
                 .set_child_space(Stretch(1.0))
         );
 
         self.dropdown = Dropdown::new("-")
             .build(state, entity, |builder| {
                 builder
-                    .set_width(Pixels(60.0))
-                    .set_child_left(Stretch(1.0))
+                    .set_width(Pixels(80.0))
+                    .set_child_left(Pixels(0.0))
                     .set_child_right(Pixels(0.0))
                     .class("unit")
             });
 
-        self.dropdown.set_width(state, Pixels(100.0));
+        self.dropdown.set_width(state, Pixels(80.0));
 
 
         
@@ -214,6 +214,7 @@ impl Widget for LengthBox {
                 button.emit(state, LengthBoxEvent::SetType(Units::Stretch(0.0)));
                 button.emit(state, LengthBoxEvent::Reset(true));
                 button.emit(state, PopupEvent::Close);
+                button.emit(state, DropdownEvent::SetText("-".to_string()));
             })
             .build(state, self.dropdown, |builder| 
                 builder
@@ -225,6 +226,7 @@ impl Widget for LengthBox {
                 button.emit(state, LengthBoxEvent::SetType(Units::Percentage(0.0)));
                 button.emit(state, LengthBoxEvent::Reset(true));
                 button.emit(state, PopupEvent::Close);
+                button.emit(state, DropdownEvent::SetText("%".to_string()));
             })
             .build(state, self.dropdown, |builder| 
                 builder
@@ -236,6 +238,7 @@ impl Widget for LengthBox {
                 button.emit(state, LengthBoxEvent::SetType(Units::Pixels(0.0)));
                 button.emit(state, LengthBoxEvent::Reset(true));
                 button.emit(state, PopupEvent::Close);
+                button.emit(state, DropdownEvent::SetText("px".to_string()));
             })
             .build(state, self.dropdown, |builder| 
                 builder
@@ -265,6 +268,8 @@ impl Widget for LengthBox {
                 Units::Stretch(val) | Units::Percentage(val) | Units::Pixels(val) => {
                     entity.emit_to(state, entity, LengthBoxEvent::SetValue(*val, false));
                 }
+
+
             }
         }
 
@@ -280,7 +285,8 @@ impl Widget for LengthBox {
                             entity.emit_to(state, self.dropdown, DropdownEvent::SetText("-".to_string()));
                             entity.emit_to(state, self.textbox, TextboxEvent::SetValue("auto".to_string()));
                             entity.emit_to(state, self.slider, SliderEvent::SetValue(0.0));
-                            entity.emit_to(state, self.check_auto, CheckboxEvent::Check);
+                            self.check_auto.emit(state, CheckboxEvent::Check);
+                            self.check_auto.emit(state, DropdownEvent::SetText("auto".to_string()));
                             self.slider.set_disabled(state, true);
 
                         }
@@ -291,7 +297,8 @@ impl Widget for LengthBox {
                             entity.emit_to(state, self.textbox, TextboxEvent::SetValue(format!("{:.0}s", val)));
                             entity.emit_to(state, self.slider, SliderEvent::SetMax(10.0));
                             entity.emit_to(state, self.slider, SliderEvent::SetValue(*val));
-                            entity.emit_to(state, self.check_stretch, CheckboxEvent::Check);
+                            self.check_stretch.emit(state, CheckboxEvent::Check);
+                            self.check_stretch.emit(state, DropdownEvent::SetText("stretch".to_string()));
                             self.slider.set_disabled(state, false);
 
                         }
@@ -302,7 +309,8 @@ impl Widget for LengthBox {
                             entity.emit_to(state, self.textbox, TextboxEvent::SetValue(format!("{:.0}%", val)));
                             entity.emit_to(state, self.slider, SliderEvent::SetMax(100.0));
                             entity.emit_to(state, self.slider, SliderEvent::SetValue(*val));
-                            entity.emit_to(state, self.check_percentage, CheckboxEvent::Check);
+                            self.check_percentage.emit(state, CheckboxEvent::Check);
+                            self.check_percentage.emit(state, DropdownEvent::SetText("%".to_string()));
                             self.slider.set_disabled(state, false);
 
                         }
@@ -313,7 +321,8 @@ impl Widget for LengthBox {
                             entity.emit_to(state, self.textbox, TextboxEvent::SetValue(format!("{:.0}px", val)));
                             entity.emit_to(state, self.slider, SliderEvent::SetMax(self.pixels_max));
                             entity.emit_to(state, self.slider, SliderEvent::SetValue(*val));
-                            entity.emit_to(state, self.check_pixels, CheckboxEvent::Check);
+                            self.check_pixels.emit(state, CheckboxEvent::Check);
+                            self.check_pixels.emit(state, DropdownEvent::SetText("px".to_string()));
                             self.slider.set_disabled(state, false);
                         }
                     }

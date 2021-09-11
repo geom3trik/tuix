@@ -14,6 +14,11 @@ use fnv::FnvHashMap;
 pub type Canvas = femtovg::Canvas<OpenGl>;
 
 use std::any::Any;
+
+
+// Length proportional to radius of a cubic bezier handle for 90deg arcs.
+const KAPPA90: f32 = 0.5522847493;
+
 pub trait Widget: std::marker::Sized + 'static {
     type Ret;
     type Data: Node;
@@ -124,9 +129,30 @@ pub trait Widget: std::marker::Sized + 'static {
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
 
-        let border_corner_shape = state
+        let border_shape_top_left = state
             .style
-            .border_corner_shape
+            .border_shape_top_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let border_shape_top_right = state
+            .style
+            .border_shape_top_right
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let border_shape_bottom_left = state
+            .style
+            .border_shape_bottom_left
+            .get(entity)
+            .cloned()
+            .unwrap_or_default();
+
+        let border_shape_bottom_right = state
+            .style
+            .border_shape_bottom_right
             .get(entity)
             .cloned()
             .unwrap_or_default();
@@ -336,45 +362,80 @@ pub trait Widget: std::marker::Sized + 'static {
 
         let mut path = Path::new();
 
-        match border_corner_shape {
-            BorderCornerShape::Round => {
-                if border_radius_bottom_left == (bounds.w - 2.0 * border_width) / 2.0
-                    && border_radius_bottom_right == (bounds.w - 2.0 * border_width) / 2.0
-                    && border_radius_top_left == (bounds.w - 2.0 * border_width) / 2.0
-                    && border_radius_top_right == (bounds.w - 2.0 * border_width) / 2.0
-                {
-                    path.circle(
-                        bounds.x + (border_width / 2.0) + (bounds.w - border_width) / 2.0,
-                        bounds.y + (border_width / 2.0) + (bounds.h - border_width) / 2.0,
-                        bounds.w / 2.0,
-                    );
-                } else {
-                    // Draw rounded rect
-                    path.rounded_rect_varying(
-                        bounds.x + (border_width / 2.0),
-                        bounds.y + (border_width / 2.0),
-                        bounds.w - border_width,
-                        bounds.h - border_width,
-                        border_radius_top_left,
-                        border_radius_top_right,
-                        border_radius_bottom_right,
-                        border_radius_bottom_left,
-                    );
-                }
-            }
+        if border_radius_bottom_left == (bounds.w - 2.0 * border_width) / 2.0
+            && border_radius_bottom_right == (bounds.w - 2.0 * border_width) / 2.0
+            && border_radius_top_left == (bounds.w - 2.0 * border_width) / 2.0
+            && border_radius_top_right == (bounds.w - 2.0 * border_width) / 2.0
+        {
+            path.circle(
+                bounds.x + (border_width / 2.0) + (bounds.w - border_width) / 2.0,
+                bounds.y + (border_width / 2.0) + (bounds.h - border_width) / 2.0,
+                bounds.w / 2.0,
+            );
+        } else {
+            // Draw rounded rect
+            // path.rounded_rect_varying(
+            //     bounds.x + (border_width / 2.0),
+            //     bounds.y + (border_width / 2.0),
+            //     bounds.w - border_width,
+            //     bounds.h - border_width,
+            //     border_radius_top_left,
+            //     border_radius_top_right,
+            //     border_radius_bottom_right,
+            //     border_radius_bottom_left,
+            // );
 
-            BorderCornerShape::Bevel => {
-                path.move_to(bounds.x + border_radius_top_left, bounds.y);
-                path.line_to(bounds.x + bounds.w - border_radius_top_right, bounds.y);
-                path.line_to(bounds.x + bounds.w, bounds.y + border_radius_top_right);
-                path.line_to(bounds.x + bounds.w, bounds.y + bounds.h - border_radius_bottom_right);
-                path.line_to(bounds.x + bounds.w - border_radius_bottom_right, bounds.y + bounds.h);
-                path.line_to(bounds.x + border_radius_bottom_left, bounds.y + bounds.h);
-                path.line_to(bounds.x, bounds.y + bounds.h - border_radius_bottom_left);
-                path.line_to(bounds.x, bounds.y + border_radius_top_left);
-                path.close()
+            let x = bounds.x;
+            let y = bounds.y;
+            let w = bounds.w;
+            let h = bounds.h;
+            let halfw = w.abs() * 0.5;
+            let halfh = h.abs() * 0.5;
+
+            let rx_bl = border_radius_bottom_left.min(halfw) * w.signum();
+            let ry_bl = border_radius_bottom_left.min(halfh) * h.signum();
+
+            let rx_br = border_radius_bottom_right.min(halfw) * w.signum();
+            let ry_br = border_radius_bottom_right.min(halfh) * h.signum();
+
+            let rx_tr = border_radius_top_right.min(halfw) * w.signum();
+            let ry_tr = border_radius_top_right.min(halfh) * h.signum();
+
+            let rx_tl = border_radius_top_left.min(halfw) * w.signum();
+            let ry_tl = border_radius_top_left.min(halfh) * h.signum();
+
+            path.move_to(x, y + ry_tl);
+            path.line_to(x, y + h - ry_bl);
+            if border_shape_bottom_left == BorderCornerShape::Round {
+                path.bezier_to(x, y + h - ry_bl * (1.0 - KAPPA90), x + rx_bl * (1.0 - KAPPA90), y + h, x + rx_bl, y + h);
+            } else {
+                path.line_to(x + rx_bl, y + h);
+            } 
+            path.line_to(x + w - rx_br, y + h);
+            if border_shape_bottom_right == BorderCornerShape::Round {
+                path.bezier_to(x + w - rx_br * (1.0 - KAPPA90), y + h, x + w, y + h - ry_br * (1.0 - KAPPA90), x + w, y + h - ry_br);
+            } else {
+                path.line_to(x + w, y + h - ry_br);
             }
+            path.line_to(x + w, y + ry_tr);
+            if border_shape_top_right == BorderCornerShape::Round {
+                path.bezier_to(x + w, y + ry_tr * (1.0 - KAPPA90), x + w - rx_tr * (1.0 - KAPPA90), y, x + w - rx_tr, y);
+            } else {
+                path.line_to(x + w - rx_tr, y);
+            }
+            path.line_to(x + rx_tl, y);
+            if border_shape_top_left == BorderCornerShape::Round {
+                path.bezier_to(x + rx_tl * (1.0 - KAPPA90), y, x, y + ry_tl * (1.0 - KAPPA90), x, y + ry_tl);
+            } else {
+                path.line_to(x, y + ry_tl);
+            }
+            
+            path.close();
+
         }
+            
+
+    
 
         // Fill with background color
         let mut paint = Paint::color(background_color);

@@ -590,12 +590,48 @@ pub trait PropSet: AsEntity + Sized {
     }
 
     fn set_border_corner_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
-        state.style.border_corner_shape.insert(self.entity(), value);
+        state.style.border_shape_top_left.insert(self.entity(), value);
+        state.style.border_shape_top_right.insert(self.entity(), value);
+        state.style.border_shape_bottom_left.insert(self.entity(), value);
+        state.style.border_shape_bottom_right.insert(self.entity(), value);
 
         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
         self.entity()
     }
+
+    fn set_border_top_left_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
+        state.style.border_shape_top_left.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_border_top_right_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
+        state.style.border_shape_top_right.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_border_bottom_left_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
+        state.style.border_shape_bottom_left.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
+    fn set_border_bottom_right_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
+        state.style.border_shape_bottom_right.insert(self.entity(), value);
+
+        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+        self.entity()
+    }
+
 
     // Border Radius
     fn set_border_radius(self, state: &mut State, value: Units) -> Entity {
