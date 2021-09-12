@@ -307,7 +307,9 @@ impl EventManager {
             canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
 
             if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
+                //let start = std::time::Instant::now();
                 event_handler.on_draw_(state, entity, canvas);
+                //println!("{:.2?} seconds for whatever you did.", start.elapsed());
                 state.event_handlers.insert(entity, event_handler);
             }
 

@@ -296,7 +296,7 @@ impl<'a,T> Builder<'a,T> {
     }
 
     pub fn set_right(mut self, value: Units) -> Self {
-        self.entity.set_width(self.state, value);
+        self.entity.set_right(self.state, value);
 
         self
     }

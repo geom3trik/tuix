@@ -72,6 +72,8 @@ pub trait Widget: std::marker::Sized + 'static {
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
 
 
+        
+
         let bounds = state.data.get_bounds(entity);
 
         //Skip widgets with no width or no height
@@ -320,46 +322,49 @@ pub trait Widget: std::marker::Sized + 'static {
         let mut inner_shadow_color: femtovg::Color = inner_shadow_color.into();
         inner_shadow_color.set_alphaf(inner_shadow_color.a * opacity);
 
-        // Draw outer shadow
-        let mut path = Path::new();
-        path.rounded_rect_varying(
-            bounds.x - outer_shadow_blur + outer_shadow_h_offset,
-            bounds.y - outer_shadow_blur + outer_shadow_v_offset,
-            bounds.w + 2.0 * outer_shadow_blur,
-            bounds.h + 2.0 * outer_shadow_blur,
-            border_radius_top_left,
-            border_radius_top_right,
-            border_radius_bottom_right,
-            border_radius_bottom_left,
-        );
-        path.rounded_rect_varying(
-            bounds.x,
-            bounds.y,
-            bounds.w,
-            bounds.h,
-            border_radius_top_left,
-            border_radius_top_right,
-            border_radius_bottom_right,
-            border_radius_bottom_left,
-        );
-        path.solidity(Solidity::Hole);
+        
+        // // Draw outer shadow
+        // let mut path = Path::new();
+        // path.rounded_rect_varying(
+        //     bounds.x - outer_shadow_blur + outer_shadow_h_offset,
+        //     bounds.y - outer_shadow_blur + outer_shadow_v_offset,
+        //     bounds.w + 2.0 * outer_shadow_blur,
+        //     bounds.h + 2.0 * outer_shadow_blur,
+        //     border_radius_top_left,
+        //     border_radius_top_right,
+        //     border_radius_bottom_right,
+        //     border_radius_bottom_left,
+        // );
+        // path.rounded_rect_varying(
+        //     bounds.x,
+        //     bounds.y,
+        //     bounds.w,
+        //     bounds.h,
+        //     border_radius_top_left,
+        //     border_radius_top_right,
+        //     border_radius_bottom_right,
+        //     border_radius_bottom_left,
+        // );
+        // path.solidity(Solidity::Hole);
 
-        let mut paint = Paint::box_gradient(
-            bounds.x + outer_shadow_h_offset,
-            bounds.y + outer_shadow_v_offset,
-            bounds.w,
-            bounds.h,
-            border_radius_top_left
-                .max(border_radius_top_right)
-                .max(border_radius_bottom_left)
-                .max(border_radius_bottom_right),
-            outer_shadow_blur,
-            outer_shadow_color,
-            femtovg::Color::rgba(0, 0, 0, 0),
-        );
+        // let mut paint = Paint::box_gradient(
+        //     bounds.x + outer_shadow_h_offset,
+        //     bounds.y + outer_shadow_v_offset,
+        //     bounds.w,
+        //     bounds.h,
+        //     border_radius_top_left
+        //         .max(border_radius_top_right)
+        //         .max(border_radius_bottom_left)
+        //         .max(border_radius_bottom_right),
+        //     outer_shadow_blur,
+        //     outer_shadow_color,
+        //     femtovg::Color::rgba(0, 0, 0, 0),
+        // );
 
-        canvas.fill_path(&mut path, paint);
+        // canvas.fill_path(&mut path, paint);
 
+        
+        //let start = std::time::Instant::now();
         let mut path = Path::new();
 
         if border_radius_bottom_left == (bounds.w - 2.0 * border_width) / 2.0
@@ -373,17 +378,6 @@ pub trait Widget: std::marker::Sized + 'static {
                 bounds.w / 2.0,
             );
         } else {
-            // Draw rounded rect
-            // path.rounded_rect_varying(
-            //     bounds.x + (border_width / 2.0),
-            //     bounds.y + (border_width / 2.0),
-            //     bounds.w - border_width,
-            //     bounds.h - border_width,
-            //     border_radius_top_left,
-            //     border_radius_top_right,
-            //     border_radius_bottom_right,
-            //     border_radius_bottom_left,
-            // );
 
             let x = bounds.x;
             let y = bounds.y;
@@ -406,28 +400,42 @@ pub trait Widget: std::marker::Sized + 'static {
 
             path.move_to(x, y + ry_tl);
             path.line_to(x, y + h - ry_bl);
-            if border_shape_bottom_left == BorderCornerShape::Round {
-                path.bezier_to(x, y + h - ry_bl * (1.0 - KAPPA90), x + rx_bl * (1.0 - KAPPA90), y + h, x + rx_bl, y + h);
-            } else {
-                path.line_to(x + rx_bl, y + h);
-            } 
+            if border_radius_bottom_left != 0.0 {
+                if border_shape_bottom_left == BorderCornerShape::Round {
+                    path.bezier_to(x, y + h - ry_bl * (1.0 - KAPPA90), x + rx_bl * (1.0 - KAPPA90), y + h, x + rx_bl, y + h);
+                } else {
+                    path.line_to(x + rx_bl, y + h);
+                } 
+            }
+
             path.line_to(x + w - rx_br, y + h);
-            if border_shape_bottom_right == BorderCornerShape::Round {
-                path.bezier_to(x + w - rx_br * (1.0 - KAPPA90), y + h, x + w, y + h - ry_br * (1.0 - KAPPA90), x + w, y + h - ry_br);
-            } else {
-                path.line_to(x + w, y + h - ry_br);
+            
+            if border_radius_bottom_right != 0.0 {
+                if border_shape_bottom_right == BorderCornerShape::Round {
+                    path.bezier_to(x + w - rx_br * (1.0 - KAPPA90), y + h, x + w, y + h - ry_br * (1.0 - KAPPA90), x + w, y + h - ry_br);
+                } else {
+                    path.line_to(x + w, y + h - ry_br);
+                }                
             }
+
             path.line_to(x + w, y + ry_tr);
-            if border_shape_top_right == BorderCornerShape::Round {
-                path.bezier_to(x + w, y + ry_tr * (1.0 - KAPPA90), x + w - rx_tr * (1.0 - KAPPA90), y, x + w - rx_tr, y);
-            } else {
-                path.line_to(x + w - rx_tr, y);
+            
+            if border_radius_top_right != 0.0 {
+                if border_shape_top_right == BorderCornerShape::Round {
+                    path.bezier_to(x + w, y + ry_tr * (1.0 - KAPPA90), x + w - rx_tr * (1.0 - KAPPA90), y, x + w - rx_tr, y);
+                } else {
+                    path.line_to(x + w - rx_tr, y);
+                }                
             }
+
             path.line_to(x + rx_tl, y);
-            if border_shape_top_left == BorderCornerShape::Round {
-                path.bezier_to(x + rx_tl * (1.0 - KAPPA90), y, x, y + ry_tl * (1.0 - KAPPA90), x, y + ry_tl);
-            } else {
-                path.line_to(x, y + ry_tl);
+
+            if border_radius_top_left != 0.0 {
+                if border_shape_top_left == BorderCornerShape::Round {
+                    path.bezier_to(x + rx_tl * (1.0 - KAPPA90), y, x, y + ry_tl * (1.0 - KAPPA90), x, y + ry_tl);
+                } else {
+                    path.line_to(x, y + ry_tl);
+                }                
             }
             
             path.close();
@@ -435,7 +443,7 @@ pub trait Widget: std::marker::Sized + 'static {
         }
             
 
-    
+        
 
         // Fill with background color
         let mut paint = Paint::color(background_color);
@@ -482,38 +490,40 @@ pub trait Widget: std::marker::Sized + 'static {
         // Fill the quad
         canvas.fill_path(&mut path, paint);
 
+        //println!("{:.2?} seconds for whatever you did.", start.elapsed());
+
         // Draw border
         let mut paint = Paint::color(border_color);
         paint.set_line_width(border_width);
         canvas.stroke_path(&mut path, paint);
 
-        // Draw inner shadow
-        let mut path = Path::new();
-        path.rounded_rect_varying(
-            0.0 + border_width,
-            0.0 + border_width,
-            bounds.w - border_width * 2.0,
-            bounds.h - border_width * 2.0,
-            border_radius_top_left,
-            border_radius_top_right,
-            border_radius_bottom_right,
-            border_radius_bottom_left,
-        );
+        // // Draw inner shadow
+        // let mut path = Path::new();
+        // path.rounded_rect_varying(
+        //     0.0 + border_width,
+        //     0.0 + border_width,
+        //     bounds.w - border_width * 2.0,
+        //     bounds.h - border_width * 2.0,
+        //     border_radius_top_left,
+        //     border_radius_top_right,
+        //     border_radius_bottom_right,
+        //     border_radius_bottom_left,
+        // );
 
-        let mut paint = Paint::box_gradient(
-            0.0 + inner_shadow_h_offset + border_width,
-            0.0 + inner_shadow_v_offset + border_width,
-            bounds.w - border_width * 2.0,
-            bounds.h - border_width * 2.0,
-            border_radius_top_left
-                .max(border_radius_top_right)
-                .max(border_radius_bottom_left)
-                .max(border_radius_bottom_right),
-            inner_shadow_blur,
-            femtovg::Color::rgba(0, 0, 0, 0),
-            inner_shadow_color,
-        );
-        canvas.fill_path(&mut path, paint);
+        // let mut paint = Paint::box_gradient(
+        //     0.0 + inner_shadow_h_offset + border_width,
+        //     0.0 + inner_shadow_v_offset + border_width,
+        //     bounds.w - border_width * 2.0,
+        //     bounds.h - border_width * 2.0,
+        //     border_radius_top_left
+        //         .max(border_radius_top_right)
+        //         .max(border_radius_bottom_left)
+        //         .max(border_radius_bottom_right),
+        //     inner_shadow_blur,
+        //     femtovg::Color::rgba(0, 0, 0, 0),
+        //     inner_shadow_color,
+        // );
+        // canvas.fill_path(&mut path, paint);
 
         
         // Draw text
@@ -630,6 +640,8 @@ pub trait Widget: std::marker::Sized + 'static {
 
             canvas.fill_text(x, y, &text_string, paint);
         }
+
+        
     }
 }
 

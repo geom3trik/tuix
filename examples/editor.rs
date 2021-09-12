@@ -122,6 +122,32 @@ const STYLE: &str = r#"
         transition: width 0.1 0.0;
     }
 
+
+    tab_manager {
+        width: 1s;
+    }
+    
+    tab_bar {
+        background-color: #202020;
+        height: 30px;
+        layout-type: row;
+    }
+    
+    tab_bar>.tab {
+        background-color: #2e2e2e;
+        right: 1px;
+        bottom: 1px;
+        width: 80px;
+        child-space: 1s;
+    }
+    
+    tab_bar>.tab:checked {
+        bottom: 0px;
+        background-color: #383838;
+        /* background-color: red; */
+    }
+    
+
 "#;
 
 fn main() {
@@ -478,8 +504,33 @@ impl Widget for StyleControls {
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
+
+        // Create a tab manager
+        let (tab_bar, tab_viewport) =
+        TabView::new().build(state, entity, |builder| builder);
+
+        // Add a tab to the tab bar
+        let first_tab = Tab::new("layout").build(state, tab_bar, |builder| {
+            builder.set_text("Layout").class("tab")
+        });
+
+        first_tab.set_checked(state, true);
+
+        Tab::new("style").build(state, tab_bar, |builder| {
+            builder.set_text("Style").class("tab")
+        });
+
+        // Add a tab container to the tab viewport
+        let layout_page = TabContainer::new("layout")
+            .build(state, tab_viewport, |builder| builder.class("layout"));
+
+        let style_page = TabContainer::new("style")
+            .build(state, tab_viewport, |builder| builder.class("style"));
+        // TODO - replace tab view with stack
+        style_page.set_display(state, Display::None);
+
         let scroll = ScrollContainer::new()
-            .build(state, entity, |builder| 
+            .build(state, layout_page, |builder| 
                 builder 
             );
 
@@ -487,23 +538,6 @@ impl Widget for StyleControls {
             .set_child_right(state, Pixels(10.0))
             .set_child_space(state, Pixels(10.0))
             .set_row_between(state, Pixels(10.0));
-
-
-        let (background_panel) = Panel::new("Background").build(state, scroll, |builder| 
-            builder
-        );
-
-        let row = Row::new().build(state, background_panel, |builder| 
-            builder
-                .set_height(Pixels(30.0))
-        );
-
-        Label::new("Color:").build(state, row, |builder| builder);
-        Button::new()
-            .on_press(|data, state, button|{
-                button.emit(state, AppEvent::OpenColorPicker(ColorPickFor::Background));
-            })
-            .build(state, row, |builder| builder.set_background_color(Color::black()));
 
         let (size_panel, size_panel_header) = Panel::new("").build(state, scroll, |builder| 
             builder
@@ -576,6 +610,32 @@ impl Widget for StyleControls {
                 .bind(AppData::style_data.then(StyleData::bottom), |val| *val)
                 .build(state, space_panel, |builder| builder);
     
+
+        let scroll = ScrollContainer::new()
+            .build(state, style_page, |builder| 
+                builder 
+            );
+        
+        scroll
+            .set_child_right(state, Pixels(10.0))
+            .set_child_space(state, Pixels(10.0))
+            .set_row_between(state, Pixels(10.0));
+
+        let (background_panel) = Panel::new("Background").build(state, scroll, |builder| 
+            builder
+        );
+
+        let row = Row::new().build(state, background_panel, |builder| 
+            builder
+                .set_height(Pixels(30.0))
+        );
+
+        Label::new("Color:").build(state, row, |builder| builder);
+        Button::new()
+            .on_press(|data, state, button|{
+                button.emit(state, AppEvent::OpenColorPicker(ColorPickFor::Background));
+            })
+            .build(state, row, |builder| builder.set_background_color(Color::black()));
         
         let border_panel = Panel::new("Border").build(state, scroll, |builder| 
             builder
