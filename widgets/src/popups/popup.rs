@@ -84,7 +84,7 @@ impl Widget for Popup {
                 }
 
                 PopupEvent::Close => {
-                    println!("Close");
+                    //println!("Close");
                     self.open = false;
                     state.release(entity);
                     entity.set_opacity(state, 0.0);

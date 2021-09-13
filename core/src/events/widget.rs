@@ -1,6 +1,6 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
 use crate::{AsEntity, BorderCornerShape, Entity, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
-use femtovg::{BlendFactor, CompositeOperation};
+use femtovg::{BlendFactor, CompositeOperation, PixelFormat, RenderTarget};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
     Paint, Path, Renderer, Solidity,
@@ -321,7 +321,6 @@ pub trait Widget: std::marker::Sized + 'static {
 
         let mut inner_shadow_color: femtovg::Color = inner_shadow_color.into();
         inner_shadow_color.set_alphaf(inner_shadow_color.a * opacity);
-
         
         // // Draw outer shadow
         // let mut path = Path::new();
@@ -441,9 +440,100 @@ pub trait Widget: std::marker::Sized + 'static {
             path.close();
 
         }
-            
 
+        // Draw outer shadow
+        if state.style.outer_shadow_color.get(entity).is_some() {
+
+
+            let sigma = outer_shadow_blur / 2.0;
+            let d = (sigma * 5.0).ceil();
+
+            let shadow_image = state.data.shadow_image.get(&entity).cloned().unwrap_or(
+                (
+                    canvas.create_image_empty((bounds.w + d) as usize, 
+                    (bounds.h + d) as usize, 
+                    PixelFormat::Rgba8, 
+                    ImageFlags::FLIP_Y,
+                    ).expect("Failed to create image"),
+
+                    canvas.create_image_empty((bounds.w + d) as usize, 
+                    (bounds.h + d) as usize, 
+                    PixelFormat::Rgba8, 
+                    ImageFlags::FLIP_Y,
+                    ).expect("Failed to create image"),
+                )
+            );
+
+            canvas.save();
+
+            let size = canvas.image_size(shadow_image.0).expect("Failed to get image");
+
+
+            let (source, target) = if size.0 != (bounds.w + d) as usize || size.1 != (bounds.h + d) as usize {
+                canvas.delete_image(shadow_image.0);
+                canvas.delete_image(shadow_image.1);
+
+                (
+                    canvas.create_image_empty((bounds.w + d) as usize, 
+                    (bounds.h + d) as usize, 
+                    PixelFormat::Rgba8, 
+                    ImageFlags::FLIP_Y,
+                    ).expect("Failed to create image"),
+
+                    canvas.create_image_empty((bounds.w + d) as usize, 
+                    (bounds.h + d) as usize, 
+                    PixelFormat::Rgba8, 
+                    ImageFlags::FLIP_Y,
+                    ).expect("Failed to create image"),
+                )
+            } else {
+                (shadow_image.0, shadow_image.1)
+            };
         
+
+            state.data.shadow_image.insert(entity, (source, target));
+
+            
+            canvas.set_render_target(RenderTarget::Image(source));
+            canvas.clear_rect(0, 0, size.0 as u32, size.1 as u32, femtovg::Color::rgba(0,0, 0, 0));
+            canvas.translate(-bounds.x + d/2.0, -bounds.y + d/2.0);
+            let mut outer_shadow = path.clone();
+            let mut paint = Paint::color(outer_shadow_color);
+            canvas.fill_path(&mut outer_shadow, paint);
+
+
+            canvas.restore();
+
+            let target_image = if outer_shadow_blur > 0.0 {
+                canvas.filter_image(
+                    target,
+                    femtovg::ImageFilter::GaussianBlur { sigma },
+                    source,
+                );
+                target
+            } else {
+                source
+            };
+
+            canvas.set_render_target(RenderTarget::Screen);
+
+            canvas.save();
+            canvas.translate(outer_shadow_h_offset, outer_shadow_v_offset);
+            let mut path = Path::new();
+            path.rect(bounds.x - d/2.0, bounds.y - d/2.0, bounds.w + d, bounds.h + d);
+            
+            canvas.fill_path(&mut path, Paint::image(
+                target_image, 
+                bounds.x - d/2.0, 
+                bounds.y - d/2.0, 
+                bounds.w + d, 
+                bounds.h + d, 
+                0f32, 
+                1f32)
+            );
+            //canvas.fill_path(&mut path, Paint::color(femtovg::Color::rgb(0,0,0)));
+            canvas.restore();
+        }
 
         // Fill with background color
         let mut paint = Paint::color(background_color);
@@ -673,5 +763,3 @@ where
         <T as Widget>::on_draw(self, state, entity, canvas);
     }
 }
-
-

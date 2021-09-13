@@ -60,6 +60,28 @@ impl LengthBox {
         }
     }
 
+    pub fn with_init(mut self, init: Units) -> Self {
+        self.units = init;
+
+        match self.units {
+            Units::Stretch(val) => {
+                self.stretch = val;
+            }
+
+            Units::Pixels(val) => {
+                self.pixels = val;
+            }
+
+            Units::Percentage(val) => {
+                self.percentage = val;
+            }
+
+            _=> {}
+        }
+
+        self
+    }
+
     pub fn on_changed<F>(mut self, callback: F) -> Self 
     where F: 'static + Fn(&mut Self, &mut State, Entity)
     {
@@ -100,6 +122,9 @@ impl Widget for LengthBox {
     type Data = Units;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_layout_type(state, LayoutType::Row).set_col_between(state, Pixels(10.0));
+
+
+        println!("BUILD");
 
         self.slider = Slider::new()
             .with_min(0.0)
@@ -177,7 +202,7 @@ impl Widget for LengthBox {
                 .set_child_space(Stretch(1.0))
         );
 
-        self.dropdown = Dropdown::new("-")
+        self.dropdown = Dropdown::new("auto")
             .build(state, entity, |builder| {
                 builder
                     .set_width(Pixels(80.0))
@@ -197,24 +222,27 @@ impl Widget for LengthBox {
         // );
 
         self.check_auto = CheckButton::with_label("auto")
-            .set_checked(true)
+            //.set_checked(true)
             .on_checked(|_, state, button|{
+                println!("This thing here: {}", button);
                 button.emit(state, LengthBoxEvent::SetType(Units::Auto));
                 button.emit(state, LengthBoxEvent::Reset(true));
                 button.emit(state, PopupEvent::Close);
-                button.emit(state, DropdownEvent::SetText("-".to_string()));
+                button.emit(state, DropdownEvent::SetText("auto".to_string()));
             })
             .build(state, self.dropdown, |builder| 
                 builder
                     //.set_color(Color::black())
             );
 
+        entity.emit_to(state, self.check_auto, CheckboxEvent::Check);
+
         self.check_stretch = CheckButton::with_label("stretch")
             .on_checked(|_, state, button|{
                 button.emit(state, LengthBoxEvent::SetType(Units::Stretch(0.0)));
                 button.emit(state, LengthBoxEvent::Reset(true));
                 button.emit(state, PopupEvent::Close);
-                button.emit(state, DropdownEvent::SetText("-".to_string()));
+                button.emit(state, DropdownEvent::SetText("stretch".to_string()));
             })
             .build(state, self.dropdown, |builder| 
                 builder
@@ -259,7 +287,11 @@ impl Widget for LengthBox {
 
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        
+        //println!("UPDATE");
+
         if *data != self.value() {
+            //println!("Data: {:?} {:?}", entity, data);
             entity.emit(state, LengthBoxEvent::SetType(*data));
             match data {
                 Units::Auto => {
@@ -337,6 +369,7 @@ impl Widget for LengthBox {
                 }
 
                 LengthBoxEvent::SetType(units) => {
+                    //println!("Do This: {} {:?} {:?}", entity, units, event.origin);
                     self.units = *units;
 
                     event.consume();

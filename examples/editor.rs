@@ -151,7 +151,7 @@ const STYLE: &str = r#"
 "#;
 
 fn main() {
-    let window_description = WindowDescription::new().with_title("Style Editor");
+    let window_description = WindowDescription::new().with_title("Style Editor").with_inner_size(1600, 800);
     let app = Application::new(window_description, |state, window|{
         state.add_theme(STYLE);
 
@@ -169,6 +169,8 @@ fn main() {
 pub enum ColorPickFor {
     Background,
     Border,
+    Shadow,
+    Text,
 }
 
 impl Default for ColorPickFor {
@@ -204,8 +206,14 @@ pub enum AppEvent {
     SetBorderTopRightShape(BorderCornerShape),
     SetBorderBottomLeftShape(BorderCornerShape),
     SetBorderBottomRightShape(BorderCornerShape),
-    // Background
-    SetBackgroundColor(Color),
+    // Color for background, border, text, shadow, etc...
+    SetColor(Color),
+    // Text
+    SetText(String),
+    // Outer Shadow
+    SetOuterShadowHOffset(Units),
+    SetOuterShadowVOffset(Units),
+    SetOuterShadowBlur(Units),
 }
 
 #[derive(Default, Clone, Lens)]
@@ -229,6 +237,8 @@ pub struct StyleData {
     // Border
     pub border_width: Units,
 
+    pub border_color: Color,
+
     pub border_shape: BorderCornerShape,
     pub border_top_left_shape: BorderCornerShape,
     pub border_top_right_shape: BorderCornerShape,
@@ -240,21 +250,44 @@ pub struct StyleData {
     pub border_radius_top_right: Units,
     pub border_radius_bottom_left: Units,
     pub border_radius_bottom_right: Units,
+
+    pub text: String,
+    pub font_color: Color,
+
+    // Outser Shadow
+    pub outer_shadow_color: Color,
+    pub outer_shadow_h_offset: Units,
+    pub outer_shadow_v_offset: Units,
+    pub outer_shadow_blur: Units,
 }
 
 impl StyleData {
     pub fn new() -> Self {
         Self {
+            size: Units::Pixels(100.0),
             width: Units::Pixels(100.0),
             height: Units::Pixels(100.0),
+            space: Units::Stretch(1.0),
+            left: Units::Stretch(1.0),
+            right: Units::Stretch(1.0),
+            top: Units::Stretch(1.0),
+            bottom: Units::Stretch(1.0),
             ..Default::default()
         }
     }
 }
 
-#[derive(Default, Lens)]
+#[derive(Lens)]
 pub struct AppData {
     pub style_data: StyleData,
+}
+
+impl Default for AppData {
+    fn default() -> Self {
+        Self {
+            style_data: StyleData::new(),
+        }
+    }
 }
 
 impl Model for AppData {
@@ -262,8 +295,13 @@ impl Model for AppData {
         if let Some(app_event) = event.message.downcast() {
             match app_event {
 
+                AppEvent::OpenColorPicker(picker_for) => {
+                    self.style_data.current_color = *picker_for;
+                }
+
                 // Size
                 AppEvent::SetSize(val) => {
+                    println!("Received {:?} from: {}", val, event.origin);
                     self.style_data.size = *val;
                     self.style_data.width = *val;
                     self.style_data.height = *val;
@@ -371,9 +409,48 @@ impl Model for AppData {
                     entity.emit(state, BindEvent::Update);
                 }
 
-                // Background
-                AppEvent::SetBackgroundColor(color) => {
-                    self.style_data.background_color = *color;
+                // Color
+                AppEvent::SetColor(color) => {
+                    match self.style_data.current_color {
+                        ColorPickFor::Background => {
+                            self.style_data.background_color = *color;
+                        }
+
+                        ColorPickFor::Border => {
+                            self.style_data.border_color = *color;
+                        }
+
+                        ColorPickFor::Shadow => {
+                            self.style_data.outer_shadow_color = *color;
+                        }
+
+                        ColorPickFor::Text => {
+                            self.style_data.font_color = *color;
+                        }
+                    }
+                    
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                // Text
+                AppEvent::SetText(text) => {
+                    self.style_data.text = text.clone();
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                // Outer Shadow
+                AppEvent::SetOuterShadowHOffset(val) => {
+                    self.style_data.outer_shadow_h_offset = *val;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetOuterShadowVOffset(val) => {
+                    self.style_data.outer_shadow_v_offset = *val;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetOuterShadowBlur(val) => {
+                    self.style_data.outer_shadow_blur = *val;
                     entity.emit(state, BindEvent::Update);
                 }
 
@@ -406,7 +483,7 @@ impl Widget for App {
                 .set_background_color(Color::rgb(56,56,56))
         );
 
-        self.color_picker = PopupWindow::new("Window Title").build(state, entity, |builder| 
+        self.color_picker = PopupWindow::new("Color Picker").build(state, entity, |builder| 
             builder
                 .set_width(Pixels(400.0))
                 .set_height(Pixels(300.0))
@@ -415,14 +492,12 @@ impl Widget for App {
         ).entity();
 
         ColorPicker::new()
-        .on_changing(|data, state, color_picker|{
-            color_picker.emit(state, AppEvent::SetBackgroundColor(data.color()));
-        })
-        .build(state, self.color_picker, |builder| 
-            builder
-                .set_border_width(Pixels(1.0))
-                .set_border_color(Color::black())
-        );
+            .on_changing(|data, state, color_picker|{
+                color_picker.emit(state, AppEvent::SetColor(data.color()));
+            })
+            .build(state, self.color_picker, |builder| 
+                builder
+            );
         
         entity
     }
@@ -431,7 +506,8 @@ impl Widget for App {
         if let Some(app_event) = event.message.downcast() {
             match app_event {
                 AppEvent::OpenColorPicker(_) => {
-                    entity.emit_to(state, self.color_picker, PopupEvent::Open);
+                    println!("Open Color Picker: {}", self.color_picker);
+                    self.color_picker.emit(state, PopupEvent::Open);
                 }
 
                 _=> {}
@@ -480,17 +556,30 @@ impl Widget for Canvas {
             .set_right(state, data.right)
             .set_top(state, data.top)
             .set_bottom(state, data.bottom)
-            //Border
+            // Border
+            .set_border_color(state, data.border_color)
+            // Border Shape
             .set_border_top_left_shape(state, data.border_top_left_shape)
             .set_border_top_right_shape(state, data.border_top_right_shape)
             .set_border_bottom_left_shape(state, data.border_bottom_left_shape)
             .set_border_bottom_right_shape(state, data.border_bottom_right_shape)
-
+            // Border Width
             .set_border_width(state, data.border_width)
+            // Border Radius
             .set_border_radius_top_left(state, data.border_radius_top_left)
             .set_border_radius_top_right(state, data.border_radius_top_right)
             .set_border_radius_bottom_left(state, data.border_radius_bottom_left)
-            .set_border_radius_bottom_right(state, data.border_radius_bottom_right);
+            .set_border_radius_bottom_right(state, data.border_radius_bottom_right)
+            // Text
+            .set_text(state, &data.text)
+            .set_color(state, data.font_color)
+            // Outer Shadow
+            .set_outer_shadow_color(state, data.outer_shadow_color)
+            .set_outer_shadow_h_offset(state, data.outer_shadow_h_offset)
+            .set_outer_shadow_v_offset(state, data.outer_shadow_v_offset)
+            .set_outer_shadow_blur(state, data.outer_shadow_blur);
+
+
     }
 }
 
@@ -631,10 +720,11 @@ impl Widget for StyleControls {
         );
 
         Label::new("Color:").build(state, row, |builder| builder);
-        Button::new()
+        ColorButton::new()
             .on_press(|data, state, button|{
                 button.emit(state, AppEvent::OpenColorPicker(ColorPickFor::Background));
             })
+            .bind(AppData::style_data.then(StyleData::background_color), |col| *col)
             .build(state, row, |builder| builder.set_background_color(Color::black()));
         
         let border_panel = Panel::new("Border").build(state, scroll, |builder| 
@@ -642,6 +732,19 @@ impl Widget for StyleControls {
                 //.class("group")
                 //.set_background_color(Color::blue())
         );
+
+        let row = Row::new().build(state, border_panel, |builder| 
+            builder
+                .set_height(Pixels(30.0))
+        );
+
+        Label::new("Color:").build(state, row, |builder| builder);
+        ColorButton::new()
+            .on_press(|data, state, button|{
+                button.emit(state, AppEvent::OpenColorPicker(ColorPickFor::Border));
+            })
+            .bind(AppData::style_data.then(StyleData::border_color), |col| *col)
+            .build(state, row, |builder| builder.set_background_color(Color::black()));
 
         LengthBox::new("Border Width")
             .on_changed(|data, state, lengthbox|{
@@ -730,6 +833,64 @@ impl Widget for StyleControls {
 
         border_shape_dropdown(state, row, Corner::BottomRight);
 
+    
+        let shadow_panel = Panel::new("Shadow").build(state, scroll, |builder| 
+            builder
+        );
+
+        let row = Row::new().build(state, shadow_panel, |builder| 
+            builder
+                .set_height(Pixels(30.0))
+        );
+
+        Label::new("Color:").build(state, row, |builder| builder);
+        ColorButton::new()
+            .on_press(|data, state, button|{
+                button.emit(state, AppEvent::OpenColorPicker(ColorPickFor::Shadow));
+            })
+            .bind(AppData::style_data.then(StyleData::outer_shadow_color), |col| *col)
+            .build(state, row, |builder| builder.set_background_color(Color::black()));
+        
+
+        LengthBox::new("H Offset")
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetOuterShadowHOffset(data.value()));                
+            })
+            .build(state, shadow_panel, |builder| builder);
+        
+        LengthBox::new("V Offset")
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetOuterShadowVOffset(data.value()));                
+            })
+            .build(state, shadow_panel, |builder| builder);
+        
+        LengthBox::new("Blur Radius")
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetOuterShadowBlur(data.value()));                
+            })
+            .build(state, shadow_panel, |builder| builder);
+        
+
+        let text_panel = Panel::new("Text").build(state, scroll, |builder| 
+            builder
+                //.class("group")
+                //.set_background_color(Color::blue())
+        );
+
+        Textbox::new("")
+        .on_submit(|data, state, textbox|{
+            textbox.emit(state, AppEvent::SetText(data.text.clone()));
+        })
+        .build(state, text_panel, |builder| 
+            builder
+                .set_height(Pixels(30.0))
+                .set_child_top(Stretch(1.0))
+                .set_child_bottom(Stretch(1.0))
+                .set_child_left(Pixels(5.0))
+                .set_child_right(Stretch(1.0))
+        );
+
+
         entity.set_width(state, Pixels(500.0))
     }
 }
@@ -796,4 +957,43 @@ fn border_shape_dropdown(state: &mut State, parent: Entity, corner: Corner) {
         .build(state, dropdown, |builder| 
             builder
         );
+}
+
+
+pub struct ColorButton {
+    button: Button,
+}
+
+impl ColorButton {
+    pub fn new() -> Self {
+        Self {
+            button: Button::new(),
+        }
+    }
+
+    pub fn on_press<F>(mut self, callback: F) -> Self
+    where F: 'static + Fn(&mut Button, &mut State, Entity)
+    {
+        self.button = self.button.on_press(callback);
+
+        self
+    }
+}
+
+impl Widget for ColorButton {
+    type Ret = Entity;
+    type Data = Color;
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        self.button.on_build(state, entity)
+    }
+
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        self.button.on_event(state, entity, event)
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        if *data != entity.get_background_color(state) {
+            entity.set_background_color(state, *data);
+        }
+    }
 }

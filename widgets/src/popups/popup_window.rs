@@ -71,6 +71,7 @@ impl Widget for PopupWindow {
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(popup_event) = event.message.downcast() {
+
             match popup_event {
 
                 PopupEvent::Open => {

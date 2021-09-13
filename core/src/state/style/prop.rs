@@ -678,6 +678,37 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    // Outer Shadow
+    fn set_outer_shadow_h_offset(mut self, state: &mut State, value: Units) -> Self {
+        state
+            .style
+            .outer_shadow_h_offset
+            .insert(self.entity(), value);
+
+        self
+    }
+
+    fn set_outer_shadow_v_offset(mut self, state: &mut State, value: Units) -> Self {
+        state
+            .style
+            .outer_shadow_v_offset
+            .insert(self.entity(), value);
+
+        self
+    }
+
+    fn set_outer_shadow_color(mut self, state: &mut State, value: Color) -> Self {
+        state.style.outer_shadow_color.insert(self.entity(), value);
+
+        self
+    }
+
+    fn set_outer_shadow_blur(mut self, state: &mut State, value: Units) -> Self {
+        state.style.outer_shadow_blur.insert(self.entity(), value);
+
+        self
+    }
+
     // Clipping
     fn set_clip_widget(self, state: &mut State, value: Entity) -> Entity {
         state.style.clip_widget.insert(self.entity(), value);

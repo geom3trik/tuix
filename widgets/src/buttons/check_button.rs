@@ -137,7 +137,7 @@ impl Widget for CheckButton {
                 }
 
                 CheckboxEvent::Checked => {
-                    println!("Checked {} {}",entity,  event.origin);
+                    //println!("Checked {} {}",entity,  event.origin);
                     self.checked = true;
 
                     entity.set_checked(state, true);

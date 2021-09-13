@@ -212,6 +212,7 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         state.insert_event(Event::new(BindEvent::Bind(entity, type_id)).target(entity).propagate(Propagation::Up));
 
         self.widget.on_build(state, entity)
+        
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

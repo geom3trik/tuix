@@ -9,6 +9,7 @@ const ICON_RIGHT_DIR: &str = "\u{25b8}";
 #[derive(PartialEq)]
 pub enum ColorPickerEvent {
     HueChanged(f32),
+    SetColor(Color),
 }
 
 pub struct ColorPicker {
@@ -416,6 +417,7 @@ impl Widget for ColorGradient {
                         self.on_changing = Some(callback);
                     }
                 }
+                _=> {}
             }
         }
         if let Some(window_event) = event.message.downcast() {
