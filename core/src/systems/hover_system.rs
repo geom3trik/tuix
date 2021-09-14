@@ -68,19 +68,21 @@ pub fn apply_hover(state: &mut State) {
         //transform.translate(-origin.0, -origin.1);
         
         let (cx, cy) = transform.transform_point(cursorx, cursory);
+        let (clip_x, clip_y) = transform.transform_point(clip_region.x, clip_region.y);
+        let (clip_w, clip_h) = transform.transform_point(clip_region.w, clip_region.h);
         // let clip_posx = state.data.get_posx(clip_widget);
         // let clip_posy = state.data.get_posy(clip_widget);
         // let clip_width = state.data.get_width(clip_widget);
         // let clip_height = state.data.get_height(clip_widget);
 
         if cx >= posx
-            && cx >= clip_region.x
+            && cx >= clip_x
             && cx < (posx + width)
-            && cx < (clip_region.x + clip_region.w)
+            && cx < (clip_x + clip_w)
             && cy >= posy
-            && cy >= clip_region.y
+            && cy >= clip_y
             && cy < (posy + height)
-            && cy < (clip_region.y + clip_region.h)
+            && cy < (clip_y + clip_h)
         {
             hovered_widget = entity;
             if entity.is_over(state) == false {
