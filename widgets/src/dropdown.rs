@@ -1,4 +1,6 @@
 
+use std::marker::PhantomData;
+
 use crate::common::*;
 use crate::{CheckButton, CheckboxEvent, Label, Popup, PopupEvent, List};
 
@@ -74,7 +76,7 @@ impl Widget for DropdownItem {
     }
 }
 
-pub struct Dropdown {
+pub struct Dropdown<T> {
     button: CheckButton,
 
     pub container: Entity,
@@ -82,9 +84,11 @@ pub struct Dropdown {
     pub label: Entity,
 
     text: String,
+
+    pub value: T,
 }
 
-impl Dropdown {
+impl<T: 'static + Clone + Default> Dropdown<T> {
     pub fn new(text: &str) -> Self {
         Dropdown {
             button: CheckButton::default(),
@@ -92,13 +96,14 @@ impl Dropdown {
             header: Entity::null(),
             label: Entity::null(),
             text: text.to_string(),
+            value: T::default(),
         }
     }
 }
 
-impl Widget for Dropdown {
+impl<T: 'static + Clone> Widget for Dropdown<T> {
     type Ret = Entity;
-    type Data = ();
+    type Data = T;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // self.header = Element::new().build(state, entity, |builder| {
         //     builder
@@ -170,6 +175,10 @@ impl Widget for Dropdown {
         );
 
         list
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        self.value = data.clone();
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

@@ -41,6 +41,7 @@ impl Dimension {
 
 impl Widget for Dimension {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity
             .set_text(state, &self.text)
@@ -188,6 +189,7 @@ where
         + std::str::FromStr,
 {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         //state.add_theme(VEC_EDIT_STYLE);
 
@@ -207,14 +209,13 @@ where
             builder.set_right(Pixels(5.0))
         });
 
-        self.dims = Dropdown::new("4")
+        self.dims = Dropdown::<()>::new("4")
             .build(state, entity, |builder| {
                 builder
                     .set_width(Pixels(30.0))
                     //.set_text_justify(Justify::End)
                     .class("dim")
-            })
-            .2;
+            });
 
         Dimension::new("1").build(state, self.dims, |builder| builder.class("item"));
         Dimension::new("2").build(state, self.dims, |builder| builder.class("item"));

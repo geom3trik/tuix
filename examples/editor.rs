@@ -401,6 +401,10 @@ impl Model for AppData {
 
                 AppEvent::SetBorderShape(shape) => {
                     self.style_data.border_shape = *shape;
+                    self.style_data.border_bottom_left_shape = *shape;
+                    self.style_data.border_bottom_right_shape = *shape;
+                    self.style_data.border_top_left_shape = *shape;
+                    self.style_data.border_top_right_shape = *shape;
                     entity.emit(state, BindEvent::Update);
                 }
 
@@ -600,6 +604,11 @@ impl Widget for Canvas {
             .set_right(state, data.right)
             .set_top(state, data.top)
             .set_bottom(state, data.bottom)
+            // Child Space
+            .set_child_left(state, data.child_left)
+            .set_child_top(state, data.child_top)
+            .set_child_right(state, data.child_right)
+            .set_child_bottom(state, data.child_bottom)
             // Border
             .set_border_color(state, data.border_color)
             // Border Shape
@@ -677,7 +686,6 @@ impl Widget for StyleControls {
                 .set_height(Pixels(30.0))
         );
         let (size_panel, size_panel_header) = Panel::new("")
-        .collapsed(true)
         .build(state, scroll, |builder| 
             builder
                 .class("group")
@@ -774,28 +782,28 @@ impl Widget for StyleControls {
                 lengthbox.emit(state, AppEvent::SetChildLeft(data.value()));      
             })
             .bind(AppData::style_data.then(StyleData::child_left), |val| *val)
-            .build(state, space_panel, |builder| builder);
+            .build(state, child_space_panel, |builder| builder);
 
         LengthBox::new("Child Top")
             .on_changed(|data, state, lengthbox|{
                 lengthbox.emit(state, AppEvent::SetChildTop(data.value()));      
             })
             .bind(AppData::style_data.then(StyleData::child_top), |val| *val)
-            .build(state, space_panel, |builder| builder);
+            .build(state, child_space_panel, |builder| builder);
 
         LengthBox::new("Child Right")
             .on_changed(|data, state, lengthbox|{
                 lengthbox.emit(state, AppEvent::SetChildRight(data.value()));      
             })
             .bind(AppData::style_data.then(StyleData::child_right), |val| *val)
-            .build(state, space_panel, |builder| builder);
+            .build(state, child_space_panel, |builder| builder);
             
         LengthBox::new("Child Bottom")
                 .on_changed(|data, state, lengthbox|{
                     lengthbox.emit(state, AppEvent::SetChildBottom(data.value()));      
                 })
                 .bind(AppData::style_data.then(StyleData::child_bottom), |val| *val)
-                .build(state, space_panel, |builder| builder);
+                .build(state, child_space_panel, |builder| builder);
     
 
         let scroll = ScrollContainer::new()
@@ -869,7 +877,7 @@ impl Widget for StyleControls {
             .bind(AppData::style_data.then(StyleData::border_radius), |val| *val)
             .build(state, row, |builder| builder);
 
-        border_shape_dropdown(state, row, Corner::All);
+        border_shape_dropdown(state, row, Corner::All, AppData::style_data.then(StyleData::border_shape));
 
         let row = Row::new().build(state, border_radius_panel, |builder| 
             builder
@@ -884,7 +892,7 @@ impl Widget for StyleControls {
             .bind(AppData::style_data.then(StyleData::border_radius_top_left), |val| *val)
             .build(state, row, |builder| builder);
         
-        border_shape_dropdown(state, row, Corner::TopLeft);
+        border_shape_dropdown(state, row, Corner::TopLeft, AppData::style_data.then(StyleData::border_top_left_shape));
 
         let row = Row::new().build(state, border_radius_panel, |builder| 
             builder
@@ -899,7 +907,7 @@ impl Widget for StyleControls {
             .bind(AppData::style_data.then(StyleData::border_radius_top_right), |val| *val)
             .build(state, row, |builder| builder);
         
-        border_shape_dropdown(state, row, Corner::TopRight);
+        border_shape_dropdown(state, row, Corner::TopRight, AppData::style_data.then(StyleData::border_top_right_shape));
 
         let row = Row::new().build(state, border_radius_panel, |builder| 
             builder
@@ -914,7 +922,7 @@ impl Widget for StyleControls {
             .bind(AppData::style_data.then(StyleData::border_radius_bottom_left), |val| *val)
             .build(state, row, |builder| builder);
     
-        border_shape_dropdown(state, row, Corner::BottomLeft);
+        border_shape_dropdown(state, row, Corner::BottomLeft, AppData::style_data.then(StyleData::border_bottom_left_shape));
 
         let row = Row::new().build(state, border_radius_panel, |builder| 
             builder
@@ -929,7 +937,7 @@ impl Widget for StyleControls {
                 .bind(AppData::style_data.then(StyleData::border_radius_bottom_right), |val| *val)
                 .build(state, row, |builder| builder);
 
-        border_shape_dropdown(state, row, Corner::BottomRight);
+        border_shape_dropdown(state, row, Corner::BottomRight, AppData::style_data.then(StyleData::border_bottom_right_shape));
 
     
         let shadow_panel = Panel::new("Shadow").build(state, scroll, |builder| 
@@ -1015,7 +1023,8 @@ enum Corner {
     BottomRight,
 }
 
-fn border_shape_dropdown(state: &mut State, parent: Entity, corner: Corner) {
+fn border_shape_dropdown<L: Lens<Target = BorderCornerShape>>(state: &mut State, parent: Entity, corner: Corner, lens: L)
+{
 
     let (round, bevel) = match corner {
 
@@ -1040,7 +1049,19 @@ fn border_shape_dropdown(state: &mut State, parent: Entity, corner: Corner) {
         }
     };
 
-    let dropdown = Dropdown::new("Test")
+    let dropdown = Dropdown::new("TEST")
+        .bind(lens, |shape| *shape)
+        .on_update(|data, state, dropdown|{
+            match data.value {
+                BorderCornerShape::Round => {
+                    dropdown.emit(state, DropdownEvent::SetText("Round".to_string()));
+                }
+
+                BorderCornerShape::Bevel => {
+                    dropdown.emit(state, DropdownEvent::SetText("Bevel".to_string()));
+                }
+            }
+        })
         .build(state, parent, |builder| {
             builder
                 .set_width(Pixels(80.0))
@@ -1050,7 +1071,7 @@ fn border_shape_dropdown(state: &mut State, parent: Entity, corner: Corner) {
 
     // Spacer
     CheckButton::with_label("Round")
-        .set_checked(true)
+        //.set_checked(true)
         .on_checked(move |_, state, button|{
             button.emit(state, round.clone());
             button.emit(state, PopupEvent::Close);

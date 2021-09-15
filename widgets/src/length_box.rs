@@ -202,7 +202,7 @@ impl Widget for LengthBox {
                 .set_child_space(Stretch(1.0))
         );
 
-        self.dropdown = Dropdown::new("auto")
+        self.dropdown = Dropdown::<()>::new("auto")
             .build(state, entity, |builder| {
                 builder
                     .set_width(Pixels(80.0))
