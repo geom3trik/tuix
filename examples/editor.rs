@@ -194,6 +194,12 @@ pub enum AppEvent {
     SetRight(Units),
     SetTop(Units),
     SetBottom(Units),
+    // Child Space
+    SetChildSpace(Units),
+    SetChildLeft(Units),
+    SetChildRight(Units),
+    SetChildTop(Units),
+    SetChildBottom(Units),
     // Border
     SetBorderWidth(Units),
     SetBorderRadius(Units),
@@ -231,6 +237,13 @@ pub struct StyleData {
     pub top: Units,
     pub right: Units,
     pub bottom: Units,
+    // Child Space
+    pub child_space: Units,
+    pub child_left: Units,
+    pub child_top: Units,
+    pub child_right: Units,
+    pub child_bottom: Units,
+
 
     // Background
     pub background_color: Color,
@@ -346,6 +359,37 @@ impl Model for AppData {
 
                 AppEvent::SetBottom(val) => {
                     self.style_data.bottom = *val;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                // Child Space
+
+                AppEvent::SetChildSpace(val) => {
+                    self.style_data.child_space = *val;
+                    self.style_data.child_left = *val;
+                    self.style_data.child_right = *val;
+                    self.style_data.child_top = *val;
+                    self.style_data.child_bottom = *val;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetChildLeft(val) => {
+                    self.style_data.child_left = *val;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetChildRight(val) => {
+                    self.style_data.child_right = *val;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetChildTop(val) => {
+                    self.style_data.child_top = *val;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetChildBottom(val) => {
+                    self.style_data.child_bottom = *val;
                     entity.emit(state, BindEvent::Update);
                 }
 
@@ -628,7 +672,13 @@ impl Widget for StyleControls {
             .set_child_space(state, Pixels(10.0))
             .set_row_between(state, Pixels(10.0));
 
-        let (size_panel, size_panel_header) = Panel::new("").build(state, scroll, |builder| 
+        Label::new("Size:").build(state, scroll, |builder| 
+            builder
+                .set_height(Pixels(30.0))
+        );
+        let (size_panel, size_panel_header) = Panel::new("")
+        .collapsed(true)
+        .build(state, scroll, |builder| 
             builder
                 .class("group")
         );
@@ -657,7 +707,10 @@ impl Widget for StyleControls {
             .bind(AppData::style_data.then(StyleData::height), |val| *val)
             .build(state, size_panel, |builder| builder);
 
-        
+        Label::new("Space:").build(state, scroll, |builder| 
+            builder
+                .set_height(Pixels(30.0))
+        );
         let (space_panel, space_panel_header) = Panel::new("")
             .build(state, scroll, |builder| 
                 builder
@@ -697,6 +750,51 @@ impl Widget for StyleControls {
                     lengthbox.emit(state, AppEvent::SetBottom(data.value()));      
                 })
                 .bind(AppData::style_data.then(StyleData::bottom), |val| *val)
+                .build(state, space_panel, |builder| builder);
+
+        Label::new("Space:").build(state, scroll, |builder| 
+            builder
+                .set_height(Pixels(30.0))
+        );
+        let (child_space_panel, child_space_panel_header) = Panel::new("")
+            .build(state, scroll, |builder| 
+                builder
+                    .class("group")
+            );
+    
+        LengthBox::new("Child Space")
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetChildSpace(data.value()));
+            })
+            .bind(AppData::style_data.then(StyleData::child_space), |val| *val)
+            .build(state, child_space_panel_header, |builder| builder);
+
+        LengthBox::new("Child Left")
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetChildLeft(data.value()));      
+            })
+            .bind(AppData::style_data.then(StyleData::child_left), |val| *val)
+            .build(state, space_panel, |builder| builder);
+
+        LengthBox::new("Child Top")
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetChildTop(data.value()));      
+            })
+            .bind(AppData::style_data.then(StyleData::child_top), |val| *val)
+            .build(state, space_panel, |builder| builder);
+
+        LengthBox::new("Child Right")
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetChildRight(data.value()));      
+            })
+            .bind(AppData::style_data.then(StyleData::child_right), |val| *val)
+            .build(state, space_panel, |builder| builder);
+            
+        LengthBox::new("Child Bottom")
+                .on_changed(|data, state, lengthbox|{
+                    lengthbox.emit(state, AppEvent::SetChildBottom(data.value()));      
+                })
+                .bind(AppData::style_data.then(StyleData::child_bottom), |val| *val)
                 .build(state, space_panel, |builder| builder);
     
 
@@ -876,6 +974,20 @@ impl Widget for StyleControls {
                 //.class("group")
                 //.set_background_color(Color::blue())
         );
+
+        let row = Row::new().build(state, text_panel, |builder| 
+            builder
+                .set_height(Pixels(30.0))
+        );
+
+        Label::new("Color:").build(state, row, |builder| builder);
+        ColorButton::new()
+            .on_press(|data, state, button|{
+                button.emit(state, AppEvent::OpenColorPicker(ColorPickFor::Text));
+            })
+            .bind(AppData::style_data.then(StyleData::font_color), |col| *col)
+            .build(state, row, |builder| builder.set_background_color(Color::black()));
+        
 
         Textbox::new("")
         .on_submit(|data, state, textbox|{

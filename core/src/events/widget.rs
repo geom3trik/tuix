@@ -20,7 +20,7 @@ use std::any::Any;
 const KAPPA90: f32 = 0.5522847493;
 
 pub trait Widget: std::marker::Sized + 'static {
-    type Ret;
+    type Ret: AsEntity;
     type Data: Node;
 
     fn widget_name(&self) -> String {
@@ -227,9 +227,6 @@ pub trait Widget: std::marker::Sized + 'static {
             _ => 0.0,
         };
 
-
-
-
         let outer_shadow_h_offset = match state
             .style
             .outer_shadow_h_offset
@@ -238,7 +235,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_width * val,
+            Units::Percentage(val) => bounds.w * (val / 100.0),
             _ => 0.0,
         };
 
@@ -250,7 +247,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_height * val,
+            Units::Percentage(val) => bounds.w * (val / 100.0),
             _ => 0.0,
         };
 
@@ -262,7 +259,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_height * val,
+            Units::Percentage(val) => bounds.w * (val / 100.0),
             _ => 0.0,
         };
 
@@ -284,7 +281,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_width * val,
+            Units::Percentage(val) => bounds.w * (val / 100.0),
             _ => 0.0,
         };
 
@@ -296,7 +293,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_height * val,
+            Units::Percentage(val) => bounds.w * (val / 100.0),
             _ => 0.0,
         };
 
@@ -308,7 +305,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .unwrap_or_default()
         {
             Units::Pixels(val) => val,
-            Units::Percentage(val) => parent_height * val,
+            Units::Percentage(val) => bounds.w * (val / 100.0),
             _ => 0.0,
         };
 
