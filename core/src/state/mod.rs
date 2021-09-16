@@ -86,6 +86,8 @@ pub struct State {
     pub needs_restyle: bool,
     pub needs_relayout: bool,
     pub needs_redraw: bool,
+
+    pub listeners: FnvHashMap<Entity, Box<dyn Fn(&mut State, Entity, &mut Event)>>,
 }
 
 impl State {
@@ -135,6 +137,8 @@ impl State {
             needs_restyle: false,
             needs_relayout: false,
             needs_redraw: false,
+
+            listeners: FnvHashMap::default(),
         }
     }
 
@@ -279,17 +283,19 @@ impl State {
 
     // This should probably be moved to state.mouse
     pub fn release(&mut self, id: Entity) {
-
         if self.captured == id {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureOutEvent)
                     .target(self.captured)
                     .propagate(Propagation::Direct),
             );
+
+            
         }
 
         self.captured = Entity::null();
         self.active = Entity::null();
+        
     }
 
     pub fn set_focus(&mut self, entity: Entity) {

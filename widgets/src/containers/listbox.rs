@@ -228,14 +228,14 @@ pub struct ListView<T, W> {
 
     on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 
-    creator: Box<dyn Fn(&T) -> W>,
+    creator: Box<dyn Fn(&T, usize) -> W>,
 
     t: PhantomData<T>,
 }
 
 impl<T: std::fmt::Debug + Node, W: Widget> ListView<T, W> {
     pub fn new<F>(creator: F) -> Self 
-    where F: 'static + Fn(&T) -> W,
+    where F: 'static + Fn(&T, usize) -> W,
     {
         Self {
             checked_entity: Entity::null(),
@@ -295,7 +295,7 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Vec<T>) {
 
         if state.tree.get_num_children(entity).unwrap() as usize != data.len() {
-            for (_, item) in data.iter().enumerate() {
+            for (index, item) in data.iter().enumerate() {
                 // let item = CheckButton::new()
                 //     .set_checked(true)
                 //     .build(state, entity, |builder| 
@@ -306,7 +306,7 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
 
                 //(self.creator)(item).build(state, entity, |builder| builder.set_height(Pixels(30.0)).set_color(Color::black()));
 
-                ListItem::new((self.creator)(item)).build(state, entity, |builder| 
+                ListItem::new((self.creator)(item, index)).build(state, entity, |builder| 
                     builder
                         //.set_height(Pixels(30.0))
                         //.set_height(Auto)

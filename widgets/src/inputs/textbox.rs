@@ -570,7 +570,8 @@ impl Widget for Textbox {
         let transform = state.data.get_transform(entity);
 
         canvas.save();
-        canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
+        
+        //canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
         canvas.translate(posx, posy);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
@@ -807,7 +808,7 @@ impl Widget for Textbox {
         canvas.restore();
 
         canvas.save();
-        canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
+        //canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
         //canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
 
         if let Some(text) = state.style.text.get_mut(entity) {

@@ -1,11 +1,13 @@
+use std::marker::PhantomData;
+
 use crate::Node;
 
-pub trait Lens {
+pub trait Lens: 'static + Sized {
 
     type Source: Node;
     type Target;
 
-    fn view<'a>(&self, data: &'a Self::Source) -> &'a Self::Target;
+    fn view<'a>(&self, data: &'a Self::Source) -> Self::Target;
 }
 
 
@@ -20,6 +22,24 @@ pub trait LensExt: Lens {
     {
         Then::new(self, other)
     }
+
+    fn and<Other>(self, other: Other) -> And<Self, Other>
+    where
+        Other: Lens + Sized,
+        Self: Sized,
+    {
+        And::new(self, other)
+    }
+
+    fn index<I: 'static>(self, index: I) -> Then<Self, Index<Self::Target, I>>
+    where
+        Self: Sized,
+        I: Clone,
+        Self::Target: std::ops::Index<I> + Sized,
+        <<Self as Lens>::Target as std::ops::Index<I>>::Output: Sized + Clone,
+    {
+        Then::new(self, Index::new(index))
+    }
 }
 
 // Implement LensExt for all types which implement Lens
@@ -29,43 +49,103 @@ impl<T: Lens> LensExt for T {
 
 /// `Lens` composed of two lenses joined together
 #[derive(Debug, Copy)]
-pub struct Then<Left, Right> {
-    left: Left,
-    right: Right,
+pub struct Then<A, B> {
+    a: A,
+    b: B,
 }
 
-impl<Left, Right> Then<Left, Right> {
-    pub fn new(left: Left, right: Right) -> Self
+impl<A, B> Then<A, B> {
+    pub fn new(a: A, b: B) -> Self
     where
-        Left: Lens,
-        Right: Lens,
+        A: Lens,
+        B: Lens,
     {
         Self {
-            left,
-            right,
+            a,
+            b,
         }
     }
 }
 
-impl<Left, Right> Lens for Then<Left, Right>
+impl<A, B> Lens for Then<A, B>
 where
-    Left: Lens + 'static,
-    Right: Lens<Source = <Left as Lens>::Target> + 'static,
+    A: Lens,
+    B: Lens<Source = A::Target>,
 {
 
-    type Source = <Left as Lens>::Source;
-    type Target = <Right as Lens>::Target;
+    type Source = A::Source;
+    type Target = B::Target;
 
-    fn view<'a>(&self, data: &'a Self::Source) -> &'a Self::Target {
-        self.right.view(self.left.view(data))
+    fn view<'a>(&self, data: &'a Self::Source) -> Self::Target {
+        self.b.view(&self.a.view(data))
     }
 }
 
 impl<T: Clone, U: Clone> Clone for Then<T, U> {
     fn clone(&self) -> Self {
         Self {
-            left: self.left.clone(),
-            right: self.right.clone(),
+            a: self.a.clone(),
+            b: self.b.clone(),
         }
+    }
+}
+
+pub struct And<A,B> {
+    a: A,
+    b: B,
+}
+
+impl<A,B> And<A,B> {
+    pub fn new(a: A, b: B) -> Self 
+    where 
+        A: Lens,
+        B: Lens,
+    {
+        Self {
+            a,
+            b,
+        }
+    }
+}
+
+impl<A,B> Lens for And<A,B> 
+where 
+    A: Lens,
+    B: Lens<Source = A::Source>,
+{
+    type Source = A::Source;
+    type Target = (A::Target, B::Target);
+
+    fn view<'a>(&self, data: &'a Self::Source) -> Self::Target {
+        (self.a.view(data), self.b.view(data))
+    }
+}
+
+pub struct Index<T,I> {
+    index: I,
+    output: PhantomData<T>,
+}
+
+impl<T,I> Index<T,I> {
+    pub fn new(index: I) -> Self {
+        Self {
+            index,
+            output: PhantomData::default(),
+        }
+    }
+}
+
+impl<T,I> Lens for Index<T,I> 
+where 
+
+    T: 'static + std::ops::Index<I> + Sized,
+    I: 'static + Clone,
+    <T as std::ops::Index<I>>::Output: Sized + Clone,
+{
+    type Source = T;
+    type Target = <T as std::ops::Index<I>>::Output;
+
+    fn view<'a>(&self, data: &'a Self::Source) -> Self::Target {
+        data[self.index.clone()].clone()
     }
 }

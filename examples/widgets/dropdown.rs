@@ -67,7 +67,7 @@ impl Widget for Container {
     type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
-        self.dropdown = Dropdown::new("Test")
+        self.dropdown = Dropdown::<()>::new("Test")
             .build(state, container, |builder| {
                 builder
                     .set_width(Pixels(210.0))

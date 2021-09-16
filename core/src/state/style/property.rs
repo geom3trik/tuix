@@ -73,6 +73,11 @@ pub enum Property {
     BorderBottomRightRadius(Units),
     BorderWidth(Units),
     BorderColor(Color),
+    BorderCornerShape(BorderCornerShape),
+    BorderTopLeftShape(BorderCornerShape),
+    BorderTopRightShape(BorderCornerShape),
+    BorderBottomLeftShape(BorderCornerShape),
+    BorderBottomRightShape(BorderCornerShape),
 
     // Background
     BackgroundColor(Color),

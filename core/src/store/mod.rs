@@ -98,6 +98,11 @@ pub enum BindEvent {
     //Init,
 }
 
+#[derive(PartialEq)]
+pub struct Rebind<L: Lens> {
+    lens: L,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum UpdateEvent<'a, T> {
     Update(&'a T),
@@ -132,6 +137,7 @@ where W: Widget<Data = <L as Lens>::Target>,
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
         self.widget.on_event(state, entity, event)
     }
 
@@ -150,7 +156,7 @@ where W: Widget<Data = <L as Lens>::Target>,
         // }
 
         // Update the underlying widget with the lensed and converted data
-        self.widget.on_update(state, entity, value);
+        self.widget.on_update(state, entity, &value);
 
         // // Call the on_update callback
         // if let Some(callback) = self.on_update.take() {
@@ -206,6 +212,7 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         state.insert_event(Event::new(BindEvent::Bind(entity, type_id)).target(entity).propagate(Propagation::Up));
 
         self.widget.on_build(state, entity)
+        
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -213,14 +220,17 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
     }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+
         // Apply the lens
         let view_data = self.lens.view(data);
         // Apply the converter function
         let value = (self.converter)(&view_data);
 
+        //print_type_of(&value);
+
         // Update children
         for (_index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
-            
+
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
                 event_handler.on_update(state, child, &value);
 
@@ -242,4 +252,8 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
         self.widget.on_draw(state, entity, canvas)
     }
+}
+
+fn print_type_of<T>(_: &T) {
+    println!("{}", std::any::type_name::<T>())
 }

@@ -1,3 +1,5 @@
+use tuix_core::layout::GeometryChanged;
+
 use crate::common::*;
 
 // #[derive(Debug, Copy, Clone, PartialEq)]
@@ -197,7 +199,7 @@ impl Widget for ScrollContainerH {
             match window_event {
                 WindowEvent::GeometryChanged(geometry_changed) => {
                     if event.target == self.container || event.target == entity {
-                        if geometry_changed.width || geometry_changed.height {
+                        if geometry_changed.contains(GeometryChanged::WIDTH_CHANGED) || geometry_changed.contains(GeometryChanged::HEIGHT_CHANGED) {
                             self.scroll.scroll_size =
                                 state.data.get_width(entity) / state.data.get_width(self.container);
 
@@ -590,7 +592,7 @@ impl Widget for ScrollContainer {
             match window_event {
                 WindowEvent::GeometryChanged(geometry_changed) => {
                     if event.target == self.container || event.target == entity {
-                        if geometry_changed.width || geometry_changed.height {
+                        if geometry_changed.contains(GeometryChanged::WIDTH_CHANGED) || geometry_changed.contains(GeometryChanged::HEIGHT_CHANGED) {
                             self.scroll.scroll_size = state.data.get_height(entity)
                                 / state.data.get_height(self.container);
 

@@ -71,6 +71,20 @@ impl EventManager {
         'events: for event in self.event_queue.iter_mut() {
             //println!("Event: {:?}", event);
 
+            // Send events to any listeners
+            let listeners = state.listeners.iter().map(|(entity, _)| *entity).collect::<Vec<Entity>>();
+            for entity in listeners {
+                if let Some(listener) = state.listeners.remove(&entity) {
+                    (listener)(state, entity, event);
+
+                    state.listeners.insert(entity, listener);
+                }
+
+                if event.consumed {
+                    continue 'events;
+                }
+            }
+
             // Skip events with no target unless they are set to propagate to all entities
             if event.target == Entity::null() && event.propagation != Propagation::All {
                 continue 'events;
@@ -307,7 +321,9 @@ impl EventManager {
             canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
 
             if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
+                //let start = std::time::Instant::now();
                 event_handler.on_draw_(state, entity, canvas);
+                //println!("{:.2?} seconds for whatever you did.", start.elapsed());
                 state.event_handlers.insert(entity, event_handler);
             }
 

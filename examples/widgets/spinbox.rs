@@ -17,7 +17,7 @@ const STYLE: &str = r#"
     }
 
     spinbox>textbox {
-        color: black;
+        color: red;
         border-width: 1px;
         border-color: #757575;
         right: -1px;

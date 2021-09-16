@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use femtovg::ImageId;
 use morphorm::GeometryChanged;
 use crate::entity::Entity;
 
@@ -114,6 +117,8 @@ pub struct CachedData {
     stack_child: Vec<(bool, bool)>,
 
     pub geometry_changed: Vec<GeometryChanged>,
+
+    pub shadow_image: HashMap<Entity, (ImageId, ImageId)>,
 }
 
 impl CachedData {
