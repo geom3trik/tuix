@@ -570,7 +570,7 @@ impl Widget for Textbox {
         let transform = state.data.get_transform(entity);
 
         canvas.save();
-        canvas.reset_scissor();
+        
         //canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
         canvas.translate(posx, posy);
 

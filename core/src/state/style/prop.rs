@@ -50,6 +50,14 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    fn add_listener<F>(&self, state: &mut State, listener: F) -> Entity
+    where F: 'static + Fn(&mut State, Entity, &mut Event)
+    {  
+        state.listeners.insert(self.entity(), Box::new(listener));
+
+        self.entity()
+    }
+
     fn set_name(self, state: &mut State, name: &str) -> Entity {
         state.style.name.insert(self.entity(), name.to_string());
 
