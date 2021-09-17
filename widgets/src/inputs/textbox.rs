@@ -252,25 +252,35 @@ impl Widget for Textbox {
                             );
                         }
                     }
-                    if *key == Some(Key::Backspace) {
-
-
-
-
+                    if *key == Some(Key::Backspace) || *key == Some(Key::Delete) {
                         if self.edit {
                             let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
+
                             //let start = text_data.select_pos as usize;
                             //let end = text_data.cursor_pos as usize;
                             if start == end && self.cursor_pos > 0 {
-                                if let Some(txt) = state.style.text.get_mut(entity) {
-                                    //txt.remove((self.cursor_pos - 1) as usize);
-                                    txt.pop();
-                                }
+                                if *key == Some(Key::Backspace) {
+                                    if let Some(txt) = state.style.text.get_mut(entity) {
+                                        txt.remove((self.cursor_pos - 1) as usize);
+                                        //txt.pop();
+                                    }
+                                    self.cursor_pos -= 1;
+                                    self.select_pos -= 1;
 
-                                self.cursor_pos -= 1;
-                                self.select_pos -= 1;
+                                } else {
+                                    if (self.cursor_pos as usize) < (self.text.len()) {
+                                        if let Some(txt) = state.style.text.get_mut(entity) {
+                                            txt.remove((self.cursor_pos) as usize);
+                                            //txt.pop();
+                                        }
+                                    }
+                                }
+                                
+
+                                
                             } else {
+                                
                                 if let Some(txt) = state.style.text.get_mut(entity) {
                                     txt.replace_range(start..end, "");
                                 }
@@ -327,6 +337,11 @@ impl Widget for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
+                            if let Some(callback) = self.on_submit.take() {
+                                (callback)(self, state, entity);
+                                self.on_submit = Some(callback);
+                            }
+
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::root()),
                             );
@@ -335,7 +350,7 @@ impl Widget for Textbox {
                 }
 
                 WindowEvent::CharInput(input) => {
-                    if *input as u8 != 8 && *input as u8 != 13 {
+                    if *input as u8 != 8 && *input as u8 != 13 && *input as u8 != 127 {
                         // Ignore input when ctrl is being held
                         if state.modifiers.ctrl {
                             return;
@@ -380,11 +395,25 @@ impl Widget for Textbox {
                     }
                 }
 
+                WindowEvent::FocusIn => {
+                    if !self.edit {
+                        self.cursor_pos = text_data.len() as u32;
+                        self.select_pos = 0;
+                        self.buffer = text_data.clone();
+                        self.edit = true;
+                    }
+                }
+
 
                 WindowEvent::FocusOut => {
                     self.edit = false;
                     entity.set_active(state, false);
                     state.release(entity);
+
+                    if let Some(callback) = self.on_submit.take() {
+                        (callback)(self, state, entity);
+                        self.on_submit = Some(callback);
+                    }
 
 
                     state.insert_event(
@@ -393,10 +422,15 @@ impl Widget for Textbox {
                 }
 
                 WindowEvent::MouseCaptureOutEvent => {
-                    println!("Mouse Capture Out");
+                    //println!("Mouse Capture Out");
                     self.edit = false;
                     entity.set_active(state, false);
-                    state.release(entity);
+                    //state.release(entity);
+
+                    if let Some(callback) = self.on_submit.take() {
+                        (callback)(self, state, entity);
+                        self.on_submit = Some(callback);
+                    }
 
 
                     state.insert_event(

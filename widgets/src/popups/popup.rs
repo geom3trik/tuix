@@ -25,28 +25,25 @@ impl Widget for Popup {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
 
-        entity.add_listener(state, |_: &mut Self, state, entity, event| {
+        entity.add_listener(state, |popup: &mut Self, state, entity, event| {
             if let Some(window_event) = event.message.downcast() {
                 match window_event {
                     WindowEvent::MouseDown(button) => {
-                        if event.origin != entity {
-                            if !entity.is_over(state) {
-                                entity.emit(state, PopupEvent::Close);
-                            
-                            } else {
-                                state.insert_event(
-                                    Event::new(WindowEvent::MouseDown(*button))
-                                        .target(state.hovered)
-                                        .origin(entity)
-                                        .propagate(Propagation::Up),
-                                );
+                        if popup.open {
+                            if event.origin != entity {
+                                if !entity.is_over(state) {
+                                    entity.emit(state, PopupEvent::Close);
+                                
+                                } 
                             }
                         }
                     }
 
                     WindowEvent::KeyDown(code, _) => {
-                        if *code == Code::Escape {
-                            entity.emit(state, PopupEvent::Close);
+                        if popup.open {
+                            if *code == Code::Escape {
+                                entity.emit(state, PopupEvent::Close);
+                            }
                         }
                     }
 
