@@ -60,10 +60,6 @@ name = "vector_edit"
 path = "examples/widgets/vector_edit.rs"
 
 # [[example]]
-# name = "combobox"
-# path = "examples/widgets/combobox.rs"
-
-# [[example]]
 # name = "vector"
 # path = "examples/widgets/vector.rs"
 
@@ -94,10 +90,6 @@ path = "examples/widgets/listbox.rs"
 [[example]]
 name = "dropdown"
 path = "examples/widgets/dropdown.rs"
-
-[[example]]
-name = "dropdown2"
-path = "examples/widgets/dropdown2.rs"
 
 [[example]]
 name = "length_box"
