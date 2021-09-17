@@ -1,5 +1,3 @@
-[Join the Discord channel](https://discord.gg/aNkTPsRm2w)
-
 <p align="center"><img src="https://github.com/geom3trik/tuix/blob/main/docs/tuix-logo.png" width="320" height="180" alt="logo"></p>
 
 ---
