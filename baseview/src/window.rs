@@ -13,7 +13,9 @@ impl TuixWindow {
     fn new(state: State, win_desc: WindowDescription, window: &mut baseview::Window) -> TuixWindow {
         let (renderer, context) = load_renderer(window);
 
+        context.make_current();
         let application = ApplicationRunner::new(state, win_desc, renderer);
+        context.make_not_current();
 
         TuixWindow {
             application,
@@ -25,20 +27,12 @@ impl TuixWindow {
     ///
     /// * `parent` - The parent window.
     /// * `app` - The Tuix application builder.
-    pub fn open_parented<P, F>(parent: &P, mut app: F)
+    pub fn open_parented<P, F>(parent: &P, win_desc: WindowDescription, mut app: F)
     where
         P: HasRawWindowHandle,
-        F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
+        F: FnOnce(&mut State, Entity),
         F: 'static + Send,
     {
-        let mut state = State::new();
-
-        let root = Entity::root();
-        state.hierarchy.add(Entity::root(), None);
-
-        let win_desc = WindowDescription::new();
-        let win_desc = (app)(win_desc, &mut state, root);
-
         let window_settings = WindowOpenOptions {
             title: win_desc.title.clone(),
             size: baseview::Size::new(
@@ -52,6 +46,13 @@ impl TuixWindow {
             parent,
             window_settings,
             move |window: &mut baseview::Window<'_>| -> TuixWindow {
+                let mut state = State::new();
+
+                let root = Entity::root();
+                //state.tree.add(Entity::root(), None);
+
+                (app)(&mut state, root);
+
                 TuixWindow::new(state, win_desc, window)
             },
         )
@@ -60,19 +61,11 @@ impl TuixWindow {
     /// Open a new window as if it had a parent window.
     ///
     /// * `app` - The Tuix application builder.
-    pub fn open_as_if_parented<F>(mut app: F) -> RawWindowHandle
+    pub fn open_as_if_parented<F>(win_desc: WindowDescription, mut app: F) -> RawWindowHandle
     where
-        F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
+        F: FnOnce(&mut State, Entity),
         F: 'static + Send,
     {
-        let mut state = State::new();
-
-        let root = Entity::root();
-        state.hierarchy.add(Entity::root(), None);
-
-        let win_desc = WindowDescription::new();
-        let win_desc = (app)(win_desc, &mut state, root);
-
         let window_settings = WindowOpenOptions {
             title: win_desc.title.clone(),
             size: baseview::Size::new(
@@ -85,6 +78,13 @@ impl TuixWindow {
         Window::open_as_if_parented(
             window_settings,
             move |window: &mut baseview::Window<'_>| -> TuixWindow {
+                let mut state = State::new();
+
+                let root = Entity::root();
+                //state.tree.add(Entity::root(), None);
+
+                (app)(&mut state, root);
+
                 TuixWindow::new(state, win_desc, window)
             },
         )
@@ -93,19 +93,11 @@ impl TuixWindow {
     /// Open a new window that blocks the current thread until the window is destroyed.
     ///
     /// * `app` - The Tuix application builder.
-    pub fn open_blocking<F>(mut app: F)
+    pub fn open_blocking<F>(win_desc: WindowDescription, mut app: F)
     where
-        F: FnMut(WindowDescription, &mut State, Entity) -> WindowDescription,
+        F: FnOnce(&mut State, Entity),
         F: 'static + Send,
     {
-        let mut state = State::new();
-
-        let root = Entity::root();
-        state.hierarchy.add(Entity::root(), None);
-
-        let win_desc = WindowDescription::new();
-        let win_desc = (app)(win_desc, &mut state, root);
-
         let window_settings = WindowOpenOptions {
             title: win_desc.title.clone(),
             size: baseview::Size::new(
@@ -118,6 +110,14 @@ impl TuixWindow {
         Window::open_blocking(
             window_settings,
             move |window: &mut baseview::Window<'_>| -> TuixWindow {
+                let mut state = State::new();
+
+                let root = Entity::root();
+                //state.tree.add(Entity::root(), None);
+
+                let win_desc = WindowDescription::new();
+                (app)(&mut state, root);
+
                 TuixWindow::new(state, win_desc, window)
             },
         )
@@ -130,9 +130,9 @@ impl WindowHandler for TuixWindow {
 
         self.context.make_current();
 
-        if self.application.render() {
-            self.context.swap_buffers();
-        }
+        self.application.render();
+        self.context.swap_buffers();
+        
 
         self.context.make_not_current();
     }
@@ -151,7 +151,7 @@ impl WindowHandler for TuixWindow {
 
 fn load_renderer(window: &Window) -> (Renderer, raw_gl_context::GlContext) {
     let mut config = raw_gl_context::GlConfig::default();
-    config.vsync = true;
+    config.vsync = false;
 
     let context = raw_gl_context::GlContext::create(window, config).unwrap();
 

@@ -38,6 +38,15 @@ pub enum GameEvent {
     Restart,
 }
 
+#[derive(Debug, Clone, Lens)]
+pub struct GameState {
+
+}
+
+impl Model for GameState {
+
+}
+
 // Widget to describe the board state
 pub struct Board {
     squares: [GameData; 9],
@@ -62,15 +71,16 @@ impl Board {
 }
 
 // Add the squares and the post-game overlay
-impl BuildHandler for Board {
+impl Widget for Board {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // Create three rows each with 3 buttons
         for r in 0..3 {
-            let row = HBox::new().build(state, entity, |builder| builder.class("row"));
+            let row = Row::new().build(state, entity, |builder| builder.class("row"));
             for c in 0..3 {
                 Square::default()
-                    .on_press(Event::new(GameEvent::SquarePressed(3 * r + c)))
+                    .on_press(GameEvent::SquarePressed(3 * r + c))
                     .build(state, row, |builder| builder.class("square"));
             }
         }
@@ -81,15 +91,15 @@ impl BuildHandler for Board {
             Label::new("").build(state, self.overlay, |builder| builder.class("winner"));
 
         Button::with_label("Play Again")
-            .on_release(Event::new(GameEvent::Restart).target(entity))
+            .on_release(move |_,state,button|{
+                button.emit_to(state, entity, GameEvent::Restart);
+            })
             .build(state, self.overlay, |builder| builder.class("replay"));
 
         entity.set_element(state, "board")
     }
-}
 
-// React to the various game events
-impl EventHandler for Board {
+    // React to the various game events
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(game_event) = event.message.downcast::<GameEvent>() {
             match game_event {
@@ -161,23 +171,25 @@ pub struct Square {
 }
 
 impl Square {
-    pub fn on_press(mut self, event: Event) -> Self {
-        self.button = self.button.on_press(event);
+    pub fn on_press<M: 'static + Message + Clone>(mut self, message: M) -> Self {
+        self.button = self.button.on_press(move |_,state, entity|{
+            //entity.emit_event(state, event);
+            state.insert_event(Event::new(message.clone()));
+        });
 
         self
     }
 }
 
 // Inherits from button
-impl BuildHandler for Square {
+impl Widget for Square {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.button.on_build(state, entity)
     }
-}
 
-// Inherits button behaviour and adds new behaviour by reacting to a restart event
-impl EventHandler for Square {
+    // Inherits button behaviour and adds new behaviour by reacting to a restart event
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         self.button.on_event(state, entity, event);
 
@@ -194,14 +206,12 @@ impl EventHandler for Square {
 }
 // Run the app
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(WindowDescription::new().with_title("Tic Tac Toe").with_inner_size(300, 300),|state, window| {
         state
             .add_stylesheet("examples/themes/tic_tac_toe_theme.css")
             .expect("Failed to load stylesheet");
 
-        Board::new().build(state, window, |builder| builder);
-
-        win_desc.with_inner_size(300, 300).with_title("Tic Tac Toe")
+        Board::new().build(state, window.entity(), |builder| builder);
     });
 
     app.run();

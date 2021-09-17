@@ -1,21 +1,20 @@
-#![allow(dead_code)]
 
 use prop::PropGet;
 
-use crate::{Entity, GeometryChanged, State, Event, WindowEvent, Propagation};
+use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};
 
-use crate::hierarchy::*;
+use crate::tree::*;
 use crate::style::*;
 
 use crate::flexbox::AlignItems;
 
-pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
-    for entity in hierarchy.into_iter() {
+pub fn apply_z_ordering(state: &mut State, tree: &Tree) {
+    for entity in tree.into_iter() {
         if entity == Entity::root() {
             continue;
         }
 
-        let parent = hierarchy.get_parent(entity).unwrap();
+        let parent = tree.get_parent(entity).unwrap();
 
         if let Some(z_order) = state.style.z_order.get(entity) {
             state.data.set_z_order(entity, *z_order);
@@ -27,7 +26,7 @@ pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
 }
 
 fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
-    // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
+    // Safe to unwrap because every entity in the tree has a parent except window which is skipped
     let parent = child.get_parent(state).unwrap();
 
     let parent_flex_direction = parent.get_flex_direction(state);
@@ -64,19 +63,19 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
 
     // Child size constraints
     let child_min_width = match child.get_min_width(state) {
-        Length::Pixels(val) => val,
+        Units::Pixels(val) => val,
         _ => 0.0,
     };
     let child_max_width = match child.get_max_width(state) {
-        Length::Pixels(val) => val,
+        Units::Pixels(val) => val,
         _ => std::f32::INFINITY,
     };
     let child_min_height = match child.get_min_height(state) {
-        Length::Pixels(val) => val,
+        Units::Pixels(val) => val,
         _ => 0.0,
     };
     let child_max_height = match child.get_max_height(state) {
-        Length::Pixels(val) => val,
+        Units::Pixels(val) => val,
         _ => std::f32::INFINITY,
     };
 
@@ -96,11 +95,11 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     //let child_position = child.get_position(state);
 
     // Add padding
-    if state.style.flex_grow.get(child).is_none() {
-        new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
-        new_cross +=
-            child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
-    }
+    //if state.style.flex_grow.get(child).is_none() {
+    new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
+    //}
+
+    new_cross += child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
 
     //println!("New Main: {}, New Cross: {}", new_main, new_cross);
 
@@ -115,14 +114,14 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
 
     // A main specified in pixels overrides child sum
     match main {
-        Length::Pixels(val) => new_main = val,
+        Units::Pixels(val) => new_main = val,
 
         _ => {}
     }
 
     // A cross specified in pixels overrides child max
     match cross {
-        Length::Pixels(val) => new_cross = val,
+        Units::Pixels(val) => new_cross = val,
 
         _ => {}
     }
@@ -131,7 +130,7 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
 
     // Flex basis overrides main
     match child_flex_basis {
-        Length::Pixels(val) => new_main = val,
+        Units::Pixels(val) => new_main = val,
         _ => {}
     }
 
@@ -158,11 +157,13 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
     // new_main = new_main.max(child_padding_main_before + child_padding_main_after + 2.0 * child_border_width);
     // new_cross = new_cross.max(child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width);
 
+    //println!("Child: {} {} {} {}", child, new_main, new_cross, child_padding_bottom);
+
     (new_main, new_cross)
 }
 
 fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
-    // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
+    // Safe to unwrap because every entity in the tree has a parent except window which is skipped
     let parent = child.get_parent(state).unwrap();
 
     let parent_flex_direction = parent.get_flex_direction(state);
@@ -216,6 +217,32 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
         ),
     };
 
+    // Child margins
+    let child_margin_left = child.get_margin_left(state).get_value(parent_width);
+    let child_margin_right = child.get_margin_right(state).get_value(parent_width);
+    let child_margin_top = child.get_margin_top(state).get_value(parent_height);
+    let child_margin_bottom = child.get_margin_bottom(state).get_value(parent_height);
+
+    let (
+        _child_margin_main_before,
+        _child_margin_main_after,
+        child_margin_cross_before,
+        child_margin_cross_after,
+    ) = match parent_flex_direction {
+        FlexDirection::Row | FlexDirection::RowReverse => (
+            child_margin_left,
+            child_margin_right,
+            child_margin_top,
+            child_margin_bottom,
+        ),
+        FlexDirection::Column | FlexDirection::ColumnReverse => (
+            child_margin_top,
+            child_margin_bottom,
+            child_margin_left,
+            child_margin_right,
+        ),
+    };
+
     let child_border_width = child.get_border_width(state).get_value(parent_width);
 
     // Child size constraints
@@ -259,9 +286,9 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     // Add padding
     if state.style.flex_grow.get(child).is_none() {
         new_main += child_padding_main_before + child_padding_main_after + 2.0 * child_border_width;
-        new_cross +=
-            child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
     }
+
+    new_cross += child_padding_cross_before + child_padding_cross_after + 2.0 * child_border_width;
 
     let child_position = child.get_position(state);
 
@@ -278,9 +305,9 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
 
             // A main specified in pixels overrides child sum
             match main {
-                Length::Pixels(val) => new_main = val,
+                Units::Pixels(val) => new_main = val,
 
-                Length::Percentage(val) => new_main = parent_main * val,
+                Units::Percentage(val) => new_main = parent_main * val,
 
                 _ => {}
             }
@@ -289,27 +316,27 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
 
             // Flex basis overrides main
             match child_flex_basis {
-                Length::Pixels(val) => new_main = val,
-                Length::Percentage(val) => new_main = parent_main * val,
+                Units::Pixels(val) => new_main = val,
+                Units::Percentage(val) => new_main = parent_main * val,
                 _ => {}
             }
 
             // Align stretch overrides child max
             if let Some(child_align_self) = state.style.align_self.get(child) {
                 if *child_align_self == AlignSelf::Stretch {
-                    new_cross = parent_cross;
+                    new_cross = parent_cross - child_margin_cross_before - child_margin_cross_after;
                 }
             } else {
                 if parent_align_items == AlignItems::Stretch {
-                    new_cross = parent_cross;
+                    new_cross = parent_cross - child_margin_cross_before - child_margin_cross_after;
                 }
             }
 
             // A cross specified in pixels overrides align stretch
             match cross {
-                Length::Pixels(val) => new_cross = val,
+                Units::Pixels(val) => new_cross = val,
 
-                Length::Percentage(val) => new_cross = parent_cross * val,
+                Units::Percentage(val) => new_cross = parent_cross * val,
 
                 _ => {}
             }
@@ -334,17 +361,15 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
             let bottom = child.get_bottom(state);
 
             let r = match right {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => val * parent_width,
-                Length::Initial(val) => val,
-                Length::Auto => 0.0,
+                Units::Pixels(val) => val,
+                Units::Percentage(val) => val * parent_width,
+                _ => 0.0,
             };
 
             let l = match left {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => val * parent_width,
-                Length::Initial(val) => val,
-                Length::Auto => 0.0,
+                Units::Pixels(val) => val,
+                Units::Percentage(val) => val * parent_width,
+                _ => 0.0,
             };
 
             if !right.is_auto() && !left.is_auto() {
@@ -352,17 +377,15 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
             }
 
             let b = match bottom {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => val * parent_height,
-                Length::Initial(val) => val,
-                Length::Auto => 0.0,
+                Units::Pixels(val) => val,
+                Units::Percentage(val) => val * parent_height,
+                _ => 0.0,
             };
 
             let t = match top {
-                Length::Pixels(val) => val,
-                Length::Percentage(val) => val * parent_height,
-                Length::Initial(val) => val,
-                Length::Auto => 0.0,
+                Units::Pixels(val) => val,
+                Units::Percentage(val) => val * parent_height,
+                _ => 0.0,
             };
 
             if !bottom.is_auto() && !top.is_auto() {
@@ -370,17 +393,17 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
             }
 
             match width {
-                Length::Auto => {}
-                Length::Pixels(val) => new_width = val,
-                Length::Initial(val) => new_width = val,
-                Length::Percentage(val) => new_width = val * parent_width,
+                
+                Units::Pixels(val) => new_width = val,
+                Units::Percentage(val) => new_width = val * parent_width,
+                _ => {}
             }
 
             match height {
-                Length::Auto => {}
-                Length::Pixels(val) => new_height = val,
-                Length::Initial(val) => new_height = val,
-                Length::Percentage(val) => new_height = val * parent_height,
+                
+                Units::Pixels(val) => new_height = val,
+                Units::Percentage(val) => new_height = val * parent_height,
+                _ => {}
             }
 
             match parent_flex_direction {
@@ -407,23 +430,23 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     (new_main, new_cross)
 }
 
-pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_layout(state: &mut State, tree: &Tree) {
     //println!("RELAYOUT");
 
-    let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
+    let layout_tree = tree.into_iter().collect::<Vec<Entity>>();
 
     ///////////
     // Reset //
     ///////////
-    for entity in layout_hierarchy.iter() {
+    for entity in layout_tree.iter() {
         state.data.set_child_sum(*entity, 0.0);
         state.data.set_child_max(*entity, 0.0);
     }
 
     ///////////////////////////
-    // Walk up the hierarchy //
+    // Walk up the tree //
     ///////////////////////////
-    for child in layout_hierarchy.iter().rev() {
+    for child in layout_tree.iter().rev() {
         // Stop before the window
         if *child == Entity::root() {
             break;
@@ -435,7 +458,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             continue;
         }
 
-        // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
+        // Safe to unwrap because every entity in the tree has a parent except window which is skipped
         let parent = child.get_parent(state).unwrap();
 
         let parent_flex_direction = parent.get_flex_direction(state);
@@ -487,9 +510,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
     }
 
     /////////////////////////////
-    // Walk down the hierarchy //
+    // Walk down the tree //
     /////////////////////////////
-    for parent in layout_hierarchy.iter() {
+    for parent in layout_tree.iter() {
         // Skip non-displayed entities
         let parent_display = parent.get_display(state);
         if parent_display == Display::None {
@@ -558,29 +581,23 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         /////////////////////
         // Resize entities //
         /////////////////////
-        for child in parent.child_iter(&hierarchy) {
+        for child in parent.child_iter(&tree) {
             // Skip non-displayed entities
             let child_display = child.get_display(state);
             if child_display == Display::None {
                 continue;
             }
 
+            state
+                .data
+                .set_prev_width(child, state.data.get_width(child));
+            state
+                .data
+                .set_prev_height(child, state.data.get_height(child));
+
             let (new_main, new_cross) = calculate_down(state, child);
 
             //println!("DOWN: {} -> new_main: {} new_cross: {}", child, new_main, new_cross);
-
-            let mut geometry_changed = GeometryChanged::default();
-
-            geometry_changed.width = true;
-            geometry_changed.height = true;
-
-            if geometry_changed.width || geometry_changed.height {
-                state.insert_event(
-                    Event::new(WindowEvent::GeometryChanged(geometry_changed))
-                        .target(child)
-                        .propagate(Propagation::Down),
-                );
-            }
 
             match parent_flex_direction {
                 FlexDirection::Row | FlexDirection::RowReverse => {
@@ -648,7 +665,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         if free_space > 0.0 && flex_grow_sum > 0.0 {
             // Filter to keep only flexible children
             let mut flexible_children = parent
-                .child_iter(&hierarchy)
+                .child_iter(&tree)
                 .filter(|child| child.get_flex_grow(state) > 0.0)
                 .collect::<Vec<_>>();
 
@@ -702,19 +719,19 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                         // Child size constraints
                         let _child_min_width = match child.get_min_width(state) {
-                            Length::Pixels(val) => val,
+                            Units::Pixels(val) => val,
                             _ => 0.0,
                         };
                         let child_max_width = match child.get_max_width(state) {
-                            Length::Pixels(val) => val,
+                            Units::Pixels(val) => val,
                             _ => std::f32::INFINITY,
                         };
                         let _child_min_height = match child.get_min_height(state) {
-                            Length::Pixels(val) => val,
+                            Units::Pixels(val) => val,
                             _ => 0.0,
                         };
                         let child_max_height = match child.get_max_height(state) {
-                            Length::Pixels(val) => val,
+                            Units::Pixels(val) => val,
                             _ => std::f32::INFINITY,
                         };
 
@@ -753,6 +770,28 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
                     _ => {}
                 }
+
+                let mut geometry_changed = GeometryChanged::default();
+
+                let prev_width = state.data.get_prev_width(*child);
+                let prev_height = state.data.get_prev_height(*child);
+                let new_width = state.data.get_width(*child);
+                let new_height = state.data.get_height(*child);
+
+                if new_width != prev_width {
+                    geometry_changed.width = true;
+                }
+                if new_height != prev_height {
+                    geometry_changed.height = true;
+                }
+
+                if geometry_changed.width || geometry_changed.height {
+                    state.insert_event(
+                        Event::new(WindowEvent::GeometryChanged(geometry_changed))
+                            .target(*child)
+                            .propagate(Propagation::Down),
+                    );
+                }
             }
         } else if free_space < 0.0 && flex_shrink_sum > 0.0 {
             // Do some flex shrinking
@@ -764,10 +803,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let children = match parent_flex_direction {
             FlexDirection::Row | FlexDirection::Column => {
-                parent.child_iter(&hierarchy).collect::<Vec<_>>()
+                parent.child_iter(&tree).collect::<Vec<_>>()
             }
             FlexDirection::RowReverse | FlexDirection::ColumnReverse => {
-                parent.child_iter(&hierarchy).rev().collect::<Vec<_>>()
+                parent.child_iter(&tree).rev().collect::<Vec<_>>()
             }
         };
 
@@ -837,8 +876,8 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
             let position = child.get_position(state);
 
-            let mut new_posx ;
-            let mut new_posy ;
+            let mut new_posx;
+            let mut new_posy;
 
             match position {
                 Position::Relative => {
@@ -923,11 +962,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match left {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posx += val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posx += val
                                 * (parent_width
                                     - parent_padding_left
@@ -939,11 +978,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match top {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posy += val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posy += val
                                 * (parent_height
                                     - parent_padding_top
@@ -963,11 +1002,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     new_posy = parent_posy;
 
                     match right {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posx = parent_posx + parent_width - child_width - val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posx =
                                 parent_posx + parent_width - child_width - (val * parent_width);
                         }
@@ -976,11 +1015,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match left {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posx = parent_posx + val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posx = parent_posx + (val * parent_width);
                         }
 
@@ -988,11 +1027,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match bottom {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posy = parent_posy + parent_height - child_height - val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posy =
                                 parent_posy + parent_height - child_height - (val * parent_height);
                         }
@@ -1001,11 +1040,11 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
                     }
 
                     match top {
-                        Length::Pixels(val) => {
+                        Units::Pixels(val) => {
                             new_posy = parent_posy + val;
                         }
 
-                        Length::Percentage(val) => {
+                        Units::Percentage(val) => {
                             new_posy = parent_posy + (val * parent_height);
                         }
 

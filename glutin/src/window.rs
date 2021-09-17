@@ -14,37 +14,37 @@ pub struct Window {
 
 impl Window {
     pub fn new(events_loop: &EventLoop<()>, window_description: &WindowDescription) -> Self {
-	    //Windows COM doesn't play nicely with winit's drag and drop right now
-	    #[cfg(target_os = "windows")]
-	        let mut window_builder = {
-		        use glutin::platform::windows::WindowBuilderExtWindows;
-		        WindowBuilder::new()
-			        .with_drag_and_drop(false)
-	        };
-	    #[cfg(not(target_os = "windows"))]
-		    let mut window_builder = WindowBuilder::new();
+        //Windows COM doesn't play nicely with winit's drag and drop right now
+        #[cfg(target_os = "windows")]
+        let mut window_builder = {
+            use glutin::platform::windows::WindowBuilderExtWindows;
+            WindowBuilder::new().with_drag_and_drop(false)
+        };
+        #[cfg(not(target_os = "windows"))]
+        let mut window_builder = WindowBuilder::new();
 
-		    window_builder = window_builder.with_title(&window_description.title)
-		    .with_inner_size(PhysicalSize::new(
-			    window_description.inner_size.width,
-			    window_description.inner_size.height,
-		    ))
-		    .with_min_inner_size(PhysicalSize::new(
-			    window_description.min_inner_size.width,
-			    window_description.min_inner_size.height,
-		    ))
-		    .with_window_icon(if let Some(icon) = &window_description.icon {
-			    Some(
-				    glutin::window::Icon::from_rgba(
-					    icon.clone(),
-					    window_description.icon_width,
-					    window_description.icon_height,
-				    )
-					    .unwrap(),
-			    )
-		    } else {
-			    None
-		    });
+        window_builder = window_builder
+            .with_title(&window_description.title)
+            .with_inner_size(PhysicalSize::new(
+                window_description.inner_size.width,
+                window_description.inner_size.height,
+            ))
+            .with_min_inner_size(PhysicalSize::new(
+                window_description.min_inner_size.width,
+                window_description.min_inner_size.height,
+            ))
+            .with_window_icon(if let Some(icon) = &window_description.icon {
+                Some(
+                    glutin::window::Icon::from_rgba(
+                        icon.clone(),
+                        window_description.icon_width,
+                        window_description.icon_height,
+                    )
+                    .unwrap(),
+                )
+            } else {
+                None
+            });
 
         let handle = ContextBuilder::new()
             .with_vsync(true)

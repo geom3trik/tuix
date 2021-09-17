@@ -9,9 +9,6 @@ pub use event::*;
 pub mod event_handler;
 pub use event_handler::*;
 
-pub mod build_handler;
-pub use build_handler::*;
-
 pub mod builder;
 pub use builder::*;
 
@@ -20,3 +17,9 @@ pub use window_event::*;
 
 pub mod window_description;
 pub use window_description::*;
+
+pub mod widget;
+pub use widget::*;
+
+pub mod window;
+pub use window::WindowWidget;

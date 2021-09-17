@@ -2,7 +2,7 @@ extern crate tuix;
 
 use tuix::*;
 
-use tuix::widgets::{Panel, ResizableVBox, ScrollContainer};
+use tuix::{Panel, ResizableColumn, ScrollContainer};
 
 static THEME: &'static str = include_str!("themes/treeview_theme.css");
 
@@ -12,18 +12,20 @@ fn main() {
     //let window = Window::new(&event_loop, WindowDescription::new().with_title("Panels").with_inner_size(800, 600));
 
     // Create the app
-    let app = Application::new(|win_desc, state, window| {
+    let app = Application::new(WindowDescription::new().with_title("Treeview"), |state, window| {
         state.add_theme(THEME);
 
-        let rvbox = ResizableVBox::new().build(state, window, |builder| {
+        let rvbox = ResizableColumn::new().build(state, window.entity(), |builder| {
             builder
-                .set_width(Length::Pixels(300.0))
-                .set_height(Length::Percentage(1.0))
+                .set_width(Pixels(300.0))
+                .set_height(Stretch(1.0))
                 .set_background_color(Color::blue())
                 .class("container")
         });
 
         let scroll = ScrollContainer::new().build(state, rvbox, |builder| builder);
+
+        println!("Scroll: {}", scroll);
 
         let root = Panel::new("ROOT").build(state, scroll, |builder| builder);
 
@@ -53,8 +55,6 @@ fn main() {
             Label::new("Level 4").build(state, three_one_one, |builder| builder.class("level4"));
         let _three_one_one_two =
             Label::new("Level 4").build(state, three_one_one, |builder| builder.class("level4"));
-
-        win_desc.with_title("Panels").with_inner_size(800, 600)
     });
 
     app.run();

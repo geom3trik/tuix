@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::{fs::File, io::BufReader, io::Read, mem, path::Path, sync::Arc};
 
 use cssparser::{
@@ -5,7 +6,7 @@ use cssparser::{
     ParseError, ParseErrorKind, Parser, ParserInput, RuleListParser, SourceLocation, Token,
 };
 
-use crate::layout::{Align, Justify};
+use crate::style::layout::{Align, Justify};
 
 use crate::state::style::property::Property;
 use crate::state::style::selector::{Relation, Selector};
@@ -15,15 +16,17 @@ use crate::state::style::StyleRule;
 
 use crate::state::style::*;
 
+
 use crate::state::style::color::Color;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub enum CustomParseError {
     InvalidLengthUnits(String),
     InvalidValue(String),
-    InvalidColorName(String),
+    UnrecognisedColorName(String),
     InvalidColorHex(String),
     InvalidStringName(String),
+    UnrecognisedPseudoclass(String),
 }
 
 impl<'t> From<CustomParseError> for ParseError<'t, CustomParseError> {
@@ -31,6 +34,56 @@ impl<'t> From<CustomParseError> for ParseError<'t, CustomParseError> {
         ParseError {
             kind: ParseErrorKind::Custom(e),
             location: SourceLocation { line: 0, column: 0 },
+        }
+    }
+}
+
+pub struct StyleParseError<'t>(pub ParseError<'t, CustomParseError>);
+
+impl<'t> std::fmt::Display for StyleParseError<'t> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+
+        let error_message = match &self.0.kind {
+            ParseErrorKind::Custom(custom_error) => {
+                format!("{:?}", custom_error)
+            }
+
+            ParseErrorKind::Basic(basic_error) => {
+                format!("{:?}", basic_error)
+            }
+        };
+
+        write!(f, "Warning: {}", error_message)
+    }
+}
+
+impl Debug for CustomParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+
+            CustomParseError::InvalidValue(error_string) => {
+                write!(f, "Invalid value: {}", error_string)
+            }
+
+            CustomParseError::UnrecognisedPseudoclass(error_string) => {
+                write!(f, "Unrecognised pseudoclass: {}", error_string)
+            }
+
+            CustomParseError::InvalidLengthUnits(error_string) => {
+                write!(f, "Invalid length units: {}", error_string)
+            }
+
+            CustomParseError::InvalidStringName(error_string) => {
+                write!(f, "Invalid string name: {}", error_string)
+            }
+
+            CustomParseError::UnrecognisedColorName(error_string) => {
+                write!(f, "Unrecognised color name: {}", error_string)
+            }
+
+            CustomParseError::InvalidColorHex(error_string) => {
+                write!(f, "Invalid color hex: {}", error_string)
+            }
         }
     }
 }
@@ -164,6 +217,7 @@ fn parse_selectors<'i, 't>(
                 selectors.push(selector);
                 //selector = Selector::from(&input.expect_ident()?.to_string());
                 selector = Selector::default();
+                whitespace = false;
                 // if let Some(selec) = selectors.last_mut() {
                 //     selec.relation = Relation::Parent;
                 // }
@@ -217,28 +271,24 @@ fn parse_selectors<'i, 't>(
                 let pseudo_class_str = input.expect_ident()?.to_owned();
 
                 match pseudo_class_str.as_ref() {
-                    "hover" => selector.pseudo_classes.set_hover(true),
-                    "active" => selector.pseudo_classes.set_active(true),
-                    "focus" => selector.pseudo_classes.set_focus(true),
-                    "enabled" => selector.pseudo_classes.set_enabled(true),
-                    "disabled" => selector.pseudo_classes.set_disabled(true),
-                    "checked" => selector.pseudo_classes.set_checked(true),
+                    "hover" => selector.pseudo_classes.insert(PseudoClasses::HOVER),
+                    "over" => selector.pseudo_classes.insert(PseudoClasses::OVER),
+                    "active" => selector.pseudo_classes.insert(PseudoClasses::ACTIVE),
+                    "focus" => selector.pseudo_classes.insert(PseudoClasses::FOCUS),
+                    "disabled" => selector.pseudo_classes.insert(PseudoClasses::DISABLED),
+                    "checked" => selector.pseudo_classes.insert(PseudoClasses::CHECKED),
+                    "selected" => selector.pseudo_classes.insert(PseudoClasses::SELECTED),
+                    "custom" => selector.pseudo_classes.insert(PseudoClasses::CUSTOM),
 
-                    _ => {}
+                    _ => {
+                        let parse_error = ParseError {
+                            kind: ParseErrorKind::Custom(CustomParseError::UnrecognisedPseudoclass(pseudo_class_str.to_string())),
+                            location: input.current_source_location(),
+                        };
+
+                        return Err(parse_error);
+                    }
                 }
-
-                // let pseudo_class = match pseudo_class_str.as_ref() {
-                //     "hover" => PseudoClass::Hover,
-                //     "active" => PseudoClass::Active,
-                //     "focus" => PseudoClass::Focus,
-                //     "enabled" => PseudoClass::Enabled,
-                //     "disabled" => PseudoClass::Disabled,
-                //     "checked" => PseudoClass::Checked,
-                //     "over" => PseudoClass::Over,
-                //     _ => PseudoClass::None,
-                // };
-
-                // selector.pseudo_classes.insert(pseudo_class);
             }
 
             // This selector is done, on to the next one
@@ -315,74 +365,75 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "background-image" => Property::BackgroundImage(parse_string(input)?),
 
             // Positioning
-            "position" => Property::Position(parse_position(input)?),
+            "position" => Property::PositionType(parse_positioning_type(input)?),
 
-            "left" => Property::Left(parse_length(input)?),
-            "right" => Property::Right(parse_length(input)?),
-            "top" => Property::Top(parse_length(input)?),
-            "bottom" => Property::Bottom(parse_length(input)?),
+            "left" => Property::Left(parse_units(input)?),
+            "right" => Property::Right(parse_units(input)?),
+            "top" => Property::Top(parse_units(input)?),
+            "bottom" => Property::Bottom(parse_units(input)?),
+            "space" => Property::Space(parse_units(input)?),
+
+            "min-left" => Property::MinLeft(parse_units(input)?),
+            "max-left" => Property::MaxLeft(parse_units(input)?),
+            "min-right" => Property::MinRight(parse_units(input)?),
+            "max-right" => Property::MaxRight(parse_units(input)?),
+            "min-top" => Property::MinTop(parse_units(input)?),
+            "max-top" => Property::MaxTop(parse_units(input)?),
+            "min-bottom" => Property::MinBottom(parse_units(input)?),
+            "max-bottom" => Property::MaxBottom(parse_units(input)?),
+
+            "layout-type" => Property::LayoutType(parse_layout_type(input)?),
 
             // Size
-            "width" => Property::Width(parse_length(input)?),
-            "height" => Property::Height(parse_length(input)?),
+            "width" => Property::Width(parse_units(input)?),
+            "height" => Property::Height(parse_units(input)?),
 
             // Size Constraints
             //TODO - Are percentages supported?
-            "min-width" => Property::MinWidth(parse_length(input)?),
-            "min-height" => Property::MinHeight(parse_length(input)?),
-            "max-width" => Property::MaxWidth(parse_length(input)?),
-            "max-height" => Property::MaxHeight(parse_length(input)?),
+            "min-width" => Property::MinWidth(parse_units(input)?),
+            "min-height" => Property::MinHeight(parse_units(input)?),
+            "max-width" => Property::MaxWidth(parse_units(input)?),
+            "max-height" => Property::MaxHeight(parse_units(input)?),
 
-            // Margin
-            "margin" => Property::Margin(parse_length(input)?),
-            "margin-left" => Property::MarginLeft(parse_length(input)?),
-            "margin-right" => Property::MarginRight(parse_length(input)?),
-            "margin-top" => Property::MarginTop(parse_length(input)?),
-            "margin-bottom" => Property::MarginBottom(parse_length(input)?),
-
-            // Padding
-            "padding" => Property::Padding(parse_length(input)?),
-            "padding-left" => Property::PaddingLeft(parse_length(input)?),
-            "padding-right" => Property::PaddingRight(parse_length(input)?),
-            "padding-top" => Property::PaddingTop(parse_length(input)?),
-            "padding-bottom" => Property::PaddingBottom(parse_length(input)?),
-
-            "text-align" => Property::TextAlign(parse_alignment(input)?),
-            "text-justify" => Property::TextJustify(parse_justification(input)?),
-
+            "child-space" => Property::ChildSpace(parse_units(input)?),
+            "child-left" => Property::ChildLeft(parse_units(input)?),
+            "child-right" => Property::ChildRight(parse_units(input)?),
+            "child-top" => Property::ChildTop(parse_units(input)?),
+            "child-bottom" => Property::ChildBottom(parse_units(input)?),
+            "row-between" => Property::RowBetween(parse_units(input)?),
+            "col-between" => Property::ColBetween(parse_units(input)?),
             "font-size" => Property::FontSize(parse_font_size(input)?),
 
             // Border
-            "border-width" => Property::BorderWidth(parse_length(input)?),
+            "border-width" => Property::BorderWidth(parse_units(input)?),
             "border-color" => Property::BorderColor(parse_color(input)?),
             // TODO - Support array for specifying each corner
-            "border-radius" => Property::BorderRadius(parse_length(input)?),
+            "border-radius" => Property::BorderRadius(parse_units(input)?),
 
-            "border-top-left-radius" => Property::BorderTopLeftRadius(parse_length(input)?),
-            "border-top-right-radius" => Property::BorderTopRightRadius(parse_length(input)?),
-            "border-bottom-left-radius" => Property::BorderBottomLeftRadius(parse_length(input)?),
-            "border-bottom-right-radius" => Property::BorderBottomRightRadius(parse_length(input)?),
+            "border-corner-shape" => Property::BorderCornerShape(parse_border_corner_shape(input)?),
+            "border-top-left-radius" => Property::BorderTopLeftRadius(parse_units(input)?),
+            "border-top-right-radius" => Property::BorderTopRightRadius(parse_units(input)?),
+            "border-bottom-left-radius" => Property::BorderBottomLeftRadius(parse_units(input)?),
+            "border-bottom-right-radius" => Property::BorderBottomRightRadius(parse_units(input)?),
 
             "opacity" => Property::Opacity(parse_length_or_percentage(input)?),
-
-            // Flex Container
-            "flex-direction" => Property::FlexDirection(parse_flex_direction(input)?),
-            "justify-content" => Property::JustifyContent(parse_justify_content(input)?),
-            "align-content" => Property::AlignContent(parse_align_content(input)?),
-            "align-items" => Property::AlignItems(parse_align_items(input)?),
-            "align-self" => Property::AlignSelf(parse_align_self(input)?),
-
-            // Flex Item
-            "flex-basis" => Property::FlexBasis(parse_length(input)?),
-            "flex-grow" => Property::FlexGrow(parse_length_or_percentage(input)?),
-            "flex-shrink" => Property::FlexShrink(parse_length_or_percentage(input)?),
 
             "display" => Property::Display(parse_display(input)?),
             "visibility" => Property::Visibility(parse_visibility(input)?),
 
             "overflow" => Property::Overflow(parse_overflow(input)?),
 
-            "box-shadow" => Property::BoxShadow(parse_box_shadow(input)?),
+            "outer-shadow" => Property::OuterShadow(parse_box_shadow(input)?),
+            "outer-shadow-h-offset" => Property::OuterShadowHOffset(parse_units(input)?),
+            "outer-shadow-v-offset" => Property::OuterShadowVOffset(parse_units(input)?),
+            "outer-shadow-blur" => Property::OuterShadowBlur(parse_units(input)?),
+            "outer-shadow-color" => Property::OuterShadowColor(parse_color(input)?),
+
+            "inner-shadow" => Property::InnerShadow(parse_box_shadow(input)?),
+            "inner-shadow-h-offset" => Property::InnerShadowHOffset(parse_units(input)?),
+            "inner-shadow-v-offset" => Property::InnerShadowVOffset(parse_units(input)?),
+            "inner-shadow-blur" => Property::InnerShadowBlur(parse_units(input)?),
+            "inner-shadow-color" => Property::InnerShadowColor(parse_color(input)?),
 
             "transition" => {
                 Property::Transition(input.parse_comma_separated(|F| parse_transition2(F))?)
@@ -390,13 +441,15 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
 
             "z-index" => Property::ZIndex(parse_z_index(input)?),
 
-            _ => {
-                let basic_error = BasicParseError {
-                    kind: BasicParseErrorKind::UnexpectedToken(input.next()?.to_owned()),
-                    location: SourceLocation { line: 0, column: 0 },
-                };
-                return Err(basic_error.into());
-            }
+            ident => Property::Unknown(ident.to_owned(), parse_unknown(input)?),
+
+            // _ => {
+            //     let basic_error = BasicParseError {
+            //         kind: BasicParseErrorKind::UnexpectedToken(input.next()?.to_owned()),
+            //         location: SourceLocation { line: 0, column: 0 },
+            //     };
+            //     return Err(basic_error.into());
+            // }
         })
     }
 }
@@ -436,6 +489,47 @@ fn css_string(name: &str) -> Option<String> {
     Some(String::from(name))
 }
 
+fn parse_unknown<'i, 't>(
+    input: &mut Parser<'i, 't>,
+) -> Result<PropType, ParseError<'i, CustomParseError>> {
+    Ok(match input.next()? {
+        Token::QuotedString(s) => match css_string(&s) {
+            Some(string) => PropType::String(string),
+            None => {
+                return Err(CustomParseError::InvalidStringName(s.to_owned().to_string()).into())
+            }
+        },
+
+        Token::Number { value: x, .. } => PropType::Units(Units::Pixels(*x as f32)),
+        Token::Percentage { unit_value: x, .. } => PropType::Units(Units::Percentage(*x as f32)),
+
+        Token::Dimension {
+            has_sign: _,
+            value: v,
+            int_value: _,
+            unit: u,
+        } if u == &"px" => PropType::Units(Units::Pixels(*v as f32)),
+
+        Token::Dimension {
+            has_sign: _,
+            value: v,
+            int_value: _,
+            unit: u,
+        } if u == &"s" => PropType::Units(Units::Stretch(*v as f32)),
+
+        Token::Ident(name) if name == &"auto" => PropType::Units(Units::Auto),
+
+        t => {
+            let basic_error = BasicParseErrorKind::UnexpectedToken(t.to_owned());
+            let parse_error = ParseError {
+                kind: ParseErrorKind::Basic(basic_error),
+                location: SourceLocation { line: 0, column: 0 },
+            };
+            return Err(parse_error);
+        }
+    })
+}
+
 fn parse_string<'i, 't>(
     input: &mut Parser<'i, 't>,
 ) -> Result<String, ParseError<'i, CustomParseError>> {
@@ -465,7 +559,7 @@ fn parse_basic_color<'i, 't>(
         Token::Ident(s) => match css_color(&s) {
             Some(color) => color,
             None => {
-                return Err(CustomParseError::InvalidColorName(s.to_owned().to_string()).into());
+                return Err(CustomParseError::UnrecognisedColorName(s.to_owned().to_string()).into());
             }
         },
 
@@ -561,15 +655,15 @@ fn parse_box_shadow<'i, 't>(
     let mut box_shadow = BoxShadow::default();
 
     match parse_length2(input.next()?) {
-        Ok(length) => {
-            box_shadow.horizontal_offset = length;
+        Ok(units) => {
+            box_shadow.horizontal_offset = units;
             match parse_length2(input.next()?) {
-                Ok(length) => {
-                    box_shadow.vertical_offset = length;
+                Ok(units) => {
+                    box_shadow.vertical_offset = units;
                     let next_token = input.next()?;
                     match parse_length2(next_token) {
-                        Ok(length) => {
-                            box_shadow.blur_radius = length;
+                        Ok(units) => {
+                            box_shadow.blur_radius = units;
 
                             let next_token = input.next()?;
                             match parse_color2(next_token) {
@@ -599,20 +693,20 @@ fn parse_box_shadow<'i, 't>(
 
     // match token {
     //     Token::Number { value: x, .. } => {
-    //         box_shadow.horizontal_offset = Length::Pixels(*x);
+    //         box_shadow.horizontal_offset = Units::Pixels(*x);
 
     //         match input.next()? {
     //             Token::Number { value: x, .. } => {
-    //                 box_shadow.vertical_offset = Length::Pixels(*x);
+    //                 box_shadow.vertical_offset = Units::Pixels(*x);
     //             }
 
     //             t => {}
     //         }
     //     }
 
-    //     Token::Percentage { unit_value: x, .. } => Length::Percentage(*x as f32),
+    //     Token::Percentage { unit_value: x, .. } => Units::Percentage(*x as f32),
 
-    //     Token::Dimension { value: x, .. } => Length::Pixels(*x as f32),
+    //     Token::Dimension { value: x, .. } => Units::Pixels(*x as f32),
 
     //     t => {
     //         let basic_error = BasicParseError {
@@ -626,12 +720,12 @@ fn parse_box_shadow<'i, 't>(
     // Ok(box_shadow)
 }
 
-fn parse_length2<'i>(token: &Token<'i>) -> Result<Length, ParseError<'i, CustomParseError>> {
+fn parse_length2<'i>(token: &Token<'i>) -> Result<Units, ParseError<'i, CustomParseError>> {
     match token {
-        Token::Number { value: x, .. } => Ok(Length::Pixels(*x as f32)),
-        Token::Percentage { unit_value: x, .. } => Ok(Length::Percentage(*x as f32)),
+        Token::Number { value: x, .. } => Ok(Units::Pixels(*x as f32)),
+        Token::Percentage { unit_value: x, .. } => Ok(Units::Percentage(*x as f32)),
 
-        Token::Dimension { value: x, .. } => Ok(Length::Pixels(*x as f32)),
+        Token::Dimension { value: x, .. } => Ok(Units::Pixels(*x as f32)),
         t => {
             let basic_error = BasicParseError {
                 kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
@@ -692,14 +786,29 @@ fn parse_transition2<'i, 't>(
     })
 }
 
-fn parse_length<'i, 't>(
+fn parse_units<'i, 't>(
     input: &mut Parser<'i, 't>,
-) -> Result<Length, ParseError<'i, CustomParseError>> {
+) -> Result<Units, ParseError<'i, CustomParseError>> {
     Ok(match input.next()? {
-        Token::Number { value: x, .. } => Length::Pixels(*x as f32),
-        Token::Percentage { unit_value: x, .. } => Length::Percentage(*x as f32),
+        Token::Number { value: x, .. } => Units::Pixels(*x as f32),
+        Token::Percentage { unit_value: x, .. } => Units::Percentage(*x as f32),
 
-        Token::Dimension { value: x, .. } => Length::Pixels(*x as f32),
+        Token::Dimension {
+            has_sign: _,
+            value: v,
+            int_value: _,
+            unit: u,
+        } if u == &"px" => Units::Pixels(*v as f32),
+
+        Token::Dimension {
+            has_sign: _,
+            value: v,
+            int_value: _,
+            unit: u,
+        } if u == &"s" => Units::Stretch(*v as f32),
+
+        Token::Ident(name) if name == &"auto" => Units::Auto,
+
         t => {
             let basic_error = BasicParseError {
                 kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
@@ -710,15 +819,15 @@ fn parse_length<'i, 't>(
     })
 }
 
-fn parse_position<'i, 't>(
+fn parse_positioning_type<'i, 't>(
     input: &mut Parser<'i, 't>,
-) -> Result<Position, ParseError<'i, CustomParseError>> {
+) -> Result<PositionType, ParseError<'i, CustomParseError>> {
     let location = input.current_source_location();
 
     Ok(match input.next()? {
         Token::Ident(name) => match name.as_ref() {
-            "absolute" => Position::Absolute,
-            "relative" => Position::Relative,
+            "self-directed" => PositionType::SelfDirected,
+            "parent-directed" => PositionType::ParentDirected,
 
             t => {
                 return Err(
@@ -801,7 +910,7 @@ fn parse_display<'i, 't>(
     Ok(match input.next()? {
         Token::Ident(name) => match name.as_ref() {
             "none" => Display::None,
-            "flex" => Display::Flexbox,
+            "flex" => Display::Flex,
 
             _ => {
                 return Err(
@@ -874,17 +983,15 @@ fn parse_overflow<'i, 't>(
     })
 }
 
-fn parse_flex_direction<'i, 't>(
+fn parse_border_corner_shape<'i, 't>(
     input: &mut Parser<'i, 't>,
-) -> Result<FlexDirection, ParseError<'i, CustomParseError>> {
+) -> Result<BorderCornerShape, ParseError<'i, CustomParseError>> {
     let location = input.current_source_location();
 
     Ok(match input.next()? {
         Token::Ident(name) => match name.as_ref() {
-            "row" => FlexDirection::Row,
-            "column" => FlexDirection::Column,
-            "row-reverse" => FlexDirection::RowReverse,
-            "column-reverse" => FlexDirection::ColumnReverse,
+            "round" => BorderCornerShape::Round,
+            "bevel" => BorderCornerShape::Bevel,
 
             _ => {
                 return Err(
@@ -903,19 +1010,16 @@ fn parse_flex_direction<'i, 't>(
     })
 }
 
-fn parse_justify_content<'i, 't>(
+fn parse_layout_type<'i, 't>(
     input: &mut Parser<'i, 't>,
-) -> Result<JustifyContent, ParseError<'i, CustomParseError>> {
+) -> Result<LayoutType, ParseError<'i, CustomParseError>> {
     let location = input.current_source_location();
 
     Ok(match input.next()? {
         Token::Ident(name) => match name.as_ref() {
-            "flex-start" => JustifyContent::FlexStart,
-            "flex-end" => JustifyContent::FlexEnd,
-            "center" => JustifyContent::Center,
-            "space-between" => JustifyContent::SpaceBetween,
-            "space-around" => JustifyContent::SpaceAround,
-            "space-evenly" => JustifyContent::SpaceEvenly,
+            "row" => LayoutType::Row,
+            "column" => LayoutType::Column,
+            "grid" => LayoutType::Grid,
 
             _ => {
                 return Err(
@@ -933,102 +1037,6 @@ fn parse_justify_content<'i, 't>(
         }
     })
 }
-
-fn parse_align_content<'i, 't>(
-    input: &mut Parser<'i, 't>,
-) -> Result<AlignContent, ParseError<'i, CustomParseError>> {
-    let location = input.current_source_location();
-
-    Ok(match input.next()? {
-        Token::Ident(name) => match name.as_ref() {
-            "flex-start" => AlignContent::FlexStart,
-            "flex-end" => AlignContent::FlexEnd,
-            "center" => AlignContent::Center,
-            "space-between" => AlignContent::SpaceBetween,
-            "space-around" => AlignContent::SpaceAround,
-            "stretch" => AlignContent::Stretch,
-
-            _ => {
-                return Err(
-                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
-                );
-            }
-        },
-
-        t => {
-            let basic_error = BasicParseError {
-                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                location,
-            };
-            return Err(basic_error.into());
-        }
-    })
-}
-
-fn parse_align_items<'i, 't>(
-    input: &mut Parser<'i, 't>,
-) -> Result<AlignItems, ParseError<'i, CustomParseError>> {
-    let location = input.current_source_location();
-
-    Ok(match input.next()? {
-        Token::Ident(name) => match name.as_ref() {
-            "flex-start" => AlignItems::FlexStart,
-            "flex-end" => AlignItems::FlexEnd,
-            "center" => AlignItems::Center,
-            "stretch" => AlignItems::Stretch,
-            //"baseline" => AlignItems::Baseline, //TODO
-            _ => {
-                return Err(
-                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
-                );
-            }
-        },
-
-        t => {
-            let basic_error = BasicParseError {
-                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                location,
-            };
-            return Err(basic_error.into());
-        }
-    })
-}
-
-fn parse_align_self<'i, 't>(
-    input: &mut Parser<'i, 't>,
-) -> Result<AlignSelf, ParseError<'i, CustomParseError>> {
-    let location = input.current_source_location();
-
-    Ok(match input.next()? {
-        Token::Ident(name) => match name.as_ref() {
-            "flex-start" => AlignSelf::FlexStart,
-            "flex-end" => AlignSelf::FlexEnd,
-            "center" => AlignSelf::Center,
-            "stretch" => AlignSelf::Stretch,
-
-            _ => {
-                return Err(
-                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
-                );
-            }
-        },
-
-        t => {
-            let basic_error = BasicParseError {
-                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                location,
-            };
-            return Err(basic_error.into());
-        }
-    })
-}
-
-// TODO
-// fn parse_transform<'i,'t>(
-//     input: &mut Parser<'i,'t>
-// ) -> Result<Scale, ParseError<'i, CustomParseError>> {
-
-// }
 
 fn parse_color<'i, 't>(
     input: &mut Parser<'i, 't>,
@@ -1047,7 +1055,7 @@ fn parse_color<'i, 't>(
                 Some(color) => color,
                 None => {
                     return Err(
-                        CustomParseError::InvalidColorName(name.to_owned().to_string()).into(),
+                        CustomParseError::UnrecognisedColorName(name.to_owned().to_string()).into(),
                     );
                 }
             }
@@ -1078,7 +1086,7 @@ fn parse_color2<'i>(token: &Token<'i>) -> Result<Color, ParseError<'i, CustomPar
                 Some(color) => Ok(color),
                 None => {
                     return Err(
-                        CustomParseError::InvalidColorName(name.to_owned().to_string()).into(),
+                        CustomParseError::UnrecognisedColorName(name.to_owned().to_string()).into(),
                     );
                 }
             }

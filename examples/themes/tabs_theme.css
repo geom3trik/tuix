@@ -1,46 +1,47 @@
 
 
 tab_manager {
-    flex-grow: 1.0;
+    width: 1s;
 }
 
 tab_bar {
     background-color: #202020;
-    flex-basis: 30px;
-    flex-direction: row;
+    height: 30px;
+    layout-type: row;
 }
 
 tab_bar>.tab {
     background-color: #2e2e2e;
-    margin-right: 1px;
-    margin-bottom: 1px;
-    flex-basis: 80px;
-    text-justify: center;
+    right: 1px;
+    bottom: 1px;
+    width: 100px;
+    child-space: 1s;
 }
 
 tab_bar>.tab:checked {
-    margin-bottom: 0px;
+    bottom: 0px;
     background-color: #383838;
+    /* background-color: red; */
 }
 
 /* Styles for a vertical tab bar */
 
 tab_manager.vertical {
-    flex-direction: row;
+    layout-type: row;
 }
 
 tab_manager.vertical tab_bar {
     flex-basis: 100px;
-    flex-direction: column;
+    layout-type: column;
 }
 
 tab_manager.vertical tab_bar>.tab {
-    flex-basis: 30px;
+    height: 30px;
 }
 
 tab_manager.vertical tab_bar>.tab:checked {
-    margin-bottom: 1px;
-    margin-right: 0px;
+    bottom: 1px;
+    right: 0px;
 }
 
 
@@ -64,8 +65,8 @@ tab_manager>.viewport {
     height: 30px;
     background-color: #646464;
     border-radius: 3px;
-    text-justify: center;
-    margin: 10px;
+    child-space: 1s;
+    space: 10px;
 }
 
 dropdown {

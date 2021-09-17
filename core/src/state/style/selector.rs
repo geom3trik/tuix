@@ -7,123 +7,54 @@ use std::string::ToString;
 
 use crate::Specificity;
 
-// #[derive(Clone, PartialEq, Eq, Hash, Debug)]
-// pub enum PseudoClass {
-//     None,
-//     Hover,
-//     Over,
-//     Active,
-//     Focus,
-//     Enabled,
-//     Disabled,
-//     Checked,
-// }
+use bitflags::bitflags;
 
-// 0 - Hover
-// 1 - Over
-// 2 - Active
-// 3 - Focus
-// 4 - Enabled
-// 5 - Disabled
-// 6 - Checked
-// 7 - Unassigned
 
-#[derive(Debug, Clone)]
-pub struct PseudoClasses(u8);
-
-impl Default for PseudoClasses {
-    fn default() -> Self {
-        PseudoClasses(0)
+bitflags! {
+    pub struct PseudoClasses: u8 {
+        const HOVER = 1;
+        const OVER = 1 << 1;
+        const ACTIVE = 1 << 2;
+        const FOCUS = 1 << 3;
+        const DISABLED = 1 << 4;
+        const CHECKED = 1 << 5;
+        const SELECTED = 1 << 6;
+        const CUSTOM = 1 << 7;
     }
 }
 
-impl PseudoClasses {
-    pub fn new() -> Self {
-        PseudoClasses(0)
+impl Default for PseudoClasses {
+    fn default() -> Self {
+        PseudoClasses::empty()
     }
+}
 
-    pub fn set_hover(&mut self, flag: bool) {
-        if flag {
-            self.0 |= 1;
-        } else {
-            self.0 &= !1;
+impl std::fmt::Display for PseudoClasses {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        
+        if self.contains(PseudoClasses::HOVER) {
+            write!(f, ":hover")?;
         }
-    }
-
-    pub fn set_over(&mut self, flag: bool) {
-        if flag {
-            self.0 |= (1 << 1);
-        } else {
-            self.0 &= !(1 << 1);
+        if self.contains(PseudoClasses::OVER) {
+            write!(f, ":over")?;
         }
-    }
-
-    pub fn set_active(&mut self, flag: bool) {
-        if flag {
-            self.0 |= (1 << 2);
-        } else {
-            self.0 &= !(1 << 2);
+        if self.contains(PseudoClasses::ACTIVE) {
+            write!(f, ":active")?;
         }
-    }
-
-    pub fn set_focus(&mut self, flag: bool) {
-        if flag {
-            self.0 |= (1 << 3);
-        } else {
-            self.0 &= !(1 << 3);
+        if self.contains(PseudoClasses::FOCUS) {
+            write!(f, ":focus")?;
         }
-    }
-
-    pub fn set_enabled(&mut self, flag: bool) {
-        if flag {
-            self.0 |= (1 << 4);
-        } else {
-            self.0 &= !(1 << 4);
+        if self.contains(PseudoClasses::DISABLED) {
+            write!(f, ":disabled")?;
         }
-    }
-
-    pub fn set_disabled(&mut self, flag: bool) {
-        if flag {
-            self.0 |= (1 << 5);
-        } else {
-            self.0 &= !(1 << 5);
+        if self.contains(PseudoClasses::CHECKED) {
+            write!(f, ":checked")?;
         }
-    }
-
-    pub fn set_checked(&mut self, flag: bool) {
-        if flag {
-            self.0 |= (1 << 6);
-        } else {
-            self.0 &= !(1 << 6);
+        if self.contains(PseudoClasses::SELECTED) {
+            write!(f, ":selected")?;
         }
-    }
 
-    pub fn get_hover(&mut self) -> bool {
-        (self.0 & 1) != 0
-    }
-
-    pub fn get_over(&mut self) -> bool {
-        (self.0 & (1 << 1)) >> 1 != 0
-    }
-
-    pub fn get_active(&mut self) -> bool {
-        (self.0 & (1 << 2)) >> 2 != 0
-    }
-
-    pub fn get_focus(&mut self) -> bool {
-        (self.0 & (1 << 3)) >> 3 != 0
-    }
-
-    pub fn get_enabled(&mut self) -> bool {
-        (self.0 & (1 << 4)) >> 4 != 0
-    }
-
-    pub fn get_disabled(&mut self) -> bool {
-        (self.0 & (1 << 5)) >> 5 != 0
-    }
-
-    pub fn get_checked(&mut self) -> bool {
-        (self.0 & (1 << 6)) >> 6 != 0
+        Ok(())
     }
 }
 
@@ -137,9 +68,8 @@ pub enum Relation {
 #[derive(Clone, Debug)]
 pub struct Selector {
     pub id: Option<u64>,
-    pub element: Option<u64>,
+    pub element: Option<String>,
     pub classes: HashSet<String>,
-    //pub pseudo_classes: HashSet<PseudoClass>,
     pub pseudo_classes: PseudoClasses,
     pub relation: Relation,
     pub asterisk: bool,
@@ -151,11 +81,36 @@ impl Default for Selector {
             id: None,
             element: None,
             classes: HashSet::new(),
-            //pseudo_classes: HashSet::new(),
-            pseudo_classes: PseudoClasses::default(),
+            pseudo_classes: PseudoClasses::empty(),
             relation: Relation::None,
             asterisk: false,
         }
+    }
+}
+
+impl std::fmt::Display for Selector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.asterisk {
+            write!(f, "*")?;
+        }
+
+        if let Some(element) = &self.element {
+            write!(f, "{}", element)?;
+        }
+
+        for class_name in self.classes.iter() {
+            write!(f, ".{}", class_name)?;
+        }
+
+        write!(f, "{}", self.pseudo_classes);
+
+        match self.relation {
+            Relation::None => {}
+            Relation::Ancestor => write!(f, " ")?,
+            Relation::Parent => write!(f, ">")?,
+        }
+
+        Ok(())
     }
 }
 
@@ -165,23 +120,21 @@ impl Selector {
             id: None,
             element: None,
             classes: HashSet::new(),
-            //pseudo_classes: HashSet::new(),
-            pseudo_classes: PseudoClasses::default(),
+            pseudo_classes: PseudoClasses::empty(),
             relation: Relation::None,
             asterisk: false,
         }
     }
 
-    pub fn from(element: &str) -> Self {
-        let mut s = DefaultHasher::new();
-        element.hash(&mut s);
+    pub fn element(element: &str) -> Self {
+        //let mut s = DefaultHasher::new();
+        //element.hash(&mut s);
 
         Selector {
             id: None,
-            element: Some(s.finish()),
+            element: Some(element.to_owned()),
             classes: HashSet::new(),
-            //pseudo_classes: HashSet::new(),
-            pseudo_classes: PseudoClasses::default(),
+            pseudo_classes: PseudoClasses::empty(),
             relation: Relation::None,
             asterisk: false,
         }
@@ -190,23 +143,32 @@ impl Selector {
     pub fn matches(&self, entity_selector: &Selector) -> bool {
         // Universal selector always matches
         if self.asterisk {
-            return true;
+            if !self.pseudo_classes.is_empty()
+                && !self.pseudo_classes.intersects(entity_selector.pseudo_classes)
+            {
+                return false;
+            } else {
+                return true;
+            }
         }
 
+        // Check for ID match
         if self.id.is_some() && self.id != entity_selector.id {
             return false;
         }
 
+        // Check for element name match 
         if self.element.is_some() && self.element != entity_selector.element {
             return false;
         }
 
+        // Check for classes match
         if !self.classes.is_subset(&entity_selector.classes) {
             return false;
         }
 
-        if self.pseudo_classes.0 != 0
-            && (self.pseudo_classes.0 & entity_selector.pseudo_classes.0) == 0
+        if !self.pseudo_classes.is_empty()
+            && !self.pseudo_classes.intersects(entity_selector.pseudo_classes)
         {
             return false;
         }
@@ -221,7 +183,7 @@ impl Selector {
     pub fn specificity(&self) -> Specificity {
         Specificity([
             if self.id.is_some() { 1 } else { 0 },
-            (self.classes.len() + self.pseudo_classes.0.count_ones() as usize) as u8,
+            (self.classes.len() + self.pseudo_classes.bits().count_ones() as usize) as u8,
             if self.element.is_some() { 1 } else { 0 },
         ])
     }
@@ -253,9 +215,7 @@ impl Selector {
     }
 
     pub fn set_element(&mut self, element: &str) -> &mut Self {
-        let mut s = DefaultHasher::new();
-        element.hash(&mut s);
-        self.element = Some(s.finish());
+        self.element = Some(element.to_owned());
         self
     }
 }

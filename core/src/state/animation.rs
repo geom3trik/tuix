@@ -10,7 +10,31 @@ use crate::state::style::Color;
 
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+/// An id used to reference stored animations
+#[derive(Debug, Clone, Copy, PartialEq, Hash)]
+pub struct Animation(usize);
+
+impl Animation {
+    pub(crate) fn new(id: usize) -> Self {
+        Self(id)
+    }
+
+    pub fn null() -> Self {
+        Self(std::usize::MAX)
+    }
+
+    pub fn get_id(&self) -> usize {
+        self.0
+    }
+}
+
+impl Default for Animation {
+    fn default() -> Self {
+        Self::null()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct Transition {
     // List of properties affected by transition
     pub property: String,
@@ -94,6 +118,12 @@ where
     }
 
     pub fn with_delay(mut self, delay: Duration) -> Self {
+        self.delay = delay.as_secs_f32() / self.duration.as_secs_f32();
+
+        self
+    }
+
+    pub fn set_delay(&mut self, delay: Duration) -> &mut Self {
         self.delay = delay.as_secs_f32() / self.duration.as_secs_f32();
 
         self

@@ -3,16 +3,24 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use crate::keyboard::{scan_to_code, vk_to_key};
 use crate::window::Window;
 
-use tuix_core::events::{Event, EventManager, Propagation};
-use tuix_core::state::hierarchy::IntoHierarchyIterator;
-use tuix_core::state::mouse::{MouseButton, MouseButtonState};
-use tuix_core::state::Fonts;
+use tuix_core::{BoundingBox, Units};
 use tuix_core::{Entity, State};
-use tuix_core::{Length, Visibility};
+
+use tuix_core::state::mouse::{MouseButton, MouseButtonState};
+
+use tuix_core::events::{Event, EventManager, Propagation};
+
+use tuix_core::state::tree::IntoTreeIterator;
+
+use tuix_core::state::Fonts;
+
+use tuix_core::style::{Display, Visibility};
 
 use tuix_core::state::style::prop::*;
-use tuix_core::systems::{apply_styles};
+
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
+
+use tuix_core::systems::*;
 
 type WEvent<'a, T> = winit::event::Event<'a, T>;
 
@@ -35,7 +43,7 @@ impl Application {
         let event_manager = EventManager::new();
 
         let root = Entity::root();
-        state.hierarchy.add(Entity::root(), None);
+        //state.tree.add(Entity::root(), None);
 
         //let window_description = win(WindowDescription::new());
         let window_description = app(WindowDescription::new(), &mut state, root);
@@ -78,11 +86,11 @@ impl Application {
 
         state.style.width.insert(
             Entity::root(),
-            Length::Pixels(window_description.inner_size.width as f32),
+            Units::Pixels(window_description.inner_size.width as f32),
         );
         state.style.height.insert(
             Entity::root(),
-            Length::Pixels(window_description.inner_size.height as f32),
+            Units::Pixels(window_description.inner_size.height as f32),
         );
 
         state
@@ -104,14 +112,13 @@ impl Application {
     }
 
     pub fn run(self) {
-
         let mut state = self.state;
         let mut event_manager = self.event_manager;
         let mut window = self.window;
 
         let mut should_quit = false;
 
-        let hierarchy = state.hierarchy.clone();
+        let tree = state.tree.clone();
 
         //state.insert_event(Event::new(WindowEvent::Restyle));
         //state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::null()));
@@ -138,7 +145,7 @@ impl Application {
                     }
 
                     if first_time {
-                        apply_styles(&mut state, &hierarchy);
+                        apply_styles(&mut state, &tree);
                         first_time = false;
                     }
 
@@ -154,12 +161,12 @@ impl Application {
 
                     // event_manager.flush_events(&mut state);
 
-                    // apply_z_ordering(&mut state, &hierarchy);
-                    // apply_visibility(&mut state, &hierarchy);
-                    // apply_clipping(&mut state, &hierarchy);
-                    // layout_fun(&mut state, &hierarchy);
+                    // apply_z_ordering(&mut state, &tree);
+                    // apply_visibility(&mut state, &tree);
+                    // apply_clipping(&mut state, &tree);
+                    // layout_fun(&mut state, &tree);
 
-                    // event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
+                    // event_manager.draw(&mut state, &tree, &mut window.canvas);
                     // window
                     //     .handle
                     //     .swap_buffers()
@@ -170,7 +177,7 @@ impl Application {
                 WEvent::RedrawRequested(_) => {
                     window.context.make_current();
 
-                    event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
+                    event_manager.draw(&mut state, &tree, &mut window.canvas);
 
                     window.context.swap_buffers();
                     window.context.make_not_current();
@@ -268,8 +275,8 @@ impl Application {
                                             state.focused = prev_focus;
                                             state.focused.set_focus(&mut state, true);
                                         } else {
-                                            // TODO impliment reverse iterator for hierarchy
-                                            // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
+                                            // TODO impliment reverse iterator for tree
+                                            // state.focused = match state.focused.into_iter(&state.tree).next() {
                                             //     Some(val) => val,
                                             //     None => Entity::root(),
                                             // };
@@ -282,7 +289,7 @@ impl Application {
                                         } else {
                                             state.focused.set_focus(&mut state, false);
                                             state.focused =
-                                                match state.focused.into_iter(&hierarchy).next() {
+                                                match state.focused.into_iter(&tree).next() {
                                                     Some(val) => val,
                                                     None => Entity::root(),
                                                 };
@@ -337,11 +344,11 @@ impl Application {
                             state
                                 .style
                                 .width
-                                .insert(Entity::root(), Length::Pixels(physical_size.width as f32));
-                            state.style.height.insert(
-                                Entity::root(),
-                                Length::Pixels(physical_size.height as f32),
-                            );
+                                .insert(Entity::root(), Units::Pixels(physical_size.width as f32));
+                            state
+                                .style
+                                .height
+                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32));
 
                             state
                                 .data
@@ -370,131 +377,7 @@ impl Application {
                             state.mouse.cursorx = cursorx as f32;
                             state.mouse.cursory = cursory as f32;
 
-                            let mut hovered_widget = Entity::root();
-
-                            // This only really needs to be computed when the hierarchy changes
-                            // Can be optimised
-                            let mut draw_hierarchy: Vec<Entity> =
-                                state.hierarchy.into_iter().collect();
-
-                            draw_hierarchy
-                                .sort_by_cached_key(|entity| state.data.get_z_order(*entity));
-
-                            for widget in draw_hierarchy.into_iter() {
-                                // Skip invisible widgets
-                                if state.data.get_visibility(widget) == Visibility::Invisible {
-                                    continue;
-                                }
-
-                                // This shouldn't be here but there's a bug if it isn't
-                                if state.data.get_opacity(widget) == 0.0 {
-                                    continue;
-                                }
-
-                                // Skip non-hoverable widgets
-                                if state.data.get_hoverability(widget) != true {
-                                    continue;
-                                }
-
-                                let border_width = match state
-                                    .style
-                                    .border_width
-                                    .get(widget)
-                                    .cloned()
-                                    .unwrap_or_default()
-                                {
-                                    Length::Pixels(val) => val,
-                                    //Length::Percentage(val) => parent_width * val,
-                                    _ => 0.0,
-                                };
-
-                                let posx = state.data.get_posx(widget) - (border_width / 2.0);
-                                let posy = state.data.get_posy(widget) - (border_width / 2.0);
-                                let width = state.data.get_width(widget) + (border_width);
-                                let height = state.data.get_height(widget) + (border_width);
-
-                                let clip_widget = state.data.get_clip_widget(widget);
-
-                                let clip_posx = state.data.get_posx(clip_widget);
-                                let clip_posy = state.data.get_posy(clip_widget);
-                                let clip_width = state.data.get_width(clip_widget);
-                                let clip_height = state.data.get_height(clip_widget);
-
-                                if cursorx >= posx
-                                    && cursorx >= clip_posx
-                                    && cursorx < (posx + width)
-                                    && cursorx < (clip_posx + clip_width)
-                                    && cursory >= posy
-                                    && cursory >= clip_posy
-                                    && cursory < (posy + height)
-                                    && cursory < (clip_posy + clip_height)
-                                {
-                                    hovered_widget = widget;
-                                    if let Some(pseudo_classes) =
-                                        state.style.pseudo_classes.get_mut(hovered_widget)
-                                    {
-                                        pseudo_classes.set_over(true);
-                                    }
-                                } else {
-                                    if let Some(pseudo_classes) =
-                                        state.style.pseudo_classes.get_mut(hovered_widget)
-                                    {
-                                        pseudo_classes.set_over(false);
-                                    }
-                                }
-                            }
-
-                            if hovered_widget != state.hovered {
-                                // Useful for debugging
-
-                                // println!(
-                                //     "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
-                                //     hovered_widget,
-                                //     state.hierarchy.get_parent(hovered_widget),
-                                //     state.transform.get_posx(hovered_widget),
-                                //     state.transform.get_posy(hovered_widget),
-                                //     state.transform.get_width(hovered_widget),
-                                //     state.transform.get_height(hovered_widget),
-                                //     state.transform.get_z_order(hovered_widget),
-                                // );
-
-                                if let Some(pseudo_classes) =
-                                    state.style.pseudo_classes.get_mut(hovered_widget)
-                                {
-                                    pseudo_classes.set_hover(true);
-                                }
-
-                                if let Some(pseudo_classes) =
-                                    state.style.pseudo_classes.get_mut(state.hovered)
-                                {
-                                    pseudo_classes.set_hover(false);
-                                }
-
-                                state.insert_event(
-                                    Event::new(WindowEvent::MouseOver).target(hovered_widget),
-                                );
-                                state.insert_event(
-                                    Event::new(WindowEvent::MouseOut).target(state.hovered),
-                                );
-
-                                state.insert_event(
-                                    Event::new(WindowEvent::Restyle)
-                                        .origin(hovered_widget)
-                                        .target(Entity::root()),
-                                );
-                                state.insert_event(
-                                    Event::new(WindowEvent::Restyle)
-                                        .origin(state.hovered)
-                                        .target(Entity::root()),
-                                );
-
-                                state.hovered = hovered_widget;
-                                state.active = Entity::null();
-
-                                state.insert_event(
-                                    Event::new(WindowEvent::Redraw).target(Entity::root()),
-                                );
-                            }
+                            apply_hover(&mut state);
 
                             if state.captured != Entity::null() {
                                 state.insert_event(

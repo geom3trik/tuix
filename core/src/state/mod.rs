@@ -1,8 +1,10 @@
+#![allow(dead_code)]
+
 pub mod entity;
 pub use entity::*;
 
-pub mod hierarchy;
-pub use hierarchy::*;
+pub mod tree;
+pub use tree::*;
 
 pub mod storage;
 pub use storage::*;
@@ -22,7 +24,8 @@ pub use mouse::*;
 pub mod resource;
 pub use resource::*;
 
-pub use crate::events::{Builder, Event, EventHandler, Propagation};
+
+pub use crate::events::{Builder, Event, Propagation, Widget, EventHandler};
 pub use crate::window_event::WindowEvent;
 
 use femtovg::FontId;
@@ -37,65 +40,89 @@ pub struct Fonts {
     pub bold: Option<FontId>,
     pub icons: Option<FontId>,
     pub emoji: Option<FontId>,
-}
-
-pub enum Command {
-    SetProperty(Entity, Property),
+    pub arabic: Option<FontId>,
 }
 
 pub struct State {
-    entity_manager: EntityManager, // Creates and destroys entities
-    pub hierarchy: Hierarchy,      // The widget tree
-    pub style: Style,              // The style properties for every widget
-    pub data: Data,                // Computed data
-
+    // Creates and destroys entities
+    pub(crate) entity_manager: EntityManager, 
+    // The widget tree
+    pub tree: Tree,
+    // The style properties for every widget
+    pub style: Style,
+    // Computed data for every widget
+    pub data: CachedData,
+    // Mouse state
     pub mouse: MouseState,
+    // Modifiers state
     pub modifiers: ModifiersState,
+
+    // Hovered entity
     pub hovered: Entity,
+    // Active entity
     pub active: Entity,
+    // Captured entity
     pub captured: Entity,
+    // Focused entity
     pub focused: Entity,
 
+
+    pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
+
+    // Map of widgets
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+
+    // List of removed entities
     pub(crate) removed_entities: Vec<Entity>,
+
+    // Queue of events
     pub event_queue: VecDeque<Event>,
 
     pub fonts: Fonts, //TODO - Replace with resource manager
 
-    resource_manager: ResourceManager, //TODO
+    pub(crate) resource_manager: ResourceManager, //TODO
+
+    // Flag which signifies that a restyle is required
+    pub needs_restyle: bool,
+    pub needs_relayout: bool,
+    pub needs_redraw: bool,
+
+    pub listeners: FnvHashMap<Entity, Box<dyn Fn(&mut dyn EventHandler, &mut State, Entity, &mut Event)>>,
 }
 
 impl State {
     pub fn new() -> Self {
         let mut entity_manager = EntityManager::new();
-        let hierarchy = Hierarchy::new();
-        let mut style = Style::new();
-        let mut data = Data::new();
+        let _root = entity_manager.create_entity();
+        let tree = Tree::new();
+        let mut style = Style::default();
+        let mut data = CachedData::default();
         let mouse = MouseState::default();
         let modifiers = ModifiersState::default();
 
-        let root = entity_manager
-            .create_entity()
-            .expect("Failed to create root");
+        let root = Entity::root();
 
         data.add(root);
         style.add(root);
 
         style.clip_widget.set(root, root);
 
-        style.background_color.insert(root, Color::rgb(80, 80, 80));
+        style.background_color.insert(root, Color::rgb(80, 80, 80)).expect("");
+
+        
 
         State {
             entity_manager,
-            hierarchy,
+            tree,
             style,
             data,
             mouse,
             modifiers,
-            hovered: Entity::new(0),
+            hovered: Entity::root(),
             active: Entity::null(),
             captured: Entity::null(),
-            focused: Entity::new(0),
+            focused: Entity::root(),
+            callbacks: FnvHashMap::default(),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             removed_entities: Vec::new(),
@@ -104,18 +131,32 @@ impl State {
                 bold: None,
                 icons: None,
                 emoji: None,
+                arabic: None,
             },
             resource_manager: ResourceManager::new(),
+            needs_restyle: false,
+            needs_relayout: false,
+            needs_redraw: false,
+
+            listeners: FnvHashMap::default(),
         }
     }
 
-    pub fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a>
+    pub(crate) fn build<'a, T>(&'a mut self, entity: Entity, event_handler: T) -> Builder<'a,T>
     where
-        T: EventHandler + 'static + Send,
+        T: EventHandler + 'static,
     {
         self.event_handlers.insert(entity, Box::new(event_handler));
 
         Builder::new(self, entity)
+    }
+
+    pub fn query<E: EventHandler>(&mut self, entity: Entity) -> Option<&mut E> {
+        if let Some(event_handler) = self.event_handlers.get_mut(&entity) {
+            event_handler.downcast::<E>()
+        } else {
+            None
+        }
     }
 
     /// Adds a stylesheet to the application
@@ -142,10 +183,26 @@ impl State {
         self.reload_styles().expect("Failed to reload styles");
     }
 
-    //TODO
-    pub fn add_image(&mut self, _name: &str, _path: &str) {
-        println!("Add an image to resource manager");
+    /// Adds a style rule to the application
+    ///
+    /// This function adds a style rule to the application allowing for multiple entites to share the same style properties based on the rule selector.
+    ///
+    /// # Examples
+    /// Adds a style rule which sets the flex-grow properties of all 'button' elements to 1.0:
+    /// ```
+    /// state.add_style_rule(StyleRule::new(Selector::element("button")).property(Property::FlexGrow(1.0)))
+    /// ```
+    pub fn add_style_rule(&mut self, style_rule: StyleRule) {
+        self.style.add_rule(style_rule);
+        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
     }
+
+    //TODO
+    // pub fn add_image(&mut self, image: image::DynamicImage) -> Rc<()> {
+    //     self.resource_manager.add_image(image)
+    // }
 
     //TODO
     pub fn add_font(&mut self, _name: &str, _path: &str) {
@@ -159,58 +216,7 @@ impl State {
             return Ok(());
         }
 
-        // Remove all non-inline style data
-        self.style.background_color.remove_styles();
-        self.style.font_color.remove_styles();
-
-        // Position
-        self.style.left.remove_styles();
-        self.style.right.remove_styles();
-        self.style.top.remove_styles();
-        self.style.bottom.remove_styles();
-        // Size
-        self.style.width.remove_styles();
-        self.style.height.remove_styles();
-        // Size Constraints
-        self.style.min_width.remove_styles();
-        self.style.max_width.remove_styles();
-        self.style.min_height.remove_styles();
-        self.style.max_height.remove_styles();
-        // Margins
-        self.style.margin_left.remove_styles();
-        self.style.margin_right.remove_styles();
-        self.style.margin_top.remove_styles();
-        self.style.margin_bottom.remove_styles();
-        // Padding
-        self.style.padding_left.remove_styles();
-        self.style.padding_right.remove_styles();
-        self.style.padding_top.remove_styles();
-        self.style.padding_bottom.remove_styles();
-        // Border
-        self.style.border_width.remove_styles();
-        self.style.border_color.remove_styles();
-        // Border Radius
-        self.style.border_radius_top_left.remove_styles();
-        self.style.border_radius_top_right.remove_styles();
-        self.style.border_radius_bottom_left.remove_styles();
-        self.style.border_radius_bottom_right.remove_styles();
-        // Flexbox
-        self.style.flex_grow.remove_styles();
-        self.style.flex_shrink.remove_styles();
-        self.style.flex_basis.remove_styles();
-        self.style.align_self.remove_styles();
-        self.style.align_content.remove_styles();
-        // Flex Container
-        self.style.align_items.remove_styles();
-        self.style.justify_content.remove_styles();
-        self.style.flex_direction.remove_styles();
-        // Display
-        self.style.display.remove_styles();
-        self.style.visibility.remove_styles();
-        self.style.opacity.remove_styles();
-        // Text Alignment
-        self.style.text_align.remove_styles();
-        self.style.text_justify.remove_styles();
+        self.style.remove_all();
 
         let mut overall_theme = String::new();
 
@@ -252,22 +258,18 @@ impl State {
         self.event_queue.push_back(event);
     }
 
-    // TODO
-    // pub fn id2entity(&self, id: &str) -> Option<Entity> {
-    //     self.style.ids.get_by_left(&id.to_string()).cloned()
-    // }
-
     // This should probably be moved to state.mouse
-    pub fn capture(&mut self, id: Entity) {
-        if id != Entity::null() && self.captured != id {
+    pub fn capture(&mut self, entity: Entity) {
+
+        if entity != Entity::null() && self.captured != entity {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureEvent)
-                    .target(id)
+                    .target(entity)
                     .propagate(Propagation::Direct),
             );
         }
 
-        if self.captured != Entity::null() && self.captured != id {
+        if self.captured != Entity::null() && self.captured != entity {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureOutEvent)
                     .target(self.captured)
@@ -275,8 +277,8 @@ impl State {
             );
         }
 
-        self.captured = id;
-        self.active = id;
+        self.captured = entity;
+        self.active = entity;
     }
 
     // This should probably be moved to state.mouse
@@ -287,9 +289,28 @@ impl State {
                     .target(self.captured)
                     .propagate(Propagation::Direct),
             );
-            self.captured = Entity::null();
-            self.active = Entity::null();
+
+            
         }
+
+        self.captured = Entity::null();
+        self.active = Entity::null();
+        
+    }
+
+    pub fn set_focus(&mut self, entity: Entity) {
+        if self.focused != entity {
+            if self.focused != Entity::null() {
+                self.focused.set_focus(self, false);
+                self.insert_event(Event::new(WindowEvent::FocusOut).target(self.focused));
+            }
+            
+            if entity != Entity::null() {
+                self.focused = entity;
+                entity.set_focus(self, true);
+                self.insert_event(Event::new(WindowEvent::FocusIn).target(self.focused));
+            }
+        }  
     }
 
     // Adds a new entity with a specified parent
@@ -298,7 +319,7 @@ impl State {
             .entity_manager
             .create_entity()
             .expect("Failed to create entity");
-        self.hierarchy.add(entity, Some(parent));
+        self.tree.add(entity, parent).expect("");
         self.data.add(entity);
         self.style.add(entity);
 
@@ -306,121 +327,130 @@ impl State {
         self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
 
-
         entity
     }
 
-    // TODO
-    // pub fn add_with_sibling(&mut self, sibling: Entity) -> Entity {
-    //     let entity = self
-    //         .entity_manager
-    //         .create_entity()
-    //         .expect("Failed to create entity");
-    //     //self.hierarchy.add_with_sibling(entity, sibling);
-    //     self.transform.add(entity);
-    //     self.style.add(entity);
-
-    //     entity
-    // }
-
     //  TODO
     pub fn remove(&mut self, entity: Entity) {
-
-        let delete_list = entity.branch_iter(&self.hierarchy).collect::<Vec<_>>();
-
-        println!("Delete List: {:?}", delete_list);
+        // Collect all entities below the removed entity on the same branch of the tree
+        let delete_list = entity.branch_iter(&self.tree).collect::<Vec<_>>();
 
         for entity in delete_list.iter().rev() {
-            self.hierarchy.remove(*entity);
-            self.hierarchy.remove(*entity);
+            self.tree.remove(*entity).expect("");
+            //self.tree.remove(*entity);
             self.data.remove(*entity);
             self.style.remove(*entity);
             self.removed_entities.push(*entity);
+            self.entity_manager.destroy_entity(*entity);
         }
 
-    
         self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
         self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
-
     }
 
     // Run all pending animations
-    // This should probably be moved to style
+    // TODO - This should probably be moved to style or an animation handling system
     pub fn apply_animations(&mut self) -> bool {
-        self.style
-            .background_color
-            .animate(std::time::Instant::now());
-        self.style.font_color.animate(std::time::Instant::now());
-        self.style.border_color.animate(std::time::Instant::now());
 
-        self.style.left.animate(std::time::Instant::now());
-        self.style.right.animate(std::time::Instant::now());
-        self.style.top.animate(std::time::Instant::now());
-        self.style.bottom.animate(std::time::Instant::now());
-        self.style.width.animate(std::time::Instant::now());
-        self.style.height.animate(std::time::Instant::now());
-        self.style.opacity.animate(std::time::Instant::now());
-        self.style.rotate.animate(std::time::Instant::now());
-        self.style.flex_grow.animate(std::time::Instant::now());
-        self.style.flex_shrink.animate(std::time::Instant::now());
-        self.style.flex_basis.animate(std::time::Instant::now());
-        self.style.margin_left.animate(std::time::Instant::now());
-        self.style.margin_right.animate(std::time::Instant::now());
-        self.style.margin_top.animate(std::time::Instant::now());
-        self.style.margin_bottom.animate(std::time::Instant::now());
-        self.style.padding_left.animate(std::time::Instant::now());
-        self.style.padding_right.animate(std::time::Instant::now());
-        self.style.padding_top.animate(std::time::Instant::now());
-        self.style.padding_bottom.animate(std::time::Instant::now());
-        self.style
-            .border_radius_top_left
-            .animate(std::time::Instant::now());
-        self.style
-            .border_radius_top_right
-            .animate(std::time::Instant::now());
-        self.style
-            .border_radius_bottom_left
-            .animate(std::time::Instant::now());
-        self.style
-            .border_radius_bottom_right
-            .animate(std::time::Instant::now());
-        self.style.border_width.animate(std::time::Instant::now());
-        self.style.min_width.animate(std::time::Instant::now());
-        self.style.max_width.animate(std::time::Instant::now());
-        self.style.min_height.animate(std::time::Instant::now());
-        self.style.max_height.animate(std::time::Instant::now());
+        let time = std::time::Instant::now();
+
+        self.style.background_color.animate(time);
+        
+        // Spacing
+        self.style.left.animate(time);
+        self.style.right.animate(time);
+        self.style.top.animate(time);
+        self.style.bottom.animate(time);
+
+        // Spacing Constraints
+        self.style.min_left.animate(time);
+        self.style.max_left.animate(time);
+        self.style.min_right.animate(time);
+        self.style.max_right.animate(time);
+        self.style.min_top.animate(time);
+        self.style.max_top.animate(time);
+        self.style.min_bottom.animate(time);
+        self.style.max_bottom.animate(time);
+
+        // Size
+        self.style.width.animate(time);
+        self.style.height.animate(time);
+
+        // Size Constraints
+        self.style.min_width.animate(time);
+        self.style.max_width.animate(time);
+        self.style.min_height.animate(time);
+        self.style.max_height.animate(time);
+
+        // Child Spacing
+        self.style.child_left.animate(time);
+        self.style.child_right.animate(time);
+        self.style.child_top.animate(time);
+        self.style.child_bottom.animate(time);
+        self.style.row_between.animate(time);
+        self.style.col_between.animate(time);
+
+        self.style.opacity.animate(time);
+        self.style.rotate.animate(time);
+
+        // Border Radius
+        self.style.border_radius_top_left.animate(time);
+        self.style.border_radius_top_right.animate(time);
+        self.style.border_radius_bottom_left.animate(time);
+        self.style.border_radius_bottom_right.animate(time);
+        
+        // Border
+        self.style.border_width.animate(time);
+        self.style.border_color.animate(time);
+
+        // Font
+        self.style.font_size.animate(time);
+        self.style.font_color.animate(time);
+        
 
         self.style.background_color.has_animations()
             || self.style.font_color.has_animations()
-            || self.style.border_color.has_animations()
+            // Spacing
             || self.style.left.has_animations()
             || self.style.right.has_animations()
             || self.style.top.has_animations()
             || self.style.bottom.has_animations()
+            // Spacing Constraints
+            || self.style.min_left.has_animations()
+            || self.style.max_left.has_animations()
+            || self.style.min_right.has_animations()
+            || self.style.max_right.has_animations()
+            || self.style.min_top.has_animations()
+            || self.style.max_top.has_animations()
+            || self.style.min_bottom.has_animations()
+            || self.style.max_bottom.has_animations()
+            // Size
             || self.style.width.has_animations()
             || self.style.height.has_animations()
-            || self.style.opacity.has_animations()
-            || self.style.rotate.has_animations()
-            || self.style.flex_grow.has_animations()
-            || self.style.flex_shrink.has_animations()
-            || self.style.flex_basis.has_animations()
-            || self.style.margin_left.has_animations()
-            || self.style.margin_right.has_animations()
-            || self.style.margin_top.has_animations()
-            || self.style.margin_bottom.has_animations()
-            || self.style.padding_left.has_animations()
-            || self.style.padding_right.has_animations()
-            || self.style.padding_top.has_animations()
-            || self.style.padding_bottom.has_animations()
-            || self.style.border_radius_top_left.has_animations()
-            || self.style.border_radius_top_right.has_animations()
-            || self.style.border_radius_bottom_left.has_animations()
-            || self.style.border_radius_bottom_right.has_animations()
-            || self.style.border_width.has_animations()
+            // Size Constraints
             || self.style.min_width.has_animations()
             || self.style.max_width.has_animations()
             || self.style.min_height.has_animations()
             || self.style.max_height.has_animations()
+            // Child Spacing
+            || self.style.child_left.has_animations()
+            || self.style.child_right.has_animations()
+            || self.style.child_top.has_animations()
+            || self.style.child_bottom.has_animations()
+            || self.style.row_between.has_animations()
+            || self.style.col_between.has_animations()
+            //
+            || self.style.opacity.has_animations()
+            || self.style.rotate.has_animations()
+            // Border Radius
+            || self.style.border_radius_top_left.has_animations()
+            || self.style.border_radius_top_right.has_animations()
+            || self.style.border_radius_bottom_left.has_animations()
+            || self.style.border_radius_bottom_right.has_animations()
+            // Border
+            || self.style.border_width.has_animations()
+            || self.style.border_color.has_animations()
+
     }
 }

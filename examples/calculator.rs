@@ -1,6 +1,6 @@
 extern crate tuix;
 
-use image::GenericImageView;
+//use image::GenericImageView;
 
 use tuix::*;
 
@@ -102,138 +102,281 @@ impl Calculator {
     }
 }
 
-impl BuildHandler for Calculator {
+impl Widget for Calculator {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        let container = Element::new().build(state, entity, |builder| builder.class("container"));
+
+        entity
+            .set_layout_type(state, LayoutType::Grid)
+            .set_grid_rows(state, vec![Stretch(1.0), Stretch(1.0), Stretch(1.0), Stretch(1.0), Stretch(1.0), Stretch(1.0)])
+            .set_grid_cols(state, vec![Stretch(1.0),Stretch(1.0),Stretch(1.0),Stretch(1.0)])
+            .set_row_between(state, Pixels(1.0))
+            .set_col_between(state, Pixels(1.0));
 
         // Change to label that can be copied but not edited at some point
-        self.display = Label::new("0").build(state, container, |builder| builder.class("display"));
-
-        // Currently using flexbox to create the layout but would be good to use grid when working
-
-        let row1 = HBox::new().build(state, container, |builder| builder);
+        self.display = Label::new("0").build(state, entity, |builder| 
+            builder
+                .set_row_index(0)
+                .set_col_index(0)
+                .set_col_span(4)
+                .class("display")
+        );
 
         self.clear = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('C')))
-            .build(state, row1, |builder| builder.set_text("AC").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Operator('C'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(1)
+                    .set_col_index(0)
+                    .set_text("AC")
+                    .class("digit")
+            );
 
         self.plus_minus = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('¬')))
-            .build(state, row1, |builder| {
-                builder.set_text("\u{00B1}").class("digit")
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('¬'));
+            })
+            .build(state, entity, |builder| {
+                builder
+                    .set_row_index(1)
+                    .set_col_index(1)
+                    .set_text("\u{00B1}")
+                    .class("digit")
             });
 
         // Percentage
         self.percent = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('%')))
-            .build(state, row1, |builder| {
-                builder.set_text("\u{0025}").class("digit")
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('%'));
+            })
+            .build(state, entity, |builder| {
+                builder
+                    .set_row_index(1)
+                    .set_col_index(2)
+                    .set_text("\u{0025}")
+                    .class("digit")
             });
 
         // Divide
         self.divide = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('/')))
-            .build(state, row1, |builder| {
-                builder.set_text("\u{00F7}").class("operator")
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Operator('/'));
+            })
+            .build(state, entity, |builder| {
+                builder
+                    .set_row_index(1)
+                    .set_col_index(3)
+                    .set_text("\u{00F7}")
+                    .class("operator")
             });
 
         // Second Row
-        let row2 = HBox::new().build(state, container, |builder| builder);
 
         // Digit Seven
         self.seven = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('7')))
-            .build(state, row2, |builder| builder.set_text("7").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('7'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(2)
+                    .set_col_index(0)
+                    .set_text("7")
+                    .class("digit")
+            );
 
         // Digit Eight
         self.eight = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('8')))
-            .build(state, row2, |builder| builder.set_text("8").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('8'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(2)
+                    .set_col_index(1)
+                    .set_text("8")
+                    .class("digit")
+            );
 
         // Digit Nine
         self.nine = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('9')))
-            .build(state, row2, |builder| builder.set_text("9").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('9'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(2)
+                    .set_col_index(2)
+                    .set_text("9")
+                    .class("digit")
+            );
 
         // Multiply
         self.multiply = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('*')))
-            .build(state, row2, |builder| {
-                builder.set_text("\u{00D7}").class("operator")
-            });
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Operator('*'));
+            })
+            .build(state, entity, |builder|
+                builder
+                    .set_row_index(2)
+                    .set_col_index(3)
+                    .set_text("\u{00D7}")
+                    .class("operator")
+            );
 
         // Third Row
-        let row3 = HBox::new().build(state, container, |builder| builder);
 
         // Digit Four
         self.four = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('4')))
-            .build(state, row3, |builder| builder.set_text("4").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('4'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(3)
+                    .set_col_index(0)
+                    .set_text("4")
+                    .class("digit")
+            );
 
         // Digit Five
         self.five = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('5')))
-            .build(state, row3, |builder| builder.set_text("5").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('5'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(3)
+                    .set_col_index(1)
+                    .set_text("5")
+                    .class("digit")
+            );
 
         // Digit Six
         self.six = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('6')))
-            .build(state, row3, |builder| builder.set_text("6").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('6'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(3)
+                    .set_col_index(2)
+                    .set_text("6")
+                    .class("digit")
+            );
 
         // Subtract
         self.subtract = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('-')))
-            .build(state, row3, |builder| {
-                builder.set_text("\u{002D}").class("operator")
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Operator('-'));
+            })
+            .build(state, entity, |builder| {
+                builder
+                    .set_row_index(3)
+                    .set_col_index(3)
+                    .set_text("\u{002D}")
+                    .class("operator")
             });
 
         // Fourth Row
-        let row4 = HBox::new().build(state, container, |builder| builder);
 
         // Digit One
         self.one = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('1')))
-            .build(state, row4, |builder| builder.set_text("1").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('1'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(4)
+                    .set_col_index(0)
+                    .set_text("1")
+                    .class("digit")
+            );
 
         // Digit Two
         self.two = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('2')))
-            .build(state, row4, |builder| builder.set_text("2").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('2'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(4)
+                    .set_col_index(1)
+                    .set_text("2")
+                    .class("digit")
+            );
 
         // Digit Three
         self.three = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('3')))
-            .build(state, row4, |builder| builder.set_text("3").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('3'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(4)
+                    .set_col_index(2)
+                    .set_text("3")
+                    .class("digit")
+            );
 
         // Add
         self.add = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('+')))
-            .build(state, row4, |builder| {
-                builder.set_text("\u{002B}").class("operator")
-            });
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Operator('+'));
+            })
+            .build(state, entity, |builder|
+                builder
+                    .set_row_index(4)
+                    .set_col_index(3)
+                    .set_text("\u{002B}")
+                    .class("operator")
+            );
 
         // Fifth Row
-        let row5 = HBox::new().build(state, container, |builder| builder.class("last"));
 
         // Digit Zero
         self.zero = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('0')))
-            .build(state, row5, |builder| {
-                builder.set_text("0").class("digit").class("zero")
-            });
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Digit('0'));
+            })
+            .build(state, entity, |builder|
+                builder
+                    .set_row_index(5)
+                    .set_col_index(0)
+                    .set_col_span(2)
+                    .set_text("0")
+                    .class("digit")
+                    .class("zero")
+            );
 
         // Decimal Point
         self.decimal_point = Button::new()
-            .on_press(Event::new(CalculatorEvent::Digit('.')))
-            .build(state, row5, |builder| builder.set_text(".").class("digit"));
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Operator('.'));
+            })
+            .build(state, entity, |builder| 
+                builder
+                    .set_row_index(5)
+                    .set_col_index(2)
+                    .set_text(".")
+                    .class("digit")
+            );
 
         // Equals
         self.equals = Button::new()
-            .on_press(Event::new(CalculatorEvent::Operator('=')))
-            .build(state, row5, |builder| {
-                builder.set_text("\u{003D}").class("operator")
-            });
+            .on_press(move |button, state, id| {
+                id.emit_to(state, entity, CalculatorEvent::Operator('='));
+            })
+            .build(state, entity, |builder|
+                builder
+                    .set_row_index(5)
+                    .set_col_index(3)
+                    .set_text("\u{003D}")
+                    .class("operator")
+            );
 
         state.focused = self.display;
 
@@ -270,9 +413,7 @@ impl BuildHandler for Calculator {
 
         entity
     }
-}
 
-impl EventHandler for Calculator {
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
         if let Some(calculator_event) = event.message.downcast::<CalculatorEvent>() {
             match calculator_event {
@@ -605,9 +746,15 @@ impl EventHandler for Calculator {
 }
 
 pub fn main() {
-    let app = Application::new(|win_desc, state, window| {
+    //let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
+
+    let window_description = WindowDescription::new()
+        .with_title("Calculator")
+        .with_inner_size(300, 400)
+        .with_min_inner_size(200, 300);
+        //.with_icon(icon.to_bytes(), icon.width(), icon.height());
+    let app = Application::new(window_description, |state, window| {
         // Replace this with icon loading using resource manager when working
-        let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
         //state.add_theme(LIGHT_THEME);
         match state.add_stylesheet("examples/themes/calculator_light_theme.css") {
@@ -615,13 +762,9 @@ pub fn main() {
             Err(e) => println!("Error loading stylesheet: {}", e),
         }
 
-        Calculator::default().build(state, window, |builder| builder.class("calculator"));
-
-        win_desc
-            .with_title("Calculator")
-            .with_inner_size(300, 400)
-            .with_min_inner_size(200, 300)
-            .with_icon(icon.to_bytes(), icon.width(), icon.height())
+        Calculator::default().build(state, window.entity(), |builder| {
+            builder.class("calculator")
+        });
     });
 
     app.run();

@@ -25,27 +25,148 @@ path = "examples/layout/align_items.rs"
 name = "flex_grow"
 path = "examples/layout/flex_grow.rs"
 
+[[example]]
+name = "inline"
+path = "examples/styling/inline.rs"
+
+[[example]]
+name = "shared"
+path = "examples/styling/shared.rs"
+
+# [[example]]
+# name = "hover"
+# path = "examples/styling/hover.rs"
+
+# Widget Examples
+
+[[example]]
+name = "label"
+path = "examples/widgets/label.rs"
+
+[[example]]
+name = "button"
+path = "examples/widgets/button.rs"
+
+[[example]]
+name = "checkbox"
+path = "examples/widgets/checkbox.rs"
+
+[[example]]
+name = "switch"
+path = "examples/widgets/switch.rs"
+
+[[example]]
+name = "vector_edit"
+path = "examples/widgets/vector_edit.rs"
+
+# [[example]]
+# name = "vector"
+# path = "examples/widgets/vector.rs"
+
+[[example]]
+name = "spinbox"
+path = "examples/widgets/spinbox.rs"
+
+[[example]]
+name = "slider"
+path = "examples/widgets/slider.rs"
+
+[[example]]
+name = "knob"
+path = "examples/widgets/knob.rs"
+
+[[example]]
+name = "popup"
+path = "examples/widgets/popup.rs"
+
+# [[example]]
+# name = "tooltip"
+# path = "examples/widgets/tooltip.rs"
+
+[[example]]
+name = "listbox"
+path = "examples/widgets/listbox.rs"
+
+[[example]]
+name = "dropdown"
+path = "examples/widgets/dropdown.rs"
+
+[[example]]
+name = "length_box"
+path = "examples/widgets/length_box.rs"
+
+[[example]]
+name = "radio"
+path = "examples/widgets/radio.rs"
+
+[[example]]
+name = "stack"
+path = "examples/widgets/stack.rs"
+
+[[example]]
+name = "color_picker"
+path = "examples/widgets/color_picker.rs"
+
+[[example]]
+name = "scroll_container"
+path = "examples/widgets/scroll_container.rs"
+
+[[example]]
+name = "gallery"
+path = "examples/widgets/gallery.rs"
+
+[[example]]
+name = "movable_tabs"
+path = "examples/widgets/movable_tabs.rs"
+
+[[example]]
+name = "tabs"
+path = "examples/widgets/tabs.rs"
+
+[[example]]
+name = "panel"
+path = "examples/widgets/panel.rs"
+
+# Binding
+
+[[example]]
+name = "multiple_stores"
+path = "examples/binding/multiple_stores.rs"
+
+[[example]]
+name = "converter"
+path = "examples/binding/converter.rs"
+
+[[example]]
+name = "basic"
+path = "examples/binding/basic.rs"
+
+
+[[example]]
+name = "model"
+path = "examples/binding/model.rs"
+
 [workspace]
 members = [
-    "winit",
     "glutin",
     "baseview",
     "core",
 ]
 
 [features]
-default = ["glutin"]
-winit = ["tuix_winit"]
-glutin = ["tuix_glutin"]
-baseview = ["tuix_baseview"]
+default = ["tuix_glutin"]
+
+tuix_glutin = ["tuix_internal/tuix_glutin"]
+
+dynamic = ["tuix_dylib"]
 
 [dependencies]
-tuix_core = { version = "0.1.0", path = "core" }
-tuix_winit = { version = "0.1.0", path = "winit", optional = true }
-tuix_glutin = { version = "0.1.0", path = "glutin", optional = true }
-tuix_baseview = { version = "0.1.0", path = "baseview", optional = true }
+tuix_dylib = {version = "0.1.0", path = "dylib", optional = true}
+tuix_internal = {version = "0.1.0", path = "internal"}
 
 [dev-dependencies]
-femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master", default-features = false }
-image = "0.23.12"
-fuzzy-matcher = "0.3.7"
+femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}
+# image = "0.23.12"
+fnv = "1.0.7"
+rand = "0.8.3"
+english-numbers="0.3.3"

@@ -2,26 +2,28 @@
 
 use glutin::event_loop::{ControlFlow, EventLoop};
 
-use crate::keyboard::{scan_to_code, vk_to_key};
+use crate::keyboard::{scan_to_code, vcode_to_code, vk_to_key};
 
 use crate::window::Window;
 
-use tuix_core::{Length};
+use tuix_core::{BoundingBox, Units};
 use tuix_core::{Entity, State};
 
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
 
 use tuix_core::events::{Event, EventManager, Propagation};
 
-use tuix_core::state::hierarchy::IntoHierarchyIterator;
+use tuix_core::state::tree::IntoTreeIterator;
 
 use tuix_core::state::Fonts;
+
+use tuix_core::style::{Display, Visibility};
 
 use tuix_core::state::style::prop::*;
 
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
-use tuix_core::systems::{apply_styles, apply_hover};
+use tuix_core::systems::*;
 
 use glutin::event::VirtualKeyCode;
 
@@ -35,26 +37,30 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new<F: FnOnce(WindowDescription, &mut State, Entity) -> WindowDescription>(
+    pub fn new<F: FnOnce(&mut State, Entity)>(
+        window_description: WindowDescription,
         app: F,
     ) -> Self {
         let event_loop = EventLoop::new();
         let mut state = State::new();
 
-        let event_manager = EventManager::new();
+        let mut event_manager = EventManager::new();
 
         let root = Entity::root();
-        state.hierarchy.add(Entity::root(), None);
+        //state.tree.add(Entity::root(), None);
 
-        //let window_description = win(WindowDescription::new());
-        let window_description = app(WindowDescription::new(), &mut state, root);
+        event_manager.tree = state.tree.clone();
+
+        app(&mut state, root);
 
         let mut window = Window::new(&event_loop, &window_description);
 
         let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
+        // let regular_font = include_bytes!("../../resources/FiraCode-Regular.ttf");
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
         let icon_font = include_bytes!("../../resources/entypo.ttf");
         let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
+        let arabic_font = include_bytes!("../../resources/amiri-regular.ttf");
 
         let fonts = Fonts {
             regular: Some(
@@ -81,18 +87,24 @@ impl Application {
                     .add_font_mem(emoji_font)
                     .expect("Cannot add font"),
             ),
+            arabic: Some(
+                window
+                    .canvas
+                    .add_font_mem(arabic_font)
+                    .expect("Cannot add font"),
+            ),
         };
 
         state.fonts = fonts;
 
         state.style.width.insert(
             Entity::root(),
-            Length::Pixels(window_description.inner_size.width as f32),
-        );
+            Units::Pixels(window_description.inner_size.width as f32),
+        ).expect("");
         state.style.height.insert(
             Entity::root(),
-            Length::Pixels(window_description.inner_size.height as f32),
-        );
+            Units::Pixels(window_description.inner_size.height as f32),
+        ).expect("");
 
         state
             .data
@@ -101,6 +113,17 @@ impl Application {
             .data
             .set_height(Entity::root(), window_description.inner_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
+    
+        //state.data.set_focusable(Entity::root(), false);
+
+    
+        Entity::root().set_element(&mut state, "window");
+
+        let mut bounding_box = BoundingBox::default();
+        bounding_box.w = window_description.inner_size.width as f32;
+        bounding_box.h = window_description.inner_size.height as f32;
+
+        state.data.set_clip_region(Entity::root(), bounding_box);
 
         WindowWidget::new().build_window(&mut state);
 
@@ -115,20 +138,29 @@ impl Application {
     pub fn run(self) {
 
         let mut state = self.state;
+
         let mut event_manager = self.event_manager;
+        event_manager.tree = state.tree.clone();
+    
+
+        //println!("Event Manager: {:?}", event_manager.tree);
 
         let mut window = self.window;
         let mut should_quit = false;
 
-        //let hierarchy = state.hierarchy.clone();
-
+        //let tree = state.tree.clone();
 
         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
 
         let event_loop_proxy = self.event_loop.create_proxy();
 
-        let mut first_time = true;
+        state.needs_redraw = true;
+
+        let mut click_time = std::time::Instant::now();
+        let double_click_interval = std::time::Duration::from_millis(500);
+        let mut double_click = false;
+        let mut click_pos = (0.0, 0.0);
 
         self.event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
@@ -142,60 +174,41 @@ impl Application {
 
                 GEvent::MainEventsCleared => {
 
-                    let mut needs_redraw = false;
+                    
                     while !state.event_queue.is_empty() {
-                        if event_manager.flush_events(&mut state) {
-                            needs_redraw = true;
-                        }
+                        event_manager.flush_events(&mut state);
                     }
 
                     if state.apply_animations() {
-                        //println!("Animate");
+
                         *control_flow = ControlFlow::Poll;
-                        state.insert_event(
-                            Event::new(WindowEvent::Relayout)
-                                .target(Entity::root())
-                                .origin(Entity::root()),
-                        );
-                        //state.insert_event(Event::new(WindowEvent::Redraw));
+
+                        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+
                         event_loop_proxy.send_event(()).unwrap();
                         window.handle.window().request_redraw();
                     } else {
-                        //println!("Wait");
                         *control_flow = ControlFlow::Wait;
                     }
 
-                    if first_time {
-                        let hierarchy = state.hierarchy.clone();
-                        apply_styles(&mut state, &hierarchy);
-                        first_time = false;
-                    }
+                    let tree = state.tree.clone();
 
-                    if needs_redraw {
+                    if state.needs_redraw {
+                        // TODO - Move this to EventManager
+                        apply_clipping(&mut state, &tree);
                         window.handle.window().request_redraw();
+                        state.needs_redraw = false;
                     }
 
-                    //
 
-                    // event_manager.flush_events(&mut state);
-
-                    // apply_z_ordering(&mut state, &hierarchy);
-                    // apply_visibility(&mut state, &hierarchy);
-                    // apply_clipping(&mut state, &hierarchy);
-                    // layout_fun(&mut state, &hierarchy);
-
-                    // event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
-                    // window
-                    //     .handle
-                    //     .swap_buffers()
-                    //     .expect("Failed to swap buffers");
                 }
 
                 // REDRAW
 
                 GEvent::RedrawRequested(_) => {
-                    let hierarchy = state.hierarchy.clone();
-                    event_manager.draw(&mut state, &hierarchy, &mut window.canvas);
+                    //let start = std::time::Instant::now();
+                    event_manager.draw(&mut state, &mut window.canvas);
+                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
                     // Swap buffers
                     window
                         .handle
@@ -207,6 +220,7 @@ impl Application {
                     event,
                     window_id: _,
                 } => {
+
                     match event {
                         //////////////////
                         // Close Window //
@@ -231,17 +245,19 @@ impl Application {
                         // Focused Window //
                         ////////////////////
                         glutin::event::WindowEvent::Focused(_) => {
-                            state.insert_event(
-                                Event::new(WindowEvent::Restyle)
-                                    .target(Entity::root())
-                                    .origin(Entity::root()),
-                            );
-                            state.insert_event(
-                                Event::new(WindowEvent::Relayout)
-                                    .target(Entity::root())
-                                    .origin(Entity::root()),
-                            );
+                            // state.insert_event(
+                            //     Event::new(WindowEvent::Restyle)
+                            //         .target(Entity::root())
+                            //         .origin(Entity::root()),
+                            // );
+                            // state.insert_event(
+                            //     Event::new(WindowEvent::Relayout)
+                            //         .target(Entity::root())
+                            //         .origin(Entity::root()),
+                            // );
 
+                            state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                             state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                         }
 
@@ -266,7 +282,13 @@ impl Application {
                                 glutin::event::ElementState::Released => MouseButtonState::Released,
                             };
 
-                            let code = scan_to_code(input.scancode);
+	                        // Prefer virtual keycodes to scancodes, as scancodes aren't uniform between platforms
+	                        let code = if let Some(vkey) = input.virtual_keycode {
+		                        vcode_to_code(vkey)
+	                        } else {
+		                        scan_to_code(input.scancode)
+	                        };
+
                             let key = vk_to_key(
                                 input.virtual_keycode.unwrap_or(VirtualKeyCode::NoConvert),
                             );
@@ -279,10 +301,11 @@ impl Application {
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::H && s == MouseButtonState::Pressed {
-                                    println!("Hierarchy");
-                                    for entity in state.hierarchy.into_iter() {
-                                        println!("Entity: {}  Parent: {:?} FC: {:?} NS: {:?}", entity, state.hierarchy.get_parent(entity), state.hierarchy.get_first_child(entity), state.hierarchy.get_next_sibling(entity));
-
+                                    //println!("Focused Widget: {}", state.focused);
+                                    
+                                    println!("Tree");
+                                    for entity in state.tree.into_iter() {
+                                        println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?} clip: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity), state.data.get_clip_region(entity));
                                     }
                                 }
 
@@ -306,38 +329,76 @@ impl Application {
 
                                     if state.modifiers.shift {
                                         if prev_focus != Entity::null() {
-                                            state.focused.set_focus(&mut state, false);
-                                            state.focused = prev_focus;
-                                            state.focused.set_focus(&mut state, true);
+                                            // state.focused.set_focus(&mut state, false);
+                                            // state.focused = prev_focus;
+                                            // state.focused.set_focus(&mut state, true);
+                                            state.set_focus(prev_focus);
                                         } else {
-                                            // TODO impliment reverse iterator for hierarchy
-                                            // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
+                                            // TODO impliment reverse iterator for tree
+                                            // state.focused = match state.focused.into_iter(&state.tree).next() {
                                             //     Some(val) => val,
                                             //     None => Entity::root(),
                                             // };
                                         }
                                     } else {
-                                        let hierarchy = state.hierarchy.clone();
+                                        let tree = state.tree.clone();
+
+
+                                        //let next = iter.next();
+
+                                        println!("Focused: {}", state.focused);
+
+
+
+
                                         if next_focus != Entity::null() {
-                                            state.focused.set_focus(&mut state, false);
-                                            state.focused = next_focus;
-                                            state.focused.set_focus(&mut state, true);
+                                            // state.focused.set_focus(&mut state, false);
+                                            // state.focused = next_focus;
+                                            // state.focused.set_focus(&mut state, true);
+                                            state.set_focus(next_focus);
                                         } else {
-                                            state.focused.set_focus(&mut state, false);
-                                            state.focused =
-                                                match state.focused.into_iter(&hierarchy).next() {
-                                                    Some(val) => val,
-                                                    None => Entity::root(),
-                                                };
-                                            state.focused.set_focus(&mut state, true);
+
+                                            //state.focused.set_focus(&mut state, false);
+
+                                            let mut iter =  state.focused.into_iter(&tree);
+                                            iter.next();
+
+
+                                            if let Some(mut temp) = iter.next() {
+                                                while !state.data.get_focusable(temp)
+                                                    || state.data.get_visibility(temp) == Visibility::Invisible
+                                                    || state.data.get_opacity(temp) == 0.0
+                                                    || state.style.display.get(temp) == Some(&Display::None)
+                                                {
+                                                    temp = match iter.next() {
+                                                        Some(e) => e,
+                                                        None => {
+                                                            Entity::root()
+                                                        }
+                                                    };
+
+                                                    if temp == Entity::root() {
+                                                        break;
+                                                    }
+                                                }
+
+                                                state.set_focus(temp);
+                                            } else {
+                                                state.set_focus(Entity::root());
+                                            }
+
+                                            //state.focused.set_focus(&mut state, true);
                                         }
                                     }
+
+
 
                                     state.insert_event(
                                         Event::new(WindowEvent::Restyle)
                                             .target(Entity::root())
                                             .origin(Entity::root()),
                                     );
+
                                 }
                             }
 
@@ -376,17 +437,21 @@ impl Application {
                             }
                         }
 
+
+                        // Window Resize Event
                         glutin::event::WindowEvent::Resized(physical_size) => {
                             window.handle.resize(physical_size);
 
                             state
                                 .style
                                 .width
-                                .insert(Entity::root(), Length::Pixels(physical_size.width as f32));
+                                .insert(Entity::root(), Units::Pixels(physical_size.width as f32))
+                                .expect("");
                             state
                                 .style
                                 .height
-                                .insert(Entity::root(), Length::Pixels(physical_size.height as f32));
+                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32))
+                                .expect("");
 
                             state
                                 .data
@@ -395,13 +460,23 @@ impl Application {
                                 .data
                                 .set_height(Entity::root(), physical_size.height as f32);
 
-                            state.insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()).target(Entity::root()));
-                            state.insert_event(
-                                Event::new(WindowEvent::Relayout).target(Entity::root()),
-                            );
+                            let mut bounding_box = BoundingBox::default();
+                            bounding_box.w = physical_size.width as f32;
+                            bounding_box.h = physical_size.height as f32;
+
+                            state.data.set_clip_region(Entity::root(), bounding_box);
+
+                            // state.insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()).target(Entity::root()));
+                            // state.insert_event(
+                            //     Event::new(WindowEvent::Relayout).target(Entity::root()),
+                            // );
+                            state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
                             state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
                         }
 
+                        // Cursor Moved Event 
                         glutin::event::WindowEvent::CursorMoved {
                             device_id: _,
                             position,
@@ -429,6 +504,7 @@ impl Application {
                             }
                         }
 
+                        // Mouse Input Event
                         glutin::event::WindowEvent::MouseInput {
                             device_id: _,
                             state: s,
@@ -470,20 +546,59 @@ impl Application {
                                     {
                                         state.active = state.hovered;
                                         state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                                        state.needs_restyle = true;
                                     }
 
-                                    if state.captured != Entity::null() {
+                                    let new_click_time = std::time::Instant::now();
+                                    let click_duration = new_click_time - click_time;
+                                    let new_click_pos = (state.mouse.cursorx, state.mouse.cursory);
+
+                                    if click_duration <= double_click_interval && new_click_pos == click_pos{
+                                        if !double_click {
+                                            let _target = if state.captured != Entity::null() {
+                                                state.insert_event(
+                                                    Event::new(WindowEvent::MouseDoubleClick(b))
+                                                        .target(state.captured)
+                                                        .propagate(Propagation::Direct),
+                                                );
+                                                state.captured
+                                            } else {
+                                                state.insert_event(
+                                                    Event::new(WindowEvent::MouseDoubleClick(b))
+                                                        .target(state.hovered),
+                                                );
+                                                state.hovered
+                                            };
+                                            double_click = true;
+                                        }
+                                        
+                                    } else {
+                                        double_click = false;
+                                    }
+                                    
+                                    click_time = new_click_time;
+                                    click_pos = new_click_pos;
+
+                                    let _target = if state.captured != Entity::null() {
                                         state.insert_event(
                                             Event::new(WindowEvent::MouseDown(b))
                                                 .target(state.captured)
                                                 .propagate(Propagation::Direct),
                                         );
+                                        state.captured
                                     } else {
                                         state.insert_event(
                                             Event::new(WindowEvent::MouseDown(b))
                                                 .target(state.hovered),
                                         );
-                                    }
+                                        state.hovered
+                                    };
+
+                                    // if let Some(event_handler) = state.event_handlers.get_mut(&target) {
+                                    //     if let Some(callback) = event_manager.callbacks.get_mut(&target) {
+                                    //         (callback)(event_handler, &mut state, target);
+                                    //     }
+                                    // }
 
                                     match b {
                                         MouseButton::Left => {
@@ -510,7 +625,8 @@ impl Application {
 
                                 MouseButtonState::Released => {
                                     state.active = Entity::null();
-                                    state.insert_event(Event::new(WindowEvent::Restyle));
+                                    //state.insert_event(Event::new(WindowEvent::Restyle));
+                                    state.needs_restyle = true;
 
                                     if state.captured != Entity::null() {
                                         state.insert_event(

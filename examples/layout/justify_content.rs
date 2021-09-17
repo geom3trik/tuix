@@ -1,215 +1,258 @@
 use tuix::*;
 
+// Example showing how to emulate flexbox justify-content in tuix
+
 fn main() {
-    let app = Application::new(|win_desc, state, window| {
-        let window_flex_direction = FlexDirection::Column;
+    let app = Application::new(
+        WindowDescription::new().with_title("Justify Content"),
+        |state, window| {
+            let window_layout_type = LayoutType::Column;
 
-        window
-            .set_background_color(state, Color::white())
-            .set_flex_direction(state, window_flex_direction);
+            window
+                .set_background_color(state, Color::white())
+                .set_layout_type(state, window_layout_type);
 
-        let container_flex_direction = match window_flex_direction {
-            FlexDirection::Column | FlexDirection::ColumnReverse => FlexDirection::Row,
+            // Flex Start
+            let container = Element::new().build(state, window, |builder| {
+                builder
+                    .set_background_color(Color::rgb(50, 50, 50))
+                    .set_child_space(Stretch(1.0))
+                    .set_child_left(Pixels(0.0))
+                    .set_layout_type(LayoutType::Row)
+            });
 
-            FlexDirection::Row | FlexDirection::RowReverse => FlexDirection::Column,
-        };
+            Label::new("Flex Start").build(state, container, |builder| {
+                builder
+                    .set_color(Color::white())
+                    .set_position_type(PositionType::SelfDirected)
+                    .set_top(Pixels(5.0))
+                    .set_left(Pixels(5.0))
+                    .set_width(Pixels(50.0))
+                    .set_height(Pixels(30.0))
+            });
 
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(50, 50, 120))
+            });
 
-        // Flex Start
-        let container = Element::new().build(state, window, |builder| {
-            builder
-                .set_flex_grow(1.0)
-                .set_background_color(Color::rgb(50, 50, 50))
-                .set_justify_content(JustifyContent::FlexStart)
-                .set_align_items(AlignItems::Center)
-                .set_flex_direction(container_flex_direction)
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(50, 50, 160))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50, 50, 120))
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(50, 50, 200))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50, 50, 160))
-        });
+            // Flex End
+            let container = Element::new().build(state, window, |builder| {
+                builder
+                    .set_background_color(Color::rgb(70, 70, 70))
+                    .set_child_space(Stretch(1.0))
+                    .set_child_right(Pixels(0.0))
+                    .set_layout_type(LayoutType::Row)
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50, 50, 200))
-        });
+            Label::new("Flex End").build(state, container, |builder| {
+                builder
+                    .set_color(Color::white())
+                    .set_position_type(PositionType::SelfDirected)
+                    .set_top(Pixels(5.0))
+                    .set_left(Pixels(5.0))
+                    .set_width(Pixels(50.0))
+                    .set_height(Pixels(30.0))
+            });
 
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(50, 120, 50))
+            });
 
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(50, 160, 50))
+            });
 
-        // Flex End
-        let container = Element::new().build(state, window, |builder| {
-            builder
-                .set_flex_grow(1.0)
-                .set_background_color(Color::rgb(70, 70, 70))
-                .set_justify_content(JustifyContent::FlexEnd)
-                .set_align_items(AlignItems::Center)
-                .set_flex_direction(container_flex_direction)
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(50, 200, 50))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50, 120, 50))
-        });
+            // Center
+            let container = Element::new().build(state, window, |builder| {
+                builder
+                    .set_background_color(Color::rgb(50, 50, 50))
+                    .set_child_space(Stretch(1.0))
+                    .set_layout_type(LayoutType::Row)
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50, 160, 50))
-        });
+            Label::new("Center").build(state, container, |builder| {
+                builder
+                    .set_color(Color::white())
+                    .set_position_type(PositionType::SelfDirected)
+                    .set_top(Pixels(5.0))
+                    .set_left(Pixels(5.0))
+                    .set_width(Pixels(50.0))
+                    .set_height(Pixels(30.0))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50, 200, 50))
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(120, 50, 50))
+            });
 
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(160, 50, 50))
+            });
 
-        // Center
-        let container = Element::new().build(state, window, |builder| {
-            builder
-                .set_flex_grow(1.0)
-                .set_background_color(Color::rgb(50, 50, 50))
-                .set_justify_content(JustifyContent::Center)
-                .set_align_items(AlignItems::Center)
-                .set_flex_direction(container_flex_direction)
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(200, 50, 50))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(120, 50, 50))
-        });
+            // Space Around
+            let container = Element::new().build(state, window, |builder| {
+                builder
+                    .set_background_color(Color::rgb(70, 70, 70))
+                    .set_child_space(Stretch(1.0))
+                    .set_col_between(Stretch(2.0))
+                    .set_layout_type(LayoutType::Row)
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(160, 50, 50))
-        });
+            Label::new("Space Around").build(state, container, |builder| {
+                builder
+                    .set_color(Color::white())
+                    .set_position_type(PositionType::SelfDirected)
+                    .set_top(Pixels(5.0))
+                    .set_left(Pixels(5.0))
+                    .set_width(Pixels(50.0))
+                    .set_height(Pixels(30.0))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(200, 50, 50))
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(120, 120, 50))
+            });
 
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(160, 120, 50))
+            });
 
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(200, 120, 50))
+            });
 
-        // Space Around
-        let container = Element::new().build(state, window, |builder| {
-            builder
-                .set_flex_grow(1.0)
-                .set_background_color(Color::rgb(70, 70, 70))
-                .set_justify_content(JustifyContent::SpaceAround)
-                .set_align_items(AlignItems::Center)
-                .set_flex_direction(container_flex_direction)
-        });
+            // Space Between
+            let container = Element::new().build(state, window, |builder| {
+                builder
+                    .set_background_color(Color::rgb(50, 50, 50))
+                    .set_child_top(Stretch(1.0))
+                    .set_child_bottom(Stretch(1.0))
+                    .set_col_between(Stretch(1.0))
+                    .set_layout_type(LayoutType::Row)
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(120, 120, 50))
-        });
+            Label::new("Space Between").build(state, container, |builder| {
+                builder
+                    .set_color(Color::white())
+                    .set_position_type(PositionType::SelfDirected)
+                    .set_top(Pixels(5.0))
+                    .set_left(Pixels(5.0))
+                    .set_width(Pixels(50.0))
+                    .set_height(Pixels(30.0))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(160, 120, 50))
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(120, 50, 120))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(200, 120, 50))
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(160, 50, 160))
+            });
 
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(200, 50, 200))
+            });
 
-        // Space Between
-        let container = Element::new().build(state, window, |builder| {
-            builder
-                .set_flex_grow(1.0)
-                .set_background_color(Color::rgb(50, 50, 50))
-                .set_justify_content(JustifyContent::SpaceBetween)
-                .set_align_items(AlignItems::Center)
-                .set_flex_direction(container_flex_direction)
-        });
+            // Space Evenly
+            let container = Element::new().build(state, window, |builder| {
+                builder
+                    .set_background_color(Color::rgb(70, 70, 70))
+                    .set_child_space(Stretch(1.0))
+                    .set_col_between(Stretch(1.0))
+                    .set_layout_type(LayoutType::Row)
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(120, 50, 120))
-        });
+            Label::new("Space Evenly").build(state, container, |builder| {
+                builder
+                    .set_color(Color::white())
+                    .set_position_type(PositionType::SelfDirected)
+                    .set_top(Pixels(5.0))
+                    .set_left(Pixels(5.0))
+                    .set_width(Pixels(50.0))
+                    .set_height(Pixels(30.0))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(160, 50, 160))
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(50, 120, 120))
+            });
 
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(200, 50, 200))
-        });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(50, 160, 160))
+            });
 
-
-        // Space Evenly
-        let container = Element::new().build(state, window, |builder| {
-            builder
-                .set_flex_grow(1.0)
-                .set_background_color(Color::rgb(70, 70, 70))
-                .set_justify_content(JustifyContent::SpaceEvenly)
-                .set_align_items(AlignItems::Center)
-                .set_flex_direction(container_flex_direction)
-        });
-
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50, 120, 120))
-        });
-
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50, 160, 160))
-        });
-
-        Element::new().build(state, container, |builder| {
-            builder
-                .set_width(Length::Pixels(30.0))
-                .set_height(Length::Pixels(30.0))
-                .set_background_color(Color::rgb(50, 200, 200))
-        });
-
-        win_desc.with_title("Justify Content")
-    });
+            Element::new().build(state, container, |builder| {
+                builder
+                    .set_width(Pixels(30.0))
+                    .set_height(Pixels(30.0))
+                    .set_background_color(Color::rgb(50, 200, 200))
+            });
+        },
+    );
 
     app.run();
 }

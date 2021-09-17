@@ -1,3 +1,5 @@
+use std::fmt::write;
+
 use crate::animation::Interpolator;
 use crate::entity::Entity;
 
@@ -31,18 +33,6 @@ impl Interpolator for MaxHeight {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Position {
-    Relative,
-    Absolute,
-}
-
-impl Default for Position {
-    fn default() -> Self {
-        Position::Relative
-    }
-}
-
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Justify {
     Start,
@@ -69,20 +59,6 @@ impl Default for Align {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum JustifySelf {
-    Start,
-    End,
-    Center,
-    Stretch,
-}
-
-impl Default for JustifySelf {
-    fn default() -> Self {
-        JustifySelf::Start
-    }
-}
-
 // Not currently used
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -93,25 +69,25 @@ pub enum Overflow {
 
 impl Default for Overflow {
     fn default() -> Self {
-        Overflow::Visible
+        Overflow::Hidden
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct Scroll {
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
-}
+// #[derive(Copy, Clone, Debug, PartialEq)]
+// pub struct Scroll {
+//     pub x: f32,
+//     pub y: f32,
+//     pub w: f32,
+//     pub h: f32,
+// }
 
-impl Default for Scroll {
-    fn default() -> Self {
-        Scroll {
-            x: 0.0,
-            y: 0.0,
-            w: 1.0,
-            h: 1.0,
-        }
-    }
-}
+// impl Default for Scroll {
+//     fn default() -> Self {
+//         Scroll {
+//             x: 0.0,
+//             y: 0.0,
+//             w: 1.0,
+//             h: 1.0,
+//         }
+//     }
+// }

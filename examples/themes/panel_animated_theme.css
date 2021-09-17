@@ -31,8 +31,9 @@ scroll_container>.scrollbar:disabled {
     transition: width 0.1;
 }
 
-hbox {
+row {
     margin-bottom: 5px;
+    width: 1s;
 }
 
 /* PANEL */

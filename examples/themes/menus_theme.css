@@ -1,4 +1,9 @@
 
+menu_bar {
+    height: 30px;
+    background-color: blue;
+}
+
 menu {
     background-color: #262626;
     color: #e4e4e4;
@@ -6,15 +11,10 @@ menu {
 
 menu>.container {
     /* background-color: #262626; */
-    opacity: 0.0;
+    /* opacity: 0.0; */
     width: 200px;
+    top: 100%;
     /* display: none; */
-}
-
-menu:checked>.container {
-    /* display: flex; */
-    opacity: 1.0;
-    /* transition: opacity 0.1 0.0; */
 }
 
 .submenu>.container {
@@ -38,8 +38,8 @@ menu:checked {
 
 menu .item {
     background-color: #383838;
-    flex-basis: 30px;
-    padding-left: 5px;
+    height: 30px;
+    child-left: 5px;
     color: #e4e4e4;
 }
 
@@ -50,18 +50,18 @@ menu .item:hover {
 
 .spacer {
     /* background-color: #262626; */
-    flex-basis: 20px;
+    height: 20px;
     display: flex;
     flex-direction: column;
 }
 
 .spacer1 {
     background-color: #383838;
-    margin-bottom: 1px;
-    flex-basis: 10px;
+    bottom: 1px;
+    height: 10px;
 }
 
 .spacer2 {
     background-color: #383838;
-    flex-basis: 10px;
+    height: 10px;
 }

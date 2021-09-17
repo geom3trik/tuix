@@ -1,25 +1,40 @@
 
+* {
+    color: black;
+}
 
+row {
+    width: auto;
+    height: auto;
+}
+
+column {
+    width: auto;
+    height: auto;
+}
 
 button {
-    color: white;
-    background-color: #ff5e1a;
-    border-radius: 3px;
-    text-justify: center;
+    color: black;
+    background-color: #dfdfdf;
+    child-space: 1s;
 }
 
 button:hover {
-    background-color: #ff7033;
+    background-color: #ebebeb;
+}
+
+button:active {
+    background-color: #d0d0d0;
 }
 
 /* .menu_bar {
     background-color: #646464;
 } */
 
-panel>.container1>.container2>hbox {
-    padding: 10px;
+
+panel>.container1>.container2>row {
     align-items: center;
-    /* background-color: #ffffff; */
+    width: 1s;
 }
 
 panel>.container1 {
@@ -27,62 +42,223 @@ panel>.container1 {
 }
 
 panel>.header {
+    layout-type: row;
+    child-left: 0px;
+    child-right: 1s;
     background-color: #ff5e1a;
     height: 30px;
+    color: white;
 }
 
-panel .container2>hbox>label {
+panel>.header:focus {
+    border-width: 1px;
+    border-color: black;
+}
+
+panel>.header>.icon {
+    color: white;
+}
+
+panel>.header>.label {
+    color: white;
+    child-space: 1s;
+    child-left: 0px;
+}
+
+panel .container2>row>label {
     height: 30px;
     width: 120px;
     color: black;
-    padding-left: 5px;
+    child-left: 5px;
+    top: 1s;
+    bottom: 1s;
 }
-
-
 
 checkbox {
     width: 20px;
     height: 20px;
     background-color: white;
     border-width: 1px;
+    border-color: #757575;
+    color: black;
+}
+
+list {
+    border-width: 1px;
+    border-color: #999999;
+    height: auto;
+    /* width: auto; */
+    /* padding: 5px; */
+}
+
+check_button {
+    color: black;
+    background-color:white;
+}
+
+check_button:checked {
+    background-color: #d0d0d0;
+}
+
+/* check_button:hover {
+    background-color: #999999;
+} */
+
+check_button:focus {
     border-color: black;
-    border-radius: 3px;
+    border-width: 1px;
+}
+
+dropdown {
+    color: black;
+    background-color: #d2d2d2;
+}
+
+/* dropdown>.header>label { */
+    /* child-top: 1s; */
+    /* child-bottom: 1s; */
+    /* child-left: 5px; */
+/* } */
+
+dropdown:focus {
+    border-width: 1px;
+    border-color: black;
+}
+
+dropdown>.header>label {
+    color: red;
+    child-top: 1s;
+    child-bottom: 1s;
+    child-left: 5px;
+}
+
+/* dropdown label {
+    color: black;
+    child-top: 1s;
+    child-bottom: 1s;
+    child-left: 5px;
+} */
+
+dropdown .icon {
+    color: #ff5e1a;
+    width: 30px;
+    height: 30px;
+}
+
+dropdown>.container {
+    top: 100%;
+    width: 100%;
+    background-color: white;
+    /* margin-top: 5px;
+    background-color: white;
+    border-color: black;
+    border-width: 1px; */
+    outer-shadow: 2px 2px 5px #80000000;
+}
+
+check_item:focus {
+    border-width: 1px;
+    border-color: black;
+}
+
+textbox {
+    /* height: 30px; */
+    color: black;
+    border-width: 1px;
+    border-color: #757575;
+    child-left: 1s;
+    child-right: 1s;
+    child-top: 1s;
+    child-bottom: 1s;
+}
+
+spinbox .increment {
+    color: #ff5e1a;
+    text-justify: center;
+}
+
+spinbox .decrement {
+    color: #ff5e1a;
+    text-justify: center;
+}
+
+spinbox>textbox {
+    color: black;
+    border-width: 1px;
+    border-color: #757575;
+    right: -1px;
+    text-align: center;
+    text-justify: center;
+}
+
+spinbox>.arrow_container {
+    border-width: 1px;
+    border-color: #757575;
+}
+
+slider {
+    height: 20px;
+}
+
+slider>.track {
+    background-color: #dfdfdf;
+    border-radius: 2px;
+}
+
+slider>.track>.active {
+    background-color: #f74c00;
+    border-radius: 2px;
+}
+
+slider>.thumb {
+    background-color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 9.5px;
+    border-color: #757575;
+    border-width: 1px;
+}
+
+
+/* dropdown>.container>.item {
+    height: 30px;
+    color: black;
+    child-left: 10px;
+    background-color: white;
     transition: background-color 0.1 0.0;
 }
 
-checkbox:checked {
-    background-color: #ff5e1a;
-    border-color: #ff5e1a;
+dropdown>.container>.item:hover {
+    height: 30px;
     color: white;
+    background-color: #ff5e1a;
     transition: background-color 0.1 0.0;
-}
-
+} */
 
 switch {
-    width: 36px;
+    width: 40px;
     height: 20px;
     background-color: #646464;
-    flex-direction: row;
-    padding: 2px;
-    /* padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 2.5px;
-    padding-right: 2.5px; */
+    layout-type: row;
+    child-space: 2px;
     transition: background-color 0.1 0.0;
     border-radius: 9.5px;
 }
 
 switch>.front {
-    left: 0%;
-    width: 50%;
+    left: 1px;
+    width: 18px;
+    height: 18px;
     background-color: white;
+    border-radius: 9px;
+    /* border-color: #757575;
+    border-width: 1px; */
     transition: left 0.1 0.0;
-    border-radius: 7.5px;
 }
 
 
 switch:checked>.front {
-    left: 50%;
+    left: 21px;
     transition: left 0.1 0.0;
 }
 
@@ -91,44 +267,47 @@ switch:checked {
     transition: background-color 0.1 0.0;
 }
 
-spinner {
-    height: 30px;
-    flex-grow: 1.0;
+scroll_container {
+    height: 1s;
+    /* background-color: #262626; */
 }
 
-spinner .increment {
-    color: #ff5e1a;
-    text-justify: center;
+scroll_container>.container {
+    width: 1s;
+    left: 12px;
+    right: 0px;
 }
 
-spinner .decrement {
-    color: #ff5e1a;
-    text-justify: center;
-}
-
-spinner>textbox {
-    color: black;
+scroll_container>.scrollbar {
+    background-color: #dfdfdf;
+    border-color: #757575;
     border-width: 1px;
-    border-color: black;
-    border-top-left-radius: 3;
-    border-bottom-left-radius: 3;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    /* margin: 0px;*/
-    margin-right: -1;
-    text-align: center;
-    text-justify: center;
-    /* height: 28px; */
-    /* width: 78px; */
+    /* background-color: #6a57be; */
+    width: 10px;
+    border-radius: 4.5px;
 }
 
-spinner>.arrow_container {
-    border-width: 1px;
-    border-color: black;
-    border-top-right-radius: 3;
-    border-bottom-right-radius: 3;
+scroll_container:enabled>.scrollbar {
+    width: 10px;
+    transition: width 0.1 0.0;
 }
 
+scroll_container:enabled>.container {
+    left: 10px;
+    transition: left 0.1 0.0;
+}
+
+scroll_container:disabled>.scrollbar {
+    width: 0px;
+    transition: width 0.1 0.0;
+}
+
+scroll_container:disabled>.container {
+    left: 0px;
+    transition: left 0.1 0.0;
+}
+
+/*
 textbox {
     flex-grow: 1.0;
     height: 30px;
@@ -139,71 +318,7 @@ textbox {
     text-justify: center;
 }
 
-dropdown {
-    /* background-color: red; */
-    flex-grow: 1.0;
-    height: 30px;
-    color: black;
-    border-width: 1px;
-    border-color: black;
-    border-radius: 3;
-    text-justify: center;
-}
 
-dropdown label {
-    color: black;
-    text-justify: center;
-}
-
-dropdown .icon {
-    text-justify: center;
-    color: #ff5e1a;
-    width: 30px;
-}
-
-dropdown>.container {
-    top: 100%;
-    width: 100%;
-    margin-top: 5px;
-    background-color: white;
-    border-color: black;
-    border-width: 1px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 128);
-}
-
-dropdown>.container>.item {
-    height: 30px;
-    color: black;
-    padding-left: 10px;
-    background-color: white;
-    transition: background-color 0.1 0.0;
-}
-
-dropdown>.container>.item:hover {
-    height: 30px;
-    color: white;
-    background-color: #ff5e1a;
-    transition: background-color 0.1 0.0;
-}
-
-slider {
-    height: 4px;
-    border-radius: 2px;
-    background-color: #646464;
-    align-items: center;
-}
-
-slider>.active {
-    background-color: #f74c00;
-    border-radius: 2px;
-}
-
-slider>.thumb {
-    background-color:#ff5e1a;
-    width: 20px;
-    height: 20px;
-    border-radius: 9.5px;
-}
 
 radio {
     border-color: black;
@@ -236,7 +351,7 @@ radio:checked>.marker {
     display: flex;
 }
 
-radio_button {
+check_button {
     background-color: #646464;
     height: 30px;
     color: white;
@@ -247,17 +362,17 @@ radio_button {
     margin-right: 1px;
 }
 
-radio_button:checked {
+check_button:checked {
     background-color: #ff5e1a;
     color: white;
 }
 
-radio_button.first {
+check_button.first {
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
 }
 
-radio_button.last {
+check_button.last {
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
     margin-right: 0px;
@@ -270,7 +385,7 @@ tooltip {
     color: black;
     background-color: white;
     border-color: black;
-    padding-left: 5px;
+    child-left: 5px;
     border-width: 1px;
     opacity: 0.0;
 }
@@ -290,4 +405,4 @@ progress_bar {
 progress_bar>.front {
     background-color: #ff5e1a;
     border-radius: 3px;
-}
+} */

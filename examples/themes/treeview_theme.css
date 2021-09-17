@@ -3,20 +3,14 @@
 /* SCROLL CONTAINER */
 
 scroll_container {
-    /* width: 100%;
-    height: 100%; */
-    flex-grow: 1.0;
+    height: 1s;
     background-color: #262626;
-    flex-direction: row;
-    /* background-color: #3bb42b; */
 }
 
 scroll_container>.container {
-    /* align-self: flex-start; */
-    /* width: 95%; */
+    width: 1s;
     left: 10px;
     right: 0px;
-    /* background-color: #b42b2b; */
 }
 
 scroll_container>.scrollbar {
@@ -25,41 +19,55 @@ scroll_container>.scrollbar {
     width: 10px;
 }
 
-/* scroll_container>.scrollbar:enabled {
+scroll_container:enabled>.scrollbar {
     width: 10px;
     transition: width 0.1 0.0;
 }
 
-scroll_container>.scrollbar:disabled {
+scroll_container:enabled>.container {
+    left: 10px;
+    transition: left 0.1 0.0;
+}
+
+scroll_container:disabled>.scrollbar {
     width: 0px;
     transition: width 0.1 0.0;
-} */
+}
+
+scroll_container:disabled>.container {
+    left: 0px;
+    transition: left 0.1 0.0;
+}
 
 
 
 .container {
     background-color: #383838;
-    /* background-color: #4c4797; */
 }
 
 panel>.header {
     height: 30px;
     background-color: #383838;
+    flex-direction: row;
+    child-left: 5px;
 }
 
 panel.level1>.header {
     background-color: #383838;
-    padding-left: 15px;
+    /* padding-left: 15px; */
+    child-left: 15px;
 }
 
 panel.level2>.header {
     background-color: #383838;
-    padding-left: 30px;
+    /* padding-left: 30px; */
+    child-left: 30px;
 }
 
 panel.level3>.header {
     background-color: #383838;
-    padding-left: 45px;
+    /* padding-left: 45px; */
+    child-left: 45px;
 }
 
 panel>.header:hover {
@@ -69,27 +77,28 @@ panel>.header:hover {
 panel>.container {
     background-color: #383838;
     /* padding-left: 15px; */
+    child-left: 15px;
 }
 
 label {
     height: 30px;
-    padding-left: 5px;
+    child-left: 5px;
 }
 
 label.level1 {
-    padding-left: 35px;
+    child-left: 50px;
 }
 
 label.level2 {
-    padding-left: 50px;
+    child-left: 65px;
 }
 
 label.level3 {
-    padding-left: 65px;
+    child-left: 80px;
 }
 
 label.level4 {
-    padding-left: 80px;
+    child-left: 95px;
 }
 
 label:hover {

@@ -1,12 +1,48 @@
 extern crate tuix;
 use tuix::*;
 
-use tuix::button::Button;
+const STYLE: &str = r#"
+    button {
+        border-radius: 3px;
+        child-space: 1s;
+    }
 
-static THEME: &'static str = include_str!("themes/counter_theme.css");
+    button.increment {
+        background-color: #2e7d32;
+        border-radius: 3px;
+    }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum CounterMessage {
+    button.increment:hover {
+        background-color: #60ad5e;
+    }
+
+    button.increment:active {
+        background-color: #005005;
+    }
+    
+    button.decrement {
+        background-color: #c62828;
+        border-radius: 3px;
+    }
+
+    button.decrement:hover {
+        background-color: #ff5f52;
+    }
+
+    button.decrement:active {
+        background-color: #8e0000;
+    }
+
+    label {
+        background-color: #404040;
+        border-color: #606060;
+        border-width: 1px;
+        child-space: 1s;
+    }
+"#;
+
+#[derive(PartialEq)]
+pub enum CounterEvent {
     Increment,
     Decrement,
 }
@@ -17,48 +53,60 @@ struct Counter {
     label: Entity,
 }
 
-impl Counter {
-    pub fn new() -> Self {
-        Counter {
-            value: 0,
-            label: Entity::null(),
-        }
-    }
-
-    pub fn set_initial_value(mut self, val: i32) -> Self {
-        self.value = val;
-        self
-    }
-}
-
-impl BuildHandler for Counter {
+impl Widget for Counter {
     type Ret = Entity;
+    type Data = ();
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        Button::with_label("increment")
-            .on_press(Event::new(CounterMessage::Increment))
-            .build(state, entity, |builder| builder.class("increment"));
 
-        Button::with_label("decrement")
-            .on_press(Event::new(CounterMessage::Decrement))
-            .build(state, entity, |builder| builder.class("decrement"));
+        let row = Row::new().build(state, entity, |builder|
+            builder
+                .set_child_space(Stretch(1.0))
+                .set_col_between(Pixels(10.0))
+        );
 
-        self.label = Label::new(&self.value.to_string()).build(state, entity, |builder| builder);
+        Button::with_label("Decrement")
+        .on_press(|_, state, button|{
+            button.emit(state,CounterEvent::Decrement);
+        })
+        .build(state, row, |builder| 
+            builder
+                .set_width(Pixels(100.0))
+                .set_height(Pixels(30.0))
+                .class("decrement")
+        );
 
-        entity.set_element(state, "counter")
+        Button::with_label("Increment")
+            .on_press(|_, state, button|{
+                button.emit(state,CounterEvent::Increment);
+            })
+            .build(state, row, |builder| 
+                builder
+                    .set_width(Pixels(100.0))
+                    .set_height(Pixels(30.0))
+                    .class("increment")
+            );
+
+        self.label = Label::new("0")
+            .build(state, row, |builder| 
+                builder
+                    .set_width(Pixels(100.0))
+                    .set_height(Pixels(30.0))
+            );
+
+        entity
     }
-}
 
-impl EventHandler for Counter {
+    // Events
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
-        if let Some(counter_event) = event.message.downcast::<CounterMessage>() {
+        if let Some(counter_event) = event.message.downcast() {
             match counter_event {
-                CounterMessage::Increment => {
+                CounterEvent::Increment => {
                     self.value += 1;
                     self.label.set_text(state, &self.value.to_string());
                 }
 
-                CounterMessage::Decrement => {
+                CounterEvent::Decrement => {
                     self.value -= 1;
                     self.label.set_text(state, &self.value.to_string());
                 }
@@ -68,18 +116,13 @@ impl EventHandler for Counter {
 }
 
 fn main() {
-    // Create the app
-    let app = Application::new(|win_desc, state, window| {
-        state.add_theme(THEME);
 
-        Counter::new()
-            // Set local state
-            .set_initial_value(50)
-            // Build the widget
+    let window_description = WindowDescription::new().with_title("Counter").with_inner_size(400, 100);
+    let app = Application::new(window_description, |state, window| {
+        state.add_theme(STYLE);
+
+        Counter::default()
             .build(state, window, |builder| builder);
-
-        // Set the window title
-        win_desc.with_title("Counter").with_inner_size(400, 100)
     });
 
     app.run();
