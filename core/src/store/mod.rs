@@ -12,7 +12,6 @@ use crate::{State, Entity, Event, Widget, Propagation, PropSet};
 
 use crate::events::event_handler::Canvas;
 
-#[allow(dead_code)]
 pub trait Model {
     fn on_event(&mut self, #[allow(unused_variables)] state: &mut State, #[allow(unused_variables)] entity: Entity, #[allow(unused_variables)] event: &mut Event) {
 

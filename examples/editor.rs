@@ -315,7 +315,7 @@ impl Model for AppData {
 
                 // Size
                 AppEvent::SetSize(val) => {
-                    println!("Received {:?} from: {}", val, event.origin);
+                    //println!("Received {:?} from: {}", val, event.origin);
                     self.style_data.size = *val;
                     self.style_data.width = *val;
                     self.style_data.height = *val;
@@ -555,7 +555,7 @@ impl Widget for App {
         if let Some(app_event) = event.message.downcast() {
             match app_event {
                 AppEvent::OpenColorPicker(_) => {
-                    println!("Open Color Picker: {}", self.color_picker);
+                    //println!("Open Color Picker: {}", self.color_picker);
                     self.color_picker.emit(state, PopupEvent::Open);
                 }
 
