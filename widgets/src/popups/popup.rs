@@ -25,7 +25,7 @@ impl Widget for Popup {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
 
-        entity.add_listener(state, |state, entity, event| {
+        entity.add_listener(state, |_: &mut Self, state, entity, event| {
             if let Some(window_event) = event.message.downcast() {
                 match window_event {
                     WindowEvent::MouseDown(button) => {

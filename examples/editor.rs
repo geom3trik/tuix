@@ -110,6 +110,7 @@ const STYLE: &str = r#"
     scroll_container>.scrollbar {
         background-color: #464646;
         width: 10px;
+        transition: width 0.1 0.0;
     }
 
     scroll_container:enabled>.scrollbar {

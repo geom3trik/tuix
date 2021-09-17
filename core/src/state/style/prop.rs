@@ -1,5 +1,5 @@
 use morphorm::GeometryChanged;
-use crate::{Message, State};
+use crate::{Message, State, Widget};
 use crate::{entity::Entity, Builder, EventHandler, Propagation};
 use crate::{state::style::*, AsEntity, Pos};
 
@@ -50,10 +50,16 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    fn add_listener<F>(&self, state: &mut State, listener: F) -> Entity
-    where F: 'static + Fn(&mut State, Entity, &mut Event)
+    fn add_listener<F,W>(&self, state: &mut State, listener: F) -> Entity
+    where 
+        W: Widget, 
+        F: 'static + Fn(&mut W, &mut State, Entity, &mut Event)
     {  
-        state.listeners.insert(self.entity(), Box::new(listener));
+        state.listeners.insert(self.entity(), Box::new(move |event_handler, state, entity, event|{
+            if let Some(widget) = event_handler.downcast::<W>() {
+                (listener)(widget, state, entity, event);
+            }
+        }));
 
         self.entity()
     }

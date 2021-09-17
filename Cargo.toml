@@ -123,6 +123,10 @@ path = "examples/widgets/scroll_container.rs"
 name = "gallery"
 path = "examples/widgets/gallery.rs"
 
+[[example]]
+name = "movable_tabs"
+path = "examples/widgets/movable_tabs.rs"
+
 # Binding
 
 [[example]]
