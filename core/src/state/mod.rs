@@ -87,7 +87,7 @@ pub struct State {
     pub needs_relayout: bool,
     pub needs_redraw: bool,
 
-    pub listeners: FnvHashMap<Entity, Box<dyn Fn(&mut State, Entity, &mut Event)>>,
+    pub listeners: FnvHashMap<Entity, Box<dyn Fn(&mut EventHandler, &mut State, Entity, &mut Event)>>,
 }
 
 impl State {

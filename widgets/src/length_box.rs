@@ -186,6 +186,8 @@ impl Widget for LengthBox {
                     if let Ok(val) = val_text.parse::<f32>() {
                         if val_type != Units::Auto {
                             textbox.emit(state, LengthBoxEvent::SetType(val_type));
+                        } else {
+                            textbox.emit(state, LengthBoxEvent::SetType(Units::Pixels(val)));
                         }
                         textbox.emit(state, LengthBoxEvent::SetValue(val, true));
                     } else {

@@ -75,7 +75,12 @@ impl EventManager {
             let listeners = state.listeners.iter().map(|(entity, _)| *entity).collect::<Vec<Entity>>();
             for entity in listeners {
                 if let Some(listener) = state.listeners.remove(&entity) {
-                    (listener)(state, entity, event);
+                    if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
+                        (listener)(event_handler.as_mut(), state, entity, event);
+
+                        state.event_handlers.insert(entity, event_handler);
+                    }
+                    
 
                     state.listeners.insert(entity, listener);
                 }
