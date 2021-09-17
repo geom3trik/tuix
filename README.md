@@ -3,6 +3,7 @@
 ---
 
 ![GitHub](https://img.shields.io/github/license/geom3trik/tuix)
+[![Build](https://github.com/geom3trik/tuix/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/geom3trik/tuix/actions/workflows/build.yml)
 [![Discord](https://img.shields.io/discord/791142189005537332.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/aNkTPsRm2w)
 
 Tuix is a cross-platform GUI toolkit written in Rust.
