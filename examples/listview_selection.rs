@@ -1,4 +1,4 @@
-use image::Pixel;
+
 use tuix::*;
 
 const STYLE: &str = r#"
@@ -205,7 +205,7 @@ impl Widget for Container {
     type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
-        self.listview = ListView::new(|item: &User| CheckButton::with_label(&item.to_string()) )
+        self.listview = ListView::new(|item: &User, index| CheckButton::with_label(&item.to_string()) )
             .on_change(|list_data, state, list|{
                 list.emit(state, CustomEvent::SelectUser(list_data.selected));
             })

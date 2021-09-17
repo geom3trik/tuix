@@ -1,7 +1,5 @@
 #![allow(dead_code)]
 
-use std::collections::HashMap;
-use std::rc::Rc;
 pub struct Image {
     name: String,
     pub width: u32,

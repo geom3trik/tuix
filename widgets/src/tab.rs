@@ -149,7 +149,6 @@ impl Widget for Tab {
                 }
 
                 CheckboxEvent::Checked => {
-                    println!("Do This");
                     self.checked = true;
 
                     entity.set_checked(state, true);
@@ -352,7 +351,7 @@ impl Widget for TabContainer {
 pub enum MovableTabEvent {
     StartMove(Entity),
     StopMove(Entity),
-    Moving(Entity, f32, f32),
+    Moving(Entity, f32),
     Switch(bool),
 }
 
@@ -433,7 +432,7 @@ impl Widget for TabBar2 {
                     self.phantom_tab1.set_display(state, Display::Flex);
                     self.phantom_tab2.set_display(state, Display::Flex);
 
-                    state
+                    let _ = state
                         .tree
                         .set_prev_sibling(*tab, self.phantom_tab1);
 
@@ -443,9 +442,9 @@ impl Widget for TabBar2 {
                     let tab_width = state.data.get_width(*tab);
                         // + tab.get_left(state).value_or(0.0, 0.0)
                         // + tab.get_right(state).value_or(0.0, 0.0);
-                    let tab_height = state.data.get_height(*tab)
-                        + tab.get_top(state).value_or(0.0, 0.0)
-                        + tab.get_bottom(state).value_or(0.0, 0.0);
+                    // let tab_height = state.data.get_height(*tab)
+                    //     + tab.get_top(state).value_or(0.0, 0.0)
+                    //     + tab.get_bottom(state).value_or(0.0, 0.0);
 
                     println!("Tab Width: {}", tab_width);
 
@@ -512,7 +511,7 @@ impl Widget for TabBar2 {
                                 if state.tree.get_next_sibling(event.target)
                                     == Some(self.phantom_tab1)
                                 {
-                                    state
+                                    let _ = state
                                         .tree
                                         .set_prev_sibling(event.target, self.phantom_tab2);
 
@@ -537,7 +536,7 @@ impl Widget for TabBar2 {
                                 } else if state.tree.get_next_sibling(event.target)
                                     == Some(self.phantom_tab2)
                                 {
-                                    state
+                                    let _ = state
                                         .tree
                                         .set_prev_sibling(event.target, self.phantom_tab1);
 
@@ -563,7 +562,7 @@ impl Widget for TabBar2 {
                                 if state.tree.get_prev_sibling(event.target)
                                     == Some(self.phantom_tab1)
                                 {
-                                    state
+                                    let _ = state
                                         .tree
                                         .set_next_sibling(event.target, self.phantom_tab2);
 
@@ -587,7 +586,7 @@ impl Widget for TabBar2 {
                                 } else if state.tree.get_prev_sibling(event.target)
                                     == Some(self.phantom_tab2)
                                 {
-                                    state
+                                    let _ = state
                                         .tree
                                         .set_next_sibling(event.target, self.phantom_tab1);
 
@@ -616,18 +615,6 @@ impl Widget for TabBar2 {
                 }
 
                 _ => {}
-            }
-        }
-    
-        if let Some(window_event) = event.message.downcast() {
-            match window_event {
-                WindowEvent::MouseMove(x, y) => {
-                    // if event.origin != entity {
-                    //     state.insert_event(Event::new(WindowEvent::MouseMove(*x, *y)).target(entity).origin(entity).propagate(Propagation::Fall));
-                    // }
-                }
-
-                _=> {}
             }
         }
     }
@@ -668,7 +655,7 @@ impl Widget for MovableTab {
         entity.add_listener(state, |tab: &mut Self, state, entity, event|{
             if let Some(window_event) = event.message.downcast() {
                 match window_event {
-                    MovableTabEvent::Moving(moving_tab, x, dist) => {
+                    MovableTabEvent::Moving(moving_tab, _) => {
                         if *moving_tab != entity {
 
                             let px = state.data.get_posx(*moving_tab);
@@ -805,7 +792,7 @@ impl Widget for MovableTab {
                     }
                 }
 
-                WindowEvent::MouseMove(x, y) => {
+                WindowEvent::MouseMove(x, _) => {
                     if self.moving {
                         let parent = state.tree.get_parent(entity).unwrap();
                         let parent_posx = state.data.get_posx(parent);
@@ -827,7 +814,7 @@ impl Widget for MovableTab {
                             //entity.set_top(state, Units::Pixels(self.pos_down_y - parent_posy + (*y - state.mouse.left.pos_down.1)));
                         }
 
-                        entity.emit(state, MovableTabEvent::Moving(entity, *x, dist));
+                        entity.emit(state, MovableTabEvent::Moving(entity, *x));
 
                         // if !state.hovered.is_descendant_of(&state.tree, entity) {
                         //     state.insert_event(

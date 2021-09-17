@@ -124,7 +124,7 @@ impl Widget for Counter {
         entity
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update(&mut self, state: &mut State, _entity: Entity, data: &Self::Data) {
         self.label.set_text(state, &data.to_string());
     }
 }

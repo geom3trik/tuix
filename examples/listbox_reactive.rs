@@ -121,7 +121,7 @@ impl Widget for Container {
     type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
-        self.listview = ListView::new(|item| UserWidget::default() )
+        self.listview = ListView::new(|item, index| UserWidget::default() )
         .bind(UserData::users, |users| users.to_vec())
         .build(state, container, |builder| {
             builder

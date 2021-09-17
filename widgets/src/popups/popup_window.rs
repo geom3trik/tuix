@@ -1,4 +1,4 @@
-use tuix_core::{Position, TreeExt};
+use tuix_core::{TreeExt};
 
 use crate::{Button, Label, PopupEvent, common::*};
 
@@ -41,7 +41,7 @@ impl Widget for PopupWindow {
                 .class("header")
         );
 
-        let label = Label::new(&self.title).build(state, self.header, |builder |
+        Label::new(&self.title).build(state, self.header, |builder |
             builder
                 .set_child_space(Stretch(1.0))
                 .set_hoverable(false)
@@ -49,7 +49,7 @@ impl Widget for PopupWindow {
         );
 
         Button::with_label("X")
-        .on_release(|data, state, button|{
+        .on_release(|_, state, button|{
             button.emit(state, PopupEvent::Close);
         })
         .build(state, self.header, |builder|

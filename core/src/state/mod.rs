@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub mod entity;
 pub use entity::*;
 
@@ -31,8 +33,6 @@ use femtovg::FontId;
 use std::collections::VecDeque;
 
 use fnv::FnvHashMap;
-
-use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct Fonts {
@@ -87,7 +87,7 @@ pub struct State {
     pub needs_relayout: bool,
     pub needs_redraw: bool,
 
-    pub listeners: FnvHashMap<Entity, Box<dyn Fn(&mut EventHandler, &mut State, Entity, &mut Event)>>,
+    pub listeners: FnvHashMap<Entity, Box<dyn Fn(&mut dyn EventHandler, &mut State, Entity, &mut Event)>>,
 }
 
 impl State {

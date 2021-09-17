@@ -2,7 +2,7 @@ extern crate tuix;
 
 use tuix::*;
 
-static THEME: &'static str = include_str!("themes/tabs_theme.css");
+static THEME: &'static str = include_str!("../themes/tabs_theme.css");
 
 fn main() {
     let window_description = WindowDescription::new().with_title("tabs");

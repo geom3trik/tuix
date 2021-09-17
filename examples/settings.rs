@@ -186,7 +186,7 @@ impl Widget for Settings {
                 .set_width(Pixels(200.0))
         );
 
-        Dropdown::new("Jack")
+        Dropdown::<()>::new("Jack")
             .build(state, row, |builder| {
                 builder
                     .set_width(Pixels(200.0))
@@ -211,7 +211,7 @@ impl Widget for Settings {
                 .set_width(Pixels(200.0))
         );
 
-        Dropdown::new("Auto")
+        Dropdown::<()>::new("Auto")
             .build(state, row, |builder| {
                 builder
                     .set_width(Pixels(200.0))
@@ -327,7 +327,7 @@ impl Widget for Settings {
                 .set_width(Pixels(170.0))
         );
 
-        Dropdown::new("system:playback_1")
+        Dropdown::<()>::new("system:playback_1")
             .build(state, row, |builder| {
                 builder
                     .set_width(Pixels(200.0))
@@ -375,7 +375,7 @@ impl Widget for Settings {
                 .set_width(Pixels(170.0))
         );
 
-        Dropdown::new("system:playback_2")
+        Dropdown::<()>::new("system:playback_2")
             .build(state, row, |builder| {
                 builder
                     .set_width(Pixels(200.0))

@@ -1,6 +1,3 @@
-
-use std::marker::PhantomData;
-
 use crate::common::*;
 use crate::{CheckButton, CheckboxEvent, Label, Popup, PopupEvent, List};
 
@@ -177,7 +174,7 @@ impl<T: 'static + Clone> Widget for Dropdown<T> {
         list
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    fn on_update(&mut self, _state: &mut State, _entity: Entity, data: &Self::Data) {
         self.value = data.clone();
     }
 

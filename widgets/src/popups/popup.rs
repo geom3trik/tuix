@@ -28,7 +28,7 @@ impl Widget for Popup {
         entity.add_listener(state, |popup: &mut Self, state, entity, event| {
             if let Some(window_event) = event.message.downcast() {
                 match window_event {
-                    WindowEvent::MouseDown(button) => {
+                    WindowEvent::MouseDown(_) => {
                         if popup.open {
                             if event.origin != entity {
                                 if !entity.is_over(state) {

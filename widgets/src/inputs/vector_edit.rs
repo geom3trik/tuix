@@ -2,20 +2,6 @@ use crate::common::*;
 use crate::{Dropdown, DropdownEvent, Textbox, TextboxEvent};
 use crate::AnimationState;
 
-const VEC_EDIT_STYLE: &str = r#"
-    vector_edit .icon {
-        display: none;
-    }
-
-    vector_edit .dim {
-        flex-grow: 0.0;
-    }
-
-    vector_edit .header>label {
-        text-justify: center;
-    }
-"#;
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum VectorEditEvent<T> {
     ValueChanged(T, T, T, T),

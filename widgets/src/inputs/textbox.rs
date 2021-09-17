@@ -601,7 +601,7 @@ impl Widget for Textbox {
         }
 
         // Apply transformations
-        let transform = state.data.get_transform(entity);
+        //let transform = state.data.get_transform(entity);
 
         canvas.save();
         

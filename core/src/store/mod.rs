@@ -1,4 +1,4 @@
-
+#![allow(dead_code)]
 
 pub mod node;
 pub mod lens;
@@ -12,8 +12,11 @@ use crate::{State, Entity, Event, Widget, Propagation, PropSet};
 
 use crate::events::event_handler::Canvas;
 
+#[allow(dead_code)]
 pub trait Model {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
+    fn on_event(&mut self, #[allow(unused_variables)] state: &mut State, #[allow(unused_variables)] entity: Entity, #[allow(unused_variables)] event: &mut Event) {
+
+    }
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
     fn build(self, state: &mut State, parent: Entity) -> Entity
@@ -49,9 +52,9 @@ impl<D: Model + Node> Widget for Store<D> {
         if let Some(bind_event) = event.message.downcast() {
             match bind_event {
                 BindEvent::Bind(target, type_id) => {
-                    println!("Bind: {}", target);
+                    //println!("Bind: {}", target);
                     if *type_id == TypeId::of::<D>() {
-                        println!("Compatible");
+                        //println!("Compatible");
                         self.observers.insert(*target);
                         //entity.emit(state, BindEvent::Update);
                         if let Some(mut event_handler) = state.event_handlers.remove(target) {

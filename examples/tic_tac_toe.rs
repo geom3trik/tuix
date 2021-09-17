@@ -1,213 +1,218 @@
-// use tuix::*;
+use tuix::*;
 
-// fn calculate_winner(squares: &[GameData; 9]) -> GameData {
-//     const LINES: [[usize; 3]; 8] = [
-//         [0, 1, 2],
-//         [3, 4, 5],
-//         [6, 7, 8],
-//         [0, 3, 6],
-//         [1, 4, 7],
-//         [2, 5, 8],
-//         [0, 4, 8],
-//         [2, 4, 6],
-//     ];
+fn calculate_winner(squares: &[GameData; 9]) -> GameData {
+    const LINES: [[usize; 3]; 8] = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+    ];
 
-//     for i in 0..LINES.len() {
-//         let [a, b, c] = LINES[i];
-//         if squares[a] != GameData::Null && squares[a] == squares[b] && squares[b] == squares[c] {
-//             return squares[a];
-//         }
-//     }
+    for i in 0..LINES.len() {
+        let [a, b, c] = LINES[i];
+        if squares[a] != GameData::Null && squares[a] == squares[b] && squares[b] == squares[c] {
+            return squares[a];
+        }
+    }
 
-//     return GameData::Null;
-// }
+    return GameData::Null;
+}
 
-// // Data to describe the state of a square as well as the current player
-// #[derive(Debug, Clone, Copy, PartialEq)]
-// pub enum GameData {
-//     X,
-//     O,
-//     Null,
-// }
+// Data to describe the state of a square as well as the current player
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum GameData {
+    X,
+    O,
+    Null,
+}
 
-// // The game events
-// #[derive(Debug, Clone, PartialEq)]
-// pub enum GameEvent {
-//     SquarePressed(usize),
-//     ProcessOutcome(GameData),
-//     Restart,
-// }
+// The game events
+#[derive(Debug, Clone, PartialEq)]
+pub enum GameEvent {
+    SquarePressed(usize),
+    ProcessOutcome(GameData),
+    Restart,
+}
 
-// // Widget to describe the board state
-// pub struct Board {
-//     squares: [GameData; 9],
-//     current_player: GameData,
-//     num_of_moves: usize,
+#[derive(Debug, Clone, Lens)]
+pub struct GameState {
 
-//     overlay: Entity,
-//     winner_label: Entity,
-// }
+}
 
-// impl Board {
-//     pub fn new() -> Self {
-//         Self {
-//             squares: [GameData::Null; 9],
-//             current_player: GameData::O,
-//             num_of_moves: 0,
+impl Model for GameState {
 
-//             overlay: Entity::default(),
-//             winner_label: Entity::default(),
-//         }
-//     }
-// }
+}
 
-// // Add the squares and the post-game overlay
-// impl Widget for Board {
-//     type Ret = Entity;
-//     type Data = ();
-//     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-//         // Create three rows each with 3 buttons
-//         for r in 0..3 {
-//             let row = Row::new().build(state, entity, |builder| builder.class("row"));
-//             for c in 0..3 {
-//                 Square::default()
-//                     .on_press(Event::new(GameEvent::SquarePressed(3 * r + c)))
-//                     .build(state, row, |builder| builder.class("square"));
-//             }
-//         }
+// Widget to describe the board state
+pub struct Board {
+    squares: [GameData; 9],
+    current_player: GameData,
+    num_of_moves: usize,
 
-//         self.overlay = Element::new().build(state, entity, |builder| builder.class("overlay"));
+    overlay: Entity,
+    winner_label: Entity,
+}
 
-//         self.winner_label =
-//             Label::new("").build(state, self.overlay, |builder| builder.class("winner"));
+impl Board {
+    pub fn new() -> Self {
+        Self {
+            squares: [GameData::Null; 9],
+            current_player: GameData::O,
+            num_of_moves: 0,
 
-//         Button::with_label("Play Again")
-//             .on_release(move |_,state,button|{
-//                 button.emit_to(state, entity, GameEvent::Restart);
-//             })
-//             .build(state, self.overlay, |builder| builder.class("replay"));
+            overlay: Entity::default(),
+            winner_label: Entity::default(),
+        }
+    }
+}
 
-//         entity.set_element(state, "board")
-//     }
+// Add the squares and the post-game overlay
+impl Widget for Board {
+    type Ret = Entity;
+    type Data = ();
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        // Create three rows each with 3 buttons
+        for r in 0..3 {
+            let row = Row::new().build(state, entity, |builder| builder.class("row"));
+            for c in 0..3 {
+                Square::default()
+                    .on_press(GameEvent::SquarePressed(3 * r + c))
+                    .build(state, row, |builder| builder.class("square"));
+            }
+        }
 
-//     // React to the various game events
-//     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-//         if let Some(game_event) = event.message.downcast::<GameEvent>() {
-//             match game_event {
-//                 GameEvent::SquarePressed(index) => {
-//                     match self.current_player {
-//                         GameData::O => {
-//                             event.origin.set_text(state, "O").set_disabled(state, true);
-//                             self.squares[*index] = GameData::O;
-//                             self.current_player = GameData::X;
-//                         }
+        self.overlay = Element::new().build(state, entity, |builder| builder.class("overlay"));
 
-//                         GameData::X => {
-//                             event.origin.set_text(state, "X").set_disabled(state, true);
-//                             self.squares[*index] = GameData::X;
-//                             self.current_player = GameData::O;
-//                         }
+        self.winner_label =
+            Label::new("").build(state, self.overlay, |builder| builder.class("winner"));
 
-//                         _ => {}
-//                     }
+        Button::with_label("Play Again")
+            .on_release(move |_,state,button|{
+                button.emit_to(state, entity, GameEvent::Restart);
+            })
+            .build(state, self.overlay, |builder| builder.class("replay"));
 
-//                     self.num_of_moves += 1;
+        entity.set_element(state, "board")
+    }
 
-//                     state.insert_event(
-//                         Event::new(GameEvent::ProcessOutcome(calculate_winner(&self.squares)))
-//                             .target(entity),
-//                     );
+    // React to the various game events
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(game_event) = event.message.downcast::<GameEvent>() {
+            match game_event {
+                GameEvent::SquarePressed(index) => {
+                    match self.current_player {
+                        GameData::O => {
+                            event.origin.set_text(state, "O").set_disabled(state, true);
+                            self.squares[*index] = GameData::O;
+                            self.current_player = GameData::X;
+                        }
 
-//                     event.consume();
-//                 }
+                        GameData::X => {
+                            event.origin.set_text(state, "X").set_disabled(state, true);
+                            self.squares[*index] = GameData::X;
+                            self.current_player = GameData::O;
+                        }
 
-//                 GameEvent::ProcessOutcome(player) => match player {
-//                     GameData::O => {
-//                         self.winner_label.set_text(state, "O's WIN!");
-//                         self.overlay.set_checked(state, true);
-//                     }
+                        _ => {}
+                    }
 
-//                     GameData::X => {
-//                         self.winner_label.set_text(state, "X's WIN!");
-//                         self.overlay.set_checked(state, true);
-//                     }
+                    self.num_of_moves += 1;
 
-//                     GameData::Null => {
-//                         if self.num_of_moves == 9 {
-//                             self.winner_label.set_text(state, "DRAW!");
-//                             self.overlay.set_checked(state, true);
-//                         }
-//                     }
-//                 },
+                    state.insert_event(
+                        Event::new(GameEvent::ProcessOutcome(calculate_winner(&self.squares)))
+                            .target(entity),
+                    );
 
-//                 GameEvent::Restart => {
-//                     self.overlay.set_checked(state, false);
-//                     self.squares = [GameData::Null; 9];
-//                     self.num_of_moves = 0;
-//                     state.insert_event(
-//                         Event::new(GameEvent::Restart)
-//                             .target(entity)
-//                             .propagate(Propagation::Fall),
-//                     );
-//                 }
-//             }
-//         }
-//     }
-// }
+                    event.consume();
+                }
 
-// // Widget to describe a square in the board
-// #[derive(Default)]
-// pub struct Square {
-//     button: Button,
-// }
+                GameEvent::ProcessOutcome(player) => match player {
+                    GameData::O => {
+                        self.winner_label.set_text(state, "O's WIN!");
+                        self.overlay.set_checked(state, true);
+                    }
 
-// impl Square {
-//     pub fn on_press(mut self, event: Event) -> Self {
-//         self.button = self.button.on_press(move |_,state, entity|{
-//             //entity.emit_event(state, event);
-//             state.insert_event(event.clone());
-//         });
+                    GameData::X => {
+                        self.winner_label.set_text(state, "X's WIN!");
+                        self.overlay.set_checked(state, true);
+                    }
 
-//         self
-//     }
-// }
+                    GameData::Null => {
+                        if self.num_of_moves == 9 {
+                            self.winner_label.set_text(state, "DRAW!");
+                            self.overlay.set_checked(state, true);
+                        }
+                    }
+                },
 
-// // Inherits from button
-// impl Widget for Square {
-//     type Ret = Entity;
-//     type Data = ();
-//     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-//         self.button.on_build(state, entity)
-//     }
+                GameEvent::Restart => {
+                    self.overlay.set_checked(state, false);
+                    self.squares = [GameData::Null; 9];
+                    self.num_of_moves = 0;
+                    state.insert_event(
+                        Event::new(GameEvent::Restart)
+                            .target(entity)
+                            .propagate(Propagation::Fall),
+                    );
+                }
+            }
+        }
+    }
+}
 
-//     // Inherits button behaviour and adds new behaviour by reacting to a restart event
-//     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-//         self.button.on_event(state, entity, event);
+// Widget to describe a square in the board
+#[derive(Default)]
+pub struct Square {
+    button: Button,
+}
 
-//         if let Some(game_event) = event.message.downcast::<GameEvent>() {
-//             match game_event {
-//                 GameEvent::Restart => {
-//                     entity.set_text(state, "").set_disabled(state, false);
-//                 }
+impl Square {
+    pub fn on_press<M: 'static + Message + Clone>(mut self, message: M) -> Self {
+        self.button = self.button.on_press(move |_,state, entity|{
+            //entity.emit_event(state, event);
+            state.insert_event(Event::new(message.clone()));
+        });
 
-//                 _ => {}
-//             }
-//         }
-//     }
-// }
-// // Run the app
-// fn main() {
-//     let app = Application::new(WindowDescription::new().with_title("Tic Tac Toe").with_inner_size(300, 300),|state, window| {
-//         state
-//             .add_stylesheet("examples/themes/tic_tac_toe_theme.css")
-//             .expect("Failed to load stylesheet");
+        self
+    }
+}
 
-//         Board::new().build(state, window.entity(), |builder| builder);
-//     });
+// Inherits from button
+impl Widget for Square {
+    type Ret = Entity;
+    type Data = ();
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        self.button.on_build(state, entity)
+    }
 
-//     app.run();
-// }
+    // Inherits button behaviour and adds new behaviour by reacting to a restart event
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        self.button.on_event(state, entity, event);
 
+        if let Some(game_event) = event.message.downcast::<GameEvent>() {
+            match game_event {
+                GameEvent::Restart => {
+                    entity.set_text(state, "").set_disabled(state, false);
+                }
+
+                _ => {}
+            }
+        }
+    }
+}
+// Run the app
 fn main() {
-    
+    let app = Application::new(WindowDescription::new().with_title("Tic Tac Toe").with_inner_size(300, 300),|state, window| {
+        state
+            .add_stylesheet("examples/themes/tic_tac_toe_theme.css")
+            .expect("Failed to load stylesheet");
+
+        Board::new().build(state, window.entity(), |builder| builder);
+    });
+
+    app.run();
 }

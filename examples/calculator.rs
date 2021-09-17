@@ -1,6 +1,6 @@
 extern crate tuix;
 
-use image::GenericImageView;
+//use image::GenericImageView;
 
 use tuix::*;
 
@@ -746,13 +746,13 @@ impl Widget for Calculator {
 }
 
 pub fn main() {
-    let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
+    //let icon = image::open("resources/icons/calculator_dark-128.png").unwrap();
 
     let window_description = WindowDescription::new()
         .with_title("Calculator")
         .with_inner_size(300, 400)
-        .with_min_inner_size(200, 300)
-        .with_icon(icon.to_bytes(), icon.width(), icon.height());
+        .with_min_inner_size(200, 300);
+        //.with_icon(icon.to_bytes(), icon.width(), icon.height());
     let app = Application::new(window_description, |state, window| {
         // Replace this with icon loading using resource manager when working
 

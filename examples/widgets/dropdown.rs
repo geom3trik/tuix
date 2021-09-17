@@ -75,8 +75,6 @@ impl Widget for Container {
                     .set_space(Stretch(1.0))
             });
             
-        self.dropdown.set_width(state, Pixels(100.0));
-            
         // Spacer
         Element::new().build(state, self.dropdown, |builder| 
             builder

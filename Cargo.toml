@@ -127,6 +127,14 @@ path = "examples/widgets/gallery.rs"
 name = "movable_tabs"
 path = "examples/widgets/movable_tabs.rs"
 
+[[example]]
+name = "tabs"
+path = "examples/widgets/tabs.rs"
+
+[[example]]
+name = "panel"
+path = "examples/widgets/panel.rs"
+
 # Binding
 
 [[example]]
@@ -148,7 +156,6 @@ path = "examples/binding/model.rs"
 
 [workspace]
 members = [
-    "winit",
     "glutin",
     "baseview",
     "core",
