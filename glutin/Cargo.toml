@@ -1,15 +1,15 @@
 [package]
 name = "tuix_glutin"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["George Atkinson"]
 edition = "2018"
-license = "MIT/Apache-2.0"
+license = "MIT"
 repository = "https://github.com/geom3trik/tuix"
-
+description = "Glutin backend for tuix"
 
 [dependencies]
 glutin = "0.27.0"
-femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}
+femtovg = "0.2.5"
 keyboard-types = { version = "0.5.0", default-features = false }
-tuix_core = { path = "../core" }
+tuix_core = { path = "../core", version = "0.2"}
 fnv = "1.0.7"

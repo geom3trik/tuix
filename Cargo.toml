@@ -1,7 +1,7 @@
 [package]
 name = "tuix"
 description = "Cross-platform GUI toolkit"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["George Atkinson"]
 license = "MIT/Apache-2.0"
 readme = "README.md"
@@ -78,6 +78,10 @@ path = "examples/widgets/knob.rs"
 [[example]]
 name = "popup"
 path = "examples/widgets/popup.rs"
+
+[[example]]
+name = "popup_textbox"
+path = "examples/widgets/popup_textbox.rs"
 
 # [[example]]
 # name = "tooltip"
@@ -161,12 +165,12 @@ tuix_glutin = ["tuix_internal/tuix_glutin"]
 dynamic = ["tuix_dylib"]
 
 [dependencies]
-tuix_dylib = {version = "0.1.0", path = "dylib", optional = true}
-tuix_internal = {version = "0.1.0", path = "internal"}
+tuix_dylib = {version = "0.2.0", path = "dylib", optional = true}
+tuix_internal = {version = "0.2.0", path = "internal"}
 
 [dev-dependencies]
-femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}
+femtovg = "0.2.5"
 # image = "0.23.12"
 fnv = "1.0.7"
 rand = "0.8.3"
-english-numbers="0.3.3"
+english-numbers = "0.3.3"

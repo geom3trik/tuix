@@ -180,6 +180,7 @@ impl Widget for Textbox {
 
                         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                     } else {
+
                         self.edit = false;
                         entity.set_active(state, false);
 
@@ -337,10 +338,11 @@ impl Widget for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
-                            if let Some(callback) = self.on_submit.take() {
-                                (callback)(self, state, entity);
-                                self.on_submit = Some(callback);
-                            }
+                            // TODO - Change this to a 'Cancelled' callback
+                            // if let Some(callback) = self.on_submit.take() {
+                            //     (callback)(self, state, entity);
+                            //     self.on_submit = Some(callback);
+                            // }
 
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::root()),
@@ -408,12 +410,13 @@ impl Widget for Textbox {
                 WindowEvent::FocusOut => {
                     self.edit = false;
                     entity.set_active(state, false);
+     
                     state.release(entity);
 
-                    if let Some(callback) = self.on_submit.take() {
-                        (callback)(self, state, entity);
-                        self.on_submit = Some(callback);
-                    }
+                    // if let Some(callback) = self.on_submit.take() {
+                    //     (callback)(self, state, entity);
+                    //     self.on_submit = Some(callback);
+                    // }
 
 
                     state.insert_event(
@@ -427,10 +430,10 @@ impl Widget for Textbox {
                     entity.set_active(state, false);
                     //state.release(entity);
 
-                    if let Some(callback) = self.on_submit.take() {
-                        (callback)(self, state, entity);
-                        self.on_submit = Some(callback);
-                    }
+                    // if let Some(callback) = self.on_submit.take() {
+                    //     (callback)(self, state, entity);
+                    //     self.on_submit = Some(callback);
+                    // }
 
 
                     state.insert_event(

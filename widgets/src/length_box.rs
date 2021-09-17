@@ -123,9 +123,6 @@ impl Widget for LengthBox {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         entity.set_layout_type(state, LayoutType::Row).set_col_between(state, Pixels(10.0));
 
-
-        println!("BUILD");
-
         self.slider = Slider::new()
             .with_min(0.0)
             .with_max(self.pixels_max)

@@ -1,18 +1,19 @@
 [package]
 name = "tuix_core"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["George Atkinson"]
-license = "MIT/Apache-2.0"
+license = "MIT"
 repository = "https://github.com/geom3trik/tuix"
 edition = "2018"
+description = "Core parts of tuix"
 
 [dependencies]
 cssparser = "0.27.2"
-femtovg = { git = "https://github.com/femtovg/femtovg", branch = "master"}
+femtovg = "0.2.5"
 keyboard-types = { version = "0.5.0", default-features = false }
 bitflags = "1.2.1"
 fnv = "1.0.7"
 num-traits = "0.2.14"
 # tts = "0.17.3"
 # image = { version = "0.23.6"}
-morphorm = {git = "https://github.com/geom3trik/morphorm", branch = "main"}
+morphorm = "0.2.0"
