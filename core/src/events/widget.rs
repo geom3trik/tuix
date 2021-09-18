@@ -450,13 +450,13 @@ pub trait Widget: std::marker::Sized + 'static {
                     canvas.create_image_empty((bounds.w + d) as usize, 
                     (bounds.h + d) as usize, 
                     PixelFormat::Rgba8, 
-                    ImageFlags::FLIP_Y,
+                    ImageFlags::FLIP_Y | ImageFlags::PREMULTIPLIED,
                     ).expect("Failed to create image"),
 
                     canvas.create_image_empty((bounds.w + d) as usize, 
                     (bounds.h + d) as usize, 
                     PixelFormat::Rgba8, 
-                    ImageFlags::FLIP_Y,
+                    ImageFlags::FLIP_Y | ImageFlags::PREMULTIPLIED,
                     ).expect("Failed to create image"),
                 )
             );
@@ -474,13 +474,13 @@ pub trait Widget: std::marker::Sized + 'static {
                     canvas.create_image_empty((bounds.w + d) as usize, 
                     (bounds.h + d) as usize, 
                     PixelFormat::Rgba8, 
-                    ImageFlags::FLIP_Y,
+                    ImageFlags::FLIP_Y | ImageFlags::PREMULTIPLIED,
                     ).expect("Failed to create image"),
 
                     canvas.create_image_empty((bounds.w + d) as usize, 
                     (bounds.h + d) as usize, 
                     PixelFormat::Rgba8, 
-                    ImageFlags::FLIP_Y,
+                    ImageFlags::FLIP_Y | ImageFlags::PREMULTIPLIED,
                     ).expect("Failed to create image"),
                 )
             } else {
