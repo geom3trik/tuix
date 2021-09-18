@@ -1,5 +1,11 @@
 use tuix::*;
 
+mod overlay;
+use overlay::*;
+
+mod canvas_options;
+use canvas_options::*;
+
 const STYLE: &str = r#"
 
     window {
@@ -9,6 +15,32 @@ const STYLE: &str = r#"
 
     window>.header {
         background-color: #404040;
+    }
+
+    .spacer {
+        background-color: #202020;
+        height: 1px;
+        left: 0px;
+        right: 0px;
+    }
+
+    .divider {
+        background-color: #202020;
+        width: 1px;
+        top: 0px;
+        bottom: 0px;
+    }
+
+    panel {
+        bottom: 2px;
+    }
+
+    panel>.header>.label {
+        color: #8a8a8a;
+    }
+
+    panel>.header>.icon {
+        color: #8a8a8a;
     }
 
     panel>.header {
@@ -183,6 +215,8 @@ impl Default for ColorPickFor {
 #[derive(PartialEq, Clone)]
 pub enum AppEvent {
 
+    SelectWidget(Entity),
+
     OpenColorPicker(ColorPickFor),
 
     // Size
@@ -291,15 +325,36 @@ impl StyleData {
     }
 }
 
+#[derive(Clone)]
+pub struct CanvasData {
+    width: u32,
+    height: u32,
+    background_color: Color,
+}
+
+impl CanvasData {
+    pub fn new() -> Self {
+        Self {
+            width: 400,
+            height: 400,
+            background_color: Color::white(),
+        }
+    }
+}
+
 #[derive(Lens)]
 pub struct AppData {
     pub style_data: StyleData,
+    pub canvas_data: CanvasData,
+    pub selected: Entity,
 }
 
 impl Default for AppData {
     fn default() -> Self {
         Self {
             style_data: StyleData::new(),
+            canvas_data: CanvasData::new(),
+            selected: Entity::null(),
         }
     }
 }
@@ -309,8 +364,15 @@ impl Model for AppData {
         if let Some(app_event) = event.message.downcast() {
             match app_event {
 
+                AppEvent::SelectWidget(selected) => {
+                    self.selected = *selected;
+                    entity.emit(state, BindEvent::Update);
+
+                }
+
                 AppEvent::OpenColorPicker(picker_for) => {
                     self.style_data.current_color = *picker_for;
+                    entity.emit(state, BindEvent::Update);
                 }
 
                 // Size
@@ -519,17 +581,49 @@ impl Widget for App {
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         
-        let row = Row::new().build(state, entity, |builder| builder);
-        Canvas::default()
+        // Placeholder for treeview
+        Element::new().build(state, entity, |builder|
+            builder
+                .set_width(Pixels(300.0))
+                .set_background_color(Color::rgb(56, 56, 56))
+        );
+
+        Element::new().build(state, entity, |builder|
+            builder
+                .class("divider")
+        );
+
+        let col = Column::new().build(state, entity, |builder| builder);
+
+        // Placeholder for top bar
+        let top_bar = Element::new().build(state, col, |builder| 
+            builder
+                .set_height(Pixels(50.0))
+                .set_background_color(Color::rgb(56, 56, 56))
+        );
+
+        CanvasOptionsDropdown::new().build(state, top_bar, |builder| 
+            builder
+                .set_width(Pixels(100.0))
+                .set_height(Pixels(30.0))
+        );
+
+        let canvas = Canvas::default()
             .bind(AppData::style_data, |style_data| style_data.clone())
-            .build(state, row, |builder| 
+            .build(state, col, |builder| 
                 builder
                     //.set_background_color(Color::red())
             );
 
-        StyleControls::default().build(state, row, |builder| 
+        Element::new().build(state, entity, |builder|
+            builder
+                .class("divider")
+        );
+
+        StyleControls::default().build(state, entity, |builder| 
             builder
                 .set_background_color(Color::rgb(56,56,56))
+                
         );
 
         self.color_picker = PopupWindow::new("Color Picker").build(state, entity, |builder| 
@@ -537,6 +631,7 @@ impl Widget for App {
                 .set_width(Pixels(400.0))
                 .set_height(Pixels(300.0))
                 .set_space(Stretch(1.0))
+                .set_display(Display::None)
                 //.set_child_space(Stretch(1.0))
         ).entity();
 
@@ -547,8 +642,12 @@ impl Widget for App {
             .build(state, self.color_picker, |builder| 
                 builder
             );
+
+        // Overlay::new()
+        //     .bind(AppData::selected, |selected| *selected)
+        //     .build(state, canvas, |builder| builder);
         
-        entity
+        entity.set_layout_type(state, LayoutType::Row)
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -590,6 +689,8 @@ impl Widget for Canvas {
                 .set_height(Pixels(100.0))
                 .set_background_color(Color::rgb(20, 80, 200))
         );
+
+        entity.emit(state, AppEvent::SelectWidget(self.element));
 
         entity.set_child_space(state, Stretch(1.0))
     }
@@ -663,6 +764,10 @@ impl Widget for StyleControls {
             builder.set_text("Style").class("tab")
         });
 
+        Tab::new("canvas").build(state, tab_bar, |builder| {
+            builder.set_text("Canvas").class("tab")
+        });
+
         // Add a tab container to the tab viewport
         let layout_page = TabContainer::new("layout")
             .build(state, tab_viewport, |builder| builder.class("layout"));
@@ -671,6 +776,10 @@ impl Widget for StyleControls {
             .build(state, tab_viewport, |builder| builder.class("style"));
         // TODO - replace tab view with stack
         style_page.set_display(state, Display::None);
+
+        let canvas_page = TabContainer::new("canvas")
+            .build(state, tab_viewport, |builder| builder.class("canvas"));
+        canvas_page.set_display(state, Display::None);
 
         let scroll = ScrollContainer::new()
             .build(state, layout_page, |builder| 
@@ -806,7 +915,7 @@ impl Widget for StyleControls {
                 .bind(AppData::style_data.then(StyleData::child_bottom), |val| *val)
                 .build(state, child_space_panel, |builder| builder);
     
-
+        // STYLE PAGE
         let scroll = ScrollContainer::new()
             .build(state, style_page, |builder| 
                 builder 
@@ -817,7 +926,7 @@ impl Widget for StyleControls {
             .set_child_space(state, Pixels(10.0))
             .set_row_between(state, Pixels(10.0));
 
-        let (background_panel) = Panel::new("Background").build(state, scroll, |builder| 
+        let background_panel = Panel::new("BACKGROUND").build(state, scroll, |builder| 
             builder
         );
 
@@ -834,7 +943,9 @@ impl Widget for StyleControls {
             .bind(AppData::style_data.then(StyleData::background_color), |col| *col)
             .build(state, row, |builder| builder.set_background_color(Color::black()));
         
-        let border_panel = Panel::new("Border").build(state, scroll, |builder| 
+        Element::new().build(state, scroll, |builder| builder.class("spacer"));
+
+        let border_panel = Panel::new("BORDER").build(state, scroll, |builder| 
             builder
                 //.class("group")
                 //.set_background_color(Color::blue())
@@ -940,8 +1051,9 @@ impl Widget for StyleControls {
 
         border_shape_dropdown(state, row, Corner::BottomRight, AppData::style_data.then(StyleData::border_bottom_right_shape));
 
+        Element::new().build(state, scroll, |builder| builder.class("spacer"));
     
-        let shadow_panel = Panel::new("Shadow").build(state, scroll, |builder| 
+        let shadow_panel = Panel::new("SHADOW").build(state, scroll, |builder| 
             builder
         );
 
@@ -977,8 +1089,9 @@ impl Widget for StyleControls {
             })
             .build(state, shadow_panel, |builder| builder);
         
+        Element::new().build(state, scroll, |builder| builder.class("spacer"));
 
-        let text_panel = Panel::new("Text").build(state, scroll, |builder| 
+        let text_panel = Panel::new("TEXT").build(state, scroll, |builder| 
             builder
                 //.class("group")
                 //.set_background_color(Color::blue())
@@ -1010,6 +1123,8 @@ impl Widget for StyleControls {
                 .set_child_left(Pixels(5.0))
                 .set_child_right(Stretch(1.0))
         );
+
+        Element::new().build(state, scroll, |builder| builder.class("spacer"));
 
 
         entity.set_width(state, Pixels(500.0))

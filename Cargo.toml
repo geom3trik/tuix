@@ -150,6 +150,10 @@ path = "examples/binding/basic.rs"
 name = "model"
 path = "examples/binding/model.rs"
 
+[[example]]
+name = "editor"
+path = "examples/editor/src/main.rs"
+
 [workspace]
 members = [
     "glutin",
