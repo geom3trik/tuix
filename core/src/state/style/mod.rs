@@ -152,7 +152,7 @@ pub struct Style {
 
     //Text & Font
     pub text: DenseStorage<String>,
-    pub font: DenseStorage<String>,
+    pub font: StyleStorage<String>,
     pub font_color: AnimatableStorage<Color>,
     pub font_size: AnimatableStorage<f32>,
 
@@ -423,6 +423,10 @@ impl Style {
 
                     Property::FontColor(value) => {
                         self.font_color.insert_rule(rule_id, value);
+                    }
+
+                    Property::Font(value) => {
+                        self.font.insert_rule(rule_id, value);
                     }
 
                     // Background

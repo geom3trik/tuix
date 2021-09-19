@@ -86,6 +86,7 @@ pub enum Property {
 
     FontSize(f32),
     FontColor(Color),
+    Font(String),
 
     OuterShadow(BoxShadow),
     OuterShadowHOffset(Units),

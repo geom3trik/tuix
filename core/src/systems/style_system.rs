@@ -436,6 +436,11 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
             should_redraw = true;
         }
 
+        if state.style.font.link_rule(entity, &matched_rules) {
+            //println!("44");
+            should_redraw = true;
+        }
+
         // Outer Shadow
         if state
             .style

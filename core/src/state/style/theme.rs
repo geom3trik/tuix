@@ -403,6 +403,7 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "row-between" => Property::RowBetween(parse_units(input)?),
             "col-between" => Property::ColBetween(parse_units(input)?),
             "font-size" => Property::FontSize(parse_font_size(input)?),
+            "font" => Property::Font(parse_string(input)?),
 
             // Border
             "border-width" => Property::BorderWidth(parse_units(input)?),
