@@ -78,9 +78,9 @@ pub struct State {
     // Queue of events
     pub event_queue: VecDeque<Event>,
 
-    pub fonts: Fonts, //TODO - Replace with resource manager
+    // pub fonts: Fonts, //TODO - Replace with resource manager
 
-    pub(crate) resource_manager: ResourceManager, //TODO
+    pub resource_manager: ResourceManager, //TODO
 
     // Flag which signifies that a restyle is required
     pub needs_restyle: bool,
@@ -126,13 +126,13 @@ impl State {
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             removed_entities: Vec::new(),
-            fonts: Fonts {
-                regular: None,
-                bold: None,
-                icons: None,
-                emoji: None,
-                arabic: None,
-            },
+            // fonts: Fonts {
+            //     regular: None,
+            //     bold: None,
+            //     icons: None,
+            //     emoji: None,
+            //     arabic: None,
+            // },
             resource_manager: ResourceManager::new(),
             needs_restyle: false,
             needs_relayout: false,
@@ -204,9 +204,15 @@ impl State {
     //     self.resource_manager.add_image(image)
     // }
 
-    //TODO
-    pub fn add_font(&mut self, _name: &str, _path: &str) {
-        println!("Add an font to resource manager");
+    /// Add a font from memory to the application
+    pub fn add_font_mem(&mut self, name: &str, data: &[u8]) {
+        // TODO - return error
+        if self.resource_manager.fonts.contains_key(name) {
+            println!("Font already exists");
+            return;
+        }
+
+        self.resource_manager.fonts.insert(name.to_owned(), FontOrId::Font(data.to_vec()));
     }
 
     // Removes all style data and then reloads the stylesheets

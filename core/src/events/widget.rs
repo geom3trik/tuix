@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, BorderCornerShape, Entity, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
+use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
 use femtovg::{BlendFactor, CompositeOperation, PixelFormat, RenderTarget};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
@@ -617,13 +617,20 @@ pub trait Widget: std::marker::Sized + 'static {
         if let Some(text) = state.style.text.get_mut(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
-            let font_id = match font.as_ref() {
-                "sans" => state.fonts.regular.unwrap(),
-                "icons" => state.fonts.icons.unwrap(),
-                "emoji" => state.fonts.emoji.unwrap(),
+            // TODO - This should probably be cached in state to save look-up time
+            let default_font = state.resource_manager.fonts.get("regular").and_then(|font|{
+                match font {
+                    FontOrId::Id(id) => Some(id),
+                    _=> None,
+                }
+            }).expect("Failed to find default font");
 
-                _ => state.fonts.regular.unwrap(),
-            };
+            let font_id = state.resource_manager.fonts.get(&font).and_then(|font|{
+                match font {
+                    FontOrId::Id(id) => Some(id),
+                    _=> None,
+                }
+            }).unwrap_or(default_font);
 
             // let mut x = posx + (border_width / 2.0);
             // let mut y = posy + (border_width / 2.0);
@@ -720,7 +727,7 @@ pub trait Widget: std::marker::Sized + 'static {
 
             let mut paint = Paint::color(font_color);
             paint.set_font_size(font_size);
-            paint.set_font(&[font_id]);
+            paint.set_font(&[font_id.clone()]);
             paint.set_text_align(align);
             paint.set_text_baseline(baseline);
             paint.set_anti_alias(false);

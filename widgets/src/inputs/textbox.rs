@@ -1,6 +1,7 @@
 use crate::common::*;
 
 use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
+use tuix_core::FontOrId;
 
 use crate::Key;
 
@@ -851,11 +852,20 @@ impl Widget for Textbox {
         if let Some(text) = state.style.text.get_mut(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
-            let font_id = match font.as_ref() {
-                "sans" => state.fonts.regular.unwrap(),
-                "icons" => state.fonts.icons.unwrap(),
-                _ => state.fonts.regular.unwrap(),
-            };
+            // TODO - This should probably be cached in state to save look-up time
+            let default_font = state.resource_manager.fonts.get("regular").and_then(|font|{
+                match font {
+                    FontOrId::Id(id) => Some(id),
+                    _=> None,
+                }
+            }).expect("Failed to find default font");
+
+            let font_id = state.resource_manager.fonts.get(&font).and_then(|font|{
+                match font {
+                    FontOrId::Id(id) => Some(id),
+                    _=> None,
+                }
+            }).unwrap_or(default_font);
 
             let mut x = posx;
             let mut y = posy;
@@ -868,7 +878,7 @@ impl Widget for Textbox {
 
             let mut paint = Paint::color(font_color);
             paint.set_font_size(font_size);
-            paint.set_font(&[font_id]);
+            paint.set_font(&[font_id.clone()]);
 
             let font_metrics = canvas
                 .measure_font(paint)

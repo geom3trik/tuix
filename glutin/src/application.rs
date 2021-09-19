@@ -62,40 +62,10 @@ impl Application {
         let emoji_font = include_bytes!("../fonts/OpenSansEmoji.ttf");
         let arabic_font = include_bytes!("../fonts/amiri-regular.ttf");
 
-        let fonts = Fonts {
-            regular: Some(
-                window
-                    .canvas
-                    .add_font_mem(regular_font)
-                    .expect("Cannot add font"),
-            ),
-            bold: Some(
-                window
-                    .canvas
-                    .add_font_mem(bold_font)
-                    .expect("Cannot add font"),
-            ),
-            icons: Some(
-                window
-                    .canvas
-                    .add_font_mem(icon_font)
-                    .expect("Cannot add font"),
-            ),
-            emoji: Some(
-                window
-                    .canvas
-                    .add_font_mem(emoji_font)
-                    .expect("Cannot add font"),
-            ),
-            arabic: Some(
-                window
-                    .canvas
-                    .add_font_mem(arabic_font)
-                    .expect("Cannot add font"),
-            ),
-        };
-
-        state.fonts = fonts;
+        state.add_font_mem("regular", regular_font);
+        state.add_font_mem("icon", icon_font);
+        state.add_font_mem("emoji", emoji_font);
+        state.add_font_mem("arabic", arabic_font);
 
         state.style.width.insert(
             Entity::root(),

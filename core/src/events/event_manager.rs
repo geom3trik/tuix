@@ -1,4 +1,4 @@
-use crate::{Builder, CursorIcon, Entity, Event, IntoBranchIterator, IntoParentIterator, IntoTreeIterator, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent, tree};
+use crate::{Builder, CursorIcon, Entity, Event, FontOrId, IntoBranchIterator, IntoParentIterator, IntoTreeIterator, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent, tree};
 
 use crate::EventHandler;
 
@@ -226,6 +226,24 @@ impl EventManager {
     pub fn draw(&mut self, state: &mut State, canvas: &mut Canvas<OpenGl>) {
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
+
+        for (name, font) in state.resource_manager.fonts.iter_mut() {
+            
+            match font {
+                FontOrId::Font(data) => {
+                    let id = canvas.add_font_mem(data).expect(&format!("Failed to load font file for: {}", name));
+                    *font = FontOrId::Id(id);
+                }
+
+            
+
+                _=> {}
+            }
+            
+            // if let Some(font_data) = font.take() {
+            //     canvas.add_font_mem(&font_data);
+            // }
+        }
 
         // for (resource, image_or_id) in state.resource_manager.image_ids.iter_mut() {
         //     match image_or_id {
