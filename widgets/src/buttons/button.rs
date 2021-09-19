@@ -235,6 +235,12 @@ impl Widget for Button {
                     }
                 }
 
+                WindowEvent::MouseEnter => {
+                    if state.mouse.left.state == MouseButtonState::Pressed && state.mouse.left.pressed == entity {
+                        entity.set_active(state, true);
+                    }
+                }
+
                 WindowEvent::KeyDown(code, _) if *code == self.key => {
                     if state.focused == entity && !entity.is_disabled(state) {
                         state.insert_event(
