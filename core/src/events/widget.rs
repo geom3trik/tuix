@@ -618,7 +618,7 @@ pub trait Widget: std::marker::Sized + 'static {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
             // TODO - This should probably be cached in state to save look-up time
-            let default_font = state.resource_manager.fonts.get("regular").and_then(|font|{
+            let default_font = state.resource_manager.fonts.get(&state.style.default_font).and_then(|font|{
                 match font {
                     FontOrId::Id(id) => Some(id),
                     _=> None,

@@ -109,7 +109,7 @@ impl State {
 
         style.background_color.insert(root, Color::rgb(80, 80, 80)).expect("");
 
-        
+        style.default_font = "roboto".to_string();
 
         State {
             entity_manager,
@@ -213,6 +213,11 @@ impl State {
         }
 
         self.resource_manager.fonts.insert(name.to_owned(), FontOrId::Font(data.to_vec()));
+    }
+
+    /// Sets the global default font for the application
+    pub fn set_default_font(&mut self, name: &str) {
+        self.style.default_font = name.to_string();
     }
 
     // Removes all style data and then reloads the stylesheets

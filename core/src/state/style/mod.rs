@@ -66,6 +66,8 @@ use std::rc::Rc;
 pub struct Style {
     pub rules: Vec<StyleRule>,
 
+    pub default_font: String,
+
     pub elements: DenseStorage<String>,
     pub classes: DenseStorage<HashSet<String>>,
     pub pseudo_classes: DenseStorage<PseudoClasses>,

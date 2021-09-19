@@ -111,7 +111,8 @@ impl ApplicationRunner {
         let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
         let arabic_font = include_bytes!("../../resources/amiri-regular.ttf");
 
-        state.add_font_mem("regular", regular_font);
+        state.add_font_mem("roboto", regular_font);
+        state.add_font_mem("roboto-bold", bold_font);
         state.add_font_mem("icon", icon_font);
         state.add_font_mem("emoji", emoji_font);
         state.add_font_mem("arabic", arabic_font);
