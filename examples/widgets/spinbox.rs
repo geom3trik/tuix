@@ -8,16 +8,14 @@ const STYLE: &str = r#"
 
     spinbox .increment {
         color: #ff5e1a;
-        text-justify: center;
     }
 
     spinbox .decrement {
         color: #ff5e1a;
-        text-justify: center;
     }
 
     spinbox>textbox {
-        color: red;
+        color: black;
         border-width: 1px;
         border-color: #757575;
         right: -1px;

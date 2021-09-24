@@ -48,11 +48,7 @@ impl Application {
         //state.tree.add(Entity::root(), None);
 
         event_manager.tree = state.tree.clone();
-
-        app(&mut state, root);
-
-        let mut window = Window::new(&event_loop, &window_description);
-
+        
         let regular_font = include_bytes!("../fonts/Roboto-Regular.ttf");
         let bold_font = include_bytes!("../fonts/Roboto-Bold.ttf");
         let icon_font = include_bytes!("../fonts/entypo.ttf");
@@ -64,6 +60,15 @@ impl Application {
         state.add_font_mem("icon", icon_font);
         state.add_font_mem("emoji", emoji_font);
         state.add_font_mem("arabic", arabic_font);
+
+        let mut window = Window::new(&event_loop, &window_description);
+        
+        event_manager.load_resources(&mut state, &mut window.canvas);
+        
+        app(&mut state, root);
+
+
+
 
         state.style.width.insert(
             Entity::root(),

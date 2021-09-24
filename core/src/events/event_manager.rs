@@ -223,27 +223,29 @@ impl EventManager {
         return needs_redraw;
     }
 
-    pub fn draw(&mut self, state: &mut State, canvas: &mut Canvas<OpenGl>) {
-        //let dpi_factor = window.handle.window().scale_factor();
-        //let size = window.handle.window().inner_size();
-
+    pub fn load_resources(&mut self, state: &mut State, canvas: &mut Canvas<OpenGl>) {
         for (name, font) in state.resource_manager.fonts.iter_mut() {
             
             match font {
                 FontOrId::Font(data) => {
-                    let id = canvas.add_font_mem(data).expect(&format!("Failed to load font file for: {}", name));
-                    *font = FontOrId::Id(id);
+                    let id1 = canvas.add_font_mem(&data.clone()).expect(&format!("Failed to load font file for: {}", name));
+                    let id2 = state.text_context.add_font_mem(&data.clone()).expect("failed");
+                    if id1 != id2 {
+                        panic!("Fonts in canvas must have the same id as fonts in the text context");
+                    }
+                    *font = FontOrId::Id(id1);
                 }
-
-            
 
                 _=> {}
             }
-            
-            // if let Some(font_data) = font.take() {
-            //     canvas.add_font_mem(&font_data);
-            // }
         }
+    }
+
+    pub fn draw(&mut self, state: &mut State, canvas: &mut Canvas<OpenGl>) {
+        //let dpi_factor = window.handle.window().scale_factor();
+        //let size = window.handle.window().inner_size();
+
+        self.load_resources(state, canvas);
 
         // for (resource, image_or_id) in state.resource_manager.image_ids.iter_mut() {
         //     match image_or_id {

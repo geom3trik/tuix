@@ -375,10 +375,10 @@ pub trait Widget: std::marker::Sized + 'static {
             );
         } else {
 
-            let x = bounds.x;
-            let y = bounds.y;
-            let w = bounds.w;
-            let h = bounds.h;
+            let x = bounds.x + border_width / 2.0;
+            let y = bounds.y + border_width / 2.0;
+            let w = bounds.w - border_width;
+            let h = bounds.h - border_width;;
             let halfw = w.abs() * 0.5;
             let halfh = h.abs() * 0.5;
 
