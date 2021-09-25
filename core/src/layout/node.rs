@@ -1,6 +1,6 @@
 use morphorm::Node;
 
-use crate::{Display, Entity, Style};
+use crate::{Entity, Style};
 
 // TODO - generate these with a macro
 impl<'a> Node<'a> for Entity {

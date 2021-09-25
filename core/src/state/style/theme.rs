@@ -403,6 +403,7 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             "row-between" => Property::RowBetween(parse_units(input)?),
             "col-between" => Property::ColBetween(parse_units(input)?),
             "font-size" => Property::FontSize(parse_font_size(input)?),
+            "font" => Property::Font(parse_string(input)?),
 
             // Border
             "border-width" => Property::BorderWidth(parse_units(input)?),
@@ -410,6 +411,7 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
             // TODO - Support array for specifying each corner
             "border-radius" => Property::BorderRadius(parse_units(input)?),
 
+            "border-corner-shape" => Property::BorderCornerShape(parse_border_corner_shape(input)?),
             "border-top-left-radius" => Property::BorderTopLeftRadius(parse_units(input)?),
             "border-top-right-radius" => Property::BorderTopRightRadius(parse_units(input)?),
             "border-bottom-left-radius" => Property::BorderBottomLeftRadius(parse_units(input)?),
@@ -964,6 +966,33 @@ fn parse_overflow<'i, 't>(
         Token::Ident(name) => match name.as_ref() {
             "visible" => Overflow::Visible,
             "hidden" => Overflow::Hidden,
+
+            _ => {
+                return Err(
+                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
+                );
+            }
+        },
+
+        t => {
+            let basic_error = BasicParseError {
+                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
+                location,
+            };
+            return Err(basic_error.into());
+        }
+    })
+}
+
+fn parse_border_corner_shape<'i, 't>(
+    input: &mut Parser<'i, 't>,
+) -> Result<BorderCornerShape, ParseError<'i, CustomParseError>> {
+    let location = input.current_source_location();
+
+    Ok(match input.next()? {
+        Token::Ident(name) => match name.as_ref() {
+            "round" => BorderCornerShape::Round,
+            "bevel" => BorderCornerShape::Bevel,
 
             _ => {
                 return Err(

@@ -66,3 +66,15 @@ impl Default for FocusOrder {
         }
     }
 }
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum BorderCornerShape {
+    Round,
+    Bevel,
+}
+
+impl Default for BorderCornerShape {
+    fn default() -> Self {
+        BorderCornerShape::Round
+    }
+}

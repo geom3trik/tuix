@@ -195,7 +195,6 @@ impl Widget for Scrollbar {
                 WindowEvent::MouseDown(button) => match button {
                     MouseButton::Left => {
                         if event.target == self.front {
-                            println!("Do This");
                             self.pressed_x = state.mouse.cursorx;
                             self.pressed_y = state.mouse.cursory;
                             self.moving = true;

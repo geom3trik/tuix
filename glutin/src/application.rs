@@ -15,8 +15,6 @@ use tuix_core::events::{Event, EventManager, Propagation};
 
 use tuix_core::state::tree::IntoTreeIterator;
 
-use tuix_core::state::Fonts;
-
 use tuix_core::style::{Display, Visibility};
 
 use tuix_core::state::style::prop::*;
@@ -50,52 +48,27 @@ impl Application {
         //state.tree.add(Entity::root(), None);
 
         event_manager.tree = state.tree.clone();
+        
+        let regular_font = include_bytes!("../fonts/Roboto-Regular.ttf");
+        let bold_font = include_bytes!("../fonts/Roboto-Bold.ttf");
+        let icon_font = include_bytes!("../fonts/entypo.ttf");
+        let emoji_font = include_bytes!("../fonts/OpenSansEmoji.ttf");
+        let arabic_font = include_bytes!("../fonts/amiri-regular.ttf");
 
-        app(&mut state, root);
+        state.add_font_mem("roboto", regular_font);
+        state.add_font_mem("roboto-bold", bold_font);
+        state.add_font_mem("icon", icon_font);
+        state.add_font_mem("emoji", emoji_font);
+        state.add_font_mem("arabic", arabic_font);
 
         let mut window = Window::new(&event_loop, &window_description);
+        
+        event_manager.load_resources(&mut state, &mut window.canvas);
+        
+        app(&mut state, root);
 
-        let regular_font = include_bytes!("../../resources/Roboto-Regular.ttf");
-        // let regular_font = include_bytes!("../../resources/FiraCode-Regular.ttf");
-        let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
-        let icon_font = include_bytes!("../../resources/entypo.ttf");
-        let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
-        let arabic_font = include_bytes!("../../resources/amiri-regular.ttf");
 
-        let fonts = Fonts {
-            regular: Some(
-                window
-                    .canvas
-                    .add_font_mem(regular_font)
-                    .expect("Cannot add font"),
-            ),
-            bold: Some(
-                window
-                    .canvas
-                    .add_font_mem(bold_font)
-                    .expect("Cannot add font"),
-            ),
-            icons: Some(
-                window
-                    .canvas
-                    .add_font_mem(icon_font)
-                    .expect("Cannot add font"),
-            ),
-            emoji: Some(
-                window
-                    .canvas
-                    .add_font_mem(emoji_font)
-                    .expect("Cannot add font"),
-            ),
-            arabic: Some(
-                window
-                    .canvas
-                    .add_font_mem(arabic_font)
-                    .expect("Cannot add font"),
-            ),
-        };
 
-        state.fonts = fonts;
 
         state.style.width.insert(
             Entity::root(),
@@ -206,7 +179,9 @@ impl Application {
                 // REDRAW
 
                 GEvent::RedrawRequested(_) => {
+                    //let start = std::time::Instant::now();
                     event_manager.draw(&mut state, &mut window.canvas);
+                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
                     // Swap buffers
                     window
                         .handle
@@ -539,13 +514,13 @@ impl Application {
 
                             match s {
                                 MouseButtonState::Pressed => {
-                                    if state.hovered != Entity::null()
-                                        && state.active != state.hovered
-                                    {
-                                        state.active = state.hovered;
-                                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                                        state.needs_restyle = true;
-                                    }
+                                    // if state.hovered != Entity::null()
+                                    //     && state.active != state.hovered
+                                    // {
+                                    //     state.active = state.hovered;
+                                    //     state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                                    //     state.needs_restyle = true;
+                                    // }
 
                                     let new_click_time = std::time::Instant::now();
                                     let click_duration = new_click_time - click_time;
@@ -622,9 +597,9 @@ impl Application {
                                 }
 
                                 MouseButtonState::Released => {
-                                    state.active = Entity::null();
+                                    //state.active = Entity::null();
                                     //state.insert_event(Event::new(WindowEvent::Restyle));
-                                    state.needs_restyle = true;
+                                    //state.needs_restyle = true;
 
                                     if state.captured != Entity::null() {
                                         state.insert_event(

@@ -14,7 +14,7 @@ tab_bar>.tab {
     background-color: #2e2e2e;
     right: 1px;
     bottom: 1px;
-    width: 80px;
+    width: 100px;
     child-space: 1s;
 }
 

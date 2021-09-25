@@ -1,4 +1,4 @@
-use tuix_core::TreeExt;
+
 
 use crate::{Popup, PopupEvent, common::*};
 
@@ -24,7 +24,7 @@ pub enum MenuPosition {
 }
 
 pub struct MenuData {
-    open: bool,
+    //open: bool,
 }
 
 pub struct Menu {

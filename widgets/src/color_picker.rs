@@ -9,20 +9,33 @@ const ICON_RIGHT_DIR: &str = "\u{25b8}";
 #[derive(PartialEq)]
 pub enum ColorPickerEvent {
     HueChanged(f32),
+    SetColor(Color),
 }
 
 pub struct ColorPicker {
-    thumb: Entity,
-    hue: f32,
+    //thumb: Entity,
+
+    on_changing: Option<Box<dyn Fn(&mut ColorGradient, &mut State, Entity)>>,
 }
 
 impl ColorPicker {
     pub fn new() -> Self {
         Self {
-            thumb: Entity::null(),
-            hue: 0.0,
+            //thumb: Entity::null(),
+
+            on_changing: None,
         }
     }
+
+    pub fn on_changing<F>(mut self, callback: F) -> Self
+    where
+        F: 'static + Fn(&mut ColorGradient, &mut State, Entity),
+    {
+        self.on_changing = Some(Box::new(callback));
+        self
+    }
+
+
 }
 
 impl Widget for ColorPicker {
@@ -30,13 +43,22 @@ impl Widget for ColorPicker {
     type Data = Color;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        let col_grad = ColorGradient::new().build(state, entity, |builder|
-            builder
-                .set_width(Pixels(250.0))
-                .set_height(Pixels(250.0))
-        );
 
-
+        let col_grad = if let Some(callback) = self.on_changing.take() {
+            ColorGradient::new()
+            .on_changing(callback)
+            .build(state, entity, |builder|
+                builder
+                    .set_width(Pixels(250.0))
+                    .set_height(Pixels(250.0))
+            )
+        } else {
+            ColorGradient::new().build(state, entity, |builder|
+                builder
+                    .set_width(Pixels(250.0))
+                    .set_height(Pixels(250.0))
+            )
+        };
 
         HueSlider::new()
             .on_changing(move |data, state, slider|{
@@ -50,14 +72,14 @@ impl Widget for ColorPicker {
 
         entity
             .set_layout_type(state, LayoutType::Row)
-            .set_background_color(state, Color::rgb(56, 56, 56))
+            //.set_background_color(state, Color::rgb(56, 56, 56))
             .set_child_space(state, Stretch(1.0))
             .set_col_between(state, Pixels(5.0))
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    // fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
         
-    }
+    // }
 }
 
 pub struct HueSlider {
@@ -117,16 +139,16 @@ impl HueSlider {
         self.value = nx.clamp(0.0, 1.0);
     }
 
-    fn update_visuals(&mut self, state: &mut State, entity: Entity) {
-        let normalised_value = self.value;
+    // fn update_visuals(&mut self, state: &mut State, entity: Entity) {
+    //     let normalised_value = self.value;
 
-        let height = state.data.get_height(entity);
-        let thumb_size = state.data.get_height(self.left_arrow);
+    //     let height = state.data.get_height(entity);
+    //     let thumb_size = state.data.get_height(self.left_arrow);
 
-        let dx = normalised_value * (height - thumb_size) + thumb_size / 2.0;
+    //     let dx = normalised_value * (height - thumb_size) + thumb_size / 2.0;
 
-        self.update_value(state, entity, dx);
-    }
+    //     self.update_value(state, entity, dx);
+    // }
 }
 
 impl Widget for HueSlider {
@@ -181,9 +203,9 @@ impl Widget for HueSlider {
         entity
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+    // fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
         
-    }
+    // }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(window_event) = event.message.downcast() {
@@ -257,6 +279,8 @@ pub struct ColorGradient {
     hue: f32,
     saturation: f32,
     value: f32,
+
+    on_changing: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 }   
 
 impl ColorGradient {
@@ -267,11 +291,22 @@ impl ColorGradient {
             hue: 0.0,
             saturation: 0.0,
             value: 0.0,
+
+            on_changing: None,
         }
     }
 
     pub fn color(&self) -> Color {
-        Color::hsl(self.hue, self.saturation, self.value)
+        let (h, s, l) = hsv_to_hsl(self.hue as f64, self.saturation as f64, self.value as f64);
+        Color::hsl(h as f32, s as f32, l as f32)
+    }
+
+    pub fn on_changing<F>(mut self, callback: F) -> Self
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity),
+    {
+        self.on_changing = Some(Box::new(callback));
+        self
     }
 }
 
@@ -295,6 +330,13 @@ impl Widget for ColorGradient {
     }
     
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+
+
+        let visibility = state.data.get_visibility(entity);
+
+        if visibility == Visibility::Invisible {
+            return;
+        }
         
         if self.image.is_none() {
             let image_id = canvas
@@ -326,7 +368,7 @@ impl Widget for ColorGradient {
                         let x_ratio = x as f64 / 63 as f64;
                         let y_ratio = y as f64 / 63 as f64;
     
-                        let (h, s, v) = hsv_to_hsl(0.0, x_ratio, y_ratio);
+                        let (_, s, v) = hsv_to_hsl(0.0, x_ratio, y_ratio);
     
                         canvas.clear_rect(
                             x as u32,
@@ -362,12 +404,20 @@ impl Widget for ColorGradient {
         }
     }
 
+    
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         if let Some(color_picker_event) = event.message.downcast() {
             match color_picker_event {
                 ColorPickerEvent::HueChanged(val) => {
                     self.hue = *val;
+
+                    if let Some(callback) = self.on_changing.take() {
+                        (callback)(self, state, entity);
+
+                        self.on_changing = Some(callback);
+                    }
                 }
+                _=> {}
             }
         }
         if let Some(window_event) = event.message.downcast() {
@@ -396,6 +446,12 @@ impl Widget for ColorGradient {
                             self.thumb.set_border_color(state, Color::black());
                         } else {
                             self.thumb.set_border_color(state, Color::white());
+                        }
+
+                        if let Some(callback) = self.on_changing.take() {
+                            (callback)(self, state, entity);
+    
+                            self.on_changing = Some(callback);
                         }
                     }
                 }
@@ -429,6 +485,12 @@ impl Widget for ColorGradient {
                         } else {
                             self.thumb.set_border_color(state, Color::white());
                         }
+
+                        if let Some(callback) = self.on_changing.take() {
+                            (callback)(self, state, entity);
+    
+                            self.on_changing = Some(callback);
+                        }
                     }
                 }
 
@@ -440,53 +502,53 @@ impl Widget for ColorGradient {
 }
 
 
-fn hue_to_rgb(p: f64, q: f64, t: f64) -> f64 {
-    let mut t = t;
-    if t < 0. {
-        t += 1.
-    }
-    if t > 1. {
-        t -= 1.
-    };
-    if t < 1. / 6. {
-        return p + (q - p) * 6. * t;
-    }
-    if t < 1. / 2. {
-        return q;
-    }
-    if t < 2. / 3. {
-        return p + (q - p) * (2. / 3. - t) * 6.;
-    }
-    return p;
-}
+// fn hue_to_rgb(p: f64, q: f64, t: f64) -> f64 {
+//     let mut t = t;
+//     if t < 0. {
+//         t += 1.
+//     }
+//     if t > 1. {
+//         t -= 1.
+//     };
+//     if t < 1. / 6. {
+//         return p + (q - p) * 6. * t;
+//     }
+//     if t < 1. / 2. {
+//         return q;
+//     }
+//     if t < 2. / 3. {
+//         return p + (q - p) * (2. / 3. - t) * 6.;
+//     }
+//     return p;
+// }
 
-fn hsl_to_rgb(h: f64, s: f64, l: f64) -> (f32, f32, f32) {
-    let r;
-    let g;
-    let b;
+// fn hsl_to_rgb(h: f64, s: f64, l: f64) -> (f32, f32, f32) {
+//     let r;
+//     let g;
+//     let b;
 
-    if s == 0.0 {
-        r = l;
-        g = l;
-        b = l; // achromatic
-    } else {
-        let q = if l < 0.5 { l * (1. + s) } else { l + s - l * s };
+//     if s == 0.0 {
+//         r = l;
+//         g = l;
+//         b = l; // achromatic
+//     } else {
+//         let q = if l < 0.5 { l * (1. + s) } else { l + s - l * s };
 
-        let p = 2. * l - q;
-        r = hue_to_rgb(p, q, h + 1. / 3.);
-        g = hue_to_rgb(p, q, h);
-        b = hue_to_rgb(p, q, h - 1. / 3.);
-    }
+//         let p = 2. * l - q;
+//         r = hue_to_rgb(p, q, h + 1. / 3.);
+//         g = hue_to_rgb(p, q, h);
+//         b = hue_to_rgb(p, q, h - 1. / 3.);
+//     }
 
-    return (
-        r as f32,
-        g as f32,
-        b as f32,
-        //(r * 255.).round() as u8,
-        //(g * 255.).round() as u8,
-        //(b * 255.).round() as u8,
-    );
-}
+//     return (
+//         r as f32,
+//         g as f32,
+//         b as f32,
+//         //(r * 255.).round() as u8,
+//         //(g * 255.).round() as u8,
+//         //(b * 255.).round() as u8,
+//     );
+// }
 
 fn hsv_to_hsl(h: f64, s: f64, v: f64) -> (f64, f64, f64) {
     //   *hh = h;

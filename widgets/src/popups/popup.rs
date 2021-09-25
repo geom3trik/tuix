@@ -23,12 +23,42 @@ impl Widget for Popup {
     type Ret = Entity;
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+
+
+        entity.add_listener(state, |popup: &mut Self, state, entity, event| {
+            if let Some(window_event) = event.message.downcast() {
+                match window_event {
+                    WindowEvent::MouseDown(_) => {
+                        if popup.open {
+                            if event.origin != entity {
+                                if !entity.is_over(state) {
+                                    entity.emit(state, PopupEvent::Close);
+                                
+                                } 
+                            }
+                        }
+                    }
+
+                    WindowEvent::KeyDown(code, _) => {
+                        if popup.open {
+                            if *code == Code::Escape {
+                                entity.emit(state, PopupEvent::Close);
+                            }
+                        }
+                    }
+
+                    _=> {}
+                }
+            }
+        });
+
         entity
             .set_focusable(state, false)
             .set_element(state, "popup")
             .set_overflow(state, Overflow::Visible)
             .set_position_type(state, PositionType::SelfDirected)
             .set_opacity(state, 0.0)
+
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -72,40 +102,42 @@ impl Widget for Popup {
                     entity.set_left(state, Pixels(new_posx)).set_top(state, Pixels(new_posy));
 
                     self.open = true;
-                    state.capture(entity);
+                    //state.capture(entity);
                     entity.set_opacity(state, 1.0);
 
                 }
 
                 PopupEvent::Open => {
                     self.open = true;
-                    state.capture(entity);
+                    //state.capture(entity);
                     entity.set_opacity(state, 1.0);
                 }
 
                 PopupEvent::Close => {
                     self.open = false;
-                    state.release(entity);
+                    //state.release(entity);
                     entity.set_opacity(state, 0.0);
                 }
 
                 PopupEvent::Switch => {
                     if self.open {
                         self.open = false;
-                        state.release(entity);
+                        //state.release(entity);
                         entity.set_opacity(state, 0.0);
                     } else {
                         self.open = true;
-                        state.capture(entity);
+                        //state.capture(entity);
                         entity.set_opacity(state, 1.0);
                     }
                 }
             }
         }
 
+        /*
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::MouseCaptureOutEvent => {
+                    println!("Received mouse capture out from {}", event.target);
                     //println!("Hide");
                     // state
                     //     .style
@@ -113,6 +145,9 @@ impl Widget for Popup {
                     //     .play_animation(self.container, self.fade_out_animation);
                     //entity.emit(state, PopupEvent::Close);
                     //entity.set_opacity(state, 0.0);
+                    // if event.target != entity {
+                    //     state.capture(entity);
+                    // }
                 }
 
                 WindowEvent::MouseCaptureEvent => {
@@ -128,6 +163,7 @@ impl Widget for Popup {
                 }
 
                 WindowEvent::MouseDown(button) => {
+                    println!("Receive mouse button down");
                     if event.origin != entity {
                         if !entity.is_over(state) {
                             entity.emit(state, PopupEvent::Close);
@@ -148,12 +184,12 @@ impl Widget for Popup {
                     MouseButton::Left => {
                         if event.origin != entity {
                             if state.mouse.left.pressed == state.hovered {
-                                if !self.open {
-                                    state.capture(entity);
-                                } else {
-                                    // println!("Release");
-                                    // state.release(entity);
-                                }
+                                // if !self.open {
+                                //     //state.capture(entity);
+                                // } else {
+                                //     // println!("Release");
+                                //     // state.release(entity);
+                                // }
 
                                 state.insert_event(
                                     Event::new(WindowEvent::MouseUp(*button))
@@ -201,5 +237,6 @@ impl Widget for Popup {
                 _ => {}
             }
         }
+        */
     }
 }

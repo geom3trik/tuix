@@ -1,4 +1,4 @@
-use crate::{Builder, CursorIcon, Entity, Event, IntoBranchIterator, IntoParentIterator, IntoTreeIterator, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent, tree};
+use crate::{Builder, CursorIcon, Entity, Event, FontOrId, IntoBranchIterator, IntoParentIterator, IntoTreeIterator, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent, tree};
 
 use crate::EventHandler;
 
@@ -70,6 +70,25 @@ impl EventManager {
         // Loop over the events in the event queue
         'events: for event in self.event_queue.iter_mut() {
             //println!("Event: {:?}", event);
+
+            // Send events to any listeners
+            let listeners = state.listeners.iter().map(|(entity, _)| *entity).collect::<Vec<Entity>>();
+            for entity in listeners {
+                if let Some(listener) = state.listeners.remove(&entity) {
+                    if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
+                        (listener)(event_handler.as_mut(), state, entity, event);
+
+                        state.event_handlers.insert(entity, event_handler);
+                    }
+                    
+
+                    state.listeners.insert(entity, listener);
+                }
+
+                if event.consumed {
+                    continue 'events;
+                }
+            }
 
             // Skip events with no target unless they are set to propagate to all entities
             if event.target == Entity::null() && event.propagation != Propagation::All {
@@ -204,9 +223,29 @@ impl EventManager {
         return needs_redraw;
     }
 
+    pub fn load_resources(&mut self, state: &mut State, canvas: &mut Canvas<OpenGl>) {
+        for (name, font) in state.resource_manager.fonts.iter_mut() {
+            
+            match font {
+                FontOrId::Font(data) => {
+                    let id1 = canvas.add_font_mem(&data.clone()).expect(&format!("Failed to load font file for: {}", name));
+                    let id2 = state.text_context.add_font_mem(&data.clone()).expect("failed");
+                    if id1 != id2 {
+                        panic!("Fonts in canvas must have the same id as fonts in the text context");
+                    }
+                    *font = FontOrId::Id(id1);
+                }
+
+                _=> {}
+            }
+        }
+    }
+
     pub fn draw(&mut self, state: &mut State, canvas: &mut Canvas<OpenGl>) {
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
+
+        self.load_resources(state, canvas);
 
         // for (resource, image_or_id) in state.resource_manager.image_ids.iter_mut() {
         //     match image_or_id {
@@ -307,7 +346,9 @@ impl EventManager {
             canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
 
             if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
+                //let start = std::time::Instant::now();
                 event_handler.on_draw_(state, entity, canvas);
+                //println!("{:.2?} seconds for whatever you did.", start.elapsed());
                 state.event_handlers.insert(entity, event_handler);
             }
 

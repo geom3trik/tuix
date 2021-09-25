@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use std::collections::HashMap;
-use std::rc::Rc;
+
 pub struct Image {
     name: String,
     pub width: u32,
@@ -14,6 +14,11 @@ pub struct Image {
 //     Id(femtovg::ImageId),
 // }
 
+pub enum FontOrId {
+    Font(Vec<u8>),
+    Id(femtovg::FontId),
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Resource(u32);
 
@@ -22,6 +27,7 @@ pub struct ResourceManager {
     pub stylesheets: Vec<String>, // Stylesheets refer to a fiel path
     pub themes: Vec<String>,      // Themes are the string content stylesheets
     pub images: Vec<Image>,
+    pub fonts: HashMap<String, FontOrId>,
 
     //pub image_ids: HashMap<Rc<()>, ImageOrId>,
     count: u32,
@@ -36,6 +42,7 @@ impl ResourceManager {
             images: Vec::new(),
             //image_ids: HashMap::new(),
             count: 0,
+            fonts: HashMap::new(),
         }
     }
 

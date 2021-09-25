@@ -96,368 +96,403 @@ impl<'a,T> Builder<'a,T> {
 
 
     /// Sets whether the entity can be hovered
-    pub fn set_hoverable(mut self, val: bool) -> Self {
-        self.state.data.set_hoverable(self.entity, val);
+    pub fn set_hoverable(mut self, value: bool) -> Self {
+        self.state.data.set_hoverable(self.entity, value);
 
         self
     }
 
     /// Sets whether the entity can be focused
-    pub fn set_focusable(mut self, val: bool) -> Self {
-        self.state.data.set_focusable(self.entity, val);
+    pub fn set_focusable(mut self, value: bool) -> Self {
+        self.state.data.set_focusable(self.entity, value);
 
         self
     }
 
     /// Sets the opacity of the entity
-    pub fn set_opacity(mut self, val: f32) -> Self {
-        self.state.style.opacity.insert(self.entity, Opacity(val));
+    pub fn set_opacity(mut self, value: f32) -> Self {
+        self.state.style.opacity.insert(self.entity, Opacity(value));
 
         self
     }
 
     /// Sets the checked state of the entity
-    pub fn set_checked(mut self, val: bool) -> Self {
-        self.entity().set_checked(self.state, val);
+    pub fn set_checked(mut self, value: bool) -> Self {
+        self.entity().set_checked(self.state, value);
 
         self
     }
 
     /// Sets the z-order of the entity
-    pub fn set_z_order(mut self, val: i32) -> Self {
-        self.state.style.z_order.insert(self.entity, val);
+    pub fn set_z_order(mut self, value: i32) -> Self {
+        self.state.style.z_order.insert(self.entity, value);
 
         self
     }
 
     /// Sets the clip widget of the entity. The clip bounds of the entity are set to the bounds of the clip widget
-    pub fn set_clip_widget(mut self, val: Entity) -> Self {
-        self.state.style.clip_widget.insert(self.entity, val);
+    pub fn set_clip_widget(mut self, value: Entity) -> Self {
+        self.state.style.clip_widget.insert(self.entity, value);
 
         self
     }
 
     // Sets the text displayed within the entity
-    pub fn set_text(mut self, val: &str) -> Self {
-        self.state.style.text.insert(self.entity, val.to_owned());
+    pub fn set_text(mut self, value: &str) -> Self {
+        self.state.style.text.insert(self.entity, value.to_owned());
 
         self
     }
 
-    pub fn set_font(mut self, val: &str) -> Self {
-        self.state.style.font.insert(self.entity, val.to_owned());
+    pub fn set_font(mut self, value: &str) -> Self {
+        self.state.style.font.insert(self.entity, value.to_owned());
 
         self
     }
 
     // Sets the tooltip associated with the entity
-    pub fn set_tooltip(mut self, val: &str) -> Self {
+    pub fn set_tooltip(mut self, value: &str) -> Self {
         self.state
             .style
             .tooltip
-            .insert(self.entity, val.to_string());
+            .insert(self.entity, value.to_string());
 
         self
     }
 
-    // pub fn set_tooltip<F>(mut self, val: &str) -> Self 
+    // pub fn set_tooltip<F>(mut self, value: &str) -> Self 
     // where F: FnOnce(&mut State, Entity)
     // {
     //     self.state
     //         .style
     //         .tooltip
-    //         .insert(self.entity, val.to_string());
+    //         .insert(self.entity, value.to_string());
 
     //     self
     // }
 
     // Display
     /// Sets the display type of the entity
-    pub fn set_display(mut self, val: Display) -> Self {
-        self.state.style.display.insert(self.entity, val);
+    pub fn set_display(mut self, value: Display) -> Self {
+        self.state.style.display.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_visibility(mut self, val: Visibility) -> Self {
-        self.state.style.visibility.insert(self.entity, val);
+    pub fn set_visibility(mut self, value: Visibility) -> Self {
+        self.state.style.visibility.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_overflow(mut self, val: Overflow) -> Self {
-        self.state.style.overflow.insert(self.entity, val);
+    pub fn set_overflow(mut self, value: Overflow) -> Self {
+        self.state.style.overflow.insert(self.entity, value);
 
         self
     }
 
     // Background
-    pub fn set_background_color(mut self, val: Color) -> Self {
-        self.state.style.background_color.insert(self.entity, val);
+    pub fn set_background_color(mut self, value: Color) -> Self {
+        self.state.style.background_color.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_background_image(mut self, val: Rc<()>) -> Self {
+    pub fn set_background_image(mut self, value: Rc<()>) -> Self {
         self.state
             .style
             .background_image
-            .insert(self.entity, val.clone());
+            .insert(self.entity, value.clone());
 
         self
     }
 
-    pub fn set_background_gradient(mut self, val: LinearGradient) -> Self {
+    pub fn set_background_gradient(mut self, value: LinearGradient) -> Self {
         self.state
             .style
             .background_gradient
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
 
     // Outer Shadow
-    pub fn set_outer_shadow_h_offset(mut self, val: Units) -> Self {
+    pub fn set_outer_shadow_h_offset(mut self, value: Units) -> Self {
         self.state
             .style
             .outer_shadow_h_offset
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
 
-    pub fn set_outer_shadow_v_offset(mut self, val: Units) -> Self {
+    pub fn set_outer_shadow_v_offset(mut self, value: Units) -> Self {
         self.state
             .style
             .outer_shadow_v_offset
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
 
-    pub fn set_outer_shadow_color(mut self, val: Color) -> Self {
-        self.state.style.outer_shadow_color.insert(self.entity, val);
+    pub fn set_outer_shadow_color(mut self, value: Color) -> Self {
+        self.state.style.outer_shadow_color.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_outer_shadow_blur(mut self, val: Units) -> Self {
-        self.state.style.outer_shadow_blur.insert(self.entity, val);
+    pub fn set_outer_shadow_blur(mut self, value: Units) -> Self {
+        self.state.style.outer_shadow_blur.insert(self.entity, value);
 
         self
     }
 
     // Inner Shadow
-    pub fn set_inner_shadow_h_offset(mut self, val: Units) -> Self {
+    pub fn set_inner_shadow_h_offset(mut self, value: Units) -> Self {
         self.state
             .style
             .inner_shadow_h_offset
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
 
-    pub fn set_inner_shadow_v_offset(mut self, val: Units) -> Self {
+    pub fn set_inner_shadow_v_offset(mut self, value: Units) -> Self {
         self.state
             .style
             .inner_shadow_v_offset
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
 
-    pub fn set_inner_shadow_color(mut self, val: Color) -> Self {
-        self.state.style.inner_shadow_color.insert(self.entity, val);
+    pub fn set_inner_shadow_color(mut self, value: Color) -> Self {
+        self.state.style.inner_shadow_color.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_inner_shadow_blur(mut self, val: Units) -> Self {
-        self.state.style.inner_shadow_blur.insert(self.entity, val);
+    pub fn set_inner_shadow_blur(mut self, value: Units) -> Self {
+        self.state.style.inner_shadow_blur.insert(self.entity, value);
 
         self
     }
 
     // Positioning
 
-    pub fn set_space(mut self, val: Units) -> Self {
-        self.state.style.left.insert(self.entity, val);
-        self.state.style.right.insert(self.entity, val);
-        self.state.style.top.insert(self.entity, val);
-        self.state.style.bottom.insert(self.entity, val);
+    pub fn set_space(mut self, value: Units) -> Self {
+        self.state.style.left.insert(self.entity, value);
+        self.state.style.right.insert(self.entity, value);
+        self.state.style.top.insert(self.entity, value);
+        self.state.style.bottom.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_left(mut self, val: Units) -> Self {
-        self.state.style.left.insert(self.entity, val);
+    pub fn set_left(mut self, value: Units) -> Self {
+        self.entity.set_left(self.state, value);
 
         self
     }
 
-    pub fn set_right(mut self, val: Units) -> Self {
-        self.state.style.right.insert(self.entity, val);
+    pub fn set_right(mut self, value: Units) -> Self {
+        self.entity.set_right(self.state, value);
 
         self
     }
 
-    pub fn set_top(mut self, val: Units) -> Self {
-        self.state.style.top.insert(self.entity, val);
+    pub fn set_top(mut self, value: Units) -> Self {
+        self.entity.set_top(self.state, value);
+        
         self
     }
 
-    pub fn set_bottom(mut self, val: Units) -> Self {
-        self.state.style.bottom.insert(self.entity, val);
+    pub fn set_bottom(mut self, value: Units) -> Self {
+        self.entity.set_bottom(self.state, value);
+        
         self
     }
 
     // Size
 
-    pub fn set_width(mut self, val: Units) -> Self {
-        self.state.style.width.insert(self.entity, val);
+    pub fn set_width(mut self, value: Units) -> Self {
+        self.entity.set_width(self.state, value);
 
         self
     }
 
-    pub fn set_height(mut self, val: Units) -> Self {
-        self.state.style.height.insert(self.entity, val);
+    pub fn set_height(mut self, value: Units) -> Self {
+        self.entity.set_height(self.state, value);
 
         self
     }
 
     // Size Constraints
 
-    pub fn set_min_width(mut self, val: Units) -> Self {
-        self.state.style.min_width.insert(self.entity, val);
+    pub fn set_min_width(mut self, value: Units) -> Self {
+        self.state.style.min_width.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_max_width(mut self, val: Units) -> Self {
-        self.state.style.max_width.insert(self.entity, val);
+    pub fn set_max_width(mut self, value: Units) -> Self {
+        self.state.style.max_width.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_min_height(mut self, val: Units) -> Self {
-        self.state.style.min_height.insert(self.entity, val);
+    pub fn set_min_height(mut self, value: Units) -> Self {
+        self.state.style.min_height.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_max_height(mut self, val: Units) -> Self {
-        self.state.style.max_height.insert(self.entity, val);
+    pub fn set_max_height(mut self, value: Units) -> Self {
+        self.state.style.max_height.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_min_left(mut self, val: Units) -> Self {
-        self.state.style.min_left.insert(self.entity, val);
+    pub fn set_min_left(mut self, value: Units) -> Self {
+        self.state.style.min_left.insert(self.entity, value);
         self
     }
 
-    pub fn set_min_right(mut self, val: Units) -> Self {
-        self.state.style.min_right.insert(self.entity, val);
+    pub fn set_min_right(mut self, value: Units) -> Self {
+        self.state.style.min_right.insert(self.entity, value);
         self
     }
 
-    pub fn set_min_top(mut self, val: Units) -> Self {
-        self.state.style.min_top.insert(self.entity, val);
+    pub fn set_min_top(mut self, value: Units) -> Self {
+        self.state.style.min_top.insert(self.entity, value);
         self
     }
 
-    pub fn set_min_bottom(mut self, val: Units) -> Self {
-        self.state.style.min_bottom.insert(self.entity, val);
+    pub fn set_min_bottom(mut self, value: Units) -> Self {
+        self.state.style.min_bottom.insert(self.entity, value);
         self
     }
 
-    pub fn set_max_left(mut self, val: Units) -> Self {
-        self.state.style.max_left.insert(self.entity, val);
+    pub fn set_max_left(mut self, value: Units) -> Self {
+        self.state.style.max_left.insert(self.entity, value);
         self
     }
 
-    pub fn set_max_right(mut self, val: Units) -> Self {
-        self.state.style.max_right.insert(self.entity, val);
+    pub fn set_max_right(mut self, value: Units) -> Self {
+        self.state.style.max_right.insert(self.entity, value);
         self
     }
 
-    pub fn set_max_top(mut self, val: Units) -> Self {
-        self.state.style.max_top.insert(self.entity, val);
+    pub fn set_max_top(mut self, value: Units) -> Self {
+        self.state.style.max_top.insert(self.entity, value);
         self
     }
 
-    pub fn set_max_bottom(mut self, val: Units) -> Self {
-        self.state.style.max_bottom.insert(self.entity, val);
+    pub fn set_max_bottom(mut self, value: Units) -> Self {
+        self.state.style.max_bottom.insert(self.entity, value);
         self
     }
 
     // Border
 
-    pub fn set_border_color(mut self, val: Color) -> Self {
-        self.state.style.border_color.insert(self.entity, val);
+    pub fn set_border_color(mut self, value: Color) -> Self {
+        self.state.style.border_color.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_border_width(mut self, val: Units) -> Self {
-        self.state.style.border_width.insert(self.entity, val);
+    pub fn set_border_width(mut self, value: Units) -> Self {
+        self.state.style.border_width.insert(self.entity, value);
 
         self
     }
 
-    pub fn set_border_radius(mut self, val: Units) -> Self {
+    pub fn set_border_corner_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_shape_top_left.insert(self.entity, value);
+        self.state.style.border_shape_top_right.insert(self.entity, value);
+        self.state.style.border_shape_bottom_left.insert(self.entity, value);
+        self.state.style.border_shape_bottom_right.insert(self.entity, value);
+
+        self
+    }
+
+    pub fn set_border_top_left_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_shape_top_left.insert(self.entity, value);
+
+        self
+    }
+
+    pub fn set_border_top_right_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_shape_top_right.insert(self.entity, value);
+
+        self
+    }
+
+    pub fn set_border_bottom_left_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_shape_bottom_left.insert(self.entity, value);
+
+        self
+    }
+
+    pub fn set_border_bottom_right_shape(mut self, value: BorderCornerShape) -> Self {
+        self.state.style.border_shape_bottom_right.insert(self.entity, value);
+
+        self
+    }
+
+    pub fn set_border_radius(mut self, value: Units) -> Self {
         self.state
             .style
             .border_radius_top_left
-            .insert(self.entity, val);
+            .insert(self.entity, value);
         self.state
             .style
             .border_radius_top_right
-            .insert(self.entity, val);
+            .insert(self.entity, value);
         self.state
             .style
             .border_radius_bottom_left
-            .insert(self.entity, val);
+            .insert(self.entity, value);
         self.state
             .style
             .border_radius_bottom_right
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
 
-    pub fn set_border_radius_top_left(mut self, val: Units) -> Self {
+    pub fn set_border_radius_top_left(mut self, value: Units) -> Self {
         self.state
             .style
             .border_radius_top_left
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
 
-    pub fn set_border_radius_top_right(mut self, val: Units) -> Self {
+    pub fn set_border_radius_top_right(mut self, value: Units) -> Self {
         self.state
             .style
             .border_radius_top_right
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
 
-    pub fn set_border_radius_bottom_left(mut self, val: Units) -> Self {
+    pub fn set_border_radius_bottom_left(mut self, value: Units) -> Self {
         self.state
             .style
             .border_radius_bottom_left
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
 
-    pub fn set_border_radius_bottom_right(mut self, val: Units) -> Self {
+    pub fn set_border_radius_bottom_right(mut self, value: Units) -> Self {
         self.state
             .style
             .border_radius_bottom_right
-            .insert(self.entity, val);
+            .insert(self.entity, value);
 
         self
     }
@@ -474,14 +509,14 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
-    pub fn set_next_focus(mut self, val: Entity) -> Self {
+    pub fn set_next_focus(mut self, value: Entity) -> Self {
         if let Some(entity) = self.state.style.focus_order.get_mut(self.entity) {
-            entity.next = val;
+            entity.next = value;
         } else {
             self.state.style.focus_order.insert(
                 self.entity,
                 FocusOrder {
-                    next: val,
+                    next: value,
                     ..Default::default()
                 },
             );
@@ -490,14 +525,14 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
-    pub fn set_prev_focus(mut self, val: Entity) -> Self {
+    pub fn set_prev_focus(mut self, value: Entity) -> Self {
         if let Some(entity) = self.state.style.focus_order.get_mut(self.entity) {
-            entity.prev = val;
+            entity.prev = value;
         } else {
             self.state.style.focus_order.insert(
                 self.entity,
                 FocusOrder {
-                    prev: val,
+                    prev: value,
                     ..Default::default()
                 },
             );

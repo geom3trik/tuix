@@ -1,13 +1,15 @@
 [package]
 name = "tuix_dylib"
-version = "0.1.0"
+version = "0.2.0"
+authors = ["George Atkinson"]
+license = "MIT"
+repository = "https://github.com/geom3trik/tuix"
 edition = "2018"
+description = "Crate for forcing tuix to dynamically link"
 
 
 [lib]
 crate-type = ["dylib"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-tuix_internal = {version = "0.1.0", path = "../internal"}
+tuix_internal = {version = "0.2.0", path = "../internal"}

@@ -1,41 +1,33 @@
 use tuix::*;
 
 const STYLE: &str = r#"
-
     popup {
         background-color: #d2d2d2;
     }
-
     popup button {
         height: 30px;
         child-space: 1s;
         color: black;
         background-color: #d2d2d2;
     }
-
     popup button:hover {
         background-color: #e2e2e2;
     }
-
     popup button:active {
         background-color: #c2c2c2;
     }
-
     scroll_container>.scrollbar {
         background-color: #464646;
         width: 10px;
     }
-
     scroll_container:enabled>.scrollbar {
         width: 10px;
         transition: width 0.1 0.0;
     }
-
     scroll_container:disabled>.scrollbar {
         width: 0px;
         transition: width 0.1 0.0;
     }
-
 "#;
 
 #[derive(Debug, Clone, PartialEq)]

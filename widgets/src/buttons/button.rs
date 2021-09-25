@@ -204,7 +204,7 @@ impl Widget for Button {
             match window_event {
                 WindowEvent::MouseDown(button) if *button == MouseButton::Left => {
                     if entity == event.target && !entity.is_disabled(state) {
-                        //state.capture(entity);
+                        state.capture(entity);
                         state.insert_event(
                             Event::new(ButtonEvent::Pressed)
                                 .target(entity)
@@ -214,8 +214,8 @@ impl Widget for Button {
                 }
 
                 WindowEvent::MouseUp(button) if *button == MouseButton::Left => {
-                    if entity == event.target && state.mouse.left.pressed == entity {
-                        //state.release(entity);
+                    if entity == event.target {
+                        state.release(entity);
                         entity.set_active(state, false);
                         if !entity.is_disabled(state) {
                             if state.hovered == entity {
@@ -226,6 +226,18 @@ impl Widget for Button {
                                 );
                             }
                         }
+                    }
+                }
+
+                WindowEvent::MouseOut => {
+                    if entity.is_active(state) {
+                        entity.set_active(state, false);
+                    }
+                }
+
+                WindowEvent::MouseEnter => {
+                    if state.mouse.left.state == MouseButtonState::Pressed && state.mouse.left.pressed == entity {
+                        entity.set_active(state, true);
                     }
                 }
 

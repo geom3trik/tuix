@@ -1,0 +1,16 @@
+[package]
+name = "tuix_derive"
+version = "0.2.0"
+authors = ["George Atkinson"]
+license = "MIT"
+repository = "https://github.com/geom3trik/tuix"
+edition = "2018"
+description = "Derive macros for tuix"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "1.0.39"
+quote = "1.0.7"
+proc-macro2 = "1.0.19"

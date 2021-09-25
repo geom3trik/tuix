@@ -109,16 +109,13 @@ impl ApplicationRunner {
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
         let icon_font = include_bytes!("../../resources/entypo.ttf");
         let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
+        let arabic_font = include_bytes!("../../resources/amiri-regular.ttf");
 
-        let fonts = Fonts {
-            regular: Some(canvas.add_font_mem(regular_font).expect("Cannot add font")),
-            bold: Some(canvas.add_font_mem(bold_font).expect("Cannot add font")),
-            icons: Some(canvas.add_font_mem(icon_font).expect("Cannot add font")),
-            emoji: Some(canvas.add_font_mem(emoji_font).expect("Cannot add font")),
-            arabic: Some(canvas.add_font_mem(emoji_font).expect("Cannot add font")),
-        };
-
-        state.fonts = fonts;
+        state.add_font_mem("roboto", regular_font);
+        state.add_font_mem("roboto-bold", bold_font);
+        state.add_font_mem("icon", icon_font);
+        state.add_font_mem("emoji", emoji_font);
+        state.add_font_mem("arabic", arabic_font);
 
         canvas.scale(scale as f32, scale as f32);
 
@@ -262,13 +259,13 @@ impl ApplicationRunner {
                         _ => {}
                     };
 
-                    if self.state.hovered != Entity::null()
-                        && self.state.active != self.state.hovered
-                    {
-                        self.state.active = self.state.hovered;
-                        self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                        self.state.needs_restyle = true;
-                    }
+                    // if self.state.hovered != Entity::null()
+                    //     && self.state.active != self.state.hovered
+                    // {
+                    //     self.state.active = self.state.hovered;
+                    //     self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                    //     self.state.needs_restyle = true;
+                    // }
 
                     let target = if self.state.captured != Entity::null() {
                         self.state.insert_event(
@@ -336,9 +333,9 @@ impl ApplicationRunner {
                         _ => {}
                     };
 
-                    self.state.active = Entity::null();
-                    self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                    self.state.needs_restyle = true;
+                    // self.state.active = Entity::null();
+                    // self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                    // self.state.needs_restyle = true;
 
                     if self.state.captured != Entity::null() {
                         self.state.insert_event(

@@ -30,7 +30,7 @@ const DATA_SAME_FN_ATTR_PATH: &str = "same_fn";
 const LENS_NAME_OVERRIDE_ATTR_PATH: &str = "name";
 
 /// The fields for a struct or an enum variant.
-#[derive(Debug)]
+
 pub struct Fields<Attrs> {
     pub kind: FieldKind,
     fields: Vec<Field<Attrs>>,
@@ -60,7 +60,7 @@ impl FieldIdent {
     }
 }
 
-#[derive(Debug)]
+
 pub struct Field<Attrs> {
     pub ident: FieldIdent,
     pub ty: syn::Type,
@@ -68,7 +68,7 @@ pub struct Field<Attrs> {
     pub attrs: Attrs,
 }
 
-#[derive(Debug)]
+
 pub struct DataAttrs {
     /// `true` if this field should be ignored.
     pub ignore: bool,

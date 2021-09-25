@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use tuix_core::{IntoChildIterator, TreeExt};
 
 use crate::{ButtonEvent, CheckboxEvent, common::*};
@@ -147,7 +149,6 @@ impl Widget for Tab {
                 }
 
                 CheckboxEvent::Checked => {
-                    println!("Do This");
                     self.checked = true;
 
                     entity.set_checked(state, true);
@@ -247,7 +248,7 @@ impl Widget for TabView {
     type Ret = (Entity, Entity);
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        self.tab_bar = TabBar::new().build(state, entity, |builder| builder);
+        self.tab_bar = TabBar2::new().build(state, entity, |builder| builder);
 
         self.tab_page = Element::new().build(state, entity, |builder| builder.class("viewport"));
 
@@ -350,7 +351,7 @@ impl Widget for TabContainer {
 pub enum MovableTabEvent {
     StartMove(Entity),
     StopMove(Entity),
-    Moving(f32),
+    Moving(Entity, f32),
     Switch(bool),
 }
 
@@ -359,7 +360,8 @@ pub struct TabBar2 {
     phantom_tab2: Entity,
     shrink_animation: Animation,
     grow_animation: Animation,
-    tab_moving: bool,
+    tab_moving: Entity,
+
     list: List,
 }
 
@@ -370,7 +372,7 @@ impl TabBar2 {
             phantom_tab2: Entity::default(),
             shrink_animation: Animation::default(),
             grow_animation: Animation::default(),
-            tab_moving: false,
+            tab_moving: Entity::null(),
             list: List::new(),
         }
     }
@@ -389,12 +391,16 @@ impl Widget for TabBar2 {
                 builder
                     .set_display(Display::None)
                     .set_width(Units::Pixels(30.0))
-            }, //.set_background_color(Color::rgb(90,90,90))
+                    .set_background_color(Color::red())
+            },      
         );
         self.phantom_tab2 = Tab::new("phantom2").build(
             state,
             entity,
-            |builder| builder.set_display(Display::None), //.set_background_color(Color::rgb(90,90,90))
+            |builder| 
+                builder
+                    .set_display(Display::None) 
+                    .set_background_color(Color::green())
         );
 
         // Animation to shrink one of the phantom tracks
@@ -422,32 +428,43 @@ impl Widget for TabBar2 {
         if let Some(movable_tab_event) = event.message.downcast::<MovableTabEvent>() {
             match movable_tab_event {
                 MovableTabEvent::StartMove(tab) => {
-                    self.tab_moving = true;
+                    self.tab_moving = *tab;
                     self.phantom_tab1.set_display(state, Display::Flex);
                     self.phantom_tab2.set_display(state, Display::Flex);
 
-                    state
+                    let _ = state
                         .tree
-                        .set_prev_sibling(*tab, self.phantom_tab1)
-                        .unwrap();
+                        .set_prev_sibling(*tab, self.phantom_tab1);
 
                     //let tab_width = tab.get_width(state);
                     //let tab_height = tab.get_height(state);
 
-                    let tab_width = state.data.get_width(*tab)
-                        + tab.get_left(state).value_or(0.0, 0.0)
-                        + tab.get_right(state).value_or(0.0, 0.0);
-                    let tab_height = state.data.get_width(*tab)
-                        + tab.get_top(state).value_or(0.0, 0.0)
-                        + tab.get_bottom(state).value_or(0.0, 0.0);
+                    let tab_width = state.data.get_width(*tab);
+                        // + tab.get_left(state).value_or(0.0, 0.0)
+                        // + tab.get_right(state).value_or(0.0, 0.0);
+                    // let tab_height = state.data.get_height(*tab)
+                    //     + tab.get_top(state).value_or(0.0, 0.0)
+                    //     + tab.get_bottom(state).value_or(0.0, 0.0);
+
+                    println!("Tab Width: {}", tab_width);
 
                     self.phantom_tab1
-                        .set_height(state, Units::Pixels(tab_height));
+                        .set_height(state, Units::Pixels(30.0));
                     self.phantom_tab1.set_width(state, Units::Pixels(tab_width));
 
                     self.phantom_tab2
-                        .set_height(state, Units::Pixels(tab_height));
+                        .set_height(state, Units::Pixels(30.0));
                     self.phantom_tab2.set_width(state, Units::Pixels(0.0));
+
+                    if let Some(grow_animation) = state.style.width.get_animation_mut(self.grow_animation) {
+                        grow_animation.keyframes.last_mut().unwrap().1 = Pixels(tab_width);
+                        grow_animation.duration = Duration::from_millis(tab_width as u64);
+                    }
+
+                    if let Some(shrink_animation) = state.style.width.get_animation_mut(self.shrink_animation) {
+                        shrink_animation.keyframes.first_mut().unwrap().1 = Pixels(tab_width);
+                        shrink_animation.duration = Duration::from_millis(tab_width as u64);
+                    }
 
                     // Move the tab to the end unless already at the end
                     if let Some(last_child) = state.tree.get_last_child(entity) {
@@ -465,7 +482,8 @@ impl Widget for TabBar2 {
                 }
 
                 MovableTabEvent::StopMove(tab) => {
-                    self.tab_moving = false;
+                    println!("STOP MOVE");
+                    self.tab_moving = Entity::null();
                     // Because the phantom tracks swap places while moving,
                     // need to check which one is active before moving the track before it.
                     // This can be done by checking which one has a non-zero width (for row)
@@ -481,94 +499,118 @@ impl Widget for TabBar2 {
                             .unwrap();
                     }
 
-                    self.phantom_tab1.set_display(state, Display::None);
-                    self.phantom_tab2.set_display(state, Display::None);
+                    self.phantom_tab1.set_display(state, Display::None).set_width(state, Pixels(0.0)).set_height(state, Pixels(0.0));
+                    self.phantom_tab2.set_display(state, Display::None).set_width(state, Pixels(0.0)).set_height(state, Pixels(0.0));
                     event.consume();
                 }
 
                 MovableTabEvent::Switch(position_state) => {
-                    if self.tab_moving {
-                        if *position_state {
-                            if state.tree.get_next_sibling(event.target)
-                                == Some(self.phantom_tab1)
-                            {
-                                state
-                                    .tree
-                                    .set_prev_sibling(event.target, self.phantom_tab2)
-                                    .unwrap();
+                    if self.tab_moving != Entity::null() {
+                        if !state.style.width.is_animating(self.phantom_tab1) && !state.style.width.is_animating(self.phantom_tab2) {
+                            if *position_state {
+                                if state.tree.get_next_sibling(event.target)
+                                    == Some(self.phantom_tab1)
+                                {
+                                    let _ = state
+                                        .tree
+                                        .set_prev_sibling(event.target, self.phantom_tab2);
 
-                                state
-                                    .style
-                                    .width
-                                    .play_animation(self.phantom_tab1, self.shrink_animation);
-                                state
-                                    .style
-                                    .width
-                                    .play_animation(self.phantom_tab2, self.grow_animation);
+                                    if state.data.get_width(self.phantom_tab1) != 0.0 {
+                                        state
+                                        .style
+                                        .width
+                                        .play_animation(self.phantom_tab1, self.shrink_animation);
+                                    }
+                                    
+                                    if state.data.get_width(self.phantom_tab2) == 0.0 {
+                                        state
+                                        .style
+                                        .width
+                                        .play_animation(self.phantom_tab2, self.grow_animation);
+                                    }
+                                    
 
-                                self.phantom_tab1.set_width(state, Units::Pixels(0.0));
-                                self.phantom_tab2.set_width(state, Units::Pixels(100.0));
-                            } else if state.tree.get_next_sibling(event.target)
-                                == Some(self.phantom_tab2)
-                            {
-                                state
-                                    .tree
-                                    .set_prev_sibling(event.target, self.phantom_tab1)
-                                    .unwrap();
+                                    let tab_width = state.data.get_width(self.tab_moving);
+                                    self.phantom_tab1.set_width(state, Units::Pixels(0.0));
+                                    self.phantom_tab2.set_width(state, Units::Pixels(tab_width));
+                                } else if state.tree.get_next_sibling(event.target)
+                                    == Some(self.phantom_tab2)
+                                {
+                                    let _ = state
+                                        .tree
+                                        .set_prev_sibling(event.target, self.phantom_tab1);
 
-                                state
-                                    .style
-                                    .width
-                                    .play_animation(self.phantom_tab2, self.shrink_animation);
-                                state
-                                    .style
-                                    .width
-                                    .play_animation(self.phantom_tab1, self.grow_animation);
+                                    if state.data.get_width(self.phantom_tab2) != 0.0 {
+                                        state
+                                            .style
+                                            .width
+                                            .play_animation(self.phantom_tab2, self.shrink_animation);
+                                    }
 
-                                self.phantom_tab2.set_width(state, Units::Pixels(0.0));
-                                self.phantom_tab1.set_width(state, Units::Pixels(100.0));
-                            }
-                        } else {
-                            if state.tree.get_prev_sibling(event.target)
-                                == Some(self.phantom_tab1)
-                            {
-                                state
-                                    .tree
-                                    .set_next_sibling(event.target, self.phantom_tab2)
-                                    .unwrap();
+                                    if state.data.get_width(self.phantom_tab1) == 0.0 {
+                                        state
+                                            .style
+                                            .width
+                                            .play_animation(self.phantom_tab1, self.grow_animation);
+                                    }
 
-                                state
-                                    .style
-                                    .width
-                                    .play_animation(self.phantom_tab1, self.shrink_animation);
-                                state
-                                    .style
-                                    .width
-                                    .play_animation(self.phantom_tab2, self.grow_animation);
+                                    let tab_width = state.data.get_width(self.tab_moving);
+                                    self.phantom_tab2.set_width(state, Units::Pixels(0.0));
+                                    self.phantom_tab1.set_width(state, Units::Pixels(tab_width));
+                                }
+                            } else {
+                                if state.tree.get_prev_sibling(event.target)
+                                    == Some(self.phantom_tab1)
+                                {
+                                    let _ = state
+                                        .tree
+                                        .set_next_sibling(event.target, self.phantom_tab2);
 
-                                self.phantom_tab1.set_width(state, Units::Pixels(0.0));
-                                self.phantom_tab2.set_width(state, Units::Pixels(100.0));
-                            } else if state.tree.get_prev_sibling(event.target)
-                                == Some(self.phantom_tab2)
-                            {
-                                state
-                                    .tree
-                                    .set_next_sibling(event.target, self.phantom_tab1)
-                                    .unwrap();
+                                    if state.data.get_width(self.phantom_tab1) != 0.0 {
+                                        state
+                                            .style
+                                            .width
+                                            .play_animation(self.phantom_tab1, self.shrink_animation);
+                                    }
 
-                                state
-                                    .style
-                                    .width
-                                    .play_animation(self.phantom_tab2, self.shrink_animation);
-                                state
-                                    .style
-                                    .width
-                                    .play_animation(self.phantom_tab1, self.grow_animation);
+                                    if state.data.get_width(self.phantom_tab2) == 0.0 {
+                                        state
+                                            .style
+                                            .width
+                                            .play_animation(self.phantom_tab2, self.grow_animation);
+                                    }
 
-                                self.phantom_tab2.set_width(state, Units::Pixels(0.0));
-                                self.phantom_tab1.set_width(state, Units::Pixels(100.0));
-                            }
+                                    let tab_width = state.data.get_width(self.tab_moving);
+                                    self.phantom_tab1.set_width(state, Units::Pixels(0.0));
+                                    self.phantom_tab2.set_width(state, Units::Pixels(tab_width));
+                                } else if state.tree.get_prev_sibling(event.target)
+                                    == Some(self.phantom_tab2)
+                                {
+                                    let _ = state
+                                        .tree
+                                        .set_next_sibling(event.target, self.phantom_tab1);
+
+                                    if state.data.get_width(self.phantom_tab2) != 0.0 {
+                                        state
+                                            .style
+                                            .width
+                                            .play_animation(self.phantom_tab2, self.shrink_animation);
+                                    }
+
+                                    if state.data.get_width(self.phantom_tab1) == 0.0 {
+                                        state
+                                            .style
+                                            .width
+                                            .play_animation(self.phantom_tab1, self.grow_animation);
+                                    }
+
+                                    let tab_width = state.data.get_width(self.tab_moving);
+                                    self.phantom_tab2.set_width(state, Units::Pixels(0.0));
+                                    self.phantom_tab1.set_width(state, Units::Pixels(tab_width));
+                                }
+                            }    
                         }
+                        
                     }
                 }
 
@@ -608,6 +650,89 @@ impl Widget for MovableTab {
     type Ret = Entity;
     type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+
+
+        entity.add_listener(state, |tab: &mut Self, state, entity, event|{
+            if let Some(window_event) = event.message.downcast() {
+                match window_event {
+                    MovableTabEvent::Moving(moving_tab, _) => {
+                        if *moving_tab != entity {
+
+                            let px = state.data.get_posx(*moving_tab);
+                            let w = state.data.get_width(*moving_tab);
+
+                            let xx = px + w;
+                            let ww = w / 2.0;
+
+                            let ww2 = state.data.get_width(entity)/2.0;
+
+                            //println!("{} {} {} {}", px,  state.data.get_posx(entity), xx, state.data.get_posx(entity) + state.data.get_width(entity) / 2.0);
+   
+                            if xx < state.data.get_posx(entity) + state.data.get_width(entity) && xx > state.data.get_posx(entity) + state.data.get_width(entity) - ww.min(ww2) {
+                                //if tab.position_state {
+                                    tab.position_state = false;
+                                    state.insert_event(
+                                        Event::new(MovableTabEvent::Switch(tab.position_state))
+                                            .target(entity),
+                                    );
+                                //}
+                            } else if px > state.data.get_posx(entity) && px < state.data.get_posx(entity) + ww.min(ww2) {
+                                //if !tab.position_state {
+                                    tab.position_state = true;
+                                    state.insert_event(
+                                        Event::new(MovableTabEvent::Switch(tab.position_state))
+                                            .target(entity),
+                                    );
+                                //}
+                            }
+                            //if *dist > 0.0 {
+                                //println!("Entity Hovered: {}", state.mouse.left.pressed);
+                                // if xx + *dist >= state.data.get_posx(entity) + state.data.get_width(entity) / 2.0 {
+                                //     if tab.position_state {
+                                //         tab.position_state = false;
+                                //         state.insert_event(
+                                //             Event::new(MovableTabEvent::Switch(tab.position_state))
+                                //                 .target(entity),
+                                //         );
+                                //     }
+                                // } else {
+                                //     if !tab.position_state {
+                                //         tab.position_state = true;
+                                //         state.insert_event(
+                                //             Event::new(MovableTabEvent::Switch(tab.position_state))
+                                //                 .target(entity),
+                                //         );
+                                //     }
+                                // }
+                            //} else {
+                                //println!("Entity Hovered: {}", state.mouse.left.pressed);
+                            //     if px <= state.data.get_posx(entity) + state.data.get_width(entity) / 2.0 {
+                            //         if tab.position_state {
+                            //             tab.position_state = true;
+                            //             state.insert_event(
+                            //                 Event::new(MovableTabEvent::Switch(tab.position_state))
+                            //                     .target(entity),
+                            //             );
+                            //         }
+                            //     } else {
+                            //         if !tab.position_state {
+                            //             tab.position_state = false;
+                            //             state.insert_event(
+                            //                 Event::new(MovableTabEvent::Switch(tab.position_state))
+                            //                     .target(entity),
+                            //             );
+                            //         }
+                            //     }
+                            // }
+                            
+                        }
+                    }
+
+                    _=> {}
+                }
+            }
+        });
+
         self.tab.on_build(state, entity)
     }
 
@@ -651,8 +776,8 @@ impl Widget for MovableTab {
                     if *button == MouseButton::Left {
                         self.moving = false;
                         self.dragging = false;
-                        entity.set_height(state, self.previous_height);
-                        entity.set_width(state, self.previous_width);
+                        //entity.set_height(state, self.previous_height);
+                        //entity.set_width(state, self.previous_width);
                         entity.set_position_type(state, PositionType::ParentDirected);
                         state.data.set_hoverable(entity, true);
                         entity.set_left(state, Units::Auto);
@@ -667,7 +792,7 @@ impl Widget for MovableTab {
                     }
                 }
 
-                WindowEvent::MouseMove(x, y) => {
+                WindowEvent::MouseMove(x, _) => {
                     if self.moving {
                         let parent = state.tree.get_parent(entity).unwrap();
                         let parent_posx = state.data.get_posx(parent);
@@ -689,31 +814,36 @@ impl Widget for MovableTab {
                             //entity.set_top(state, Units::Pixels(self.pos_down_y - parent_posy + (*y - state.mouse.left.pos_down.1)));
                         }
 
-                        if !state.hovered.is_descendant_of(&state.tree, entity) {
-                            state.insert_event(
-                                Event::new(WindowEvent::MouseMove(*x, *y)).target(state.hovered),
-                            );
-                        }
-                    } else {
-                        //println!("Entity Hovered: {}", entity);
-                        if *x >= state.data.get_posx(entity) + state.data.get_width(entity) / 2.0 {
-                            if self.position_state {
-                                self.position_state = false;
-                                state.insert_event(
-                                    Event::new(MovableTabEvent::Switch(self.position_state))
-                                        .target(entity),
-                                );
-                            }
-                        } else {
-                            if !self.position_state {
-                                self.position_state = true;
-                                state.insert_event(
-                                    Event::new(MovableTabEvent::Switch(self.position_state))
-                                        .target(entity),
-                                );
-                            }
-                        }
-                    }
+                        entity.emit(state, MovableTabEvent::Moving(entity, *x));
+
+                        // if !state.hovered.is_descendant_of(&state.tree, entity) {
+                        //     state.insert_event(
+                        //         Event::new(WindowEvent::MouseMove(*x, *y)).target(state.hovered),
+                        //     );
+                        // }
+                    } 
+                    
+                    // else {
+
+                    //     //println!("Entity Hovered: {}", state.mouse.left.pressed);
+                    //     if *x >= state.data.get_posx(entity) + state.data.get_width(entity) / 2.0 {
+                    //         if self.position_state {
+                    //             self.position_state = false;
+                    //             state.insert_event(
+                    //                 Event::new(MovableTabEvent::Switch(self.position_state))
+                    //                     .target(entity),
+                    //             );
+                    //         }
+                    //     } else {
+                    //         if !self.position_state {
+                    //             self.position_state = true;
+                    //             state.insert_event(
+                    //                 Event::new(MovableTabEvent::Switch(self.position_state))
+                    //                     .target(entity),
+                    //             );
+                    //         }
+                    //     }
+                    // }
                 }
 
                 _ => {}
@@ -721,3 +851,7 @@ impl Widget for MovableTab {
         }
     }
 }
+
+
+
+

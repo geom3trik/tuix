@@ -1,6 +1,7 @@
 use crate::common::*;
 
-use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Color, Paint, Path, Solidity};
+use femtovg::{renderer::OpenGl, Align, Baseline, Canvas, Paint, Path, Solidity};
+use tuix_core::FontOrId;
 
 use crate::Key;
 
@@ -22,6 +23,9 @@ pub struct Textbox {
 
     units: String,
     //multiplier: f32,
+
+    caret: Entity,
+    selection: Entity,
 
     select_pos: u32,
     cursor_pos: u32,
@@ -47,6 +51,9 @@ impl Textbox {
             buffer: String::new(),
 
             units: String::new(),
+
+            caret: Entity::null(),
+            selection: Entity::null(),
 
             //multiplier: 1.0,
 
@@ -84,28 +91,352 @@ impl Textbox {
 
         self
     }
-    // pub fn set_enabled(&self, state: &mut WidgetState, val: bool) {
-    //     if val {
-    //         self.id
-    //             .set_background(state, nanovg::Color::from_rgb(100, 50, 50));
-    //     } else {
-    //         self.id
-    //             .set_background(state, nanovg::Color::from_rgb(50, 50, 100));
-    //     }
-    // }
+
+    // Helper functions
+    // Set the caret and select positions
+    fn set_caret(&mut self, state: &mut State, entity: Entity) {
+        
+        let posx = state.data.get_posx(entity);
+        let posy = state.data.get_posy(entity);
+        let width = state.data.get_width(entity);
+        let height = state.data.get_height(entity);
+        
+        if let Some(text) = state.style.text.get_mut(entity) {
+            let font = state.style.font.get(entity).cloned().unwrap_or_default();
+
+            // TODO - This should probably be cached in state to save look-up time
+            let default_font = state.resource_manager.fonts.get(&state.style.default_font).and_then(|font|{
+                match font {
+                    FontOrId::Id(id) => Some(id),
+                    _=> None,
+                }
+            }).expect("Failed to find default font");
+
+            let font_id = state.resource_manager.fonts.get(&font).and_then(|font|{
+                match font {
+                    FontOrId::Id(id) => Some(id),
+                    _=> None,
+                }
+            }).unwrap_or(default_font);
+
+
+            let mut x = posx;
+            let mut y = posy;
+            //let mut sx = posx;
+            let mut sy = posy;
+
+            let text_string = text.to_owned();
+
+            let font_size = state.style.font_size.get(entity).cloned().unwrap_or(16.0);
+
+            let mut paint = Paint::default();
+            paint.set_font_size(font_size);
+            paint.set_font(&[font_id.clone()]);
+
+            let font_metrics = state.text_context
+                .measure_font(paint)
+                .expect("Failed to read font metrics");
+
+            
+            let parent = state
+                .tree
+                .get_parent(entity)
+                .expect("Failed to find parent somehow");
+
+            let parent_posx = state.data.get_posx(parent);
+            let parent_posy = state.data.get_posy(parent);
+            let parent_width = state.data.get_width(parent);
+            let parent_height = state.data.get_height(parent);
+            
+            let border_width = match state
+                .style
+                .border_width
+                .get(entity)
+                .cloned()
+                .unwrap_or_default()
+            {
+                Units::Pixels(val) => val,
+                Units::Percentage(val) => parent_width * val,
+                _ => 0.0,
+            };
+
+            // TODO - Move this to a text layout system and include constraints
+            let child_left = state
+                .style
+                .child_left
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_right = state
+                .style
+                .child_right
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_top = state
+                .style
+                .child_top
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+            let child_bottom = state
+                .style
+                .child_bottom
+                .get(entity)
+                .cloned()
+                .unwrap_or_default();
+
+            let align = match child_left {
+                Units::Pixels(val) => match child_right {
+                    Units::Stretch(_) => {
+                        x += val + border_width;
+                        Align::Left
+                    }
+
+                    _ => Align::Left,
+                },
+
+                Units::Stretch(_) => match child_right {
+                    Units::Pixels(val) => {
+                        x += width - val - border_width;
+                        Align::Right
+                    }
+
+                    Units::Stretch(_) => {
+                        x += 0.5 * width;
+                        Align::Center
+                    }
+
+                    _ => Align::Right,
+                },
+
+                _ => Align::Left,
+            };
+
+            let baseline = match child_top {
+                Units::Pixels(val) => match child_bottom {
+                    Units::Stretch(_) => {
+                        y += val + border_width;
+                        Baseline::Top
+                    }
+
+                    _ => Baseline::Top,
+                },
+
+                Units::Stretch(_) => match child_bottom {
+                    Units::Pixels(val) => {
+                        y += height - val - border_width;
+                        sy = y - font_metrics.height();
+                        Baseline::Bottom
+                    }
+
+                    Units::Stretch(_) => {
+                        y += 0.5 * height;
+                        sy = y - font_metrics.height() * 0.5;
+                        Baseline::Middle
+                    }
+
+                    _ => Baseline::Top,
+                },
+
+                _ => Baseline::Top,
+            };
+
+            paint.set_text_align(align);
+            paint.set_text_baseline(baseline);
+
+            if let Ok(res) = state.text_context.measure_text(x, y, &text_string, paint) {
+
+                let padding_left = match state.style.child_left.get(entity).unwrap_or(&Units::Auto) {
+                    Units::Pixels(val) => val,
+                    _ => &0.0,
+                };
+        
+                let padding_right = match state.style.child_right.get(entity).unwrap_or(&Units::Auto) {
+                    Units::Pixels(val) => val,
+                    _ => &0.0,
+                };
+
+                let text_width = res.width();
+                //let mut glyph_positions = res.glyphs.iter().peekable();
+
+                let mut caretx = x;
+
+                let mut selectx = caretx;
+
+                if self.edit {
+                    let startx = if let Some(first_glyph) = res.glyphs.first() {
+                        first_glyph.x
+                    } else {
+                        0.0 + padding_right
+                    };
+                    //let startx = x - text_width / 2.0;
+                    let endx = startx + text_width;
+
+                    if self.hitx != -1.0 {
+                        //let endx = res.glyphs.last().unwrap().x + res.glyphs.last().unwrap().w;
+
+                        selectx = if self.hitx < startx + text_width / 2.0 {
+                            self.select_pos = 0;
+                            startx
+                        } else {
+                            self.select_pos = text.len() as u32;
+                            endx
+                        };
+
+                        caretx = if self.dragx < startx + text_width / 2.0 {
+                            self.cursor_pos = 0;
+                            startx
+                        } else {
+                            self.cursor_pos = text.len() as u32;
+                            endx
+                        };
+
+                        let mut n = 0;
+                        let mut px = x + padding_left;
+
+                        for glyph in res.glyphs.iter() {
+                            let left_edge = glyph.x;
+                            let right_edge = left_edge + glyph.width;
+                            let gx = left_edge * 0.3 + right_edge * 0.7;
+
+                            // if n == 0 && self.hitx <= glyph.x {
+                            //     selectx = left_edge;
+                            //     self.select_pos = 0;
+                            // }
+
+                            // if n == res.glyphs.len() as u32 && self.hitx >= glyph.x + glyph.width {
+                            //     selectx = right_edge;
+                            //     self.select_pos = n;
+                            // }
+
+                            // if n == 0 && self.dragx <= glyph.x {
+                            //     caretx = left_edge;
+                            //     self.cursor_pos = 0;
+                            // }
+
+                            // if n == res.glyphs.len() as u32 && self.hitx >= glyph.x + glyph.width {
+                            //     caretx = right_edge;
+                            //     self.cursor_pos = n;
+                            // }
+
+                            if self.hitx >= px && self.hitx < gx {
+                                selectx = left_edge;
+
+                                self.select_pos = n;
+                            }
+
+                            if self.dragx >= px && self.dragx < gx {
+                                caretx = left_edge;
+
+                                self.cursor_pos = n;
+                            }
+
+                            px = gx;
+                            n += 1;
+                        }
+                    } else {
+                        let mut n = 0;
+                        //println!("cursor: {}", self.cursor_pos);
+                        //let mut start_x = 0.0;
+
+                        for glyph in res.glyphs.iter() {
+                            if n == self.cursor_pos {
+                                caretx = glyph.x;
+                            }
+
+                            if n == self.select_pos {
+                                selectx = glyph.x;
+                            }
+
+                            n += 1;
+                        }
+
+                        if self.cursor_pos as usize == text.len() && text.len() != 0 {
+                            caretx = endx;
+                        }
+
+                        if self.select_pos as usize == text.len() && text.len() != 0 {
+                            selectx = endx;
+                        }
+                    }
+
+                    //Draw selection
+                    // let select_width = (caretx - selectx).abs();
+                    // if selectx > caretx {
+                    //     let mut path = Path::new();
+                    //     path.rect(caretx, sy, select_width, font_metrics.height());
+                    //     canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
+                    // } else if caretx > selectx {
+                    //     let mut path = Path::new();
+                    //     path.rect(selectx, sy, select_width, font_metrics.height());
+                    //     canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
+                    // }
+
+                    //Draw selection
+                    let select_width = (caretx - selectx).abs();
+                    if selectx > caretx {
+                        //path.rect(caretx, sy, select_width, font_metrics.height());
+                        self.selection.set_left(state, Pixels(caretx.floor() - posx - 1.0));
+                    } else if caretx > selectx {
+                        //path.rect(selectx, sy, select_width, font_metrics.height());
+                        self.selection.set_left(state, Pixels(selectx.floor() - posx - 1.0));
+                        
+                    }
+
+                    self.selection.set_width(state, Pixels(select_width));
+                    self.selection.set_height(state, Pixels(font_metrics.height()));
+                    self.selection.set_top(state, Stretch(1.0));
+                    self.selection.set_bottom(state, Stretch(1.0));
+
+                    // // Draw Caret
+                    // let mut path = Path::new();
+                    // path.rect(caretx.floor(), sy, 1.0, font_metrics.height());
+                    // canvas.fill_path(&mut path, Paint::color(Color::rgba(247, 76, 0, 255)));
+
+                    self.caret.set_left(state, Pixels(caretx.floor() - posx - 1.0));
+                    self.caret.set_top(state, Stretch(1.0));
+                    self.caret.set_bottom(state, Stretch(1.0));
+                    self.caret.set_height(state, Pixels(font_metrics.height()));
+                }
+            }
+        }
+    }
 }
 
 impl Widget for Textbox {
     type Ret = Entity;
     type Data = String;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        
+        self.caret = Element::new().build(state, entity, |builder| 
+            builder
+                .set_width(Pixels(1.0))
+                //.set_background_color(Color::red())
+                .set_position_type(PositionType::SelfDirected)
+                .set_display(Display::None)
+                .set_hoverable(false)
+                .set_focusable(false)
+                .class("caret")
+        );
+
+        self.selection = Element::new().build(state, entity, |builder|
+            builder
+                //.set_background_color(Color::rgba(0, 0, 0, 64))
+                .set_position_type(PositionType::SelfDirected)
+                .set_display(Display::None)
+                .set_hoverable(false)
+                .set_focusable(false)
+                .class("selection")
+        );
+        
         entity.set_text(state, &(self.text.to_owned() + &self.units));
+        
+        //self.set_caret(state, entity);
 
-        self.entity = entity;
-
-        entity.set_clip_widget(state, entity);
-
+        //entity.set_clip_widget(state, entity);
         entity.set_element(state, "textbox")
+
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -151,6 +482,8 @@ impl Widget for Textbox {
                         //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                         // );
 
+                        self.set_caret(state, entity);
+
                         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                     }
                 }
@@ -173,6 +506,10 @@ impl Widget for Textbox {
                             self.dragx = state.mouse.cursorx;
                         }
                         self.edit = true;
+                        self.caret.set_display(state, Display::Flex);
+                        self.selection.set_display(state, Display::Flex);
+
+                        self.set_caret(state, entity);
 
                         // state.insert_event(
                         //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
@@ -180,7 +517,10 @@ impl Widget for Textbox {
 
                         state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
                     } else {
+
                         self.edit = false;
+                        self.caret.set_display(state, Display::None);
+                        self.selection.set_display(state, Display::None);
                         entity.set_active(state, false);
 
                         state.insert_event(
@@ -207,6 +547,7 @@ impl Widget for Textbox {
 
                 WindowEvent::MouseUp(_) => {
                     self.hitx = -1.0;
+                    self.set_caret(state, entity);
                 }
 
                 WindowEvent::KeyDown(_, key) => {
@@ -226,6 +567,8 @@ impl Widget for Textbox {
                             // state.insert_event(
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
+
+                            self.set_caret(state, entity);
 
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::root()),
@@ -247,30 +590,43 @@ impl Widget for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
+                            self.set_caret(state, entity);
+
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::root()),
                             );
                         }
                     }
-                    if *key == Some(Key::Backspace) {
 
-
-
-
+                    if *key == Some(Key::Backspace) || *key == Some(Key::Delete) {
                         if self.edit {
                             let start = std::cmp::min(self.select_pos, self.cursor_pos) as usize;
                             let end = std::cmp::max(self.select_pos, self.cursor_pos) as usize;
+
                             //let start = text_data.select_pos as usize;
                             //let end = text_data.cursor_pos as usize;
                             if start == end && self.cursor_pos > 0 {
-                                if let Some(txt) = state.style.text.get_mut(entity) {
-                                    //txt.remove((self.cursor_pos - 1) as usize);
-                                    txt.pop();
-                                }
+                                if *key == Some(Key::Backspace) {
+                                    if let Some(txt) = state.style.text.get_mut(entity) {
+                                        txt.remove((self.cursor_pos - 1) as usize);
+                                        //txt.pop();
+                                    }
+                                    self.cursor_pos -= 1;
+                                    self.select_pos -= 1;
 
-                                self.cursor_pos -= 1;
-                                self.select_pos -= 1;
+                                } else {
+                                    if (self.cursor_pos as usize) < (self.text.len()) {
+                                        if let Some(txt) = state.style.text.get_mut(entity) {
+                                            txt.remove((self.cursor_pos) as usize);
+                                            //txt.pop();
+                                        }
+                                    }
+                                }
+                                
+
+                                
                             } else {
+                                
                                 if let Some(txt) = state.style.text.get_mut(entity) {
                                     txt.replace_range(start..end, "");
                                 }
@@ -288,6 +644,9 @@ impl Widget for Textbox {
                                 (callback)(self, state, entity);
                                 self.on_change = Some(callback);
                             }
+
+                            self.set_caret(state, entity);
+
 
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::root()),
@@ -308,6 +667,8 @@ impl Widget for Textbox {
                             }
 
                             self.edit = false;
+                            self.caret.set_display(state, Display::None);
+                            self.selection.set_display(state, Display::None);
                             entity.set_active(state, false);
                             state.release(entity);
 
@@ -321,11 +682,19 @@ impl Widget for Textbox {
                         if self.edit {
                             self.text = self.buffer.clone();
                             self.edit = false;
+                            self.caret.set_display(state, Display::None);
+                            self.selection.set_display(state, Display::None);
                             entity.set_active(state, false);
 
                             // state.insert_event(
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
+
+                            // TODO - Change this to a 'Cancelled' callback
+                            // if let Some(callback) = self.on_submit.take() {
+                            //     (callback)(self, state, entity);
+                            //     self.on_submit = Some(callback);
+                            // }
 
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::root()),
@@ -335,7 +704,7 @@ impl Widget for Textbox {
                 }
 
                 WindowEvent::CharInput(input) => {
-                    if *input as u8 != 8 && *input as u8 != 13 {
+                    if *input as u8 != 8 && *input as u8 != 13 && *input as u8 != 127 {
                         // Ignore input when ctrl is being held
                         if state.modifiers.ctrl {
                             return;
@@ -373,6 +742,9 @@ impl Widget for Textbox {
                             //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
                             // );
 
+                            self.set_caret(state, entity);
+
+
                             state.insert_event(
                                 Event::new(WindowEvent::Redraw).target(Entity::root()),
                             );
@@ -380,11 +752,33 @@ impl Widget for Textbox {
                     }
                 }
 
+                WindowEvent::FocusIn => {
+                    if !self.edit {
+                        self.cursor_pos = text_data.len() as u32;
+                        self.select_pos = 0;
+                        self.buffer = text_data.clone();
+                        self.edit = true;
+                        self.caret.set_display(state, Display::Flex);
+                        self.selection.set_display(state, Display::Flex);
+
+                        self.set_caret(state, entity);
+
+                    }
+                }
+
 
                 WindowEvent::FocusOut => {
                     self.edit = false;
+                    self.caret.set_display(state, Display::None);
+                    self.selection.set_display(state, Display::None);
                     entity.set_active(state, false);
+     
                     state.release(entity);
+
+                    // if let Some(callback) = self.on_submit.take() {
+                    //     (callback)(self, state, entity);
+                    //     self.on_submit = Some(callback);
+                    // }
 
 
                     state.insert_event(
@@ -393,10 +787,17 @@ impl Widget for Textbox {
                 }
 
                 WindowEvent::MouseCaptureOutEvent => {
-                    println!("Mouse Capture Out");
+                    //println!("Mouse Capture Out");
                     self.edit = false;
+                    self.caret.set_display(state, Display::None);
+                    self.selection.set_display(state, Display::None);
                     entity.set_active(state, false);
-                    state.release(entity);
+                    //state.release(entity);
+
+                    // if let Some(callback) = self.on_submit.take() {
+                    //     (callback)(self, state, entity);
+                    //     self.on_submit = Some(callback);
+                    // }
 
 
                     state.insert_event(
@@ -415,6 +816,7 @@ impl Widget for Textbox {
         entity.set_text(state, &self.text);
     }
 
+    /*
     fn on_draw(
         &mut self,
         state: &mut State,
@@ -567,10 +969,11 @@ impl Widget for Textbox {
         }
 
         // Apply transformations
-        let transform = state.data.get_transform(entity);
+        //let transform = state.data.get_transform(entity);
 
         canvas.save();
-        canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
+        
+        //canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
         canvas.translate(posx, posy);
 
         //let pt = canvas.transform().inversed().transform_point(posx + width / 2.0, posy + height / 2.0);
@@ -807,17 +1210,26 @@ impl Widget for Textbox {
         canvas.restore();
 
         canvas.save();
-        canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
+        //canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
         //canvas.scissor(clip_region.x, clip_region.y, clip_region.w, clip_region.h);
 
         if let Some(text) = state.style.text.get_mut(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
-            let font_id = match font.as_ref() {
-                "sans" => state.fonts.regular.unwrap(),
-                "icons" => state.fonts.icons.unwrap(),
-                _ => state.fonts.regular.unwrap(),
-            };
+            // TODO - This should probably be cached in state to save look-up time
+            let default_font = state.resource_manager.fonts.get(&state.style.default_font).and_then(|font|{
+                match font {
+                    FontOrId::Id(id) => Some(id),
+                    _=> None,
+                }
+            }).expect("Failed to find default font");
+
+            let font_id = state.resource_manager.fonts.get(&font).and_then(|font|{
+                match font {
+                    FontOrId::Id(id) => Some(id),
+                    _=> None,
+                }
+            }).unwrap_or(default_font);
 
             let mut x = posx;
             let mut y = posy;
@@ -830,7 +1242,7 @@ impl Widget for Textbox {
 
             let mut paint = Paint::color(font_color);
             paint.set_font_size(font_size);
-            paint.set_font(&[font_id]);
+            paint.set_font(&[font_id.clone()]);
 
             let font_metrics = canvas
                 .measure_font(paint)
@@ -1031,17 +1443,17 @@ impl Widget for Textbox {
                     if selectx > caretx {
                         let mut path = Path::new();
                         path.rect(caretx, sy, select_width, font_metrics.height());
-                        canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
+                        canvas.fill_path(&mut path, Paint::color(femtovg::Color::rgba(0, 0, 0, 64)));
                     } else if caretx > selectx {
                         let mut path = Path::new();
                         path.rect(selectx, sy, select_width, font_metrics.height());
-                        canvas.fill_path(&mut path, Paint::color(Color::rgba(0, 0, 0, 64)));
+                        canvas.fill_path(&mut path, Paint::color(femtovg::Color::rgba(0, 0, 0, 64)));
                     }
 
                     // Draw Caret
                     let mut path = Path::new();
                     path.rect(caretx.floor(), sy, 1.0, font_metrics.height());
-                    canvas.fill_path(&mut path, Paint::color(Color::rgba(247, 76, 0, 255)));
+                    canvas.fill_path(&mut path, Paint::color(femtovg::Color::rgba(20, 76, 247, 255)));
 
                     // let mut path = Path::new();
                     // path.rect(endx, y - 0.25 * height, 1.0, height * 0.5);
@@ -1051,4 +1463,6 @@ impl Widget for Textbox {
         }
         canvas.restore();
     }
+    */
+
 }

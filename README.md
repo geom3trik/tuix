@@ -1,41 +1,28 @@
-[Join the Discord channel](https://discord.gg/aNkTPsRm2w)
+<p align="center"><img src="https://github.com/geom3trik/tuix/blob/main/docs/tuix-logo.png" width="320" height="180" alt="logo"></p>
 
-# tuix
+---
+
+![GitHub](https://img.shields.io/github/license/geom3trik/tuix)
+[![Build](https://github.com/geom3trik/tuix/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/geom3trik/tuix/actions/workflows/build.yml)
+[![Discord](https://img.shields.io/discord/791142189005537332.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/aNkTPsRm2w)
+
 Tuix is a cross-platform GUI toolkit written in Rust.
 
 The driving principle behind tuix is to be a self-contained, small-as-possible, but still fast, toolkit for creating graphical user interfaces in Rust. 
 
-![calculator](https://github.com/geom3trik/tuix/blob/develop/docs/calculator.png?raw=true)
+<p align="center"><a href="https://github.com/geom3trik/tuix/blob/main/examples/calculator.rs"><img src="https://github.com/geom3trik/tuix/blob/main/docs/calculator.png" alt="calculator"></a></p>
 
 ## Features
 
-### Build Cross-Platform Applications
+ - Build Cross-Platform Applications
+ - Flexible Layout
+ - Fully Customisable Styling
+ - Animatable Style Properties
+ - A Reactive Data Model
+ - Numerous Built-In Widgets
+ - Custom Widgets
 
- Image goes here
-
-### Flexible Layout
-
- Image goes here
-
-### Fully Customisable Styling
-
- Image goes here
-
-### Animatable Style Properties
-
- Image goes here
-
-### A Reactive Data Model
-
- Image goes here
-
-### Numerous Built-In Widgets
-
- Image goes here
-
-### Custom Widgets
-
- Image goes here
+<p align="center"><a href="https://github.com/geom3trik/tuix/blob/main/examples/editor.rs"><img src="https://github.com/geom3trik/tuix/blob/main/docs/editor.png" alt="editor"></a></p>
 
 ## Including tuix
  

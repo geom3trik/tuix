@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub mod entity;
 pub use entity::*;
 
@@ -26,13 +28,22 @@ pub use resource::*;
 pub use crate::events::{Builder, Event, Propagation, Widget, EventHandler};
 pub use crate::window_event::WindowEvent;
 
-use femtovg::FontId;
+use femtovg::{FontId, TextContext};
 
 use std::collections::VecDeque;
 
 use fnv::FnvHashMap;
 
-use std::rc::Rc;
+// TODO - Move this somewhere more appropriate
+const STYLE: &str = r#"
+    textbox>.caret {
+        background-color: red;
+    }
+
+    textbox>.selection {
+        background-color: #40000000;
+    }
+"#;
 
 #[derive(Clone)]
 pub struct Fonts {
@@ -78,14 +89,18 @@ pub struct State {
     // Queue of events
     pub event_queue: VecDeque<Event>,
 
-    pub fonts: Fonts, //TODO - Replace with resource manager
+    // pub fonts: Fonts, //TODO - Replace with resource manager
 
-    pub(crate) resource_manager: ResourceManager, //TODO
+    pub resource_manager: ResourceManager, //TODO
 
     // Flag which signifies that a restyle is required
     pub needs_restyle: bool,
     pub needs_relayout: bool,
     pub needs_redraw: bool,
+
+    pub text_context: TextContext,
+
+    pub listeners: FnvHashMap<Entity, Box<dyn Fn(&mut dyn EventHandler, &mut State, Entity, &mut Event)>>,
 }
 
 impl State {
@@ -107,7 +122,10 @@ impl State {
 
         style.background_color.insert(root, Color::rgb(80, 80, 80)).expect("");
 
-        
+        style.default_font = "roboto".to_string();
+
+        let mut resource_manager =ResourceManager::new();
+        resource_manager.themes.push(STYLE.to_string());
 
         State {
             entity_manager,
@@ -124,17 +142,21 @@ impl State {
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             removed_entities: Vec::new(),
-            fonts: Fonts {
-                regular: None,
-                bold: None,
-                icons: None,
-                emoji: None,
-                arabic: None,
-            },
-            resource_manager: ResourceManager::new(),
+            // fonts: Fonts {
+            //     regular: None,
+            //     bold: None,
+            //     icons: None,
+            //     emoji: None,
+            //     arabic: None,
+            // },
+            resource_manager,
             needs_restyle: false,
             needs_relayout: false,
             needs_redraw: false,
+
+            text_context: TextContext::default(),
+
+            listeners: FnvHashMap::default(),
         }
     }
 
@@ -200,9 +222,21 @@ impl State {
     //     self.resource_manager.add_image(image)
     // }
 
-    //TODO
-    pub fn add_font(&mut self, _name: &str, _path: &str) {
-        println!("Add an font to resource manager");
+    /// Add a font from memory to the application
+    pub fn add_font_mem(&mut self, name: &str, data: &[u8]) {
+        // TODO - return error
+        if self.resource_manager.fonts.contains_key(name) {
+            println!("Font already exists");
+            return;
+        }
+        //let id = self.text_context.add_font_mem(&data.clone()).expect("failed");
+        //println!("{} {:?}", name, id);
+        self.resource_manager.fonts.insert(name.to_owned(), FontOrId::Font(data.to_vec()));
+    }
+
+    /// Sets the global default font for the application
+    pub fn set_default_font(&mut self, name: &str) {
+        self.style.default_font = name.to_string();
     }
 
     // Removes all style data and then reloads the stylesheets
@@ -256,7 +290,7 @@ impl State {
 
     // This should probably be moved to state.mouse
     pub fn capture(&mut self, entity: Entity) {
-
+        //println!("CAPTURE: {}", entity);
         if entity != Entity::null() && self.captured != entity {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureEvent)
@@ -279,17 +313,20 @@ impl State {
 
     // This should probably be moved to state.mouse
     pub fn release(&mut self, id: Entity) {
-
+        
         if self.captured == id {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureOutEvent)
                     .target(self.captured)
                     .propagate(Propagation::Direct),
             );
-        }
 
-        self.captured = Entity::null();
-        self.active = Entity::null();
+            //println!("RELEASE: {}", id);
+            
+            self.captured = Entity::null();
+            self.active = Entity::null();
+        }
+        
     }
 
     pub fn set_focus(&mut self, entity: Entity) {

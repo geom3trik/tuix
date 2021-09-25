@@ -66,6 +66,8 @@ use std::rc::Rc;
 pub struct Style {
     pub rules: Vec<StyleRule>,
 
+    pub default_font: String,
+
     pub elements: DenseStorage<String>,
     pub classes: DenseStorage<HashSet<String>>,
     pub pseudo_classes: DenseStorage<PseudoClasses>,
@@ -118,6 +120,12 @@ pub struct Style {
     pub border_color: AnimatableStorage<Color>,
 
     // Border Radius
+    pub border_shape_top_left: StyleStorage<BorderCornerShape>,
+    pub border_shape_top_right: StyleStorage<BorderCornerShape>,
+    pub border_shape_bottom_left: StyleStorage<BorderCornerShape>,
+    pub border_shape_bottom_right: StyleStorage<BorderCornerShape>,
+
+
     pub border_radius_top_left: AnimatableStorage<Units>,
     pub border_radius_top_right: AnimatableStorage<Units>,
     pub border_radius_bottom_left: AnimatableStorage<Units>,
@@ -146,7 +154,7 @@ pub struct Style {
 
     //Text & Font
     pub text: DenseStorage<String>,
-    pub font: DenseStorage<String>,
+    pub font: StyleStorage<String>,
     pub font_color: AnimatableStorage<Color>,
     pub font_size: AnimatableStorage<f32>,
 
@@ -363,6 +371,29 @@ impl Style {
                         self.border_color.insert_rule(rule_id, value);
                     }
 
+                    Property::BorderCornerShape(shape) => {
+                        self.border_shape_top_left.insert_rule(rule_id, shape);
+                        self.border_shape_top_right.insert_rule(rule_id, shape);
+                        self.border_shape_bottom_left.insert_rule(rule_id, shape);
+                        self.border_shape_bottom_right.insert_rule(rule_id, shape);
+                    }
+
+                    Property::BorderTopLeftShape(shape) => {
+                        self.border_shape_top_left.insert_rule(rule_id, shape);
+                    }
+
+                    Property::BorderTopRightShape(shape) => {
+                        self.border_shape_top_right.insert_rule(rule_id, shape);
+                    }
+
+                    Property::BorderBottomLeftShape(shape) => {
+                        self.border_shape_bottom_left.insert_rule(rule_id, shape);
+                    }
+
+                    Property::BorderBottomRightShape(shape) => {
+                        self.border_shape_bottom_right.insert_rule(rule_id, shape);
+                    }
+
                     // Border Radius
                     Property::BorderRadius(value) => {
                         self.border_radius_top_left.insert_rule(rule_id, value);
@@ -394,6 +425,10 @@ impl Style {
 
                     Property::FontColor(value) => {
                         self.font_color.insert_rule(rule_id, value);
+                    }
+
+                    Property::Font(value) => {
+                        self.font.insert_rule(rule_id, value);
                     }
 
                     // Background

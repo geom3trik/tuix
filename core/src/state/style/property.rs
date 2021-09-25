@@ -73,6 +73,11 @@ pub enum Property {
     BorderBottomRightRadius(Units),
     BorderWidth(Units),
     BorderColor(Color),
+    BorderCornerShape(BorderCornerShape),
+    BorderTopLeftShape(BorderCornerShape),
+    BorderTopRightShape(BorderCornerShape),
+    BorderBottomLeftShape(BorderCornerShape),
+    BorderBottomRightShape(BorderCornerShape),
 
     // Background
     BackgroundColor(Color),
@@ -81,6 +86,7 @@ pub enum Property {
 
     FontSize(f32),
     FontColor(Color),
+    Font(String),
 
     OuterShadow(BoxShadow),
     OuterShadowHOffset(Units),

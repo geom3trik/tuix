@@ -68,6 +68,12 @@ impl Panel {
             arrow_ccw_animation: Animation::default(),
         }
     }
+
+    pub fn collapsed(mut self, flag: bool) -> Self {
+        self.collapsed = flag;
+
+        self
+    }
 }
 
 impl Widget for Panel {

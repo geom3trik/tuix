@@ -27,7 +27,9 @@ pub struct AnimationControls {
 
 impl AnimationControls {
     pub fn new() -> Self {
-
+        Self {
+            
+        }
     }
 }
 
