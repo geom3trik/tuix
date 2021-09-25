@@ -6,16 +6,15 @@ use std::iter::Rev;
 
 impl<'a> Hierarchy<'a> for crate::Tree {
     type Item = Entity;
-    type DownIter = std::vec::IntoIter<Entity>;
+    type DownIter = TreeIterator<'a>;
     type UpIter = Rev<std::vec::IntoIter<Entity>>;
     type ChildIter = ChildIterator<'a>;
 
     fn down_iter(&'a self) -> Self::DownIter {
-        let iterator = TreeIterator {
+        TreeIterator {
             tree: self,
             current_node: Some(Entity::root()),
-        };
-        iterator.collect::<Vec<_>>().into_iter()
+        }
     }
 
     fn up_iter(&'a self) -> Self::UpIter {
