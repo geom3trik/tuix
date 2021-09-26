@@ -6,7 +6,7 @@ use crate::common::*;
 const ICON_LEFT_DIR: &str = "\u{25c2}";
 const ICON_RIGHT_DIR: &str = "\u{25b8}";
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum ColorPickerEvent {
     HueChanged(f32),
     SetColor(Color),

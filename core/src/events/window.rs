@@ -61,7 +61,9 @@ impl Widget for WindowWidget {
                     //apply_layout2(state, &tree);
                     morphorm::layout(&mut state.data, &state.tree, &mut state.style);
                     apply_transform(state, &tree);
+                    //let start = std::time::Instant::now();
                     geometry_changed(state, &tree);
+                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
                     apply_hover(state);
                 }
 

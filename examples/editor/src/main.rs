@@ -198,7 +198,7 @@ fn main() {
 }
 
 // So we can use the same color picker for background and border
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum ColorPickFor {
     Background,
     Border,
@@ -212,7 +212,7 @@ impl Default for ColorPickFor {
     }
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub enum AppEvent {
 
     SelectWidget(Entity),

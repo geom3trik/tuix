@@ -163,7 +163,6 @@ members = [
 
 [features]
 default = ["tuix_glutin"]
-
 tuix_glutin = ["tuix_internal/tuix_glutin"]
 
 dynamic = ["tuix_dylib"]

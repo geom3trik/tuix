@@ -137,7 +137,7 @@ impl Event {
             propagation: Propagation::Up,
             consumable: true,
             consumed: false,
-            unique: true,
+            unique: false,
             order: 0,
             message: Box::new(message),
         }

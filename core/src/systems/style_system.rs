@@ -1,4 +1,4 @@
-use crate::{BoundingBox, Entity, Event, TreeExt, IntoParentIterator, State, WindowEvent};
+use crate::{BoundingBox, Entity, Event, TreeExt, IntoParentIterator, State, WindowEvent, PropSet};
 
 use crate::tree::*;
 use crate::state::animation::*;
@@ -124,40 +124,56 @@ pub fn apply_visibility(state: &mut State, tree: &Tree) {
 
 // Returns true if the widget matches the selector
 fn check_match(state: &State, entity: Entity, selector: &Selector) -> bool {
-    // Construct the entity selector
-    let mut entity_selector = Selector::new();
 
-    // Get the entity id from state
-    //entity_selector.id = state.style.ids.get(entity).cloned();
-    // let mut s = DefaultHasher::new();
-    // entity_selector.id = state.style.ids.get_by_right(&entity).map(|f| {
-    //     f.hash(&mut s);
-    //     s.finish()
-    // });
-
-    // Get the entity element from state
-    entity_selector.element = state.style.elements.get(entity).cloned();
-
-    // Get the entity class list from state
-    if let Some(class_list) = state.style.classes.get(entity) {
-        entity_selector.classes = class_list.clone();
+    // Universal selector always matches
+    if selector.asterisk {
+        if let Some(pseudo_classes) = state.style.pseudo_classes.get(entity) {
+            if !pseudo_classes.is_empty() && !pseudo_classes.intersects(*pseudo_classes)
+            {
+                return false;
+            } else {
+                return true;
+            }            
+        } else {
+            return true;
+        }
     }
 
-    // Set the pseudoclass selectors
-    entity_selector.pseudo_classes = state
-        .style
-        .pseudo_classes
-        .get(entity)
-        .cloned()
-        .unwrap_or_default();
+    // Check for ID match TODO
+    // if selector.id.is_some() && selector.id != entity_selector.id {
+    //     return false;
+    // }
 
-    if state.active == entity {
-        entity_selector.pseudo_classes.insert(PseudoClasses::ACTIVE);
+
+    // Check for element name match
+    if let Some(selector_element) = &selector.element {
+        if let Some(element) = state.style.elements.get(entity) {
+            if selector_element != element {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
-    entity_selector.pseudo_classes.set(PseudoClasses::FOCUS, state.focused == entity);
+    // Check for classes match
+    if let Some(classes) = state.style.classes.get(entity) {
+        if !selector.classes.is_subset(classes) {
+            return false;
+        }        
+    } else if !selector.classes.is_empty() {
+        return false;
+    }
 
-    return selector.matches(&entity_selector);
+    // Check for pseudo-class match
+    if let Some(pseudo_classes) = state.style.pseudo_classes.get(entity) {
+        if !selector.pseudo_classes.is_empty() && !selector.pseudo_classes.intersects(*pseudo_classes)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 pub fn apply_styles(state: &mut State, tree: &Tree) {
@@ -566,12 +582,12 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
         }
 
         if should_relayout {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            Entity::root().relayout(state);
             //state.needs_relayout = true;
         }
 
         if should_redraw {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            Entity::root().redraw(state);
             //state.needs_redraw = true;
         }
     }

@@ -150,7 +150,7 @@ pub fn apply_hover(state: &mut State) {
         state.insert_event(Event::new(WindowEvent::MouseEnter).target(hovered_widget));
         state.insert_event(Event::new(WindowEvent::MouseLeave).target(state.hovered));
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        Entity::root().restyle(state);
 
         state.hovered = hovered_widget;
         state.active = Entity::null();

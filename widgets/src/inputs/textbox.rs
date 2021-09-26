@@ -446,11 +446,7 @@ impl Widget for Textbox {
                     if event.target == entity {
                         entity.set_text(state, &(val.to_owned() + &self.units));
 
-                        // state.insert_event(
-                        //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        // );
-
-                        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                        Entity::root().redraw(state);
                     }
                 }
 
@@ -458,7 +454,7 @@ impl Widget for Textbox {
                     self.text.clear();
                     self.buffer.clear();
                     entity.set_text(state, "");
-                    state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                    Entity::root().redraw(state);
                 }
 
                 // TextboxEvent::ResetValue => {
@@ -478,13 +474,9 @@ impl Widget for Textbox {
                     if self.hitx != -1.0 {
                         self.dragx = *x;
 
-                        // state.insert_event(
-                        //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        // );
-
                         self.set_caret(state, entity);
 
-                        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                        Entity::root().redraw(state);
                     }
                 }
 
@@ -511,11 +503,7 @@ impl Widget for Textbox {
 
                         self.set_caret(state, entity);
 
-                        // state.insert_event(
-                        //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        // );
-
-                        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                        Entity::root().redraw(state);
                     } else {
 
                         self.edit = false;
@@ -528,11 +516,7 @@ impl Widget for Textbox {
                                 .target(entity),
                         );
 
-                        // state.insert_event(
-                        //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                        // );
-
-                        state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                        Entity::root().redraw(state);
 
                         if state.captured == entity {
                             state.insert_event(
@@ -564,15 +548,9 @@ impl Widget for Textbox {
                                 self.select_pos = self.cursor_pos;
                             }
 
-                            // state.insert_event(
-                            //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                            // );
-
                             self.set_caret(state, entity);
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::root()),
-                            );
+                            Entity::root().redraw(state);
                         }
                     }
 
@@ -586,15 +564,9 @@ impl Widget for Textbox {
                                 self.select_pos = self.cursor_pos;
                             }
 
-                            // state.insert_event(
-                            //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                            // );
-
                             self.set_caret(state, entity);
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::root()),
-                            );
+                            Entity::root().redraw(state);
                         }
                     }
 
@@ -636,9 +608,6 @@ impl Widget for Textbox {
 
                             self.text = state.style.text.get(entity).unwrap().to_owned();
 
-                            // state.insert_event(
-                            //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                            // );
 
                             if let Some(callback) = self.on_change.take() {
                                 (callback)(self, state, entity);
@@ -648,9 +617,7 @@ impl Widget for Textbox {
                             self.set_caret(state, entity);
 
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::root()),
-                            );
+                            Entity::root().redraw(state);
                         }
                     }
                     if *key == Some(Key::Enter) {
@@ -673,9 +640,7 @@ impl Widget for Textbox {
                             state.release(entity);
 
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::root()),
-                            );
+                            Entity::root().redraw(state);
                         }
                     }
                     if *key == Some(Key::Escape) {
@@ -686,19 +651,13 @@ impl Widget for Textbox {
                             self.selection.set_display(state, Display::None);
                             entity.set_active(state, false);
 
-                            // state.insert_event(
-                            //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                            // );
-
                             // TODO - Change this to a 'Cancelled' callback
                             // if let Some(callback) = self.on_submit.take() {
                             //     (callback)(self, state, entity);
                             //     self.on_submit = Some(callback);
                             // }
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::root()),
-                            );
+                            Entity::root().redraw(state);
                         }
                     }
                 }
@@ -738,16 +697,10 @@ impl Widget for Textbox {
                                 self.on_change = Some(callback);
                             }
 
-                            // state.insert_event(
-                            //     Event::new(WindowEvent::Restyle).target(Entity::new(0, 0)),
-                            // );
-
                             self.set_caret(state, entity);
 
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::root()),
-                            );
+                            Entity::root().redraw(state);
                         }
                     }
                 }
@@ -781,9 +734,7 @@ impl Widget for Textbox {
                     // }
 
 
-                    state.insert_event(
-                        Event::new(WindowEvent::Redraw).target(Entity::root()),
-                    );
+                    Entity::root().redraw(state);
                 }
 
                 WindowEvent::MouseCaptureOutEvent => {
@@ -800,9 +751,7 @@ impl Widget for Textbox {
                     // }
 
 
-                    state.insert_event(
-                        Event::new(WindowEvent::Redraw).target(Entity::root()),
-                    );
+                    Entity::root().redraw(state);
                 }
 
                 _ => {}

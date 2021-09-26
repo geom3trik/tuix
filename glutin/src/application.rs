@@ -123,8 +123,8 @@ impl Application {
 
         //let tree = state.tree.clone();
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        Entity::root().restyle(&mut state);
+        Entity::root().relayout(&mut state);
 
         let event_loop_proxy = self.event_loop.create_proxy();
 
@@ -146,11 +146,14 @@ impl Application {
                 }
 
                 GEvent::MainEventsCleared => {
-
+                    
+                    //let start = std::time::Instant::now();
                     
                     while !state.event_queue.is_empty() {
                         event_manager.flush_events(&mut state);
                     }
+                    
+                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
 
                     if state.apply_animations() {
 
@@ -173,15 +176,15 @@ impl Application {
                         state.needs_redraw = false;
                     }
 
-
+                    
                 }
 
                 // REDRAW
 
                 GEvent::RedrawRequested(_) => {
-                    //let start = std::time::Instant::now();
+                    let start = std::time::Instant::now();
                     event_manager.draw(&mut state, &mut window.canvas);
-                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
+                    println!("{:.2?} seconds for whatever you did.", start.elapsed());
                     // Swap buffers
                     window
                         .handle
@@ -229,9 +232,9 @@ impl Application {
                             //         .origin(Entity::root()),
                             // );
 
-                            state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                            Entity::root().restyle(&mut state);
+                            Entity::root().relayout(&mut state);
+                            Entity::root().redraw(&mut state);
                         }
 
                         ////////////////////
@@ -364,13 +367,7 @@ impl Application {
                                         }
                                     }
 
-
-
-                                    state.insert_event(
-                                        Event::new(WindowEvent::Restyle)
-                                            .target(Entity::root())
-                                            .origin(Entity::root()),
-                                    );
+                                    Entity::root().restyle(&mut state);
 
                                 }
                             }
@@ -443,9 +440,10 @@ impl Application {
                             // state.insert_event(
                             //     Event::new(WindowEvent::Relayout).target(Entity::root()),
                             // );
-                            state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+                            Entity::root().restyle(&mut state);
+                            Entity::root().relayout(&mut state);
+                            Entity::root().redraw(&mut state);
 
                         }
 
