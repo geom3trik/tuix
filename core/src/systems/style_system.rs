@@ -1,4 +1,4 @@
-use crate::{BoundingBox, Entity, Event, TreeExt, IntoParentIterator, State, WindowEvent};
+use crate::{BoundingBox, Entity, Event, TreeExt, IntoParentIterator, State, WindowEvent, PropSet};
 
 use crate::tree::*;
 use crate::state::animation::*;
@@ -582,12 +582,12 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
         }
 
         if should_relayout {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            Entity::root().relayout(state);
             //state.needs_relayout = true;
         }
 
         if should_redraw {
-            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+            Entity::root().redraw(state);
             //state.needs_redraw = true;
         }
     }

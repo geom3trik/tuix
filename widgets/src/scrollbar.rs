@@ -148,8 +148,6 @@ impl Widget for Scrollbar {
         
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
-                // When a relayout occurs, determine the new height of the scroll bar
-                WindowEvent::Relayout => {}
 
                 WindowEvent::MouseScroll(x, y) => {
 
@@ -259,9 +257,9 @@ impl Widget for Scrollbar {
                             self.on_scroll = Some(callback);
                         }
 
-                        state.insert_event(Event::new(WindowEvent::Restyle));
-                        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                        state.insert_event(Event::new(WindowEvent::Redraw));
+                        Entity::root().restyle(state);
+                        Entity::root().relayout(state);
+                        Entity::root().redraw(state);
                     }
                 }
 

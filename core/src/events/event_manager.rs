@@ -65,7 +65,7 @@ impl EventManager {
         self.event_queue.extend(state.event_queue.drain(0..));
 
         // Sort the events by order
-        self.event_queue.sort_by_cached_key(|event| event.order);
+        //self.event_queue.sort_by_cached_key(|event| event.order);
 
         // Loop over the events in the event queue
         'events: for event in self.event_queue.iter_mut() {

@@ -112,9 +112,7 @@ impl Widget for ControlKnob {
                         if event.target == entity {
                             self.value = ((*val).min(self.max)).max(self.min);
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::root()),
-                            );
+                            Entity::root().redraw(state);
                         }
                     }
                 }
@@ -187,9 +185,7 @@ impl Widget for ControlKnob {
                                 Event::new(SliderEvent::ValueChanged(self.value)).target(entity),
                             );
 
-                            state.insert_event(
-                                Event::new(WindowEvent::Redraw).target(Entity::root()),
-                            );
+                            Entity::root().redraw(state);
                         }
                     }
                 }

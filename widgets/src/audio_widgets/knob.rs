@@ -296,9 +296,7 @@ impl<T: NormalizedMap> Widget for Knob<T> {
 
             self.continuous_normal = self.normalized_value;
 
-            state.insert_event(
-                Event::new(WindowEvent::Redraw).target(Entity::root()),
-            );            
+            Entity::root().redraw(state);            
         }
     }
 
@@ -321,9 +319,7 @@ impl<T: NormalizedMap> Widget for Knob<T> {
                 track.normalized_value = self_ref.normalized_value;
             }
 
-            state.insert_event(
-                Event::new(WindowEvent::Redraw).target(Entity::root()),
-            );
+            Entity::root().redraw(state);
         };
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {

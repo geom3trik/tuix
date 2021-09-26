@@ -144,8 +144,10 @@ impl ApplicationRunner {
 
         WindowWidget::new().build_window(&mut state);
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        let root = Entity::root();
+
+        root.restyle(&mut state);
+        root.relayout(&mut state);
 
         let tree = state.tree.clone();
 
@@ -181,9 +183,9 @@ impl ApplicationRunner {
 
         
         if self.state.apply_animations() {
-            self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-            self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));    
-            self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));    
+            Entity::root().restyle(&mut self.state);
+            Entity::root().relayout(&mut self.state);
+            Entity::root().redraw(&mut self.state);
         }
 
         while !self.state.event_queue.is_empty() {
@@ -473,11 +475,7 @@ impl ApplicationRunner {
                         }
                     }
 
-                    self.state.insert_event(
-                        Event::new(WindowEvent::Restyle)
-                            .target(Entity::root())
-                            .origin(Entity::root()),
-                    );
+                    Entity::root().restyle(&mut self.state);
                 }
 
                 match s {
@@ -532,9 +530,9 @@ impl ApplicationRunner {
             }
             baseview::Event::Window(event) => match event {
                 baseview::WindowEvent::Focused => {
-                    self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                    self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                    self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                    Entity::root().restyle(&mut self.state);
+                    Entity::root().relayout(&mut self.state);
+                    Entity::root().redraw(&mut self.state);
                 }
                 baseview::WindowEvent::Resized(window_info) => {
                     self.scale_factor = match self.scale_policy {
@@ -574,9 +572,9 @@ impl ApplicationRunner {
 
                     self.state.data.set_clip_region(Entity::root(), bounding_box);
 
-                    self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                    self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                    self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                    Entity::root().restyle(&mut self.state);
+                    Entity::root().relayout(&mut self.state);
+                    Entity::root().redraw(&mut self.state);
 
                 }
                 baseview::WindowEvent::WillClose => {

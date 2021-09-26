@@ -735,8 +735,6 @@ impl Widget for Calculator {
 
                         _ => {}
                     }
-
-                    //state.insert_event(Event::new(WindowEvent::Restyle).target(state.root));
                 }
 
                 _ => {}

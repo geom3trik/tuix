@@ -258,8 +258,7 @@ impl Widget for ScrollContainerH {
                                 Units::Percentage(self.scroll.scroll_pos * overflow2 * 100.0),
                             ).expect("");
 
-                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()).origin(entity));
-                        
+                            Entity::root().relayout(state);
 
                             if let Some(callback) = self.on_scroll.take() {
                                 (callback)(self, state, entity);
@@ -436,10 +435,9 @@ impl Widget for ScrollContainerH {
                         //         .target(entity).origin(entity),
                         // );
 
-                        state.insert_event(Event::new(WindowEvent::Restyle));
-                        state
-                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                        state.insert_event(Event::new(WindowEvent::Redraw));
+                        Entity::root().restyle(state);
+                        Entity::root().relayout(state);
+                        Entity::root().redraw(state);
                         //println!("overflow: {}, dist: {}, ratio: {}, scrolly: {}", overflow, dist_y, r, self.scroll.scroll_pos);
                     }
                 }
@@ -815,10 +813,9 @@ impl Widget for ScrollContainer {
                         //         .target(entity).origin(entity),
                         // );
 
-                        state.insert_event(Event::new(WindowEvent::Restyle));
-                        state
-                            .insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                        state.insert_event(Event::new(WindowEvent::Redraw));
+                        Entity::root().restyle(state);
+                        Entity::root().relayout(state);
+                        Entity::root().redraw(state);
                         //println!("overflow: {}, dist: {}, ratio: {}, scrolly: {}", overflow, dist_y, r, self.scroll.scroll_pos);
                     }
                 }

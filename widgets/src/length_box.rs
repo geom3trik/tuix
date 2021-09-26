@@ -3,7 +3,7 @@ use crate::{CheckButton, Label, PopupEvent, Slider, SliderEvent, common::*};
 use crate::{Dropdown, DropdownEvent, Textbox, TextboxEvent, CheckboxEvent};
 
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum LengthBoxEvent {
     SetType(Units),
     SetValue(f32, bool),

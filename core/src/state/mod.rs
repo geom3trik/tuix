@@ -212,9 +212,9 @@ impl State {
     /// ```
     pub fn add_style_rule(&mut self, style_rule: StyleRule) {
         self.style.add_rule(style_rule);
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        Entity::root().restyle(self);
+        Entity::root().relayout(self);
+        Entity::root().redraw(self);
     }
 
     //TODO
@@ -264,9 +264,9 @@ impl State {
 
         self.style.parse_theme(&overall_theme);
 
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        Entity::root().restyle(self);
+        Entity::root().relayout(self);
+        Entity::root().redraw(self);
 
         Ok(())
     }
@@ -354,9 +354,9 @@ impl State {
         self.data.add(entity);
         self.style.add(entity);
 
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        Entity::root().restyle(self);
+        Entity::root().relayout(self);
+        Entity::root().redraw(self);
 
         entity
     }
@@ -375,9 +375,9 @@ impl State {
             self.entity_manager.destroy_entity(*entity);
         }
 
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        Entity::root().restyle(self);
+        Entity::root().relayout(self);
+        Entity::root().redraw(self);
     }
 
     // Run all pending animations
