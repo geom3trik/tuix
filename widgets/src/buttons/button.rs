@@ -1,3 +1,5 @@
+use tuix_core::{Message, WidgetEvent};
+
 use crate::common::*;
 
 /// Events sent when interacting with a button and events to set properties of a button
@@ -38,6 +40,8 @@ pub struct Button {
 
     // TEMP
     on_drop: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    on_drag_enter: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+    on_drag_leave: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 
     pub text: Option<String>,
     key: Code,
@@ -56,6 +60,8 @@ impl Button {
             on_release: None,
 
             on_drop: None,
+            on_drag_enter: None,
+            on_drag_leave: None,
 
             text: None,
             key: Code::Space,
@@ -74,6 +80,8 @@ impl Button {
             on_release: None,
 
             on_drop: None,
+            on_drag_enter: None,
+            on_drag_leave: None,
 
             text: Some(text.to_string()),
             key: Code::Space,
@@ -123,7 +131,25 @@ impl Button {
     where
         F: 'static + Fn(&mut Self, &mut State, Entity)
     {
-        self.on_release = Some(Box::new(callback));
+        self.on_drop = Some(Box::new(callback));
+        
+        self
+    }
+
+    pub fn on_drag_enter<F>(mut self, callback: F) -> Self
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_drag_enter = Some(Box::new(callback));
+        
+        self
+    }
+
+    pub fn on_drag_leave<F>(mut self, callback: F) -> Self
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_drag_leave = Some(Box::new(callback));
         
         self
     }
@@ -281,6 +307,39 @@ impl Widget for Button {
                 }
 
                 _ => {}
+            }
+        }
+    
+        if let Some(widget_event) = event.message.downcast() {
+            match widget_event {
+                WidgetEvent::Drop(source) => {
+                    println!("Receive drop: {}", source);
+                    if let Some(callback) = self.on_drop.take() {
+                        (callback)(self, state, entity);
+
+                        self.on_drop = Some(callback);
+                    }
+                }
+
+                WidgetEvent::DragEnter(source) => {
+                    println!("DRAG ENTER");
+                    if let Some(callback) = self.on_drag_enter.take() {
+                        (callback)(self, state, entity);
+
+                        self.on_drag_enter = Some(callback);
+                    }
+                }
+
+                WidgetEvent::DragLeave(source) => {
+                    println!("DRAG LEAVE");
+                    if let Some(callback) = self.on_drag_leave.take() {
+                        (callback)(self, state, entity);
+
+                        self.on_drag_leave = Some(callback);
+                    }
+                }
+
+                _=> {}
             }
         }
     }

@@ -6,7 +6,7 @@ use crate::keyboard::{scan_to_code, vcode_to_code, vk_to_key};
 
 use crate::window::Window;
 
-use tuix_core::{BoundingBox, Units};
+use tuix_core::{BoundingBox, Units, WidgetEvent};
 use tuix_core::{Entity, State};
 
 use tuix_core::state::mouse::{MouseButton, MouseButtonState};
@@ -598,6 +598,13 @@ impl Application {
                                     //state.active = Entity::null();
                                     //state.insert_event(Event::new(WindowEvent::Restyle));
                                     //state.needs_restyle = true;
+                                    
+
+                                    if state.dragged != Entity::null() {
+                                        state.insert_event(Event::new(WidgetEvent::Drop(state.dragged)).target(state.hovered).propagate(Propagation::Direct));
+                                        state.insert_event(Event::new(WidgetEvent::DragLeave(state.dragged)).target(state.hovered).propagate(Propagation::Direct));
+                                        state.dragged = Entity::null();
+                                    }
 
                                     if state.captured != Entity::null() {
                                         state.insert_event(

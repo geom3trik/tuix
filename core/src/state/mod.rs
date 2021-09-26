@@ -25,6 +25,7 @@ pub mod resource;
 pub use resource::*;
 
 
+use crate::Message;
 pub use crate::events::{Builder, Event, Propagation, Widget, EventHandler};
 pub use crate::window_event::WindowEvent;
 
@@ -78,6 +79,8 @@ pub struct State {
     pub focused: Entity,
 
     pub dragged: Entity,
+
+    pub drag_message: Option<Box<dyn Message>>,
 
 
     pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
@@ -141,6 +144,7 @@ impl State {
             captured: Entity::null(),
             focused: Entity::root(),
             dragged: Entity::null(),
+            drag_message: None,
             callbacks: FnvHashMap::default(),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
@@ -347,8 +351,14 @@ impl State {
         }  
     }
 
-    pub fn drag(&mut self, entity: Entity) {
+    pub fn drag<M>(&mut self, entity: Entity, message: Option<M>) 
+    where M: Message,
+    {
         self.dragged = entity;
+        if let Some(m) = message {
+            self.drag_message = Some(Box::new(m));
+        }
+        
     }
 
     // Adds a new entity with a specified parent
