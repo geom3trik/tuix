@@ -28,17 +28,27 @@ The driving principle behind tuix is to be a self-contained, small-as-possible, 
  
 Add tuix to your project by adding `tuix = {git = "https://github.com/geom3trik/tuix", branch = "main"}` to your projects Cargo.toml under dependencies. 
 
+### Debug Performance
+Note: in order to get acceptable performance when running your app in Debug mode, it is highly recommended to add this to the Cargo.toml of your root crate:
+
+```toml
+[profile.dev.package.tuix_core]
+opt-level = 2
+[profile.dev.package.femtovg]
+opt-level = 2
+```
+
 ## Getting Started
 
 ### Running Examples
 
 You can run any of the examples with:
 ```
-cargo run --example example_name
+cargo run --example example_name --release
 ```
 To run any example with the `baseview` backend:
 ```
-cargo run --example example_name --no-default-features --features "baseview"
+cargo run --example example_name --no-default-features --features "baseview" --release
 ```
 
 ### Hello GUI
@@ -65,7 +75,7 @@ fn main() {
 }
 ```
 
-You can run this example with: ```cargo run --example hello_gui```
+You can run this example with: ```cargo run --example hello_gui --release```
 
 # Tuix Book (In Development)
 [The Book](https://geom3trik.github.io/tuix-book/)
