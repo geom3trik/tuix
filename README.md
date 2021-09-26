@@ -34,6 +34,8 @@ Note: In order to get acceptable performance when running your app in Debug mode
 ```toml
 [profile.dev.package.tuix_core]
 opt-level = 2
+[profile.dev.package.tuix_widgets]
+opt-level = 2
 [profile.dev.package.femtovg]
 opt-level = 2
 ```
