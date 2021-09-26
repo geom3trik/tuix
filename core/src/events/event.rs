@@ -21,7 +21,7 @@ pub enum Propagation {
 }
 
 // A message is a wrapper around an Any but with the added ability to Clone the message
-pub trait Message: Any + Debug {
+pub trait Message: Any {
     // An &Any can be cast to a reference to a concrete type.
     fn as_any(&self) -> &dyn Any;
 
@@ -78,7 +78,7 @@ impl dyn Message {
 }
 
 // Implements message for any static type that implements Clone
-impl<S: 'static + PartialEq + Debug> Message for S {
+impl<S: 'static + PartialEq> Message for S {
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -97,7 +97,6 @@ impl<S: 'static + PartialEq + Debug> Message for S {
 }
 
 /// An event is a wrapper around a message and provides metadata on how the event should be propagated through the tree
-#[derive(Debug)]
 pub struct Event {
     // The entity that produced the event. Entity::null() for OS events or unspecified.
     pub origin: Entity,
