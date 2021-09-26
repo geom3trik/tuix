@@ -41,7 +41,9 @@ impl Widget for WindowWidget {
                     // apply_styles(state, &state.tree.clone());
                     // apply_visibility(state, &state.tree.clone());
                     let tree = state.tree.clone();
+                    //let start = std::time::Instant::now();
                     apply_styles(state, &tree);
+                    //println!("{:.2?} milliseconds to restyle.", start.elapsed());
                 }
 
                 WindowEvent::Relayout => {
@@ -54,6 +56,7 @@ impl Widget for WindowWidget {
                     // apply_clipping(state, &state.tree.clone());
                     // apply_layout(state, &state.tree.clone());
                     // apply_hover(state);
+                    //let start = std::time::Instant::now();
                     apply_z_ordering(state, &tree);
                     //apply_transform(state, &tree);
                     apply_visibility(state, &tree);
@@ -65,6 +68,7 @@ impl Widget for WindowWidget {
                     geometry_changed(state, &tree);
                     //println!("{:.2?} seconds for whatever you did.", start.elapsed());
                     apply_hover(state);
+                    //println!("{:.2?} milliseconds to relayout.", start.elapsed());
                 }
 
                 WindowEvent::Redraw => {

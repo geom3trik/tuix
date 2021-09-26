@@ -182,9 +182,9 @@ impl Application {
                 // REDRAW
 
                 GEvent::RedrawRequested(_) => {
-                    let start = std::time::Instant::now();
+                    //let start = std::time::Instant::now();
                     event_manager.draw(&mut state, &mut window.canvas);
-                    println!("{:.2?} seconds for whatever you did.", start.elapsed());
+                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
                     // Swap buffers
                     window
                         .handle

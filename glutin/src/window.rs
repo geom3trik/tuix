@@ -47,8 +47,9 @@ impl Window {
             });
 
         let handle = ContextBuilder::new()
-            .with_vsync(true)
+            //.with_vsync(true)
             // .with_srgb(true)
+            //.with_double_buffer(Some(false))
             .build_windowed(window_builder, &events_loop)
             .expect("Window context creation failed!");
 

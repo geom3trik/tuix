@@ -35,6 +35,10 @@ pub enum ButtonEvent {
 pub struct Button {
     on_press: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
     on_release: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+
+    // TEMP
+    on_drop: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
+
     pub text: Option<String>,
     key: Code,
 }
@@ -50,6 +54,9 @@ impl Button {
         Button {
             on_press: None,
             on_release: None,
+
+            on_drop: None,
+
             text: None,
             key: Code::Space,
         }
@@ -65,6 +72,9 @@ impl Button {
         Button {
             on_press: None,
             on_release: None,
+
+            on_drop: None,
+
             text: Some(text.to_string()),
             key: Code::Space,
         }
@@ -107,6 +117,17 @@ impl Button {
         self.on_release = Some(Box::new(callback));
         self
     }
+
+
+    pub fn on_drop<F>(mut self, callback: F) -> Self
+    where
+        F: 'static + Fn(&mut Self, &mut State, Entity)
+    {
+        self.on_release = Some(Box::new(callback));
+        
+        self
+    }
+
 
     /// Set the keyboard key which triggers the button.
     ///

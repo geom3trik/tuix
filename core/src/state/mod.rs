@@ -77,6 +77,8 @@ pub struct State {
     // Focused entity
     pub focused: Entity,
 
+    pub dragged: Entity,
+
 
     pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
 
@@ -138,6 +140,7 @@ impl State {
             active: Entity::null(),
             captured: Entity::null(),
             focused: Entity::root(),
+            dragged: Entity::null(),
             callbacks: FnvHashMap::default(),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
@@ -342,6 +345,10 @@ impl State {
                 self.insert_event(Event::new(WindowEvent::FocusIn).target(self.focused));
             }
         }  
+    }
+
+    pub fn drag(&mut self, entity: Entity) {
+        self.dragged = entity;
     }
 
     // Adds a new entity with a specified parent

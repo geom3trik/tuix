@@ -140,6 +140,7 @@ impl Selector {
         }
     }
 
+    // TO BE REMOVED
     pub fn matches(&self, entity_selector: &Selector) -> bool {
         // Universal selector always matches
         if self.asterisk {

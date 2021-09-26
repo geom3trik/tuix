@@ -1,4 +1,4 @@
-use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, State, Units, Visibility, WindowEvent};
+use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, State, Units, Visibility, WidgetEvent, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {

@@ -15,6 +15,9 @@ pub use builder::*;
 pub mod window_event;
 pub use window_event::*;
 
+pub mod widget_event;
+pub use widget_event::*;
+
 pub mod window_description;
 pub use window_description::*;
 
