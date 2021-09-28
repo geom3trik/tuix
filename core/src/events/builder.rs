@@ -1,4 +1,4 @@
-use crate::state::style::*;
+use crate::state::*;
 use crate::{Entity, EventHandler, State, Widget};
 
 use std::{cell::RefCell, marker::PhantomData};

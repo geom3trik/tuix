@@ -5,57 +5,57 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
-use crate::tree::Tree;
+use crate::Tree;
 use crate::state::storage::animatable_storage::AnimatableStorage;
 use crate::state::storage::dense_storage::DenseStorage;
 use crate::state::storage::style_storage::StyleStorage;
-use crate::theme::StyleParseError;
-use crate::{entity::Entity, Transition};
+use crate::{Entity, Transition};
 
 use crate::Interpolator;
 
 use crate::state::animation::AnimationState;
 
-pub mod themes;
+mod themes;
 
-pub mod theme;
+mod theme;
+pub use theme::StyleParseError;
 
-pub mod prop;
+mod prop;
 pub use prop::{PropGet, PropSet};
 
-pub mod layout;
+mod layout;
 pub use layout::*;
 
 pub use morphorm::{LayoutType, PositionType, Units};
 pub use Units::*;
 
-pub mod units;
+mod units;
 
-pub mod gradient;
+mod gradient;
 pub use gradient::*;
 
-pub mod shadow;
+mod shadow;
 pub use shadow::*;
 
-pub mod display;
+mod display;
 pub use display::*;
 
-pub mod property;
+mod property;
 pub use property::*;
 
-pub mod selector;
+mod selector;
 pub use selector::*;
 
-pub mod specificity;
+mod specificity;
 pub use specificity::*;
 
-pub mod rule;
+mod rule;
 pub use rule::*;
 
-pub mod color;
+mod color;
 pub use color::Color;
 
-pub mod transform;
+mod transform;
 pub use transform::*;
 
 use std::rc::Rc;
@@ -64,7 +64,7 @@ use std::rc::Rc;
 
 #[derive(Clone, Default)]
 pub struct Style {
-    pub rules: Vec<StyleRule>,
+    pub(crate) rules: Vec<StyleRule>,
 
     pub default_font: String,
 
@@ -246,10 +246,6 @@ impl Style {
 
                     Property::None => {
                         //
-                    }
-
-                    Property::Unknown(ident, prop) => {
-
                     }
 
                     Property::Display(value) => {
@@ -1173,7 +1169,7 @@ impl Style {
     */
 
     // TODO
-    pub fn set_property(&mut self, entity: Entity, propert: Property) {}
+    //pub fn set_property(&mut self, entity: Entity, propert: Property) {}
 
     // Add style data to an entity
     pub(crate) fn add(&mut self, entity: Entity) {

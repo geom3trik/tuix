@@ -1,6 +1,6 @@
 /// A simple tuix application showing a widget with an image background
 use tuix::*;
-
+use tuix::widgets::*;
 //use image::GenericImageView;
 
 fn main() {

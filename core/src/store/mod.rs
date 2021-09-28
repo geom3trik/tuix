@@ -1,16 +1,16 @@
 #[allow(unused_variables)]
 
-pub mod node;
-pub mod lens;
+mod node;
+mod lens;
 use std::{any::TypeId, collections::HashSet};
 
 pub use node::*;
-pub use lens::*;
+pub use lens::{Lens, LensExt};
 
 use crate::{IntoChildIterator};
 use crate::{State, Entity, Event, Widget, Propagation, PropSet};
 
-use crate::events::event_handler::Canvas;
+use crate::Canvas;
 
 pub trait Model {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {

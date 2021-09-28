@@ -1,8 +1,8 @@
-use crate::{Node, PropType, events::{Event, EventManager, Message}, state};
+use crate::{Canvas, Node, PropType, events::{Event, EventManager, Message}, state};
 
 use fnv::FnvHashMap;
 
-use crate::builder::Builder;
+use crate::Builder;
 
 use crate::{Entity, Tree, State};
 
@@ -14,11 +14,9 @@ use femtovg::{
 };
 //use image::Pixels;
 
-use crate::style::{Direction, Justify, Units, Visibility};
+use crate::{Direction, Units, Visibility};
 
 use std::any::{Any, TypeId};
-
-pub type Canvas = femtovg::Canvas<OpenGl>;
 
 pub trait EventHandler: Any {
 

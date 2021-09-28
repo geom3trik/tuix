@@ -1,17 +1,17 @@
 use std::fmt::write;
 
-use crate::entity::Entity;
+use crate::Entity;
 
 use super::Property;
 
 use crate::state::storage::dense_storage::DenseStorage;
 
-use crate::style::*;
+use super::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct StyleRule {
-    pub selectors: Vec<Selector>,
-    pub properties: Vec<Property>,
+    pub(crate) selectors: Vec<Selector>,
+    pub(crate) properties: Vec<Property>,
 }
 
 // impl std::fmt::Display for StyleRule {
@@ -53,11 +53,11 @@ impl StyleRule {
         self
     }
 
-    pub fn property(mut self, property: Property) -> Self {
-        self.properties.push(property);
+    // pub fn property(mut self, property: Property) -> Self {
+    //     self.properties.push(property);
 
-        self
-    }
+    //     self
+    // }
 
     pub fn specificity(&self) -> Specificity {
         let mut specificity = Specificity([0, 0, 0]);

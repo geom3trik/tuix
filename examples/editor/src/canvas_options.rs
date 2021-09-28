@@ -1,5 +1,6 @@
 
 use tuix::*;
+use tuix::widgets::*;
 
 #[derive(Default)]
 pub struct CanvasOptionsDropdown {

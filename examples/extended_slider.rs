@@ -1,5 +1,5 @@
 use tuix::*;
-
+use tuix::widgets::*;
 // Example showing extending the slider widget, adding on_press and on_release callbacks
 
 

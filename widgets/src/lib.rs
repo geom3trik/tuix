@@ -1,17 +1,17 @@
 
-pub mod element;
+mod element;
 pub use element::Element;
 
-pub mod buttons;
+mod buttons;
 pub use buttons::*;
 
-pub mod inputs;
+mod inputs;
 pub use inputs::*;
 
-pub mod popups;
+mod popups;
 pub use popups::*;
 
-pub mod menus;
+mod menus;
 pub use menus::*;
 
 // pub mod scrollbar;
@@ -23,34 +23,34 @@ pub use menus::*;
 // pub mod combobox;
 // pub use combobox::*;
 
-pub mod tab;
+mod tab;
 pub use tab::*;
 
-pub mod dropdown;
+mod dropdown;
 pub use dropdown::*;
 
-pub mod scroll_container;
+mod scroll_container;
 pub use scroll_container::*;
 
-pub mod scrollbar;
+mod scrollbar;
 pub use scrollbar::*;
 
 // pub mod value_slider;
 // pub use value_slider::ValueSlider;
 
-pub mod color_picker;
+mod color_picker;
 pub use color_picker::*;
 
-pub mod length_box;
+mod length_box;
 pub use length_box::*;
 
-pub mod panel;
+mod panel;
 pub use panel::*;
 
-pub mod label;
+mod label;
 pub use label::*;
 
-pub mod containers;
+mod containers;
 pub use containers::*;
 
 // pub mod tooltip;
@@ -60,12 +60,12 @@ pub use containers::*;
 // pub use text_area::*;
 
 // Audio Widgets
-pub mod audio_widgets;
+mod audio_widgets;
 pub use audio_widgets::*;
 
 // pub mod debug_container;
 // pub use debug_container::*;
 
 
-pub mod common;
+mod common;
 pub use common::*;

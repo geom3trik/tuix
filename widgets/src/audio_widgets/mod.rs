@@ -7,8 +7,8 @@
 // pub mod value_knob;
 // pub use value_knob::*;
 
-pub mod knob;
+mod knob;
 pub use knob::*;
 
-pub mod normalized_map;
+mod normalized_map;
 pub use normalized_map::*;

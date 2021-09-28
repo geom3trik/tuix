@@ -1,8 +1,8 @@
 extern crate tuix;
 
 use tuix::*;
+use tuix::widgets::*;
 
-use tuix::{Panel, ResizableColumn, ScrollContainer};
 
 static THEME: &'static str = include_str!("themes/treeview_theme.css");
 

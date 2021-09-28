@@ -1,9 +1,9 @@
-use crate::entity::Entity;
+use crate::Entity;
 
 use crate::state::animation::Interpolator;
-use crate::style::color::Color;
+use crate::Color;
 
-use crate::style::Units;
+use crate::Units;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct BoxShadow {

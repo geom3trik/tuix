@@ -1,4 +1,4 @@
-pub mod animatable_storage;
-pub mod dense_storage;
-pub mod style_storage;
-pub mod dense_vec;
+pub(crate) mod animatable_storage;
+pub(crate) mod dense_storage;
+pub(crate) mod style_storage;
+pub(crate) mod dense_vec;

@@ -1,6 +1,6 @@
 use morphorm::GeometryChanged;
 use crate::{Message, State, Widget};
-use crate::{entity::Entity, Builder, EventHandler, Propagation};
+use crate::{Entity, Builder, EventHandler, Propagation};
 use crate::{state::style::*, AsEntity, Pos};
 
 use crate::{Event, WindowEvent};
@@ -11,29 +11,16 @@ use morphorm::{Cache, LayoutType, PositionType, Units};
 
 use std::rc::Rc;
 
-// // Flag that the posx of the widget may need to update
-// fn flag_geo_change(state: &mut State, entity: Entity) {
-//     if let Some(parent) = entity.parent(&state.tree) {
-//         if let Some(geo_changed) = state.data.geometry_changed.get_mut(parent.index_unchecked()) {
-//             geo_changed.set(GeometryChanged::CHANGE_POSX, true);
-//         }         
-//     }
-
-//     // if let Some(geo_changed) = state.data.geometry_changed.get_mut(entity.index_unchecked()) {
-//     //     geo_changed.set(GeometryChanged::CHANGE_POSX, true);
-//     // }
-
-// }
-
-fn needs_redraw(state: &mut State, entity: Entity) {
-    if let Some(geo_changed) = state.data.geometry_changed.get_mut(entity.index_unchecked()) {
-        geo_changed.set(GeometryChanged::POSX_CHANGED, true);
-    }
-}
 
 pub trait PropSet: AsEntity + Sized {
 
-    /// Helper method for sending an event to self with default propagation
+    /// Helper method for sending an event to self with upward propagation
+    ///
+    /// # Example
+    /// Adds an event with a `WindowEvent::Close` message to the event queue to be sent up the tree
+    /// ```
+    /// entity.emit(state, WindowEvent::Close);
+    /// ``` 
     fn emit(&self, state: &mut State, message: impl Message) -> Entity
     where
         Self: 'static,
@@ -43,13 +30,41 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    /// Helper method for sending an event to target with default propagation
+    /// Helper method for sending an event to target with direct propagation
+    ///
+    /// # Example
+    /// Adds an event with a `WindowEvent::Close` message to the event queue to be sent directly to the `target` entity
+    /// ```
+    /// entity.emit_to(state, target, WindowEvent::Close);
+    /// ```
     fn emit_to(&self, state: &mut State, target: Entity, message: impl Message) -> Entity {
         state.insert_event(Event::new(message).target(target).origin(self.entity()).propagate(Propagation::Direct));
 
         self.entity()
     }
 
+    /// Adds an event listener to an entity
+    ///
+    /// An event listener is a callback which is called before normal event handling takes place.
+    /// This allows entities with listeners to intercept events when they might normally be unable to.
+    /// For example, a popup uses a listener to respond to mouse press events outside of its bounds to
+    /// close the popup.
+    /// 
+    /// # Example
+    /// Add a listener to a button which changes its background color to red when the mouse enters its bounds
+    /// ```
+    /// entity.add_listener(state, |button: &mut Button, state, entity, event|{
+    ///     if let Some(window_event) = event.message.downcast() {
+    ///         match window_event {
+    ///             WindowEvent::MouseEnter => {
+    ///                 entity.set_background_color(state, Color::red());
+    ///             }
+    ///
+    ///             _=> {}
+    ///         }
+    ///     }   
+    /// });
+    /// ```
     fn add_listener<F,W>(&self, state: &mut State, listener: F) -> Entity
     where 
         W: Widget, 
@@ -64,18 +79,43 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Force a restyle
+    ///
+    /// Sends a `WindowEvent::Restyle` message to the root window.
+    ///
+    /// # Example
+    /// ```
+    /// entity.restyle(state);
+    /// ```
     fn restyle(&self, state: &mut State) {
         state.insert_event(Event::new(WindowEvent::Restyle).target(self.entity()).origin(self.entity()).unique());
     }
 
+    /// Force a relayout
+    ///
+    /// Sends a `WindowEvent::Relayout` message to the root window.
+    ///
+    /// # Example
+    /// ```
+    /// entity.relayout(state);
+    /// ```
     fn relayout(&self, state: &mut State) {
         state.insert_event(Event::new(WindowEvent::Relayout).target(self.entity()).origin(self.entity()).unique());
     }
 
+    /// Force a redraw
+    ///
+    /// Sends a `WindowEvent::Redraw` message to the root window.
+    ///
+    /// # Example
+    /// ```
+    /// entity.redraw(state);
+    /// ```
     fn redraw(&self, state: &mut State) {
         state.insert_event(Event::new(WindowEvent::Redraw).target(self.entity()).origin(self.entity()).unique());
     }
 
+    // TODO
     fn set_name(self, state: &mut State, name: &str) -> Entity {
         state.style.name.insert(self.entity(), name.to_string());
 
@@ -83,6 +123,27 @@ pub trait PropSet: AsEntity + Sized {
     }
 
     /// Add a class name to an entity
+    ///
+    /// Class names are used by the style system to assign style properties to entities.
+    /// An entity can have mutiple assigned unique class names with repeated calls of this function.
+    /// These class names can be referred to in css selectors, for example:
+    /// ```css
+    /// .foo {
+    ///     background-color: red;
+    /// }
+    /// ```
+    /// This style rule will apply a red background color to any entities with a class name `foo`.
+    ///
+    /// # Examples
+    /// Adds a class name `foo` and to an entity:
+    /// ```
+    /// entity.class("foo");
+    /// ```
+    ///
+    /// Adds a class name `foo` and a class name `bar` to an entity:
+    /// ```
+    /// entity.class(state, "foo").class(state, "bar");
+    /// ```
     fn class(self, state: &mut State, class_name: &str) -> Entity {
         if let Some(class_list) = state.style.classes.get_mut(self.entity()) {
             class_list.insert(class_name.to_string());
@@ -96,8 +157,6 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
 
-        ////flag_geo_change(state, self.entity());
-
         self.entity()
     }
 
@@ -108,6 +167,23 @@ pub trait PropSet: AsEntity + Sized {
 
     // Pseudoclass
 
+    /// Sets the entities disbaled state to the given flag.
+    ///
+    /// A flag value of true will set the entity to disabled, while a flag value of false will set the entity to not disabled.
+    /// The `disabled` pseudoclasses in css can be used to select entities in a disabled state, for example:
+    /// ```css
+    /// button:disabled {
+    ///     background-color: red;   
+    /// }
+    /// ```
+    /// This style rule will apply a red background to any disabled buttons.
+    /// While css has an `enabled` pseudoclass, this is not used in tuix.
+    ///
+    /// # Example
+    /// Sets the entity to disabled:
+    /// ```
+    /// entity.set_disabled(state, true);
+    /// ```
     fn set_disabled(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
             pseudo_classes.set(PseudoClasses::DISABLED, value);
@@ -122,6 +198,22 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Sets the entities checked state to the given flag.
+    ///
+    /// A flag value of true will set the entity to checked, while a flag value of false will set the entity to not checked.
+    /// The `checked` pseudoclasses in css can be used to select entities in a checked state, for example:
+    /// ```css
+    /// checkbox:checked {
+    ///     background-color: red;   
+    /// }
+    /// ```
+    /// This style rule will apply a red background to any checked checkboxes.
+    ///
+    /// # Example
+    /// Sets the entity to checked:
+    /// ```
+    /// entity.set_checked(state, true);
+    /// ```
     fn set_checked(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
             pseudo_classes.set(PseudoClasses::CHECKED, value);
@@ -193,6 +285,24 @@ pub trait PropSet: AsEntity + Sized {
     }
 
     // Style
+    /// Sets the element name of the entity.
+    ///
+    /// The element name can be used in css to select entities of a particular type, for example:
+    /// ```css
+    /// button {
+    ///     background-color: red;   
+    /// }
+    /// ```
+    /// This style rule will set the background color of all buttons to red.
+    /// Element names are unique, so calling this method again will replace the previous element name.
+    /// The element name is supposed to be unique to a widget type, e.g. a button, but this is not guaranteed
+    /// by this function and so this function should be called once within the `on_build` method of a [Widget].
+    ///
+    /// # Example
+    /// Sets the element name to `foo`:
+    /// ```
+    /// entity.set_element(state, "foo");
+    /// ```
     fn set_element(self, state: &mut State, value: &str) -> Entity {
 
         state.style.elements.insert(self.entity(), value.to_string());
@@ -202,13 +312,23 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    // TODO
     fn set_id(self, state: &mut State, value: &str) -> Entity {
         todo!();
 
         self.entity()
     }
 
-    // Visibility
+    /// Sets the visibility of an entity.
+    ///
+    /// Visibility determines whether an entity will be rendered. Invisible entities are still acted on by the layout system.
+    /// To make an entity invisible to both the rendering and layout systems, use `set_display()`.
+    ///
+    /// # Examples
+    /// Sets the entity to be invisible:
+    /// ```
+    /// entity.set_visibility(state, Visibility::Invisible);
+    /// ``` 
     fn set_visibility(self, state: &mut State, value: Visibility) -> Entity {
         state.style.visibility.insert(self.entity(), value);
 
@@ -216,11 +336,18 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
 
-        //flag_geo_change(state, self.entity());
-
         self.entity()
     }
 
+    /// Sets whether the entity can be hovered.
+    ///
+    /// Entities which are *not* hoverable will not receive mouse events and cannot be selected in css
+    /// with the `:hover` pseudoclass.
+    ///
+    /// # Example
+    /// ```
+    /// entity.set_hoverable(state, false);
+    /// ```
     fn set_hoverable(self, state: &mut State, value: bool) -> Entity {
         state.data.set_hoverable(self.entity(), value);
 
@@ -231,6 +358,15 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Sets whether the entity can be focused.
+    ///
+    /// Entities which are *not* focusable will not receive keyboard events and cannot be selected in css
+    /// with the `:focus` pseudoclass.
+    ///
+    /// # Example
+    /// ```
+    /// entity.set_focusable(state, false);
+    /// ```
     fn set_focusable(self, state: &mut State, value: bool) -> Entity {
         state.data.set_focusable(self.entity(), value);
 
@@ -242,6 +378,7 @@ pub trait PropSet: AsEntity + Sized {
     }
 
     // Overflow
+    // TODO
     fn set_overflow(self, state: &mut State, value: Overflow) -> Entity {
         state.style.overflow.insert(self.entity(), value);
 
@@ -253,6 +390,16 @@ pub trait PropSet: AsEntity + Sized {
     }
 
     // Display
+    /// Sets whether the entity should be displayed.
+    /// 
+    /// The display property of an entity can be set to either `Display::Flex` or `Display::None`.
+    /// A non-displayed entity will not be rendered or acted on by the layout system. To make an entity
+    /// invisible but remain part of layout, use `set_visibility()`.
+    ///
+    /// # Example
+    /// ```
+    /// entity.set_display(state, Display::None);
+    /// ``` 
     fn set_display(self, state: &mut State, value: Display) -> Entity {
         state.style.display.insert(self.entity(), value);
 
@@ -265,7 +412,9 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    //Opacity
+    /// Sets the opacity of an entity.
+    ///
+    ///
     fn set_opacity(self, state: &mut State, value: f32) -> Entity {
         state.style.opacity.insert(self.entity(), Opacity(value));
 
@@ -276,7 +425,9 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    // Rotate
+    /// Rotate the entity by a given number of degrees.
+    /// 
+    /// 
     fn set_rotate(self, state: &mut State, value: f32) -> Entity {
         state.style.rotate.insert(self.entity(), value);
 
@@ -285,6 +436,9 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Translate the entity by an amount in (x, y)
+    ///
+    /// To position an entity, use the layout properties.
     fn set_translate(self, state: &mut State, value: (f32, f32)) -> Entity {
         state.style.translate.insert(self.entity(), value);
 
@@ -301,7 +455,22 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    // Position
+    /// Set the positon type of the entity.
+    ///
+    /// The position type determines whether an entity will be placed in a stack or grid with its siblings (`PositionType::ParentDirected`),
+    /// or will ignore its siblings when positioned (`PositionType::SelfDirected`). A self-directed child in similar to absolute positioning in
+    /// css but is relative to the parents top-left corner.
+    ///
+    /// # Example
+    /// Set the entity to be self-directed, ignroing the size and positioning of its siblings:
+    /// ```
+    /// entity.set_position_type(state, PositionType::SelfDirected);
+    /// ```
+    ///
+    /// # CSS
+    /// ```css
+    /// position-type: parent-directed (default) | self-directed  
+    /// ```
     fn set_position_type(self, state: &mut State, value: PositionType) -> Entity {
         state.style.positioning_type.insert(self.entity(), value);
 
@@ -311,6 +480,23 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the space on all sides of an entity.
+    ///
+    /// This is equivalent to setting the `left`, `right`, `top`, and `bottom` properties.
+    /// Space can be specified as pixels, percentage, stretch, or auto, and can be thought of like adding margins. 
+    /// Space is set to auto by default and so is controlled by the parent `child-space`.
+    /// 
+    ///
+    /// Examples:
+    /// Position a solo entity in the center of its parent by adding stretch space to all sides:
+    /// ```
+    /// entity.set_space(state, Stratch(1.0));
+    /// ``` 
+    /// 
+    /// # CSS
+    /// ```css
+    /// space: {}px | {}% | {}s | auto
+    /// ```
     fn set_space(self, state: &mut State, value: Units) -> Entity {
         state.style.left.insert(self.entity(), value);
         state.style.right.insert(self.entity(), value);
@@ -324,6 +510,20 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     } 
 
+    /// Set the space on the left side of an entity.
+    ///
+    ///
+    ///
+    /// # Examples
+    /// Position an entity 5 pixels from the left edge of its parent
+    /// ```
+    /// entity.set_left(state, Pixels(5.0));
+    /// ```
+    /// 
+    /// Center the entity horizontally by adding stretch space to the left and right sides. 
+    /// ```
+    /// entity.set_left(state, Stratch(1.0)).set_right(state, Stretch(1.0))
+    /// ```
     fn set_left(self, state: &mut State, value: Units) -> Entity {
         //println!("Set Left {} {} {:?}", self.entity(), state.style.elements.get(self.entity()).cloned().unwrap_or_default(), value);
         state.style.left.insert(self.entity(), value);
@@ -334,6 +534,22 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the space on the right side of an entity.
+    ///
+    /// For a fixed width entity (not stretch), left spacing will override right spacing when both in pixels.
+    /// So if left is 5 px and right is 5 px, the entity will be positioned 5 pixels from the left edge.
+    /// Set left to stretch to position from the right edge. 
+    ///
+    /// # Examples
+    /// Position an entity 5 pixels from the right edge of its parent. Notice that left space must be set to stretch.
+    /// ```
+    /// entity.set_right(state, Pixels(5.0)).set_left(state, Stretch(1.0));
+    /// ```
+    /// 
+    /// Center the entity horizontally by adding stretch space to the left and right sides. 
+    /// ```
+    /// entity.set_left(state, Stratch(1.0)).set_right(state, Stretch(1.0))
+    /// ```
     fn set_right(self, state: &mut State, value: Units) -> Entity {
         state.style.right.insert(self.entity(), value);
 
@@ -365,7 +581,7 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    // Position Constraints
+    /// Set the minimum space to the left of an entity.
     fn set_min_left(self, state: &mut State, value: Units) -> Entity {
         state.style.min_left.insert(self.entity(), value);
 
@@ -377,6 +593,7 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the maximum space to the left of the entity.
     fn set_max_left(self, state: &mut State, value: Units) -> Entity {
         state.style.max_left.insert(self.entity(), value);
 
@@ -388,6 +605,7 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the mimimum space to the right of the entity.
     fn set_min_right(self, state: &mut State, value: Units) -> Entity {
         state.style.min_right.insert(self.entity(), value);
 
@@ -399,6 +617,7 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the maximum space to the right of the entity.
     fn set_max_right(self, state: &mut State, value: Units) -> Entity {
         state.style.max_right.insert(self.entity(), value);
 
@@ -410,6 +629,7 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the mimimum space above the entity.
     fn set_min_top(self, state: &mut State, value: Units) -> Entity {
         state.style.min_top.insert(self.entity(), value);
 
@@ -421,6 +641,7 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the maximum space above the entity.
     fn set_max_top(self, state: &mut State, value: Units) -> Entity {
         state.style.max_top.insert(self.entity(), value);
 
@@ -432,6 +653,7 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the minimum space below the entity.
     fn set_min_bottom(self, state: &mut State, value: Units) -> Entity {
         state.style.min_bottom.insert(self.entity(), value);
 
@@ -443,6 +665,7 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the maximum space below the entity.
     fn set_max_bottom(self, state: &mut State, value: Units) -> Entity {
         state.style.max_bottom.insert(self.entity(), value);
 
@@ -454,7 +677,9 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    // Size
+    /// Set the desired width of the entity.
+    ///
+    ///
     fn set_width(self, state: &mut State, value: Units) -> Entity {
         
         state.style.width.insert(self.entity(), value);
@@ -465,6 +690,9 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the desired height of the entity.
+    ///
+    ///
     fn set_height(self, state: &mut State, value: Units) -> Entity {
         //println!("Set Height: {} {:?}", self.entity(), value);
         state.style.height.insert(self.entity(), value);
@@ -520,7 +748,15 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    // Text
+    /// Set text that will be displayed within the entity.
+    ///
+    /// Text within an entity can be positioned with the `child-space` propeties.
+    ///
+    /// # Example
+    /// Set the entity to display the text `Hello World`.
+    /// ```
+    /// entity.set_text(state, "Hello World");
+    /// ```
     fn set_text(self, state: &mut State, text: &str) -> Entity {
         state.style.text.insert(self.entity(), text.to_owned());
 
@@ -529,7 +765,19 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    // Text Font
+    /// Set the font of the text displayed within the entity.
+    /// 
+    /// Fonts are identified by a string key which is specified when adding a font with `state.add_font_mem()`.
+    /// There are 3 built-in fonts which can be used without having to add any font data:
+    ///  1. `roboto` - Roboto-Regular.ttf (Default)
+    ///  2. `roboto-bold` - Roboto-Bold.ttf
+    ///  3. `icon` - entypo.ttf
+    /// 
+    /// # Example
+    /// Sets the font to the icon font (entypo) for the text displayed within the entity:
+    /// ```
+    /// entity.set_font("icon");
+    /// ```
     fn set_font(self, state: &mut State, font: &str) -> Entity {
         state.style.font.insert(self.entity(), font.to_owned());
 
@@ -538,6 +786,17 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the size of the font for the text displayed within the entity.
+    ///
+    /// # Example
+    /// ```
+    /// entity.set_font_size(state, 20.0)
+    /// ```
+    /// 
+    /// # CSS
+    /// ```css
+    /// font-size: {} | {}px | {}% | xx-small | x-small | small | medium | large | x-large | xx-large
+    /// ```
     fn set_font_size(self, state: &mut State, value: f32) -> Entity {
         state.style.font_size.insert(self.entity(), value);
 
@@ -546,6 +805,18 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the font color for the text diaplyed within the entity.
+    ///
+    /// # Example
+    /// Set the font color to red:
+    /// ```
+    /// entity.set_color(state, Color::red());
+    /// ```
+    /// 
+    /// # CSS
+    /// ```css
+    /// color: color_name | #hex_code
+    /// ```
     fn set_color(self, state: &mut State, value: Color) -> Entity {
         state.style.font_color.insert(self.entity(), value);
 
@@ -563,17 +834,36 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    // Background
+    /// Sets the background color of the entity.
+    ///
+    /// Background color can be specified with an alpha component but the opacity property will apply as well.
+    /// So a background color with an alpha of 0.5 and an opacity property value of 0.5 is equivalent to
+    /// an entity with a background alpha of 0.25.
+    /// Background color is overridden by background gradient.
+    ///
+    /// # Examples
+    /// Set the background color of the entity to red:
+    /// ```
+    /// entity.set_background_color(Color::red());
+    /// ```
+    /// Set the background color of the entity with individual red, green, and blue components:
+    /// ```
+    /// entity.set_background_color(Color::rgb(255, 50, 50));
+    /// ```
+    ///
+    /// # CSS
+    /// ```css
+    /// background-color: color_name | #hex_code
+    /// ```
     fn set_background_color(self, state: &mut State, value: Color) -> Entity {
         state.style.background_color.insert(self.entity(), value);
 
         Entity::root().redraw(state);
 
-        needs_redraw(state, self.entity());
-
         self.entity()
     }
 
+    // TODO
     fn set_background_image(self, state: &mut State, value: Rc<()>) -> Entity {
         state.style.background_image.insert(self.entity(), value);
 
@@ -582,7 +872,23 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-    // Border
+    /// Set the border width of the entity.
+    ///
+    /// The border width applies to all sides of the entity shape, including beveled and rounded corners.
+    /// A border may not be visible after setting the width due to the default border color having 0 alpha.
+    /// Border width uses the same units as size and space but only the pixels and percentage variants do anything.
+    /// 
+    ///
+    /// # Example
+    /// Set the border width of the entity to 2 pixels and set the border color to black:
+    /// ```
+    /// entity.set_border_width(state, Units::Pixels(2.0)).set_border_color(Color::black());
+    /// ```
+    /// 
+    /// # CSS
+    /// ```css
+    /// border-width: {}px | {}%
+    /// ```
     fn set_border_width(self, state: &mut State, value: Units) -> Entity {
         state.style.border_width.insert(self.entity(), value);
 
@@ -591,6 +897,20 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the border color of the entity.
+    ///
+    /// By default the border-width is 0 pixels, so make sure to set both the color and width of the border to see a result.
+    ///
+    /// # Example
+    /// Set the border width of the entity to 2 pixels and set the border color to black:
+    /// ```
+    /// entity.set_border_width(state, Units::Pixels(2.0)).set_border_color(Color::black());
+    /// ```
+    /// 
+    /// # CSS
+    /// ```css
+    /// border-color: color_name | #hex_code
+    /// ```
     fn set_border_color(self, state: &mut State, value: Color) -> Entity {
         state.style.border_color.insert(self.entity(), value);
 
@@ -599,6 +919,21 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the corner shape of the entity for all four corners.
+    ///
+    /// Border corners can be rounded (`BorderCornerShape::Round`), which is the default, or bevelled (`BorderCornerShape::Bevel`).
+    /// The corner shape will only be visible with a non-zero border-radius in the corresponding corner.
+    ///
+    /// # Example
+    /// Sets the border corner shape to bevelled witn a radius of 10 pixels
+    /// ```
+    /// entity.set_border_corner_shape(state, BorderCornerShape::Bevel).set_border_radius(state, Pixels(10.0));
+    /// ```
+    /// 
+    /// # CSS
+    /// ```css
+    /// border-corner-shape: round | bevel
+    /// ```
     fn set_border_corner_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
         state.style.border_shape_top_left.insert(self.entity(), value);
         state.style.border_shape_top_right.insert(self.entity(), value);
@@ -610,6 +945,8 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the border corner shape for the top left corner of the entity.
+    ///
     fn set_border_top_left_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
         state.style.border_shape_top_left.insert(self.entity(), value);
 
@@ -618,6 +955,8 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the border corner shape for the top right corner of the entity.
+    ///
     fn set_border_top_right_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
         state.style.border_shape_top_right.insert(self.entity(), value);
 
@@ -626,6 +965,8 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the border corner shape for the bottom left corner of the entity.
+    ///
     fn set_border_bottom_left_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
         state.style.border_shape_bottom_left.insert(self.entity(), value);
 
@@ -634,6 +975,8 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    /// Set the border corner shape for the bottom right corner of the entity.
+    ///
     fn set_border_bottom_right_shape(self, state: &mut State, value: BorderCornerShape) -> Entity {
         state.style.border_shape_bottom_right.insert(self.entity(), value);
 
@@ -643,7 +986,9 @@ pub trait PropSet: AsEntity + Sized {
     }
 
 
-    // Border Radius
+    /// Set the border radius of the entity for all four corners.
+    ///
+    ///
     fn set_border_radius(self, state: &mut State, value: Units) -> Entity {
         state.style.border_radius_top_left.insert(self.entity(), value);
         state.style.border_radius_top_right.insert(self.entity(), value);
@@ -785,9 +1130,21 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
-
-    //fn mutate<F: FnMut(Builder<Self>) -> Builder<Self>>(self, state: &mut State, builder: F) -> Self;
-
+    /// Set the layout type of the entity.
+    ///
+    /// Layout type determines how child entities which are parent-directed will be positioned.
+    /// The layout type can be `row`, `column`, or `grid`.
+    ///
+    /// # Exmaples
+    /// Position children into a vertical stack:
+    /// ```
+    /// entity.set_layout_type(state, LayoutType::Column);
+    /// ```
+    /// 
+    /// # CSS
+    /// ```css
+    /// layout-type: row | column | grid
+    /// ```
     fn set_layout_type(&self, state: &mut State, value: LayoutType) -> Entity {
         state.style.layout_type.insert(self.entity(), value);
 
@@ -808,8 +1165,6 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
 
-        //flag_geo_change(state, self.entity());
-
         self.entity()
     }
 
@@ -818,8 +1173,6 @@ pub trait PropSet: AsEntity + Sized {
 
         Entity::root().relayout(state);
         Entity::root().redraw(state);
-
-        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -830,8 +1183,6 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
 
-        //flag_geo_change(state, self.entity());
-
         self.entity()
     }
 
@@ -840,8 +1191,6 @@ pub trait PropSet: AsEntity + Sized {
 
         Entity::root().relayout(state);
         Entity::root().redraw(state);
-
-        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -852,8 +1201,6 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
 
-        //flag_geo_change(state, self.entity());
-
         self.entity()
     }
 
@@ -862,8 +1209,6 @@ pub trait PropSet: AsEntity + Sized {
 
         Entity::root().relayout(state);
         Entity::root().redraw(state);
-
-        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -874,8 +1219,6 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
 
-        //flag_geo_change(state, self.entity());
-
         self.entity()
     }
 
@@ -884,7 +1227,6 @@ pub trait PropSet: AsEntity + Sized {
 
         Entity::root().relayout(state);
         Entity::root().redraw(state);
-        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -895,8 +1237,6 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
 
-        //flag_geo_change(state, self.entity());
-
         self.entity()
     }
 
@@ -905,8 +1245,6 @@ pub trait PropSet: AsEntity + Sized {
 
         Entity::root().relayout(state);
         Entity::root().redraw(state);
-
-        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -917,8 +1255,6 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
 
-        //flag_geo_change(state, self.entity());
-
         self.entity()
     }
 
@@ -927,8 +1263,6 @@ pub trait PropSet: AsEntity + Sized {
 
         Entity::root().relayout(state);
         Entity::root().redraw(state);
-
-        //flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -939,22 +1273,14 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
         
-        //flag_geo_change(state, self.entity());
-
         self
     }
 
 }
 
+// Implement PropSet for all types which implement AsEntity
 impl<T: AsEntity> PropSet for T {
-    // fn mutate<F>(self, state: &mut State, mut builder: F) -> Self
-    // where
-    //     F: FnMut(Builder<Self>) -> Builder<Self>,
-    // {
-    //     builder(Builder::new(state, self));
 
-    //     self
-    // }
 }
 pub trait PropGet: AsEntity {
 

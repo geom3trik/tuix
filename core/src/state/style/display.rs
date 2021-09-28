@@ -1,6 +1,8 @@
 use crate::Entity;
 use crate::state::animation::Interpolator;
 
+/// Display determines whether an entity will be rendered and acted on by the layout system.
+/// To make an entity invisible to rendering but still layed out, see [Visibility].
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Display {
     None,
@@ -19,6 +21,9 @@ impl Interpolator for Display {
     }
 }
 
+/// Visibility determines whether an entity will be rendered.
+/// An invisible entity will still be acted upon by the layout system. 
+/// Use [Display] to hide an entity from both rendering and layout.
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Visibility {
     Visible,

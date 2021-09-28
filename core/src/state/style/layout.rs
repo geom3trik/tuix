@@ -1,7 +1,7 @@
 use std::fmt::write;
 
-use crate::animation::Interpolator;
-use crate::entity::Entity;
+use crate::Interpolator;
+use crate::Entity;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct MaxWidth(pub f32);
@@ -33,31 +33,31 @@ impl Interpolator for MaxHeight {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum Justify {
-    Start,
-    Center,
-    End,
-}
+// #[derive(Copy, Clone, PartialEq, Debug)]
+// pub enum Justify {
+//     Start,
+//     Center,
+//     End,
+// }
 
-impl Default for Justify {
-    fn default() -> Self {
-        Justify::Start
-    }
-}
+// impl Default for Justify {
+//     fn default() -> Self {
+//         Justify::Start
+//     }
+// }
 
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum Align {
-    Start,
-    Center,
-    End,
-}
+// #[derive(Copy, Clone, PartialEq, Debug)]
+// pub enum Align {
+//     Start,
+//     Center,
+//     End,
+// }
 
-impl Default for Align {
-    fn default() -> Self {
-        Align::Center
-    }
-}
+// impl Default for Align {
+//     fn default() -> Self {
+//         Align::Center
+//     }
+// }
 
 // Not currently used
 

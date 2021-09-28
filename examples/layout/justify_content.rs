@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 // Example showing how to emulate flexbox justify-content in tuix
 

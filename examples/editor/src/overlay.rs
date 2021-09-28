@@ -29,7 +29,7 @@ impl Widget for Overlay {
         }
     }
 
-    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut widget::Canvas) {
+    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut femtovg::Canvas<femtovg::renderer::OpenGl>) {
 
         if self.selected.is_null() {
             return;

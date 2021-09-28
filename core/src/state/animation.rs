@@ -1,6 +1,6 @@
 #![allow(warnings)]
 
-use crate::entity::Entity;
+use crate::Entity;
 use crate::state::storage::dense_storage::DenseStorage;
 pub use crate::state::style::*;
 use crate::{PropSet, State};

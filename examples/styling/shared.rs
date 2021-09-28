@@ -1,5 +1,5 @@
 use tuix::*;
-
+use tuix::widgets::*;
 // Two buttons which share the same style
 
 fn main() {

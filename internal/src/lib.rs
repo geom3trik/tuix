@@ -13,6 +13,9 @@ pub use tuix_core::*;
 
 pub use tuix_derive::*;
 
-pub use tuix_widgets::*;
+pub mod widgets {
+    pub use tuix_widgets::*;
+}
 
-pub use tuix_core::lens::Lens;
+
+pub use tuix_core::Lens;

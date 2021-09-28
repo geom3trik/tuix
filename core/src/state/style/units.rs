@@ -1,4 +1,4 @@
-use crate::animation::Interpolator;
+use crate::Interpolator;
 
 use morphorm::Units;
 

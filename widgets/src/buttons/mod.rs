@@ -1,17 +1,17 @@
-pub mod button;
+mod button;
 pub use button::*;
 
 // pub mod checkable;
 // pub use checkable::*;
 
-pub mod checkbox;
+mod checkbox;
 pub use checkbox::*;
 
-pub mod check_button;
+mod check_button;
 pub use check_button::*;
 
-pub mod radio;
+mod radio;
 pub use radio::*;
 
-pub mod switch;
+mod switch;
 pub use switch::*;

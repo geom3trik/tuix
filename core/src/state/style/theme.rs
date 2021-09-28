@@ -6,7 +6,6 @@ use cssparser::{
     ParseError, ParseErrorKind, Parser, ParserInput, RuleListParser, SourceLocation, Token,
 };
 
-use crate::style::layout::{Align, Justify};
 
 use crate::state::style::property::Property;
 use crate::state::style::selector::{Relation, Selector};
@@ -831,62 +830,6 @@ fn parse_positioning_type<'i, 't>(
             "parent-directed" => PositionType::ParentDirected,
 
             t => {
-                return Err(
-                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
-                );
-            }
-        },
-
-        t => {
-            let basic_error = BasicParseError {
-                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                location,
-            };
-            return Err(basic_error.into());
-        }
-    })
-}
-
-fn parse_alignment<'i, 't>(
-    input: &mut Parser<'i, 't>,
-) -> Result<Align, ParseError<'i, CustomParseError>> {
-    let location = input.current_source_location();
-
-    Ok(match input.next()? {
-        Token::Ident(name) => match name.as_ref() {
-            "start" | "top" => Align::Start,
-            "center" | "centre" => Align::Center,
-            "end" | "bottom" => Align::End,
-
-            _ => {
-                return Err(
-                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
-                );
-            }
-        },
-
-        t => {
-            let basic_error = BasicParseError {
-                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
-                location,
-            };
-            return Err(basic_error.into());
-        }
-    })
-}
-
-fn parse_justification<'i, 't>(
-    input: &mut Parser<'i, 't>,
-) -> Result<Justify, ParseError<'i, CustomParseError>> {
-    let location = input.current_source_location();
-
-    Ok(match input.next()? {
-        Token::Ident(name) => match name.as_ref() {
-            "start" | "left" => Justify::Start,
-            "center" | "centre" => Justify::Center,
-            "end" | "right" => Justify::End,
-
-            _ => {
                 return Err(
                     CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
                 );

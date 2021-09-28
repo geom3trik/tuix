@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 fn calculate_winner(squares: &[GameData; 9]) -> GameData {
     const LINES: [[usize; 3]; 8] = [

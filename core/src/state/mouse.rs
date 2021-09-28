@@ -1,4 +1,4 @@
-use crate::entity::Entity;
+use crate::Entity;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum MouseButton {

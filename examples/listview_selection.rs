@@ -1,5 +1,6 @@
 
 use tuix::*;
+use tuix::widgets::*;
 
 const STYLE: &str = r#"
     list {

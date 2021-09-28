@@ -1,4 +1,4 @@
-use crate::{Pos, PositionType, entity::*, Size};
+use crate::{Pos, PositionType, Entity, Size};
 
 pub struct WindowSize {
     pub width: u32,

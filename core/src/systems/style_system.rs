@@ -1,7 +1,5 @@
-use crate::{BoundingBox, Entity, Event, TreeExt, IntoParentIterator, State, WindowEvent, PropSet};
+use crate::{BoundingBox, Display, Entity, IntoParentIterator, Overflow, PropGet, PropSet, Relation, Selector, State, Tree, TreeExt, Visibility};
 
-use crate::tree::*;
-use crate::state::animation::*;
 
 pub fn apply_z_ordering(state: &mut State, tree: &Tree) {
     for entity in tree.into_iter() {
@@ -562,24 +560,24 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
         }
 
 
-        for rule_index in matched_rules.iter() {
-            // TODO - remove cloned
-            if let Some(rule) = state.style.rules.get(*rule_index as usize).cloned() {
-                for property in rule.properties.iter() {
-                    match property {
-                        Property::Unknown(ident, prop) => {
-                            if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
-                                event_handler.on_style(state, entity, (ident.clone(), prop.clone()));
+        // for rule_index in matched_rules.iter() {
+        //     // TODO - remove cloned
+        //     if let Some(rule) = state.style.rules.get(*rule_index as usize).cloned() {
+        //         for property in rule.properties.iter() {
+        //             match property {
+        //                 Property::Unknown(ident, prop) => {
+        //                     if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
+        //                         event_handler.on_style(state, entity, (ident.clone(), prop.clone()));
 
-                                state.event_handlers.insert(entity, event_handler);
-                            }
-                        }
+        //                         state.event_handlers.insert(entity, event_handler);
+        //                     }
+        //                 }
 
-                        _=> {}
-                    }
-                }
-            }
-        }
+        //                 _=> {}
+        //             }
+        //         }
+        //     }
+        // }
 
         if should_relayout {
             Entity::root().relayout(state);

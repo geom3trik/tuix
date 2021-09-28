@@ -1,16 +1,10 @@
-use crate::state::mouse::MouseButton;
+use crate::{CursorIcon, state::MouseButton};
 use crate::Entity;
 
 use keyboard_types::{Code, Key};
 use morphorm::GeometryChanged;
 
-// Desccibes the cursor icon to be used
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum CursorIcon {
-    Arrow,
-    NResize,
-    EResize,
-}
+
 
 // // Used by the GeometryChanged event to signal that either posx, posy, width, or height of the entity have changed
 // #[derive(Debug, Default, Clone, PartialEq)]

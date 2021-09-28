@@ -1,7 +1,7 @@
 
 
 use tuix::*;
-
+use tuix::widgets::*;
 fn main() {
     let window_description = WindowDescription::new();
 

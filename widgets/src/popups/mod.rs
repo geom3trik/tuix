@@ -1,6 +1,6 @@
-pub mod popup;
+mod popup;
 pub use popup::*;
 
 
-pub mod popup_window;
+mod popup_window;
 pub use popup_window::*;

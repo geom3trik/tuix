@@ -1,6 +1,6 @@
 extern crate tuix;
 use tuix::*;
-
+use tuix::widgets::*;
 const STYLE: &str = r#"
     button {
         border-radius: 3px;

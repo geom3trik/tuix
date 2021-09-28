@@ -1,5 +1,5 @@
 use tuix::*;
-
+use tuix::widgets::*;
 // A button styled with 'inline' styling
 
 fn main() {

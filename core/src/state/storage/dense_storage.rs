@@ -1,4 +1,4 @@
-use crate::entity::Entity;
+use crate::Entity;
 
 #[derive(Clone, Default)]
 pub struct DenseStorage<T> {

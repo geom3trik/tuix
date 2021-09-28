@@ -4,17 +4,17 @@ use crate::Renderer;
 use baseview::{Window, WindowScalePolicy};
 use femtovg::Canvas;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use tuix_core::state::tree::IntoTreeIterator;
-use tuix_core::state::mouse::{MouseButton, MouseButtonState};
-use tuix_core::state::Fonts;
-use tuix_core::window::WindowWidget;
+use tuix_core::IntoTreeIterator;
+use tuix_core::{MouseButton, MouseButtonState};
+use tuix_core::Fonts;
+use tuix_core::WindowWidget;
 use tuix_core::{
-    events::{Event, Propagation},
-    window_description,
+    Event, Propagation,
+    WindowDescription,
     BoundingBox
 };
 use tuix_core::{
-    Entity, EventManager, Tree, PropSet, WindowSize, State, Units, Visibility, WindowDescription,
+    Entity, EventManager, Tree, PropSet, WindowSize, State, Units, Visibility,
     WindowEvent,
 };
 

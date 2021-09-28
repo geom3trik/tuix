@@ -1,5 +1,5 @@
 extern crate tuix;
-
+use tuix::widgets::*;
 //use image::GenericImageView;
 
 use tuix::*;

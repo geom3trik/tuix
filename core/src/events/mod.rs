@@ -1,25 +1,28 @@
 #![allow(warnings)]
 
-pub mod event_manager;
-pub use event_manager::*;
+mod event_manager;
+pub use event_manager::EventManager;
 
-pub mod event;
-pub use event::*;
+mod event;
+pub use event::{Event, Message, Propagation};
 
-pub mod event_handler;
-pub use event_handler::*;
+mod event_handler;
+pub use event_handler::EventHandler;
 
-pub mod builder;
-pub use builder::*;
+mod builder;
+pub use builder::Builder;
 
-pub mod window_event;
-pub use window_event::*;
+mod window_event;
+pub use window_event::WindowEvent;
 
-pub mod window_description;
-pub use window_description::*;
+mod window_description;
+pub use window_description::{WindowDescription, WindowSize};
 
-pub mod widget;
-pub use widget::*;
+mod widget;
+pub use widget::Widget;
 
-pub mod window;
+mod window;
 pub use window::WindowWidget;
+
+mod cursor;
+pub use cursor::CursorIcon;

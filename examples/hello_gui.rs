@@ -1,5 +1,5 @@
 use tuix::*;
-
+use tuix::widgets::*;
 fn main() {
 
     let app = Application::new(WindowDescription::new().with_title("Hello GUI"), |state, window| {

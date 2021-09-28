@@ -1,24 +1,24 @@
 #![allow(dead_code)]
 
-pub mod entity;
-pub use entity::*;
+mod entity;
+pub use entity::{Entity, AsEntity};
+use entity::EntityManager;
 
-pub mod tree;
+mod tree;
 pub use tree::*;
 
-pub mod storage;
-pub use storage::*;
+mod storage;
 
 pub mod style;
 pub use style::*;
 
-pub mod data;
+mod data;
 pub use data::*;
 
-pub mod animation;
+mod animation;
 pub use animation::*;
 
-pub mod mouse;
+mod mouse;
 pub use mouse::*;
 
 pub mod resource;
@@ -26,7 +26,7 @@ pub use resource::*;
 
 
 pub use crate::events::{Builder, Event, Propagation, Widget, EventHandler};
-pub use crate::window_event::WindowEvent;
+pub use crate::WindowEvent;
 
 use femtovg::{FontId, TextContext};
 

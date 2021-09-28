@@ -1,4 +1,4 @@
-use tuix_core::layout::GeometryChanged;
+use tuix_core::GeometryChanged;
 
 use crate::common::*;
 

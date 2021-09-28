@@ -1,5 +1,5 @@
-pub mod menu;
+mod menu;
 pub use menu::*;
 
-pub mod context_menu;
+mod context_menu;
 pub use context_menu::*;

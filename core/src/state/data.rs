@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use femtovg::ImageId;
 use morphorm::GeometryChanged;
-use crate::entity::Entity;
+use crate::Entity;
 
 use crate::state::style::Visibility;
 use crate::state::style::Transform2D;

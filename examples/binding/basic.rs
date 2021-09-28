@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 #[derive(Lens)]
 pub struct AppData {

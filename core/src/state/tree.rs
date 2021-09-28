@@ -1,4 +1,4 @@
-use crate::entity::Entity;
+use crate::Entity;
 
 #[derive(Debug, Clone, Copy)]
 pub enum TreeError {

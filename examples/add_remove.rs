@@ -1,6 +1,5 @@
 use tuix::*;
-
-use tuix::style::themes::DEFAULT_THEME;
+use tuix::widgets::*;
 // An example for demonstrating the addition and removal of entities
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -59,7 +58,6 @@ impl Widget for Controller {
 fn main() {
     // Create the app
     let app = Application::new(WindowDescription::new().with_title("Add / Remove"),|state, window| {
-        state.add_theme(DEFAULT_THEME);
 
         Controller::default().build(state, window.entity(), |builder| builder);
     });

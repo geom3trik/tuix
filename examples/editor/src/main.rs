@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 mod overlay;
 use overlay::*;

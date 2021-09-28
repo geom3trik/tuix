@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 static THEME: &'static str = include_str!("../themes/counter_theme.css");
 

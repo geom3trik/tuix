@@ -1,4 +1,4 @@
-use crate::{builder::Builder, EventHandler, WindowEvent};
+use crate::{Builder, EventHandler, WindowEvent};
 use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, IntoChildIterator, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
 use femtovg::{BlendFactor, CompositeOperation, PixelFormat, RenderTarget};
 use femtovg::{
@@ -6,7 +6,7 @@ use femtovg::{
     Paint, Path, Renderer, Solidity,
 };
 
-use crate::style::{Direction, Justify, Units, Visibility};
+use crate::{Direction, Units, Visibility};
 use crate::{Event, EventManager, Message};
 
 use fnv::FnvHashMap;

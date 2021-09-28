@@ -1,5 +1,5 @@
 use tuix::*;
-
+use tuix::widgets::*;
 
 
 fn main() {

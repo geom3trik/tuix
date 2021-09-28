@@ -7,21 +7,19 @@ use crate::keyboard::{scan_to_code, vcode_to_code, vk_to_key};
 use crate::window::Window;
 
 use tuix_core::{BoundingBox, Units};
-use tuix_core::{Entity, State};
+use tuix_core::{Entity, State, PropSet};
 
-use tuix_core::state::mouse::{MouseButton, MouseButtonState};
+use tuix_core::{MouseButton, MouseButtonState};
 
 use tuix_core::events::{Event, EventManager, Propagation};
 
-use tuix_core::state::tree::IntoTreeIterator;
+use tuix_core::IntoTreeIterator;
 
 use tuix_core::style::{Display, Visibility};
 
-use tuix_core::state::style::prop::*;
-
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
-use tuix_core::systems::*;
+use tuix_core::{apply_hover, apply_clipping};
 
 use glutin::event::VirtualKeyCode;
 

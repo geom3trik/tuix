@@ -3,6 +3,7 @@
 extern crate tuix;
 
 use tuix::*;
+use tuix::widgets::*;
 
 static THEME: &'static str = include_str!("themes/menus_theme.css");
 

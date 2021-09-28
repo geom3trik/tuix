@@ -1,8 +1,8 @@
-use crate::style;
-use crate::style::Display;
 
-use crate::style::color::Color;
-use crate::style::LinearGradient;
+use crate::Display;
+
+use crate::Color;
+use crate::LinearGradient;
 
 use crate::state::style::*;
 
@@ -17,7 +17,7 @@ pub enum PropType {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum Property {
+pub(crate) enum Property {
     None,
 
     Unknown(String, PropType),

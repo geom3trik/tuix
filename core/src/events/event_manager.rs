@@ -1,4 +1,4 @@
-use crate::{Builder, CursorIcon, Entity, Event, FontOrId, IntoBranchIterator, IntoParentIterator, IntoTreeIterator, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent, tree};
+use crate::{Builder, CursorIcon, Entity, Event, FontOrId, IntoBranchIterator, IntoParentIterator, IntoTreeIterator, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent};
 
 use crate::EventHandler;
 

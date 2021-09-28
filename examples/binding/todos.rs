@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 #[derive(Debug, Clone, Lens)]
 pub struct TodoItem {
