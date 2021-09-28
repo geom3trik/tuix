@@ -141,6 +141,10 @@ path = "examples/widgets/panel.rs"
 # Binding
 
 [[example]]
+name = "todos"
+path = "examples/binding/todos.rs"
+
+[[example]]
 name = "multiple_stores"
 path = "examples/binding/multiple_stores.rs"
 

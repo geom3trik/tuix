@@ -115,34 +115,49 @@ impl Widget for Checkbox {
             .set_font(state, "icons")
             .set_child_space(state, Stretch(1.0));
 
-        if self.checked {
-            entity.set_checked(state, true);
+        // if self.checked {
+        //     entity.set_checked(state, true);
 
+        //     if let Some(icon_checked) = &self.icon_checked {
+        //         entity.set_text(state, &icon_checked);
+        //     }
+
+        //     state.insert_event(
+        //         Event::new(CheckboxEvent::Checked)
+        //             .target(entity)
+        //             .origin(entity),
+        //     );
+
+        // } else {
+        //     entity.set_checked(state, false);
+
+        //     if let Some(icon_unchecked) = &self.icon_unchecked {
+        //         entity.set_text(state, &icon_unchecked);
+        //     }
+
+        //     state.insert_event(
+        //         Event::new(CheckboxEvent::Unchecked)
+        //             .target(entity)
+        //             .origin(entity),
+        //     );
+        // }
+
+        entity.set_element(state, "checkbox")
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        println!("Checkbox update: {}", data);
+        self.checked = *data;
+        entity.set_checked(state, *data);
+        if self.checked {
             if let Some(icon_checked) = &self.icon_checked {
                 entity.set_text(state, &icon_checked);
             }
-
-            state.insert_event(
-                Event::new(CheckboxEvent::Checked)
-                    .target(entity)
-                    .origin(entity),
-            );
-
         } else {
-            entity.set_checked(state, false);
-
             if let Some(icon_unchecked) = &self.icon_unchecked {
                 entity.set_text(state, &icon_unchecked);
             }
-
-            state.insert_event(
-                Event::new(CheckboxEvent::Unchecked)
-                    .target(entity)
-                    .origin(entity),
-            );
         }
-
-        entity.set_element(state, "checkbox")
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -150,6 +165,7 @@ impl Widget for Checkbox {
         if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
             match checkbox_event {
                 CheckboxEvent::Switch => {
+                    println!("Switch: {}", self.checked);
                     if event.target == entity {
                         if self.checked {
 
@@ -182,16 +198,19 @@ impl Widget for Checkbox {
                 }
 
                 CheckboxEvent::Check => {
+                    println!("Check");
                     self.checked = true;
                     entity.set_checked(state, true);
                 }
 
                 CheckboxEvent::Uncheck => {
+                    println!("Uncheck");
                     self.checked = false;
                     entity.set_checked(state, false);
                 }
 
                 CheckboxEvent::Checked => {
+                    println!("Checked");
                     self.checked = true;
 
                     entity.set_checked(state, true);
@@ -203,6 +222,7 @@ impl Widget for Checkbox {
                 }
 
                 CheckboxEvent::Unchecked => {
+                    println!("Unchecked");
                     self.checked = false;
 
                     entity.set_checked(state, false);
@@ -262,6 +282,8 @@ impl Widget for Checkbox {
         }
     
     }
+
+
 }
 
 /*

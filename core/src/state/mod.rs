@@ -43,6 +43,18 @@ const STYLE: &str = r#"
     textbox>.selection {
         background-color: #40000000;
     }
+
+    scroll_container>.scrollbar {
+        background-color: #606060;
+        width: 15px;
+    }
+
+    checkbox {
+        width: 20px;
+        height: 20px;
+        border-color: black;
+        border-width: 1px;
+    }
 "#;
 
 #[derive(Clone)]
@@ -120,7 +132,7 @@ impl State {
 
         style.clip_widget.set(root, root);
 
-        style.background_color.insert(root, Color::rgb(80, 80, 80)).expect("");
+        style.background_color.insert(root, Color::rgb(255, 255, 255)).expect("");
 
         style.default_font = "roboto".to_string();
 

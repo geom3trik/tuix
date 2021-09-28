@@ -41,6 +41,7 @@ impl Application {
     ) -> Self {
         let event_loop = EventLoop::new();
         let mut state = State::new();
+        state.reload_styles().expect("Failed to reload styles");
 
         let mut event_manager = EventManager::new();
 

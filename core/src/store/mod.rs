@@ -62,9 +62,10 @@ impl<D: Model + Node> Widget for Store<D> {
                             state.event_handlers.insert(*target, event_handler);
                         }
                         event.consume();
-                    } else {
-                        println!("Not Compatible");
-                    }
+                    } 
+                    // else {
+                    //     println!("Not Compatible");
+                    // }
                     
                 }
 

@@ -1,5 +1,5 @@
 use crate::{builder::Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
+use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, IntoChildIterator, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
 use femtovg::{BlendFactor, CompositeOperation, PixelFormat, RenderTarget};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
@@ -61,7 +61,19 @@ pub trait Widget: std::marker::Sized + 'static {
     }
 
     // Called when data bound to this widget is changed
-    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {}
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        //println!("Received on_update for: {}", entity);
+        // Update children
+        // for (_index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
+
+        //     if let Some(mut event_handler) = state.event_handlers.remove(&child) {
+        //         println!("Child: {}", child);
+        //         event_handler.on_update(state, child, data);
+
+        //         state.event_handlers.insert(child, event_handler);
+        //     }
+        // }
+    }
 
     // Called when events are flushed
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
@@ -114,7 +126,7 @@ pub trait Widget: std::marker::Sized + 'static {
             .font_color
             .get(entity)
             .cloned()
-            .unwrap_or(crate::Color::rgb(255, 255, 255));
+            .unwrap_or(crate::Color::rgb(0, 0, 0));
 
         let border_color = state
             .style
@@ -752,6 +764,15 @@ where
     fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {
         if let Some(data) = node.downcast_ref() {
              <T as Widget>::on_update(self, state, entity, data);
+        } else {
+            for (_index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
+                if let Some(mut event_handler) = state.event_handlers.remove(&child) {
+
+                    event_handler.on_update(state, child, node);
+    
+                    state.event_handlers.insert(child, event_handler);
+                }
+            }
         }
     }
 

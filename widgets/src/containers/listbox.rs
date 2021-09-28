@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::common::*;
+use crate::{CheckButton, common::*};
 use crate::{CheckboxEvent};
 use tuix_core::{Node, Lens, IntoChildIterator};
 
@@ -228,23 +228,29 @@ pub struct ListView<T, W> {
 
     on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 
-    creator: Box<dyn Fn(&T, usize) -> W>,
+    template: Option<Box<dyn Fn(&T, usize) -> W>>,
 
     t: PhantomData<T>,
 }
 
 impl<T: std::fmt::Debug + Node, W: Widget> ListView<T, W> {
-    pub fn new<F>(creator: F) -> Self 
-    where F: 'static + Fn(&T, usize) -> W,
-    {
+    pub fn new() -> Self {
         Self {
             checked_entity: Entity::null(),
             single: true,
             selected: 0,
             on_change: None,
-            creator: Box::new(creator),
+            template: None,
             t: PhantomData::default(),
         }
+    }
+
+    pub fn data_template<F>(mut self, template: F) -> Self 
+    where F: 'static + Fn(&T, usize) -> W,
+    {
+        self.template = Some(Box::new(template));
+
+        self
     }
 
     pub fn on_change<F>(mut self, callback: F) -> Self 
@@ -305,15 +311,25 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
                 //     );
 
                 //(self.creator)(item).build(state, entity, |builder| builder.set_height(Pixels(30.0)).set_color(Color::black()));
-
-                ListItem::new((self.creator)(item, index)).build(state, entity, |builder| 
-                    builder
-                        //.set_height(Pixels(30.0))
-                        //.set_height(Auto)
-                        //.set_width(Auto)
-                        //.set_hoverable(false)
-                        .set_color(Color::black())
-                );
+                if let Some(template) = &self.template {
+                    ListItem::new((template)(item, index)).build(state, entity, |builder| 
+                        builder
+                            //.set_height(Pixels(30.0))
+                            //.set_height(Auto)
+                            //.set_width(Auto)
+                            //.set_hoverable(false)
+                            .set_color(Color::black())
+                    );
+                } else {
+                    ListItem::new(CheckButton::with_label(&format!("{:?}", item))).build(state, entity, |builder| 
+                        builder
+                            //.set_height(Pixels(30.0))
+                            //.set_height(Auto)
+                            //.set_width(Auto)
+                            //.set_hoverable(false)
+                            .set_color(Color::black())
+                    );
+                }
             }            
         }
 
@@ -346,119 +362,120 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
         }
         
         
-        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
-            match window_event {
-                WindowEvent::KeyDown(_, key) => match key {
-                    Some(Key::ArrowDown) | Some(Key::ArrowRight) => {
-                        if let Some(next_entity) =
-                            state.tree.get_next_sibling(self.checked_entity)
-                        {
-                            self.selected += 1;
+        // if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+        //     match window_event {
+        //         WindowEvent::KeyDown(_, key) => match key {
+        //             Some(Key::ArrowDown) | Some(Key::ArrowRight) => {
+        //                 if let Some(next_entity) =
+        //                     state.tree.get_next_sibling(self.checked_entity)
+        //                 {
+        //                     self.selected += 1;
 
-                            state.insert_event(
-                                Event::new(CheckboxEvent::Unchecked)
-                                    .target(self.checked_entity)
-                                    .origin(entity)
-                                    .propagate(Propagation::Direct),
-                            );
-                            state.insert_event(
-                                Event::new(CheckboxEvent::Checked)
-                                    .target(next_entity)
-                                    .origin(entity)
-                                    .propagate(Propagation::Direct),
-                            );
-                            self.checked_entity = next_entity;
+        //                     state.insert_event(
+        //                         Event::new(CheckboxEvent::Unchecked)
+        //                             .target(self.checked_entity)
+        //                             .origin(entity)
+        //                             .propagate(Propagation::Direct),
+        //                     );
+        //                     state.insert_event(
+        //                         Event::new(CheckboxEvent::Checked)
+        //                             .target(next_entity)
+        //                             .origin(entity)
+        //                             .propagate(Propagation::Direct),
+        //                     );
+        //                     self.checked_entity = next_entity;
 
-                            if let Some(callback) = self.on_change.take() {
-                                (callback)(self, state, entity);
+        //                     if let Some(callback) = self.on_change.take() {
+        //                         (callback)(self, state, entity);
 
-                                self.on_change = Some(callback);
-                            } 
+        //                         self.on_change = Some(callback);
+        //                     } 
 
-                            event.consume();
-                        }
-                    }
+        //                     event.consume();
+        //                 }
+        //             }
 
-                    Some(Key::ArrowUp) | Some(Key::ArrowLeft) => {
-                        if let Some(prev_entity) =
-                            state.tree.get_prev_sibling(self.checked_entity)
-                        {
+        //             Some(Key::ArrowUp) | Some(Key::ArrowLeft) => {
+        //                 if let Some(prev_entity) =
+        //                     state.tree.get_prev_sibling(self.checked_entity)
+        //                 {
 
-                            self.selected -= 1;
+        //                     self.selected -= 1;
 
-                            if let Some(callback) = self.on_change.take() {
-                                (callback)(self, state, entity);
+        //                     if let Some(callback) = self.on_change.take() {
+        //                         (callback)(self, state, entity);
 
-                                self.on_change = Some(callback);
-                            } 
+        //                         self.on_change = Some(callback);
+        //                     } 
 
-                            state.insert_event(
-                                Event::new(CheckboxEvent::Unchecked)
-                                    .target(self.checked_entity)
-                                    .origin(entity)
-                                    .propagate(Propagation::Direct),
-                            );
-                            state.insert_event(
-                                Event::new(CheckboxEvent::Checked)
-                                    .target(prev_entity)
-                                    .origin(entity)
-                                    .propagate(Propagation::Direct),
-                            );
-                            self.checked_entity = prev_entity;
+        //                     state.insert_event(
+        //                         Event::new(CheckboxEvent::Unchecked)
+        //                             .target(self.checked_entity)
+        //                             .origin(entity)
+        //                             .propagate(Propagation::Direct),
+        //                     );
+        //                     state.insert_event(
+        //                         Event::new(CheckboxEvent::Checked)
+        //                             .target(prev_entity)
+        //                             .origin(entity)
+        //                             .propagate(Propagation::Direct),
+        //                     );
+        //                     self.checked_entity = prev_entity;
 
-                            event.consume();
-                        }
-                    }
+        //                     event.consume();
+        //                 }
+        //             }
 
-                    _ => {}
-                },
+        //             _ => {}
+        //         },
 
-                _ => {}
-            }
-        }
+        //         _ => {}
+        //     }
+        // }
 
-        if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
-            match checkbox_event {
-                CheckboxEvent::Unchecked => {
-                    if self.single {
-                        if event.target != entity {
-                            event.consume();
-                        }
-                    }
-                }
+        // if let Some(checkbox_event) = event.message.downcast::<CheckboxEvent>() {
+        //     match checkbox_event {
+        //         CheckboxEvent::Unchecked => {
+        //             if self.single {
+        //                 if event.target != entity {
+        //                     event.consume();
+        //                 }
+        //             }
+        //         }
 
-                CheckboxEvent::Checked => {
-                    if self.single {
-                        if event.target.is_descendant_of(&state.tree, entity) {
-                            if event.target != entity && event.origin != entity {
-                                state.insert_event(
-                                    Event::new(CheckboxEvent::Unchecked)
-                                        .target(entity)
-                                        .origin(event.target)
-                                        .propagate(Propagation::Fall),
-                                );
+        //         CheckboxEvent::Checked => {
+        //             if self.single {
+        //                 if event.target.is_descendant_of(&state.tree, entity) {
+        //                     if event.target != entity && event.origin != entity {
+        //                         state.insert_event(
+        //                             Event::new(CheckboxEvent::Unchecked)
+        //                                 .target(entity)
+        //                                 .origin(event.target)
+        //                                 .propagate(Propagation::Fall),
+        //                         );
 
-                                event.consume();
-                            }
+        //                         event.consume();
+        //                     }
 
-                            if event.target != entity && event.origin != entity {
-                                state.insert_event(
-                                    Event::new(CheckboxEvent::Checked)
-                                        .target(event.target)
-                                        .origin(entity)
-                                        .propagate(Propagation::Direct),
-                                );
+        //                     if event.target != entity && event.origin != entity {
+        //                         state.insert_event(
+        //                             Event::new(CheckboxEvent::Checked)
+        //                                 .target(event.target)
+        //                                 .origin(entity)
+        //                                 .propagate(Propagation::Direct),
+        //                         );
 
-                                event.consume();
-                            }
+        //                         event.consume();
+        //                     }
 
-                            self.checked_entity = event.target;
-                        }
-                    }
-                }
-                _ => {}
-            }
-        }
+        //                     self.checked_entity = event.target;
+        //                 }
+        //             }
+        //         }
+        //         _ => {}
+        //     }
+        // }
+    
     }
 }
 

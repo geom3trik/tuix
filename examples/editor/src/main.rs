@@ -6,187 +6,14 @@ use overlay::*;
 mod canvas_options;
 use canvas_options::*;
 
-const STYLE: &str = r#"
-
-    window {
-        background-color: #383838;
-        
-    }
-
-    window>.header {
-        background-color: #404040;
-    }
-
-    .spacer {
-        background-color: #202020;
-        height: 1px;
-        left: 0px;
-        right: 0px;
-    }
-
-    .divider {
-        background-color: #202020;
-        width: 1px;
-        top: 0px;
-        bottom: 0px;
-    }
-
-    panel {
-        bottom: 2px;
-    }
-
-    panel>.header>.label {
-        color: #8a8a8a;
-    }
-
-    panel>.header>.icon {
-        color: #8a8a8a;
-    }
-
-    panel>.header {
-        height: 30px;
-    }
-
-    panel .container2 {
-        child-space: 10px;
-        child-right: 0px;
-        row-between: 10px;
-    }
-
-    panel.group .container2 {
-        child-right: 0px;
-        child-left: 25px;
-    }
-
-    panel.group>.header>.label {
-        width: 0px;
-    }
-
-    length_box {
-        height: 30px;
-    }
-
-    textbox {
-        background-color: #2e2e2e;
-        color: white;
-    }
-
-    dropdown {
-        background-color: #494949;
-    }
-    
-    dropdown .label {
-        child-space: 1s;
-        child-left: 5px;
-        color: whte;
-    }
-
-    dropdown .icon {
-        color: #909090;
-    }
-
-    dropdown.corner popup {
-        width: 1s;
-    }
-
-    popup {
-        width: 80px;
-        background-color: #404040;
-        outer-shadow: 0px 2px 5px #40000000;
-    }
-
-
-    list {
-        border-width: 1px;
-        border-color: #404040;
-        width: 1s;
-    }
-
-    list>check_button {
-        height: 30px;
-        child-space: 1s;
-        child-left: 5px;
-        background-color: #404040;
-        color: white;
-    }
-
-    list>check_button:hover {
-        background-color: #4f4f4f;
-    }
-
-    list>check_button:active {
-        background-color: #404040;
-    }
-
-    list>check_button:checked {
-        background-color: #2a97f0;
-    }
-
-    list>check_button:focus {
-        border-width: 1px;
-        border-color: black;
-    }
-
-    slider>.track {
-        background-color: #2e2e2e;
-    }
-
-    slider>.track>.active {
-        background-color: #494949;
-    }
-
-    slider>.thumb {
-        width: 0px;
-    }
-
-    scroll_container>.scrollbar {
-        background-color: #464646;
-        width: 10px;
-        transition: width 0.1 0.0;
-    }
-
-    scroll_container:enabled>.scrollbar {
-        width: 10px;
-        transition: width 0.1 0.0;
-    }
-
-    scroll_container:disabled>.scrollbar {
-        width: 0px;
-        transition: width 0.1 0.0;
-    }
-
-
-    tab_manager {
-        width: 1s;
-    }
-    
-    tab_bar {
-        background-color: #202020;
-        height: 30px;
-        layout-type: row;
-    }
-    
-    tab_bar>.tab {
-        background-color: #2e2e2e;
-        right: 1px;
-        bottom: 1px;
-        width: 80px;
-        child-space: 1s;
-    }
-    
-    tab_bar>.tab:checked {
-        bottom: 0px;
-        background-color: #383838;
-        /* background-color: red; */
-    }
-    
-
-"#;
+static STYLE: &str = include_str!("style.css");
 
 fn main() {
     let window_description = WindowDescription::new().with_title("Style Editor").with_inner_size(1600, 800);
     let app = Application::new(window_description, |state, window|{
         state.add_theme(STYLE);
+
+        window.set_background_color(state, Color::rgb(80, 80, 80));
 
         let app_data = AppData::default().build(state, window);
         
@@ -606,6 +433,8 @@ impl Widget for App {
             builder
                 .set_width(Pixels(100.0))
                 .set_height(Pixels(30.0))
+                .set_background_color(Color::red())
+                .class("canvas_options")
         );
 
         let canvas = Canvas::default()
