@@ -239,7 +239,7 @@ fn main() {
 
             state.add_theme(STYLE);
 
-            let data = Store::new(UserData::new()).build(state, window, |builder| builder);
+            let data = UserData::new().build(state, window);
             
             Container::default().build(state, data, |builder| builder);
 

@@ -161,11 +161,11 @@ fn main() {
             //state.add_theme(STYLE);
             state.add_stylesheet("examples/themes/knob_theme.css").expect("Failed to load theme");
             
-            let store = Store::new(AppState::default()).build(state, window, |builder| builder);
+            let app_data = AppState::default().build(state, window);
 
             Container::default()
                 .bind(AppState::backgorund_color, |value| *value)
-                .build(state, store, |builder| builder);
+                .build(state, app_data, |builder| builder);
 
         },
     );
