@@ -1,7 +1,7 @@
 use std::ops::{Add, AddAssign};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Specificity(pub [u8; 3]);
+pub(crate) struct Specificity(pub [u8; 3]);
 
 impl Add<Self> for Specificity {
     type Output = Self;

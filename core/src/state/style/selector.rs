@@ -11,7 +11,7 @@ use bitflags::bitflags;
 
 
 bitflags! {
-    pub struct PseudoClasses: u8 {
+    pub struct PseudoClass: u8 {
         const HOVER = 1;
         const OVER = 1 << 1;
         const ACTIVE = 1 << 2;
@@ -23,34 +23,34 @@ bitflags! {
     }
 }
 
-impl Default for PseudoClasses {
+impl Default for PseudoClass {
     fn default() -> Self {
-        PseudoClasses::empty()
+        PseudoClass::empty()
     }
 }
 
-impl std::fmt::Display for PseudoClasses {
+impl std::fmt::Display for PseudoClass {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         
-        if self.contains(PseudoClasses::HOVER) {
+        if self.contains(PseudoClass::HOVER) {
             write!(f, ":hover")?;
         }
-        if self.contains(PseudoClasses::OVER) {
+        if self.contains(PseudoClass::OVER) {
             write!(f, ":over")?;
         }
-        if self.contains(PseudoClasses::ACTIVE) {
+        if self.contains(PseudoClass::ACTIVE) {
             write!(f, ":active")?;
         }
-        if self.contains(PseudoClasses::FOCUS) {
+        if self.contains(PseudoClass::FOCUS) {
             write!(f, ":focus")?;
         }
-        if self.contains(PseudoClasses::DISABLED) {
+        if self.contains(PseudoClass::DISABLED) {
             write!(f, ":disabled")?;
         }
-        if self.contains(PseudoClasses::CHECKED) {
+        if self.contains(PseudoClass::CHECKED) {
             write!(f, ":checked")?;
         }
-        if self.contains(PseudoClasses::SELECTED) {
+        if self.contains(PseudoClass::SELECTED) {
             write!(f, ":selected")?;
         }
 
@@ -70,7 +70,7 @@ pub struct Selector {
     pub id: Option<u64>,
     pub element: Option<String>,
     pub classes: HashSet<String>,
-    pub pseudo_classes: PseudoClasses,
+    pub pseudo_classes: PseudoClass,
     pub relation: Relation,
     pub asterisk: bool,
 }
@@ -81,7 +81,7 @@ impl Default for Selector {
             id: None,
             element: None,
             classes: HashSet::new(),
-            pseudo_classes: PseudoClasses::empty(),
+            pseudo_classes: PseudoClass::empty(),
             relation: Relation::None,
             asterisk: false,
         }
@@ -120,7 +120,7 @@ impl Selector {
             id: None,
             element: None,
             classes: HashSet::new(),
-            pseudo_classes: PseudoClasses::empty(),
+            pseudo_classes: PseudoClass::empty(),
             relation: Relation::None,
             asterisk: false,
         }
@@ -134,7 +134,7 @@ impl Selector {
             id: None,
             element: Some(element.to_owned()),
             classes: HashSet::new(),
-            pseudo_classes: PseudoClasses::empty(),
+            pseudo_classes: PseudoClass::empty(),
             relation: Relation::None,
             asterisk: false,
         }
@@ -180,7 +180,7 @@ impl Selector {
         true
     }
 
-    pub fn specificity(&self) -> Specificity {
+    pub(crate) fn specificity(&self) -> Specificity {
         Specificity([
             if self.id.is_some() { 1 } else { 0 },
             (self.classes.len() + self.pseudo_classes.bits().count_ones() as usize) as u8,

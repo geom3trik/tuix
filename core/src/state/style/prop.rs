@@ -170,7 +170,7 @@ pub trait PropSet: AsEntity + Sized {
     /// Sets the entities disbaled state to the given flag.
     ///
     /// A flag value of true will set the entity to disabled, while a flag value of false will set the entity to not disabled.
-    /// The `disabled` pseudoclasses in css can be used to select entities in a disabled state, for example:
+    /// The `disabled` PseudoClass in css can be used to select entities in a disabled state, for example:
     /// ```css
     /// button:disabled {
     ///     background-color: red;   
@@ -186,7 +186,7 @@ pub trait PropSet: AsEntity + Sized {
     /// ```
     fn set_disabled(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set(PseudoClasses::DISABLED, value);
+            pseudo_classes.set(PseudoClass::DISABLED, value);
         }
 
         Entity::root().restyle(state);
@@ -201,7 +201,7 @@ pub trait PropSet: AsEntity + Sized {
     /// Sets the entities checked state to the given flag.
     ///
     /// A flag value of true will set the entity to checked, while a flag value of false will set the entity to not checked.
-    /// The `checked` pseudoclasses in css can be used to select entities in a checked state, for example:
+    /// The `checked` PseudoClass in css can be used to select entities in a checked state, for example:
     /// ```css
     /// checkbox:checked {
     ///     background-color: red;   
@@ -216,7 +216,7 @@ pub trait PropSet: AsEntity + Sized {
     /// ```
     fn set_checked(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set(PseudoClasses::CHECKED, value);
+            pseudo_classes.set(PseudoClass::CHECKED, value);
         }
 
         Entity::root().restyle(state);
@@ -230,7 +230,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_over(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set(PseudoClasses::OVER, value);
+            pseudo_classes.set(PseudoClass::OVER, value);
         }
 
         Entity::root().restyle(state);
@@ -244,7 +244,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_active(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set(PseudoClasses::ACTIVE, value);
+            pseudo_classes.set(PseudoClass::ACTIVE, value);
         }
 
         Entity::root().restyle(state);
@@ -258,7 +258,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_hover(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set(PseudoClasses::HOVER, value);
+            pseudo_classes.set(PseudoClass::HOVER, value);
         }
 
         Entity::root().restyle(state);
@@ -272,7 +272,7 @@ pub trait PropSet: AsEntity + Sized {
 
     fn set_focus(self, state: &mut State, value: bool) -> Entity {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self.entity()) {
-            pseudo_classes.set(PseudoClasses::FOCUS, value);
+            pseudo_classes.set(PseudoClass::FOCUS, value);
         }
 
         Entity::root().restyle(state);
@@ -1351,49 +1351,49 @@ pub trait PropGet: AsEntity {
 impl PropGet for Entity {
     fn is_disabled(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.contains(PseudoClasses::DISABLED)
+            pseudo_classes.contains(PseudoClass::DISABLED)
         } else {
             false
         }
     }
     fn is_hovered(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.contains(PseudoClasses::HOVER)
+            pseudo_classes.contains(PseudoClass::HOVER)
         } else {
             false
         }
     }
     fn is_selected(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.contains(PseudoClasses::SELECTED)
+            pseudo_classes.contains(PseudoClass::SELECTED)
         } else {
             false
         }
     }
     fn is_checked(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.contains(PseudoClasses::CHECKED)
+            pseudo_classes.contains(PseudoClass::CHECKED)
         } else {
             false
         }
     }
     fn is_over(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.contains(PseudoClasses::OVER)
+            pseudo_classes.contains(PseudoClass::OVER)
         } else {
             false
         }
     }
     fn is_active(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.contains(PseudoClasses::ACTIVE)
+            pseudo_classes.contains(PseudoClass::ACTIVE)
         } else {
             false
         }
     }
     fn is_focused(self, state: &mut State) -> bool {
         if let Some(pseudo_classes) = state.style.pseudo_classes.get_mut(self) {
-            pseudo_classes.contains(PseudoClasses::FOCUS)
+            pseudo_classes.contains(PseudoClass::FOCUS)
         } else {
             false
         }

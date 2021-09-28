@@ -70,7 +70,7 @@ pub struct Style {
 
     pub elements: DenseStorage<String>,
     pub classes: DenseStorage<HashSet<String>>,
-    pub pseudo_classes: DenseStorage<PseudoClasses>,
+    pub pseudo_classes: DenseStorage<PseudoClass>,
 
     pub z_order: StyleStorage<i32>,
 
@@ -1173,7 +1173,7 @@ impl Style {
 
     // Add style data to an entity
     pub(crate) fn add(&mut self, entity: Entity) {
-        self.pseudo_classes.insert(entity, PseudoClasses::default());
+        self.pseudo_classes.insert(entity, PseudoClass::default());
 
         //self.z_order.insert(entity, 0);
 

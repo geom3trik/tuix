@@ -270,14 +270,14 @@ fn parse_selectors<'i, 't>(
                 let pseudo_class_str = input.expect_ident()?.to_owned();
 
                 match pseudo_class_str.as_ref() {
-                    "hover" => selector.pseudo_classes.insert(PseudoClasses::HOVER),
-                    "over" => selector.pseudo_classes.insert(PseudoClasses::OVER),
-                    "active" => selector.pseudo_classes.insert(PseudoClasses::ACTIVE),
-                    "focus" => selector.pseudo_classes.insert(PseudoClasses::FOCUS),
-                    "disabled" => selector.pseudo_classes.insert(PseudoClasses::DISABLED),
-                    "checked" => selector.pseudo_classes.insert(PseudoClasses::CHECKED),
-                    "selected" => selector.pseudo_classes.insert(PseudoClasses::SELECTED),
-                    "custom" => selector.pseudo_classes.insert(PseudoClasses::CUSTOM),
+                    "hover" => selector.pseudo_classes.insert(PseudoClass::HOVER),
+                    "over" => selector.pseudo_classes.insert(PseudoClass::OVER),
+                    "active" => selector.pseudo_classes.insert(PseudoClass::ACTIVE),
+                    "focus" => selector.pseudo_classes.insert(PseudoClass::FOCUS),
+                    "disabled" => selector.pseudo_classes.insert(PseudoClass::DISABLED),
+                    "checked" => selector.pseudo_classes.insert(PseudoClass::CHECKED),
+                    "selected" => selector.pseudo_classes.insert(PseudoClass::SELECTED),
+                    "custom" => selector.pseudo_classes.insert(PseudoClass::CUSTOM),
 
                     _ => {
                         let parse_error = ParseError {

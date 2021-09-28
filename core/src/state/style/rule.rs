@@ -59,7 +59,7 @@ impl StyleRule {
     //     self
     // }
 
-    pub fn specificity(&self) -> Specificity {
+    pub(crate) fn specificity(&self) -> Specificity {
         let mut specificity = Specificity([0, 0, 0]);
         for selector in self.selectors.iter() {
             specificity += selector.specificity();

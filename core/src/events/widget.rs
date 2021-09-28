@@ -19,14 +19,20 @@ use std::any::Any;
 // Length proportional to radius of a cubic bezier handle for 90deg arcs.
 const KAPPA90: f32 = 0.5522847493;
 
+/// Trait implemented by all widgets
 pub trait Widget: std::marker::Sized + 'static {
+    /// The `Ret` associated type determines whether a single entity or a tuple of entities will be returned when the widget is built.
+    /// This can be useful for widgets which are made up of sub-widgets which need to be accessible, see [TabView] for an example.
     type Ret: AsEntity;
+
+    /// The `Data` associated type is used by the binding system to determine the type of data the widget receives during an update.
     type Data: Node;
 
     fn widget_name(&self) -> String {
         String::new()
     }
 
+    /// Called when the widget is built into state 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret;
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
@@ -49,38 +55,30 @@ pub trait Widget: std::marker::Sized + 'static {
         // Return the entity or entities returned by the on_build method
         ret
     }
-
+    /// Bind a piece of data to the widget using a lens and a conversion closure
     fn bind<L: Lens, F>(self, lens: L, converter: F) -> Wrapper<L, Self> 
     where F: 'static + Fn(&<L as Lens>::Target) -> <Self as Widget>::Data
     {
         Wrapper::new(self, lens, converter)
     }
 
-    fn bind2<L: Lens>(self, lens: L) -> LensWrap<L, Self> {
+    /// Bind a piece of data to the widget without conversion, allowing the data to be passed as a reference
+    fn bind_ref<L: Lens>(self, lens: L) -> LensWrap<L, Self> {
         LensWrap::new(self, lens)
     }
 
-    // Called when data bound to this widget is changed
+    /// Called when data bound to this widget is changed
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        //println!("Received on_update for: {}", entity);
-        // Update children
-        // for (_index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
 
-        //     if let Some(mut event_handler) = state.event_handlers.remove(&child) {
-        //         println!("Child: {}", child);
-        //         event_handler.on_update(state, child, data);
-
-        //         state.event_handlers.insert(child, event_handler);
-        //     }
-        // }
     }
 
-    // Called when events are flushed
+    /// Called when the widget receives an event
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
+
 
     fn on_style(&mut self, state: &mut State, entity: Entity, property: (String, PropType)) {}
 
-    // Called when a redraw occurs
+    /// Called when the widget is redrawn. Allows for custom drawing of the widget
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
 
 

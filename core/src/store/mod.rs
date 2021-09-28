@@ -27,7 +27,7 @@ pub trait Model {
     }
 }
 
-pub struct Store<D> {
+pub(crate) struct Store<D> {
     data_widget: D,
     observers: HashSet<Entity>,
 }
@@ -103,15 +103,15 @@ pub enum BindEvent {
     //Init,
 }
 
-#[derive(PartialEq)]
-pub struct Rebind<L: Lens> {
-    lens: L,
-}
+// #[derive(PartialEq)]
+// pub struct Rebind<L: Lens> {
+//     lens: L,
+// }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum UpdateEvent<'a, T> {
-    Update(&'a T),
-}
+// #[derive(Debug, Clone, PartialEq)]
+// pub enum UpdateEvent<'a, T> {
+//     Update(&'a T),
+// }
 
 
 pub struct LensWrap<L: Lens, W: Widget> {
