@@ -39,6 +39,18 @@ impl Tree {
         }
     }
 
+    pub fn get_child_index(&self, entity: Entity) -> Option<usize> {
+        if let Some(parent) = self.get_parent(entity) {
+            for (index, child) in parent.child_iter(self).enumerate() {
+                if child == entity {
+                    return Some(index);
+                }
+            }
+        }
+
+        None
+    } 
+
     /// Returns the last child of an entity
     pub fn get_last_child(&self, entity: Entity) -> Option<Entity> {
         //check if entity exists

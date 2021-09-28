@@ -145,6 +145,14 @@ name = "todos"
 path = "examples/binding/todos.rs"
 
 [[example]]
+name = "todos2"
+path = "examples/binding/todos2.rs"
+
+[[example]]
+name = "todos3"
+path = "examples/binding/todos3.rs"
+
+[[example]]
 name = "multiple_stores"
 path = "examples/binding/multiple_stores.rs"
 

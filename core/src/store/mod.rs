@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+#[allow(unused_variables)]
 
 pub mod node;
 pub mod lens;
@@ -13,8 +13,10 @@ use crate::{State, Entity, Event, Widget, Propagation, PropSet};
 use crate::events::event_handler::Canvas;
 
 pub trait Model {
-    fn on_event(&mut self, #[allow(unused_variables)] state: &mut State, #[allow(unused_variables)] entity: Entity, #[allow(unused_variables)] event: &mut Event) {
-
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        let _ = state;
+        let _ = entity;
+        let _ = event;
     }
 
     /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
@@ -57,7 +59,7 @@ impl<D: Model + Node> Widget for Store<D> {
                         self.observers.insert(*target);
                         //entity.emit(state, BindEvent::Update);
                         if let Some(mut event_handler) = state.event_handlers.remove(target) {
-                            event_handler.on_update(state, *target, &self.data_widget);
+                            event_handler.on_update_(state, *target, &self.data_widget);
     
                             state.event_handlers.insert(*target, event_handler);
                         }
@@ -73,7 +75,7 @@ impl<D: Model + Node> Widget for Store<D> {
                     for observer in self.observers.iter() {
                         if *observer != event.origin {
                             if let Some(mut event_handler) = state.event_handlers.remove(observer) {
-                                event_handler.on_update(state, *observer, &self.data_widget);
+                                event_handler.on_update_(state, *observer, &self.data_widget);
 
                                 state.event_handlers.insert(*observer, event_handler);
                             }
@@ -235,7 +237,7 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
         for (_index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
 
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
-                event_handler.on_update(state, child, &value);
+                event_handler.on_update_(state, child, &value);
 
                 state.event_handlers.insert(child, event_handler);
             }

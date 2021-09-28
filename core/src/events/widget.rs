@@ -761,14 +761,14 @@ where
         <T as Widget>::widget_name(self)
     }
 
-    fn on_update(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {
+    fn on_update_(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {
         if let Some(data) = node.downcast_ref() {
              <T as Widget>::on_update(self, state, entity, data);
         } else {
             for (_index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
                 if let Some(mut event_handler) = state.event_handlers.remove(&child) {
 
-                    event_handler.on_update(state, child, node);
+                    event_handler.on_update_(state, child, node);
     
                     state.event_handlers.insert(child, event_handler);
                 }

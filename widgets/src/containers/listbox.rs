@@ -210,7 +210,7 @@ impl<W: Widget> Widget for ListItem<W> {
 
         for child in entity.child_iter(&state.tree.clone()) {
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
-                event_handler.on_update(state, child, data);
+                event_handler.on_update_(state, child, data);
 
                 state.event_handlers.insert(child, event_handler);
             }
@@ -307,7 +307,14 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Vec<T>) {
 
         if state.tree.get_num_children(entity).unwrap() as usize != data.len() {
+            
+            // Currently rebuilds the entire list of child widgets but would be good to just add the specific ones here
+            for child in entity.child_iter(&state.tree.clone()) {
+                state.remove(child);
+            }
+
             for (index, item) in data.iter().enumerate() {
+                println!("Item: {:?}", item);
                 // let item = CheckButton::new()
                 //     .set_checked(true)
                 //     .build(state, entity, |builder| 
@@ -329,11 +336,10 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
             }            
         }
 
-
         for (index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
             
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
-                event_handler.on_update(state, child, &data[index]);
+                event_handler.on_update_(state, child, &data[index]);
 
                 state.event_handlers.insert(child, event_handler);
             }
