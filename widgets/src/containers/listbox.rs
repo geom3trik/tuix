@@ -222,35 +222,41 @@ impl<W: Widget> Widget for ListItem<W> {
 
 
 pub struct ListView<T, W> {
-    checked_entity: Entity,
     single: bool,
     pub selected: usize,
 
     on_change: Option<Box<dyn Fn(&mut Self, &mut State, Entity)>>,
 
     template: Option<Box<dyn Fn(&T, usize) -> W>>,
-
-    t: PhantomData<T>,
 }
 
-impl<T: std::fmt::Debug + Node, W: Widget> ListView<T, W> {
+impl<T: std::fmt::Debug + Node> ListView<T, CheckButton> {
     pub fn new() -> Self {
         Self {
-            checked_entity: Entity::null(),
             single: true,
             selected: 0,
             on_change: None,
             template: None,
-            t: PhantomData::default(),
         }
     }
+}
 
-    pub fn data_template<F>(mut self, template: F) -> Self 
+impl<T: std::fmt::Debug + Node, W: Widget> ListView<T, W> {
+    // pub fn new() -> Self 
+    // where W: Widget,
+    // {
+    //     ListView::<T, CheckButton>::with_template(|item, index| CheckButton::with_label(&format!("{:?}", item)))
+    // }
+
+    pub fn with_template<F>(template: F) -> Self 
     where F: 'static + Fn(&T, usize) -> W,
     {
-        self.template = Some(Box::new(template));
-
-        self
+        Self {
+            single: true,
+            selected: 0,
+            on_change: None,
+            template: Some(Box::new(template)),
+        }
     }
 
     pub fn on_change<F>(mut self, callback: F) -> Self 
@@ -310,26 +316,16 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
                 //             .set_child_space(Pixels(0.0))
                 //     );
 
-                //(self.creator)(item).build(state, entity, |builder| builder.set_height(Pixels(30.0)).set_color(Color::black()));
                 if let Some(template) = &self.template {
                     ListItem::new((template)(item, index)).build(state, entity, |builder| 
                         builder
-                            //.set_height(Pixels(30.0))
-                            //.set_height(Auto)
-                            //.set_width(Auto)
-                            //.set_hoverable(false)
-                            .set_color(Color::black())
                     );
                 } else {
                     ListItem::new(CheckButton::with_label(&format!("{:?}", item))).build(state, entity, |builder| 
                         builder
-                            //.set_height(Pixels(30.0))
-                            //.set_height(Auto)
-                            //.set_width(Auto)
-                            //.set_hoverable(false)
-                            .set_color(Color::black())
                     );
                 }
+             
             }            
         }
 

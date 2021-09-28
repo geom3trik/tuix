@@ -120,10 +120,8 @@ fn main() {
         // Add the app data to the root of the application 
         let app_data = AppData::new().build(state, window);
 
-        // Create a new list view
-        ListView::new()
-            // Specify what widget to use to show the list item
-            .data_template(|_,_| TodoItemWidget::default())
+        // Create a new list view and specify a widget to use to show the list item
+        ListView::with_template(|_,_| TodoItemWidget::default())
             // Bind the ListView to the list data
             .bind(AppData::todo_items, |items| items.clone())
             // Build the ListView into the app

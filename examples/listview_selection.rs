@@ -205,7 +205,7 @@ impl Widget for Container {
     type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
-        self.listview = ListView::new(|item: &User, index| CheckButton::with_label(&item.to_string()) )
+        self.listview = ListView::new()
             .on_change(|list_data, state, list|{
                 list.emit(state, CustomEvent::SelectUser(list_data.selected));
             })
