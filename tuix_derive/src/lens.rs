@@ -114,7 +114,10 @@ fn derive_struct(input: &syn::DeriveInput) -> Result<proc_macro2::TokenStream, s
                 }
             }
         }
+
+        
     });
+
 
     // let used_params: HashSet<String> = input
     //     .generics
@@ -150,8 +153,8 @@ fn derive_struct(input: &syn::DeriveInput) -> Result<proc_macro2::TokenStream, s
                 type Source = #struct_type#ty_generics;
                 type Target = #field_ty;
 
-                fn view<'a>(&self, data: &'a#struct_type#ty_generics) -> #field_ty {
-                    data.#field_name.clone()
+                fn view<'a>(&self, data: &'a#struct_type#ty_generics) -> &'a#field_ty {
+                    &data.#field_name
                 }
             }
         }
@@ -173,13 +176,32 @@ fn derive_struct(input: &syn::DeriveInput) -> Result<proc_macro2::TokenStream, s
         #[doc = #mod_docs]
         pub mod #twizzled_name {
             #(#defs)*
+
+            pub struct root;
+
+            impl root {
+                pub const fn new()->Self{
+                    Self
+                }
+            }
         }
 
         #(#impls)*
 
+        impl Lens for #twizzled_name::root {
+            type Source = #struct_type#ty_generics;
+            type Target = #struct_type#ty_generics;
+
+            fn view<'a>(&self, source: &'a Self::Source) -> &'a Self::Target {
+                source
+            }
+        }
+
         #[allow(non_upper_case_globals)]
         impl #impl_generics #struct_type #ty_generics #where_clause {
             #(#associated_items)*
+
+            pub const root: #twizzled_name::root = #twizzled_name::root::new();
         }
     };
 

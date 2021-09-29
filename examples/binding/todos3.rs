@@ -144,8 +144,6 @@ impl Model for AppData {
                         entity.emit(state, BindEvent::Update);
                     } 
                 }
-
-                _=> {}
             }
         }
     }
@@ -228,15 +226,15 @@ impl SortableList {
 
 impl Widget for SortableList {
     type Ret = Entity;
-    type Data = (bool, Vec<TodoItem>);
+    type Data = AppData;
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.list.on_build(state, entity)
     }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        let (sorted, todos) = data;
-        let new_todos = if *sorted {
+        let (sorted, todos) = (data.show_sorted, &data.todo_items);
+        let new_todos = if sorted {
             // Need to clone because we can't sort the original due to only having an immutable ref
             let mut t = todos.clone();
             t.sort_by_cached_key(|item| item.completed);
@@ -334,7 +332,7 @@ fn main() {
         // Create a new list view and specify a widget to use to show the list item
         SortableList::new()
             // Bind the ListView to the list data
-            .bind(AppData::show_sorted.and(AppData::todo_items), |items| items.clone())
+            .bind(AppData::root, |items| items.clone())
             // Build the ListView into the app
             .build(state, scroll, |builder| 
                 builder
@@ -342,18 +340,6 @@ fn main() {
                     .set_row_between(Pixels(10.0))
                     .set_height(Auto)
             );
-
-        // // Create a new list view and specify a widget to use to show the list item
-        // ListView::with_template(|_,_| TodoItemWidget::default())
-        //     // Bind the ListView to the list data
-        //     .bind(AppData::todo_items, |items| items.clone())
-        //     // Build the ListView into the app
-        //     .build(state, scroll, |builder| 
-        //         builder
-        //             .set_child_space(Pixels(10.0))
-        //             .set_row_between(Pixels(10.0))
-        //             .set_height(Auto)
-        //     );
     });
 
     app.run();

@@ -7,7 +7,7 @@ pub trait Lens: 'static + Sized {
     type Source: Node;
     type Target;
 
-    fn view<'a>(&self, data: &'a Self::Source) -> Self::Target;
+    fn view<'a>(&self, data: &'a Self::Source) -> &'a Self::Target;
 }
 
 
@@ -23,13 +23,13 @@ pub trait LensExt: Lens {
         Then::new(self, other)
     }
 
-    fn and<Other>(self, other: Other) -> And<Self, Other>
-    where
-        Other: Lens + Sized,
-        Self: Sized,
-    {
-        And::new(self, other)
-    }
+    // fn and<Other>(self, other: Other) -> And<Self, Other>
+    // where
+    //     Other: Lens + Sized,
+    //     Self: Sized,
+    // {
+    //     And::new(self, other)
+    // }
 
     fn index<I: 'static>(self, index: I) -> Then<Self, Index<Self::Target, I>>
     where
@@ -76,8 +76,8 @@ where
     type Source = A::Source;
     type Target = B::Target;
 
-    fn view<'a>(&self, data: &'a Self::Source) -> Self::Target {
-        self.b.view(&self.a.view(data))
+    fn view<'a>(&self, data: &'a Self::Source) -> &'a Self::Target {
+        &self.b.view(&self.a.view(data))
     }
 }
 
@@ -90,36 +90,36 @@ impl<T: Clone, U: Clone> Clone for Then<T, U> {
     }
 }
 
-pub struct And<A,B> {
-    a: A,
-    b: B,
-}
+// pub struct And<A,B> {
+//     a: A,
+//     b: B,
+// }
 
-impl<A,B> And<A,B> {
-    pub fn new(a: A, b: B) -> Self 
-    where 
-        A: Lens,
-        B: Lens,
-    {
-        Self {
-            a,
-            b,
-        }
-    }
-}
+// impl<A,B> And<A,B> {
+//     pub fn new(a: A, b: B) -> Self 
+//     where 
+//         A: Lens,
+//         B: Lens,
+//     {
+//         Self {
+//             a,
+//             b,
+//         }
+//     }
+// }
 
-impl<A,B> Lens for And<A,B> 
-where 
-    A: Lens,
-    B: Lens<Source = A::Source>,
-{
-    type Source = A::Source;
-    type Target = (A::Target, B::Target);
+// impl<A,B> Lens for And<A,B> 
+// where 
+//     A: Lens,
+//     B: Lens<Source = A::Source>,
+// {
+//     type Source = A::Source;
+//     type Target = (A::Target, B::Target);
 
-    fn view<'a>(&self, data: &'a Self::Source) -> Self::Target {
-        (self.a.view(data), self.b.view(data))
-    }
-}
+//     fn view<'a>(&self, data: &'a Self::Source) -> &Self::Target {
+//         &(self.a.view(data), self.b.view(data))
+//     }
+// }
 
 pub struct Index<T,I> {
     index: I,
@@ -145,7 +145,7 @@ where
     type Source = T;
     type Target = <T as std::ops::Index<I>>::Output;
 
-    fn view<'a>(&self, data: &'a Self::Source) -> Self::Target {
-        data[self.index.clone()].clone()
+    fn view<'a>(&self, data: &'a Self::Source) -> &'a Self::Target {
+        &data[self.index.clone()]
     }
 }

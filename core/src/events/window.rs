@@ -24,6 +24,27 @@ impl Widget for WindowWidget {
     }
 
     fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
+        
+        // if let Some(restyle_event) = event.message.downcast::<RestyleEvent>() {
+        //     let tree = state.tree.clone();
+        //     apply_styles(state, &tree);
+        // }
+
+        // if let Some(relayout_event) = event.message.downcast::<RelayoutEvent>() {
+        //     let tree = state.tree.clone();
+        //     state.needs_redraw = true;
+        //     apply_z_ordering(state, &tree);
+        //     apply_visibility(state, &tree);
+        //     morphorm::layout(&mut state.data, &state.tree, &mut state.style);
+        //     apply_transform(state, &tree);
+        //     geometry_changed(state, &tree);
+        //     apply_hover(state);
+        // }
+
+        // if let Some(redraw_event) = event.message.downcast::<RedrawEvent>() {
+
+        // }
+        
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
                 WindowEvent::WindowClose => {

@@ -293,9 +293,9 @@ impl State {
     /// state.insert_event(Event::new(WindowEvent::WindowClose));
     /// ```
     pub fn insert_event(&mut self, event: Event) {
-        if event.unique {
-            self.event_queue.retain(|e| e != &event);
-        }
+        // if event.unique {
+        //     self.event_queue.retain(|e| e != &event);
+        // }
 
         self.event_queue.push_back(event);
     }

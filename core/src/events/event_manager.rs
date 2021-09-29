@@ -45,6 +45,8 @@ impl EventManager {
 
     pub fn flush_events(&mut self, state: &mut State) -> bool {
         let mut needs_redraw = false;
+        let mut needs_restyle = false;
+        let mut needs_relayout = false;
 
         if state.tree.changed {
             self.tree = state.tree.clone();
@@ -99,11 +101,26 @@ impl EventManager {
                 match window_event {
                     WindowEvent::Redraw => {
                         needs_redraw = true;
+                        continue 'events;
+                    }
+
+                    WindowEvent::Relayout => {
+                        needs_relayout = true;
+                        continue 'events;
+                    }
+
+                    WindowEvent::Restyle => {
+                        needs_restyle = true;
+                        continue 'events;
                     }
 
                     _ => {}
                 }
             }
+
+            // if let Some(redraw_event) = event.message.downcast::<RedrawEvent>() {
+            //     needs_redraw = true;
+            // }
 
             // Define the target to prevent multiple mutable borrows error
             let target = event.target;
@@ -217,6 +234,30 @@ impl EventManager {
                         }
                     }
                 }
+            }
+        }
+
+        if needs_restyle {
+            if let Some(mut event_handler) = state.event_handlers.remove(&Entity::root()) {
+                event_handler.on_event_(state, Entity::root(), &mut Event::new(WindowEvent::Restyle));
+
+                state.event_handlers.insert(Entity::root(), event_handler);
+            }
+        }
+
+        if needs_relayout {
+            if let Some(mut event_handler) = state.event_handlers.remove(&Entity::root()) {
+                event_handler.on_event_(state, Entity::root(), &mut Event::new(WindowEvent::Relayout));
+
+                state.event_handlers.insert(Entity::root(), event_handler);
+            }
+        }
+
+        if needs_redraw {
+            if let Some(mut event_handler) = state.event_handlers.remove(&Entity::root()) {
+                event_handler.on_event_(state, Entity::root(), &mut Event::new(WindowEvent::Redraw));
+
+                state.event_handlers.insert(Entity::root(), event_handler);
             }
         }
 
