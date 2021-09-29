@@ -1,6 +1,5 @@
 use tuix::*;
 use tuix::widgets::*;
-use rand::prelude::*;
 
 const STYLE: &str = r#"
 

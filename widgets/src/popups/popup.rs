@@ -1,7 +1,7 @@
 use crate::common::*;
 
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum PopupEvent {
     OpenAtCursor,
     Open,

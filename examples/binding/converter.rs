@@ -89,8 +89,8 @@ fn main() {
         Textbox::new("test")
             .on_submit(|data, state, textbox|{
                 if let Ok(temp) = data.text.parse::<f32>() {
-                    let temp_celcius = (temp - 32.0) * 5.0/9.0;
-                    textbox.emit(state, AppEvent::SetCelcius(temp_celcius));
+                    //let temp_celcius = (temp - 32.0) * 5.0/9.0;
+                    textbox.emit(state, AppEvent::SetFahrenheit(temp));
                 }
             })
             .bind(AppData::temperature_celcius, |temp| ((*temp * 9.0/5.0) + 32.0).to_string())

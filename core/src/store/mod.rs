@@ -103,16 +103,6 @@ pub enum BindEvent {
     //Init,
 }
 
-// #[derive(PartialEq)]
-// pub struct Rebind<L: Lens> {
-//     lens: L,
-// }
-
-// #[derive(Debug, Clone, PartialEq)]
-// pub enum UpdateEvent<'a, T> {
-//     Update(&'a T),
-// }
-
 
 pub struct LensWrap<L: Lens, W: Widget> {
     widget: W,

@@ -41,7 +41,6 @@ const STYLE: &str = r#"
     }
 "#;
 
-#[derive(PartialEq)]
 pub enum CounterEvent {
     Increment,
     Decrement,

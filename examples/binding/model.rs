@@ -6,7 +6,7 @@ pub struct AppData {
     value: i32,
 }
 
-#[derive(PartialEq)]
+
 pub enum AppEvent {
     Increment,
     Decrement,
@@ -36,7 +36,7 @@ fn main() {
         let app_data = AppData{value: 30}.build(state, window);
 
         Button::with_label("Increment")
-            .on_press(|data, state, button|{
+            .on_press(|_, state, button|{
                 button.emit(state, AppEvent::Increment);
             })
             .build(state, app_data, |builder|
@@ -49,7 +49,7 @@ fn main() {
             );
 
         Button::with_label("Decrement")
-            .on_press(|data, state, button|{
+            .on_press(|_, state, button|{
                 button.emit(state, AppEvent::Decrement);
             })
             .build(state, app_data, |builder|

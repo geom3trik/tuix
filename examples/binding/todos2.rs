@@ -128,8 +128,6 @@ impl Model for AppData {
                     self.todo_items.remove(*index);
                     entity.emit(state, BindEvent::Update);
                 }
-
-                _=> {}
             }
         }
     }

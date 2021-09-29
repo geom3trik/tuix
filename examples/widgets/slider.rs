@@ -28,7 +28,7 @@ const STYLE: &str = r#"
 
 "#;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 enum CustomEvent {
     ChangeColor(Color),
 }

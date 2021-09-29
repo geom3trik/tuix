@@ -7,7 +7,7 @@ use crate::{Popup, PopupEvent, common::*};
 // When container is visible, clicking on a menu item activates the item
 //  Need the option to close the menu on item press
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum MenuEvent {
     Open(Entity),
     Close(Entity),

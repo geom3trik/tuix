@@ -306,7 +306,7 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Vec<T>) {
 
-        if state.tree.get_num_children(entity).unwrap() as usize != data.len() {
+        //if state.tree.get_num_children(entity).unwrap() as usize != data.len() {
             
             // Currently rebuilds the entire list of child widgets but would be good to just add the specific ones here
             for child in entity.child_iter(&state.tree.clone()) {
@@ -334,7 +334,7 @@ impl<T: std::fmt::Debug + Node, W: Widget> Widget for ListView<T, W> {
                 }
              
             }            
-        }
+        //}
 
         for (index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
             

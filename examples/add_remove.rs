@@ -2,7 +2,7 @@ use tuix::*;
 use tuix::widgets::*;
 // An example for demonstrating the addition and removal of entities
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub enum AddRemoveEvent {
     Add,
     Remove,

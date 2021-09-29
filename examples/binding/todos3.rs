@@ -34,16 +34,18 @@ const STYLE: &str = r#"
 
 const ICON_TRASH: &str = "\u{e729}";
 
-#[derive(Debug, Clone, Lens)]
+#[derive(Debug, Clone, Lens, PartialEq)]
 pub struct TodoItem {
     description: String,
     completed: bool,
+    id: u64,
 }
 
-#[derive(Debug, Clone, Lens)]
+#[derive(Lens)]
 pub struct AppData {
     show_sorted: bool,
     todo_items: Vec<TodoItem>,
+    count: u64,
 }
 
 impl AppData {
@@ -54,66 +56,76 @@ impl AppData {
         todo_items.push(TodoItem {
             description: "Finish making this example".to_string(),
             completed: false,
+            id: 0,
         });
 
         todo_items.push(TodoItem {
             description: "Make example editable".to_string(),
             completed: false,
+            id: 1,
         });
 
         todo_items.push(TodoItem {
             description: "Restyle counter examples".to_string(),
             completed: false,
+            id: 2,
         });
 
         todo_items.push(TodoItem {
             description: "Update images in quick start guide".to_string(),
             completed: false,
+            id: 3,
         });
 
         todo_items.push(TodoItem {
             description: "Change default window background to white".to_string(),
             completed: true,
+            id: 4,
         });
 
         todo_items.push(TodoItem {
             description: "Clean up the code".to_string(),
             completed: false,
+            id: 5,
         });
 
         todo_items.push(TodoItem {
             description: "Change default font color to black".to_string(),
             completed: true,
+            id: 6,
         });
 
         todo_items.push(TodoItem {
             description: "Propagate binding data to children".to_string(),
             completed: true,
+            id: 7,
         });
 
         todo_items.push(TodoItem {
             description: "Add Drag and Drop functionality".to_string(),
             completed: false,
+            id: 8,
         });
 
         todo_items.push(TodoItem {
             description: "Add ability to add Timers".to_string(),
             completed: false,
+            id: 9,
         });
 
         Self {
             show_sorted: false,
             todo_items,
+            count: 10,
         }
     }
 }
 
-#[derive(PartialEq)]
 pub enum TodoEvent {
     Add(String),
-    Remove(usize),
+    Remove(u64),
     Sort(bool),
-    Mark(usize, bool),
+    Mark(u64, bool),
 }
 
 impl Model for AppData {
@@ -124,13 +136,18 @@ impl Model for AppData {
                     self.todo_items.push(TodoItem {
                         description: todo.clone(),
                         completed: false,
+                        id: self.count,
                     });
+                    self.count += 1;
                     entity.emit(state, BindEvent::Update);
                 }
 
-                TodoEvent::Remove(index) => {
-                    self.todo_items.remove(*index);
-                    entity.emit(state, BindEvent::Update);
+                TodoEvent::Remove(id) => {
+                    println!("Remove: {}", id);
+                    if let Some(index) = self.todo_items.iter().position(|todo_item| todo_item.id == *id) {
+                        self.todo_items.remove(index);
+                        entity.emit(state, BindEvent::Update);
+                    }
                 }
 
                 TodoEvent::Sort(flag) => {
@@ -138,20 +155,21 @@ impl Model for AppData {
                     entity.emit(state, BindEvent::Update);
                 }
 
-                TodoEvent::Mark(index, flag) => {
-                    if let Some(todo_item) = self.todo_items.get_mut(*index) {
-                        todo_item.completed = *flag;
-                        entity.emit(state, BindEvent::Update);
-                    } 
+                TodoEvent::Mark(id, flag) => {
+                    if let Some(index) = self.todo_items.iter().position(|todo_item| todo_item.id == *id) {
+                        if let Some(todo_item) = self.todo_items.get_mut(index) {
+                            todo_item.completed = *flag;
+                            entity.emit(state, BindEvent::Update);
+                        } 
+                    }
                 }
             }
         }
     }
 }
 
-#[derive(Default)]
 pub struct TodoItemWidget {
-
+    id: u64,
 }
 
 impl Widget for TodoItemWidget {
@@ -160,7 +178,7 @@ impl Widget for TodoItemWidget {
 
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
-        let index = state.tree.get_child_index(entity).unwrap();
+        let id = self.id;
         
         // Row for laying out the checkbox and label horizontally and for adding space around and between
         let row = Row::new().build(state, entity, |builder| 
@@ -173,10 +191,10 @@ impl Widget for TodoItemWidget {
         // Checkbox to show whether the todo item is done or not
         Checkbox::new(false)
             .on_checked(move |_, state, checkbox|{
-                checkbox.emit(state, TodoEvent::Mark(index, true));
+                checkbox.emit(state, TodoEvent::Mark(id, true));
             })
             .on_unchecked(move |_, state, checkbox|{
-                checkbox.emit(state, TodoEvent::Mark(index, false));
+                checkbox.emit(state, TodoEvent::Mark(id, false));
             })
             // Bind the checkbox to the TodoItem's completed flag
             .bind(TodoItem::completed, |completed| *completed)
@@ -192,7 +210,7 @@ impl Widget for TodoItemWidget {
         
         Button::with_label(ICON_TRASH)
         .on_press(move |_, state, button| {
-            button.emit(state, TodoEvent::Remove(index));
+            button.emit(state, TodoEvent::Remove(id));
         })
         .build(state, row, |builder| 
             builder
@@ -219,7 +237,7 @@ pub struct SortableList {
 impl SortableList {
     pub fn new() -> Self {
         Self {
-            list: ListView::with_template(|_,_| TodoItemWidget::default()),
+            list: ListView::with_template(|todo_item: &TodoItem,_| TodoItemWidget{id: todo_item.id}),
         }
     }
 }
@@ -234,15 +252,16 @@ impl Widget for SortableList {
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
         let (sorted, todos) = (data.show_sorted, &data.todo_items);
-        let new_todos = if sorted {
+        if sorted {
             // Need to clone because we can't sort the original due to only having an immutable ref
-            let mut t = todos.clone();
-            t.sort_by_cached_key(|item| item.completed);
-            t
+            let mut sorted_todos = todos.clone();
+            sorted_todos.sort_by_cached_key(|item| item.completed);
+            self.list.on_update(state, entity, &sorted_todos);
+
         } else {
-            todos.clone()
+            self.list.on_update(state, entity, todos);
         };
-        self.list.on_update(state, entity, &new_todos);
+        
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -332,7 +351,7 @@ fn main() {
         // Create a new list view and specify a widget to use to show the list item
         SortableList::new()
             // Bind the ListView to the list data
-            .bind(AppData::root, |items| items.clone())
+            .bind_ref(AppData::root)
             // Build the ListView into the app
             .build(state, scroll, |builder| 
                 builder

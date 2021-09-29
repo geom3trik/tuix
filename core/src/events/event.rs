@@ -26,7 +26,7 @@ pub trait Message: Any {
     fn as_any(&self) -> &dyn Any;
 
     // Perform the test
-    fn equals_a(&self, _: &dyn Message) -> bool;
+    // fn equals_a(&self, _: &dyn Message) -> bool;
 }
 
 // An Any is not normally clonable. This is a way around that.
@@ -78,22 +78,22 @@ impl dyn Message {
 }
 
 // Implements message for any static type that implements Clone
-impl<S: 'static + PartialEq> Message for S {
+impl<S: 'static> Message for S {
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn equals_a(&self, other: &dyn Message) -> bool {
-        //other.as_any().type_id() == self.as_any().type_id()
+    // fn equals_a(&self, other: &dyn Message) -> bool {
+    //     //other.as_any().type_id() == self.as_any().type_id()
 
-        //println!("{:?} {:?}", other.as_any().type_id(), self.as_any().type_id());
-        //println!("{:?} {:?}", other, self);
+    //     //println!("{:?} {:?}", other.as_any().type_id(), self.as_any().type_id());
+    //     //println!("{:?} {:?}", other, self);
 
-        other
-            .as_any()
-            .downcast_ref::<S>()
-            .map_or(false, |a| self == a)
-    }
+    //     other
+    //         .as_any()
+    //         .downcast_ref::<S>()
+    //         .map_or(false, |a| self == a)
+    // }
 }
 
 /// An event is a wrapper around a message and provides metadata on how the event should be propagated through the tree
@@ -116,14 +116,14 @@ pub struct Event {
     pub message: Box<dyn Message>,
 }
 
-// Allows events to be compared for equality
-impl PartialEq for Event {
-    fn eq(&self, other: &Event) -> bool {
-        self.message.equals_a(&*other.message)
-            //&& self.origin == other.origin
-            && self.target == other.target
-    }
-}
+// // Allows events to be compared for equality
+// impl PartialEq for Event {
+//     fn eq(&self, other: &Event) -> bool {
+//         self.message.equals_a(&*other.message)
+//             //&& self.origin == other.origin
+//             && self.target == other.target
+//     }
+// }
 
 impl Event {
     /// Creates a new event with a specified message

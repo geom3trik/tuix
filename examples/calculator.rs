@@ -4,7 +4,7 @@ use tuix::widgets::*;
 
 use tuix::*;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub enum CalculatorEvent {
     Digit(char),
     Operator(char),

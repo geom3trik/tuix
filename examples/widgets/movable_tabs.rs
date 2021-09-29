@@ -45,7 +45,7 @@ fn main() {
             builder.set_text("Third").class("tab").set_width(Auto)
         });
 
-        let placeholder = Element::new().build(state, _third_tab, |builder| builder.set_width(Pixels(80.0)).set_hoverable(false));
+        Element::new().build(state, _third_tab, |builder| builder.set_width(Pixels(80.0)).set_hoverable(false));
 
         let third_container = TabContainer::new("third")
             .build(state, tab_viewport1, |builder| builder.class("third"));

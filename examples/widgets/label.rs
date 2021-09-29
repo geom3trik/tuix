@@ -1,6 +1,5 @@
 use tuix::*;
 use tuix::widgets::*;
-use rand::prelude::*;
 
 const STYLE: &str = r#"
 
@@ -10,11 +9,6 @@ const STYLE: &str = r#"
     }
 
 "#;
-
-#[derive(Debug, Clone, PartialEq)]
-enum CustomEvent {
-    ChangeColor(Color),
-}
 
 #[derive(Default)]
 struct Container {

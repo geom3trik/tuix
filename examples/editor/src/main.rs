@@ -40,7 +40,7 @@ impl Default for ColorPickFor {
     }
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub enum AppEvent {
 
     SelectWidget(Entity),
