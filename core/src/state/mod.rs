@@ -2,7 +2,10 @@
 
 mod entity;
 pub use entity::{Entity, AsEntity};
-use entity::EntityManager;
+
+
+mod id;
+pub(crate) use id::{IdManager, GenerationalId};
 
 mod tree;
 pub use tree::*;
@@ -67,8 +70,8 @@ pub struct Fonts {
 }
 
 pub struct State {
-    // Creates and destroys entities
-    pub(crate) entity_manager: EntityManager, 
+    /// Creates and destroys entities
+    pub(crate) entity_manager: IdManager<Entity>, 
     // The widget tree
     pub tree: Tree,
     // The style properties for every widget
@@ -88,6 +91,9 @@ pub struct State {
     pub captured: Entity,
     // Focused entity
     pub focused: Entity,
+
+    /// Creates and destroys animation ids
+    pub(crate) animation_manager: IdManager<Animation>,
 
 
     pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
@@ -117,8 +123,8 @@ pub struct State {
 
 impl State {
     pub fn new() -> Self {
-        let mut entity_manager = EntityManager::new();
-        let _root = entity_manager.create_entity();
+        let mut entity_manager = IdManager::new();
+        let _root = entity_manager.create();
         let tree = Tree::new();
         let mut style = Style::default();
         let mut data = CachedData::default();
@@ -161,6 +167,7 @@ impl State {
             //     emoji: None,
             //     arabic: None,
             // },
+            animation_manager: IdManager::new(),
             resource_manager,
             needs_restyle: false,
             needs_relayout: false,
@@ -360,8 +367,7 @@ impl State {
     pub(crate) fn add(&mut self, parent: Entity) -> Entity {
         let entity = self
             .entity_manager
-            .create_entity()
-            .expect("Failed to create entity");
+            .create();
         self.tree.add(entity, parent).expect("");
         self.data.add(entity);
         self.style.add(entity);
@@ -380,16 +386,19 @@ impl State {
 
         for entity in delete_list.iter().rev() {
             self.tree.remove(*entity).expect("");
-            //self.tree.remove(*entity);
             self.data.remove(*entity);
             self.style.remove(*entity);
             self.removed_entities.push(*entity);
-            self.entity_manager.destroy_entity(*entity);
+            self.entity_manager.destroy(*entity);
         }
 
         Entity::root().restyle(self);
         Entity::root().relayout(self);
         Entity::root().redraw(self);
+    }
+
+    pub fn create_animation(&mut self) -> Animation {
+        self.animation_manager.create()
     }
 
     // Run all pending animations

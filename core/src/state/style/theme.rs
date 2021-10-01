@@ -10,7 +10,7 @@ use cssparser::{
 use crate::state::style::property::Property;
 use crate::state::style::selector::{Relation, Selector};
 
-use crate::state::animation::Transition;
+use crate::Transition;
 use crate::state::style::StyleRule;
 
 use crate::state::style::*;

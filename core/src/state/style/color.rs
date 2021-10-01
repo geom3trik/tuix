@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::Node;
+use crate::{Interpolator, Node};
 
 // Describes a color
 #[derive(Copy, Clone)]
@@ -186,6 +186,12 @@ impl Color {
 
     pub fn yellow() -> Self {
         Self { data: 0xFFFFFF00 }
+    }
+}
+
+impl Interpolator for Color {
+    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
+        Color::interpolate(start.clone(), end.clone(), t as f64)
     }
 }
 

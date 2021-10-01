@@ -9,39 +9,41 @@ impl Cache for CachedData {
     type Item = Entity;
 
     fn visible(&self, node: Self::Item) -> bool {
-        self.visibility.get(node.index_unchecked()).cloned().map_or(true, |visibility| visibility == Visibility::Visible)
+        self.visibility.get(node).cloned().map_or(true, |vis| vis == Visibility::Visible)
     }
 
     fn set_visible(&mut self, node: Self::Item, value: bool) {
-        self.set_visibility(node, if value {Visibility::Visible} else {Visibility::Invisible});
+        if let Some(visibility) = self.visibility.get_mut(node) {
+            *visibility = if value {Visibility::Visible} else {Visibility::Invisible} 
+        }
     }
 
     fn geometry_changed(&self, node: Self::Item) -> GeometryChanged {
-        self.geometry_changed.get(node.index_unchecked()).cloned().unwrap_or_default()
+        self.geometry_changed.get(node).cloned().unwrap_or_default()
     }
 
     fn set_geo_changed(&mut self, node: Self::Item, flag: GeometryChanged, value: bool) {
-        if let Some(geometry_changed) = self.geometry_changed.get_mut(node.index_unchecked()) {
+        if let Some(geometry_changed) = self.geometry_changed.get_mut(node) {
             geometry_changed.set(flag, value);
         }
     }
 
     fn new_width(&self, node: Self::Item) -> f32 {
-        self.size.get(node.index_unchecked()).cloned().unwrap_or_default().width
+        self.size.get(node).cloned().unwrap_or_default().width
     }
 
     fn new_height(&self, node: Self::Item) -> f32 {
-        self.size.get(node.index_unchecked()).cloned().unwrap_or_default().height
+        self.size.get(node).cloned().unwrap_or_default().height
     }
 
     fn set_new_width(&mut self, node: Self::Item, value: f32) {
-        if let Some(size) = self.size.get_mut(node.index_unchecked()) {
+        if let Some(size) = self.size.get_mut(node) {
             size.width = value;
         }
     }
 
     fn set_new_height(&mut self, node: Self::Item, value: f32) {
-        if let Some(size) = self.size.get_mut(node.index_unchecked()) {
+        if let Some(size) = self.size.get_mut(node) {
             size.height = value;
         }
     }
@@ -84,40 +86,55 @@ impl Cache for CachedData {
 
     // Left
     fn left(&self, node: Self::Item) -> f32 {
-        self.get_space_left(node)
+        //self.get_space_left(node)
+        self.space.get(node).cloned().unwrap_or_default().left
     }
 
     fn set_left(&mut self, node: Self::Item, value: f32) {
-        self.set_space_left(node, value);
+        if let Some(space) = self.space.get_mut(node) {
+            space.left = value;
+        }
     }
 
     // Right
     fn right(&self, node: Self::Item) -> f32 {
-        self.get_space_right(node)
+        //self.get_space_right(node)
+        self.space.get(node).cloned().unwrap_or_default().right
     }
 
     fn set_right(&mut self, node: Self::Item, value: f32) {
         self.set_space_right(node, value);
+        if let Some(space) = self.space.get_mut(node) {
+            space.right = value;
+        }
     }
 
     // Top
 
     fn top(&self, node: Self::Item) -> f32 {
-        self.get_space_top(node)
+        //self.get_space_top(node)
+        self.space.get(node).cloned().unwrap_or_default().top
     }
 
     fn set_top(&mut self, node: Self::Item, value: f32) {
-        self.set_space_top(node, value)
+        //self.set_space_top(node, value)
+        if let Some(space) = self.space.get_mut(node) {
+            space.top = value;
+        }
     }
 
     // Bottom
 
     fn bottom(&self, node: Self::Item) -> f32 {
-        self.get_space_bottom(node)
+        //self.get_space_bottom(node)
+        self.space.get(node).cloned().unwrap_or_default().bottom
     }
 
     fn set_bottom(&mut self, node: Self::Item, value: f32) {
-        self.set_space_bottom(node, value)
+        //self.set_space_bottom(node, value)
+        if let Some(space) = self.space.get_mut(node) {
+            space.bottom = value;
+        }
     }
 
     // Child Width Max

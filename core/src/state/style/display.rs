@@ -1,5 +1,5 @@
 use crate::Entity;
-use crate::state::animation::Interpolator;
+use crate::Interpolator;
 
 /// Display determines whether an entity will be rendered and acted on by the layout system.
 /// To make an entity invisible to rendering but still layed out, see [Visibility].

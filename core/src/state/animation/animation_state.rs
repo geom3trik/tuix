@@ -1,62 +1,7 @@
-#![allow(warnings)]
 
-use crate::Entity;
-use crate::state::storage::dense_storage::DenseStorage;
-pub use crate::state::style::*;
-use crate::{PropSet, State};
-use std::time::{Duration, Instant};
+use std::{collections::HashSet, time::{Duration, Instant}};
 
-use crate::state::style::Color;
-
-use std::collections::HashMap;
-
-/// An id used to reference stored animations
-#[derive(Debug, Clone, Copy, PartialEq, Hash)]
-pub struct Animation(usize);
-
-impl Animation {
-    pub(crate) fn new(id: usize) -> Self {
-        Self(id)
-    }
-
-    pub fn null() -> Self {
-        Self(std::usize::MAX)
-    }
-
-    pub fn get_id(&self) -> usize {
-        self.0
-    }
-}
-
-impl Default for Animation {
-    fn default() -> Self {
-        Self::null()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Transition {
-    // List of properties affected by transition
-    pub property: String,
-    // Duration of the transition
-    pub duration: f32,
-    // Delay of the transition
-    pub delay: f32,
-}
-
-impl Transition {
-    pub fn new() -> Self {
-        Transition {
-            property: String::new(),
-            duration: 0.0,
-            delay: 0.0,
-        }
-    }
-}
-
-pub trait Interpolator {
-    fn interpolate(start: &Self, end: &Self, t: f32) -> Self;
-}
+use crate::{Entity, Interpolator};
 
 #[derive(Clone, Debug)]
 pub struct AnimationState<Prop: Interpolator> {
@@ -85,8 +30,11 @@ pub struct AnimationState<Prop: Interpolator> {
     // For tansitions. The ending rule for this transition.
     pub to_rule: usize,
 
+    // The number of entities linked to this animation when playing
+    pub count: usize,
+
     // List of entities connected to this animation (used when animation is removed from active list)
-    pub entities: Vec<Entity>,
+    pub entities: HashSet<Entity>,
 }
 
 impl<Prop> AnimationState<Prop>
@@ -105,9 +53,10 @@ where
             t0: 0.0,
             t: 0.0,
             active: false,
-            entities: Vec::new(),
+            entities: HashSet::new(),
             from_rule: std::usize::MAX,
             to_rule: std::usize::MAX,
+            count: 0,
         }
     }
 
@@ -163,6 +112,14 @@ where
     pub fn get_output(&self) -> Option<&Prop> {
         self.output.as_ref()
     }
+
+    pub(crate) fn play(&mut self, entity: Entity) {
+        self.t0 = 0.0;
+        self.active = true;
+        self.t = 0.0;
+        self.start_time = std::time::Instant::now();
+        self.entities.insert(entity);
+    }
 }
 
 impl<Prop> Default for AnimationState<Prop>
@@ -181,27 +138,10 @@ where
             t0: 0.0,
             t: 0.0,
             active: false,
-            entities: Vec::new(),
+            entities: HashSet::new(),
             from_rule: std::usize::MAX,
             to_rule: std::usize::MAX,
+            count: 0,
         }
-    }
-}
-
-impl Interpolator for Color {
-    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
-        Color::interpolate(start.clone(), end.clone(), t as f64)
-    }
-}
-
-impl Interpolator for f32 {
-    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
-        return start + (end - start) * t;
-    }
-}
-
-impl Interpolator for i32 {
-    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
-        return ((start + (end - start)) as f32 * t).round() as i32;
     }
 }

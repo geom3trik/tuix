@@ -1,6 +1,6 @@
 use crate::Entity;
 
-use crate::state::animation::Interpolator;
+use crate::Interpolator;
 use crate::Color;
 
 use crate::Units;

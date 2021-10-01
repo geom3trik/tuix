@@ -1,348 +1,286 @@
-use std::fmt::write;
 
-use crate::Entity;
 
-use super::Property;
+use std::cmp::{Eq, PartialEq};
+use std::hash::Hash;
 
-use crate::state::storage::dense_storage::DenseStorage;
+use morphorm::Units;
 
-use super::*;
+use crate::{Color, PropSet2, State};
+use crate::state::id::GenerationalId;
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct StyleRule {
-    pub(crate) selectors: Vec<Selector>,
-    pub(crate) properties: Vec<Property>,
+const RULE_INDEX_BITS: u32 = 24;
+const RULE_INDEX_MASK: u32  = (1<<RULE_INDEX_BITS)-1;
+
+const RULE_GENERATION_BITS: u32 = 8;
+const RULE_GENERATION_MASK: u32 = (1<<RULE_GENERATION_BITS)-1;
+
+const RULE_MAX: u32 = std::u32::MAX>>8;
+
+const MINIMUM_FREE_INDICES: usize = 1024;
+
+
+/// A rule is an id used to get/set shared style properties in State.
+///
+/// Rather than having widgets own their data, all state is stored in a single database and
+/// is stored and loaded using entities.
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+pub struct Rule(u32);
+
+impl Default for Rule {
+    fn default() -> Self {
+        Rule::null()
+    }
 }
 
-// impl std::fmt::Display for StyleRule {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         for selector in self.selectors.iter() {
-//             write!(f, "{}", selector)?;
-//         }
+impl std::fmt::Display for Rule {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.index())
+    }
+}
 
-//         write!(f, " {{\n")?;
+impl std::fmt::Debug for Rule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Rule {{index: {}, generation: {}}}", self.index(), self.generation())
+    }
+}
 
-//         for property in self.properties.iter() {
-//             write!(f, "    {}\n", property)?;
-//         }
-
-//         write!(f, "}}\n\n")?;
-
-//         Ok(())
-//     }
-// }
-
-impl StyleRule {
-    pub fn new() -> Self {
-        StyleRule {
-            selectors: Vec::new(),
-            properties: Vec::new(),
-        }
+impl Rule {
+    /// Creates a null rule
+    ///
+    /// A null rule can be used as a placeholder within a widget struct but cannot be used to get/set properties
+    pub fn null() -> Rule {
+        Rule(std::u32::MAX)
     }
 
-    pub fn selector(mut self, selector: Selector) -> Self {
-        self.selectors.push(selector);
-
-        self
+    /// Creates a root rule
+    ///
+    /// The root rule represents the main window and is always valid. 
+    /// The root rule can be used to set properties on the primary window, such as background color, 
+    /// as well as sending events to the window such as Restyle and Redraw events.
+    pub fn root() -> Rule {
+        Rule(0)
     }
 
-    pub fn parent_selector(mut self, mut selector: Selector) -> Self {
-        selector.relation = Relation::Parent;
-        self.selectors.push(selector);
-
-        self
+    /// Creates a new rule with a given index and generation
+    pub(crate) fn new(index: u32, generation: u32) -> Rule {
+        assert!(index < RULE_INDEX_MASK);
+        assert!(generation < RULE_GENERATION_MASK);
+        Rule(index | generation << RULE_INDEX_BITS)
     }
 
-    // pub fn property(mut self, property: Property) -> Self {
-    //     self.properties.push(property);
-
-    //     self
-    // }
-
-    pub(crate) fn specificity(&self) -> Specificity {
-        let mut specificity = Specificity([0, 0, 0]);
-        for selector in self.selectors.iter() {
-            specificity += selector.specificity();
-        }
-
-        return specificity;
+    /// Returns true if the rule is null
+    pub fn is_null(&self) -> bool {
+        self.0 == std::u32::MAX
     }
 
-    // Property Setters
+}
 
-    pub fn set_display(mut self, value: Display) -> Self {
-        self.properties.push(Property::Display(value));
-
-        self
+impl GenerationalId for Rule {
+    fn new(index: usize, generation: usize) -> Self {
+        Rule::new(index as u32, generation as u32)
     }
 
-    pub fn set_visibility(mut self, value: Visibility) -> Self {
-        self.properties.push(Property::Visibility(value));
-
-        self
+    fn index(&self) -> usize {
+        (self.0 & RULE_INDEX_MASK) as usize
     }
 
-    pub fn set_overflow(mut self, value: Overflow) -> Self {
-        self.properties.push(Property::Overflow(value));
-
-        self
+    fn generation(&self) -> u8 {
+        ((self.0 >> RULE_INDEX_BITS) & RULE_GENERATION_MASK) as u8
     }
 
-    // Background
-    pub fn set_background_color(mut self, value: Color) -> Self {
-        self.properties.push(Property::BackgroundColor(value));
+    /// Returns true if the entity is null
+    fn is_null(&self) -> bool {
+        self.0 == std::u32::MAX
+    }
+}
 
-        self
+impl PropSet2 for Rule {
+
+
+    // BACKGOUND
+
+    /// Set the background-color property for the shared style rule.
+    ///
+    /// Note: background-color is overridden by background-gradient, which is overridden by background-image. 
+    ///
+    /// # Example
+    /// ```
+    /// rule.set_background_color(state, Color::red());
+    /// ```
+    /// # CSS
+    /// The background color property can be set with a color name, like 'red', or a hex value, like '#FF0000'.
+    /// ```css
+    /// background-color: color_name | #hex_value
+    /// ```
+    fn set_background_color(self, state: &mut State, color: Color) {
+        state.style.background_color.insert_rule(self, color);
     }
 
-    pub fn set_background_gradient(mut self, value: LinearGradient) -> Self {
-        self.properties.push(Property::BackgroundGradient(value));
+    // SPACE
 
-        self
+    /// Set the left property for the shared style rule.
+    ///
+    /// The left property determines how much space the layout system will place to the left of an entity.
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_left(state, Pixels(10.0));
+    /// ```
+    /// # CSS
+    /// The left property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// left: {} | {}px | {}% | {}s | auto
+    /// ```
+    fn set_left(self, state: &mut State, value: Units) {
+        state.style.left.insert_rule(self, value);
     }
 
-    // Outer Shadow
-    pub fn set_outer_shadow_h_offset(mut self, value: Units) -> Self {
-        let mut box_shadow = BoxShadow::default();
-        box_shadow.horizontal_offset = value;
-
-        self.properties.push(Property::OuterShadow(box_shadow));
-
-        self
+    /// Set the right property for the shared style rule.
+    ///
+    /// The right property determines how much space the layout system will place to the right of an entity.
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_right(state, Pixels(10.0));
+    /// ```
+    /// # CSS
+    /// The right property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// right: {} | {}px | {}% | {}s | auto
+    /// ```
+    fn set_right(self, state: &mut State, value: Units) {
+        state.style.right.insert_rule(self, value);
     }
 
-    pub fn set_outer_shadow_v_offset(mut self, value: Units) -> Self {
-        let mut box_shadow = BoxShadow::default();
-        box_shadow.vertical_offset = value;
-
-        self.properties.push(Property::OuterShadow(box_shadow));
-
-        self
+    /// Set the top property for the shared style rule.
+    ///
+    /// The top property determines how much space the layout system will place above an entity.
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_top(state, Pixels(10.0));
+    /// ```
+    /// # CSS
+    /// The top property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// top: {} | {}px | {}% | {}s | auto
+    /// ```
+    fn set_top(self, state: &mut State, value: Units) {
+        state.style.top.insert_rule(self, value);
     }
 
-    pub fn set_outer_shadow_color(mut self, value: Color) -> Self {
-        let mut box_shadow = BoxShadow::default();
-        box_shadow.color = value;
-
-        self.properties.push(Property::OuterShadow(box_shadow));
-
-        self
+    /// Set the bottom property for the shared style rule.
+    ///
+    /// The bottom property determines how much space the layout system will place below an entity.
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_bottom(state, Pixels(10.0));
+    /// ```
+    /// # CSS
+    /// The bottom property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// bottom: {} | {}px | {}% | {}s | auto
+    /// ```
+    fn set_bottom(self, state: &mut State, value: Units) {
+        state.style.bottom.insert_rule(self, value);
     }
 
-    pub fn set_outer_shadow_blur(mut self, value: Units) -> Self {
-        let mut box_shadow = BoxShadow::default();
-        box_shadow.blur_radius = value;
+    // CHILD-SPACE
 
-        self.properties.push(Property::OuterShadow(box_shadow));
-
-        self
+    /// Set the child-space for the shared style rule. This is equivalent to setting the child-left, child-right, child-top, and child-bottom properties.
+    ///
+    /// The child-space determines how much space the layout system will place around the children of an entity,
+    /// provided that the individual left, rigth, top, and bottom properties of the child are set to auto.
+    /// This does not place any space between child entities.
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_child_space(state, Units(Pixels(10.0)));
+    /// ```
+    /// # CSS
+    /// The child-space property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```
+    /// child-space: {} | {}px | {}% | {}s | auto
+    /// ``` 
+    fn set_child_space(self, state: &mut State, value: Units) {
+        state.style.child_left.insert_rule(self, value);
+        state.style.child_right.insert_rule(self, value);
+        state.style.child_top.insert_rule(self, value);
+        state.style.child_bottom.insert_rule(self, value);
     }
 
-    // Inner Shadow
-    pub fn set_inner_shadow_h_offset(mut self, value: Units) -> Self {
-        let mut box_shadow = BoxShadow::default();
-        box_shadow.horizontal_offset = value;
-
-        self.properties.push(Property::InnerShadow(box_shadow));
-
-        self
+    /// Set the child-left property for the shared style rule.
+    ///
+    /// The child-left property determines how much space the layout system will place to the left of all of the children of an entity,
+    /// provided that the left property of the child is set to auto. 
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_child_left(state, Pixels(10.0));
+    /// ```
+    /// # CSS
+    /// The child-left property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// child-left: {} | {}px | {}% | {}s | auto
+    /// ```
+    fn set_child_left(self, state: &mut State, value: Units) {
+        state.style.child_left.insert_rule(self, value);
     }
 
-    pub fn set_inner_shadow_v_offset(mut self, value: Units) -> Self {
-        let mut box_shadow = BoxShadow::default();
-        box_shadow.vertical_offset = value;
-
-        self.properties.push(Property::InnerShadow(box_shadow));
-
-        self
+    /// Set the child-right property for the shared style rule.
+    ///
+    /// The child-right property determines how much space the layout system will place to the right of all of the children of an entity,
+    /// provided that the right property of the child is set to auto. 
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_child_right(state, Pixels(10.0));
+    /// ```
+    /// # CSS
+    /// The child-right property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// child-right: {} | {}px | {}% | {}s | auto
+    /// ```
+    fn set_child_right(self, state: &mut State, value: Units) {
+        state.style.child_right.insert_rule(self, value);
     }
 
-    pub fn set_inner_shadow_color(mut self, value: Color) -> Self {
-        let mut box_shadow = BoxShadow::default();
-        box_shadow.color = value;
-
-        self.properties.push(Property::InnerShadow(box_shadow));
-
-        self
+    /// Set the child-top property for the shared style rule.
+    ///
+    /// The child-top property determines how much space the layout system will place above all of the children of an entity,
+    /// provided that the top property of the child is set to auto.
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_child_top(state, Pixels(10.0));
+    /// ```
+    /// # CSS
+    /// The child-top property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// child-top: {} | {}px | {}% | {}s | auto
+    /// ```
+    fn set_child_top(self, state: &mut State, value: Units) {
+        state.style.child_top.insert_rule(self, value);
     }
 
-    pub fn set_inner_shadow_blur(mut self, value: Units) -> Self {
-        let mut box_shadow = BoxShadow::default();
-        box_shadow.blur_radius = value;
-
-        self.properties.push(Property::InnerShadow(box_shadow));
-
-        self
+    /// Set the child-bottom property for the shared style rule.
+    ///
+    /// The child-bottom property determines how much space the layout system will place below all of the children of an entity,
+    /// provided that the bottom property of the child is set to auto.
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_child_bottom(state, Pixels(10.0));
+    /// ```
+    /// # CSS
+    /// The child-bottom property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// child-bottom: {} | {}px | {}% | {}s | auto
+    /// ```
+    fn set_child_bottom(self, state: &mut State, value: Units) {
+        state.style.child_bottom.insert_rule(self, value);
     }
 
-    // Positioning
 
-    pub fn set_space(mut self, value: Units) -> Self {
-        self.properties.push(Property::Space(value));
-
-        self
-    }
-
-    pub fn set_left(mut self, value: Units) -> Self {
-        self.properties.push(Property::Left(value));
-
-        self
-    }
-
-    pub fn set_right(mut self, value: Units) -> Self {
-        self.properties.push(Property::Right(value));
-
-        self
-    }
-
-    pub fn set_top(mut self, value: Units) -> Self {
-        self.properties.push(Property::Top(value));
-        self
-    }
-
-    pub fn set_bottom(mut self, value: Units) -> Self {
-        self.properties.push(Property::Bottom(value));
-        self
-    }
-
-    // Alignment and Justification
-
-    // pub fn set_justification(mut self, val: Justification) -> Self {
-    //     self.state.style.justification.set(self.entity, val);
-    //     self
-    // }
-
-    // pub fn set_alignment(mut self, val: Alignment) -> Self {
-    //     self.state.style.alignment.set(self.entity, val);
-    //     self
-    // }
-
-    // Size
-
-    pub fn set_width(mut self, value: Units) -> Self {
-        self.properties.push(Property::Width(value));
-
-        self
-    }
-
-    pub fn set_height(mut self, value: Units) -> Self {
-        self.properties.push(Property::Height(value));
-
-        self
-    }
-
-    // Size Constraints
-
-    pub fn set_min_width(mut self, value: Units) -> Self {
-        self.properties.push(Property::MinHeight(value));
-
-        self
-    }
-
-    pub fn set_max_width(mut self, value: Units) -> Self {
-        self.properties.push(Property::MaxWidth(value));
-
-        self
-    }
-
-    pub fn set_min_height(mut self, value: Units) -> Self {
-        self.properties.push(Property::MinHeight(value));
-
-        self
-    }
-
-    pub fn set_max_height(mut self, value: Units) -> Self {
-        self.properties.push(Property::MaxHeight(value));
-
-        self
-    }
-
-    // Child Spacing
-    pub fn set_child_space(mut self, value: Units) -> Self {
-        self.properties.push(Property::ChildSpace(value));
-
-        self
-    }
-
-    pub fn set_child_left(mut self, value: Units) -> Self {
-        self.properties.push(Property::ChildLeft(value));
-
-        self
-    }
-
-    pub fn set_child_right(mut self, value: Units) -> Self {
-        self.properties.push(Property::ChildRight(value));
-
-        self
-    }
-
-    pub fn set_child_top(mut self, value: Units) -> Self {
-        self.properties.push(Property::ChildTop(value));
-
-        self
-    }
-
-    pub fn set_child_bottom(mut self, value: Units) -> Self {
-        self.properties.push(Property::ChildBottom(value));
-
-        self
-    }
-
-    // Border
-
-    pub fn set_border_color(mut self, value: Color) -> Self {
-        self.properties.push(Property::BorderColor(value));
-
-        self
-    }
-
-    pub fn set_border_width(mut self, value: Units) -> Self {
-        self.properties.push(Property::BorderWidth(value));
-
-        self
-    }
-
-    pub fn set_border_radius(mut self, value: Units) -> Self {
-        self.properties.push(Property::BorderTopLeftRadius(value));
-
-        self
-    }
-
-    pub fn set_border_radius_top_left(mut self, value: Units) -> Self {
-        self.properties.push(Property::BorderTopLeftRadius(value));
-
-        self
-    }
-
-    pub fn set_border_radius_top_right(mut self, value: Units) -> Self {
-        self.properties.push(Property::BorderTopRightRadius(value));
-
-        self
-    }
-
-    pub fn set_border_radius_bottom_left(mut self, value: Units) -> Self {
-        self.properties
-            .push(Property::BorderBottomLeftRadius(value));
-
-        self
-    }
-
-    pub fn set_border_radius_bottom_right(mut self, value: Units) -> Self {
-        self.properties
-            .push(Property::BorderBottomRightRadius(value));
-
-        self
-    }
-
-    pub fn set_color(mut self, value: Color) -> Self {
-        self.properties.push(Property::FontColor(value));
-
-        self
-    }
-
-    pub fn set_font_size(mut self, value: f32) -> Self {
-        self.properties.push(Property::FontSize(value));
-
-        self
-    }
 }

@@ -6,7 +6,7 @@ use crate::LinearGradient;
 
 use crate::state::style::*;
 
-use crate::state::animation::Transition;
+use crate::Transition;
 
 use morphorm::{LayoutType, PositionType, Units};
 

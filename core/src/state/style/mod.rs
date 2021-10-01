@@ -13,7 +13,7 @@ use crate::{Entity, Transition};
 
 use crate::Interpolator;
 
-use crate::state::animation::AnimationState;
+use crate::AnimationState;
 
 mod themes;
 
@@ -22,6 +22,9 @@ pub use theme::StyleParseError;
 
 mod prop;
 pub use prop::{PropGet, PropSet};
+
+mod prop_set;
+pub use prop_set::PropSet2;
 
 mod layout;
 pub use layout::*;
@@ -49,8 +52,11 @@ pub use selector::*;
 mod specificity;
 pub use specificity::*;
 
+mod style_rule;
+pub use style_rule::*;
+
 mod rule;
-pub use rule::*;
+pub use rule::Rule;
 
 mod color;
 pub use color::Color;
@@ -1184,7 +1190,9 @@ impl Style {
         self.focus_order.insert(entity, Default::default());
     }
 
-    pub fn remove(&mut self, entity: Entity) {}
+    pub fn remove(&mut self, entity: Entity) {
+
+    }
 
     pub fn remove_all(&mut self) {
         // Remove all non-inline style data

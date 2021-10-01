@@ -1,5 +1,5 @@
 // Rename to Transform when I've come up with a better name for the current transform mod
-use crate::state::animation::Interpolator;
+use crate::Interpolator;
 
 use std::ops::{
     Index,

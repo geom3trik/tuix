@@ -1,4 +1,4 @@
-use crate::Entity;
+use crate::{Entity, GenerationalId};
 
 #[derive(Debug, Clone, Copy)]
 pub enum TreeError {
@@ -54,85 +54,73 @@ impl Tree {
     /// Returns the last child of an entity
     pub fn get_last_child(&self, entity: Entity) -> Option<Entity> {
         //check if entity exists
-        if let Some(index) = entity.index() {
-            let mut f = self.first_child[index];
-            let mut r = None;
-            while f != None {
-                r = f;
-                f = self.next_sibling[f.unwrap().index().unwrap()];
-            }
-
-            return r;
-        } else {
-            None
+        let index = entity.index();
+        let mut f = self.first_child[index];
+        let mut r = None;
+        while f != None {
+            r = f;
+            f = self.next_sibling[f.unwrap().index()];
         }
+
+        return r;
     }
 
     /// Returns the nth child of an entity
     pub fn get_child(&self, entity: Entity, n: usize) -> Option<Entity> {
-        if let Some(index) = entity.index() {
-            let mut f = self.first_child[index];
-            let mut i = 0;
-            while f != None {
-                if i == n {
-                    break;
-                }
-                f = self.next_sibling[f.unwrap().index().unwrap()];
-                i += 1;
+        if entity.is_null() {return None};
+        let index = entity.index();
+        let mut f = self.first_child[index];
+        let mut i = 0;
+        while f != None {
+            if i == n {
+                break;
             }
-
-            return f;
-        } else {
-            None
+            f = self.next_sibling[f.unwrap().index()];
+            i += 1;
         }
+
+        return f;
     }
 
     /// Returns the number of children of an entity
     pub fn get_num_children(&self, entity: Entity) -> Option<u32> {
-        if let Some(index) = entity.index() {
-            let mut f = self.first_child[index];
-            let mut r = 0;
-            while f != None {
-                r += 1;
-                f = self.next_sibling[f.unwrap().index().unwrap()];
-            }
-
-            Some(r)
-        } else {
-            None
+        let index = entity.index();
+        if entity.is_null() {return None};
+        let mut f = self.first_child[index];
+        let mut r = 0;
+        while f != None {
+            r += 1;
+            f = self.next_sibling[f.unwrap().index()];
         }
+
+        Some(r)
     }
 
     /// Returns the parent of an entity
     pub fn get_parent(&self, entity: Entity) -> Option<Entity> {
-        if let Some(index) = entity.index() {
-            if index >= self.parent.len() {
-                None
-            } else {
-                self.parent[index]
-            }
-        } else {
+        let index = entity.index();
+        if index >= self.parent.len() {
             None
+        } else {
+            self.parent[index]
         }
     }
 
     /// Returns the first child of an entity or `None` if there isn't one
     pub fn get_first_child(&self, entity: Entity) -> Option<Entity> {
-        if let Some(index) = entity.index() {
-            if let Some(first_child) = self.first_child.get(index) {
-                return *first_child;
-            }            
-        }
-
+        let index = entity.index();
+        if let Some(first_child) = self.first_child.get(index) {
+            return *first_child;
+        }            
+        
         None
     }
 
     /// Returns the next sibling of an entity or `None` if there isn't one
     pub fn get_next_sibling(&self, entity: Entity) -> Option<Entity> {
-        if let Some(index) = entity.index() {
-            if let Some(next_sibling) = self.next_sibling.get(index) {
-                return *next_sibling;
-            }            
+        let index = entity.index();
+        if let Some(next_sibling) = self.next_sibling.get(index) {
+            return *next_sibling;
         }
 
         None
@@ -140,11 +128,7 @@ impl Tree {
 
     /// Returns the previous sibling of an entity or `None` if there isn't one
     pub fn get_prev_sibling(&self, entity: Entity) -> Option<Entity> {
-        if let Some(index) = entity.index() {
-            self.prev_sibling[index]
-        } else {
-            None
-        }
+        self.prev_sibling[entity.index()]
     }
 
     /// Returns true if the entity is the first child of its parent
@@ -191,11 +175,7 @@ impl Tree {
 
     /// Returns true if the entity has children
     pub fn has_children(&self, entity: Entity) -> bool {
-        if let Some(index) = entity.index() {
-            self.first_child[index].is_some()
-        } else {
-            false
-        }
+        self.first_child[entity.index()].is_some()
     }
 
     /// Removes an entity from the tree
@@ -209,7 +189,7 @@ impl Tree {
         }
 
         // Check if the entity to be removed exists in the tree
-        let entity_index = entity.index_unchecked();
+        let entity_index = entity.index();
 
         if entity_index >= self.parent.len() {
             return Err(TreeError::NoEntity);
@@ -218,7 +198,7 @@ impl Tree {
         // If the entity was is the first child of its parent then set its next sibling to be the new first child
         if let Some(parent) = self.get_parent(entity) {
             if self.is_first_child(entity) {
-                self.first_child[parent.index_unchecked()] = self.get_next_sibling(entity);
+                self.first_child[parent.index()] = self.get_next_sibling(entity);
             }
         }
 
@@ -227,7 +207,7 @@ impl Tree {
         // to:      [PS] -> [NS]
         // where:   PS - Previous Sibling, E - Entity, NS - Next Sibling
         if let Some(prev_sibling) = self.get_prev_sibling(entity) {
-            self.next_sibling[prev_sibling.index_unchecked()] = self.get_next_sibling(entity);
+            self.next_sibling[prev_sibling.index()] = self.get_next_sibling(entity);
         }
 
         // Set the previous sibling of the next sibling of the entity to the previous sibling of the entity
@@ -235,7 +215,7 @@ impl Tree {
         // to:      [PS] <- [NS]
         // where:   PS - Previous Sibling, E - Entity, NS - Next Sibling
         if let Some(next_sibling) = self.get_next_sibling(entity) {
-            self.prev_sibling[next_sibling.index_unchecked()] = self.get_prev_sibling(entity);
+            self.prev_sibling[next_sibling.index()] = self.get_prev_sibling(entity);
         }
 
         // Set the next sibling, previous sibling and parent of the removed entity to None
@@ -251,53 +231,50 @@ impl Tree {
 
     // Makes the entity the first child of its parent
     pub fn set_first_child(&mut self, entity: Entity) -> Result<(), TreeError> {
-        if let Some(index) = entity.index() {
-            // Check is sibling exists in the tree
-            if index >= self.parent.len() {
-                return Err(TreeError::InvalidSibling);
-            }
-
-            // Check if the parent is in the tree
-            if let Some(parent) = self.get_parent(entity) {
-                if parent.index_unchecked() >= self.parent.len() {
-                    return Err(TreeError::InvalidParent);
-                }
-            }
-
-            let parent = self.get_parent(entity).unwrap();
-
-            let previous_first_child = self.first_child[parent.index_unchecked()];
-
-            if previous_first_child == Some(entity) {
-                return Err(TreeError::AlreadyFirstChild);
-            }
-
-            let entity_prev_sibling = self.get_prev_sibling(entity);
-            let entity_next_sibling = self.get_next_sibling(entity);
-
-            // Remove the entity from the children
-            if let Some(eps) = entity_prev_sibling {
-                self.next_sibling[eps.index_unchecked()] = entity_next_sibling; //C
-            }
-
-            if let Some(ens) = entity_next_sibling {
-                self.prev_sibling[ens.index_unchecked()] = entity_prev_sibling; //F
-            }
-
-            if let Some(pfc) = previous_first_child {
-                self.prev_sibling[pfc.index_unchecked()] = Some(entity);
-            }
-
-            self.next_sibling[index] = previous_first_child;
-
-            self.first_child[parent.index_unchecked()] = Some(entity);
-
-            self.changed = true;
-
-            Ok(())
-        } else {
-            Err(TreeError::NullEntity)
+        let index = entity.index();
+        // Check is sibling exists in the tree
+        if index >= self.parent.len() {
+            return Err(TreeError::InvalidSibling);
         }
+
+        // Check if the parent is in the tree
+        if let Some(parent) = self.get_parent(entity) {
+            if parent.index() >= self.parent.len() {
+                return Err(TreeError::InvalidParent);
+            }
+        }
+
+        let parent = self.get_parent(entity).unwrap();
+
+        let previous_first_child = self.first_child[parent.index()];
+
+        if previous_first_child == Some(entity) {
+            return Err(TreeError::AlreadyFirstChild);
+        }
+
+        let entity_prev_sibling = self.get_prev_sibling(entity);
+        let entity_next_sibling = self.get_next_sibling(entity);
+
+        // Remove the entity from the children
+        if let Some(eps) = entity_prev_sibling {
+            self.next_sibling[eps.index()] = entity_next_sibling; //C
+        }
+
+        if let Some(ens) = entity_next_sibling {
+            self.prev_sibling[ens.index()] = entity_prev_sibling; //F
+        }
+
+        if let Some(pfc) = previous_first_child {
+            self.prev_sibling[pfc.index()] = Some(entity);
+        }
+
+        self.next_sibling[index] = previous_first_child;
+
+        self.first_child[parent.index()] = Some(entity);
+
+        self.changed = true;
+
+        Ok(())
     }
 
     pub fn set_next_sibling(
@@ -305,12 +282,12 @@ impl Tree {
         entity: Entity,
         sibling: Entity,
     ) -> Result<(), TreeError> {
-        if self.next_sibling[entity.index_unchecked()] == Some(sibling) {
+        if self.next_sibling[entity.index()] == Some(sibling) {
             return Err(TreeError::AlreadySibling);
         }
 
         // Check is sibling exists in the tree
-        if sibling.index_unchecked() >= self.parent.len() {
+        if sibling.index() >= self.parent.len() {
             return Err(TreeError::InvalidSibling);
         }
 
@@ -340,25 +317,25 @@ impl Tree {
 
         // Remove sibling
         if let Some(sps) = sibling_prev_sibling {
-            self.next_sibling[sps.index_unchecked()] = sibling_next_sibling; // C
+            self.next_sibling[sps.index()] = sibling_next_sibling; // C
         } else {
-            self.first_child[parent.index_unchecked()] = sibling_next_sibling;
+            self.first_child[parent.index()] = sibling_next_sibling;
         }
 
         if let Some(sns) = sibling_next_sibling {
-            self.prev_sibling[sns.index_unchecked()] = sibling_prev_sibling; // F
+            self.prev_sibling[sns.index()] = sibling_prev_sibling; // F
         }
 
         // Temporarily store the next_sibling of the entity
         let entity_next_sibling = self.get_next_sibling(entity);
 
         if let Some(ens) = entity_next_sibling {
-            self.prev_sibling[ens.index_unchecked()] = Some(sibling); //B
+            self.prev_sibling[ens.index()] = Some(sibling); //B
         }
 
-        self.next_sibling[sibling.index_unchecked()] = entity_next_sibling; //E
-        self.prev_sibling[sibling.index_unchecked()] = Some(entity); // D
-        self.next_sibling[entity.index_unchecked()] = Some(sibling); // A
+        self.next_sibling[sibling.index()] = entity_next_sibling; //E
+        self.prev_sibling[sibling.index()] = Some(entity); // D
+        self.next_sibling[entity.index()] = Some(sibling); // A
 
         self.changed = true;
 
@@ -370,12 +347,12 @@ impl Tree {
         entity: Entity,
         sibling: Entity,
     ) -> Result<(), TreeError> {
-        if self.prev_sibling[entity.index_unchecked()] == Some(sibling) {
+        if self.prev_sibling[entity.index()] == Some(sibling) {
             return Err(TreeError::InvalidSibling);
         }
 
         // Check is sibling exists in the tree
-        if sibling.index_unchecked() >= self.parent.len() {
+        if sibling.index() >= self.parent.len() {
             return Err(TreeError::InvalidSibling);
         }
 
@@ -399,29 +376,29 @@ impl Tree {
 
         // Remove sibling
         if let Some(sps) = sibling_prev_sibling {
-            self.next_sibling[sps.index_unchecked()] = sibling_next_sibling; // C
+            self.next_sibling[sps.index()] = sibling_next_sibling; // C
         } else {
-            self.first_child[parent.index_unchecked()] = sibling_next_sibling;
+            self.first_child[parent.index()] = sibling_next_sibling;
         }
 
         if let Some(sns) = sibling_next_sibling {
-            self.prev_sibling[sns.index_unchecked()] = sibling_prev_sibling; // F
+            self.prev_sibling[sns.index()] = sibling_prev_sibling; // F
         }
 
         // Temporarily store the prev_sibling of the entity
         let entity_prev_sibling = self.get_prev_sibling(entity);
 
         if let Some(eps) = entity_prev_sibling {
-            self.next_sibling[eps.index_unchecked()] = Some(sibling); // A
+            self.next_sibling[eps.index()] = Some(sibling); // A
         } else {
-            self.first_child[parent.index_unchecked()] = Some(sibling);
+            self.first_child[parent.index()] = Some(sibling);
         }
 
-        self.next_sibling[sibling.index_unchecked()] = Some(entity); //E
+        self.next_sibling[sibling.index()] = Some(entity); //E
 
-        self.prev_sibling[sibling.index_unchecked()] = entity_prev_sibling; // D
+        self.prev_sibling[sibling.index()] = entity_prev_sibling; // D
 
-        self.prev_sibling[entity.index_unchecked()] = Some(sibling); // B
+        self.prev_sibling[entity.index()] = Some(sibling); // B
 
         self.changed = true;
 
@@ -431,36 +408,36 @@ impl Tree {
     pub fn set_parent(&mut self, entity: Entity, parent: Entity) {
         if let Some(old_parent) = self.get_parent(entity) {
             if self.is_first_child(entity) {
-                self.first_child[old_parent.index_unchecked()] = self.get_next_sibling(entity);
+                self.first_child[old_parent.index()] = self.get_next_sibling(entity);
             }
         }
 
         if let Some(prev_sibling) = self.get_prev_sibling(entity) {
-            self.next_sibling[prev_sibling.index_unchecked()] = self.get_next_sibling(entity);
+            self.next_sibling[prev_sibling.index()] = self.get_next_sibling(entity);
         }
 
         if let Some(next_sibling) = self.get_next_sibling(entity) {
-            self.prev_sibling[next_sibling.index_unchecked()] = self.get_prev_sibling(entity);
+            self.prev_sibling[next_sibling.index()] = self.get_prev_sibling(entity);
         }
 
-        if self.first_child[parent.index_unchecked()] == None {
-            self.first_child[parent.index_unchecked()] = Some(entity);
+        if self.first_child[parent.index()] == None {
+            self.first_child[parent.index()] = Some(entity);
         } else {
-            let mut temp = self.first_child[parent.index_unchecked()];
+            let mut temp = self.first_child[parent.index()];
 
             loop {
-                if self.next_sibling[temp.unwrap().index_unchecked()] == None {
+                if self.next_sibling[temp.unwrap().index()] == None {
                     break;
                 }
 
-                temp = self.next_sibling[temp.unwrap().index_unchecked()];
+                temp = self.next_sibling[temp.unwrap().index()];
             }
 
-            self.next_sibling[temp.unwrap().index_unchecked()] = Some(entity);
-            self.prev_sibling[entity.index_unchecked()] = temp;
+            self.next_sibling[temp.unwrap().index()] = Some(entity);
+            self.prev_sibling[entity.index()] = temp;
         }
 
-        self.parent[entity.index_unchecked()] = Some(parent);
+        self.parent[entity.index()] = Some(parent);
 
         self.changed = true;
     }
@@ -472,13 +449,13 @@ impl Tree {
             return Err(TreeError::NullEntity);
         }
 
-        let parent_index = parent.index_unchecked();
+        let parent_index = parent.index();
 
         if parent_index >= self.parent.len() {
             return Err(TreeError::InvalidParent);
         }
 
-        let entity_index = entity.index_unchecked();
+        let entity_index = entity.index();
 
         if entity_index >= self.parent.len() {
             self.parent.resize(entity_index + 1, None);
@@ -500,14 +477,14 @@ impl Tree {
             let mut temp = self.first_child[parent_index];
 
             loop {
-                if self.next_sibling[temp.unwrap().index_unchecked()] == None {
+                if self.next_sibling[temp.unwrap().index()] == None {
                     break;
                 }
 
-                temp = self.next_sibling[temp.unwrap().index_unchecked()];
+                temp = self.next_sibling[temp.unwrap().index()];
             }
 
-            self.next_sibling[temp.unwrap().index_unchecked()] = Some(entity);
+            self.next_sibling[temp.unwrap().index()] = Some(entity);
             self.prev_sibling[entity_index] = temp;
         }
         
@@ -573,19 +550,19 @@ impl<'a> Iterator for BranchIterator<'a> {
         let r = self.current_node;
 
         if let Some(current) = self.current_node {
-            if let Some(child) = self.tree.first_child[current.index_unchecked()] {
+            if let Some(child) = self.tree.first_child[current.index()] {
                 self.current_node = Some(child);
             } else {
                 if self.current_node != Some(self.start_node) {
                     let mut temp = Some(current);
                     while temp.is_some() {
                         if let Some(sibling) =
-                            self.tree.next_sibling[temp.unwrap().index_unchecked()]
+                            self.tree.next_sibling[temp.unwrap().index()]
                         {
                             self.current_node = Some(sibling);
                             return r;
                         } else {
-                            temp = self.tree.parent[temp.unwrap().index_unchecked()];
+                            temp = self.tree.parent[temp.unwrap().index()];
                             if Some(self.start_node) == temp {
                                 self.current_node = None;
                                 temp = None;
@@ -616,12 +593,12 @@ impl<'a> TreeIterator<'a> {
         if let Some(current) = self.current_node {
             let mut temp = Some(current);
             while temp.is_some() {
-                if let Some(sibling) = self.tree.next_sibling[temp.unwrap().index_unchecked()]
+                if let Some(sibling) = self.tree.next_sibling[temp.unwrap().index()]
                 {
                     self.current_node = Some(sibling);
                     return r;
                 } else {
-                    temp = self.tree.parent[temp.unwrap().index_unchecked()];
+                    temp = self.tree.parent[temp.unwrap().index()];
                 }
             }
         } else {
@@ -638,18 +615,18 @@ impl<'a> Iterator for TreeIterator<'a> {
         let r = self.current_node;
 
         if let Some(current) = self.current_node {
-            if let Some(child) = self.tree.first_child[current.index_unchecked()] {
+            if let Some(child) = self.tree.first_child[current.index()] {
                 self.current_node = Some(child);
             } else {
                 let mut temp = Some(current);
                 while temp.is_some() {
                     if let Some(sibling) =
-                        self.tree.next_sibling[temp.unwrap().index_unchecked()]
+                        self.tree.next_sibling[temp.unwrap().index()]
                     {
                         self.current_node = Some(sibling);
                         return r;
                     } else {
-                        temp = self.tree.parent[temp.unwrap().index_unchecked()];
+                        temp = self.tree.parent[temp.unwrap().index()];
                     }
                 }
 
@@ -685,7 +662,7 @@ impl<'a> Iterator for ParentIterator<'a> {
     type Item = Entity;
     fn next(&mut self) -> Option<Entity> {
         if let Some(entity) = self.current {
-            self.current = self.tree.parent[entity.index_unchecked()];
+            self.current = self.tree.parent[entity.index()];
             return Some(entity);
         }
 
@@ -733,7 +710,7 @@ impl<'a> Iterator for ChildIterator<'a> {
 impl<'a> DoubleEndedIterator for ChildIterator<'a> {
     fn next_back(&mut self) -> Option<Entity> {
         if let Some(entity) = self.current_backward {
-            self.current_backward = self.tree.prev_sibling[entity.index_unchecked()];
+            self.current_backward = self.tree.prev_sibling[entity.index()];
             return Some(entity);
         }
 
@@ -754,7 +731,7 @@ impl<'a> IntoChildIterator<'a> for &'a Entity {
     fn child_iter(self, h: &'a Tree) -> Self::IntoIter {
         ChildIterator {
             tree: h,
-            current_forward: h.first_child[self.index_unchecked()],
+            current_forward: h.first_child[self.index()],
             current_backward: h.get_last_child(*self),
         }
     }
