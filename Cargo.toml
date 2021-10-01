@@ -181,14 +181,15 @@ members = [
 ]
 
 [features]
-default = ["tuix_glutin"]
-tuix_glutin = ["tuix_internal/tuix_glutin"]
+default = ["glutin"]
+glutin = ["tuix_internal/glutin"]
+baseview = ["tuix_internal/baseview"]
 
 dynamic = ["tuix_dylib"]
 
 [dependencies]
 tuix_dylib = {version = "0.2.0", path = "dylib", optional = true}
-tuix_internal = {version = "0.2.0", path = "internal"}
+tuix_internal = {version = "0.2.0", path = "internal", no-default-features = true}
 
 [dev-dependencies]
 femtovg = "0.2.5"
