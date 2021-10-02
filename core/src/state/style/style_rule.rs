@@ -10,6 +10,7 @@ use super::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct StyleRule {
+    pub(crate) id: Rule,
     pub(crate) selectors: Vec<Selector>,
     pub(crate) properties: Vec<Property>,
 }
@@ -33,8 +34,9 @@ pub struct StyleRule {
 // }
 
 impl StyleRule {
-    pub fn new() -> Self {
+    pub fn new(id: Rule) -> Self {
         StyleRule {
+            id,
             selectors: Vec::new(),
             properties: Vec::new(),
         }

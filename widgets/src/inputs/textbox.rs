@@ -101,7 +101,7 @@ impl Textbox {
         let width = state.data.get_width(entity);
         let height = state.data.get_height(entity);
         
-        if let Some(text) = state.style.text.get_mut(entity) {
+        if let Some(text) = state.style.text.get(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
             // TODO - This should probably be cached in state to save look-up time
@@ -579,7 +579,7 @@ impl Widget for Textbox {
                             //let end = text_data.cursor_pos as usize;
                             if start == end && self.cursor_pos > 0 {
                                 if *key == Some(Key::Backspace) {
-                                    if let Some(txt) = state.style.text.get_mut(entity) {
+                                    if let Some(txt) = state.style.text.get_inline_mut(entity) {
                                         txt.remove((self.cursor_pos - 1) as usize);
                                         //txt.pop();
                                     }
@@ -588,7 +588,7 @@ impl Widget for Textbox {
 
                                 } else {
                                     if (self.cursor_pos as usize) < (self.text.len()) {
-                                        if let Some(txt) = state.style.text.get_mut(entity) {
+                                        if let Some(txt) = state.style.text.get_inline_mut(entity) {
                                             txt.remove((self.cursor_pos) as usize);
                                             //txt.pop();
                                         }
@@ -599,7 +599,7 @@ impl Widget for Textbox {
                                 
                             } else {
                                 
-                                if let Some(txt) = state.style.text.get_mut(entity) {
+                                if let Some(txt) = state.style.text.get_inline_mut(entity) {
                                     txt.replace_range(start..end, "");
                                 }
                                 self.cursor_pos = start as u32;
@@ -675,7 +675,7 @@ impl Widget for Textbox {
                             //let start = text_data.select_pos as usize;
                             //let end = text_data.cursor_pos as usize;
                             if start == end {
-                                if let Some(txt) = state.style.text.get_mut(entity) {
+                                if let Some(txt) = state.style.text.get_inline_mut(entity) {
                                     txt.insert(start, *input);
                                 }
 
@@ -683,7 +683,7 @@ impl Widget for Textbox {
                                 self.cursor_pos += 1;
                                 self.select_pos += 1;
                             } else {
-                                if let Some(txt) = state.style.text.get_mut(entity) {
+                                if let Some(txt) = state.style.text.get_inline_mut(entity) {
                                     txt.replace_range(start..end, &input.to_string());
                                 }
                                 self.cursor_pos = (start + 1) as u32;

@@ -72,11 +72,11 @@ impl Application {
         state.style.width.insert(
             Entity::root(),
             Units::Pixels(window_description.inner_size.width as f32),
-        ).expect("");
+        );
         state.style.height.insert(
             Entity::root(),
             Units::Pixels(window_description.inner_size.height as f32),
-        ).expect("");
+        );
 
         state
             .data
@@ -279,9 +279,9 @@ impl Application {
                                     //println!("Focused Widget: {}", state.focused);
                                     
                                     println!("Tree");
-                                    for entity in state.tree.into_iter() {
-                                        println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?} clip: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity), state.data.get_clip_region(entity));
-                                    }
+                                    // for entity in state.tree.into_iter() {
+                                    //     println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?} clip: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity), state.data.get_clip_region(entity));
+                                    // }
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::Tab
@@ -414,13 +414,11 @@ impl Application {
                             state
                                 .style
                                 .width
-                                .insert(Entity::root(), Units::Pixels(physical_size.width as f32))
-                                .expect("");
+                                .insert(Entity::root(), Units::Pixels(physical_size.width as f32));
                             state
                                 .style
                                 .height
-                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32))
-                                .expect("");
+                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32));
 
                             state
                                 .data

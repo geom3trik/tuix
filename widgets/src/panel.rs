@@ -150,100 +150,128 @@ impl Widget for Panel {
         entity.set_element(state, "panel");
 
         // Animations
-        let container_expand_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Pixels(0.0)))
-            .with_keyframe((1.0, Units::Pixels(0.0)));
 
-        self.expand_height_animation = state
-            .style
-            .height
-            .insert_animation(container_expand_animation.clone());
+        self.expand_height_animation = 
+            state.create_animation(std::time::Duration::from_millis(100))
+            .add_keyframe(0.0, |keyframe|
+                keyframe.set_height(Pixels(0.0))
+            )
+            .add_keyframe(1.0, |keyframe|
+                keyframe.set_height(Pixels(0.0))
+            ).build();
 
-        self.expand_width_animation = state
-            .style
-            .width
-            .insert_animation(container_expand_animation.clone());
+        self.collapse_height_animation = 
+            state.create_animation(std::time::Duration::from_millis(100))
+            .add_keyframe(0.0, |keyframe|
+                keyframe.set_height(Pixels(0.0))
+            )
+            .add_keyframe(1.0, |keyframe|
+                keyframe.set_height(Pixels(0.0))
+            ).build();
 
-        let container_collapse_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Pixels(0.0)))
-            .with_keyframe((1.0, Units::Pixels(0.0)));
+        // let container_expand_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Pixels(0.0)))
+        //     .with_keyframe((1.0, Units::Pixels(0.0)));
 
-        self.collapse_height_animation = state
-            .style
-            .height
-            .insert_animation(container_collapse_animation.clone());
+        // self.expand_height_animation = state
+        //     .style
+        //     .height
+        //     .insert_animation(container_expand_animation.clone());
 
-        self.collapse_width_animation = state
-            .style
-            .width
-            .insert_animation(container_collapse_animation.clone());
+        // self.expand_width_animation = state
+        //     .style
+        //     .width
+        //     .insert_animation(container_expand_animation.clone());
 
-        let container_fade_in_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(1))
-            .with_keyframe((0.0, Opacity(0.0)))
-            .with_keyframe((1.0, Opacity(1.0)));
+        // let container_collapse_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Pixels(0.0)))
+        //     .with_keyframe((1.0, Units::Pixels(0.0)));
 
-        let container_hide_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Pixels(0.0)))
-            .with_keyframe((1.0, Units::Pixels(0.0)));
+        // self.collapse_height_animation = state
+        //     .style
+        //     .height
+        //     .insert_animation(container_collapse_animation.clone());
 
-        self.move_up_animation = state
-            .style
-            .top
-            .insert_animation(container_hide_animation.clone());
+        // self.collapse_width_animation = state
+        //     .style
+        //     .width
+        //     .insert_animation(container_collapse_animation.clone());
 
-        self.move_left_animation = state
-            .style
-            .left
-            .insert_animation(container_hide_animation.clone());
+        // let container_fade_in_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(1))
+        //     .with_keyframe((0.0, Opacity(0.0)))
+        //     .with_keyframe((1.0, Opacity(1.0)));
 
-        let container_reveal_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Pixels(0.0)))
-            .with_keyframe((1.0, Units::Pixels(0.0)));
+        // let container_hide_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Pixels(0.0)))
+        //     .with_keyframe((1.0, Units::Pixels(0.0)));
 
-        self.move_down_animation = state
-            .style
-            .top
-            .insert_animation(container_reveal_animation.clone());
+        // self.move_up_animation = state
+        //     .style
+        //     .top
+        //     .insert_animation(container_hide_animation.clone());
 
-        self.move_right_animation = state
-            .style
-            .left
-            .insert_animation(container_reveal_animation.clone());
+        // self.move_left_animation = state
+        //     .style
+        //     .left
+        //     .insert_animation(container_hide_animation.clone());
 
-        self.fade_in_animation = state
-            .style
-            .opacity
-            .insert_animation(container_fade_in_animation);
+        // let container_reveal_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Pixels(0.0)))
+        //     .with_keyframe((1.0, Units::Pixels(0.0)));
 
-        let container_fade_out_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_delay(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Opacity(1.0)))
-            .with_keyframe((1.0, Opacity(0.0)));
+        // self.move_down_animation = state
+        //     .style
+        //     .top
+        //     .insert_animation(container_reveal_animation.clone());
 
-        self.fade_out_animation = state
-            .style
-            .opacity
-            .insert_animation(container_fade_out_animation);
+        // self.move_right_animation = state
+        //     .style
+        //     .left
+        //     .insert_animation(container_reveal_animation.clone());
 
-        let arrow_cw_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, -90.0))
-            .with_keyframe((1.0, 0.0));
+        // self.fade_in_animation = state
+        //     .style
+        //     .opacity
+        //     .insert_animation(container_fade_in_animation);
 
-        self.arrow_cw_animation = state.style.rotate.insert_animation(arrow_cw_animation);
+        // let container_fade_out_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_delay(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Opacity(1.0)))
+        //     .with_keyframe((1.0, Opacity(0.0)));
 
-        let arrow_ccw_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, 0.0))
-            .with_keyframe((1.0, -90.0));
+        // self.fade_out_animation = state
+        //     .style
+        //     .opacity
+        //     .insert_animation(container_fade_out_animation);
 
-        self.arrow_ccw_animation = state.style.rotate.insert_animation(arrow_ccw_animation);
+        self.arrow_cw_animation = 
+            state.create_animation(std::time::Duration::from_millis(100))
+            .add_keyframe(0.0, |keyframe|
+                keyframe.set_rotate(-90.0)
+            )
+            .add_keyframe(1.0, |keyframe|
+                keyframe.set_rotate(0.0)
+            ).build();
+
+        // let arrow_cw_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, -90.0))
+        //     .with_keyframe((1.0, 0.0));
+
+        // self.arrow_cw_animation = state.style.rotate.insert_animation(arrow_cw_animation);
+
+        // let arrow_ccw_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, 0.0))
+        //     .with_keyframe((1.0, -90.0));
+
+        // self.arrow_ccw_animation = state.style.rotate.insert_animation(arrow_ccw_animation);
 
         (self.container2, self.header)
     }
@@ -260,33 +288,33 @@ impl Widget for Panel {
 
                             match entity.get_layout_type(state) {
                                 LayoutType::Column => {
-                                    state.style.height.play_animation(
-                                        self.container1,
-                                        self.expand_height_animation,
-                                    );
+                                    // state.style.height.play_animation(
+                                    //     self.container1,
+                                    //     self.expand_height_animation,
+                                    // );
 
                                     self.container1.set_height(state, Units::Auto);
 
-                                    state
-                                        .style
-                                        .rotate
-                                        .play_animation(self.arrow, self.arrow_cw_animation);
+                                    // state
+                                    //     .style
+                                    //     .rotate
+                                    //     .play_animation(self.arrow, self.arrow_cw_animation);
                                     
                                     self.arrow.set_rotate(state, 0.0);
                                 }
 
                                 LayoutType::Row => {
-                                    state.style.width.play_animation(
-                                        self.container1,
-                                        self.expand_width_animation,
-                                    );
+                                    // state.style.width.play_animation(
+                                    //     self.container1,
+                                    //     self.expand_width_animation,
+                                    // );
 
                                     self.container1.set_width(state, Units::Auto);
 
-                                    state
-                                        .style
-                                        .rotate
-                                        .play_animation(self.arrow, self.arrow_ccw_animation);
+                                    // state
+                                    //     .style
+                                    //     .rotate
+                                    //     .play_animation(self.arrow, self.arrow_ccw_animation);
 
                                     self.arrow.set_rotate(state, -90.0);
                                 }
@@ -294,10 +322,10 @@ impl Widget for Panel {
                                 _ => {}
                             }
 
-                            state
-                                .style
-                                .top
-                                .play_animation(self.container2, self.move_down_animation);
+                            // state
+                            //     .style
+                            //     .top
+                            //     .play_animation(self.container2, self.move_down_animation);
 
                             self.container2.set_opacity(state, 1.0);
                         } else {
@@ -307,7 +335,7 @@ impl Widget for Panel {
 
                             match entity.get_layout_type(state) {
                                 LayoutType::Column => {
-                                    if !state.style.height.is_animating(self.container1) {
+                                    //if !state.style.height.is_animating(self.container1) {
                                         let container_height =
                                             state.data.get_height(self.container1);
                                         //println!("Container Height: {} {}", self.container1, container_height);
@@ -353,25 +381,25 @@ impl Widget for Panel {
 
                                             self.container_height = container_height;
                                         }
-                                    }
+                                    //}
 
-                                    state.style.height.play_animation(
-                                        self.container1,
-                                        self.collapse_height_animation,
-                                    );
+                                    // state.style.height.play_animation(
+                                    //     self.container1,
+                                    //     self.collapse_height_animation,
+                                    // );
 
                                     self.container1.set_height(state, Units::Pixels(0.0));
 
-                                    state
-                                        .style
-                                        .rotate
-                                        .play_animation(self.arrow, self.arrow_ccw_animation);
+                                    // state
+                                    //     .style
+                                    //     .rotate
+                                    //     .play_animation(self.arrow, self.arrow_ccw_animation);
 
                                     self.arrow.set_rotate(state, -90.0);
                                 }
 
                                 LayoutType::Row => {
-                                    if !state.style.height.is_animating(self.container1) {
+                                    //if !state.style.height.is_animating(self.container1) {
                                         let container_width = state.data.get_width(self.container1);
 
                                         if container_width != self.container_width {
@@ -415,19 +443,19 @@ impl Widget for Panel {
 
                                             self.container_height = container_width;
                                         }
-                                    }
+                                    //}
 
-                                    state.style.width.play_animation(
-                                        self.container1,
-                                        self.collapse_width_animation,
-                                    );
+                                    // state.style.width.play_animation(
+                                    //     self.container1,
+                                    //     self.collapse_width_animation,
+                                    // );
 
                                     self.container1.set_width(state, Units::Pixels(0.0));
 
-                                    state
-                                        .style
-                                        .rotate
-                                        .play_animation(self.arrow, self.arrow_cw_animation);
+                                    // state
+                                    //     .style
+                                    //     .rotate
+                                    //     .play_animation(self.arrow, self.arrow_cw_animation);
 
                                     self.arrow.set_rotate(state, 0.0);
                                 }
@@ -435,15 +463,15 @@ impl Widget for Panel {
                                 _ => {}
                             }
 
-                            state
-                                .style
-                                .opacity
-                                .play_animation(self.container2, self.fade_out_animation);
+                            // state
+                            //     .style
+                            //     .opacity
+                            //     .play_animation(self.container2, self.fade_out_animation);
 
-                            state
-                                .style
-                                .top
-                                .play_animation(self.container2, self.move_up_animation);
+                            // state
+                            //     .style
+                            //     .top
+                            //     .play_animation(self.container2, self.move_up_animation);
 
                             self.container2.set_opacity(state, 0.0);
                         }

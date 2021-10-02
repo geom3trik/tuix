@@ -5,7 +5,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
-use crate::Tree;
+use crate::{IdManager, Tree};
 use crate::state::storage::animatable_storage::AnimatableStorage;
 use crate::state::storage::dense_storage::DenseStorage;
 use crate::state::storage::style_storage::StyleStorage;
@@ -66,10 +66,16 @@ pub use transform::*;
 
 use std::rc::Rc;
 
+use super::storage::animatable_set::AnimatableSet;
+use super::storage::style_set::StyleSet;
+
 // use bimap::BiMap;
 
-#[derive(Clone, Default)]
+#[derive(Default)]
 pub struct Style {
+
+    pub(crate) rule_manager: IdManager<Rule>, 
+
     pub(crate) rules: Vec<StyleRule>,
 
     pub default_font: String,
@@ -78,121 +84,121 @@ pub struct Style {
     pub classes: DenseStorage<HashSet<String>>,
     pub pseudo_classes: DenseStorage<PseudoClass>,
 
-    pub z_order: StyleStorage<i32>,
+    pub z_order: StyleSet<i32>,
 
     // Transform
-    pub rotate: AnimatableStorage<f32>,   
-    pub translate: StyleStorage<(f32, f32)>,
-    pub scale: StyleStorage<f32>,
+    pub rotate: AnimatableSet<f32>,   
+    pub translate: StyleSet<(f32, f32)>,
+    pub scale: AnimatableSet<f32>,
 
     // General
-    pub display: StyleStorage<Display>,
-    pub visibility: StyleStorage<Visibility>,
+    pub display: AnimatableSet<Display>,
+    pub visibility: AnimatableSet<Visibility>,
     // Opacity
-    pub opacity: AnimatableStorage<Opacity>,
+    pub opacity: AnimatableSet<Opacity>,
 
-    pub overflow: StyleStorage<Overflow>, // TODO
+    pub overflow: StyleSet<Overflow>, // TODO
     //pub scroll: DenseStorage<Scroll>,     // TODO
 
     // Spacing
-    pub left: AnimatableStorage<Units>,
-    pub right: AnimatableStorage<Units>,
-    pub top: AnimatableStorage<Units>,
-    pub bottom: AnimatableStorage<Units>,
+    pub left: AnimatableSet<Units>,
+    pub right: AnimatableSet<Units>,
+    pub top: AnimatableSet<Units>,
+    pub bottom: AnimatableSet<Units>,
 
     // Size
-    pub width: AnimatableStorage<Units>,
-    pub height: AnimatableStorage<Units>,
+    pub width: AnimatableSet<Units>,
+    pub height: AnimatableSet<Units>,
 
     // Size Constraints
-    pub max_width: AnimatableStorage<Units>,
-    pub max_height: AnimatableStorage<Units>,
-    pub min_width: AnimatableStorage<Units>,
-    pub min_height: AnimatableStorage<Units>,
+    pub max_width: AnimatableSet<Units>,
+    pub max_height: AnimatableSet<Units>,
+    pub min_width: AnimatableSet<Units>,
+    pub min_height: AnimatableSet<Units>,
 
     // Spacing Constraints
-    pub min_left: AnimatableStorage<Units>,    
-    pub max_left: AnimatableStorage<Units>,
-    pub min_right: AnimatableStorage<Units>,
-    pub max_right: AnimatableStorage<Units>,
-    pub min_top: AnimatableStorage<Units>,
-    pub max_top: AnimatableStorage<Units>,
-    pub min_bottom: AnimatableStorage<Units>,
-    pub max_bottom: AnimatableStorage<Units>,
+    pub min_left: AnimatableSet<Units>,    
+    pub max_left: AnimatableSet<Units>,
+    pub min_right: AnimatableSet<Units>,
+    pub max_right: AnimatableSet<Units>,
+    pub min_top: AnimatableSet<Units>,
+    pub max_top: AnimatableSet<Units>,
+    pub min_bottom: AnimatableSet<Units>,
+    pub max_bottom: AnimatableSet<Units>,
     
 
     // Border
-    pub border_width: AnimatableStorage<Units>,
-    pub border_color: AnimatableStorage<Color>,
+    pub border_width: AnimatableSet<Units>,
+    pub border_color: AnimatableSet<Color>,
 
     // Border Radius
-    pub border_shape_top_left: StyleStorage<BorderCornerShape>,
-    pub border_shape_top_right: StyleStorage<BorderCornerShape>,
-    pub border_shape_bottom_left: StyleStorage<BorderCornerShape>,
-    pub border_shape_bottom_right: StyleStorage<BorderCornerShape>,
+    pub border_shape_top_left: StyleSet<BorderCornerShape>,
+    pub border_shape_top_right: StyleSet<BorderCornerShape>,
+    pub border_shape_bottom_left: StyleSet<BorderCornerShape>,
+    pub border_shape_bottom_right: StyleSet<BorderCornerShape>,
 
 
-    pub border_radius_top_left: AnimatableStorage<Units>,
-    pub border_radius_top_right: AnimatableStorage<Units>,
-    pub border_radius_bottom_left: AnimatableStorage<Units>,
-    pub border_radius_bottom_right: AnimatableStorage<Units>,
+    pub border_radius_top_left: AnimatableSet<Units>,
+    pub border_radius_top_right: AnimatableSet<Units>,
+    pub border_radius_bottom_left: AnimatableSet<Units>,
+    pub border_radius_bottom_right: AnimatableSet<Units>,
 
     pub clip_widget: DenseStorage<Entity>,
 
     pub focus_order: DenseStorage<FocusOrder>,
 
     // Background
-    pub background_color: AnimatableStorage<Color>,
-    pub background_image: StyleStorage<Rc<()>>,
-    pub background_gradient: StyleStorage<LinearGradient>,
+    pub background_color: AnimatableSet<Color>,
+    pub background_image: StyleSet<Rc<()>>,
+    pub background_gradient: StyleSet<LinearGradient>,
 
     // Outer Shadow
-    pub outer_shadow_h_offset: AnimatableStorage<Units>,
-    pub outer_shadow_v_offset: AnimatableStorage<Units>,
-    pub outer_shadow_blur: AnimatableStorage<Units>,
-    pub outer_shadow_color: AnimatableStorage<Color>,
+    pub outer_shadow_h_offset: AnimatableSet<Units>,
+    pub outer_shadow_v_offset: AnimatableSet<Units>,
+    pub outer_shadow_blur: AnimatableSet<Units>,
+    pub outer_shadow_color: AnimatableSet<Color>,
 
     // Inner Shadow
-    pub inner_shadow_h_offset: AnimatableStorage<Units>,
-    pub inner_shadow_v_offset: AnimatableStorage<Units>,
-    pub inner_shadow_blur: AnimatableStorage<Units>,
-    pub inner_shadow_color: AnimatableStorage<Color>,
+    pub inner_shadow_h_offset: AnimatableSet<Units>,
+    pub inner_shadow_v_offset: AnimatableSet<Units>,
+    pub inner_shadow_blur: AnimatableSet<Units>,
+    pub inner_shadow_color: AnimatableSet<Color>,
 
     //Text & Font
-    pub text: DenseStorage<String>,
-    pub font: StyleStorage<String>,
-    pub font_color: AnimatableStorage<Color>,
-    pub font_size: AnimatableStorage<f32>,
+    pub text: StyleSet<String>,
+    pub font: StyleSet<String>,
+    pub font_color: AnimatableSet<Color>,
+    pub font_size: AnimatableSet<f32>,
 
     pub tooltip: DenseStorage<String>,
 
     // LAYOUT
 
     // Layout Type
-    pub layout_type: StyleStorage<LayoutType>,
+    pub layout_type: StyleSet<LayoutType>,
 
     // Positioning Type
-    pub positioning_type: StyleStorage<PositionType>,
+    pub positioning_type: StyleSet<PositionType>,
 
     // Grid
-    pub grid_rows: StyleStorage<Vec<Units>>,
-    pub row_between: AnimatableStorage<Units>,
-    pub grid_cols: StyleStorage<Vec<Units>>,
-    pub col_between: AnimatableStorage<Units>,
+    pub grid_rows: StyleSet<Vec<Units>>,
+    pub row_between: AnimatableSet<Units>,
+    pub grid_cols: StyleSet<Vec<Units>>,
+    pub col_between: AnimatableSet<Units>,
 
-    pub row_index: StyleStorage<usize>,
-    pub col_index: StyleStorage<usize>,
-    pub row_span: StyleStorage<usize>,
-    pub col_span: StyleStorage<usize>,
+    pub row_index: StyleSet<usize>,
+    pub col_index: StyleSet<usize>,
+    pub row_span: StyleSet<usize>,
+    pub col_span: StyleSet<usize>,
 
     // Child Spacing
-    pub child_left: AnimatableStorage<Units>,
-    pub child_right: AnimatableStorage<Units>,
-    pub child_top: AnimatableStorage<Units>,
-    pub child_bottom: AnimatableStorage<Units>,
+    pub child_left: AnimatableSet<Units>,
+    pub child_right: AnimatableSet<Units>,
+    pub child_top: AnimatableSet<Units>,
+    pub child_bottom: AnimatableSet<Units>,
     // pub child_wrap: AnimatableStorage<Units>,
 
-    pub name: StyleStorage<String>,
+    pub name: StyleSet<String>,
 }
 
 impl Style {
@@ -220,7 +226,10 @@ impl Style {
         let mut rule_list: Vec<StyleRule> =
             rules.into_iter().filter_map(|rule| {
                 match rule {
-                    Ok(style_rule) => Some(style_rule),
+                    Ok(mut style_rule) => {
+                        style_rule.id = self.rule_manager.create();
+                        Some(style_rule)
+                    },
                     Err(parse_error) => {
                         let style_parse_error = StyleParseError(parse_error.0);
                         println!("{}", style_parse_error);
@@ -244,8 +253,8 @@ impl Style {
     }
 
     fn set_style_properties(&mut self) {
-        for (rule_id, rule) in self.rules.iter().enumerate() {
-            //let rule_id = self.rules.len();
+        for rule in self.rules.iter() {
+            let rule_id = rule.id;
 
             for property in rule.properties.clone() {
                 match property {
@@ -671,6 +680,8 @@ impl Style {
                 }
             }
         }
+        // println!("{:?}", self.rules);
+        // println!("{:?}", self.child_left.shared_data);
     }
 
     fn add_transition<T: Default + Interpolator>(
@@ -1196,60 +1207,60 @@ impl Style {
 
     pub fn remove_all(&mut self) {
         // Remove all non-inline style data
-        self.background_color.remove_styles();
-        self.font_color.remove_styles();
+        self.background_color.clear_rules();
+        self.font_color.clear_rules();
 
         // Position
-        self.left.remove_styles();
-        self.right.remove_styles();
-        self.top.remove_styles();
-        self.bottom.remove_styles();
+        self.left.clear_rules();
+        self.right.clear_rules();
+        self.top.clear_rules();
+        self.bottom.clear_rules();
 
         // Position Constraints
-        self.min_left.remove_styles();
-        self.max_left.remove_styles();
-        self.min_right.remove_styles();
-        self.max_right.remove_styles();
-        self.min_top.remove_styles();
-        self.max_top.remove_styles();
-        self.min_bottom.remove_styles();
-        self.max_bottom.remove_styles();
+        self.min_left.clear_rules();
+        self.max_left.clear_rules();
+        self.min_right.clear_rules();
+        self.max_right.clear_rules();
+        self.min_top.clear_rules();
+        self.max_top.clear_rules();
+        self.min_bottom.clear_rules();
+        self.max_bottom.clear_rules();
 
         // Size
-        self.width.remove_styles();
-        self.height.remove_styles();
+        self.width.clear_rules();
+        self.height.clear_rules();
 
         // Size Constraints
-        self.min_width.remove_styles();
-        self.max_width.remove_styles();
-        self.min_height.remove_styles();
-        self.max_height.remove_styles();
+        self.min_width.clear_rules();
+        self.max_width.clear_rules();
+        self.min_height.clear_rules();
+        self.max_height.clear_rules();
 
         // Border
-        self.border_width.remove_styles();
-        self.border_color.remove_styles();
+        self.border_width.clear_rules();
+        self.border_color.clear_rules();
 
         // Border Radius
-        self.border_radius_top_left.remove_styles();
-        self.border_radius_top_right.remove_styles();
-        self.border_radius_bottom_left.remove_styles();
-        self.border_radius_bottom_right.remove_styles();
+        self.border_radius_top_left.clear_rules();
+        self.border_radius_top_right.clear_rules();
+        self.border_radius_bottom_left.clear_rules();
+        self.border_radius_bottom_right.clear_rules();
 
         // Display
-        self.display.remove_styles();
-        self.visibility.remove_styles();
-        self.opacity.remove_styles();
+        self.display.clear_rules();
+        self.visibility.clear_rules();
+        self.opacity.clear_rules();
 
         // Inner Shadow
-        self.inner_shadow_h_offset.remove_styles();
-        self.inner_shadow_v_offset.remove_styles();
-        self.inner_shadow_blur.remove_styles();
-        self.inner_shadow_color.remove_styles();
+        self.inner_shadow_h_offset.clear_rules();
+        self.inner_shadow_v_offset.clear_rules();
+        self.inner_shadow_blur.clear_rules();
+        self.inner_shadow_color.clear_rules();
 
         // Outer Shadow
-        self.outer_shadow_h_offset.remove_styles();
-        self.outer_shadow_v_offset.remove_styles();
-        self.outer_shadow_blur.remove_styles();
-        self.outer_shadow_color.remove_styles();
+        self.outer_shadow_h_offset.clear_rules();
+        self.outer_shadow_v_offset.clear_rules();
+        self.outer_shadow_blur.clear_rules();
+        self.outer_shadow_color.clear_rules();
     }
 }

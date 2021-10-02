@@ -11,3 +11,6 @@ pub(crate) use interpolator::Interpolator;
 
 mod transition;
 pub(crate) use transition::Transition;
+
+mod animation_builder;
+pub use animation_builder::*;

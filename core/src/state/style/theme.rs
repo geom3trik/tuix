@@ -121,6 +121,7 @@ impl<'i> cssparser::QualifiedRuleParser<'i> for RuleParser {
             .collect::<Vec<_>>();
 
         Ok(StyleRule {
+            id: Rule::null(),
             selectors,
             properties,
         })

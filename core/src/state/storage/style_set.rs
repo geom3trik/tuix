@@ -22,7 +22,7 @@ const INDEX_MASK: u32 =  std::u32::MAX / 2;
 /// refers to shared (default) or inline data:
 /// - 0 - shared
 /// - 1 - inline
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 struct DataIndex(u32);
 
 impl DataIndex {
@@ -75,22 +75,12 @@ impl DataIndex {
     }
 }
 
-impl std::fmt::Debug for DataIndex {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.is_inline() {
-            write!(f, "Inline: {}", self.index())
-        } else {
-            write!(f, "Shared: {}", self.index())
-        }
-    }
-}
-
 
 /// An Index is used by the AnimatableStorage and contains a data index and an animation index.
 ///
 /// 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct Index {
+struct Index {
     data_index: DataIndex,
     anim_index: u32,
 }
@@ -127,21 +117,17 @@ impl DenseIndex for Index {
 ///
 /// Animations are moved from animations to active_animations when played. This allows the active
 /// animations to be quickly iterated to update the value.
-#[derive(Default, Debug)]
-pub struct AnimatableSet<T: Interpolator> {
+#[derive(Default)]
+pub struct StyleSet<T> {
     /// Shared data determined by style rules
-    pub(crate) shared_data: SparseSetGeneric<T,Index>,
+    shared_data: SparseSetGeneric<T,Index>,
     /// Inline data defined on specific entities
-    pub(crate) inline_data: SparseSetGeneric<T,Index>,
-    /// Animation descriptions
-    animations: SparseSet<AnimationState<T>>,
-    /// Animations which are currently playing
-    active_animations: Vec<AnimationState<T>>,
+    inline_data: SparseSetGeneric<T,Index>,
 }
 
-impl<T> AnimatableSet<T>
+impl<T> StyleSet<T>
 where
-    T: 'static + Default + Clone + Interpolator + PartialEq
+    T: 'static + Default
 {
     /// Create a new empty animatable storage
     pub fn new() -> Self {
@@ -171,19 +157,6 @@ where
         self.inline_data.remove(entity)
     }
 
-    /// Inserts an animation
-    ///
-    /// Animations exist separately to inline (entity) data and shared (rule) data.
-    /// Playing an aimation for a particular entity will clone the animation state to the
-    /// active animations and then link the entity to it.  
-    pub fn insert_animation(&mut self, animation: Animation, animation_description: AnimationState<T>) {
-        self.animations.insert(animation, animation_description);
-    }
-
-    pub fn remove_animation(&mut self, animation: Animation) -> Option<AnimationState<T>> {
-        self.animations.remove(animation)
-    }
-
     pub fn insert_rule(&mut self, rule: Rule, value: T) {
         self.shared_data.insert(rule, value);
     }
@@ -191,127 +164,6 @@ where
     pub fn remove_rule(&mut self, rule: Rule) -> Option<T> {
         self.shared_data.remove(rule)
     }
-
-    /// Inserts a transition for a given rule
-    ///
-    /// Trnasitions are animations which are defined for a particular rule. When an entity is linked to
-    /// a rule any transition associated with that rule will play for that entity.
-    ///
-    pub fn insert_transition(&mut self, rule: Rule, animation_description: AnimationState<T>) {
-
-    }
-
-    pub fn play_animation(&mut self, entity: Entity, animation: Animation) {
-        println!("Play Animation");
-        let entity_index = entity.index();
-
-        if !self.animations.contains(animation) {
-            return;
-        }
-
-        // If there is no inline or shared data for the entity then add the entity as animation only
-        if entity_index >= self.inline_data.sparse.len() {
-            self.inline_data.sparse.resize(entity_index + 1, Index::null());
-        }
-
-        if entity_index < self.inline_data.sparse.len() {
-            let active_anim_index = self.inline_data.sparse[entity_index].anim_index as usize;
-            if active_anim_index < self.active_animations.len() {
-                let anim = &mut self.active_animations[active_anim_index];
-                anim.play(entity);
-            } else {
-                // Safe to unwrap because already checked that the animation exists
-                let mut anim_state = self.animations.get(animation).cloned().unwrap();
-                anim_state.play(entity);
-                self.inline_data.sparse[entity_index].anim_index = self.active_animations.len() as u32;
-                self.active_animations.push(anim_state);
-            }
-        }
-    }
-
-    pub fn tick(&mut self, time: std::time::Instant) {
-        for state in self.active_animations.iter_mut() {
-            
-            // If the animation is already finished then return false
-            if state.t0 == 1.0 {
-                continue;
-            }
-
-            let start = state.keyframes.first().unwrap();
-            let end = state.keyframes.last().unwrap();
-
-            if start.1 == end.1 {
-                state.t0 = 1.0;
-                state.output = Some(end.1.clone());
-                continue;
-            }
-
-            let elapsed_time = time.duration_since(state.start_time);
-
-            // Store previous time state
-            state.t0 = state.t;
-
-            // Update time state
-            state.t = (elapsed_time.as_secs_f32() / state.duration.as_secs_f32()) - state.delay;
-
-            if state.t >= 1.0 {
-                //Animation is finished
-                state.output = Some(T::interpolate(&start.1, &end.1, 1.0));
-
-                if !state.persistent {
-                    state.t = 1.0;
-                    state.active = false;
-                } else {
-                    state.t = 1.0;
-                }
-            } else if state.t <= 0.0 {
-                state.output = Some(start.1.clone());
-            } else {
-                state.output = Some(T::interpolate(&start.1, &end.1, state.t));
-            }
-        }
-
-        self.remove_innactive_animations();
-    }
-
-    pub fn remove_innactive_animations(&mut self) {
-        // Create a list of finished animations
-        let inactive: Vec<AnimationState<T>> = self
-            .active_animations
-            .iter()
-            .filter(|e| e.t0 == 1.0 && !e.persistent)
-            .cloned()
-            .collect();
-
-        // Remove inactive animation states from active animations list
-        // Retains persistent animations
-        self.active_animations
-            .retain(|e| e.t0 < 1.0 || e.persistent);
-
-        for state in inactive.into_iter() {
-            for entity in state.entities.iter() {
-                self.inline_data.sparse[entity.index()].anim_index = std::u32::MAX;
-            }
-        }
-
-        for (index, state) in self.active_animations.iter().enumerate() {
-            for entity in state.entities.iter() {
-                self.inline_data.sparse[entity.index()].anim_index = index as u32;
-            }
-        }
-    }
-
-    pub fn has_animations(&self) -> bool {
-        for state in self.active_animations.iter() {
-            if state.t0 < 1.0 {
-                return true;
-            }
-        }
-
-        false
-    }
-
-    
 
     /// Returns a reference to any inline data on the entity if it exists
     ///
@@ -373,14 +225,6 @@ where
         self.shared_data.get_mut(rule)
     }
 
-    pub fn get_animation(&self, animation: Animation) -> Option<&AnimationState<T>> {
-        self.animations.get(animation)
-    }
-
-    pub fn get_animation_mut(&mut self, animation: Animation) -> Option<&mut AnimationState<T>> {
-        self.animations.get_mut(animation)
-    }
-
     /// Get the animated, inline, or shared data value from the storage
     ///
     /// # Example 
@@ -390,13 +234,6 @@ where
     pub fn get(&self, entity: Entity) -> Option<&T> {
         let entity_index = entity.index();
         if entity_index < self.inline_data.sparse.len() {
-
-            // Animations override inline and shared styling
-            let animation_index = self.inline_data.sparse[entity_index].anim_index as usize;
-
-            if animation_index < self.active_animations.len() {
-                return self.active_animations[animation_index].get_output();
-            }
 
             let data_index = self.inline_data.sparse[entity_index].data_index;
             if data_index.is_inline() {
@@ -438,17 +275,6 @@ where
                     self.inline_data.sparse.resize(entity_index + 1, Index::null());
                 }
 
-                // Get the animation state index of any animations (transitions) defined for the rule
-                let anim_index = shared_data_index.anim_index as usize;
-
-                if anim_index < self.animations.dense.len() {
-                    let mut anim_state = self.animations.dense[anim_index].value.clone();
-                    // TODO
-                    // Check if the entity is already being animated
-                    // If it's being animated by a regular animation, don't transition
-                    // If it's being animated by a trnasition, then blend the trnasition to the new one
-                }
-
                 let data_index = self.inline_data.sparse[entity_index].data_index;
                 // Already linked
                 if data_index.index() == shared_data_index.index() {
@@ -460,7 +286,7 @@ where
                 return true;
             
             } else {
-                // No rule
+                // // No rule
                 // if entity_index < self.inline_data.sparse.len() {
                 //     self.inline_data.sparse[entity_index].data_index = DataIndex::null();
                 // }
@@ -469,21 +295,6 @@ where
         }
 
         false
-    }
-
-    pub fn clear_rules(&mut self) {
-        // Remove transitions
-        for index in self.shared_data.sparse.iter() {
-            let anim_index = index.anim_index as usize;
-        }
-
-        self.shared_data.clear();
-
-        for index in self.inline_data.sparse.iter_mut() {
-            if !index.data_index.is_inline() {
-                index.data_index = DataIndex::null();
-            }
-        }
     }
 
 
@@ -548,17 +359,15 @@ mod tests {
     /// Test for constructing a new empty animatable storage
     #[test]
     fn new() {
-        let animatable_storage = AnimatableSet::<f32>::new();
+        let animatable_storage = StyleSet::<f32>::new();
         assert_eq!(animatable_storage.inline_data.is_empty(), true);
         assert_eq!(animatable_storage.shared_data.is_empty(), true);
-        assert_eq!(animatable_storage.animations.is_empty(), true);
-        assert_eq!(animatable_storage.active_animations.is_empty(), true);
     }
 
     /// Test inserting inline data into the storage
     #[test]
     fn insert_inline() {
-        let mut animatable_storage = AnimatableSet::new();
+        let mut animatable_storage = StyleSet::new();
         animatable_storage.insert(Entity::root(), 5.0);
         //assert_eq!(animatable_storage.entity_indices.first().unwrap().data_index, DataIndex::inline(0));
     }

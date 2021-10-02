@@ -151,23 +151,30 @@ impl Widget for ScrollContainerH {
 
         entity.set_element(state, "scroll_containerh");
 
-        let vertical_scroll_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Percentage(0.0)))
-            .with_keyframe((1.0, Units::Percentage(20.0)));
+        //let vertical_scroll_animation = state.create_animation(std::time::Duration::from_millis(100));
+        let vertical_scroll_animation = 
+            state.create_animation(std::time::Duration::from_millis(100))
+            .add_keyframe(0.0, |keyframe| keyframe.set_left(Percentage(0.0)))
+            .add_keyframe(1.0, |keyframe| keyframe.set_left(Percentage(20.0)));
+        
 
-        self.vertical_scroll_animation =
-            state.style.left.insert_animation(vertical_scroll_animation);
+        // let vertical_scroll_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Percentage(0.0)))
+        //     .with_keyframe((1.0, Units::Percentage(20.0)));
 
-        let vertical_container_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Percentage(0.0)))
-            .with_keyframe((1.0, Units::Percentage(-20.0)));
+        // self.vertical_scroll_animation =
+        //     state.style.left.insert_animation(vertical_scroll_animation);
 
-        self.vertical_container_animation = state
-            .style
-            .left
-            .insert_animation(vertical_container_animation);
+        // let vertical_container_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Percentage(0.0)))
+        //     .with_keyframe((1.0, Units::Percentage(-20.0)));
+
+        // self.vertical_container_animation = state
+        //     .style
+        //     .left
+        //     .insert_animation(vertical_container_animation);
 
         self.container
     }
@@ -212,13 +219,13 @@ impl Widget for ScrollContainerH {
                                 entity.set_disabled(state, false);
                             }
 
-                            if !state.style.left.is_animating(self.horizontal_scroll) {
+                            //if !state.style.left.is_animating(self.horizontal_scroll) {
                                 let dist = state.data.get_posx(self.horizontal_scroll)
                                     - state.data.get_posx(entity);
                                 let space = state.data.get_width(entity)
                                     - (self.scroll.scroll_size * state.data.get_width(entity));
                                 self.scroll.scroll_pos = dist / space;
-                            }
+                            //}
 
                             if self.scroll.scroll_pos.is_nan() {
                                 self.scroll.scroll_pos = 0.0;
@@ -236,8 +243,7 @@ impl Widget for ScrollContainerH {
                             state
                                 .style
                                 .width
-                                .insert(self.horizontal_scroll, Units::Percentage(self.scroll.scroll_size * 100.0))
-                                .expect("");
+                                .insert(self.horizontal_scroll, Units::Percentage(self.scroll.scroll_size * 100.0));
 
                             self.scroll.overflow = 1.0
                                 - (state.data.get_width(self.container)
@@ -250,13 +256,12 @@ impl Widget for ScrollContainerH {
                             state
                                 .style
                                 .left
-                                .insert(self.container, Units::Percentage(self.scroll.scroll_pos * self.scroll.overflow * 100.0))
-                                .expect("");
+                                .insert(self.container, Units::Percentage(self.scroll.scroll_pos * self.scroll.overflow * 100.0));
 
                             state.style.left.insert(
                                 self.horizontal_scroll,
                                 Units::Percentage(self.scroll.scroll_pos * overflow2 * 100.0),
-                            ).expect("");
+                            );
 
                             Entity::root().relayout(state);
 
@@ -550,23 +555,23 @@ impl Widget for ScrollContainer {
 
         entity.set_element(state, "scroll_container");
 
-        let vertical_scroll_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Percentage(0.0)))
-            .with_keyframe((1.0, Units::Percentage(20.0)));
+        // let vertical_scroll_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Percentage(0.0)))
+        //     .with_keyframe((1.0, Units::Percentage(20.0)));
 
-        self.vertical_scroll_animation =
-            state.style.top.insert_animation(vertical_scroll_animation);
+        // self.vertical_scroll_animation =
+        //     state.style.top.insert_animation(vertical_scroll_animation);
 
-        let vertical_container_animation = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Percentage(0.0)))
-            .with_keyframe((1.0, Units::Percentage(-20.0)));
+        // let vertical_container_animation = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Percentage(0.0)))
+        //     .with_keyframe((1.0, Units::Percentage(-20.0)));
 
-        self.vertical_container_animation = state
-            .style
-            .top
-            .insert_animation(vertical_container_animation);
+        // self.vertical_container_animation = state
+        //     .style
+        //     .top
+        //     .insert_animation(vertical_container_animation);
 
         self.container
     }
@@ -603,13 +608,13 @@ impl Widget for ScrollContainer {
                                 entity.set_disabled(state, false);
                             }
 
-                            if !state.style.top.is_animating(self.vertical_scroll) {
+                            //if !state.style.top.is_animating(self.vertical_scroll) {
                                 let dist = state.data.get_posy(self.vertical_scroll)
                                     - state.data.get_posy(entity);
                                 let space = state.data.get_height(entity)
                                     - (self.scroll.scroll_size * state.data.get_height(entity));
                                 self.scroll.scroll_pos = dist / space;
-                            }
+                            //}
 
                             if self.scroll.scroll_pos.is_nan() {
                                 self.scroll.scroll_pos = 0.0;
@@ -627,8 +632,7 @@ impl Widget for ScrollContainer {
                             state
                                 .style
                                 .height
-                                .insert(self.vertical_scroll, Units::Percentage(self.scroll.scroll_size * 100.0))
-                                .expect("");
+                                .insert(self.vertical_scroll, Units::Percentage(self.scroll.scroll_size * 100.0));
 
                             self.scroll.overflow = 1.0
                                 - (state.data.get_height(self.container)
@@ -640,12 +644,12 @@ impl Widget for ScrollContainer {
                             state
                                 .style
                                 .top
-                                .insert(self.container, Units::Percentage(self.scroll.scroll_pos * self.scroll.overflow * 100.0)).expect("Failed to set top position of container");
+                                .insert(self.container, Units::Percentage(self.scroll.scroll_pos * self.scroll.overflow * 100.0));
 
                             state.style.top.insert(
                                 self.vertical_scroll,
                                 Units::Percentage(self.scroll.scroll_pos * overflow2 * 100.0),
-                            ).expect("Failed to set top position of vertical scroll bar.");
+                            );
 
                             state.insert_event(
                                 Event::new(WindowEvent::Relayout)

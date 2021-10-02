@@ -149,7 +149,7 @@ where
     fn set_child_space(self, state: &mut State, value: Units);
 
 
-    /// Set the spacing between children for the entity, rule, or animation.
+    /// Set the horizontal spacing between children for the entity, rule, or animation.
     ///
     /// The col-between determines how much space the layout system will place between the children of an entity horizontally,
     /// provided that the individual left and right properties of the child are set to auto.
@@ -170,7 +170,7 @@ where
     /// ``` 
     fn set_col_between(self, state: &mut State, value: Units);
 
-    /// Set the spacing between children for the entity, rule, or animation.
+    /// Set the vertical spacing between children for the entity, rule, or animation.
     ///
     /// The row-between determines how much space the layout system will place between the children of an entity vertically,
     /// provided that the individual top and bottom properties of the child are set to auto.

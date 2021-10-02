@@ -118,6 +118,26 @@ impl PropSet2 for Rule {
 
     // SPACE
 
+    /// Set the space for the shared style rule. This is equivalent to setting the left, right, top, and bottom properties.
+    ///
+    /// The space determines how much space the layout system will place on all sides of an entity.
+    ///
+    /// # Examples
+    /// ```
+    /// rule.set_space(state, Units(Pixels(10.0)));
+    /// ```
+    /// # CSS
+    /// The child-space property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```
+    /// child-space: {} | {}px | {}% | {}s | auto
+    /// ``` 
+    fn set_space(self, state: &mut State, value: Units) {
+        state.style.left.insert_rule(self, value);
+        state.style.right.insert_rule(self, value);
+        state.style.top.insert_rule(self, value);
+        state.style.bottom.insert_rule(self, value);
+    }
+
     /// Set the left property for the shared style rule.
     ///
     /// The left property determines how much space the layout system will place to the left of an entity.
@@ -200,7 +220,7 @@ impl PropSet2 for Rule {
     /// ```
     /// # CSS
     /// The child-space property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
-    /// ```
+    /// ```css
     /// child-space: {} | {}px | {}% | {}s | auto
     /// ``` 
     fn set_child_space(self, state: &mut State, value: Units) {
@@ -208,6 +228,46 @@ impl PropSet2 for Rule {
         state.style.child_right.insert_rule(self, value);
         state.style.child_top.insert_rule(self, value);
         state.style.child_bottom.insert_rule(self, value);
+    }
+
+    /// Set the horizontal spacing between children for the shared style rule.
+    ///
+    /// The col-between determines how much space the layout system will place between the children of an entity horizontally,
+    /// provided that the individual left and right properties of the child are set to auto.
+    /// This applies to both horizontal stacks and grids with more than one column.
+    ///
+    /// # Examples
+    /// Adds a shared col-between property to a rule:
+    /// ```
+    /// rule.set_col_between(state, Units(Pixels(10.0)));
+    /// ```
+    /// # CSS
+    /// The col-between property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// col-between: {} | {}px | {}% | {}s | auto
+    /// ``` 
+    fn set_col_between(self, state: &mut State, value: Units) {
+        state.style.col_between.insert_rule(self, value);
+    }
+
+    /// Set the vertical spacing between children for the shared style rule.
+    ///
+    /// The row-between determines how much space the layout system will place between the children of an entity vertically,
+    /// provided that the individual top and bottom properties of the child are set to auto.
+    /// This applies to both vertical stacks and grids with more than one row.
+    ///
+    /// # Examples
+    /// Adds a shared row-between property to a rule:
+    /// ```
+    /// rule.set_row_between(state, Units(Pixels(10.0)));
+    /// ```
+    /// # CSS
+    /// The row-between property can be set with a number (in pixels), a number with px units, a percentage, a stretch value, or auto.
+    /// ```css
+    /// row-between: {} | {}px | {}% | {}s | auto
+    /// ``` 
+    fn set_row_between(self, state: &mut State, value: Units) {
+        state.style.row_between.insert_rule(self, value);
     }
 
     /// Set the child-left property for the shared style rule.

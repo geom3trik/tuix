@@ -403,21 +403,21 @@ impl Widget for TabBar2 {
                     .set_background_color(Color::green())
         );
 
-        // Animation to shrink one of the phantom tracks
-        let shrink_animation_state = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Pixels(100.0)))
-            .with_keyframe((1.0, Units::Pixels(0.0)));
+        // // Animation to shrink one of the phantom tracks
+        // let shrink_animation_state = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Pixels(100.0)))
+        //     .with_keyframe((1.0, Units::Pixels(0.0)));
 
-        self.shrink_animation = state.style.width.insert_animation(shrink_animation_state);
+        // self.shrink_animation = state.style.width.insert_animation(shrink_animation_state);
 
-        // Animation to grow one of the phantom tracks
-        let grow_animation_state = AnimationState::new()
-            .with_duration(std::time::Duration::from_millis(100))
-            .with_keyframe((0.0, Units::Pixels(0.0)))
-            .with_keyframe((1.0, Units::Pixels(100.0)));
+        // // Animation to grow one of the phantom tracks
+        // let grow_animation_state = AnimationState::new()
+        //     .with_duration(std::time::Duration::from_millis(100))
+        //     .with_keyframe((0.0, Units::Pixels(0.0)))
+        //     .with_keyframe((1.0, Units::Pixels(100.0)));
 
-        self.grow_animation = state.style.width.insert_animation(grow_animation_state);
+        // self.grow_animation = state.style.width.insert_animation(grow_animation_state);
 
         entity.set_element(state, "tab_bar")
     }
@@ -506,7 +506,7 @@ impl Widget for TabBar2 {
 
                 MovableTabEvent::Switch(position_state) => {
                     if self.tab_moving != Entity::null() {
-                        if !state.style.width.is_animating(self.phantom_tab1) && !state.style.width.is_animating(self.phantom_tab2) {
+                        //if !state.style.width.is_animating(self.phantom_tab1) && !state.style.width.is_animating(self.phantom_tab2) {
                             if *position_state {
                                 if state.tree.get_next_sibling(event.target)
                                     == Some(self.phantom_tab1)
@@ -515,19 +515,19 @@ impl Widget for TabBar2 {
                                         .tree
                                         .set_prev_sibling(event.target, self.phantom_tab2);
 
-                                    if state.data.get_width(self.phantom_tab1) != 0.0 {
-                                        state
-                                        .style
-                                        .width
-                                        .play_animation(self.phantom_tab1, self.shrink_animation);
-                                    }
+                                    // if state.data.get_width(self.phantom_tab1) != 0.0 {
+                                    //     state
+                                    //     .style
+                                    //     .width
+                                    //     .play_animation(self.phantom_tab1, self.shrink_animation);
+                                    // }
                                     
-                                    if state.data.get_width(self.phantom_tab2) == 0.0 {
-                                        state
-                                        .style
-                                        .width
-                                        .play_animation(self.phantom_tab2, self.grow_animation);
-                                    }
+                                    // if state.data.get_width(self.phantom_tab2) == 0.0 {
+                                    //     state
+                                    //     .style
+                                    //     .width
+                                    //     .play_animation(self.phantom_tab2, self.grow_animation);
+                                    // }
                                     
 
                                     let tab_width = state.data.get_width(self.tab_moving);
@@ -540,19 +540,19 @@ impl Widget for TabBar2 {
                                         .tree
                                         .set_prev_sibling(event.target, self.phantom_tab1);
 
-                                    if state.data.get_width(self.phantom_tab2) != 0.0 {
-                                        state
-                                            .style
-                                            .width
-                                            .play_animation(self.phantom_tab2, self.shrink_animation);
-                                    }
+                                    // if state.data.get_width(self.phantom_tab2) != 0.0 {
+                                    //     state
+                                    //         .style
+                                    //         .width
+                                    //         .play_animation(self.phantom_tab2, self.shrink_animation);
+                                    // }
 
-                                    if state.data.get_width(self.phantom_tab1) == 0.0 {
-                                        state
-                                            .style
-                                            .width
-                                            .play_animation(self.phantom_tab1, self.grow_animation);
-                                    }
+                                    // if state.data.get_width(self.phantom_tab1) == 0.0 {
+                                    //     state
+                                    //         .style
+                                    //         .width
+                                    //         .play_animation(self.phantom_tab1, self.grow_animation);
+                                    // }
 
                                     let tab_width = state.data.get_width(self.tab_moving);
                                     self.phantom_tab2.set_width(state, Units::Pixels(0.0));
@@ -566,19 +566,19 @@ impl Widget for TabBar2 {
                                         .tree
                                         .set_next_sibling(event.target, self.phantom_tab2);
 
-                                    if state.data.get_width(self.phantom_tab1) != 0.0 {
-                                        state
-                                            .style
-                                            .width
-                                            .play_animation(self.phantom_tab1, self.shrink_animation);
-                                    }
+                                    // if state.data.get_width(self.phantom_tab1) != 0.0 {
+                                    //     state
+                                    //         .style
+                                    //         .width
+                                    //         .play_animation(self.phantom_tab1, self.shrink_animation);
+                                    // }
 
-                                    if state.data.get_width(self.phantom_tab2) == 0.0 {
-                                        state
-                                            .style
-                                            .width
-                                            .play_animation(self.phantom_tab2, self.grow_animation);
-                                    }
+                                    // if state.data.get_width(self.phantom_tab2) == 0.0 {
+                                    //     state
+                                    //         .style
+                                    //         .width
+                                    //         .play_animation(self.phantom_tab2, self.grow_animation);
+                                    // }
 
                                     let tab_width = state.data.get_width(self.tab_moving);
                                     self.phantom_tab1.set_width(state, Units::Pixels(0.0));
@@ -590,26 +590,26 @@ impl Widget for TabBar2 {
                                         .tree
                                         .set_next_sibling(event.target, self.phantom_tab1);
 
-                                    if state.data.get_width(self.phantom_tab2) != 0.0 {
-                                        state
-                                            .style
-                                            .width
-                                            .play_animation(self.phantom_tab2, self.shrink_animation);
-                                    }
+                                    // if state.data.get_width(self.phantom_tab2) != 0.0 {
+                                    //     state
+                                    //         .style
+                                    //         .width
+                                    //         .play_animation(self.phantom_tab2, self.shrink_animation);
+                                    // }
 
-                                    if state.data.get_width(self.phantom_tab1) == 0.0 {
-                                        state
-                                            .style
-                                            .width
-                                            .play_animation(self.phantom_tab1, self.grow_animation);
-                                    }
+                                    // if state.data.get_width(self.phantom_tab1) == 0.0 {
+                                    //     state
+                                    //         .style
+                                    //         .width
+                                    //         .play_animation(self.phantom_tab1, self.grow_animation);
+                                    // }
 
                                     let tab_width = state.data.get_width(self.tab_moving);
                                     self.phantom_tab2.set_width(state, Units::Pixels(0.0));
                                     self.phantom_tab1.set_width(state, Units::Pixels(tab_width));
                                 }
                             }    
-                        }
+                        //}
                         
                     }
                 }

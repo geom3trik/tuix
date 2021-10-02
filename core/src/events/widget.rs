@@ -558,7 +558,7 @@ pub trait Widget: std::marker::Sized + 'static {
         // }
 
         // Gradient overrides background color
-        if let Some(background_gradient) = state.style.background_gradient.get_mut(entity) {
+        if let Some(background_gradient) = state.style.background_gradient.get(entity) {
             let (start_x, start_y, end_x, end_y, parent_length) = match background_gradient.direction {
                 Direction::LeftToRight => (0.0, 0.0, bounds.w, 0.0, parent_width),
                 Direction::TopToBottom => (0.0, 0.0, 0.0, bounds.h, parent_height),
@@ -624,7 +624,7 @@ pub trait Widget: std::marker::Sized + 'static {
 
         
         // Draw text
-        if let Some(text) = state.style.text.get_mut(entity) {
+        if let Some(text) = state.style.text.get(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
             // TODO - This should probably be cached in state to save look-up time

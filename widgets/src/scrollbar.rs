@@ -99,13 +99,13 @@ impl Widget for Scrollbar {
             state
                 .style
                 .height
-                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0)).expect("Failed to set height of scrollbar front");
+                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0));
         } else {
             self.front.set_left(state, Percentage(self.scroll.scroll_pos * overflow2 * 100.0));
             state
                 .style
                 .width
-                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0)).expect("Failed to set width of scrollbar front");
+                .insert(self.front, Percentage(self.scroll.scroll_size * 100.0));
         }
 
     }

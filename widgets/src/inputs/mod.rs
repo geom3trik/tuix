@@ -10,8 +10,8 @@ pub use spinbox::*;
 mod textbox;
 pub use textbox::*;
 
-mod vector_edit;
-pub use vector_edit::*;
+// mod vector_edit;
+// pub use vector_edit::*;
 
 // pub mod vector;
 // pub use vector::*;

@@ -138,12 +138,12 @@ impl State {
 
         style.clip_widget.set(root, root);
 
-        style.background_color.insert(root, Color::rgb(255, 255, 255)).expect("");
+        style.background_color.insert(root, Color::rgb(255, 255, 255));
 
         style.default_font = "roboto".to_string();
 
         let mut resource_manager =ResourceManager::new();
-        resource_manager.themes.push(STYLE.to_string());
+        //resource_manager.themes.push(STYLE.to_string());
 
         State {
             entity_manager,
@@ -397,8 +397,9 @@ impl State {
         Entity::root().redraw(self);
     }
 
-    pub fn create_animation(&mut self) -> Animation {
-        self.animation_manager.create()
+    pub fn create_animation(&mut self, duration: std::time::Duration) -> AnimationBuilder {
+        let id = self.animation_manager.create();
+        AnimationBuilder::new(id, self, duration)
     }
 
     // Run all pending animations
@@ -407,58 +408,58 @@ impl State {
 
         let time = std::time::Instant::now();
 
-        self.style.background_color.animate(time);
+        self.style.background_color.tick(time);
         
         // Spacing
-        self.style.left.animate(time);
-        self.style.right.animate(time);
-        self.style.top.animate(time);
-        self.style.bottom.animate(time);
+        self.style.left.tick(time);
+        self.style.right.tick(time);
+        self.style.top.tick(time);
+        self.style.bottom.tick(time);
 
         // Spacing Constraints
-        self.style.min_left.animate(time);
-        self.style.max_left.animate(time);
-        self.style.min_right.animate(time);
-        self.style.max_right.animate(time);
-        self.style.min_top.animate(time);
-        self.style.max_top.animate(time);
-        self.style.min_bottom.animate(time);
-        self.style.max_bottom.animate(time);
+        self.style.min_left.tick(time);
+        self.style.max_left.tick(time);
+        self.style.min_right.tick(time);
+        self.style.max_right.tick(time);
+        self.style.min_top.tick(time);
+        self.style.max_top.tick(time);
+        self.style.min_bottom.tick(time);
+        self.style.max_bottom.tick(time);
 
         // Size
-        self.style.width.animate(time);
-        self.style.height.animate(time);
+        self.style.width.tick(time);
+        self.style.height.tick(time);
 
         // Size Constraints
-        self.style.min_width.animate(time);
-        self.style.max_width.animate(time);
-        self.style.min_height.animate(time);
-        self.style.max_height.animate(time);
+        self.style.min_width.tick(time);
+        self.style.max_width.tick(time);
+        self.style.min_height.tick(time);
+        self.style.max_height.tick(time);
 
         // Child Spacing
-        self.style.child_left.animate(time);
-        self.style.child_right.animate(time);
-        self.style.child_top.animate(time);
-        self.style.child_bottom.animate(time);
-        self.style.row_between.animate(time);
-        self.style.col_between.animate(time);
+        self.style.child_left.tick(time);
+        self.style.child_right.tick(time);
+        self.style.child_top.tick(time);
+        self.style.child_bottom.tick(time);
+        self.style.row_between.tick(time);
+        self.style.col_between.tick(time);
 
-        self.style.opacity.animate(time);
-        self.style.rotate.animate(time);
+        self.style.opacity.tick(time);
+        self.style.rotate.tick(time);
 
         // Border Radius
-        self.style.border_radius_top_left.animate(time);
-        self.style.border_radius_top_right.animate(time);
-        self.style.border_radius_bottom_left.animate(time);
-        self.style.border_radius_bottom_right.animate(time);
+        self.style.border_radius_top_left.tick(time);
+        self.style.border_radius_top_right.tick(time);
+        self.style.border_radius_bottom_left.tick(time);
+        self.style.border_radius_bottom_right.tick(time);
         
         // Border
-        self.style.border_width.animate(time);
-        self.style.border_color.animate(time);
+        self.style.border_width.tick(time);
+        self.style.border_color.tick(time);
 
         // Font
-        self.style.font_size.animate(time);
-        self.style.font_color.animate(time);
+        self.style.font_size.tick(time);
+        self.style.font_color.tick(time);
         
 
         self.style.background_color.has_animations()

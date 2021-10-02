@@ -56,7 +56,7 @@ impl LinearGradient {
         self
     }
 
-    pub fn get_stops(&mut self, parent_length: f32) -> Vec<(f32, Color)> {
+    pub fn get_stops(&self, parent_length: f32) -> Vec<(f32, Color)> {
         self.stops
             .iter()
             .map(|stop| {

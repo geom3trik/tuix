@@ -31,13 +31,14 @@ pub enum SparseSetError {
 
 
 /// Represents an entry of a sparse set storing the value and the linked key
+#[derive(Debug)]
 pub(crate) struct Entry<T> {
     pub(crate) key: usize,
     pub(crate) value: T,
 }
 
 /// A sparse set
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct SparseSetGeneric<T, D: DenseIndex> {
     pub(crate) sparse: Vec<D>,
     pub(crate) dense: Vec<Entry<T>>,
@@ -54,6 +55,11 @@ where
             sparse: Vec::new(),
             dense: Vec::new(),
         }
+    }
+
+    pub(crate) fn clear(&mut self) {
+        self.sparse.clear();
+        self.dense.clear();
     }
 
     pub fn is_empty(&self) -> bool {
