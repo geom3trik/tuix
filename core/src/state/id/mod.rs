@@ -1,7 +1,3 @@
-use crate::Entity;
-
-
-
 mod id_manager;
 pub(crate) use id_manager::IdManager;
 

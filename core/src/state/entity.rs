@@ -187,14 +187,3 @@ impl AsEntity for (Entity, Entity, Entity, Entity, Entity) {
         self.0
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    //#[test]
-    // fn create() {
-    //     let entity = Entity::new(42, 69);
-    //     assert_eq!(entity.index(), Some(42));
-    //     assert_eq!(entity.generation(), Some(69));
-    // }
-}

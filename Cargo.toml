@@ -173,6 +173,14 @@ path = "examples/binding/model.rs"
 name = "editor"
 path = "examples/editor/src/main.rs"
 
+[[example]]
+name = "basic_animation"
+path = "examples/animation/basic_animation.rs"
+
+[[example]]
+name = "multiple"
+path = "examples/animation/multiple.rs"
+
 [workspace]
 members = [
     "glutin",

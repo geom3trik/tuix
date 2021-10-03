@@ -30,34 +30,22 @@ impl<'a,T> Builder<'a,T> {
         self.entity
     }
 
-    /// Returns a mutable reference to the State
+    /// Returns a mutable reference to State.
     pub fn state(&mut self) -> &mut State {
         self.state
     }
 
-    /// Returns the entity id contained within the builder
+    /// Returns the entity id contained within the builder.
     pub fn entity(&self) -> Entity {
         self.entity
     }
 
-    /// Sets the general callback for pressing a widget
-    pub fn on_press<F>(mut self, mut handler: F) -> Self
-    where 
-        T: Widget,
-        F: FnMut(&mut T, &mut State, Entity) + 'static,
-    {
-        self.state.callbacks.insert(self.entity, Box::new(move |callback, state, entity| {
-            if let Some(callback) = callback.downcast::<T>() {
-                (handler)(callback, state, entity);
-            } else {
-                println!("Failed");
-            }
-        }));
-
-        self
-    }
-
-    /// Adds a class name to the entity
+    /// Adds a class name to the widget.
+    ///
+    /// # Example
+    /// Adds the class name `foo` to the widget.
+    /// ```
+    /// Element::new().build(state, parent, |builder| builder.class("foo"));
     pub fn class(mut self, class_name: &str) -> Self {
         //self.state.style.insert_class(self.entity, class);
         self.entity.class(self.state, class_name);
@@ -65,13 +53,15 @@ impl<'a,T> Builder<'a,T> {
         self
     }
 
+    // TODO
     pub fn set_name(mut self, name: &str) -> Self {
         self.state.style.name.insert(self.entity(), name.to_string());
     
         self
     }
 
-    /// Sets the element name of the entity
+    /// Sets the element name of the widget.
+    ///
     pub fn set_element(mut self, element: &str) -> Self {
         //self.state.style.insert_element(self.entity, element);
 

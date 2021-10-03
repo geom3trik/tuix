@@ -20,6 +20,9 @@ pub use layout::GeometryChanged;
 pub mod events;
 pub use events::*;
 
+pub mod window;
+pub use window::*;
+
 mod systems;
 pub use crate::systems::*;
 

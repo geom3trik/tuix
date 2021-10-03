@@ -25,7 +25,10 @@ impl Widget for Controller {
             match counter_event {
                 AddRemoveEvent::Add => {
                     Button::new().build(state, entity, |builder| {
-                        builder.set_height(Units::Pixels(30.0)).set_space(Pixels(5.0))
+                        builder
+                            .set_height(Units::Pixels(30.0))
+                            .set_space(Pixels(5.0))
+                            .set_background_color(Color::red())
                     });
                 }
 

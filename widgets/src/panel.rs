@@ -153,7 +153,7 @@ impl Widget for Panel {
 
         self.expand_height_animation = 
             state.create_animation(std::time::Duration::from_millis(100))
-            .persistent()
+            //.persistent()
             .add_keyframe(0.0, |keyframe|
                 keyframe.set_height(Pixels(0.0))
             )
@@ -321,7 +321,7 @@ impl Widget for Panel {
 
                                     self.container1.play_animation(state, self.expand_height_animation);
 
-                                    //self.container1.set_height(state, Units::Auto);
+                                    self.container1.set_height(state, Units::Auto);
 
                                     // state
                                     //     .style
@@ -359,7 +359,7 @@ impl Widget for Panel {
 
                             self.container2.play_animation(state, self.move_down_animation);
 
-                            self.container2.play_animation(state, self.fade_in_animation);
+                            //self.container2.play_animation(state, self.fade_in_animation);
 
                             //self.container2.set_opacity(state, 1.0);
                         } else {
@@ -370,8 +370,8 @@ impl Widget for Panel {
                             match entity.get_layout_type(state) {
                                 LayoutType::Column => {
                                     //if !state.style.height.is_animating(self.container1) {
-                                    if !self.container1.is_animating(state, self.expand_height_animation) &&
-                                        !self.container1.is_animating(state, self.collapse_height_animation) {
+                                    //if !self.container1.is_animating(state, self.expand_height_animation) &&
+                                    //    !self.container1.is_animating(state, self.collapse_height_animation) {
                                         let container_height =
                                             state.data.get_height(self.container1);
                                         //println!("Container Height: {} {}", self.container1, container_height);
@@ -417,7 +417,7 @@ impl Widget for Panel {
 
                                             self.container_height = container_height;
                                         }
-                                    }
+                                    //}
 
                                     // state.style.height.play_animation(
                                     //     self.container1,
@@ -512,7 +512,7 @@ impl Widget for Panel {
                             //     .opacity
                             //     .play_animation(self.container2, self.fade_out_animation);
 
-                            self.container2.play_animation(state, self.fade_out_animation);
+                            //self.container2.play_animation(state, self.fade_out_animation);
 
                             // state
                             //     .style

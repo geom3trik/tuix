@@ -90,7 +90,7 @@ where
     }
 
     /// Returns a reference to the data for a given key if it exists
-    pub(crate) fn get<I: GenerationalId>(&self, key: I) -> Option<&T> {
+    pub fn get<I: GenerationalId>(&self, key: I) -> Option<&T> {
         self.dense_idx(key).map(|dense_idx| &self.dense[dense_idx.index()].value)
     }
 
@@ -100,7 +100,7 @@ where
     }
 
     /// Inserts data for a given key into the sparse set
-    pub(crate) fn insert<I: GenerationalId>(&mut self, key: I, value: T) -> Result<(), SparseSetError> {
+    pub fn insert<I: GenerationalId>(&mut self, key: I, value: T) -> Result<(), SparseSetError> {
 
         if key.is_null() {
             return Err(SparseSetError::NullKey);

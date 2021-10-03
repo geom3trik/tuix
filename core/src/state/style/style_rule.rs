@@ -4,8 +4,6 @@ use crate::Entity;
 
 use super::Property;
 
-use crate::state::storage::dense_storage::DenseStorage;
-
 use super::*;
 
 #[derive(Clone, Debug, PartialEq)]

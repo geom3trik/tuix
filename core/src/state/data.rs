@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use femtovg::ImageId;
-use morphorm::Cache;
 use morphorm::GeometryChanged;
 use crate::Entity;
 
@@ -9,6 +8,7 @@ use crate::state::style::Visibility;
 use crate::state::style::Transform2D;
 
 use super::storage::sparse_set::SparseSet;
+use super::storage::sparse_set::SparseSetError;
 
 /// Computed properties used for layout and drawing
 
@@ -126,41 +126,41 @@ pub struct CachedData {
 }
 
 impl CachedData {
-    pub fn add(&mut self, entity: Entity) {
+    pub fn add(&mut self, entity: Entity) -> Result<(), SparseSetError> {
 
 
-        self.bounds.insert(entity, Default::default());
-        self.visibility.insert(entity, Default::default());
-        self.hoverable.insert(entity, true);
-        self.focusable.insert(entity, true);
-        self.child_sum.insert(entity, (0.0, 0.0));
-        self.child_max.insert(entity, (0.0, 0.0));
+        self.bounds.insert(entity, Default::default())?;
+        self.visibility.insert(entity, Default::default())?;
+        self.hoverable.insert(entity, true)?;
+        self.focusable.insert(entity, true)?;
+        self.child_sum.insert(entity, (0.0, 0.0))?;
+        self.child_max.insert(entity, (0.0, 0.0))?;
 
-        self.opacity.insert(entity, 0.0);
+        self.opacity.insert(entity, 0.0)?;
 
-        self.rotate.insert(entity, 0.0);
-        self.scale.insert(entity, (1.0, 1.0));
-        self.transform.insert(entity, Transform2D::identity());
-        self.origin.insert(entity, (0.0, 0.0));
+        self.rotate.insert(entity, 0.0)?;
+        self.scale.insert(entity, (1.0, 1.0))?;
+        self.transform.insert(entity, Transform2D::identity())?;
+        self.origin.insert(entity, (0.0, 0.0))?;
 
-        self.z_order.insert(entity, 0);
+        self.z_order.insert(entity, 0)?;
 
-        self.clip_region.insert(entity, Default::default());
-        self.space.insert(entity, Default::default());
-        self.size.insert(entity, Default::default());
-        self.cross_stretch_sum.insert(entity, Default::default());
-        self.cross_free_space.insert(entity, Default::default());
+        self.clip_region.insert(entity, Default::default())?;
+        self.space.insert(entity, Default::default())?;
+        self.size.insert(entity, Default::default())?;
+        self.cross_stretch_sum.insert(entity, Default::default())?;
+        self.cross_free_space.insert(entity, Default::default())?;
 
-        self.horizontal_free_space.insert(entity, Default::default());
-        self.horizontal_stretch_sum.insert(entity, Default::default());
-        self.vertical_free_space.insert(entity, Default::default());
-        self.vertical_stretch_sum.insert(entity, Default::default());
-        self.stack_child.insert(entity, (false, false));
+        self.horizontal_free_space.insert(entity, Default::default())?;
+        self.horizontal_stretch_sum.insert(entity, Default::default())?;
+        self.vertical_free_space.insert(entity, Default::default())?;
+        self.vertical_stretch_sum.insert(entity, Default::default())?;
+        self.stack_child.insert(entity, (false, false))?;
 
-        self.grid_row_max.insert(entity, 0.0);
-        self.grid_col_max.insert(entity, 0.0);
+        self.grid_row_max.insert(entity, 0.0)?;
+        self.grid_col_max.insert(entity, 0.0)?;
 
-        self.geometry_changed.insert(entity, Default::default());
+        self.geometry_changed.insert(entity, Default::default())?;
 
 
 
@@ -204,6 +204,8 @@ impl CachedData {
 
         //     self.geometry_changed.resize(key + 1, Default::default());
         // }
+
+        Ok(())
     }
 
 

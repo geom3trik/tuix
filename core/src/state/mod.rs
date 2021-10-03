@@ -133,17 +133,17 @@ impl State {
 
         let root = Entity::root();
 
-        data.add(root);
+        data.add(root).expect("Failed to add root entity to data cache");
         style.add(root);
 
-        style.clip_widget.set(root, root);
+        style.clip_widget.insert(root, root);
 
         style.background_color.insert(root, Color::rgb(255, 255, 255));
 
         style.default_font = "roboto".to_string();
 
         let mut resource_manager =ResourceManager::new();
-        //resource_manager.themes.push(STYLE.to_string());
+        resource_manager.themes.push(STYLE.to_string());
 
         State {
             entity_manager,
@@ -369,7 +369,7 @@ impl State {
             .entity_manager
             .create();
         self.tree.add(entity, parent).expect("");
-        self.data.add(entity);
+        self.data.add(entity).expect("Failed to add entity to data cache");
         self.style.add(entity);
 
         Entity::root().restyle(self);
@@ -381,10 +381,12 @@ impl State {
 
     //  TODO
     pub fn remove(&mut self, entity: Entity) {
+        println!("Request Remove: {}", entity);
         // Collect all entities below the removed entity on the same branch of the tree
         let delete_list = entity.branch_iter(&self.tree).collect::<Vec<_>>();
 
         for entity in delete_list.iter().rev() {
+            println!("Removing: {}", entity);
             self.tree.remove(*entity).expect("");
             self.data.remove(*entity);
             self.style.remove(*entity);

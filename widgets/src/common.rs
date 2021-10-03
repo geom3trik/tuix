@@ -1,5 +1,5 @@
 pub(crate) use tuix_core::Entity;
-pub(crate) use tuix_core::events::{Event, Propagation, Widget, WindowEvent};
+pub(crate) use tuix_core::{Event, Propagation, Widget, WindowEvent};
 pub(crate) use tuix_core::{MouseButton, MouseButtonState};
 pub(crate) use tuix_core::State;
 pub(crate) use tuix_core::{Animation, AnimationState, PropGet, PropSet, AnimExt};

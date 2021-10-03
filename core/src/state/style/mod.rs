@@ -6,9 +6,6 @@ use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
 use crate::{Animation, IdManager, Tree};
-use crate::state::storage::animatable_storage::AnimatableStorage;
-use crate::state::storage::dense_storage::DenseStorage;
-use crate::state::storage::style_storage::StyleStorage;
 use crate::{Entity, Transition};
 
 use crate::Interpolator;
@@ -67,6 +64,7 @@ pub use transform::*;
 use std::rc::Rc;
 
 use super::storage::animatable_set::AnimatableSet;
+use super::storage::sparse_set::SparseSet;
 use super::storage::style_set::StyleSet;
 
 // use bimap::BiMap;
@@ -80,25 +78,87 @@ pub struct Style {
 
     pub default_font: String,
 
-    pub elements: DenseStorage<String>,
-    pub classes: DenseStorage<HashSet<String>>,
-    pub pseudo_classes: DenseStorage<PseudoClass>,
+    pub elements: SparseSet<String>,
+    pub classes: SparseSet<HashSet<String>>,
+    pub pseudo_classes: SparseSet<PseudoClass>,
 
+    // Display
+    pub display: AnimatableSet<Display>,
+    
+    // Visibility
+    pub visibility: AnimatableSet<Visibility>,
+
+    // Opacity
+    pub opacity: AnimatableSet<Opacity>,    
+
+    // Z Order
     pub z_order: StyleSet<i32>,
+
+    // Clipping
+    pub clip_widget: SparseSet<Entity>,
 
     // Transform
     pub rotate: AnimatableSet<f32>,   
     pub translate: StyleSet<(f32, f32)>,
     pub scale: AnimatableSet<f32>,
 
-    // General
-    pub display: AnimatableSet<Display>,
-    pub visibility: AnimatableSet<Visibility>,
-    // Opacity
-    pub opacity: AnimatableSet<Opacity>,
-
     pub overflow: StyleSet<Overflow>, // TODO
     //pub scroll: DenseStorage<Scroll>,     // TODO
+
+
+    // Border
+    pub border_width: AnimatableSet<Units>,
+    pub border_color: AnimatableSet<Color>,
+
+    // Border Shape
+    pub border_shape_top_left: StyleSet<BorderCornerShape>,
+    pub border_shape_top_right: StyleSet<BorderCornerShape>,
+    pub border_shape_bottom_left: StyleSet<BorderCornerShape>,
+    pub border_shape_bottom_right: StyleSet<BorderCornerShape>,
+
+    // Border Radius
+    pub border_radius_top_left: AnimatableSet<Units>,
+    pub border_radius_top_right: AnimatableSet<Units>,
+    pub border_radius_bottom_left: AnimatableSet<Units>,
+    pub border_radius_bottom_right: AnimatableSet<Units>,
+
+
+
+    // Focus Order
+    pub focus_order: SparseSet<FocusOrder>,
+
+    // Background
+    pub background_color: AnimatableSet<Color>,
+    pub background_image: StyleSet<Rc<()>>,
+    pub background_gradient: StyleSet<LinearGradient>,
+
+    // Outer Shadow
+    pub outer_shadow_h_offset: AnimatableSet<Units>,
+    pub outer_shadow_v_offset: AnimatableSet<Units>,
+    pub outer_shadow_blur: AnimatableSet<Units>,
+    pub outer_shadow_color: AnimatableSet<Color>,
+
+    // Inner Shadow (TODO)
+    pub inner_shadow_h_offset: AnimatableSet<Units>,
+    pub inner_shadow_v_offset: AnimatableSet<Units>,
+    pub inner_shadow_blur: AnimatableSet<Units>,
+    pub inner_shadow_color: AnimatableSet<Color>,
+
+    //Text & Font
+    pub text: StyleSet<String>,
+    pub font: StyleSet<String>,
+    pub font_color: AnimatableSet<Color>,
+    pub font_size: AnimatableSet<f32>,
+
+    pub tooltip: SparseSet<String>,
+
+    // LAYOUT
+
+    // Layout Type
+    pub layout_type: StyleSet<LayoutType>,
+
+    // Positioning Type
+    pub positioning_type: StyleSet<PositionType>,
 
     // Spacing
     pub left: AnimatableSet<Units>,
@@ -125,60 +185,6 @@ pub struct Style {
     pub max_top: AnimatableSet<Units>,
     pub min_bottom: AnimatableSet<Units>,
     pub max_bottom: AnimatableSet<Units>,
-    
-
-    // Border
-    pub border_width: AnimatableSet<Units>,
-    pub border_color: AnimatableSet<Color>,
-
-    // Border Radius
-    pub border_shape_top_left: StyleSet<BorderCornerShape>,
-    pub border_shape_top_right: StyleSet<BorderCornerShape>,
-    pub border_shape_bottom_left: StyleSet<BorderCornerShape>,
-    pub border_shape_bottom_right: StyleSet<BorderCornerShape>,
-
-
-    pub border_radius_top_left: AnimatableSet<Units>,
-    pub border_radius_top_right: AnimatableSet<Units>,
-    pub border_radius_bottom_left: AnimatableSet<Units>,
-    pub border_radius_bottom_right: AnimatableSet<Units>,
-
-    pub clip_widget: DenseStorage<Entity>,
-
-    pub focus_order: DenseStorage<FocusOrder>,
-
-    // Background
-    pub background_color: AnimatableSet<Color>,
-    pub background_image: StyleSet<Rc<()>>,
-    pub background_gradient: StyleSet<LinearGradient>,
-
-    // Outer Shadow
-    pub outer_shadow_h_offset: AnimatableSet<Units>,
-    pub outer_shadow_v_offset: AnimatableSet<Units>,
-    pub outer_shadow_blur: AnimatableSet<Units>,
-    pub outer_shadow_color: AnimatableSet<Color>,
-
-    // Inner Shadow
-    pub inner_shadow_h_offset: AnimatableSet<Units>,
-    pub inner_shadow_v_offset: AnimatableSet<Units>,
-    pub inner_shadow_blur: AnimatableSet<Units>,
-    pub inner_shadow_color: AnimatableSet<Color>,
-
-    //Text & Font
-    pub text: StyleSet<String>,
-    pub font: StyleSet<String>,
-    pub font_color: AnimatableSet<Color>,
-    pub font_size: AnimatableSet<f32>,
-
-    pub tooltip: DenseStorage<String>,
-
-    // LAYOUT
-
-    // Layout Type
-    pub layout_type: StyleSet<LayoutType>,
-
-    // Positioning Type
-    pub positioning_type: StyleSet<PositionType>,
 
     // Grid
     pub grid_rows: StyleSet<Vec<Units>>,
@@ -196,7 +202,7 @@ pub struct Style {
     pub child_right: AnimatableSet<Units>,
     pub child_top: AnimatableSet<Units>,
     pub child_bottom: AnimatableSet<Units>,
-    // pub child_wrap: AnimatableStorage<Units>,
+
 
     pub name: StyleSet<String>,
 }
@@ -1203,6 +1209,97 @@ impl Style {
 
     pub fn remove(&mut self, entity: Entity) {
 
+        self.elements.remove(entity);
+        self.classes.remove(entity);
+        self.pseudo_classes.remove(entity);
+
+        // Display
+        self.display.remove(entity);
+        // Visibility
+        self.visibility.remove(entity);
+        // Opacity
+        self.opacity.remove(entity);
+        // Z Order
+        self.z_order.remove(entity);
+        // Clipping
+        self.clip_widget.remove(entity);
+
+        // Transform
+        self.translate.remove(entity);
+        self.rotate.remove(entity);
+        self.scale.remove(entity);
+
+        // Background
+        self.background_color.remove(entity);
+        self.background_gradient.remove(entity);
+        self.background_image.remove(entity);
+
+        // Border
+        self.border_color.remove(entity);
+        self.border_width.remove(entity);
+
+        // Border Shape
+        self.border_shape_bottom_left.remove(entity);
+        self.border_shape_bottom_right.remove(entity);
+        self.border_shape_top_left.remove(entity);
+        self.border_shape_top_right.remove(entity);
+
+        // Border Radius
+        self.border_radius_bottom_left.remove(entity);
+        self.border_radius_bottom_right.remove(entity);
+        self.border_radius_top_left.remove(entity);
+        self.border_radius_bottom_right.remove(entity);
+
+        self.layout_type.remove(entity);
+        self.positioning_type.remove(entity);
+
+        // Space
+        self.left.remove(entity);
+        self.right.remove(entity);
+        self.top.remove(entity);
+        self.bottom.remove(entity);
+
+        // Size
+        self.width.remove(entity);
+        self.height.remove(entity);
+
+        // Space Constraints
+        self.min_left.remove(entity);
+        self.max_left.remove(entity);
+        self.min_right.remove(entity);
+        self.max_right.remove(entity);
+        self.min_top.remove(entity);
+        self.max_top.remove(entity);
+        self.min_bottom.remove(entity);
+        self.max_bottom.remove(entity);
+
+        // Size Constraints
+        self.min_width.remove(entity);
+        self.max_width.remove(entity);
+        self.min_height.remove(entity);
+        self.max_height.remove(entity);
+
+        // Child Space
+        self.child_left.remove(entity);
+        self.child_right.remove(entity);
+        self.child_top.remove(entity);
+        self.child_bottom.remove(entity);
+        self.col_between.remove(entity);
+        self.row_between.remove(entity);
+
+        // Grid
+        self.grid_cols.remove(entity);
+        self.grid_rows.remove(entity);
+        self.col_index.remove(entity);
+        self.col_span.remove(entity);
+        self.row_index.remove(entity);
+        self.row_span.remove(entity);
+        
+        // Text and Font
+        self.text.remove(entity);
+        self.font.remove(entity);
+        self.font_color.remove(entity);
+        self.font_size.remove(entity);
     }
 
     pub fn remove_all(&mut self) {
