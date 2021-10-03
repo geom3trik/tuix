@@ -1,4 +1,4 @@
-use crate::{BoundingBox, Display, Entity, IntoParentIterator, Overflow, PropGet, PropSet, Relation, Rule, Selector, State, Tree, TreeExt, Visibility};
+use crate::{BoundingBox, Display, Entity, IntoParentIterator, Overflow, PropGet, PropSet, Property, Relation, Rule, Selector, State, Tree, TreeExt, Visibility};
 
 
 pub fn apply_z_ordering(state: &mut State, tree: &Tree) {
@@ -560,24 +560,26 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
         }
 
 
-        // for rule_index in matched_rules.iter() {
-        //     // TODO - remove cloned
-        //     if let Some(rule) = state.style.rules.get(*rule_index as usize).cloned() {
-        //         for property in rule.properties.iter() {
-        //             match property {
-        //                 Property::Unknown(ident, prop) => {
-        //                     if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
-        //                         event_handler.on_style(state, entity, (ident.clone(), prop.clone()));
-
-        //                         state.event_handlers.insert(entity, event_handler);
-        //                     }
-        //                 }
-
-        //                 _=> {}
-        //             }
-        //         }
-        //     }
-        // }
+        for rule_id in matched_rules.iter() {
+            // TODO - remove cloned
+            if let Some(rule_index) = state.style.rules.iter().position(|rule| rule.id == *rule_id) {
+                if let Some(rule) = state.style.rules.get(rule_index).cloned() {
+                    for property in rule.properties.iter() {
+                        match property {
+                            Property::Unknown(ident, prop) => {
+                                if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
+                                    event_handler.on_style(state, entity, (ident.clone(), prop.clone()));
+    
+                                    state.event_handlers.insert(entity, event_handler);
+                                }
+                            }
+    
+                            _=> {}
+                        }
+                    }
+                }
+            }
+        }
 
         if should_relayout {
             Entity::root().relayout(state);

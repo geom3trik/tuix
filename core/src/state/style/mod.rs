@@ -5,7 +5,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
-use crate::{IdManager, Tree};
+use crate::{Animation, IdManager, Tree};
 use crate::state::storage::animatable_storage::AnimatableStorage;
 use crate::state::storage::dense_storage::DenseStorage;
 use crate::state::storage::style_storage::StyleStorage;
@@ -688,7 +688,7 @@ impl Style {
         &self,
         transition: Transition,
     ) -> AnimationState<T> {
-        AnimationState::new()
+        AnimationState::new(Animation::null())
             .with_duration(std::time::Duration::from_secs_f32(transition.duration))
             .with_delay(std::time::Duration::from_secs_f32(transition.delay))
             .with_keyframe((0.0, Default::default()))

@@ -385,6 +385,7 @@ impl EventManager {
     
             canvas.save();
             canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
+            
 
             if let Some(mut event_handler) = state.event_handlers.remove(&entity) {
                 //let start = std::time::Instant::now();

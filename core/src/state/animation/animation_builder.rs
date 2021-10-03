@@ -1,11 +1,12 @@
 use morphorm::Units;
 
-use crate::{Animation, AnimationState, Color, State};
+use crate::{Animation, AnimationState, Color, Opacity, State};
 
 
 pub struct AnimationDescription {
     duration: std::time::Duration,
     delay: std::time::Duration,
+    persistent: bool,
 }
 
 
@@ -23,14 +24,21 @@ impl<'a> AnimationBuilder<'a> {
             animation_description: AnimationDescription {
                 duration,
                 delay: std::time::Duration::from_secs(0),
+                persistent: false,
             }
         }
     }
 
 
     /// Needs to be called before setting keyframes
-    pub fn set_delay(mut self, delay: std::time::Duration) -> Self {
+    pub fn with_delay(mut self, delay: std::time::Duration) -> Self {
         self.animation_description.delay = delay;
+
+        self
+    }
+
+    pub fn persistent(mut self) -> Self {
+        self.animation_description.persistent = true;
 
         self
     }
@@ -74,9 +82,10 @@ impl<'a> KeyframeBuilder<'a> {
         if let Some(anim_state) = self.state.style.background_color.get_animation_mut(self.id) {
             anim_state.keyframes.push((self.time, color));
         } else {
-            let anim_state = AnimationState::new()
+            let anim_state = AnimationState::new(self.id)
                 .with_duration(self.animation_description.duration)
                 .with_delay(self.animation_description.delay)
+                .set_persistent(self.animation_description.persistent)
                 .with_keyframe((self.time, color));
                 
             self.state.style.background_color.insert_animation(self.id, anim_state);
@@ -92,9 +101,10 @@ impl<'a> KeyframeBuilder<'a> {
         if let Some(anim_state) = self.state.style.left.get_animation_mut(self.id) {
             anim_state.keyframes.push((self.time, value));
         } else {
-            let anim_state = AnimationState::new()
+            let anim_state = AnimationState::new(self.id)
                 .with_duration(self.animation_description.duration)
                 .with_delay(self.animation_description.delay)
+                .set_persistent(self.animation_description.persistent)
                 .with_keyframe((self.time, value));
                 
             self.state.style.left.insert_animation(self.id, anim_state);
@@ -109,9 +119,10 @@ impl<'a> KeyframeBuilder<'a> {
         if let Some(anim_state) = self.state.style.right.get_animation_mut(self.id) {
             anim_state.keyframes.push((self.time, value));
         } else {
-            let anim_state = AnimationState::new()
+            let anim_state = AnimationState::new(self.id)
                 .with_duration(self.animation_description.duration)
                 .with_delay(self.animation_description.delay)
+                .set_persistent(self.animation_description.persistent)
                 .with_keyframe((self.time, value));
                 
             self.state.style.right.insert_animation(self.id, anim_state);
@@ -126,9 +137,10 @@ impl<'a> KeyframeBuilder<'a> {
         if let Some(anim_state) = self.state.style.top.get_animation_mut(self.id) {
             anim_state.keyframes.push((self.time, value));
         } else {
-            let anim_state = AnimationState::new()
+            let anim_state = AnimationState::new(self.id)
                 .with_duration(self.animation_description.duration)
                 .with_delay(self.animation_description.delay)
+                .set_persistent(self.animation_description.persistent)
                 .with_keyframe((self.time, value));
                 
             self.state.style.top.insert_animation(self.id, anim_state);
@@ -143,9 +155,10 @@ impl<'a> KeyframeBuilder<'a> {
         if let Some(anim_state) = self.state.style.bottom.get_animation_mut(self.id) {
             anim_state.keyframes.push((self.time, value));
         } else {
-            let anim_state = AnimationState::new()
+            let anim_state = AnimationState::new(self.id)
                 .with_duration(self.animation_description.duration)
                 .with_delay(self.animation_description.delay)
+                .set_persistent(self.animation_description.persistent)
                 .with_keyframe((self.time, value));
                 
             self.state.style.bottom.insert_animation(self.id, anim_state);
@@ -160,9 +173,10 @@ impl<'a> KeyframeBuilder<'a> {
         if let Some(anim_state) = self.state.style.width.get_animation_mut(self.id) {
             anim_state.keyframes.push((self.time, value));
         } else {
-            let anim_state = AnimationState::new()
+            let anim_state = AnimationState::new(self.id)
                 .with_duration(self.animation_description.duration)
                 .with_delay(self.animation_description.delay)
+                .set_persistent(self.animation_description.persistent)
                 .with_keyframe((self.time, value));
                 
             self.state.style.width.insert_animation(self.id, anim_state);
@@ -177,9 +191,10 @@ impl<'a> KeyframeBuilder<'a> {
         if let Some(anim_state) = self.state.style.height.get_animation_mut(self.id) {
             anim_state.keyframes.push((self.time, value));
         } else {
-            let anim_state = AnimationState::new()
+            let anim_state = AnimationState::new(self.id)
                 .with_duration(self.animation_description.duration)
                 .with_delay(self.animation_description.delay)
+                .set_persistent(self.animation_description.persistent)
                 .with_keyframe((self.time, value));
                 
             self.state.style.height.insert_animation(self.id, anim_state);
@@ -193,17 +208,38 @@ impl<'a> KeyframeBuilder<'a> {
 
         if let Some(anim_state) = self.state.style.rotate.get_animation_mut(self.id) {
             anim_state.keyframes.push((self.time, value));
+            println!("Modify previous animation keyframe: {} {:?}", self.id, anim_state);
         } else {
-            let anim_state = AnimationState::new()
+            
+            let anim_state = AnimationState::new(self.id)
                 .with_duration(self.animation_description.duration)
                 .with_delay(self.animation_description.delay)
+                .set_persistent(self.animation_description.persistent)
                 .with_keyframe((self.time, value));
+            println!("Insert new animation keyframe: {} {:?}", self.id, anim_state);
                 
             self.state.style.rotate.insert_animation(self.id, anim_state);
 
         }
 
         self   
+    }
+
+    pub fn set_opacity(self, value: f32) -> Self {
+        if let Some(anim_state) = self.state.style.opacity.get_animation_mut(self.id) {
+            anim_state.keyframes.push((self.time, Opacity(value)));
+        } else {
+            let anim_state = AnimationState::new(self.id)
+                .with_duration(self.animation_description.duration)
+                .with_delay(self.animation_description.delay)
+                .set_persistent(self.animation_description.persistent)
+                .with_keyframe((self.time, Opacity(value)));
+                
+            self.state.style.opacity.insert_animation(self.id, anim_state);
+
+        }
+
+        self 
     }
 
 

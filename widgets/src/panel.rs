@@ -153,6 +153,7 @@ impl Widget for Panel {
 
         self.expand_height_animation = 
             state.create_animation(std::time::Duration::from_millis(100))
+            .persistent()
             .add_keyframe(0.0, |keyframe|
                 keyframe.set_height(Pixels(0.0))
             )
@@ -162,6 +163,7 @@ impl Widget for Panel {
 
         self.collapse_height_animation = 
             state.create_animation(std::time::Duration::from_millis(100))
+            .persistent()
             .add_keyframe(0.0, |keyframe|
                 keyframe.set_height(Pixels(0.0))
             )
@@ -239,6 +241,19 @@ impl Widget for Panel {
         //     .opacity
         //     .insert_animation(container_fade_in_animation);
 
+        self.fade_out_animation = state.create_animation(std::time::Duration::from_millis(100))
+            .with_delay(std::time::Duration::from_millis(100))
+            .persistent()
+            .add_keyframe(0.0, |keyframe| keyframe.set_opacity(1.0))
+            .add_keyframe(1.0, |keyframe| keyframe.set_opacity(0.0))
+            .build();
+
+        self.fade_in_animation = state.create_animation(std::time::Duration::from_millis(100))
+            .persistent()
+            .add_keyframe(0.0, |keyframe| keyframe.set_opacity(0.0))
+            .add_keyframe(1.0, |keyframe| keyframe.set_opacity(1.0))
+            .build();
+
         // let container_fade_out_animation = AnimationState::new()
         //     .with_duration(std::time::Duration::from_millis(100))
         //     .with_delay(std::time::Duration::from_millis(100))
@@ -252,6 +267,7 @@ impl Widget for Panel {
 
         self.arrow_cw_animation = 
             state.create_animation(std::time::Duration::from_millis(100))
+            .persistent()
             .add_keyframe(0.0, |keyframe|
                 keyframe.set_rotate(-90.0)
             )
@@ -265,6 +281,16 @@ impl Widget for Panel {
         //     .with_keyframe((1.0, 0.0));
 
         // self.arrow_cw_animation = state.style.rotate.insert_animation(arrow_cw_animation);
+
+        self.arrow_ccw_animation = 
+            state.create_animation(std::time::Duration::from_millis(100))
+            .persistent()
+            .add_keyframe(0.0, |keyframe|
+                keyframe.set_rotate(0.0)
+            )
+            .add_keyframe(1.0, |keyframe|
+                keyframe.set_rotate(-90.0)
+            ).build();
 
         // let arrow_ccw_animation = AnimationState::new()
         //     .with_duration(std::time::Duration::from_millis(100))
@@ -293,31 +319,35 @@ impl Widget for Panel {
                                     //     self.expand_height_animation,
                                     // );
 
-                                    self.container1.set_height(state, Units::Auto);
+                                    self.container1.play_animation(state, self.expand_height_animation);
+
+                                    //self.container1.set_height(state, Units::Auto);
 
                                     // state
                                     //     .style
                                     //     .rotate
                                     //     .play_animation(self.arrow, self.arrow_cw_animation);
+
+                                    self.arrow.play_animation(state, self.arrow_cw_animation);
                                     
-                                    self.arrow.set_rotate(state, 0.0);
+                                    //self.arrow.set_rotate(state, 0.0);
                                 }
 
-                                LayoutType::Row => {
-                                    // state.style.width.play_animation(
-                                    //     self.container1,
-                                    //     self.expand_width_animation,
-                                    // );
+                                // LayoutType::Row => {
+                                //     // state.style.width.play_animation(
+                                //     //     self.container1,
+                                //     //     self.expand_width_animation,
+                                //     // );
 
-                                    self.container1.set_width(state, Units::Auto);
+                                //     self.container1.set_width(state, Units::Auto);
 
-                                    // state
-                                    //     .style
-                                    //     .rotate
-                                    //     .play_animation(self.arrow, self.arrow_ccw_animation);
+                                //     // state
+                                //     //     .style
+                                //     //     .rotate
+                                //     //     .play_animation(self.arrow, self.arrow_ccw_animation);
 
-                                    self.arrow.set_rotate(state, -90.0);
-                                }
+                                //     self.arrow.set_rotate(state, -90.0);
+                                // }
 
                                 _ => {}
                             }
@@ -327,7 +357,11 @@ impl Widget for Panel {
                             //     .top
                             //     .play_animation(self.container2, self.move_down_animation);
 
-                            self.container2.set_opacity(state, 1.0);
+                            self.container2.play_animation(state, self.move_down_animation);
+
+                            self.container2.play_animation(state, self.fade_in_animation);
+
+                            //self.container2.set_opacity(state, 1.0);
                         } else {
                             self.collapsed = true;
 
@@ -336,6 +370,8 @@ impl Widget for Panel {
                             match entity.get_layout_type(state) {
                                 LayoutType::Column => {
                                     //if !state.style.height.is_animating(self.container1) {
+                                    if !self.container1.is_animating(state, self.expand_height_animation) &&
+                                        !self.container1.is_animating(state, self.collapse_height_animation) {
                                         let container_height =
                                             state.data.get_height(self.container1);
                                         //println!("Container Height: {} {}", self.container1, container_height);
@@ -381,24 +417,30 @@ impl Widget for Panel {
 
                                             self.container_height = container_height;
                                         }
-                                    //}
+                                    }
 
                                     // state.style.height.play_animation(
                                     //     self.container1,
                                     //     self.collapse_height_animation,
                                     // );
 
-                                    self.container1.set_height(state, Units::Pixels(0.0));
+                                    self.container1.play_animation(state, self.collapse_height_animation);
+
+                                    //self.container1.set_height(state, Units::Pixels(0.0));
 
                                     // state
                                     //     .style
                                     //     .rotate
                                     //     .play_animation(self.arrow, self.arrow_ccw_animation);
 
-                                    self.arrow.set_rotate(state, -90.0);
-                                }
+                                    self.arrow.play_animation(state, self.arrow_ccw_animation);
 
+                                    //self.arrow.set_rotate(state, -90.0);
+                                }
+                                /*
                                 LayoutType::Row => {
+                                    if !self.container1.is_animating(state, self.expand_height_animation) && 
+                                        !self.container1.is_animating(state, self.collapse_height_animation) {
                                     //if !state.style.height.is_animating(self.container1) {
                                         let container_width = state.data.get_width(self.container1);
 
@@ -443,12 +485,14 @@ impl Widget for Panel {
 
                                             self.container_height = container_width;
                                         }
-                                    //}
+                                    }
 
                                     // state.style.width.play_animation(
                                     //     self.container1,
                                     //     self.collapse_width_animation,
                                     // );
+
+                                    self.container1.play_animation(state, animation)
 
                                     self.container1.set_width(state, Units::Pixels(0.0));
 
@@ -459,7 +503,7 @@ impl Widget for Panel {
 
                                     self.arrow.set_rotate(state, 0.0);
                                 }
-
+                                */
                                 _ => {}
                             }
 
@@ -468,35 +512,39 @@ impl Widget for Panel {
                             //     .opacity
                             //     .play_animation(self.container2, self.fade_out_animation);
 
+                            self.container2.play_animation(state, self.fade_out_animation);
+
                             // state
                             //     .style
                             //     .top
                             //     .play_animation(self.container2, self.move_up_animation);
 
-                            self.container2.set_opacity(state, 0.0);
+                            self.container2.play_animation(state, self.move_up_animation);
+
+                            //self.container2.set_opacity(state, 0.0);
                         }
                     }
                 }
             }
         }
 
-        if let Some(window_event) = event.message.downcast::<WindowEvent>() {
-            match window_event {
-                WindowEvent::GeometryChanged(_) => {
-                    if event.target == self.container1 {
-                        match entity.get_layout_type(state) {
-                            LayoutType::Row => {
-                                self.arrow.set_rotate(state, -90.0);
-                            }
+        // if let Some(window_event) = event.message.downcast::<WindowEvent>() {
+        //     match window_event {
+        //         WindowEvent::GeometryChanged(_) => {
+        //             if event.target == self.container1 {
+        //                 match entity.get_layout_type(state) {
+        //                     LayoutType::Row => {
+        //                         self.arrow.set_rotate(state, -90.0);
+        //                     }
 
-                            _ => {}
-                        }
+        //                     _ => {}
+        //                 }
 
-                        event.consume();
-                    }
-                }
-                _ => {}
-            }
-        }
+        //                 event.consume();
+        //             }
+        //         }
+        //         _ => {}
+        //     }
+        // }
     }
 }

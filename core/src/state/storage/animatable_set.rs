@@ -141,7 +141,7 @@ pub struct AnimatableSet<T: Interpolator> {
 
 impl<T> AnimatableSet<T>
 where
-    T: 'static + Default + Clone + Interpolator + PartialEq
+    T: 'static + Default + Clone + Interpolator + PartialEq + std::fmt::Debug
 {
     /// Create a new empty animatable storage
     pub fn new() -> Self {
@@ -202,7 +202,6 @@ where
     }
 
     pub fn play_animation(&mut self, entity: Entity, animation: Animation) {
-        println!("Play Animation");
         let entity_index = entity.index();
 
         if !self.animations.contains(animation) {
@@ -217,20 +216,37 @@ where
         if entity_index < self.inline_data.sparse.len() {
             let active_anim_index = self.inline_data.sparse[entity_index].anim_index as usize;
             if active_anim_index < self.active_animations.len() {
-                let anim = &mut self.active_animations[active_anim_index];
-                anim.play(entity);
-            } else {
-                // Safe to unwrap because already checked that the animation exists
-                let mut anim_state = self.animations.get(animation).cloned().unwrap();
-                anim_state.play(entity);
-                self.inline_data.sparse[entity_index].anim_index = self.active_animations.len() as u32;
-                self.active_animations.push(anim_state);
+                let anim_state = &mut self.active_animations[active_anim_index];
+                if anim_state.id == animation {
+                    anim_state.t0 = 0.0;
+                    anim_state.active = true;
+                    anim_state.t = 0.0;
+                    anim_state.start_time = std::time::Instant::now();
+                    anim_state.output = Some(self.animations.get(animation).cloned().unwrap().keyframes.first().unwrap().1.clone());
+                } else {
+                    anim_state.output = Some(self.animations.get(animation).cloned().unwrap().keyframes.first().unwrap().1.clone());
+                    anim_state.entities.remove(&entity);
+                }
+                //println!("Already playing: {:?}", anim_state);
+                //anim_state.play(entity);
             }
+            //else {
+                // Safe to unwrap because already checked that the animation exists
+            let mut anim_state = self.animations.get(animation).cloned().unwrap();
+            //println!("Start playing: {} {:?}", animation, anim_state);
+            anim_state.output = Some(self.animations.get(animation).cloned().unwrap().keyframes.first().unwrap().1.clone());
+            anim_state.play(entity);
+            self.inline_data.sparse[entity_index].anim_index = self.active_animations.len() as u32;
+            self.active_animations.push(anim_state);
+            //}
         }
     }
 
     pub fn tick(&mut self, time: std::time::Instant) {
+        
         for state in self.active_animations.iter_mut() {
+
+            
             
             // If the animation is already finished then return false
             if state.t0 == 1.0 {
@@ -269,9 +285,25 @@ where
             } else {
                 state.output = Some(T::interpolate(&start.1, &end.1, state.t));
             }
+
+            //println!("Tick: {:?}", state.get_output());
         }
 
         self.remove_innactive_animations();
+    }
+
+    pub fn is_animating(&mut self, entity: Entity, animation: Animation) -> bool {
+        if self.animations.contains(animation) {
+            let entity_index = entity.index();
+            if entity_index < self.inline_data.sparse.len() {
+                let anim_index = self.inline_data.sparse[entity_index].anim_index as usize;
+                if anim_index < self.active_animations.len() {
+                    return true;
+                }
+            }
+        }
+
+        false
     }
 
     pub fn remove_innactive_animations(&mut self) {

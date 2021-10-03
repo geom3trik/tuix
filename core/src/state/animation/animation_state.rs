@@ -1,10 +1,12 @@
 
 use std::{collections::HashSet, time::{Duration, Instant}};
 
-use crate::{Entity, Interpolator};
+use crate::{Animation, Entity, Interpolator};
 
 #[derive(Clone, Debug)]
 pub struct AnimationState<Prop: Interpolator> {
+    // ID of the animation description
+    pub id: Animation,
     // List of property indices that this animation applies to
     pub indices: Vec<usize>,
     // The start time of the animation
@@ -41,8 +43,9 @@ impl<Prop> AnimationState<Prop>
 where
     Prop: Interpolator,
 {
-    pub fn new() -> Self {
+    pub fn new(id: Animation) -> Self {
         AnimationState {
+            id,
             indices: Vec::new(),
             start_time: Instant::now(),
             duration: Duration::new(0, 0),
@@ -128,6 +131,7 @@ where
 {
     fn default() -> Self {
         AnimationState {
+            id: Animation::null(),
             indices: Vec::new(),
             start_time: Instant::now(),
             duration: Duration::new(0, 0),

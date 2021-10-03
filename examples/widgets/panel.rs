@@ -39,6 +39,8 @@ fn main() {
     let app = Application::new(WindowDescription::new().with_title("Panels"), |state, window| {
         state.add_theme(STYLE);
 
+        window.set_background_color(state, Color::rgb(50,50,50));
+
         let panel =
             Panel::new("Panel 1").build(state, window.entity(), |builder| builder.class("one"));
 

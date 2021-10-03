@@ -6,6 +6,8 @@ use crate::{Entity, State};
 pub fn apply_transform(state: &mut State, tree: &Tree) {
     //println!("Apply Transform");
     for entity in tree.into_iter() {
+
+        //println!("Entity: {}", entity);
         
         if entity == Entity::root() {
             continue;
@@ -34,6 +36,7 @@ pub fn apply_transform(state: &mut State, tree: &Tree) {
             state.data.set_rotate(entity, (*rotate).to_radians());
             state.data.set_translate(entity, (-x,-y));
         }
+        //println!("End");
 
         if let Some(scale) = state.style.scale.get(entity) {
             let x = bounds.x + (bounds.w / 2.0);

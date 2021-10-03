@@ -30,6 +30,10 @@ impl Transform2D {
         self[5] = 0.0;
     }
 
+    pub fn get_rotate(&self) -> f32 {
+        self[0].acos().to_degrees()
+    }
+
     pub fn inverse(&mut self) {
         let t = *self;
         let det = t[0] as f64 * t[3] as f64 - t[2] as f64 * t[1] as f64;
