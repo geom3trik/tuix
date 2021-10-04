@@ -2,6 +2,11 @@ use std::marker::PhantomData;
 
 use crate::Node;
 
+/// A Lens allows the construction of a reference to a field of a struct.
+///
+/// When deriving the `Lens` trait on a struct, the derive macro constructs a static type which implements the `Lens` trait for each field. 
+/// The `view()` method takes a reference to the struct type as input and outputs a reference to the field.
+/// This provides a way to specify a binding to a specific field of some application data.
 pub trait Lens: 'static + Sized {
 
     type Source: Node;
@@ -11,10 +16,16 @@ pub trait Lens: 'static + Sized {
 }
 
 
-/// Helpers for manipulating `Lens`es
+/// Helpers for constructing more complex `Lens`es.
 pub trait LensExt: Lens {
 
-    /// Compose a `Lens<Source = A, Target = B>` with a `Lens<Source = B, Target = C>` to produce a `Lens<Source = A, Target = C>`
+    /// Used to construct a lens to some data contained within some other lensed data.
+    ///
+    /// # Example
+    /// Binds a label to `other_data`, which is a field of a struct `SomeData`, which is a field of the root `AppData` model:
+    /// ```
+    /// Label::new("").bind(AppData::some_data.then(SomeData::other_data))
+    /// ```
     fn then<Other>(self, other: Other) -> Then<Self, Other>
     where
         Other: Lens + Sized,

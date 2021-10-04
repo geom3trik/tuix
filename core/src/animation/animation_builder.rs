@@ -3,7 +3,7 @@ use morphorm::Units;
 use crate::{Animation, AnimationState, Color, Opacity, State};
 
 
-pub struct AnimationDescription {
+pub(crate) struct AnimationDescription {
     duration: std::time::Duration,
     delay: std::time::Duration,
     persistent: bool,
@@ -58,7 +58,7 @@ pub struct KeyframeBuilder<'a> {
 }
 
 impl<'a> KeyframeBuilder<'a> {
-    pub fn new(id: Animation, state: &'a mut State, time: f32, animation_description: AnimationDescription) -> Self {
+    pub(crate) fn new(id: Animation, state: &'a mut State, time: f32, animation_description: AnimationDescription) -> Self {
         Self {
             id,
             state,

@@ -1,5 +1,7 @@
-
-
+//! # Layout
+//! Layout determines the size and position of entities on the screen.
+//! 
+//! All layout calculations are handled by the Morphorm crate.
 pub(crate) mod cache;
 
 pub use morphorm::{GeometryChanged};

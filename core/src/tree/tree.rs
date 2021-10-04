@@ -1,4 +1,6 @@
-use crate::{Entity, GenerationalId};
+use crate::{Entity, GenerationalId, TreeExt};
+
+use super::tree_iter::TreeIterator;
 
 #[derive(Debug, Clone, Copy)]
 pub enum TreeError {
@@ -537,106 +539,9 @@ impl<'a> IntoIterator for &'a Tree {
     }
 }
 
-/// An iterator for a branch of the tree tree
-pub struct BranchIterator<'a> {
-    tree: &'a Tree,
-    start_node: Entity,
-    current_node: Option<Entity>,
-}
 
-impl<'a> Iterator for BranchIterator<'a> {
-    type Item = Entity;
-    fn next(&mut self) -> Option<Entity> {
-        let r = self.current_node;
 
-        if let Some(current) = self.current_node {
-            if let Some(child) = self.tree.first_child[current.index()] {
-                self.current_node = Some(child);
-            } else {
-                if self.current_node != Some(self.start_node) {
-                    let mut temp = Some(current);
-                    while temp.is_some() {
-                        if let Some(sibling) =
-                            self.tree.next_sibling[temp.unwrap().index()]
-                        {
-                            self.current_node = Some(sibling);
-                            return r;
-                        } else {
-                            temp = self.tree.parent[temp.unwrap().index()];
-                            if Some(self.start_node) == temp {
-                                self.current_node = None;
-                                temp = None;
-                            }
-                        }
-                    }
-                }
 
-                self.current_node = None;
-            }
-        }
-
-        return r;
-    }
-}
-
-/// Iterator for iterating through the tree from top to bottom in depth first order
-pub struct TreeIterator<'a> {
-    pub tree: &'a Tree,
-    pub current_node: Option<Entity>,
-    //current_back: Option<Entity>,
-}
-
-impl<'a> TreeIterator<'a> {
-    /// Skip to next branch
-    pub fn next_branch(&mut self) -> Option<Entity> {
-        let r = self.current_node;
-        if let Some(current) = self.current_node {
-            let mut temp = Some(current);
-            while temp.is_some() {
-                if let Some(sibling) = self.tree.next_sibling[temp.unwrap().index()]
-                {
-                    self.current_node = Some(sibling);
-                    return r;
-                } else {
-                    temp = self.tree.parent[temp.unwrap().index()];
-                }
-            }
-        } else {
-            self.current_node = None;
-        }
-
-        return None;
-    }
-}
-
-impl<'a> Iterator for TreeIterator<'a> {
-    type Item = Entity;
-    fn next(&mut self) -> Option<Entity> {
-        let r = self.current_node;
-
-        if let Some(current) = self.current_node {
-            if let Some(child) = self.tree.first_child[current.index()] {
-                self.current_node = Some(child);
-            } else {
-                let mut temp = Some(current);
-                while temp.is_some() {
-                    if let Some(sibling) =
-                        self.tree.next_sibling[temp.unwrap().index()]
-                    {
-                        self.current_node = Some(sibling);
-                        return r;
-                    } else {
-                        temp = self.tree.parent[temp.unwrap().index()];
-                    }
-                }
-
-                self.current_node = None;
-            }
-        }
-
-        return r;
-    }
-}
 
 // TODO
 // impl<'a> DoubleEndedIterator for TreeIterator<'a> {
@@ -652,172 +557,80 @@ impl<'a> Iterator for TreeIterator<'a> {
 //     }
 // }
 
-/// Iterator for iterating through the ancestors of an entity
-pub struct ParentIterator<'a> {
-    tree: &'a Tree,
-    current: Option<Entity>,
-}
 
-impl<'a> Iterator for ParentIterator<'a> {
-    type Item = Entity;
-    fn next(&mut self) -> Option<Entity> {
-        if let Some(entity) = self.current {
-            self.current = self.tree.parent[entity.index()];
-            return Some(entity);
-        }
+// pub trait IntoParentIterator<'a> {
+//     type Item;
+//     type IntoIter: Iterator<Item = Self::Item>;
+//     fn parent_iter(self, tree: &'a Tree) -> Self::IntoIter;
+// }
 
-        None
-    }
-}
+// impl<'a> IntoParentIterator<'a> for &'a Entity {
+//     type Item = Entity;
+//     type IntoIter = ParentIterator<'a>;
 
-pub trait IntoParentIterator<'a> {
-    type Item;
-    type IntoIter: Iterator<Item = Self::Item>;
-    fn parent_iter(self, tree: &'a Tree) -> Self::IntoIter;
-}
+//     fn parent_iter(self, h: &'a Tree) -> Self::IntoIter {
+//         ParentIterator {
+//             tree: h,
+//             current: Some(*self),
+//         }
+//     }
+// }
 
-impl<'a> IntoParentIterator<'a> for &'a Entity {
-    type Item = Entity;
-    type IntoIter = ParentIterator<'a>;
 
-    fn parent_iter(self, h: &'a Tree) -> Self::IntoIter {
-        ParentIterator {
-            tree: h,
-            current: Some(*self),
-        }
-    }
-}
 
-/// Iterator for iterating through the children of an entity.
-pub struct ChildIterator<'a> {
-    pub tree: &'a Tree,
-    pub current_forward: Option<Entity>,
-    pub current_backward: Option<Entity>,
-}
+// pub trait IntoChildIterator<'a> {
+//     type Item;
+//     type IntoIter: Iterator<Item = Self::Item>;
+//     fn child_iter(self, tree: &'a Tree) -> Self::IntoIter;
+// }
 
-impl<'a> Iterator for ChildIterator<'a> {
-    type Item = Entity;
-    fn next(&mut self) -> Option<Self::Item> {
-        if let Some(entity) = self.current_forward {
-            self.current_forward = self.tree.get_next_sibling(entity);
-            return Some(entity);
-        }
+// impl<'a> IntoChildIterator<'a> for &'a Entity {
+//     type Item = Entity;
+//     type IntoIter = ChildIterator<'a>;
 
-        None
-    }
-}
+//     fn child_iter(self, h: &'a Tree) -> Self::IntoIter {
+//         ChildIterator {
+//             tree: h,
+//             current_forward: h.first_child[self.index()],
+//             current_backward: h.get_last_child(*self),
+//         }
+//     }
+// }
 
-impl<'a> DoubleEndedIterator for ChildIterator<'a> {
-    fn next_back(&mut self) -> Option<Entity> {
-        if let Some(entity) = self.current_backward {
-            self.current_backward = self.tree.prev_sibling[entity.index()];
-            return Some(entity);
-        }
+// pub trait IntoTreeIterator<'a> {
+//     type Item;
+//     type IntoIter: Iterator<Item = Self::Item>;
+//     fn into_iter(self, tree: &'a Tree) -> Self::IntoIter;
+// }
 
-        None
-    }
-}
+// impl<'a> IntoTreeIterator<'a> for &'a Entity {
+//     type Item = Entity;
+//     type IntoIter = TreeIterator<'a>;
 
-pub trait IntoChildIterator<'a> {
-    type Item;
-    type IntoIter: Iterator<Item = Self::Item>;
-    fn child_iter(self, tree: &'a Tree) -> Self::IntoIter;
-}
+//     fn into_iter(self, h: &'a Tree) -> Self::IntoIter {
+//         TreeIterator {
+//             tree: h,
+//             current_node: Some(*self),
+//         }
+//     }
+// }
 
-impl<'a> IntoChildIterator<'a> for &'a Entity {
-    type Item = Entity;
-    type IntoIter = ChildIterator<'a>;
+// pub trait IntoBranchIterator<'a> {
+//     type Item;
+//     type IntoIter: Iterator<Item = Self::Item>;
+//     fn branch_iter(self, tree: &'a Tree) -> Self::IntoIter;
+// }
 
-    fn child_iter(self, h: &'a Tree) -> Self::IntoIter {
-        ChildIterator {
-            tree: h,
-            current_forward: h.first_child[self.index()],
-            current_backward: h.get_last_child(*self),
-        }
-    }
-}
+// impl<'a> IntoBranchIterator<'a> for &'a Entity {
+//     type Item = Entity;
+//     type IntoIter = BranchIterator<'a>;
 
-pub trait IntoTreeIterator<'a> {
-    type Item;
-    type IntoIter: Iterator<Item = Self::Item>;
-    fn into_iter(self, tree: &'a Tree) -> Self::IntoIter;
-}
+//     fn branch_iter(self, h: &'a Tree) -> Self::IntoIter {
+//         BranchIterator {
+//             tree: h,
+//             start_node: *self,
+//             current_node: Some(*self),
+//         }
+//     }
+// }
 
-impl<'a> IntoTreeIterator<'a> for &'a Entity {
-    type Item = Entity;
-    type IntoIter = TreeIterator<'a>;
-
-    fn into_iter(self, h: &'a Tree) -> Self::IntoIter {
-        TreeIterator {
-            tree: h,
-            current_node: Some(*self),
-        }
-    }
-}
-
-pub trait IntoBranchIterator<'a> {
-    type Item;
-    type IntoIter: Iterator<Item = Self::Item>;
-    fn branch_iter(self, tree: &'a Tree) -> Self::IntoIter;
-}
-
-impl<'a> IntoBranchIterator<'a> for &'a Entity {
-    type Item = Entity;
-    type IntoIter = BranchIterator<'a>;
-
-    fn branch_iter(self, h: &'a Tree) -> Self::IntoIter {
-        BranchIterator {
-            tree: h,
-            start_node: *self,
-            current_node: Some(*self),
-        }
-    }
-}
-
-/// Trait which provides methods for investigating entity relations within the tree.
-pub trait TreeExt {
-    fn parent(&self, tree: &Tree) -> Option<Entity>;
-    fn is_sibling(&self, tree: &Tree, entity: Entity) -> bool;
-    fn is_child_of(&self, tree: &Tree, entity: Entity) -> bool;
-    fn is_descendant_of(&self, tree: &Tree, entity: Entity) -> bool;
-}
-
-impl TreeExt for Entity {
-    fn parent(&self, tree: &Tree) -> Option<Entity> {
-        tree.get_parent(*self)
-    }
-
-    fn is_sibling(&self, tree: &Tree, entity: Entity) -> bool {
-        tree.is_sibling(*self, entity)
-    }
-
-    fn is_child_of(&self, tree: &Tree, entity: Entity) -> bool {
-        if *self == Entity::null() {
-            return false;
-        }
-
-        if let Some(parent) = tree.get_parent(*self) {
-            if parent == entity {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    fn is_descendant_of(&self, tree: &Tree, entity: Entity) -> bool {
-        if *self == Entity::null() {
-            return false;
-        }
-
-        for parent in self.parent_iter(tree) {
-            if parent == entity {
-                return true;
-            }
-        }
-
-        false
-    }
-}

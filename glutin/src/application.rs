@@ -13,7 +13,7 @@ use tuix_core::{MouseButton, MouseButtonState};
 
 use tuix_core::events::{Event, EventManager, Propagation};
 
-use tuix_core::IntoTreeIterator;
+use tuix_core::TreeExt;
 
 use tuix_core::style::{Display, Visibility};
 
@@ -335,7 +335,7 @@ impl Application {
 
                                             //state.focused.set_focus(&mut state, false);
 
-                                            let mut iter =  state.focused.into_iter(&tree);
+                                            let mut iter =  state.focused.tree_iter(&tree);
                                             iter.next();
 
 

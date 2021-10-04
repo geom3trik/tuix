@@ -1,11 +1,14 @@
-#![allow(warnings)]
-use cssparser::{Parser, ParserInput, RuleListParser};
 
-use std::collections::hash_map::DefaultHasher;
+//! Style Data
+//!
+//! The [Style] struct is responsible for storing all of the style properties for all of the entities,
+//! as well as storing style rule definitions created by the user or parsed from stylesheets.
+
+use cssparser::{Parser, ParserInput};
+
 use std::collections::HashSet;
-use std::hash::{Hash, Hasher};
 
-use crate::{Animation, IdManager, Tree};
+use crate::{Animation, IdManager};
 use crate::{Entity, Transition};
 
 use crate::Interpolator;
@@ -47,7 +50,7 @@ mod selector;
 pub use selector::*;
 
 mod specificity;
-pub use specificity::*;
+pub(crate) use specificity::*;
 
 mod style_rule;
 pub use style_rule::*;
@@ -285,8 +288,8 @@ impl Style {
                         self.overflow.insert_rule(rule_id, value);
                     }
 
-                    Property::BackgroundImage(value) => {
-                        //
+                    Property::BackgroundImage(_value) => {
+                        todo!();
                     }
 
                     Property::BackgroundGradient(value) => {

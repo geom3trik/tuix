@@ -6,7 +6,7 @@ use std::hash::Hash;
 use morphorm::Units;
 
 use crate::{Color, PropSet2, State};
-use crate::state::id::GenerationalId;
+use crate::id::GenerationalId;
 
 const RULE_INDEX_BITS: u32 = 24;
 const RULE_INDEX_MASK: u32  = (1<<RULE_INDEX_BITS)-1;

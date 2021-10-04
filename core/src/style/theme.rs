@@ -7,16 +7,16 @@ use cssparser::{
 };
 
 
-use crate::state::style::property::Property;
-use crate::state::style::selector::{Relation, Selector};
+use crate::style::property::Property;
+use crate::style::selector::{Relation, Selector};
 
 use crate::Transition;
-use crate::state::style::StyleRule;
+use crate::style::StyleRule;
 
-use crate::state::style::*;
+use crate::style::*;
 
 
-use crate::state::style::color::Color;
+use crate::style::color::Color;
 
 #[derive(Clone)]
 pub enum CustomParseError {

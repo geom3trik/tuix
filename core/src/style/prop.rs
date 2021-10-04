@@ -1,11 +1,11 @@
 use morphorm::GeometryChanged;
 use crate::{Message, State, Widget};
 use crate::{Entity, Builder, EventHandler, Propagation};
-use crate::{state::style::*, AsEntity, Pos};
+use crate::{AsEntity, style::*};
 
 use crate::{Event, WindowEvent};
 
-use crate::state::tree::*;
+use crate::tree::{Tree, TreeExt};
 
 use morphorm::{Cache, LayoutType, PositionType, Units};
 

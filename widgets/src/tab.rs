@@ -1,12 +1,10 @@
 use std::time::Duration;
 
-use tuix_core::{IntoChildIterator, TreeExt};
+use tuix_core::TreeExt;
 
 use crate::{ButtonEvent, CheckboxEvent, common::*};
 
 use crate::{List};
-
-use crate::AnimationState;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum TabEvent {
@@ -748,7 +746,7 @@ impl Widget for MovableTab {
                         self.pos_down_x = state.data.get_posx(entity);
                         self.pos_down_y = state.data.get_posy(entity);
 
-                        state.data.set_hoverable(entity, false);
+                        entity.set_hoverable(state, false);
 
                         self.previous_height = entity.get_height(state);
                         self.previous_width = entity.get_width(state);
@@ -779,7 +777,7 @@ impl Widget for MovableTab {
                         //entity.set_height(state, self.previous_height);
                         //entity.set_width(state, self.previous_width);
                         entity.set_position_type(state, PositionType::ParentDirected);
-                        state.data.set_hoverable(entity, true);
+                        entity.set_hoverable(state, true);
                         entity.set_left(state, Units::Auto);
                         entity.set_top(state, Units::Auto);
                         entity.set_z_order(state, 0);

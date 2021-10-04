@@ -5,7 +5,7 @@ pub fn apply_hover(state: &mut State) {
     let mut draw_tree: Vec<Entity> = state.tree.into_iter().collect();
 
     // This should be cached somewhere probably
-    draw_tree.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
+    draw_tree.sort_by_cached_key(|entity| state.data.get_z_index(*entity));
 
     let cursorx = state.mouse.cursorx;
     let cursory = state.mouse.cursory;
@@ -120,7 +120,7 @@ pub fn apply_hover(state: &mut State) {
             state.data.get_posy(hovered_widget),
             state.data.get_width(hovered_widget),
             state.data.get_height(hovered_widget),
-            state.data.get_z_order(hovered_widget),
+            state.data.get_z_index(hovered_widget),
         );
 
         hovered_widget.set_hover(state, true);

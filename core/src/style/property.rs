@@ -4,7 +4,7 @@ use crate::Display;
 use crate::Color;
 use crate::LinearGradient;
 
-use crate::state::style::*;
+use crate::style::*;
 
 use crate::Transition;
 

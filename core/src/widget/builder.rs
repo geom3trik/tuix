@@ -1,6 +1,8 @@
 use crate::state::*;
 use crate::{Entity, EventHandler, State, Widget};
 
+use crate::style::*;
+
 use std::{cell::RefCell, marker::PhantomData};
 use std::rc::Rc;
 

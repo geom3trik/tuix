@@ -1,5 +1,5 @@
 use crate::{Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, IntoChildIterator, Lens, LensWrap, Node, PropType, State, Tree, Wrapper};
+use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, Lens, LensWrap, Node, PropType, State, Tree, TreeExt, Wrapper};
 use femtovg::{BlendFactor, CompositeOperation, PixelFormat, RenderTarget};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,

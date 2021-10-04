@@ -3,7 +3,7 @@
 use std::cmp::{Eq, PartialEq};
 use std::hash::Hash;
 
-use crate::state::id::GenerationalId;
+use crate::id::GenerationalId;
 
 const ANIMATION_INDEX_BITS: u32 = 24;
 const ANIMATION_INDEX_MASK: u32  = (1<<ANIMATION_INDEX_BITS)-1;
@@ -16,10 +16,10 @@ const ANIMATION_MAX: u32 = std::u32::MAX>>8;
 const MINIMUM_FREE_INDICES: usize = 1024;
 
 
-/// An animation is an id used to reference to get/set properties in State.
+/// An id used to reference style animations stored in state.
 ///
-/// Rather than having widgets own their data, all state is stored in a single database and
-/// is stored and loaded using entities.
+/// An animation id is returned by `state.create_animation()` and can be used to configure animations 
+/// as well as to play, pause, and stop aimations on entities (see [AnimExt]).
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Animation(u32);
 
@@ -42,23 +42,15 @@ impl std::fmt::Debug for Animation {
 }
 
 impl Animation {
-    /// Creates a null animation
+    /// Creates a null animation id.
     ///
-    /// A null animation can be used as a placeholder within a widget struct but cannot be used to get/set properties
+    /// A null animation can be used as a placeholder within a widget struct but cannot be used to 
+    /// get/set animation properties or control animation playback.
     pub fn null() -> Animation {
         Animation(std::u32::MAX)
     }
 
-    /// Creates a root animation
-    ///
-    /// The root animation represents the main window and is always valid. 
-    /// The root animation can be used to set properties on the primary window, such as background color, 
-    /// as well as sending events to the window such as Restyle and Redraw events.
-    pub fn root() -> Animation {
-        Animation(0)
-    }
-
-    /// Creates a new animation with a given index and generation
+    /// Creates a new animation id with a given index and generation.
     pub(crate) fn new(index: u32, generation: u32) -> Animation {
         assert!(index < ANIMATION_INDEX_MASK);
         assert!(generation < ANIMATION_GENERATION_MASK);
@@ -68,19 +60,26 @@ impl Animation {
 }
 
 impl GenerationalId for Animation {
+    /// Create a new animation id with a given index and generation.
     fn new(index: usize, generation: usize) -> Self {
         Animation::new(index as u32, generation as u32)
     }
 
+    /// Returns the index of the animation.
+    ///
+    /// This is used to retrieve animation data from the style storages in state.
     fn index(&self) -> usize {
         (self.0 & ANIMATION_INDEX_MASK) as usize
     }
 
+    /// Returns the generation of the animtion.
+    ///
+    /// This is used to determine whether or not the animation referred to by the id is 'alive'.
     fn generation(&self) -> u8 {
         ((self.0 >> ANIMATION_INDEX_BITS) & ANIMATION_GENERATION_MASK) as u8
     }
 
-    /// Returns true if the animation is null
+    /// Returns true if the animation is null.
     fn is_null(&self) -> bool {
         self.0 == std::u32::MAX
     }

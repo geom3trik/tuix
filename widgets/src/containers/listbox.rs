@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use crate::{CheckButton, common::*};
 use crate::{CheckboxEvent};
-use tuix_core::{Node, Lens, IntoChildIterator};
+use tuix_core::{Node, Lens};
 
 use tuix_core::TreeExt;
 

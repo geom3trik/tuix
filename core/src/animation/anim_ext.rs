@@ -78,6 +78,7 @@ pub trait AnimExt: AsEntity + Sized {
         self
     }
 
+    /// Returns true if there is an active animation with the given id.
     fn is_animating(self, state: &mut State, animation: Animation) -> bool {
         state.style.height.is_animating(self.entity(), animation) ||
         state.style.width.is_animating(self.entity(), animation)

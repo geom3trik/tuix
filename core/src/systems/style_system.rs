@@ -1,4 +1,4 @@
-use crate::{BoundingBox, Display, Entity, IntoParentIterator, Overflow, PropGet, PropSet, Property, Relation, Rule, Selector, State, Tree, TreeExt, Visibility};
+use crate::{BoundingBox, Display, Entity, Overflow, PropGet, PropSet, Property, Relation, Rule, Selector, State, Tree, TreeExt, Visibility};
 
 
 pub fn apply_z_ordering(state: &mut State, tree: &Tree) {
@@ -10,10 +10,10 @@ pub fn apply_z_ordering(state: &mut State, tree: &Tree) {
         let parent = tree.get_parent(entity).unwrap();
 
         if let Some(z_order) = state.style.z_order.get(entity) {
-            state.data.set_z_order(entity, *z_order);
+            state.data.set_z_index(entity, *z_order);
         } else {
-            let parent_z_order = state.data.get_z_order(parent);
-            state.data.set_z_order(entity, parent_z_order);
+            let parent_z_order = state.data.get_z_index(parent);
+            state.data.set_z_index(entity, parent_z_order);
         }
     }
 }
@@ -80,7 +80,7 @@ pub fn apply_clipping(state: &mut State, tree: &Tree) {
 pub fn apply_visibility(state: &mut State, tree: &Tree) {
     //println!("Apply Visibility");
     let mut draw_tree: Vec<Entity> = tree.into_iter().collect();
-    draw_tree.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
+    draw_tree.sort_by_cached_key(|entity| state.data.get_z_index(*entity));
 
     for widget in draw_tree.into_iter() {
         let visibility = state

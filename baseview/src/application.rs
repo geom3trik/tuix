@@ -4,7 +4,7 @@ use crate::Renderer;
 use baseview::{Window, WindowScalePolicy};
 use femtovg::Canvas;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use tuix_core::IntoTreeIterator;
+use tuix_core::TreeExt;
 use tuix_core::{MouseButton, MouseButtonState};
 use tuix_core::Fonts;
 use tuix_core::WindowWidget;
@@ -467,7 +467,7 @@ impl ApplicationRunner {
                         } else {
                             self.state.focused.set_focus(&mut self.state, false);
                             self.state.focused =
-                                match self.state.focused.into_iter(&self.tree).next() {
+                                match self.state.focused.tree_iter(&self.tree).next() {
                                     Some(val) => val,
                                     None => Entity::root(),
                                 };

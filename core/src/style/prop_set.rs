@@ -1,7 +1,7 @@
 
 use morphorm::Units;
 
-use crate::{Color, State, state::id::GenerationalId};
+use crate::{Color, State, GenerationalId};
 
 /// Trait which provides methods for setting layout and style properties on entities, rules, and animations
 pub trait PropSet2 

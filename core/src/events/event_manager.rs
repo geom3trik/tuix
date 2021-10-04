@@ -1,4 +1,4 @@
-use crate::{Builder, CursorIcon, Entity, Event, FontOrId, IntoBranchIterator, IntoParentIterator, IntoTreeIterator, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent};
+use crate::{Builder, CursorIcon, Entity, Event, FontOrId, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent};
 
 use crate::EventHandler;
 
@@ -344,7 +344,7 @@ impl EventManager {
 
         // Sort the tree by z order
         let mut draw_tree: Vec<Entity> = self.tree.into_iter().collect();
-        draw_tree.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
+        draw_tree.sort_by_cached_key(|entity| state.data.get_z_index(*entity));
 
         // Call the on_draw() method for each widget
         for entity in draw_tree.into_iter() {

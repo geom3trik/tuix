@@ -8,3 +8,6 @@ pub use window_event::WindowEvent;
 
 mod window;
 pub use window::WindowWidget;
+
+mod cursor;
+pub use cursor::CursorIcon;

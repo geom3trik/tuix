@@ -1,35 +1,28 @@
-#![allow(dead_code)]
+//! # UI State
+//!
+//! [State] is where all of the UI data is stored. In ECS terms, the [State] is the world and managed
+//! the creating on entities, and the storage of components.
 
-mod entity;
+/// Entity ID
+pub mod entity;
 pub use entity::{Entity, AsEntity};
 
-
-mod id;
-pub(crate) use id::{IdManager, GenerationalId};
-
-mod tree;
-pub use tree::*;
-
-mod storage;
-
-pub mod style;
-pub use style::*;
-
-mod data;
+/// Cached UI data
+pub mod data;
 pub use data::*;
 
-mod animation;
-pub use animation::*;
-
-mod mouse;
+/// Mouse Data
+pub mod mouse;
 pub use mouse::*;
 
-pub mod resource;
+mod resource;
 pub use resource::*;
 
 
-pub use crate::events::{Builder, Event, Propagation, Widget, EventHandler};
-pub use crate::WindowEvent;
+pub use crate::{Builder, Event, Propagation, Widget, EventHandler, Style, Animation, Color, StyleRule, AnimationBuilder, PropSet};
+pub use crate::{WindowEvent, Tree, TreeExt};
+
+use crate::IdManager;
 
 use femtovg::{FontId, TextContext};
 
@@ -71,7 +64,7 @@ pub struct Fonts {
 
 pub struct State {
     /// Creates and destroys entities
-    pub(crate) entity_manager: IdManager<Entity>, 
+    pub(crate) entity_manager: IdManager<Entity>,
     // The widget tree
     pub tree: Tree,
     // The style properties for every widget
