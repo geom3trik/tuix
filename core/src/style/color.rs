@@ -1,8 +1,8 @@
 use std::fmt;
 
-use crate::{Interpolator, Node};
+use crate::{Interpolator};
 
-// Describes a color
+/// Describes a color
 #[derive(Copy, Clone)]
 #[repr(packed)]
 pub struct Color {

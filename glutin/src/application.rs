@@ -1,6 +1,7 @@
 #![allow(deprecated)]
 
 use glutin::event_loop::{ControlFlow, EventLoop};
+use glutin::window::WindowId;
 
 use crate::keyboard::{scan_to_code, vcode_to_code, vk_to_key};
 
@@ -25,11 +26,22 @@ use glutin::event::VirtualKeyCode;
 
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
+
+#[derive(Debug)]
+pub enum AppEvent {
+    /// Emitted when a new window should be created by the application
+    CreateWindow(Entity),
+    /// Emiited when a new window should be destroyed by the application
+    Destroy(Entity),
+}
+
 pub struct Application {
     pub window: Window,
     pub state: State,
     event_loop: EventLoop<()>,
     pub event_manager: EventManager,
+
+    // /pub root_window: (WindowId, Entity), 
 }
 
 impl Application {

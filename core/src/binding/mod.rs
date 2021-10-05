@@ -118,7 +118,7 @@ use std::{any::TypeId, collections::HashSet};
 pub use node::*;
 pub use lens::{Lens, LensExt};
 
-use crate::{Tree, TreeExt};
+use crate::{TreeExt};
 use crate::{State, Entity, Event, Widget, Propagation, PropSet};
 
 use crate::Canvas;
@@ -360,6 +360,6 @@ impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
     }
 }
 
-fn print_type_of<T>(_: &T) {
-    println!("{}", std::any::type_name::<T>())
-}
+// fn print_type_of<T>(_: &T) {
+//     println!("{}", std::any::type_name::<T>())
+// }

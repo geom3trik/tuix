@@ -23,4 +23,6 @@ fn main() {
                 .set_height(Pixels(100.0))
         );
     });
+    
+    app.run();
 }

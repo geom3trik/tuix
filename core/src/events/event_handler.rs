@@ -1,20 +1,9 @@
-use crate::{Canvas, Node, PropType, events::{Event, EventManager, Message}, state};
+use crate::{Canvas, Node, PropType, Event};
 
-use fnv::FnvHashMap;
+use crate::{Entity, State};
 
-use crate::Builder;
-
-use crate::{Entity, Tree, State};
-
-use std::collections::{HashMap, VecDeque};
-
-use femtovg::{
-    renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
-    Paint, Path, Renderer, Solidity,
-};
 //use image::Pixels;
 
-use crate::{Direction, Units, Visibility};
 
 use std::any::{Any, TypeId};
 
@@ -25,18 +14,18 @@ pub trait EventHandler: Any {
     }
 
     // Called when a widget needs to be informed of a change in a data store
-    fn on_update_(&mut self, state: &mut State, entity: Entity, node: &dyn Node) {}
+    fn on_update_(&mut self, _state: &mut State, _entity: Entity, _node: &dyn Node) {}
 
     // Called when events are flushed
-    fn on_event_(&mut self, state: &mut State, entity: Entity, event: &mut Event) {}
+    fn on_event_(&mut self, _state: &mut State, _entity: Entity, _event: &mut Event) {}
 
     //fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas);
     // Called when a redraw occurs
 
 
-    fn on_style(&mut self, state: &mut State, entity: Entity, property: (String, PropType)) {}
+    fn on_style(&mut self, _state: &mut State, _entity: Entity, _property: (String, PropType)) {}
 
-    fn on_draw_(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
+    fn on_draw_(&mut self, _state: &mut State, _entity: Entity, _canvas: &mut Canvas) {
         // // Skip window
         // if entity == Entity::root() {
         //     return;

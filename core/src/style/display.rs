@@ -16,7 +16,7 @@ impl Default for Display {
 }
 
 impl Interpolator for Display {
-    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
+    fn interpolate(_start: &Self, end: &Self, _t: f32) -> Self {
         return *end;
     }
 }
@@ -37,7 +37,7 @@ impl Default for Visibility {
 }
 
 impl Interpolator for Visibility {
-    fn interpolate(start: &Self, end: &Self, t: f32) -> Self {
+    fn interpolate(_start: &Self, end: &Self, _t: f32) -> Self {
         return *end;
     }
 }

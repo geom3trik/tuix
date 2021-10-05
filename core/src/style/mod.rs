@@ -77,6 +77,9 @@ pub struct Style {
 
     pub(crate) rule_manager: IdManager<Rule>, 
 
+    /// Creates and destroys animation ids
+    pub(crate) animation_manager: IdManager<Animation>,
+
     pub(crate) rules: Vec<StyleRule>,
 
     pub default_font: String,
@@ -535,149 +538,153 @@ impl Style {
                             println!("{:?}", transition);
                             match transition.property.as_ref() {
                                 "background-color" => {
-                                    self.background_color.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.background_color.insert_animation(animation, self.add_transition(transition));
+                                    self.background_color.insert_transition(rule_id, animation);
                                 }
 
                                 "left" => {
-                                    self.left.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.left.insert_animation(animation, self.add_transition(transition));
+                                    self.left.insert_transition(rule_id, animation);
                                 }
 
                                 "top" => {
-                                    self.top.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.top.insert_animation(animation, self.add_transition(transition));
+                                    self.top.insert_transition(rule_id, animation);
                                 }
 
                                 "right" => {
-                                    self.right.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.right.insert_animation(animation, self.add_transition(transition));
+                                    self.right.insert_transition(rule_id, animation);
                                 }
 
                                 "bottom" => {
-                                    self.bottom.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.bottom.insert_animation(animation, self.add_transition(transition));
+                                    self.bottom.insert_transition(rule_id, animation);
                                 }
 
                                 "min-left" => {
-                                    self.min_left.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.min_left.insert_animation(animation, self.add_transition(transition));
+                                    self.min_left.insert_transition(rule_id, animation);
                                 }
 
                                 "max-left" => {
-                                    self.max_left.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.max_left.insert_animation(animation, self.add_transition(transition));
+                                    self.max_left.insert_transition(rule_id, animation);
                                 }
 
                                 "min-right" => {
-                                    self.min_right.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.min_right.insert_animation(animation, self.add_transition(transition));
+                                    self.min_right.insert_transition(rule_id, animation);
                                 }
 
                                 "max-right" => {
-                                    self.max_right.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.max_right.insert_animation(animation, self.add_transition(transition));
+                                    self.max_right.insert_transition(rule_id, animation);
                                 }
 
                                 "min-top" => {
-                                    self.min_top.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.min_top.insert_animation(animation, self.add_transition(transition));
+                                    self.min_top.insert_transition(rule_id, animation);
                                 }
 
                                 "max-top" => {
-                                    self.max_top.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.max_top.insert_animation(animation, self.add_transition(transition));
+                                    self.max_top.insert_transition(rule_id, animation);
                                 }
 
                                 "min-bottom" => {
-                                    self.min_bottom.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.min_bottom.insert_animation(animation, self.add_transition(transition));
+                                    self.min_bottom.insert_transition(rule_id, animation);
                                 }
 
                                 "max-bottom" => {
-                                    self.max_bottom.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.max_bottom.insert_animation(animation, self.add_transition(transition));
+                                    self.max_bottom.insert_transition(rule_id, animation);
                                 }
 
                                 "width" => {
-                                    self.width.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.width.insert_animation(animation, self.add_transition(transition));
+                                    self.width.insert_transition(rule_id, animation);
                                 }
 
                                 "height" => {
-                                    self.height.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.height.insert_animation(animation, self.add_transition(transition));
+                                    self.height.insert_transition(rule_id, animation);
                                 }
 
                                 "min-width" => {
-                                    self.min_width.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.min_width.insert_animation(animation, self.add_transition(transition));
+                                    self.min_width.insert_transition(rule_id, animation);
                                 }
 
                                 "max-width" => {
-                                    self.max_width.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.max_width.insert_animation(animation, self.add_transition(transition));
+                                    self.max_width.insert_transition(rule_id, animation);
                                 }
 
                                 "min-height" => {
-                                    self.min_height.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.min_height.insert_animation(animation, self.add_transition(transition));
+                                    self.min_height.insert_transition(rule_id, animation);
                                 }
 
                                 "max-height" => {
-                                    self.max_height.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.max_height.insert_animation(animation, self.add_transition(transition));
+                                    self.max_height.insert_transition(rule_id, animation);
                                 }
+
+                                "child-left" => {
+                                    let animation = self.animation_manager.create();
+                                    self.child_left.insert_animation(animation, self.add_transition(transition));
+                                    self.child_left.insert_transition(rule_id, animation);
+                                }
+
+                                "child-right" => {
+                                    let animation = self.animation_manager.create();
+                                    self.child_right.insert_animation(animation, self.add_transition(transition));
+                                    self.child_right.insert_transition(rule_id, animation);
+                                }
+
+                                "child-top" => {
+                                    let animation = self.animation_manager.create();
+                                    self.child_top.insert_animation(animation, self.add_transition(transition));
+                                    self.child_top.insert_transition(rule_id, animation);
+                                }
+
+                                "child-bottom" => {
+                                    let animation = self.animation_manager.create();
+                                    self.child_bottom.insert_animation(animation, self.add_transition(transition));
+                                    self.child_bottom.insert_transition(rule_id, animation);
+                                }
+
                                 "opacity" => {
-                                    self.opacity.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.opacity.insert_animation(animation, self.add_transition(transition));
+                                    self.opacity.insert_transition(rule_id, animation);
                                 }
 
                                 "outer-shadow-color" => {
-                                    self.outer_shadow_color.insert_transition(
-                                        rule_id,
-                                        self.add_transition(transition),
-                                    );
+                                    let animation = self.animation_manager.create();
+                                    self.outer_shadow_color.insert_animation(animation, self.add_transition(transition));
+                                    self.outer_shadow_color.insert_transition(rule_id, animation);
                                 }
 
                                 _ => {}

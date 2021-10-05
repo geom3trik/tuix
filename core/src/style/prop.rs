@@ -1,13 +1,13 @@
-use morphorm::GeometryChanged;
+
 use crate::{Message, State, Widget};
-use crate::{Entity, Builder, EventHandler, Propagation};
+use crate::{Entity, Propagation};
 use crate::{AsEntity, style::*};
 
 use crate::{Event, WindowEvent};
 
-use crate::tree::{Tree, TreeExt};
+use crate::tree::{TreeExt};
 
-use morphorm::{Cache, LayoutType, PositionType, Units};
+use morphorm::{LayoutType, PositionType, Units};
 
 use std::rc::Rc;
 
@@ -314,8 +314,6 @@ pub trait PropSet: AsEntity + Sized {
 
     // TODO
     fn set_id(self, state: &mut State, value: &str) -> Entity {
-        todo!();
-
         self.entity()
     }
 

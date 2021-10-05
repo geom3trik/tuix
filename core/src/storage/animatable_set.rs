@@ -89,23 +89,23 @@ impl std::fmt::Debug for DataIndex {
 ///
 /// 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct Index {
+pub(crate) struct InlineIndex {
     data_index: DataIndex,
     anim_index: u32,
 }
 
-impl Default for Index {
+impl Default for InlineIndex {
     fn default() -> Self {
-        Index { 
+        InlineIndex { 
             data_index: DataIndex::null(), 
             anim_index: std::u32::MAX, 
         }
     }
 }
 
-impl DenseIndex for Index {
+impl DenseIndex for InlineIndex {
     fn new(index: usize) -> Self {
-        Index {
+        InlineIndex {
             data_index: DataIndex::inline(index),
             anim_index: std::u32::MAX,
         }
@@ -120,6 +120,40 @@ impl DenseIndex for Index {
     }
 }
 
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) struct SharedIndex {
+    data_index: u32,
+    animation: Animation,
+}
+
+impl Default for SharedIndex {
+    fn default() -> Self {
+        SharedIndex { 
+            data_index: std::u32::MAX, 
+            animation: Animation::null(), 
+        }
+    }
+}
+
+impl DenseIndex for SharedIndex {
+    fn new(index: usize) -> Self {
+        SharedIndex {
+            data_index: index as u32,
+            animation: Animation::null(),
+        }
+    }
+
+    fn null() -> Self {
+        Self::default()
+    }
+
+    fn index(&self) -> usize {
+        self.data_index as usize
+    }
+}
+
+
 /// Animatable storage is used for storing inline and shared data for entities as well as definitions for
 /// animations, which can be played for entities, and transitions, which play when an entity matches a new shared style
 /// rule which defines a trnasition.
@@ -129,9 +163,9 @@ impl DenseIndex for Index {
 #[derive(Default, Debug)]
 pub struct AnimatableSet<T: Interpolator> {
     /// Shared data determined by style rules
-    pub(crate) shared_data: SparseSetGeneric<T,Index>,
+    pub(crate) shared_data: SparseSetGeneric<T,SharedIndex>,
     /// Inline data defined on specific entities
-    pub(crate) inline_data: SparseSetGeneric<T,Index>,
+    pub(crate) inline_data: SparseSetGeneric<T,InlineIndex>,
     /// Animation descriptions
     animations: SparseSet<AnimationState<T>>,
     /// Animations which are currently playing
@@ -193,11 +227,14 @@ where
 
     /// Inserts a transition for a given rule
     ///
-    /// Trnasitions are animations which are defined for a particular rule. When an entity is linked to
+    /// Transitions are animations which are defined for a particular rule. When an entity is linked to
     /// a rule any transition associated with that rule will play for that entity.
     ///
-    pub fn insert_transition(&mut self, rule: Rule, animation_description: AnimationState<T>) {
-
+    pub fn insert_transition(&mut self, rule: Rule, animation: Animation) {
+        // Check if the rule exists
+        if self.shared_data.contains(rule) && self.animations.contains(animation) {
+            self.shared_data.sparse[rule.index()].animation = animation; 
+        }
     }
 
     pub fn play_animation(&mut self, entity: Entity, animation: Animation) {
@@ -209,7 +246,7 @@ where
 
         // If there is no inline or shared data for the entity then add the entity as animation only
         if entity_index >= self.inline_data.sparse.len() {
-            self.inline_data.sparse.resize(entity_index + 1, Index::null());
+            self.inline_data.sparse.resize(entity_index + 1, InlineIndex::null());
         }
 
         if entity_index < self.inline_data.sparse.len() {
@@ -446,7 +483,6 @@ where
 
     /// Link an entity to some shared data
     pub fn link(&mut self, entity: Entity, rules: &[Rule]) -> bool {
-
         let entity_index = entity.index();
 
         // Check if the entity already has some data
@@ -466,19 +502,51 @@ where
                 
                 // If the entity doesn't have any previous shared data then create space for it
                 if entity_index >= self.inline_data.sparse.len() {
-                    self.inline_data.sparse.resize(entity_index + 1, Index::null());
+                    self.inline_data.sparse.resize(entity_index + 1, InlineIndex::null());
                 }
 
                 // Get the animation state index of any animations (transitions) defined for the rule
-                let anim_index = shared_data_index.anim_index as usize;
+                let rule_animation = shared_data_index.animation;
 
-                if anim_index < self.animations.dense.len() {
-                    let mut anim_state = self.animations.dense[anim_index].value.clone();
-                    // TODO
-                    // Check if the entity is already being animated
-                    // If it's being animated by a regular animation, don't transition
-                    // If it's being animated by a trnasition, then blend the trnasition to the new one
-                }
+                //if let Some(transition_state) = self.animations.get_mut(rule_animation) {
+                    let entity_anim_index = self.inline_data.sparse[entity_index].anim_index as usize;
+                    if entity_anim_index < self.active_animations.len() {
+                        let current_anim_state = &mut self.active_animations[entity_anim_index];
+                        let rule_data_index = shared_data_index.data_index as usize;
+                        if rule_data_index == current_anim_state.from_rule {
+                            current_anim_state.from_rule = current_anim_state.to_rule;
+                            current_anim_state.to_rule = rule_data_index;
+                            *current_anim_state.keyframes.first_mut().unwrap() = (0.0, self.shared_data.dense[current_anim_state.from_rule].value.clone());
+                            *current_anim_state.keyframes.last_mut().unwrap() = (1.0, self.shared_data.dense[current_anim_state.to_rule].value.clone());
+                            current_anim_state.delay = current_anim_state.t - 1.0;
+                            current_anim_state.start_time = std::time::Instant::now();
+                        }
+                    } else {
+
+                        if rule_animation.index() < self.animations.dense.len() {
+                            let transition_state = &mut self.animations.dense[rule_animation.index()].value;
+                            // Safe to unwrap because already checked that the rule exists
+                            let end = self.shared_data.get(*rule).unwrap();
+                            //println!("End: {:?}", end);
+
+                            let entity_data_index = self.inline_data.sparse[entity_index].data_index;
+
+                            if !entity_data_index.is_inline() && entity_data_index.index() < self.shared_data.dense.len() {
+                                let start_data = self.shared_data.dense[entity_data_index.index()].value.clone();
+                                *transition_state.keyframes.first_mut().unwrap() = (0.0, start_data);
+                            } else {
+                                *transition_state.keyframes.first_mut().unwrap() = (0.0, end.clone());
+                            }
+
+                            *transition_state.keyframes.last_mut().unwrap() = (1.0, end.clone());
+                            transition_state.from_rule = self.inline_data.sparse[entity_index].data_index.index();
+                            transition_state.to_rule = shared_data_index.index();
+
+                            self.play_animation(entity, rule_animation);                            
+                        }
+
+                    }
+                //}
 
                 let data_index = self.inline_data.sparse[entity_index].data_index;
                 // Already linked
@@ -503,9 +571,9 @@ where
     }
 
     pub fn clear_rules(&mut self) {
-        // Remove transitions
+        // Remove transitions (TODO)
         for index in self.shared_data.sparse.iter() {
-            let anim_index = index.anim_index as usize;
+            //let anim_index = index.anim_index as usize;
         }
 
         self.shared_data.clear();

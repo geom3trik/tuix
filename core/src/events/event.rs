@@ -1,4 +1,4 @@
-use crate::{Entity, State};
+use crate::Entity;
 
 use std::any::{Any, TypeId};
 use std::fmt::Debug;
@@ -20,7 +20,7 @@ pub enum Propagation {
     All,
 }
 
-// A message is a wrapper around an Any but with the added ability to Clone the message
+/// A message can be any static type.
 pub trait Message: Any {
     // An &Any can be cast to a reference to a concrete type.
     fn as_any(&self) -> &dyn Any;

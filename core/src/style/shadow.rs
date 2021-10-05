@@ -1,6 +1,4 @@
-use crate::Entity;
 
-use crate::Interpolator;
 use crate::Color;
 
 use crate::Units;

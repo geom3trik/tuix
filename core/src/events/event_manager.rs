@@ -1,21 +1,9 @@
-use crate::{Builder, CursorIcon, Entity, Event, FontOrId, PropSet, Propagation, State, Tree, TreeExt, Visibility, WindowEvent};
+use crate::{Entity, Event, FontOrId, Propagation, State, Tree, TreeExt, Visibility, WindowEvent};
 
-use crate::EventHandler;
-
-use std::{
-    collections::{hash_map::DefaultHasher, HashMap, VecDeque},
-    convert::TryInto,
-    println,
-};
-
-use std::time::{Duration, Instant};
 
 use femtovg::{
-    renderer::OpenGl, Align, Baseline, Canvas, Color, FillRule, FontId, ImageFlags, ImageId,
-    LineCap, LineJoin, Paint, Path, Renderer, Solidity,
+    renderer::OpenGl, Canvas,
 };
-
-use fnv::FnvHashMap;
 
 pub struct EventManager {
 
@@ -319,9 +307,9 @@ impl EventManager {
         let dpi_factor = 1.0;
 
         // Set the canvas size
-        if (self.prev_width != width
+        if self.prev_width != width
             || self.prev_height != height
-            || self.prev_dpi_factor != dpi_factor)
+            || self.prev_dpi_factor != dpi_factor
         {
             canvas.set_size(width as u32, height as u32, dpi_factor as f32);
         }
@@ -371,7 +359,7 @@ impl EventManager {
             //     continue;
             // }
 
-            let mut clip_region = state.data.get_clip_region(entity);
+            let clip_region = state.data.get_clip_region(entity);
             canvas.scissor(
                 clip_region.x,
                 clip_region.y,
@@ -380,7 +368,7 @@ impl EventManager {
             );
     
             // Apply transformations
-            let mut transform = state.data.get_transform(entity);
+            let transform = state.data.get_transform(entity);
     
     
             canvas.save();

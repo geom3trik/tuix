@@ -1,19 +1,15 @@
 use crate::{Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, Lens, LensWrap, Node, PropType, State, Tree, TreeExt, Wrapper};
-use femtovg::{BlendFactor, CompositeOperation, PixelFormat, RenderTarget};
+use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, Lens, LensWrap, Node, PropType, State, TreeExt, Wrapper};
+use femtovg::{PixelFormat, RenderTarget};
 use femtovg::{
-    renderer::OpenGl, Align, Baseline, FillRule, FontId, ImageFlags, ImageId, LineCap, LineJoin,
-    Paint, Path, Renderer, Solidity,
+    renderer::OpenGl, Align, Baseline, ImageFlags,
+    Paint, Path,
 };
 
-use crate::{Direction, Units, Visibility};
-use crate::{Event, EventManager, Message};
-
-use fnv::FnvHashMap;
+use crate::{GradientDirection, Units};
+use crate::{Event};
 
 pub type Canvas = femtovg::Canvas<OpenGl>;
-
-use std::any::Any;
 
 
 // Length proportional to radius of a cubic bezier handle for 90deg arcs.
@@ -388,7 +384,7 @@ pub trait Widget: std::marker::Sized + 'static {
             let x = bounds.x + border_width / 2.0;
             let y = bounds.y + border_width / 2.0;
             let w = bounds.w - border_width;
-            let h = bounds.h - border_width;;
+            let h = bounds.h - border_width;
             let halfw = w.abs() * 0.5;
             let halfh = h.abs() * 0.5;
 
@@ -505,7 +501,7 @@ pub trait Widget: std::marker::Sized + 'static {
             canvas.clear_rect(0, 0, size.0 as u32, size.1 as u32, femtovg::Color::rgba(0,0, 0, 0));
             canvas.translate(-bounds.x + d/2.0, -bounds.y + d/2.0);
             let mut outer_shadow = path.clone();
-            let mut paint = Paint::color(outer_shadow_color);
+            let paint = Paint::color(outer_shadow_color);
             canvas.fill_path(&mut outer_shadow, paint);
 
 
@@ -559,9 +555,9 @@ pub trait Widget: std::marker::Sized + 'static {
 
         // Gradient overrides background color
         if let Some(background_gradient) = state.style.background_gradient.get(entity) {
-            let (start_x, start_y, end_x, end_y, parent_length) = match background_gradient.direction {
-                Direction::LeftToRight => (0.0, 0.0, bounds.w, 0.0, parent_width),
-                Direction::TopToBottom => (0.0, 0.0, 0.0, bounds.h, parent_height),
+            let (_, _, end_x, end_y, parent_length) = match background_gradient.direction {
+                GradientDirection::LeftToRight => (0.0, 0.0, bounds.w, 0.0, parent_width),
+                GradientDirection::TopToBottom => (0.0, 0.0, 0.0, bounds.h, parent_height),
                 _ => (0.0, 0.0, bounds.w, 0.0, parent_width),
             };
 
@@ -742,7 +738,7 @@ pub trait Widget: std::marker::Sized + 'static {
             paint.set_text_baseline(baseline);
             paint.set_anti_alias(false);
 
-            canvas.fill_text(x, y, &text_string, paint);
+            canvas.fill_text(x, y, &text_string, paint).unwrap();
         }
 
         

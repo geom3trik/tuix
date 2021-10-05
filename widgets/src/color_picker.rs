@@ -173,7 +173,7 @@ impl Widget for HueSlider {
 
         self.track = Element::new().build(state, entity, |builder|
             builder
-                .set_background_gradient(LinearGradient::new(Direction::TopToBottom)
+                .set_background_gradient(LinearGradient::new(GradientDirection::TopToBottom)
                     .add_stop(GradientStop::new(Units::Percentage(0.0), Color::rgb(255, 0, 0)))
                     .add_stop(GradientStop::new(Units::Percentage(16.7), Color::rgb(255, 0, 255)))
                     .add_stop(GradientStop::new(Units::Percentage(33.3), Color::rgb(0, 0, 255)))

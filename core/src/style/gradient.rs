@@ -1,10 +1,9 @@
-use crate::Entity;
 
-use crate::Interpolator;
 use crate::Color;
 
 use crate::Units;
 
+/// A stop in a gradient, defined by a position and a color
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct GradientStop {
     // Position of the gradient stop
@@ -20,30 +19,32 @@ impl GradientStop {
     }
 }
 
+// The direction of a linear gadient
 #[derive(Debug, Clone, PartialEq)]
-pub enum Direction {
+pub enum GradientDirection {
     LeftToRight,
     RightToLeft,
     TopToBottom,
     BottomToTop,
 }
 
-impl Default for Direction {
+impl Default for GradientDirection {
     fn default() -> Self {
-        Direction::LeftToRight
+        GradientDirection::LeftToRight
     }
 }
 
+/// Describes a linear gradient
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct LinearGradient {
     // Direction of the gradient
-    pub direction: Direction,
+    pub direction: GradientDirection,
     // Stops of the gradient
     pub stops: Vec<GradientStop>,
 }
 
 impl LinearGradient {
-    pub fn new(direction: Direction) -> Self {
+    pub fn new(direction: GradientDirection) -> Self {
         Self {
             direction,
             stops: Vec::new(),
@@ -56,7 +57,7 @@ impl LinearGradient {
         self
     }
 
-    pub fn get_stops(&self, parent_length: f32) -> Vec<(f32, Color)> {
+    pub fn get_stops(&self, _parent_length: f32) -> Vec<(f32, Color)> {
         self.stops
             .iter()
             .map(|stop| {

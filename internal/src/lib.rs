@@ -13,6 +13,7 @@ pub use tuix_core::*;
 
 pub use tuix_derive::*;
 
+/// Built-in Widgets
 pub mod widgets {
     pub use tuix_widgets::*;
 }

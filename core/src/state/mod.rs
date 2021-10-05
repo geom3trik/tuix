@@ -1,13 +1,13 @@
 //! # UI State
 //!
-//! [State] is where all of the UI data is stored. In ECS terms, the [State] is the world and managed
-//! the creating on entities, and the storage of components.
+//! [State] is where all of the UI data is stored. In ECS terms, [State] is the world and manages
+//! the creation of entities (see [Widget]), and the storage of components (see [Style]).
 
 /// Entity ID
 pub mod entity;
 pub use entity::{Entity, AsEntity};
 
-/// Cached UI data
+/// Cached UI Data
 pub mod data;
 pub use data::*;
 
@@ -19,8 +19,8 @@ mod resource;
 pub use resource::*;
 
 
-pub use crate::{Builder, Event, Propagation, Widget, EventHandler, Style, Animation, Color, StyleRule, AnimationBuilder, PropSet};
-pub use crate::{WindowEvent, Tree, TreeExt};
+use crate::{Builder, Event, Propagation, EventHandler, Style, Animation, Color, StyleRule, AnimationBuilder, PropSet};
+use crate::{WindowEvent, Tree, TreeExt};
 
 use crate::IdManager;
 
@@ -84,9 +84,6 @@ pub struct State {
     pub captured: Entity,
     // Focused entity
     pub focused: Entity,
-
-    /// Creates and destroys animation ids
-    pub(crate) animation_manager: IdManager<Animation>,
 
 
     pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
@@ -160,7 +157,6 @@ impl State {
             //     emoji: None,
             //     arabic: None,
             // },
-            animation_manager: IdManager::new(),
             resource_manager,
             needs_restyle: false,
             needs_relayout: false,
@@ -393,7 +389,7 @@ impl State {
     }
 
     pub fn create_animation(&mut self, duration: std::time::Duration) -> AnimationBuilder {
-        let id = self.animation_manager.create();
+        let id = self.style.animation_manager.create();
         AnimationBuilder::new(id, self, duration)
     }
 

@@ -11,10 +11,6 @@ const ANIMATION_INDEX_MASK: u32  = (1<<ANIMATION_INDEX_BITS)-1;
 const ANIMATION_GENERATION_BITS: u32 = 8;
 const ANIMATION_GENERATION_MASK: u32 = (1<<ANIMATION_GENERATION_BITS)-1;
 
-const ANIMATION_MAX: u32 = std::u32::MAX>>8;
-
-const MINIMUM_FREE_INDICES: usize = 1024;
-
 
 /// An id used to reference style animations stored in state.
 ///

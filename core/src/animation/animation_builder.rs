@@ -9,7 +9,24 @@ pub(crate) struct AnimationDescription {
     persistent: bool,
 }
 
-
+/// A builder for constructing animations.
+///
+/// Returned from `state.create_animation(duration)`.
+///
+/// ## Example
+/// ```
+/// let animation_id = state.create_animation(std::time::Duration::from_secs(1))
+///     .add_keyframe(0.0, |keyframe| 
+///         keyframe
+///             .set_background_color(Color::red())
+///             .set_border_color(Color::blue())
+///     )
+///     .add_keyframe(1.0, |keyframe| 
+///         keyframe
+///             .set_background_color(Color::blue()))
+///             .set_border_color(Color::red())
+///     .build();
+/// ```
 pub struct AnimationBuilder<'a> {
     id: Animation,
     state: &'a mut State,
@@ -30,19 +47,29 @@ impl<'a> AnimationBuilder<'a> {
     }
 
 
-    /// Needs to be called before setting keyframes
+    /// Sets the delay before the animation will play. 
+    ///
+    /// Needs to be called before setting keyframes.
     pub fn with_delay(mut self, delay: std::time::Duration) -> Self {
         self.animation_description.delay = delay;
 
         self
     }
 
+    /// Sets the animation to persist after completion.
+    ///
+    /// Normally, after an animation is finished, the animated property will return to the the previous value 
+    /// before the animation was played. Setting an animation to persistent causes the property to be set to the last
+    /// value of the animation.
     pub fn persistent(mut self) -> Self {
         self.animation_description.persistent = true;
 
         self
     }
 
+    /// Adds a keyframe to the animation.
+    ///
+    /// 
     pub fn add_keyframe<F>(self, time: f32, keyframe: F) -> KeyframeBuilder<'a> 
     where F: FnOnce(KeyframeBuilder<'a>) -> KeyframeBuilder<'a>
     {
@@ -50,6 +77,8 @@ impl<'a> AnimationBuilder<'a> {
     }
 }
 
+
+/// A builder for constructing keyframes.
 pub struct KeyframeBuilder<'a> {
     id: Animation,
     state: &'a mut State,
@@ -67,10 +96,12 @@ impl<'a> KeyframeBuilder<'a> {
         }
     } 
 
+    /// Finish building the animation, returning an [Animation] id.
     pub fn build(self) -> Animation {
         self.id
     }
 
+    /// Adds another keyframe to the animation.
     pub fn add_keyframe<F>(self, time: f32, keyframe: F) -> Self 
     where F: FnOnce(KeyframeBuilder<'a>) -> KeyframeBuilder<'a>
     {

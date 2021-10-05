@@ -13,12 +13,12 @@ pub trait AnimExt: AsEntity + Sized {
     /// Create an animation which animates the `left` property from 0 to 100 pixels in 5 seconds 
     /// and play the animation on an entity:
     /// ```
-    /// let animation = state.create_animation(std::time::Duration::from_secs(5))
+    /// let animation_id = state.create_animation(std::time::Duration::from_secs(5))
     ///     .add_keyframe(0.0, |keyframe| keyframe.set_left(Pixels(0.0)))
     ///     .add_keyframe(1.0, |keyframe| keyframe.set_left(Pixels(100.0)))
     ///     .build(); 
     ///
-    /// entity.play_animation(state, animation);
+    /// entity.play_animation(state, animation_id);
     /// ```
     fn play_animation(self, state: &mut State, animation: Animation) -> Self {
 
@@ -66,7 +66,6 @@ pub trait AnimExt: AsEntity + Sized {
         state.style.border_radius_top_right.play_animation(self.entity(), animation);
 
         // Transform
-        println!("Play animation: {} {}", self.entity(), animation);
         state.style.rotate.play_animation(self.entity(), animation);
         // state.style.translate.play_animation(self.entity(), animation);
         state.style.scale.play_animation(self.entity(), animation);
@@ -79,6 +78,11 @@ pub trait AnimExt: AsEntity + Sized {
     }
 
     /// Returns true if there is an active animation with the given id.
+    /// 
+    /// # Example
+    /// ```
+    /// let test = entity.is_animation(animation_id);
+    /// ```
     fn is_animating(self, state: &mut State, animation: Animation) -> bool {
         state.style.height.is_animating(self.entity(), animation) ||
         state.style.width.is_animating(self.entity(), animation)

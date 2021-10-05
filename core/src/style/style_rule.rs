@@ -1,6 +1,3 @@
-use std::fmt::write;
-
-use crate::Entity;
 
 use super::Property;
 
