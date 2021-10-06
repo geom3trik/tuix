@@ -82,6 +82,8 @@ pub trait Widget: std::marker::Sized + 'static {
 
         let bounds = state.data.get_bounds(entity);
 
+        //println!("Drawing: {:?} {:?}", entity, bounds);
+
         //Skip widgets with no width or no height
         if bounds.w == 0.0 || bounds.h == 0.0 {
             return;
@@ -620,6 +622,7 @@ pub trait Widget: std::marker::Sized + 'static {
 
         
         // Draw text
+        /*
         if let Some(text) = state.style.text.get(entity) {
             let font = state.style.font.get(entity).cloned().unwrap_or_default();
 
@@ -740,7 +743,7 @@ pub trait Widget: std::marker::Sized + 'static {
 
             canvas.fill_text(x, y, &text_string, paint).unwrap();
         }
-
+        */
         
     }
 }

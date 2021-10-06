@@ -270,7 +270,7 @@ impl EventManager {
         }
     }
 
-    pub fn draw(&mut self, state: &mut State, canvas: &mut Canvas<OpenGl>) {
+    pub fn draw(&mut self, state: &mut State, window: Entity, canvas: &mut Canvas<OpenGl>) {
         //let dpi_factor = window.handle.window().scale_factor();
         //let size = window.handle.window().inner_size();
 
@@ -331,11 +331,12 @@ impl EventManager {
         canvas.reset();
 
         // Sort the tree by z order
-        let mut draw_tree: Vec<Entity> = self.tree.into_iter().collect();
-        draw_tree.sort_by_cached_key(|entity| state.data.get_z_index(*entity));
+        //let mut draw_tree: Vec<Entity> = window.window_iter(&state.tree).collect();
+        //draw_tree.sort_by_cached_key(|entity| state.data.get_z_index(*entity));
 
         // Call the on_draw() method for each widget
-        for entity in draw_tree.into_iter() {
+        for entity in window.window_iter(&state.tree.clone()) {
+            println!("Draw: {:?}", entity);
 
             // Skip window
             if entity == Entity::root() {
@@ -359,20 +360,20 @@ impl EventManager {
             //     continue;
             // }
 
-            let clip_region = state.data.get_clip_region(entity);
-            canvas.scissor(
-                clip_region.x,
-                clip_region.y,
-                clip_region.w,
-                clip_region.h,
-            );
+            // let clip_region = state.data.get_clip_region(entity);
+            // canvas.scissor(
+            //     clip_region.x,
+            //     clip_region.y,
+            //     clip_region.w,
+            //     clip_region.h,
+            // );
     
             // Apply transformations
             let transform = state.data.get_transform(entity);
     
     
             canvas.save();
-            canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
+            // canvas.set_transform(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5]);
             
 
             if let Some(mut event_handler) = state.event_handlers.remove(&entity) {

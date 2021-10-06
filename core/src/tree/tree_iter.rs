@@ -58,3 +58,49 @@ impl<'a> Iterator for TreeIterator<'a> {
         return r;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{Entity, GenerationalId, Tree, TreeExt, entity, id::IdManager};
+
+    #[test]
+    fn create() {
+        let mut entity_manager = IdManager::<Entity>::new();
+        entity_manager.create();
+        let mut tree = Tree::new();
+        let root = Entity::root();
+        assert_eq!(root.index(), 0);
+        assert_eq!(root.is_window(), true);
+        let one = entity_manager.create();
+        tree.add(one, root);
+        let two = entity_manager.create();
+        tree.add(two, one);
+        let three = entity_manager.create();
+        tree.add(three, one);
+        let four = entity_manager.create();
+        tree.add(four, two);
+        let five = entity_manager.create();
+        tree.add(five, two);
+        let six = entity_manager.create();
+        tree.add(six, three);
+
+        println!("Tree: {:?}", tree);
+
+        // println!("Prime: {}", prime);
+        let mut iter = one.tree_iter(&tree);
+        let a = iter.next();
+        println!("A: {:?}", a);
+        println!("B: {:?}", iter.next());
+        println!("C: {:?}", iter.next());
+        println!("D: {:?}", iter.next());
+        println!("E: {:?}", iter.next());
+        println!("F: {:?}", iter.next());
+        println!("G: {:?}", iter.next());
+
+        for entity in one.tree_iter(&tree) {
+            println!("E: {:?}", entity);
+        }
+
+
+    }
+}

@@ -5,7 +5,9 @@ use std::hash::Hash;
 
 use crate::GenerationalId;
 
-const ENTITY_INDEX_BITS: u32 = 24;
+const ENTITY_WINDOW_MASK: u32 = 1;
+
+const ENTITY_INDEX_BITS: u32 = 23;
 const ENTITY_INDEX_MASK: u32  = (1<<ENTITY_INDEX_BITS)-1;
 
 const ENTITY_GENERATION_BITS: u32 = 8;
@@ -46,7 +48,7 @@ impl Entity {
     ///
     /// A null entity can be used as a placeholder within a widget struct but cannot be used to get/set properties
     pub fn null() -> Entity {
-        Entity(std::u32::MAX)
+        Entity(std::u32::MAX/2)
     }
 
     /// Creates a root entity
@@ -55,7 +57,17 @@ impl Entity {
     /// The root entity can be used to set properties on the primary window, such as background color, 
     /// as well as sending events to the window such as Restyle and Redraw events.
     pub fn root() -> Entity {
-        Entity(0)
+        Entity(1 << 31)
+    }
+
+    /// Returns true if the entity is a window.
+    pub fn is_window(&self) -> bool {
+        ((self.0 >> 31) & ENTITY_WINDOW_MASK) == 1
+    }
+
+    /// Sets the window flag of the entity to true.
+    pub fn set_window(self) -> Self {
+        Entity(self.0 | (1 << 31))
     }
 
     /// Creates a new entity with a given index and generation

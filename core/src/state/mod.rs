@@ -172,6 +172,7 @@ impl State {
     where
         T: EventHandler + 'static,
     {
+        println!("1: build: {}", entity);
         self.event_handlers.insert(entity, Box::new(event_handler));
 
         Builder::new(self, entity)
@@ -368,24 +369,42 @@ impl State {
         entity
     }
 
-    //  TODO
-    pub fn remove(&mut self, entity: Entity) {
-        println!("Request Remove: {}", entity);
-        // Collect all entities below the removed entity on the same branch of the tree
-        let delete_list = entity.branch_iter(&self.tree).collect::<Vec<_>>();
-
-        for entity in delete_list.iter().rev() {
-            println!("Removing: {}", entity);
-            self.tree.remove(*entity).expect("");
-            self.data.remove(*entity);
-            self.style.remove(*entity);
-            self.removed_entities.push(*entity);
-            self.entity_manager.destroy(*entity);
-        }
+    pub fn add_window(&mut self, parent: Entity) -> Entity {
+        let entity = self
+            .entity_manager
+            .create().set_window();
+        self.tree.add(entity, parent).expect("");
+        self.data.add(entity).expect("Failed to add entity to data cache");
+        self.style.add(entity);
 
         Entity::root().restyle(self);
         Entity::root().relayout(self);
         Entity::root().redraw(self);
+
+        entity
+    }
+
+    //  TODO
+    pub fn remove(&mut self, entity: Entity) {
+        if self.entity_manager.is_alive(entity) {
+            println!("Request Remove: {}", entity);
+            // Collect all entities below the removed entity on the same branch of the tree
+            let delete_list = entity.window_iter(&self.tree).collect::<Vec<_>>();
+    
+            for entity in delete_list.iter().rev() {
+                println!("Removing: {:?}", entity);
+                self.tree.remove(*entity).expect("");
+                self.data.remove(*entity);
+                self.style.remove(*entity);
+                self.event_handlers.remove(entity);
+                self.removed_entities.push(*entity);
+                self.entity_manager.destroy(*entity);
+            }
+    
+            Entity::root().restyle(self);
+            Entity::root().relayout(self);
+            Entity::root().redraw(self);
+        }
     }
 
     pub fn create_animation(&mut self, duration: std::time::Duration) -> AnimationBuilder {

@@ -1,11 +1,13 @@
 #![allow(deprecated)]
 
-use glutin::event_loop::{ControlFlow, EventLoop};
+use std::collections::HashMap;
+
+use glutin::event_loop::{self, ControlFlow, EventLoop};
 use glutin::window::WindowId;
 
 use crate::keyboard::{scan_to_code, vcode_to_code, vk_to_key};
 
-use crate::window::Window;
+use crate::window::{self, CurrentContextWrapper, Window};
 
 use tuix_core::{BoundingBox, Units};
 use tuix_core::{Entity, State, PropSet};
@@ -36,12 +38,12 @@ pub enum AppEvent {
 }
 
 pub struct Application {
-    pub window: Window,
+    //pub window: Window,
     pub state: State,
     event_loop: EventLoop<()>,
     pub event_manager: EventManager,
-
-    // /pub root_window: (WindowId, Entity), 
+    pub windows: HashMap<WindowId, Entity>,
+    pub root_window: WindowId,
 }
 
 impl Application {
@@ -54,7 +56,6 @@ impl Application {
         state.reload_styles().expect("Failed to reload styles");
 
         let mut event_manager = EventManager::new();
-
         let root = Entity::root();
         //state.tree.add(Entity::root(), None);
 
@@ -72,13 +73,20 @@ impl Application {
         state.add_font_mem("emoji", emoji_font);
         state.add_font_mem("arabic", arabic_font);
 
-        let mut window = Window::new(&event_loop, &window_description);
+        let mut window = Window::new(window_description.clone());
+
+        let window_id = window.create(&event_loop);
         
-        event_manager.load_resources(&mut state, &mut window.canvas);
+        event_manager.load_resources(&mut state, window.canvas.as_mut().unwrap());
+
+        println!("2 Root Win: {}", root);
+        state.event_handlers.insert(root, Box::new(window));
         
         app(&mut state, root);
 
+        let mut windows = HashMap::new();
 
+        windows.insert(window_id, root);
 
 
         state.style.width.insert(
@@ -109,13 +117,15 @@ impl Application {
 
         state.data.set_clip_region(Entity::root(), bounding_box);
 
-        WindowWidget::new().build_window(&mut state);
+        //WindowWidget::new().build_window(&mut state);
 
         Application {
-            window: window,
+            //window: window,
             event_loop: event_loop,
             event_manager: event_manager,
             state: state,
+            windows,
+            root_window: window_id,
         }
     }
 
@@ -129,7 +139,7 @@ impl Application {
 
         //println!("Event Manager: {:?}", event_manager.tree);
 
-        let mut window = self.window;
+        //let mut window = self.window;
         let mut should_quit = false;
 
         //let tree = state.tree.clone();
@@ -146,21 +156,89 @@ impl Application {
         let mut double_click = false;
         let mut click_pos = (0.0, 0.0);
 
-        self.event_loop.run(move |event, _, control_flow| {
+        let mut windows = self.windows;
+
+        let event_loop = self.event_loop;
+        let root_window = self.root_window;
+
+        event_loop.run(move |event, event_loop_window_target, control_flow| {
             *control_flow = ControlFlow::Wait;
 
             match event {
                 GEvent::LoopDestroyed => return,
 
                 GEvent::UserEvent(_) => {
-                    window.handle.window().request_redraw();
+                    //window.handle.window().request_redraw();
+                    // for (_, window_entity) in windows.iter() {
+                    //     if let Some(mut event_handler) = state.event_handlers.remove(window_entity) {
+                    //         if let Some(window) = event_handler.downcast::<Window>() {
+                    //             window.handle.as_ref().unwrap().window().request_redraw();
+                    //         }
+
+                    //         state.event_handlers.insert(*window_entity, event_handler);
+                    //     }                            
+                    // }
                 }
 
                 GEvent::MainEventsCleared => {
-                    
+                    //println!("MAIN EVENTS CLEARED");
                     //let start = std::time::Instant::now();
+
                     
                     while !state.event_queue.is_empty() {
+                        // Create any new windows
+                        'events: for event in state.event_queue.iter_mut() {
+                            // Respond to AppEvent::CreateWindow here
+                            if let Some(app_event) = event.message.downcast() {
+                                match app_event {
+                                    AppEvent::CreateWindow(entity) => {
+                                        //println!("Create Window: {}", entity);
+
+                                        //Make all the other windows not current
+                                        for (_, other) in windows.iter() {
+                                            if *other != *entity {
+                                                if let Some(mut window_component) = state.event_handlers.remove(other) {
+                                                    if let Some(window_widget) = window_component.downcast::<Window>() {
+                                                        if let Some(current_context_wrapper) = window_widget.handle.take() {
+                                                            let new_windowed_context = match current_context_wrapper {
+                                                                CurrentContextWrapper::PossiblyCurrent(windowed_context) => {
+                                                                    CurrentContextWrapper::NotCurrent(unsafe { windowed_context.make_not_current().unwrap()})
+                                                                }
+                
+                                                                t => t,
+                                                            };
+                                                            window_widget.handle = Some(new_windowed_context);
+                                                        }
+                                                    }
+                                                  
+                                                    state.event_handlers.insert(*other, window_component);
+                                                }
+                                            }
+                                        } 
+                
+                
+                                        if let Some(mut window_component) = state.event_handlers.remove(&entity) {
+                                            //println!("Found it");
+                                            if let Some(window_widget) = window_component.downcast::<Window>() {
+                                                let window_id = window_widget.create(event_loop_window_target);
+                                                windows.insert(window_id, (*entity).set_window());
+                                            }
+                                            
+                                            //println!("Put it back");
+                                            state.event_handlers.insert(*entity, window_component);
+                                        }
+
+                                        //println!("{:?}", windows);
+
+                                        
+                
+                                        continue 'events;
+                                    }
+
+                                    _=> {}
+                                }
+                            }
+                        }
                         event_manager.flush_events(&mut state);
                     }
                     
@@ -173,7 +251,16 @@ impl Application {
                         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
 
                         event_loop_proxy.send_event(()).unwrap();
-                        window.handle.window().request_redraw();
+                        //window.handle.window().request_redraw();
+                        // for (_, window_entity) in windows.iter() {
+                        //     if let Some(mut event_handler) = state.event_handlers.remove(window_entity) {
+                        //         if let Some(window) = event_handler.downcast::<Window>() {
+                        //             window.handle.as_ref().unwrap().window().request_redraw();
+                        //         }
+
+                        //         state.event_handlers.insert(*window_entity, event_handler);
+                        //     }                            
+                        // }
                     } else {
                         *control_flow = ControlFlow::Wait;
                     }
@@ -183,29 +270,94 @@ impl Application {
                     if state.needs_redraw {
                         // TODO - Move this to EventManager
                         apply_clipping(&mut state, &tree);
-                        window.handle.window().request_redraw();
+                        //window.handle.window().request_redraw();
+                        for (_, window_entity) in windows.iter() {
+                            println!("WE: {:?}", window_entity);
+                            set_not_current(&windows, &mut state);
+                            if let Some(mut event_handler) = state.event_handlers.remove(window_entity) {
+                                if let Some(window) = event_handler.downcast::<Window>() {
+                                    if let Some(current_context_wrapper) = window.handle.take() {
+                                        match current_context_wrapper {
+                                            CurrentContextWrapper::NotCurrent(windowed_context) => {
+                                                let new_context = unsafe { windowed_context.make_current().unwrap()};
+        
+                                                // Draw the sub-tree which belongs to the window
+                                                //event_manager.draw(&mut state, *window_entity, window.canvas.as_mut().unwrap());
+        
+                                                //new_context.swap_buffers().unwrap();
+                                                new_context.window().request_redraw();
+                                                window.handle = Some(CurrentContextWrapper::PossiblyCurrent(new_context));
+                                            }
+        
+                                            _=> {}
+                                        }
+                                    }
+
+                                    //window.handle.as_ref().unwrap().window().request_redraw();
+                                }
+
+                                state.event_handlers.insert(*window_entity, event_handler);
+                            }                            
+                        }
+
+                        // for (id, _) in state.event_handlers.iter() {
+                        //     println!("{:?}", id);
+                        // }
+
                         state.needs_redraw = false;
                     }
 
-                    
+                    // println!("Event Handlers");
+                    // for (id, _) in state.event_handlers.iter() {
+                    //     println!("{:?}", id);
+                    // }
+                    //println!("Get Here");
                 }
 
                 // REDRAW
 
-                GEvent::RedrawRequested(_) => {
-                    //let start = std::time::Instant::now();
-                    event_manager.draw(&mut state, &mut window.canvas);
-                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
-                    // Swap buffers
-                    window
-                        .handle
-                        .swap_buffers()
-                        .expect("Failed to swap buffers");
+                GEvent::RedrawRequested(window_id) => {
+                    println!("REDRAW REQUESTED: {:?}", window_id);
+                    if let Some(window_entity) = windows.get(&window_id) {
+                        //println!("window entity: {:?}", window_entity);
+                        set_not_current(&windows, &mut state);
+                        if let Some(mut window_event_handler) = state.event_handlers.remove(&window_entity) {
+                            if let Some(window) = window_event_handler.downcast::<Window>() {
+                                if let Some(current_context_wrapper) = window.handle.take() {
+                                    match current_context_wrapper {
+                                        CurrentContextWrapper::NotCurrent(windowed_context) => {
+                                            let new_context = unsafe { windowed_context.make_current().unwrap()};
+    
+                                            // Draw the sub-tree which belongs to the window
+                                            event_manager.draw(&mut state, *window_entity, window.canvas.as_mut().unwrap());
+    
+                                            new_context.swap_buffers().unwrap();
+    
+                                            window.handle = Some(CurrentContextWrapper::PossiblyCurrent(new_context));
+                                        }
+    
+                                        _=> {}
+                                    }
+                                }
+                            }
+
+                            state.event_handlers.insert(*window_entity, window_event_handler);
+                        }
+                    }
+                    // //let start = std::time::Instant::now();
+                    // event_manager.draw(&mut state, &mut window.canvas);
+                    // //println!("{:.2?} seconds for whatever you did.", start.elapsed());
+                    // // Swap buffers
+                    // window
+                    //     .handle
+                    //     .swap_buffers()
+                    //     .expect("Failed to swap buffers");
+                    //println!("Then here");
                 }
 
                 GEvent::WindowEvent {
                     event,
-                    window_id: _,
+                    window_id,
                 } => {
 
                     match event {
@@ -213,8 +365,18 @@ impl Application {
                         // Close Window //
                         //////////////////
                         glutin::event::WindowEvent::CloseRequested => {
-                            state.insert_event(Event::new(WindowEvent::WindowClose));
-                            should_quit = true;
+
+                            if let Some(entity) = windows.get(&window_id) {
+                                state.remove(*entity);
+                                // Remove from tree and state
+                                //state.components.remove(entity);
+                            }
+
+                            windows.remove(&window_id);
+
+                            if windows.is_empty() || root_window == window_id {
+                                *control_flow = ControlFlow::Exit;
+                            }
                         }
 
                         //TODO
@@ -291,9 +453,12 @@ impl Application {
                                     //println!("Focused Widget: {}", state.focused);
                                     
                                     println!("Tree");
-                                    // for entity in state.tree.into_iter() {
-                                    //     println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?} clip: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity), state.data.get_clip_region(entity));
-                                    // }
+                                    for entity in state.tree.clone().into_iter() {
+                                        println!("Entity: {} Parent: {:?} posx: {} posy: {} width: {} height: {}", entity, entity.get_parent(&mut state), state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity));
+                                    }
+                                    for eh in state.event_handlers.iter() {
+                                        println!("EH: {:?}", eh.0);
+                                    }
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::Tab
@@ -421,7 +586,7 @@ impl Application {
 
                         // Window Resize Event
                         glutin::event::WindowEvent::Resized(physical_size) => {
-                            window.handle.resize(physical_size);
+                            //window.handle.resize(physical_size);
 
                             state
                                 .style
@@ -468,7 +633,11 @@ impl Application {
                             state.mouse.cursorx = cursorx as f32;
                             state.mouse.cursory = cursory as f32;
 
-                            apply_hover(&mut state);
+                            //println!("Cursor Moved: {:?} {} {}", window_id, cursorx, cursory);
+
+                            if let Some(window_entity) = windows.get(&window_id) {
+                                apply_hover(&mut state, *window_entity);
+                            }
 
                             if state.captured != Entity::null() {
                                 state.insert_event(
@@ -684,3 +853,53 @@ impl Application {
         });
     }
 }
+
+
+fn set_not_current(windows: &HashMap<WindowId, Entity>, state: &mut State) {
+    for (_, other) in windows.iter() {
+        if let Some(mut window_component) = state.event_handlers.remove(other) {
+            if let Some(window_widget) = window_component.downcast::<Window>() {
+                if let Some(current_context_wrapper) = window_widget.handle.take() {
+                    let new_windowed_context = match current_context_wrapper {
+                        CurrentContextWrapper::PossiblyCurrent(windowed_context) => {
+                            CurrentContextWrapper::NotCurrent(unsafe { windowed_context.make_not_current().unwrap()})
+                        }
+
+                        t => t,
+                    };
+                    window_widget.handle = Some(new_windowed_context);
+                }
+            }
+
+            state.event_handlers.insert(*other, window_component);
+        }
+    } 
+}
+
+fn make_current(windows: &HashMap<WindowId, Entity>, state: &mut State, window_id: WindowId) {
+    if let Some(window_entity) = windows.get(&window_id) {
+        set_not_current(windows, state);
+        
+        if let Some(mut window_component) = state.event_handlers.remove(window_entity) {
+            if let Some(window_widget) = window_component.downcast::<Window>() {
+                if let Some(current_context_wrapper) = window_widget.handle.take() {
+                    let new_windowed_context = match current_context_wrapper {
+    
+                        CurrentContextWrapper::NotCurrent(windowed_context) => {
+                            let windowed_context = unsafe {windowed_context.make_current().unwrap()};
+                            CurrentContextWrapper::PossiblyCurrent(windowed_context)
+                        }
+    
+                        t => t,
+                    };
+                    window_widget.handle = Some(new_windowed_context);
+                }
+            }
+    
+            state.event_handlers.insert(*window_entity, window_component);
+        }
+    }
+
+}
+
+

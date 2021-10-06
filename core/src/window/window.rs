@@ -23,7 +23,7 @@ impl Widget for WindowWidget {
         entity
     }
 
-    fn on_event(&mut self, state: &mut State, _entity: Entity, event: &mut Event) {
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {
@@ -65,7 +65,7 @@ impl Widget for WindowWidget {
                     //let start = std::time::Instant::now();
                     geometry_changed(state, &tree);
                     //println!("{:.2?} seconds for whatever you did.", start.elapsed());
-                    apply_hover(state);
+                    //apply_hover(state, entity);
                 }
 
                 WindowEvent::Redraw => {

@@ -1,8 +1,8 @@
-use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, State, Units, Visibility, WindowEvent};
+use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, State, TreeExt, Units, Visibility, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
-pub fn apply_hover(state: &mut State) {
-    let mut draw_tree: Vec<Entity> = state.tree.into_iter().collect();
+pub fn apply_hover(state: &mut State, window: Entity) {
+    let mut draw_tree: Vec<Entity> = window.window_iter(&state.tree).collect();
 
     // This should be cached somewhere probably
     draw_tree.sort_by_cached_key(|entity| state.data.get_z_index(*entity));
@@ -10,9 +10,9 @@ pub fn apply_hover(state: &mut State) {
     let cursorx = state.mouse.cursorx;
     let cursory = state.mouse.cursory;
 
-    let mut hovered_widget = Entity::root();
+    let mut hovered_widget = window;
 
-    for entity in draw_tree.into_iter() {
+    for entity in window.window_iter(&state.tree.clone()) {
         // Skip invisible widgets
         if state.data.get_visibility(entity) == Visibility::Invisible {
             continue;

@@ -1,19 +1,47 @@
-use glutin::dpi::*;
-use glutin::event_loop::EventLoop;
-use glutin::window::WindowBuilder;
+use glutin::{ContextWrapper, NotCurrent, PossiblyCurrent, dpi::*};
+use glutin::event_loop::{EventLoop, EventLoopWindowTarget};
+use glutin::window::{WindowBuilder, WindowId};
 use glutin::ContextBuilder;
 
 use femtovg::{renderer::OpenGl, Canvas, Color};
 
-use tuix_core::WindowDescription;
+use tuix_core::{Builder, Entity, Event, GenerationalId, PositionType, PropSet, State, TreeExt, Units, Widget, WindowDescription, WindowEvent, WindowWidget};
+
+use crate::application::AppEvent;
+
+pub enum CurrentContextWrapper {
+    PossiblyCurrent(ContextWrapper<PossiblyCurrent, glutin::window::Window>),
+    NotCurrent(ContextWrapper<NotCurrent, glutin::window::Window>),
+}
+
+impl CurrentContextWrapper {
+    pub fn window(&self) -> &glutin::window::Window {
+        match self {
+            CurrentContextWrapper::PossiblyCurrent(context) => context.window(),
+            CurrentContextWrapper::NotCurrent(context) => context.window(),
+        }
+    }
+}
 
 pub struct Window {
-    pub handle: glutin::WindowedContext<glutin::PossiblyCurrent>,
-    pub canvas: Canvas<OpenGl>,
+    window_description: WindowDescription,
+    pub handle: Option<CurrentContextWrapper>,
+    pub canvas: Option<Canvas<OpenGl>>,
+    window_widget: WindowWidget,
 }
 
 impl Window {
-    pub fn new(events_loop: &EventLoop<()>, window_description: &WindowDescription) -> Self {
+
+    pub fn new(window_description: WindowDescription) -> Self {
+        Self {
+            window_description,
+            handle: None,
+            canvas: None,
+            window_widget: WindowWidget::new(),
+        }
+    }
+
+    pub fn create(&mut self, event_loop: &EventLoopWindowTarget<()>) -> WindowId {
         //Windows COM doesn't play nicely with winit's drag and drop right now
         #[cfg(target_os = "windows")]
         let mut window_builder = {
@@ -24,21 +52,21 @@ impl Window {
         let mut window_builder = WindowBuilder::new();
 
         window_builder = window_builder
-            .with_title(&window_description.title)
+            .with_title(self.window_description.title.clone())
             .with_inner_size(PhysicalSize::new(
-                window_description.inner_size.width,
-                window_description.inner_size.height,
+                self.window_description.inner_size.width,
+                self.window_description.inner_size.height,
             ))
             .with_min_inner_size(PhysicalSize::new(
-                window_description.min_inner_size.width,
-                window_description.min_inner_size.height,
+                self.window_description.min_inner_size.width,
+                self.window_description.min_inner_size.height,
             ))
-            .with_window_icon(if let Some(icon) = &window_description.icon {
+            .with_window_icon(if let Some(icon) = self.window_description.icon.clone() {
                 Some(
                     glutin::window::Icon::from_rgba(
                         icon.clone(),
-                        window_description.icon_width,
-                        window_description.icon_height,
+                        self.window_description.icon_width,
+                        self.window_description.icon_height,
                     )
                     .unwrap(),
                 )
@@ -49,7 +77,7 @@ impl Window {
         let handle = ContextBuilder::new()
             .with_vsync(true)
             // .with_srgb(true)
-            .build_windowed(window_builder, &events_loop)
+            .build_windowed(window_builder, &event_loop)
             .expect("Window context creation failed!");
 
         let handle = unsafe { handle.make_current().unwrap() };
@@ -73,6 +101,61 @@ impl Window {
         // let height = size.height as f32;
         // let width = size.width as f32;
 
-        Window { handle, canvas }
+        let window_id = handle.window().id();
+
+        self.handle = Some(CurrentContextWrapper::PossiblyCurrent(handle));
+        self.canvas = Some(canvas);
+
+        window_id
+    }
+}
+
+impl Widget for Window {
+    type Ret = Entity;
+    type Data = ();
+
+    fn build<F>(mut self, state: &mut State, parent: impl tuix_core::AsEntity, mut builder: F) -> Self::Ret
+    where
+            F: FnMut(Builder<Self>) -> Builder<Self>,
+            Self: std::marker::Sized + 'static, 
+    {
+        // Create a new entity
+        let entity = state.add_window(parent.entity());
+
+        state.insert_event(Event::new(WindowEvent::ChildAdded(entity)).direct(parent.entity()));
+
+        // Call the on_build function of the widget
+        let ret = self.on_build(state, entity);
+
+        // Call the builder closure
+        builder(Builder::new(state, entity)).build(self);
+
+        // Return the entity or entities returned by the on_build method
+        ret
+    }
+
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+
+        entity.emit(state, AppEvent::CreateWindow(entity));
+
+
+        let window_size = self.window_description.inner_size;
+        // entity
+        //     .set_width(state, Units::Pixels(window_size.to_physical::<u32>(1.0).width as f32))
+        //     .set_height(state, Units::Pixels(window_size.to_physical::<u32>(1.0).height as f32));
+
+        entity
+            .set_position_type(state, PositionType::SelfDirected)
+            .set_left(state, Units::Pixels(0.0))
+            .set_top(state, Units::Pixels(0.0))
+            .set_width(state, Units::Pixels(window_size.width as f32))
+            .set_height(state, Units::Pixels(window_size.height as f32));
+        
+        
+        self.window_widget.on_build(state, entity)
+    }
+
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut tuix_core::Event) {
+        self.window_widget.on_event(state, entity, event);
     }
 }

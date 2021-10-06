@@ -19,5 +19,8 @@ pub use branch_iter::BranchIterator;
 mod tree_iter;
 pub use tree_iter::TreeIterator;
 
+mod window_iter;
+pub use window_iter::*;
+
 mod tree_ext;
 pub use tree_ext::*;

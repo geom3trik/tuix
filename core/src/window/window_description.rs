@@ -1,4 +1,6 @@
 
+
+#[derive(Clone, Copy)]
 pub struct WindowSize {
     pub width: u32,
     pub height: u32,
@@ -10,6 +12,8 @@ impl WindowSize {
     }
 }
 
+
+#[derive(Clone, Copy)]
 pub struct Position {
     pub x: u32,
     pub y: u32,
@@ -22,6 +26,7 @@ impl Position {
 }
 
 /// Passed to the window to set various window properties
+#[derive(Clone)]
 pub struct WindowDescription {
     pub title: String,
     pub inner_size: WindowSize,
