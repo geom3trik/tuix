@@ -140,7 +140,7 @@ impl From<Color> for femtovg::Color {
 /// Compare two colors (Do not take care of alpha)
 impl PartialEq for Color {
     fn eq(&self, other: &Color) -> bool {
-        self.r() == other.r() && self.g() == other.g() && self.b() == other.b()
+        self.r() == other.r() && self.g() == other.g() && self.b() == other.b() && self.a() == other.a()
     }
 }
 

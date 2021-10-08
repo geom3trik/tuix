@@ -188,3 +188,13 @@ button.close {
 button.close:hover {
     font-size: 22;
 }
+
+spinbox textbox {
+    child-space: 1s;
+    child-left: 5px;
+}
+
+spinbox>.arrow_container {
+    border-width: 1px;
+    border-color: #494949;
+}

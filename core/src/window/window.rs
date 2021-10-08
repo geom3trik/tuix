@@ -43,12 +43,15 @@ impl Widget for WindowWidget {
                     //apply_styles2(state, &state.tree.clone(), event.origin);
                     // apply_styles(state, &state.tree.clone());
                     // apply_visibility(state, &state.tree.clone());
+                    // let start = std::time::Instant::now();
                     let tree = state.tree.clone();
                     apply_styles(state, &tree);
+                    // println!("{:.2?} seconds to restyle. {}", start.elapsed(), event.origin);
                 }
 
                 WindowEvent::Relayout => {
                     //state.needs_relayout = true;
+                    //let start = std::time::Instant::now();
                     let tree = state.tree.clone();
                     state.needs_redraw = true;
                     //println!("Relayout");
@@ -64,10 +67,11 @@ impl Widget for WindowWidget {
                     //apply_layout2(state, &tree);
                     morphorm::layout(&mut state.data, &state.tree, &mut state.style);
                     apply_transform(state, &tree);
-                    //let start = std::time::Instant::now();
+                    
                     geometry_changed(state, &tree);
-                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
+                    
                     apply_hover(state);
+                    //println!("{:.2?} seconds to relayout. {}", start.elapsed(), event.origin);
                 }
 
                 WindowEvent::Redraw => {

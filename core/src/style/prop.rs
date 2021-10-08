@@ -224,8 +224,6 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().relayout(state);
         Entity::root().redraw(state);
 
-        ////flag_geo_change(state, self.entity());
-
         self.entity()
     }
 
@@ -237,8 +235,6 @@ pub trait PropSet: AsEntity + Sized {
         Entity::root().restyle(state);
         Entity::root().relayout(state);
         Entity::root().redraw(state);
-
-        ////flag_geo_change(state, self.entity());
 
         self.entity()
     }
@@ -524,7 +520,6 @@ pub trait PropSet: AsEntity + Sized {
     /// entity.set_left(state, Stratch(1.0)).set_right(state, Stretch(1.0))
     /// ```
     fn set_left(self, state: &mut State, value: Units) -> Entity {
-        //println!("Set Left {} {} {:?}", self.entity(), state.style.elements.get(self.entity()).cloned().unwrap_or_default(), value);
         state.style.left.insert(self.entity(), value);
 
         Entity::root().relayout(state);
@@ -693,7 +688,6 @@ pub trait PropSet: AsEntity + Sized {
     ///
     ///
     fn set_height(self, state: &mut State, value: Units) -> Entity {
-        //println!("Set Height: {} {:?}", self.entity(), value);
         state.style.height.insert(self.entity(), value);
 
         Entity::root().relayout(state);

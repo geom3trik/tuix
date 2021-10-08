@@ -946,8 +946,6 @@ impl Widget for AlphaSlider {
     fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut Canvas) {
         
         let grid_size: usize = 16;
-
-        let bounds = state.data.get_bounds(self.track);
         
         if self.image.is_none() {
             let image_id = canvas
@@ -1014,6 +1012,7 @@ impl Widget for AlphaSlider {
                 &mut path,
                 femtovg::Paint::image(image_id, bounds.x, bounds.y, bounds.w, bounds.h, 0f32, 1f32),
             );
+
             canvas.restore();
         }
     }

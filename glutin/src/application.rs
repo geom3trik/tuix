@@ -172,7 +172,7 @@ impl Application {
                         event_manager.flush_events(&mut state);
                     }
                     
-                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
+                    //println!("{:.2?} seconds to run loop.", start.elapsed());
 
                     if state.apply_animations() {
 
@@ -203,7 +203,7 @@ impl Application {
                 GEvent::RedrawRequested(_) => {
                     //let start = std::time::Instant::now();
                     event_manager.draw(&mut state, &mut window.canvas);
-                    //println!("{:.2?} seconds for whatever you did.", start.elapsed());
+                    //println!("{:.2?} seconds to draw everything.", start.elapsed());
                     // Swap buffers
                     window
                         .handle

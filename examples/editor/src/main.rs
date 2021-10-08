@@ -1,3 +1,5 @@
+use femtovg::renderer::OpenGl;
+use femtovg::{ImageFlags, ImageId, PixelFormat, RenderTarget};
 use tuix::*;
 use tuix::widgets::*;
 
@@ -79,6 +81,7 @@ pub enum AppEvent {
     SetColor(Color),
     // Text
     SetText(String),
+    SetFontSize(i32),
     // Outer Shadow
     SetOuterShadowHOffset(Units),
     SetOuterShadowVOffset(Units),
@@ -129,6 +132,7 @@ pub struct StyleData {
 
     pub text: String,
     pub font_color: Color,
+    pub font_size: f32,
 
     // Outser Shadow
     pub outer_shadow_color: Color,
@@ -377,6 +381,11 @@ impl Model for AppData {
                     entity.emit(state, BindEvent::Update);
                 }
 
+                AppEvent::SetFontSize(val) => {
+                    self.style_data.font_size = *val as f32;
+                    entity.emit(state, BindEvent::Update);
+                }
+
                 // Outer Shadow
                 AppEvent::SetOuterShadowHOffset(val) => {
                     self.style_data.outer_shadow_h_offset = *val;
@@ -560,6 +569,7 @@ impl Widget for Canvas {
             // Text
             .set_text(state, &data.text)
             .set_color(state, data.font_color)
+            .set_font_size(state, data.font_size)
             // Outer Shadow
             .set_outer_shadow_color(state, data.outer_shadow_color)
             .set_outer_shadow_h_offset(state, data.outer_shadow_h_offset)
@@ -956,6 +966,15 @@ impl Widget for StyleControls {
                 .set_child_right(Stretch(1.0))
         );
 
+        Spinbox::new(14)
+            .on_change(|data, state, spinbox|{
+                spinbox.emit(state, AppEvent::SetFontSize(data.value));
+            })
+            .build(state, text_panel, |builder| 
+                builder
+                    .set_height(Pixels(30.0))
+        );
+
         Element::new().build(state, scroll, |builder| builder.class("spacer"));
 
 
@@ -1043,12 +1062,14 @@ fn border_shape_dropdown<L: Lens<Target = BorderCornerShape>>(state: &mut State,
 
 pub struct ColorButton {
     button: Button,
+    image: Option<ImageId>,
 }
 
 impl ColorButton {
     pub fn new() -> Self {
         Self {
             button: Button::new(),
+            image: None,
         }
     }
 
@@ -1075,6 +1096,85 @@ impl Widget for ColorButton {
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
         if *data != entity.get_background_color(state) {
             entity.set_background_color(state, *data);
+        }
+    }
+    
+    fn on_draw(&mut self, state: &mut State, entity: Entity, canvas: &mut femtovg::Canvas<OpenGl>) {
+        let grid_size: usize = 16;
+        
+        if self.image.is_none() {
+            let image_id = canvas
+            .create_image_empty(
+                16 * grid_size,
+                3 * grid_size,
+                PixelFormat::Rgb8,
+                ImageFlags::empty(),
+            )
+            .unwrap();
+
+            self.image = Some(image_id);
+        }
+
+        if let Some(image_id) = self.image {
+
+            canvas.save();
+            canvas.reset();
+            canvas.reset_scissor();
+            canvas.reset_transform();
+            if let Ok(size) = canvas.image_size(image_id) {
+                canvas.set_render_target(RenderTarget::Image(image_id));
+                
+    
+                canvas.clear_rect(0, 0, size.0 as u32, size.1 as u32, femtovg::Color::rgb(0, 0, 0));
+                
+                for x in 0..(size.0 / grid_size) {
+                    for y in 0..(size.1 / grid_size) {
+    
+                        canvas.clear_rect(
+                            (x * grid_size) as u32,
+                            (y * grid_size) as u32,
+                            (grid_size) as u32,
+                            (grid_size) as u32,
+                            
+                            match (x % 2, y % 2) {
+                                (0, 0) => femtovg::Color::rgb(125, 125, 125),
+                                (1, 0) => femtovg::Color::rgb(155, 155, 155),
+                                (0, 1) => femtovg::Color::rgb(155, 155, 155),
+                                (1, 1) => femtovg::Color::rgb(125, 125, 125),
+                                _ => femtovg::Color::rgb(255, 0, 255),
+                            },
+                        );
+                    }
+                }
+            }
+            canvas.restore();
+            canvas.set_render_target(RenderTarget::Screen);
+
+            //println!("Draw Picker: {} {:?}", entity, image_id);
+            canvas.save();
+            //canvas.reset();
+            //canvas.reset_scissor();
+            //canvas.reset_transform();
+            
+
+            let bounds = state.data.get_bounds(entity);
+
+            //println!("Bounds: {:?}", bounds);
+
+            let mut path = femtovg::Path::new();
+            path.rect(bounds.x, bounds.y, bounds.w, bounds.h);
+            canvas.fill_path(
+                &mut path,
+                femtovg::Paint::image(image_id, bounds.x, bounds.y, bounds.w, bounds.h, 0f32, 1f32),
+            );
+
+            let background_color: femtovg::Color = state.style.background_color.get(entity).cloned().unwrap_or_default().into();
+
+            canvas.fill_path(
+                &mut path,
+                femtovg::Paint::color(background_color),
+            );
+            canvas.restore();
         }
     }
 }

@@ -18,7 +18,11 @@ pub use mouse::*;
 mod resource;
 pub use resource::*;
 
+mod layer;
+pub use layer::*;
 
+
+use crate::storage::shared_set::SharedSet;
 use crate::{AnimationBuilder, Builder, Color, Event, EventHandler, PropSet, Propagation, Rule, Style};
 use crate::{WindowEvent, Tree, TreeExt};
 
@@ -26,7 +30,7 @@ use crate::IdManager;
 
 use femtovg::{TextContext};
 
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
 use fnv::FnvHashMap;
 
@@ -110,6 +114,8 @@ pub struct State {
 
     pub text_context: TextContext,
 
+    pub layers: HashMap<i32, Layer>,
+
     pub listeners: FnvHashMap<Entity, Box<dyn Fn(&mut dyn EventHandler, &mut State, Entity, &mut Event)>>,
 }
 
@@ -165,6 +171,8 @@ impl State {
             needs_redraw: false,
 
             text_context: TextContext::default(),
+
+            layers: HashMap::default(),
 
             listeners: FnvHashMap::default(),
         }
