@@ -24,6 +24,7 @@ where
 {
     app: F,
     window_description: WindowDescription,
+    on_idle: Option<Box<dyn Fn(&mut State) + Send>>,
 }
 
 impl<F> Application<F>
@@ -35,6 +36,7 @@ where
         Self {
             app,
             window_description,
+            on_idle: None,
         }
     }
 
@@ -45,7 +47,7 @@ where
     ///
     /// * `app` - The Tuix application builder.
     pub fn run(self) {
-        TuixWindow::open_blocking(self.window_description, self.app)
+        TuixWindow::open_blocking(self.window_description, self.app, self.on_idle)
     }
 
     /// Open a new child window.
@@ -56,7 +58,7 @@ where
     /// * `parent` - The parent window.
     /// * `app` - The Tuix application builder.
     pub fn open_parented<P: HasRawWindowHandle>(self, parent: &P) {
-        TuixWindow::open_parented(parent, self.window_description, self.app)
+        TuixWindow::open_parented(parent, self.window_description, self.app, self.on_idle)
     }
 
     /// Open a new window as if it had a parent window.
@@ -66,8 +68,33 @@ where
     ///
     /// * `app` - The Tuix application builder.
     pub fn open_as_if_parented(self) -> RawWindowHandle {
-        TuixWindow::open_as_if_parented(self.window_description, self.app)
+        TuixWindow::open_as_if_parented(self.window_description, self.app, self.on_idle)
     }
+
+
+    /// Takes a closure which will be called at the end of every loop of the application.
+    /// 
+    /// The callback provides a place to run 'idle' processing and happens at the end of each loop but before drawing.
+    /// If the callback pushes events into the queue in state then the event loop will re-run. Care must be taken not to
+    /// push events into the queue every time the callback runs unless this is intended.
+    ///
+    /// # Example
+    /// ```
+    /// Application::new(WindowDescription::new(), |state, window|{
+    ///     // Build application here
+    /// })
+    /// .on_idle(|state|{
+    ///     // Code here runs at the end of every event loop after OS and tuix events have been handled 
+    /// })
+    /// .run();
+    /// ```
+    pub fn on_idle<I: 'static + Fn(&mut State) + Send>(mut self, callback: I) -> Self {
+        self.on_idle = Some(Box::new(callback));
+
+        self
+    } 
+
+
 }
 
 pub(crate) struct ApplicationRunner {
@@ -582,6 +609,12 @@ impl ApplicationRunner {
                 }
                 _ => {}
             },
+        }
+    }
+
+    pub fn handle_idle(&mut self, on_idle: &Option<Box<dyn Fn(&mut State) + Send>>) {
+        if let Some(idle_callback) = on_idle {
+            (idle_callback)(&mut self.state);
         }
     }
 }

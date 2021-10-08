@@ -7,10 +7,11 @@ use tuix_core::{Entity, State, WindowDescription};
 pub(crate) struct TuixWindow {
     application: ApplicationRunner,
     context: raw_gl_context::GlContext,
+    on_idle: Option<Box<dyn Fn(&mut State) + Send>>,
 }
 
 impl TuixWindow {
-    fn new(state: State, win_desc: WindowDescription, window: &mut baseview::Window) -> TuixWindow {
+    fn new(state: State, win_desc: WindowDescription, window: &mut baseview::Window, on_idle: Option<Box<dyn Fn(&mut State) + Send>>) -> TuixWindow {
         let (renderer, context) = load_renderer(window);
 
         context.make_current();
@@ -20,6 +21,7 @@ impl TuixWindow {
         TuixWindow {
             application,
             context,
+            on_idle,
         }
     }
 
@@ -27,7 +29,7 @@ impl TuixWindow {
     ///
     /// * `parent` - The parent window.
     /// * `app` - The Tuix application builder.
-    pub fn open_parented<P, F>(parent: &P, win_desc: WindowDescription, mut app: F)
+    pub fn open_parented<P, F>(parent: &P, win_desc: WindowDescription, mut app: F, on_idle: Option<Box<dyn Fn(&mut State) + Send>>)
     where
         P: HasRawWindowHandle,
         F: FnOnce(&mut State, Entity),
@@ -53,7 +55,7 @@ impl TuixWindow {
 
                 (app)(&mut state, root);
 
-                TuixWindow::new(state, win_desc, window)
+                TuixWindow::new(state, win_desc, window, on_idle)
             },
         )
     }
@@ -61,7 +63,7 @@ impl TuixWindow {
     /// Open a new window as if it had a parent window.
     ///
     /// * `app` - The Tuix application builder.
-    pub fn open_as_if_parented<F>(win_desc: WindowDescription, mut app: F) -> RawWindowHandle
+    pub fn open_as_if_parented<F>(win_desc: WindowDescription, mut app: F, on_idle: Option<Box<dyn Fn(&mut State) + Send>>) -> RawWindowHandle
     where
         F: FnOnce(&mut State, Entity),
         F: 'static + Send,
@@ -85,7 +87,7 @@ impl TuixWindow {
 
                 (app)(&mut state, root);
 
-                TuixWindow::new(state, win_desc, window)
+                TuixWindow::new(state, win_desc, window, on_idle)
             },
         )
     }
@@ -93,7 +95,7 @@ impl TuixWindow {
     /// Open a new window that blocks the current thread until the window is destroyed.
     ///
     /// * `app` - The Tuix application builder.
-    pub fn open_blocking<F>(win_desc: WindowDescription, mut app: F)
+    pub fn open_blocking<F>(win_desc: WindowDescription, mut app: F, on_idle: Option<Box<dyn Fn(&mut State) + Send>>)
     where
         F: FnOnce(&mut State, Entity),
         F: 'static + Send,
@@ -118,7 +120,7 @@ impl TuixWindow {
                 let win_desc = WindowDescription::new();
                 (app)(&mut state, root);
 
-                TuixWindow::new(state, win_desc, window)
+                TuixWindow::new(state, win_desc, window, on_idle)
             },
         )
     }
@@ -140,6 +142,8 @@ impl WindowHandler for TuixWindow {
     fn on_event(&mut self, _window: &mut Window<'_>, event: Event) -> EventStatus {
         let mut should_quit = false;
         self.application.handle_event(event, &mut should_quit);
+
+        self.application.handle_idle(&self.on_idle);
 
         if should_quit {
             // TODO: Request close.

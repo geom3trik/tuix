@@ -43,6 +43,7 @@ pub struct Application {
     state: State,
     event_loop: EventLoop<()>,
     event_manager: EventManager,
+    on_idle: Option<Box<dyn Fn(&mut State)>>,
 }
 
 impl Application {
@@ -121,8 +122,31 @@ impl Application {
             event_loop: event_loop,
             event_manager: event_manager,
             state: state,
+            on_idle: None,
         }
     }
+
+    /// Takes a closure which will be called at the end of every loop of the application.
+    /// 
+    /// The callback provides a place to run 'idle' processing and happens at the end of each loop but before drawing.
+    /// If the callback pushes events into the queue in state then the event loop will re-run. Care must be taken not to
+    /// push events into the queue every time the callback runs unless this is intended.
+    /// 
+    /// # Example
+    /// ```
+    /// Application::new(WindowDescription::new(), |state, window|{
+    ///     // Build application here
+    /// })
+    /// .on_idle(|state|{
+    ///     // Code here runs at the end of every event loop after OS and tuix events have been handled 
+    /// })
+    /// .run();
+    /// ```
+    pub fn on_idle<F: 'static + Fn(&mut State)>(mut self, callback: F) -> Self {
+        self.on_idle = Some(Box::new(callback));
+
+        self
+    } 
 
     /// The `run` method starts the application event loop, passing events from the OS to
     /// the input system and then on to the widgets via the `on_event` method of the [Widget] trait.
@@ -153,6 +177,8 @@ impl Application {
         let double_click_interval = std::time::Duration::from_millis(500);
         let mut double_click = false;
         let mut click_pos = (0.0, 0.0);
+
+        let mut on_idle = self.on_idle;
 
         self.event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
@@ -195,6 +221,13 @@ impl Application {
                         state.needs_redraw = false;
                     }
 
+                    if let Some(idle_callback) = &on_idle {
+                        (idle_callback)(&mut state);
+
+                        if !state.event_queue.is_empty() {
+                            event_loop_proxy.send_event(()).unwrap();
+                        }
+                    }
                     
                 }
 
@@ -691,4 +724,6 @@ impl Application {
             }
         });
     }
+
+
 }
