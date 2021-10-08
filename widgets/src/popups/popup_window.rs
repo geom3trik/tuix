@@ -2,7 +2,7 @@ use tuix_core::{TreeExt};
 
 use crate::{Button, Label, PopupEvent, common::*};
 
-
+const ICON_CANCEL: &str = "\u{2715}";
 
 
 pub struct PopupWindow {
@@ -48,13 +48,16 @@ impl Widget for PopupWindow {
                 .class("label")
         );
 
-        Button::with_label("X")
+        Button::with_label(ICON_CANCEL)
         .on_release(|_, state, button|{
             button.emit(state, PopupEvent::Close);
         })
         .build(state, self.header, |builder|
             builder
                 .set_width(Pixels(30.0))
+                .set_child_space(Stretch(1.0))
+                .set_font("icons")
+                .class("close")
         );
 
         let container = Element::new().build(state, entity, |builder|

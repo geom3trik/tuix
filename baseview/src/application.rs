@@ -6,7 +6,6 @@ use femtovg::Canvas;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use tuix_core::TreeExt;
 use tuix_core::{MouseButton, MouseButtonState};
-use tuix_core::Fonts;
 use tuix_core::WindowWidget;
 use tuix_core::{
     Event, Propagation,

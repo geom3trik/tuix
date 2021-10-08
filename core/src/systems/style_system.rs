@@ -1,4 +1,4 @@
-use crate::{BoundingBox, Display, Entity, Overflow, PropGet, PropSet, Property, Relation, Rule, Selector, State, Tree, TreeExt, Visibility};
+use crate::{BoundingBox, Display, Entity, Overflow, PropGet, PropSet, Property, SelectorRelation, Rule, Selector, State, Tree, TreeExt, Visibility};
 
 
 pub fn apply_z_ordering(state: &mut State, tree: &Tree) {
@@ -194,13 +194,13 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
             'selector_loop: for rule_selector in rule.selectors.iter().rev() {
                 // Get the relation of the selector
                 match rule_selector.relation {
-                    Relation::None => {
+                    SelectorRelation::None => {
                         if !check_match(state, entity, rule_selector) {
                             continue 'rule_loop;
                         }
                     }
 
-                    Relation::Parent => {
+                    SelectorRelation::Parent => {
                         // Get the parent
                         // Contrust the selector for the parent
                         // Check if the parent selector matches the rule_seletor
@@ -215,7 +215,7 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
                         }
                     }
 
-                    Relation::Ancestor => {
+                    SelectorRelation::Ancestor => {
                         // Walk up the tree
                         // Check if each entity matches the selector
                         // If any of them match, move on to the next selector

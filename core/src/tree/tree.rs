@@ -37,7 +37,7 @@ impl Tree {
             first_child: vec![None],
             next_sibling: vec![None],
             prev_sibling: vec![None],
-            changed: false,
+            changed: true,
         }
     }
 

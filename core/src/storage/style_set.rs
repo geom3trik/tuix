@@ -5,11 +5,6 @@ use super::sparse_set::{DenseIndex, SparseSetGeneric};
 
 
 
-struct Entry<T> {
-    key: usize,
-    value: T,
-}
-
 const INDEX_MASK: u32 =  std::u32::MAX / 2;
 
 /// Represents an index that can either be used to retrieve inline or shared data
@@ -140,7 +135,7 @@ where
     /// background_color.insert(entity, Color::red())
     /// ```
     pub fn insert(&mut self, entity: Entity, value: T) {
-        self.inline_data.insert(entity, value);
+        self.inline_data.insert(entity, value).unwrap();
     }
 
     /// Remove an entity and any inline data
@@ -156,7 +151,7 @@ where
     }
 
     pub fn insert_rule(&mut self, rule: Rule, value: T) {
-        self.shared_data.insert(rule, value);
+        self.shared_data.insert(rule, value).unwrap();
     }
 
     pub fn remove_rule(&mut self, rule: Rule) -> Option<T> {

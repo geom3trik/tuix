@@ -87,6 +87,10 @@ name = "popup"
 path = "examples/widgets/popup.rs"
 
 [[example]]
+name = "popup2"
+path = "examples/widgets/popup2.rs"
+
+[[example]]
 name = "popup_textbox"
 path = "examples/widgets/popup_textbox.rs"
 
@@ -180,6 +184,10 @@ path = "examples/animation/basic_animation.rs"
 [[example]]
 name = "multiple"
 path = "examples/animation/multiple.rs"
+
+[[example]]
+name = "transition"
+path = "examples/animation/transition.rs"
 
 [workspace]
 members = [

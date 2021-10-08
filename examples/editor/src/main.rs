@@ -458,7 +458,7 @@ impl Widget for App {
 
         self.color_picker = PopupWindow::new("Color Picker").build(state, entity, |builder| 
             builder
-                .set_width(Pixels(400.0))
+                .set_width(Pixels(480.0))
                 .set_height(Pixels(300.0))
                 .set_space(Stretch(1.0))
                 .set_display(Display::None)
@@ -471,6 +471,8 @@ impl Widget for App {
             })
             .build(state, self.color_picker, |builder| 
                 builder
+                    .set_left(Pixels(10.0))
+                    .set_top(Pixels(10.0))
             );
 
         // Overlay::new()

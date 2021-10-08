@@ -19,7 +19,7 @@ impl GradientStop {
     }
 }
 
-// The direction of a linear gadient
+/// The direction of a linear gadient.
 #[derive(Debug, Clone, PartialEq)]
 pub enum GradientDirection {
     LeftToRight,

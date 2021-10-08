@@ -4,7 +4,7 @@ use super::Property;
 use super::*;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct StyleRule {
+pub(crate) struct StyleRule {
     pub(crate) id: Rule,
     pub(crate) selectors: Vec<Selector>,
     pub(crate) properties: Vec<Property>,
@@ -29,6 +29,18 @@ pub struct StyleRule {
 // }
 
 impl StyleRule {
+    pub(crate) fn specificity(&self) -> Specificity {
+        let mut specificity = Specificity([0, 0, 0]);
+        for selector in self.selectors.iter() {
+            specificity += selector.specificity();
+        }
+
+        return specificity;
+    }
+}
+
+/*
+impl StyleRule {
     pub fn new(id: Rule) -> Self {
         StyleRule {
             id,
@@ -44,7 +56,7 @@ impl StyleRule {
     }
 
     pub fn parent_selector(mut self, mut selector: Selector) -> Self {
-        selector.relation = Relation::Parent;
+        selector.relation = SelectorRelation::Parent;
         self.selectors.push(selector);
 
         self
@@ -343,3 +355,4 @@ impl StyleRule {
         self
     }
 }
+*/

@@ -19,12 +19,12 @@ mod resource;
 pub use resource::*;
 
 
-use crate::{Builder, Event, Propagation, EventHandler, Style, Animation, Color, StyleRule, AnimationBuilder, PropSet};
+use crate::{AnimationBuilder, Builder, Color, Event, EventHandler, PropSet, Propagation, Rule, Style};
 use crate::{WindowEvent, Tree, TreeExt};
 
 use crate::IdManager;
 
-use femtovg::{FontId, TextContext};
+use femtovg::{TextContext};
 
 use std::collections::VecDeque;
 
@@ -53,15 +53,17 @@ const STYLE: &str = r#"
     }
 "#;
 
-#[derive(Clone)]
-pub struct Fonts {
-    pub regular: Option<FontId>,
-    pub bold: Option<FontId>,
-    pub icons: Option<FontId>,
-    pub emoji: Option<FontId>,
-    pub arabic: Option<FontId>,
-}
+// #[derive(Clone)]
+// pub struct Fonts {
+//     pub regular: Option<FontId>,
+//     pub bold: Option<FontId>,
+//     pub icons: Option<FontId>,
+//     pub emoji: Option<FontId>,
+//     pub arabic: Option<FontId>,
+// }
 
+
+/// Stores the gloabal state of the UI application.
 pub struct State {
     /// Creates and destroys entities
     pub(crate) entity_manager: IdManager<Entity>,
@@ -86,7 +88,7 @@ pub struct State {
     pub focused: Entity,
 
 
-    pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
+    // pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
 
     // Map of widgets
     pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
@@ -126,7 +128,7 @@ impl State {
         data.add(root).expect("Failed to add root entity to data cache");
         style.add(root);
 
-        style.clip_widget.insert(root, root);
+        style.clip_widget.insert(root, root).expect("msg");
 
         style.background_color.insert(root, Color::rgb(255, 255, 255));
 
@@ -146,7 +148,7 @@ impl State {
             active: Entity::null(),
             captured: Entity::null(),
             focused: Entity::root(),
-            callbacks: FnvHashMap::default(),
+            //callbacks: FnvHashMap::default(),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             removed_entities: Vec::new(),
@@ -209,7 +211,7 @@ impl State {
         self.reload_styles().expect("Failed to reload styles");
     }
 
-    /// Adds a style rule to the application
+    /// Adds a style rule to the application (TODO)
     ///
     /// This function adds a style rule to the application allowing for multiple entites to share the same style properties based on the rule selector.
     ///
@@ -218,11 +220,8 @@ impl State {
     /// ```
     /// state.add_style_rule(StyleRule::new(Selector::element("button")).property(Property::FlexGrow(1.0)))
     /// ```
-    pub fn add_style_rule(&mut self, style_rule: StyleRule) {
-        self.style.add_rule(style_rule);
-        Entity::root().restyle(self);
-        Entity::root().relayout(self);
-        Entity::root().redraw(self);
+    pub fn add_style_rule(&mut self) -> Rule {
+        self.style.rule_manager.create()
     }
 
     //TODO

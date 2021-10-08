@@ -11,9 +11,9 @@ const ENTITY_INDEX_MASK: u32  = (1<<ENTITY_INDEX_BITS)-1;
 const ENTITY_GENERATION_BITS: u32 = 8;
 const ENTITY_GENERATION_MASK: u32 = (1<<ENTITY_GENERATION_BITS)-1;
 
-const ENTITY_MAX: u32 = std::u32::MAX>>8;
+// const ENTITY_MAX: u32 = std::u32::MAX>>8;
 
-const MINIMUM_FREE_INDICES: usize = 1024;
+// const MINIMUM_FREE_INDICES: usize = 1024;
 
 
 /// An entity is an id used to reference to get/set properties in State.

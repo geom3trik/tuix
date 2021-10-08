@@ -11,5 +11,5 @@ description = "Widgets for tuix"
 femtovg = "0.2.5"
 keyboard-types = { version = "0.5.0", default-features = false }
 num-traits = "0.2.14"
-# tuix_derive = { version = "0.2.0", path = "../tuix_derive" }
+tuix_derive = { version = "0.2.0", path = "../tuix_derive" }
 tuix_core = { version = "0.2.0", path = "../core"}

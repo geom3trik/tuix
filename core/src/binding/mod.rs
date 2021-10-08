@@ -113,114 +113,41 @@
 //! ```
 mod node;
 mod lens;
-use std::{any::TypeId, collections::HashSet};
+mod bind_ext;
+pub use bind_ext::BindExt;
+use std::any::TypeId;
 
 pub use node::*;
 pub use lens::{Lens, LensExt};
 
 use crate::{TreeExt};
-use crate::{State, Entity, Event, Widget, Propagation, PropSet};
+use crate::{State, Entity, Event, Widget, Propagation};
 
 use crate::Canvas;
 
-pub trait Model {
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        let _ = state;
-        let _ = entity;
-        let _ = event;
-    }
+mod model;
+pub use model::Model;
 
-    /// Adds the widget into state and returns the associated type Ret - an entity id or a tuple of entity ids
-    fn build(self, state: &mut State, parent: Entity) -> Entity
-    where Self: std::marker::Sized + Model + Node
-    {
-        Store::new(self).build(state, parent, |builder| builder)
-    }
-}
+mod store;
+pub use store::Store;
 
-pub(crate) struct Store<D> {
-    data_widget: D,
-    observers: HashSet<Entity>,
-}
-
-impl<D: Model> Store<D> {
-    pub fn new(data_widget: D) -> Self {
-        Self {
-            data_widget,
-            observers: HashSet::new(),
-        }
-    }
-}
-
-impl<D: Model + Node> Widget for Store<D> {
-    type Ret = Entity;
-    type Data = ();
-    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
-        entity.set_hoverable(state, false).set_focusable(state, false)
-    }
-
-    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        
-        if let Some(bind_event) = event.message.downcast() {
-            match bind_event {
-                BindEvent::Bind(target, type_id) => {
-                    //println!("Bind: {}", target);
-                    if *type_id == TypeId::of::<D>() {
-                        //println!("Compatible");
-                        self.observers.insert(*target);
-                        //entity.emit(state, BindEvent::Update);
-                        if let Some(mut event_handler) = state.event_handlers.remove(target) {
-                            event_handler.on_update_(state, *target, &self.data_widget);
-    
-                            state.event_handlers.insert(*target, event_handler);
-                        }
-                        event.consume();
-                    } 
-                    // else {
-                    //     println!("Not Compatible");
-                    // }
-                    
-                }
-
-                BindEvent::Update => {
-                    for observer in self.observers.iter() {
-                        if *observer != event.origin {
-                            if let Some(mut event_handler) = state.event_handlers.remove(observer) {
-                                event_handler.on_update_(state, *observer, &self.data_widget);
-
-                                state.event_handlers.insert(*observer, event_handler);
-                            }
-                        } 
-                    }                        
-                    
-                }
-            }
-        }
-
-        //println!("Origin: {} Observers: {:?}", event.origin, self.observers);
-
-        //if self.observers.contains(&event.origin) {
-            self.data_widget.on_event(state, entity, event);
-        //}
-    }
-}
-
-
-
+/// Events for data binding.
 #[derive(Debug, Clone, PartialEq)]
 pub enum BindEvent {
+    /// Sent by a widget when bound to some data.
     Bind(Entity, TypeId),
+    /// Sent manually when data in [Model] is updated. 
     Update,
-    //Init,
 }
 
 
-pub struct LensWrap<L: Lens, W: Widget> {
+/// A [LensWrap] without a converter, allowing data to be passed from [Model] to the bound [Widget] as a reference.
+pub struct LensWrapRef<L: Lens, W: Widget> {
     widget: W,
     lens: L,
 }
 
-impl<L: Lens, W: Widget> LensWrap<L,W> {
+impl<L: Lens, W: Widget> LensWrapRef<L,W> {
     pub fn new(widget: W, lens: L) -> Self {
         Self {
             widget,
@@ -229,7 +156,7 @@ impl<L: Lens, W: Widget> LensWrap<L,W> {
     }
 }
 
-impl<L: 'static + Lens, W> Widget for LensWrap<L,W>
+impl<L: 'static + Lens, W> Widget for LensWrapRef<L,W>
 where W: Widget<Data = <L as Lens>::Target>,
 {
     type Ret = <W as Widget>::Ret;
@@ -278,8 +205,8 @@ where W: Widget<Data = <L as Lens>::Target>,
 }
 
 
-// A wrapper on a widget which adds the setup for binding as well as the conversion of data + lensing
-pub struct Wrapper<L: Lens, W: Widget> {
+/// A wrapper on a widget which adds the setup for binding as well as the conversion of data + lensing
+pub struct LensWrap<L: Lens, W: Widget> {
 
     widget: W,
     lens: L,
@@ -287,7 +214,7 @@ pub struct Wrapper<L: Lens, W: Widget> {
     on_update: Option<Box<dyn Fn(&mut W, &mut State, Entity)>>,
 }
 
-impl<L: Lens, W: Widget> Wrapper<L,W> {
+impl<L: Lens, W: Widget> LensWrap<L,W> {
     pub fn new<F>(widget: W, lens: L, converter: F) -> Self 
     where F: 'static + Fn(&<L as Lens>::Target) -> <W as Widget>::Data
     {
@@ -308,7 +235,7 @@ impl<L: Lens, W: Widget> Wrapper<L,W> {
     }
 }
 
-impl<L: 'static + Lens, W: Widget> Widget for Wrapper<L,W> {
+impl<L: 'static + Lens, W: Widget> Widget for LensWrap<L,W> {
     type Ret = <W as Widget>::Ret;
     type Data = <L as Lens>::Source;
 

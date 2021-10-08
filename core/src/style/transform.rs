@@ -1,11 +1,12 @@
-// Rename to Transform when I've come up with a better name for the current transform mod
-use crate::Interpolator;
+// use crate::Interpolator;
 
 use std::ops::{
     Index,
     IndexMut,
 };
 
+
+/// A 2D transform matrix.
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct Transform2D(pub [f32; 6]);
 

@@ -38,7 +38,7 @@ mod gradient;
 pub use gradient::*;
 
 mod shadow;
-pub use shadow::*;
+pub(crate) use shadow::*;
 
 mod display;
 pub use display::*;
@@ -53,7 +53,7 @@ mod specificity;
 pub(crate) use specificity::*;
 
 mod style_rule;
-pub use style_rule::*;
+pub(crate) use style_rule::*;
 
 mod rule;
 pub use rule::Rule;
@@ -72,6 +72,8 @@ use super::storage::style_set::StyleSet;
 
 // use bimap::BiMap;
 
+
+/// Stores the style properties of all entities in the application. To set properties on entities see the [PropSet] trait.
 #[derive(Default)]
 pub struct Style {
 
@@ -214,15 +216,15 @@ pub struct Style {
 }
 
 impl Style {
-    pub fn add_rule(&mut self, style_rule: StyleRule) {
-        if !self.rules.contains(&style_rule) {
-            self.rules.push(style_rule);
-            self.rules.sort_by_key(|rule| rule.specificity());
-            self.rules.reverse();
-        }
+    // pub(crate) fn add_rule(&mut self, style_rule: StyleRule) {
+    //     if !self.rules.contains(&style_rule) {
+    //         self.rules.push(style_rule);
+    //         self.rules.sort_by_key(|rule| rule.specificity());
+    //         self.rules.reverse();
+    //     }
 
-        self.set_style_properties();
-    }
+    //     self.set_style_properties();
+    // }
 
     pub fn parse_theme(&mut self, stylesheet: &str) {
         let mut input = ParserInput::new(stylesheet);
@@ -270,10 +272,6 @@ impl Style {
 
             for property in rule.properties.clone() {
                 match property {
-
-                    Property::None => {
-                        //
-                    }
 
                     Property::Display(value) => {
                         self.display.insert_rule(rule_id, value);
@@ -361,6 +359,13 @@ impl Style {
 
                     // Size
                     Property::Width(value) => {
+                        match value {
+                            Percentage(val) => {
+                                println!("{:?} {}", rule, val);
+                            }
+
+                            _=> {}
+                        }
                         self.width.insert_rule(rule_id, value);
                     }
 
@@ -1206,7 +1211,7 @@ impl Style {
 
     // Add style data to an entity
     pub(crate) fn add(&mut self, entity: Entity) {
-        self.pseudo_classes.insert(entity, PseudoClass::default());
+        self.pseudo_classes.insert(entity, PseudoClass::default()).unwrap();
 
         //self.z_order.insert(entity, 0);
 
@@ -1214,7 +1219,7 @@ impl Style {
         //self.scroll.insert(entity, Default::default());
 
         self.visibility.insert(entity, Default::default());
-        self.focus_order.insert(entity, Default::default());
+        self.focus_order.insert(entity, Default::default()).unwrap();
     }
 
     pub fn remove(&mut self, entity: Entity) {

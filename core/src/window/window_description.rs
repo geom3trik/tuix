@@ -1,4 +1,6 @@
 
+
+/// Represents the size of the application window.
 pub struct WindowSize {
     pub width: u32,
     pub height: u32,

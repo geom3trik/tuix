@@ -7,6 +7,7 @@ use crate::{Entity, State};
 
 use std::any::{Any, TypeId};
 
+/// TODO - Make crate private (provide method to retrieve event handler in state)
 pub trait EventHandler: Any {
 
     fn widget_name(&self) -> String {

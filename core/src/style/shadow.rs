@@ -4,7 +4,7 @@ use crate::Color;
 use crate::Units;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct BoxShadow {
+pub(crate) struct BoxShadow {
     pub horizontal_offset: Units,
     pub vertical_offset: Units,
     pub blur_radius: Units,

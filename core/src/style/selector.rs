@@ -11,6 +11,7 @@ use bitflags::bitflags;
 
 
 bitflags! {
+    /// A bitflag of possible pseudoclasses.
     pub struct PseudoClass: u8 {
         const HOVER = 1;
         const OVER = 1 << 1;
@@ -59,19 +60,20 @@ impl std::fmt::Display for PseudoClass {
 }
 
 #[derive(Clone, Debug)]
-pub enum Relation {
+pub enum SelectorRelation {
     None,
     Ancestor,
     Parent,
 }
 
+/// A style selector.
 #[derive(Clone, Debug)]
 pub struct Selector {
     pub id: Option<u64>,
     pub element: Option<String>,
     pub classes: HashSet<String>,
     pub pseudo_classes: PseudoClass,
-    pub relation: Relation,
+    pub relation: SelectorRelation,
     pub asterisk: bool,
 }
 
@@ -82,7 +84,7 @@ impl Default for Selector {
             element: None,
             classes: HashSet::new(),
             pseudo_classes: PseudoClass::empty(),
-            relation: Relation::None,
+            relation: SelectorRelation::None,
             asterisk: false,
         }
     }
@@ -105,9 +107,9 @@ impl std::fmt::Display for Selector {
         write!(f, "{}", self.pseudo_classes);
 
         match self.relation {
-            Relation::None => {}
-            Relation::Ancestor => write!(f, " ")?,
-            Relation::Parent => write!(f, ">")?,
+            SelectorRelation::None => {}
+            SelectorRelation::Ancestor => write!(f, " ")?,
+            SelectorRelation::Parent => write!(f, ">")?,
         }
 
         Ok(())
@@ -121,7 +123,7 @@ impl Selector {
             element: None,
             classes: HashSet::new(),
             pseudo_classes: PseudoClass::empty(),
-            relation: Relation::None,
+            relation: SelectorRelation::None,
             asterisk: false,
         }
     }
@@ -135,7 +137,7 @@ impl Selector {
             element: Some(element.to_owned()),
             classes: HashSet::new(),
             pseudo_classes: PseudoClass::empty(),
-            relation: Relation::None,
+            relation: SelectorRelation::None,
             asterisk: false,
         }
     }

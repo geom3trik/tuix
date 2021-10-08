@@ -288,10 +288,10 @@ impl<T: std::fmt::Debug + Node, W: Widget> ListView<T, W> {
     }
     
     // This method will be part of a trait (maybe the Widget trait)
-    pub fn bind<L: Lens, F>(self, lens: L, converter: F) -> Wrapper<L, Self> 
+    pub fn bind<L: Lens, F>(self, lens: L, converter: F) -> LensWrap<L, Self> 
     where F: 'static + Fn(&<L as Lens>::Target) -> <Self as Widget>::Data
     {
-        Wrapper::new(self, lens, converter)
+        LensWrap::new(self, lens, converter)
     }
 }
 

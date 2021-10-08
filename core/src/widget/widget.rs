@@ -1,5 +1,5 @@
 use crate::{Builder, EventHandler, WindowEvent};
-use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, Lens, LensWrap, Node, PropType, State, TreeExt, Wrapper};
+use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, Lens, LensWrapRef, Node, PropType, State, TreeExt, LensWrap};
 use femtovg::{PixelFormat, RenderTarget};
 use femtovg::{
     renderer::OpenGl, Align, Baseline, ImageFlags,
@@ -15,7 +15,7 @@ pub type Canvas = femtovg::Canvas<OpenGl>;
 // Length proportional to radius of a cubic bezier handle for 90deg arcs.
 const KAPPA90: f32 = 0.5522847493;
 
-/// Trait implemented by all widgets
+/// Trait implemented by all widgets. Provides methods for building, responding to events, updating from bound data, and custom drawing.
 pub trait Widget: std::marker::Sized + 'static {
     /// The `Ret` associated type determines whether a single entity or a tuple of entities will be returned when the widget is built.
     /// This can be useful for widgets which are made up of sub-widgets which need to be accessible, see [TabView] for an example.
@@ -52,15 +52,15 @@ pub trait Widget: std::marker::Sized + 'static {
         ret
     }
     /// Bind a piece of data to the widget using a lens and a conversion closure
-    fn bind<L: Lens, F>(self, lens: L, converter: F) -> Wrapper<L, Self> 
+    fn bind<L: Lens, F>(self, lens: L, converter: F) -> LensWrap<L, Self> 
     where F: 'static + Fn(&<L as Lens>::Target) -> <Self as Widget>::Data
     {
-        Wrapper::new(self, lens, converter)
+        LensWrap::new(self, lens, converter)
     }
 
     /// Bind a piece of data to the widget without conversion, allowing the data to be passed as a reference
-    fn bind_ref<L: Lens>(self, lens: L) -> LensWrap<L, Self> {
-        LensWrap::new(self, lens)
+    fn bind_ref<L: Lens>(self, lens: L) -> LensWrapRef<L, Self> {
+        LensWrapRef::new(self, lens)
     }
 
     /// Called when data bound to this widget is changed

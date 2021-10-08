@@ -12,6 +12,7 @@ use morphorm::{LayoutType, PositionType, Units};
 use std::rc::Rc;
 
 
+/// To be replaced by [PropSet2]
 pub trait PropSet: AsEntity + Sized {
 
     /// Helper method for sending an event to self with upward propagation
@@ -857,6 +858,15 @@ pub trait PropSet: AsEntity + Sized {
         state.style.background_color.insert(self.entity(), value);
 
         Entity::root().redraw(state);
+
+        self.entity()
+    }
+
+    fn set_background_gradient(self, state: &mut State, value: LinearGradient) -> Entity {
+        state
+            .style
+            .background_gradient
+            .insert(self.entity(), value);
 
         self.entity()
     }

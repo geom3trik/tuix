@@ -5,13 +5,19 @@ use femtovg::{
     renderer::OpenGl, Canvas,
 };
 
+
+/// Dispatches events to widgets.
+/// 
+/// The [EventManager] is responsible for taking the events in the event queue in state
+/// and dispatching them to widgets based on the target and propagation metadata of the event.
+/// The is struct is used internally by the application and should not be constructed directly.
 pub struct EventManager {
 
     // Queue of events to be processed
-    pub event_queue: Vec<Event>,
+    event_queue: Vec<Event>,
 
     // A copy of the tree for iteration
-    pub tree: Tree,
+    tree: Tree,
 
     prev_width: f32,
     prev_height: f32,

@@ -18,8 +18,6 @@ pub enum PropType {
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Property {
-    None,
-
     Unknown(String, PropType),
 
     // General

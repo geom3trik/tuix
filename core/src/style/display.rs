@@ -42,6 +42,8 @@ impl Interpolator for Visibility {
     }
 }
 
+
+/// Describes the opacity of a entity.
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Opacity(pub f32);
 
@@ -57,6 +59,7 @@ impl Interpolator for Opacity {
     }
 }
 
+/// Next and previous widgets which receive focus.
 #[derive(Debug, Clone)]
 pub struct FocusOrder {
     pub next: Entity,

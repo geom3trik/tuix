@@ -9,7 +9,7 @@ use crate::Key;
 pub enum TextboxEvent {
     SetValue(String),
     ValueChanged(String),
-    ResetValue,
+    //ResetValue,
     Clear,
 }
 
@@ -19,7 +19,7 @@ pub struct Textbox {
     entity: Entity,
     pub text: String,
 
-    buffer: String,
+    pub buffer: String,
 
     units: String,
     //multiplier: f32,
@@ -445,7 +445,7 @@ impl Widget for Textbox {
                 TextboxEvent::SetValue(val) => {
                     if event.target == entity {
                         entity.set_text(state, &(val.to_owned() + &self.units));
-
+                        self.text = val.to_owned();
                         Entity::root().redraw(state);
                     }
                 }

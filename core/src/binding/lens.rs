@@ -42,6 +42,7 @@ pub trait LensExt: Lens {
     //     And::new(self, other)
     // }
 
+    /// TODO
     fn index<I: 'static>(self, index: I) -> Then<Self, Index<Self::Target, I>>
     where
         Self: Sized,

@@ -23,6 +23,8 @@ impl Widget for Container {
         self.color_picker = ColorPicker::new()
             .build(state, container, |builder| {
                 builder
+                    .set_left(Pixels(10.0))
+                    .set_top(Pixels(10.0))
             });
 
         container.set_background_color(state, Color::white())
@@ -42,8 +44,8 @@ impl Widget for Container {
 fn main() {
     let app = Application::new(
     WindowDescription::new()
-            .with_title("Button")
-            .with_inner_size(300, 300),
+            .with_title("Color Picker")
+            .with_inner_size(480, 270),
     |state, window| {
 
             state.add_theme(STYLE);

@@ -180,3 +180,11 @@ tab_bar>.tab:checked {
     left: 1s;
     right: 10px;
 }
+
+button.close {
+    font-size: 18;
+}
+
+button.close:hover {
+    font-size: 22;
+}

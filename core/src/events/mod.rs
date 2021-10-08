@@ -42,5 +42,5 @@ mod event;
 pub use event::{Event, Message, Propagation};
 
 mod event_handler;
-pub use event_handler::EventHandler;
+pub(crate) use event_handler::EventHandler;
 

@@ -2,12 +2,12 @@
 
 use std::collections::HashMap;
 
-pub struct Image {
-    name: String,
-    pub width: u32,
-    pub height: u32,
-    pub data: Vec<u8>,
-}
+// pub struct Image {
+//     name: String,
+//     pub width: u32,
+//     pub height: u32,
+//     pub data: Vec<u8>,
+// }
 
 // pub enum ImageOrId {
 //     Image(image::DynamicImage),
@@ -19,14 +19,14 @@ pub enum FontOrId {
     Id(femtovg::FontId),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Resource(u32);
+// #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+// pub struct Resource(u32);
 
 pub struct ResourceManager {
     //pub images: HashMap<String, Image>,
     pub stylesheets: Vec<String>, // Stylesheets refer to a fiel path
     pub themes: Vec<String>,      // Themes are the string content stylesheets
-    pub images: Vec<Image>,
+    //pub images: Vec<Image>,
     pub fonts: HashMap<String, FontOrId>,
 
     //pub image_ids: HashMap<Rc<()>, ImageOrId>,
@@ -39,7 +39,7 @@ impl ResourceManager {
             //images: HashMap::new(),
             stylesheets: Vec::new(),
             themes: Vec::new(),
-            images: Vec::new(),
+            //images: Vec::new(),
             //image_ids: HashMap::new(),
             count: 0,
             fonts: HashMap::new(),

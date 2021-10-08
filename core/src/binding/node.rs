@@ -1,4 +1,7 @@
 use std::any::{Any, TypeId};
+
+
+/// Extension on the `Any` trait which provides downcasting methods.
 pub trait Node: Any {
 
 }

@@ -3,6 +3,8 @@ use crate::{Entity, Event, State, Widget, WindowEvent, apply_hover};
 use crate::systems::{apply_styles, apply_visibility, apply_z_ordering, apply_transform};
 use crate::layout::geometry_changed;
 
+
+/// A widget which represents the main window.
 #[derive(Clone)]
 pub struct WindowWidget {}
 

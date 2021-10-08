@@ -1,14 +1,13 @@
 use std::fmt::Debug;
-use std::{fs::File, io::BufReader, io::Read, mem, path::Path, sync::Arc};
 
 use cssparser::{
     self, AtRuleType, BasicParseError, BasicParseErrorKind, CowRcStr, DeclarationListParser,
-    ParseError, ParseErrorKind, Parser, ParserInput, RuleListParser, SourceLocation, Token,
+    ParseError, ParseErrorKind, Parser, ParserInput, SourceLocation, Token,
 };
 
 
 use crate::style::property::Property;
-use crate::style::selector::{Relation, Selector};
+use crate::style::selector::{SelectorRelation, Selector};
 
 use crate::Transition;
 use crate::style::StyleRule;
@@ -37,6 +36,7 @@ impl<'t> From<CustomParseError> for ParseError<'t, CustomParseError> {
     }
 }
 
+/// Type which describes errors produced by the css style parser.
 pub struct StyleParseError<'t>(pub ParseError<'t, CustomParseError>);
 
 impl<'t> std::fmt::Display for StyleParseError<'t> {
@@ -87,7 +87,7 @@ impl Debug for CustomParseError {
     }
 }
 
-pub struct RuleParser;
+pub(crate) struct RuleParser;
 
 impl RuleParser {
     pub fn new() -> Self {
@@ -199,7 +199,7 @@ fn parse_selectors<'i, 't>(
             // Element
             Token::Ident(ref element_name) => {
                 if whitespace {
-                    selector.relation = Relation::Ancestor;
+                    selector.relation = SelectorRelation::Ancestor;
                     selectors.push(selector);
                     selector = Selector::default();
                     selector.set_element(&element_name.to_string());
@@ -213,7 +213,7 @@ fn parse_selectors<'i, 't>(
             Token::Delim('>') => {
                 //let mut old_selector = Selector::from(&input.expect_ident()?.to_string());
                 //mem::swap(&mut old_selector, &mut selector);
-                selector.relation = Relation::Parent;
+                selector.relation = SelectorRelation::Parent;
                 selectors.push(selector);
                 //selector = Selector::from(&input.expect_ident()?.to_string());
                 selector = Selector::default();
@@ -233,7 +233,7 @@ fn parse_selectors<'i, 't>(
             // Any element
             Token::Delim('*') => {
                 if whitespace {
-                    selector.relation = Relation::Ancestor;
+                    selector.relation = SelectorRelation::Ancestor;
                     selectors.push(selector);
                     selector = Selector::default();
                     selector.asterisk = true;
@@ -247,7 +247,7 @@ fn parse_selectors<'i, 't>(
             // Class
             Token::Delim('.') => {
                 if whitespace {
-                    selector.relation = Relation::Ancestor;
+                    selector.relation = SelectorRelation::Ancestor;
                     selectors.push(selector);
                     selector = Selector::default();
                     selector
@@ -792,7 +792,7 @@ fn parse_units<'i, 't>(
 ) -> Result<Units, ParseError<'i, CustomParseError>> {
     Ok(match input.next()? {
         Token::Number { value: x, .. } => Units::Pixels(*x as f32),
-        Token::Percentage { unit_value: x, .. } => Units::Percentage(*x as f32),
+        Token::Percentage { unit_value: x, .. } => Units::Percentage((*x as f32) * 100.0),
 
         Token::Dimension {
             has_sign: _,
@@ -1086,7 +1086,7 @@ fn parse_font_size<'i, 't>(
     })
 }
 
-pub fn parse(s: &str) -> Vec<StyleRule> {
+pub(crate) fn parse(s: &str) -> Vec<StyleRule> {
     let mut input = ParserInput::new(s);
     let mut parser = Parser::new(&mut input);
     let rule_parser = RuleParser::new();

@@ -18,16 +18,6 @@ struct Pos {
     pub y: f32,
 }
 
-impl Pos {
-    pub fn new() -> Self {
-        Pos { x: 0.0, y: 0.0 }
-    }
-
-    pub fn with(a: f32, b: f32) -> Self {
-        Pos { x: a, y: b }
-    }
-}
-
 impl Default for Pos {
     fn default() -> Self {
         Pos { x: 0.0, y: 0.0 }
@@ -285,63 +275,63 @@ impl CachedData {
         }
     }
 
-    pub(crate) fn get_cross_stretch_sum(&self, entity: Entity) -> f32 {
-        self.cross_stretch_sum
-            .get(entity)
-            .cloned()
-            .unwrap()
-    }
+    // pub(crate) fn get_cross_stretch_sum(&self, entity: Entity) -> f32 {
+    //     self.cross_stretch_sum
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap()
+    // }
 
-    pub(crate) fn set_cross_stretch_sum(&mut self, entity: Entity, val: f32) {
-        if let Some(cross_stretch_sum) = self.cross_stretch_sum.get_mut(entity) {
-            *cross_stretch_sum = val;
-        }
-    }
+    // pub(crate) fn set_cross_stretch_sum(&mut self, entity: Entity, val: f32) {
+    //     if let Some(cross_stretch_sum) = self.cross_stretch_sum.get_mut(entity) {
+    //         *cross_stretch_sum = val;
+    //     }
+    // }
 
-    pub(crate) fn get_cross_free_space(&self, entity: Entity) -> f32 {
-        self.cross_free_space
-            .get(entity)
-            .cloned()
-            .unwrap()
-    }
+    // pub(crate) fn get_cross_free_space(&self, entity: Entity) -> f32 {
+    //     self.cross_free_space
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap()
+    // }
 
-    pub(crate) fn set_cross_free_space(&mut self, entity: Entity, val: f32) {
-        if let Some(cross_free_space) = self.cross_free_space.get_mut(entity) {
-            *cross_free_space = val;
-        }
-    }
+    // pub(crate) fn set_cross_free_space(&mut self, entity: Entity, val: f32) {
+    //     if let Some(cross_free_space) = self.cross_free_space.get_mut(entity) {
+    //         *cross_free_space = val;
+    //     }
+    // }
 
-    pub(crate) fn get_space_left(&self, entity: Entity) -> f32 {
-        self.space
-            .get(entity)
-            .cloned()
-            .unwrap()
-            .left
-    }
+    // pub(crate) fn get_space_left(&self, entity: Entity) -> f32 {
+    //     self.space
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap()
+    //         .left
+    // }
 
-    pub(crate) fn get_space_right(&self, entity: Entity) -> f32 {
-        self.space
-            .get(entity)
-            .cloned()
-            .unwrap()
-            .right
-    }
+    // pub(crate) fn get_space_right(&self, entity: Entity) -> f32 {
+    //     self.space
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap()
+    //         .right
+    // }
 
-    pub(crate) fn get_space_top(&self, entity: Entity) -> f32 {
-        self.space
-            .get(entity)
-            .cloned()
-            .unwrap()
-            .top
-    }
+    // pub(crate) fn get_space_top(&self, entity: Entity) -> f32 {
+    //     self.space
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap()
+    //         .top
+    // }
 
-    pub(crate) fn get_space_bottom(&self, entity: Entity) -> f32 {
-        self.space
-            .get(entity)
-            .cloned()
-            .unwrap()
-            .bottom
-    }
+    // pub(crate) fn get_space_bottom(&self, entity: Entity) -> f32 {
+    //     self.space
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap()
+    //         .bottom
+    // }
 
     // pub fn get_space(&self, entity: Entity) -> Space {
     //     self.space.get(entity).cloned().unwrap()
@@ -466,38 +456,38 @@ impl CachedData {
             .unwrap()
     }
 
-    pub(crate) fn get_rotate(&self, entity: Entity) -> f32 {
-        self.transform
-            .get(entity)
-            .cloned()
-            .unwrap()[0]
-            .acos()
-    }
+    // pub(crate) fn get_rotate(&self, entity: Entity) -> f32 {
+    //     self.transform
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap()[0]
+    //         .acos()
+    // }
 
-    pub(crate) fn get_translate(&self, entity: Entity) -> (f32, f32) {
-        let transform = self.transform
-            .get(entity)
-            .cloned()
-            .unwrap();
+    // pub(crate) fn get_translate(&self, entity: Entity) -> (f32, f32) {
+    //     let transform = self.transform
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap();
 
-        (transform[4], transform[5])
-    }
+    //     (transform[4], transform[5])
+    // }
 
-    pub(crate) fn get_scale(&self, entity: Entity) -> f32 {
-        let scale = self.scale
-            .get(entity)
-            .cloned()
-            .unwrap();
+    // pub(crate) fn get_scale(&self, entity: Entity) -> f32 {
+    //     let scale = self.scale
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap();
 
-        scale.0
-    }
+    //     scale.0
+    // }
 
-    pub(crate) fn get_origin(&self, entity: Entity) -> (f32, f32) {
-        self.origin
-            .get(entity)
-            .cloned()
-            .unwrap()
-    }
+    // pub(crate) fn get_origin(&self, entity: Entity) -> (f32, f32) {
+    //     self.origin
+    //         .get(entity)
+    //         .cloned()
+    //         .unwrap()
+    // }
 
     /// Returns the transform on the entity.
     pub fn get_transform(&self, entity: Entity) -> Transform2D {
@@ -574,11 +564,11 @@ impl CachedData {
     //     }
     // }
 
-    pub(crate) fn set_space_left(&mut self, entity: Entity, val: f32) {
-        if let Some(space) = self.space.get_mut(entity) {
-            space.left = val;
-        }
-    }
+    // pub(crate) fn set_space_left(&mut self, entity: Entity, val: f32) {
+    //     if let Some(space) = self.space.get_mut(entity) {
+    //         space.left = val;
+    //     }
+    // }
 
     pub(crate) fn set_space_right(&mut self, entity: Entity, val: f32) {
         if let Some(space) = self.space.get_mut(entity) {
@@ -586,17 +576,17 @@ impl CachedData {
         }
     }
 
-    pub(crate) fn set_space_top(&mut self, entity: Entity, val: f32) {
-        if let Some(space) = self.space.get_mut(entity) {
-            space.top = val;
-        }
-    }
+    // pub(crate) fn set_space_top(&mut self, entity: Entity, val: f32) {
+    //     if let Some(space) = self.space.get_mut(entity) {
+    //         space.top = val;
+    //     }
+    // }
 
-    pub(crate) fn set_space_bottom(&mut self, entity: Entity, val: f32) {
-        if let Some(space) = self.space.get_mut(entity) {
-            space.bottom = val;
-        }
-    }
+    // pub(crate) fn set_space_bottom(&mut self, entity: Entity, val: f32) {
+    //     if let Some(space) = self.space.get_mut(entity) {
+    //         space.bottom = val;
+    //     }
+    // }
 
     pub fn set_clip_region(&mut self, entity: Entity, val: BoundingBox) {
         if let Some(clip_region) = self.clip_region.get_mut(entity) {
@@ -739,11 +729,11 @@ impl CachedData {
         }
     }
 
-    pub(crate) fn set_origin(&mut self, entity: Entity, val: (f32, f32)) {
-        if let Some(origin) = self.origin.get_mut(entity) {
-            *origin = val;
-        }
-    }
+    // pub(crate) fn set_origin(&mut self, entity: Entity, val: (f32, f32)) {
+    //     if let Some(origin) = self.origin.get_mut(entity) {
+    //         *origin = val;
+    //     }
+    // }
 
     pub(crate) fn set_transform(&mut self, entity: Entity, val: Transform2D) {
         if let Some(transform) = self.transform.get_mut(entity) {

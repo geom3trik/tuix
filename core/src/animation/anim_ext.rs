@@ -1,7 +1,5 @@
 use crate::{Animation, AsEntity, State};
 
-
-
 /// Trait which provides methods for entities to manipulate linked animations
 pub trait AnimExt: AsEntity + Sized {
 

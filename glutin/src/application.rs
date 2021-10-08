@@ -27,24 +27,30 @@ use glutin::event::VirtualKeyCode;
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
 
-#[derive(Debug)]
-pub enum AppEvent {
-    /// Emitted when a new window should be created by the application
-    CreateWindow(Entity),
-    /// Emiited when a new window should be destroyed by the application
-    Destroy(Entity),
-}
-
+/// The Application is the primary struct of the GUI application.
+/// 
+/// There can only be one application. The `Application::new()` method constructs the initial widgets and loads in
+/// resources such as styles and fonts.
+/// The `run()` method enters the event loop of the application. Events received from winit are propagated to widgets
+/// and results in calls to the `on_event()` method of the [Widget] trait.
+/// 
+/// # Example
+/// Application::new(WindowDescription::new(), |state, window|{
+///     // Build widgets here
+/// }).run();
 pub struct Application {
-    pub window: Window,
-    pub state: State,
+    window: Window,
+    state: State,
     event_loop: EventLoop<()>,
-    pub event_manager: EventManager,
-
-    // /pub root_window: (WindowId, Entity), 
+    event_manager: EventManager,
 }
 
 impl Application {
+
+    /// Takes a closure which provides a mutable reference to [State] and a window [Entity].
+    /// 
+    /// The callback provides a place to build the initial widget tree and load resources, such as styles and fonts,
+    /// and will be called once on the creation of the application.
     pub fn new<F: FnOnce(&mut State, Entity)>(
         window_description: WindowDescription,
         app: F,
@@ -56,9 +62,8 @@ impl Application {
         let mut event_manager = EventManager::new();
 
         let root = Entity::root();
-        //state.tree.add(Entity::root(), None);
 
-        event_manager.tree = state.tree.clone();
+        //event_manager.tree = state.tree.clone();
         
         let regular_font = include_bytes!("../fonts/Roboto-Regular.ttf");
         let bold_font = include_bytes!("../fonts/Roboto-Bold.ttf");
@@ -119,12 +124,15 @@ impl Application {
         }
     }
 
+    /// The `run` method starts the application event loop, passing events from the OS to
+    /// the input system and then on to the widgets via the `on_event` method of the [Widget] trait.
+    /// The event loop is also responsible for redrawing the main window when required.
     pub fn run(self) {
 
         let mut state = self.state;
 
         let mut event_manager = self.event_manager;
-        event_manager.tree = state.tree.clone();
+        //event_manager.tree = state.tree.clone();
     
 
         //println!("Event Manager: {:?}", event_manager.tree);

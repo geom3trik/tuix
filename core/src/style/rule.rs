@@ -5,7 +5,7 @@ use std::hash::Hash;
 
 use morphorm::Units;
 
-use crate::{Color, PropSet2, State};
+use crate::{Color, PropSet2, Selector, State};
 use crate::id::GenerationalId;
 
 const RULE_INDEX_BITS: u32 = 24;
@@ -14,9 +14,9 @@ const RULE_INDEX_MASK: u32  = (1<<RULE_INDEX_BITS)-1;
 const RULE_GENERATION_BITS: u32 = 8;
 const RULE_GENERATION_MASK: u32 = (1<<RULE_GENERATION_BITS)-1;
 
-const RULE_MAX: u32 = std::u32::MAX>>8;
+// const RULE_MAX: u32 = std::u32::MAX>>8;
 
-const MINIMUM_FREE_INDICES: usize = 1024;
+// const MINIMUM_FREE_INDICES: usize = 1024;
 
 
 /// A rule is an id used to get/set shared style properties in State.
@@ -45,32 +45,29 @@ impl std::fmt::Debug for Rule {
 }
 
 impl Rule {
-    /// Creates a null rule
+    /// Creates a null rule.
     ///
-    /// A null rule can be used as a placeholder within a widget struct but cannot be used to get/set properties
+    /// A null rule can be used as a placeholder within a widget struct but cannot be used to get/set properties.
     pub fn null() -> Rule {
         Rule(std::u32::MAX)
     }
 
-    /// Creates a root rule
-    ///
-    /// The root rule represents the main window and is always valid. 
-    /// The root rule can be used to set properties on the primary window, such as background color, 
-    /// as well as sending events to the window such as Restyle and Redraw events.
-    pub fn root() -> Rule {
-        Rule(0)
-    }
 
-    /// Creates a new rule with a given index and generation
+    /// Creates a new rule with a given index and generation.
     pub(crate) fn new(index: u32, generation: u32) -> Rule {
         assert!(index < RULE_INDEX_MASK);
         assert!(generation < RULE_GENERATION_MASK);
         Rule(index | generation << RULE_INDEX_BITS)
     }
 
-    /// Returns true if the rule is null
+    /// Returns true if the rule is null.
     pub fn is_null(&self) -> bool {
         self.0 == std::u32::MAX
+    }
+
+    /// Adds a selector to the rule (TODO)
+    pub fn selector(self, selector: Selector) -> Self {
+        self
     }
 
 }
