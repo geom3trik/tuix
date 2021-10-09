@@ -47,24 +47,31 @@ impl Widget for Overlay {
         let selected_width = state.data.get_width(self.selected);
         let selected_height = state.data.get_height(self.selected);
 
-        // Draw height line
+        // Draw Bounding Box
         let mut path = Path::new();
-        path.move_to(selected_posx - 8.0, selected_posy);
-        path.line_to(selected_posx - 2.0, selected_posy);
-        canvas.stroke_path(&mut path, Paint::color(femtovg::Color::rgb(255, 0, 255)));
+        path.rect(selected_posx - 1.0, selected_posy - 1.0, selected_width + 1.0, selected_height + 1.0);
+        let mut paint = Paint::color(femtovg::Color::rgb(255, 0, 255));
+        paint.set_line_width(1.0);
+        canvas.stroke_path(&mut path, paint);
 
-        let mut path = Path::new();
-        path.move_to(selected_posx - 5.0, selected_posy);
-        path.line_to(selected_posx - 5.0, selected_posy + selected_height);
-        canvas.stroke_path(&mut path, Paint::color(femtovg::Color::rgb(255, 0, 255)));
+        // // Draw height line
+        // let mut path = Path::new();
+        // path.move_to(selected_posx - 8.0, selected_posy);
+        // path.line_to(selected_posx - 2.0, selected_posy);
+        // canvas.stroke_path(&mut path, Paint::color(femtovg::Color::rgb(255, 0, 255)));
 
-        let mut path = Path::new();
-        path.move_to(selected_posx - 8.0, selected_posy + selected_height);
-        path.line_to(selected_posx - 2.0, selected_posy + selected_height);
-        canvas.stroke_path(&mut path, Paint::color(femtovg::Color::rgb(255, 0, 255)));
+        // let mut path = Path::new();
+        // path.move_to(selected_posx - 5.0, selected_posy);
+        // path.line_to(selected_posx - 5.0, selected_posy + selected_height);
+        // canvas.stroke_path(&mut path, Paint::color(femtovg::Color::rgb(255, 0, 255)));
 
-        let mut path = Path::new();
-        path.rect(selected_posx - 30.0, selected_posy + selected_height / 2.0 - 10.0, 20.0, 20.0);
-        canvas.stroke_path(&mut path, Paint::color(femtovg::Color::rgb(255, 0, 255)));
+        // let mut path = Path::new();
+        // path.move_to(selected_posx - 8.0, selected_posy + selected_height);
+        // path.line_to(selected_posx - 2.0, selected_posy + selected_height);
+        // canvas.stroke_path(&mut path, Paint::color(femtovg::Color::rgb(255, 0, 255)));
+
+        // let mut path = Path::new();
+        // path.rect(selected_posx - 30.0, selected_posy + selected_height / 2.0 - 10.0, 20.0, 20.0);
+        // canvas.stroke_path(&mut path, Paint::color(femtovg::Color::rgb(255, 0, 255)));
     }
 }

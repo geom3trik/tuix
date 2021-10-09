@@ -39,7 +39,19 @@ impl Model for ColorPickerData {
                     entity.emit(state, BindEvent::Update);
                 }
 
-                _=> {}
+                ColorPickerEvent::SetColor(color) => {
+                    println!("Set Color: {:?}", color);
+                    let (h, s, v) = rgb_to_hsv(color.r() as f64 / 255.0, color.g() as f64 / 255.0, color.b() as f64 / 255.0);
+                    self.hue = h as f32;
+                    self.sat = s as f32;
+                    self.val = v as f32;
+                    self.alpha = (color.a() as f64 / 255.0) as f32;
+
+                    println!("Set HSV: {} {} {}", h, s, v);
+
+                    entity.emit(state, BindEvent::Update);
+                }
+
             }
         }
     }
@@ -47,9 +59,9 @@ impl Model for ColorPickerData {
 
 #[derive(PartialEq, Debug)]
 pub enum ColorPickerEvent {
-    HueChanged(f32),
-    AlphaChanged(f32),
-    SatValChanged(f32, f32),
+    // HueChanged(f32),
+    // AlphaChanged(f32),
+    // SatValChanged(f32, f32),
     SetColor(Color),
     SetHue(f32),
     SetSat(f32),
@@ -614,20 +626,20 @@ impl Widget for ColorGradient {
     }
     
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        if let Some(color_picker_event) = event.message.downcast() {
-            match color_picker_event {
-                ColorPickerEvent::HueChanged(val) => {
-                    self.hue = *val;
+        // if let Some(color_picker_event) = event.message.downcast() {
+        //     match color_picker_event {
+        //         ColorPickerEvent::HueChanged(val) => {
+        //             self.hue = *val;
 
-                    if let Some(callback) = self.on_changing.take() {
-                        (callback)(self, state, entity);
+        //             if let Some(callback) = self.on_changing.take() {
+        //                 (callback)(self, state, entity);
 
-                        self.on_changing = Some(callback);
-                    }
-                }
-                _=> {}
-            }
-        }
+        //                 self.on_changing = Some(callback);
+        //             }
+        //         }
+        //         _=> {}
+        //     }
+        // }
         if let Some(window_event) = event.message.downcast() {
             match window_event {
                 WindowEvent::MouseDown(button) if *button == MouseButton::Left => {
@@ -1076,6 +1088,37 @@ fn hsv_to_hsl(h: f64, s: f64, v: f64) -> (f64, f64, f64) {
 
     (h, ss, ll)
 }
+
+fn rgb_to_hsv(r: f64, g: f64, b: f64) -> (f64, f64, f64) {
+    let cmax = r.max(g.max(b));
+    let cmin = r.min(g.min(b));
+    let diff = cmax - cmin;
+    let v = cmax;
+
+    let mut h = if cmax == cmin {
+        0.0
+    } else if cmax == r {
+        (g - b) / diff
+    } else if cmax == g {
+        2.0 + (b - r) / diff
+    } else if cmax == b {
+        4.0 + (r - g) / diff 
+    } else {
+        0.0
+    };
+
+    h *= 60.0 / 360.0;
+
+    let s = if v == 0.0 {
+        0.0
+    } else {
+        diff / v
+    };
+
+    (h, s, v)
+
+}
+
 //    10
 //    11 void hsl_to_hsv(double hh, double ss, double ll,
 //    12 double* h, double* s, double *v)

@@ -121,6 +121,22 @@ list>check_button:focus {
     border-color: black;
 }
 
+list>button {
+    height: 30px;
+    child-space: 1s;
+    child-left: 5px;
+    background-color: #404040;
+    color: white;
+}
+
+list>button:hover {
+    background-color: #4f4f4f;
+}
+
+list>button:active {
+    background-color: #404040;
+}
+
 slider>.track {
     background-color: #2e2e2e;
 }
@@ -197,4 +213,10 @@ spinbox textbox {
 spinbox>.arrow_container {
     border-width: 1px;
     border-color: #494949;
+}
+
+button.test {
+    width: 100px;
+    height: 60px;
+    background-color: #8a8a8a;
 }

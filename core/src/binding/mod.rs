@@ -188,6 +188,16 @@ where W: Widget<Data = <L as Lens>::Target>,
         //     }
         // }
 
+        // Update children
+        for (_index, child) in entity.child_iter(&state.tree.clone()).enumerate() {
+
+            if let Some(mut event_handler) = state.event_handlers.remove(&child) {
+                event_handler.on_update_(state, child, value);
+
+                state.event_handlers.insert(child, event_handler);
+            }
+        }
+
         // Update the underlying widget with the lensed and converted data
         self.widget.on_update(state, entity, &value);
 

@@ -42,8 +42,23 @@ impl Default for ColorPickFor {
     }
 }
 
+
+#[derive(Clone, Debug)]
+pub enum WidgetType {
+    Button,
+    Label,
+}
+
 #[derive(Clone, Debug)]
 pub enum AppEvent {
+
+
+    SetCanvas(Entity),
+    SetColorPicker(Entity),
+
+    AddWidget(WidgetType),
+    // TODO
+    RemoveWidget(Entity),
 
     SelectWidget(Entity),
 
@@ -155,6 +170,49 @@ impl StyleData {
             ..Default::default()
         }
     }
+
+    pub fn update(&mut self, state: &mut State, entity: Entity) {
+        self.width = state.style.width.get(entity).cloned().unwrap_or_default();
+        self.height = state.style.height.get(entity).cloned().unwrap_or_default();
+        
+        self.left = state.style.left.get(entity).cloned().unwrap_or_default();
+        self.right = state.style.right.get(entity).cloned().unwrap_or_default();
+        self.top = state.style.top.get(entity).cloned().unwrap_or_default();
+        self.bottom = state.style.bottom.get(entity).cloned().unwrap_or_default();
+
+        self.child_left = state.style.child_left.get(entity).cloned().unwrap_or_default();
+        self.child_right = state.style.child_right.get(entity).cloned().unwrap_or_default();
+        self.child_top = state.style.child_top.get(entity).cloned().unwrap_or_default();
+        self.child_bottom = state.style.child_bottom.get(entity).cloned().unwrap_or_default();
+
+        self.background_color = state.style.background_color.get(entity).cloned().unwrap_or_default();
+
+        self.border_color = state.style.border_color.get(entity).cloned().unwrap_or_default();
+        self.border_width = state.style.border_width.get(entity).cloned().unwrap_or_default();
+
+        self.border_radius_top_left = state.style.border_radius_top_left.get(entity).cloned().unwrap_or_default();
+        self.border_radius_top_right = state.style.border_radius_top_right.get(entity).cloned().unwrap_or_default();
+        self.border_radius_bottom_left = state.style.border_radius_bottom_left.get(entity).cloned().unwrap_or_default();
+        self.border_radius_bottom_right = state.style.border_radius_bottom_right.get(entity).cloned().unwrap_or_default();
+
+        self.border_top_left_shape = state.style.border_shape_top_left.get(entity).cloned().unwrap_or_default();
+        self.border_top_right_shape = state.style.border_shape_top_right.get(entity).cloned().unwrap_or_default();
+        self.border_bottom_left_shape = state.style.border_shape_bottom_left.get(entity).cloned().unwrap_or_default();
+        self.border_bottom_right_shape = state.style.border_shape_bottom_right.get(entity).cloned().unwrap_or_default();
+
+
+        self.outer_shadow_color = state.style.outer_shadow_color.get(entity).cloned().unwrap_or_default();
+        self.outer_shadow_h_offset = state.style.outer_shadow_h_offset.get(entity).cloned().unwrap_or_default();
+        self.outer_shadow_v_offset = state.style.outer_shadow_v_offset.get(entity).cloned().unwrap_or_default();
+        self.outer_shadow_blur = state.style.outer_shadow_blur.get(entity).cloned().unwrap_or_default();
+
+        
+
+
+        self.text = state.style.text.get(entity).cloned().unwrap_or_default();
+        self.font_color = state.style.font_color.get(entity).cloned().unwrap_or_default();
+        self.font_size = state.style.font_size.get(entity).cloned().unwrap_or(14.0);
+    }
 }
 
 #[derive(Clone)]
@@ -178,15 +236,22 @@ impl CanvasData {
 pub struct AppData {
     pub style_data: StyleData,
     pub canvas_data: CanvasData,
+    pub canvas: Entity,
+    pub color_picker: Entity,
     pub selected: Entity,
+    pub tree: Tree,
 }
 
 impl Default for AppData {
     fn default() -> Self {
+
         Self {
             style_data: StyleData::new(),
             canvas_data: CanvasData::new(),
             selected: Entity::null(),
+            canvas: Entity::null(),
+            color_picker: Entity::null(),
+            tree: Tree::new(),
         }
     }
 }
@@ -196,14 +261,83 @@ impl Model for AppData {
         if let Some(app_event) = event.message.downcast() {
             match app_event {
 
+                AppEvent::SetCanvas(canvas) => {
+                    self.canvas = *canvas;
+                }
+
+                AppEvent::SetColorPicker(color_picker) => {
+                    self.color_picker = *color_picker;
+                }
+
+                AppEvent::AddWidget(widget_type) => {
+                    let parent = if self.selected.is_null() {
+                        self.canvas
+                    } else {
+                        self.selected
+                    };
+
+                    match widget_type {
+                        WidgetType::Button => {
+                            self.selected = Button::new()
+                                .build(state, parent, |builder| 
+                                    builder
+                                        .set_width(Pixels(100.0))
+                                        .set_height(Pixels(40.0))
+                                        .set_background_color(Color::rgb(150, 180, 200))
+                                );
+                            self.style_data.update(state, self.selected);
+                            entity.emit(state, BindEvent::Update);
+                            
+                        }
+
+                        WidgetType::Label => {
+                            self.selected = Label::new("Label")
+                                .build(state, parent, |builder| 
+                                    builder
+                                        .set_width(Pixels(100.0))
+                                        .set_height(Pixels(40.0))
+                                        .set_border_color(Color::black())
+                                        .set_border_width(Units::Pixels(1.0))
+                                        .set_child_space(Stretch(1.0))
+                                        .set_color(Color::black())
+                                );
+                            self.style_data.update(state, self.selected);
+                            entity.emit(state, BindEvent::Update);
+                        }
+                    }
+                }
+
                 AppEvent::SelectWidget(selected) => {
                     self.selected = *selected;
+
+                    self.style_data.update(state, self.selected);
+
+
                     entity.emit(state, BindEvent::Update);
 
                 }
 
                 AppEvent::OpenColorPicker(picker_for) => {
                     self.style_data.current_color = *picker_for;
+
+                    match picker_for {
+                        ColorPickFor::Background => {
+                            self.color_picker.emit(state, ColorPickerEvent::SetColor(self.style_data.background_color));
+                        }
+
+                        ColorPickFor::Border => {
+                            self.color_picker.emit(state, ColorPickerEvent::SetColor(self.style_data.border_color));
+                        }
+
+                        ColorPickFor::Shadow => {
+                            self.color_picker.emit(state, ColorPickerEvent::SetColor(self.style_data.outer_shadow_color));
+                        }
+
+                        ColorPickFor::Text => {
+                            self.color_picker.emit(state, ColorPickerEvent::SetColor(self.style_data.font_color));
+                        }
+                    }
+
                     entity.emit(state, BindEvent::Update);
                 }
 
@@ -425,6 +559,7 @@ impl Widget for App {
                 .set_background_color(Color::rgb(56, 56, 56))
         );
 
+
         Element::new().build(state, entity, |builder|
             builder
                 .class("divider")
@@ -437,18 +572,45 @@ impl Widget for App {
             builder
                 .set_height(Pixels(50.0))
                 .set_background_color(Color::rgb(56, 56, 56))
+                .set_layout_type(LayoutType::Row)
         );
 
-        CanvasOptionsDropdown::new().build(state, top_bar, |builder| 
-            builder
-                .set_width(Pixels(100.0))
-                .set_height(Pixels(30.0))
-                .set_background_color(Color::red())
-                .class("canvas_options")
-        );
+        let dropdown = Dropdown::<()>::new("Add Widget")
+            .build(state, top_bar, |builder| 
+                builder
+                    .set_width(Pixels(120.0))
+                    .set_height(Pixels(30.0))
+                    .set_space(Stretch(1.0))
+                    .set_left(Pixels(10.0))
+            );
+        
+        dropdown.set_width(state, Percentage(100.0));
+
+        Button::with_label("Button")
+            .on_press(|data, state, entity|{
+                entity.emit(state, AppEvent::AddWidget(WidgetType::Button));
+                entity.emit(state, PopupEvent::Close);
+            })
+            .build(state, dropdown, |builder| builder);
+        
+        Button::with_label("Label")
+            .on_press(|data, state, entity|{
+                entity.emit(state, AppEvent::AddWidget(WidgetType::Label));
+                entity.emit(state, PopupEvent::Close);
+            })
+            .build(state, dropdown, |builder| builder);
+
+
+        // CanvasOptionsDropdown::new().build(state, top_bar, |builder| 
+        //     builder
+        //         .set_width(Pixels(100.0))
+        //         .set_height(Pixels(30.0))
+        //         .set_background_color(Color::red())
+        //         .class("canvas_options")
+        // );
 
         let canvas = Canvas::default()
-            .bind(AppData::style_data, |style_data| style_data.clone())
+            .bind_ref(AppData::root)
             .build(state, col, |builder| 
                 builder
                     //.set_background_color(Color::red())
@@ -459,11 +621,13 @@ impl Widget for App {
                 .class("divider")
         );
 
-        StyleControls::default().build(state, entity, |builder| 
-            builder
-                .set_background_color(Color::rgb(56,56,56))
-                
-        );
+        StyleControls::default()
+            .bind_ref(AppData::style_data)
+            .build(state, entity, |builder| 
+                builder
+                    .set_background_color(Color::rgb(56,56,56))
+                    
+            );
 
         self.color_picker = PopupWindow::new("Color Picker").build(state, entity, |builder| 
             builder
@@ -474,7 +638,7 @@ impl Widget for App {
                 //.set_child_space(Stretch(1.0))
         ).entity();
 
-        ColorPicker::new()
+        let color_picker = ColorPicker::new()
             .on_changing(|data, state, color_picker|{
                 color_picker.emit(state, AppEvent::SetColor(data.color()));
             })
@@ -483,10 +647,12 @@ impl Widget for App {
                     .set_left(Pixels(10.0))
                     .set_top(Pixels(10.0))
             );
+        
+        entity.emit(state, AppEvent::SetColorPicker(color_picker));
 
-        // Overlay::new()
-        //     .bind(AppData::selected, |selected| *selected)
-        //     .build(state, canvas, |builder| builder);
+        Overlay::new()
+            .bind(AppData::selected, |selected| *selected)
+            .build(state, canvas, |builder| builder);
         
         entity.set_layout_type(state, LayoutType::Row)
     }
@@ -507,76 +673,99 @@ impl Widget for App {
 
 #[derive(Default)]
 pub struct Canvas {
-    element: Entity,
+    canvas: Entity,
 }
 
 impl Widget for Canvas {
     type Ret = Entity;
-    type Data = StyleData;
+    type Data = AppData;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         
 
-        let canvas = Element::new().build(state, entity, |builder|
+        self.canvas = Element::new().build(state, entity, |builder|
             builder
                 .set_width(Pixels(400.0))
                 .set_height(Pixels(300.0))
                 .set_background_color(Color::rgb(255, 255, 255))
+                .set_child_space(Stretch(1.0))
         );
 
-        self.element = Element::new().build(state, canvas, |builder|
-            builder
-                .set_width(Pixels(100.0))
-                .set_height(Pixels(100.0))
-                .set_background_color(Color::rgb(20, 80, 200))
-        );
+        entity.emit(state, AppEvent::SetCanvas(self.canvas));
 
-        entity.emit(state, AppEvent::SelectWidget(self.element));
+
+
+        // self.element = Element::new().build(state, canvas, |builder|
+        //     builder
+        //         .set_width(Pixels(100.0))
+        //         .set_height(Pixels(100.0))
+        //         .set_background_color(Color::rgb(20, 80, 200))
+        // );
+
+        //entity.emit(state, AppEvent::SelectWidget(self.element));
 
         entity.set_child_space(state, Stretch(1.0))
     }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        self.element
-            .set_background_color(state, data.background_color)
-            // Size
-            .set_width(state, data.width)
-            .set_height(state, data.height)
-            // Space
-            .set_left(state, data.left)
-            .set_right(state, data.right)
-            .set_top(state, data.top)
-            .set_bottom(state, data.bottom)
-            // Child Space
-            .set_child_left(state, data.child_left)
-            .set_child_top(state, data.child_top)
-            .set_child_right(state, data.child_right)
-            .set_child_bottom(state, data.child_bottom)
-            // Border
-            .set_border_color(state, data.border_color)
-            // Border Shape
-            .set_border_top_left_shape(state, data.border_top_left_shape)
-            .set_border_top_right_shape(state, data.border_top_right_shape)
-            .set_border_bottom_left_shape(state, data.border_bottom_left_shape)
-            .set_border_bottom_right_shape(state, data.border_bottom_right_shape)
-            // Border Width
-            .set_border_width(state, data.border_width)
-            // Border Radius
-            .set_border_radius_top_left(state, data.border_radius_top_left)
-            .set_border_radius_top_right(state, data.border_radius_top_right)
-            .set_border_radius_bottom_left(state, data.border_radius_bottom_left)
-            .set_border_radius_bottom_right(state, data.border_radius_bottom_right)
-            // Text
-            .set_text(state, &data.text)
-            .set_color(state, data.font_color)
-            .set_font_size(state, data.font_size)
-            // Outer Shadow
-            .set_outer_shadow_color(state, data.outer_shadow_color)
-            .set_outer_shadow_h_offset(state, data.outer_shadow_h_offset)
-            .set_outer_shadow_v_offset(state, data.outer_shadow_v_offset)
-            .set_outer_shadow_blur(state, data.outer_shadow_blur);
 
+        if !data.selected.is_null() {
+            data.selected
+                .set_background_color(state, data.style_data.background_color)
+                // Size
+                .set_width(state, data.style_data.width)
+                .set_height(state, data.style_data.height)
+                // Space
+                .set_left(state, data.style_data.left)
+                .set_right(state, data.style_data.right)
+                .set_top(state, data.style_data.top)
+                .set_bottom(state, data.style_data.bottom)
+                // Child Space
+                .set_child_left(state, data.style_data.child_left)
+                .set_child_top(state, data.style_data.child_top)
+                .set_child_right(state, data.style_data.child_right)
+                .set_child_bottom(state, data.style_data.child_bottom)
+                // Border
+                .set_border_color(state, data.style_data.border_color)
+                // Border Shape
+                .set_border_top_left_shape(state, data.style_data.border_top_left_shape)
+                .set_border_top_right_shape(state, data.style_data.border_top_right_shape)
+                .set_border_bottom_left_shape(state, data.style_data.border_bottom_left_shape)
+                .set_border_bottom_right_shape(state, data.style_data.border_bottom_right_shape)
+                // Border Width
+                .set_border_width(state, data.style_data.border_width)
+                // Border Radius
+                .set_border_radius_top_left(state, data.style_data.border_radius_top_left)
+                .set_border_radius_top_right(state, data.style_data.border_radius_top_right)
+                .set_border_radius_bottom_left(state, data.style_data.border_radius_bottom_left)
+                .set_border_radius_bottom_right(state, data.style_data.border_radius_bottom_right)
+                // Text
+                .set_text(state, &data.style_data.text)
+                .set_color(state, data.style_data.font_color)
+                .set_font_size(state, data.style_data.font_size)
+                // Outer Shadow
+                .set_outer_shadow_color(state, data.style_data.outer_shadow_color)
+                .set_outer_shadow_h_offset(state, data.style_data.outer_shadow_h_offset)
+                .set_outer_shadow_v_offset(state, data.style_data.outer_shadow_v_offset)
+                .set_outer_shadow_blur(state, data.style_data.outer_shadow_blur);            
+        }
+    }
 
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        if let Some(window_event) = event.message.downcast() {
+            match window_event {
+                WindowEvent::MouseDown(button) if *button == MouseButton::Left => {
+                    if state.hovered == self.canvas {
+                        entity.emit(state, AppEvent::SelectWidget(Entity::null()));
+                    } else if state.hovered.is_descendant_of(&state.tree, self.canvas) {
+                        entity.emit(state, AppEvent::SelectWidget(state.hovered));
+                    }
+                    
+                }
+
+                _=> {}
+            }
+        }
     }
 }
 
@@ -587,7 +776,7 @@ pub struct StyleControls {
 
 impl Widget for StyleControls {
     type Ret = Entity;
-    type Data = ();
+    type Data = StyleData;
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
 
@@ -803,13 +992,14 @@ impl Widget for StyleControls {
             .on_press(|data, state, button|{
                 button.emit(state, AppEvent::OpenColorPicker(ColorPickFor::Border));
             })
-            .bind(AppData::style_data.then(StyleData::border_color), |col| *col)
+            .bind(StyleData::border_color, |col| *col)
             .build(state, row, |builder| builder.set_background_color(Color::black()));
 
         LengthBox::new("Border Width")
             .on_changed(|data, state, lengthbox|{
                 lengthbox.emit(state, AppEvent::SetBorderWidth(data.value()));                
             })
+            .bind_ref(StyleData::border_width)
             .build(state, border_panel, |builder| builder);
 
         let (border_radius_panel, border_radius_panel_header) = Panel::new("")
@@ -949,7 +1139,7 @@ impl Widget for StyleControls {
             .on_press(|data, state, button|{
                 button.emit(state, AppEvent::OpenColorPicker(ColorPickFor::Text));
             })
-            .bind(AppData::style_data.then(StyleData::font_color), |col| *col)
+            .bind(StyleData::font_color, |col| *col)
             .build(state, row, |builder| builder.set_background_color(Color::black()));
         
 
@@ -957,6 +1147,7 @@ impl Widget for StyleControls {
         .on_submit(|data, state, textbox|{
             textbox.emit(state, AppEvent::SetText(data.text.clone()));
         })
+        .bind(StyleData::text, |txt| txt.to_owned())
         .build(state, text_panel, |builder| 
             builder
                 .set_height(Pixels(30.0))
