@@ -822,9 +822,10 @@ impl Widget for StyleControls {
             .set_child_space(state, Pixels(10.0))
             .set_row_between(state, Pixels(10.0));
 
-        Label::new("Size:").build(state, scroll, |builder| 
+        Label::new("SIZE").build(state, scroll, |builder| 
             builder
                 .set_height(Pixels(30.0))
+                .class("header")
         );
         let (size_panel, size_panel_header) = Panel::new("")
         .build(state, scroll, |builder| 
@@ -856,9 +857,12 @@ impl Widget for StyleControls {
             .bind(AppData::style_data.then(StyleData::height), |val| *val)
             .build(state, size_panel, |builder| builder);
 
-        Label::new("Space:").build(state, scroll, |builder| 
+        Element::new().build(state, scroll, |builder| builder.class("spacer"));
+
+        Label::new("SPACE").build(state, scroll, |builder| 
             builder
                 .set_height(Pixels(30.0))
+                .class("header")
         );
         let (space_panel, space_panel_header) = Panel::new("")
             .build(state, scroll, |builder| 
@@ -901,9 +905,12 @@ impl Widget for StyleControls {
                 .bind(AppData::style_data.then(StyleData::bottom), |val| *val)
                 .build(state, space_panel, |builder| builder);
 
-        Label::new("Space:").build(state, scroll, |builder| 
+        Element::new().build(state, scroll, |builder| builder.class("spacer"));        
+        
+        Label::new("CHILD SPACE").build(state, scroll, |builder| 
             builder
                 .set_height(Pixels(30.0))
+                .class("header")
         );
         let (child_space_panel, child_space_panel_header) = Panel::new("")
             .build(state, scroll, |builder| 

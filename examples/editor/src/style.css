@@ -65,6 +65,10 @@ textbox {
     color: white;
 }
 
+label.header {
+    color: #8a8a8a; 
+}
+
 dropdown {
     background-color: #494949;
 }
