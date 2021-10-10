@@ -196,7 +196,19 @@ where
     /// background_color.remove(entity);
     /// ```
     pub fn remove(&mut self, entity: Entity) -> Option<T> {
-        self.inline_data.remove(entity)
+        let entity_index = entity.index();
+        
+        if entity_index < self.inline_data.sparse.len() {
+            let data_index = self.inline_data.sparse[entity_index].data_index;
+            if data_index.is_inline() {
+                self.inline_data.remove(entity)
+            } else {
+                self.inline_data.sparse[entity_index] = InlineIndex::null();
+                None
+            }
+        } else {
+            None
+        }
     }
 
     /// Inserts an animation
@@ -656,6 +668,5 @@ mod tests {
         animatable_storage.insert(Entity::root(), 5.0);
         //assert_eq!(animatable_storage.entity_indices.first().unwrap().data_index, DataIndex::inline(0));
     }
-
 
 }

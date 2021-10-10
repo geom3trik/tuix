@@ -138,7 +138,7 @@ where
                 self.sparse[swapped_entry.key] = dense_idx; 
             }
 
-            self.sparse[sparse_idx] = D::new(self.sparse.len());
+            self.sparse[sparse_idx] = D::null();
 
             Some(r)
         } else {
@@ -215,6 +215,122 @@ mod tests {
         let mut sparse_set = SparseSet::new();
         let res = sparse_set.insert(Entity::null(), 42);
         assert_eq!(res, Err(SparseSetError::NullKey));
+    }
+
+    /// Test removing item when sparse set contains only one item
+    #[test]
+    fn remove_single() {
+        let mut sparse_set = SparseSet::new();
+        let res = sparse_set.insert(Entity::root(), 42);
+
+        assert_eq!(res, Ok(()));
+        assert_eq!(sparse_set.sparse, [0]);
+        assert_eq!(sparse_set.dense[0].key, 0);
+        assert_eq!(sparse_set.dense[0].value, 42);
+
+        let ret = sparse_set.remove(Entity::root());
+        assert_eq!(ret, Some(42));
+        println!("{:?}", sparse_set);
+    }
+
+    /// Test removing first of two items
+    #[test]
+    fn remove_first() {
+        let mut sparse_set = SparseSet::new();
+        let res1 = sparse_set.insert(Entity::root(), 42);
+        let res2 = sparse_set.insert(Entity::new(1,0), 69);
+
+        assert_eq!(res1, Ok(()));
+        assert_eq!(res2, Ok(()));
+        assert_eq!(sparse_set.sparse, [0, 1]);
+        assert_eq!(sparse_set.dense[0].key, 0);
+        assert_eq!(sparse_set.dense[0].value, 42);
+        assert_eq!(sparse_set.dense[1].key, 1);
+        assert_eq!(sparse_set.dense[1].value, 69);
+
+        let ret = sparse_set.remove(Entity::root());
+        assert_eq!(ret, Some(42));
+        println!("{:?}", sparse_set);
+    }
+
+    /// Test removing last of two items
+    #[test]
+    fn remove_last() {
+        let mut sparse_set = SparseSet::new();
+        let res1 = sparse_set.insert(Entity::root(), 42);
+        let res2 = sparse_set.insert(Entity::new(1,0), 69);
+
+        assert_eq!(res1, Ok(()));
+        assert_eq!(res2, Ok(()));
+        assert_eq!(sparse_set.sparse, [0, 1]);
+        assert_eq!(sparse_set.dense[0].key, 0);
+        assert_eq!(sparse_set.dense[0].value, 42);
+        assert_eq!(sparse_set.dense[1].key, 1);
+        assert_eq!(sparse_set.dense[1].value, 69);
+
+        let ret = sparse_set.remove(Entity::new(1,0));
+        assert_eq!(ret, Some(69));
+        println!("{:?}", sparse_set);
+    }
+
+    /// Test removing middle of three items
+    #[test]
+    fn remove_middle() {
+        let mut sparse_set = SparseSet::new();
+        let res1 = sparse_set.insert(Entity::root(), 42);
+        let res2 = sparse_set.insert(Entity::new(1,0), 69);
+        let res3 = sparse_set.insert(Entity::new(2,0), 33);
+
+        assert_eq!(res1, Ok(()));
+        assert_eq!(res2, Ok(()));
+        assert_eq!(res3, Ok(()));
+        assert_eq!(sparse_set.sparse, [0, 1, 2]);
+        assert_eq!(sparse_set.dense[0].key, 0);
+        assert_eq!(sparse_set.dense[0].value, 42);
+        assert_eq!(sparse_set.dense[1].key, 1);
+        assert_eq!(sparse_set.dense[1].value, 69);
+        assert_eq!(sparse_set.dense[2].key, 2);
+        assert_eq!(sparse_set.dense[2].value, 33);
+
+        let ret = sparse_set.remove(Entity::new(1,0));
+        assert_eq!(ret, Some(69));
+        println!("{:?}", sparse_set);
+    }
+
+    /// Test removing item when the sparse array is actually sparse
+    #[test]
+    fn remove_sparse() {
+        let mut sparse_set = SparseSet::new();
+        let res1 = sparse_set.insert(Entity::root(), 42);
+        let res2 = sparse_set.insert(Entity::new(12,0), 69);
+        let res3 = sparse_set.insert(Entity::new(5,0), 33);
+
+        assert_eq!(res1, Ok(()));
+        assert_eq!(res2, Ok(()));
+        assert_eq!(res3, Ok(()));
+        assert_eq!(sparse_set.sparse, [0, 
+            std::usize::MAX, std::usize::MAX, 
+            std::usize::MAX, std::usize::MAX, 
+            2, 
+            std::usize::MAX, 
+            std::usize::MAX, 
+            std::usize::MAX, 
+            std::usize::MAX, 
+            std::usize::MAX, 
+            std::usize::MAX, 
+            1]);
+        assert_eq!(sparse_set.dense[0].key, 0);
+        assert_eq!(sparse_set.dense[0].value, 42);
+        assert_eq!(sparse_set.dense[1].key, 12);
+        assert_eq!(sparse_set.dense[1].value, 69);
+        assert_eq!(sparse_set.dense[2].key, 5);
+        assert_eq!(sparse_set.dense[2].value, 33);
+
+        let ret = sparse_set.remove(Entity::new(12,0));
+        assert_eq!(ret, Some(69));
+
+        sparse_set.insert(Entity::new(12, 1), 77);
+        println!("{:?}", sparse_set);
     }
 
 
