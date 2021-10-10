@@ -80,6 +80,9 @@ pub enum AppEvent {
     SetChildRight(Units),
     SetChildTop(Units),
     SetChildBottom(Units),
+    // Space Between
+    SetRowBetween(Units),
+    SetColBetween(Units),
     // Border
     SetBorderWidth(Units),
     SetBorderRadius(Units),
@@ -124,7 +127,9 @@ pub struct StyleData {
     pub child_top: Units,
     pub child_right: Units,
     pub child_bottom: Units,
-
+    // Space Between
+    pub row_between: Units,
+    pub col_between: Units,
 
     // Background
     pub background_color: Color,
@@ -184,6 +189,9 @@ impl StyleData {
         self.child_right = state.style.child_right.get(entity).cloned().unwrap_or_default();
         self.child_top = state.style.child_top.get(entity).cloned().unwrap_or_default();
         self.child_bottom = state.style.child_bottom.get(entity).cloned().unwrap_or_default();
+
+        self.row_between = state.style.row_between.get(entity).cloned().unwrap_or_default();
+        self.col_between = state.style.col_between.get(entity).cloned().unwrap_or_default();
 
         self.background_color = state.style.background_color.get(entity).cloned().unwrap_or_default();
 
@@ -312,6 +320,9 @@ impl Model for AppData {
 
                     self.style_data.update(state, self.selected);
 
+                    if self.color_picker.is_visible(state) {
+                        entity.emit(state, AppEvent::OpenColorPicker(self.style_data.current_color));
+                    }
 
                     entity.emit(state, BindEvent::Update);
 
@@ -419,6 +430,17 @@ impl Model for AppData {
 
                 AppEvent::SetChildBottom(val) => {
                     self.style_data.child_bottom = *val;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                // Space Between
+                AppEvent::SetRowBetween(val) => {
+                    self.style_data.row_between = *val;
+                    entity.emit(state, BindEvent::Update);
+                }
+
+                AppEvent::SetColBetween(val) => {
+                    self.style_data.col_between = *val;
                     entity.emit(state, BindEvent::Update);
                 }
 
@@ -725,6 +747,9 @@ impl Widget for Canvas {
                 .set_child_top(state, data.style_data.child_top)
                 .set_child_right(state, data.style_data.child_right)
                 .set_child_bottom(state, data.style_data.child_bottom)
+                // Space Between
+                .set_row_between(state, data.style_data.row_between)
+                .set_col_between(state, data.style_data.col_between)
                 // Border
                 .set_border_color(state, data.style_data.border_color)
                 // Border Shape
@@ -822,13 +847,12 @@ impl Widget for StyleControls {
             .set_child_space(state, Pixels(10.0))
             .set_row_between(state, Pixels(10.0));
 
-        Label::new("SIZE").build(state, scroll, |builder| 
+        let size_panel = Panel::new("SIZE").build(state, scroll, |builder| 
             builder
-                .set_height(Pixels(30.0))
-                .class("header")
         );
+
         let (size_panel, size_panel_header) = Panel::new("")
-        .build(state, scroll, |builder| 
+        .build(state, size_panel, |builder| 
             builder
                 .class("group")
         );
@@ -859,13 +883,12 @@ impl Widget for StyleControls {
 
         Element::new().build(state, scroll, |builder| builder.class("spacer"));
 
-        Label::new("SPACE").build(state, scroll, |builder| 
+        let space_panel = Panel::new("SPACE").build(state, scroll, |builder| 
             builder
-                .set_height(Pixels(30.0))
-                .class("header")
         );
+
         let (space_panel, space_panel_header) = Panel::new("")
-            .build(state, scroll, |builder| 
+            .build(state, space_panel, |builder| 
                 builder
                     .class("group")
             );
@@ -906,14 +929,13 @@ impl Widget for StyleControls {
                 .build(state, space_panel, |builder| builder);
 
         Element::new().build(state, scroll, |builder| builder.class("spacer"));        
-        
-        Label::new("CHILD SPACE").build(state, scroll, |builder| 
+
+        let child_space_panel = Panel::new("CHILD SPACE").build(state, scroll, |builder| 
             builder
-                .set_height(Pixels(30.0))
-                .class("header")
         );
+
         let (child_space_panel, child_space_panel_header) = Panel::new("")
-            .build(state, scroll, |builder| 
+            .build(state, child_space_panel, |builder| 
                 builder
                     .class("group")
             );
@@ -947,11 +969,30 @@ impl Widget for StyleControls {
             .build(state, child_space_panel, |builder| builder);
             
         LengthBox::new("Child Bottom")
-                .on_changed(|data, state, lengthbox|{
-                    lengthbox.emit(state, AppEvent::SetChildBottom(data.value()));      
-                })
-                .bind(AppData::style_data.then(StyleData::child_bottom), |val| *val)
-                .build(state, child_space_panel, |builder| builder);
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetChildBottom(data.value()));      
+            })
+            .bind(AppData::style_data.then(StyleData::child_bottom), |val| *val)
+            .build(state, child_space_panel, |builder| builder);
+
+
+        let space_between_panel = Panel::new("SPACE BETWEEN").build(state, scroll, |builder| 
+            builder
+        );
+    
+        LengthBox::new("Row Between")
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetRowBetween(data.value()));
+            })
+            .bind(AppData::style_data.then(StyleData::row_between), |val| *val)
+            .build(state, space_between_panel, |builder| builder);
+
+        LengthBox::new("Column Between")
+            .on_changed(|data, state, lengthbox|{
+                lengthbox.emit(state, AppEvent::SetColBetween(data.value()));      
+            })
+            .bind(AppData::style_data.then(StyleData::col_between), |val| *val)
+            .build(state, space_between_panel, |builder| builder);
     
         // STYLE PAGE
         let scroll = ScrollContainer::new()

@@ -1284,7 +1284,7 @@ pub trait PropSet: AsEntity + Sized {
 impl<T: AsEntity> PropSet for T {
 
 }
-pub trait PropGet: AsEntity {
+pub trait PropGet: Sized + AsEntity {
 
 
     fn name(&self, state: &mut State) -> String {
@@ -1302,6 +1302,10 @@ pub trait PropGet: AsEntity {
     fn is_focused(self, state: &mut State) -> bool;
     fn is_selected(self, state: &mut State) -> bool;
     fn is_hovered(self, state: &mut State) -> bool;
+
+    fn is_visible(self, state: &mut State) -> bool {
+        state.data.get_visibility(self.entity()) == Visibility::Visible
+    }
 
     //
     fn get_overflow(&self, state: &mut State) -> Overflow;

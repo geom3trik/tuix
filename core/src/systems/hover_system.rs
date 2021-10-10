@@ -1,3 +1,5 @@
+use morphorm::Cache;
+
 use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, State, Units, Visibility, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
@@ -118,7 +120,7 @@ pub fn apply_hover(state: &mut State) {
 
         #[cfg(debug_assertions)]
         println!(
-            "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+            "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {} {} {}",
             hovered_widget,
             state.tree.get_parent(hovered_widget),
             state.data.get_posx(hovered_widget),
@@ -126,6 +128,8 @@ pub fn apply_hover(state: &mut State) {
             state.data.get_width(hovered_widget),
             state.data.get_height(hovered_widget),
             state.data.get_z_index(hovered_widget),
+            state.data.stack_first_child(hovered_widget),
+            state.data.stack_last_child(hovered_widget),
         );
 
         hovered_widget.set_hover(state, true);

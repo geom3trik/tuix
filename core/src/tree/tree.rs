@@ -100,37 +100,22 @@ impl Tree {
 
     /// Returns the parent of an entity
     pub fn get_parent(&self, entity: Entity) -> Option<Entity> {
-        let index = entity.index();
-        if index >= self.parent.len() {
-            None
-        } else {
-            self.parent[index]
-        }
+        self.parent.get(entity.index()).map_or(None, |&parent| parent)
     }
 
     /// Returns the first child of an entity or `None` if there isn't one
     pub fn get_first_child(&self, entity: Entity) -> Option<Entity> {
-        let index = entity.index();
-        if let Some(first_child) = self.first_child.get(index) {
-            return *first_child;
-        }            
-        
-        None
+        self.first_child.get(entity.index()).map_or(None, |&first_child| first_child)
     }
 
-    /// Returns the next sibling of an entity or `None` if there isn't one
+    /// Returns the next sibling of an entity or `None` if t here isn't one
     pub fn get_next_sibling(&self, entity: Entity) -> Option<Entity> {
-        let index = entity.index();
-        if let Some(next_sibling) = self.next_sibling.get(index) {
-            return *next_sibling;
-        }
-
-        None
+        self.next_sibling.get(entity.index()).map_or(None, |&next_sibling| next_sibling)
     }
 
     /// Returns the previous sibling of an entity or `None` if there isn't one
     pub fn get_prev_sibling(&self, entity: Entity) -> Option<Entity> {
-        self.prev_sibling[entity.index()]
+        self.prev_sibling.get(entity.index()).map_or(None, |&prev_sibling| prev_sibling)
     }
 
     /// Returns true if the entity is the first child of its parent
@@ -177,7 +162,7 @@ impl Tree {
 
     /// Returns true if the entity has children
     pub fn has_children(&self, entity: Entity) -> bool {
-        self.first_child[entity.index()].is_some()
+        self.get_first_child(entity).is_some()
     }
 
     /// Removes an entity from the tree

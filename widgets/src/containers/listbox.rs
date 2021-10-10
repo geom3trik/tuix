@@ -77,9 +77,7 @@ impl Widget for List {
                         if let Some(prev_entity) =
                             state.tree.get_prev_sibling(self.checked_entity)
                         {
-
-                            // TODO - prevent underflow
-                            self.selected_index -= 1;
+                            self.selected_index = self.selected_index.saturating_sub(1);
 
                             state.insert_event(
                                 Event::new(CheckboxEvent::Unchecked)

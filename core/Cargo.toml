@@ -16,4 +16,5 @@ fnv = "1.0.7"
 num-traits = "0.2.14"
 # tts = "0.17.3"
 # image = { version = "0.23.6"}
-morphorm = "0.2.0"
+# morphorm = "0.2.0"
+morphorm = {git = "https://github.com/geom3trik/morphorm"}
