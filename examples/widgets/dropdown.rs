@@ -32,6 +32,7 @@ const STYLE: &str = r#"
         height: 30px;
         child-space: 1s;
         background-color: #d2d2d2;
+        border-width: 0px;
     }
 
     list>check_button:hover {
@@ -80,6 +81,7 @@ impl Widget for Container {
         Element::new().build(state, self.dropdown, |builder| 
             builder
                 .set_height(Pixels(5.0))
+                .set_selectable(false)
         );
 
         CheckButton::with_label("Red")
@@ -120,6 +122,7 @@ impl Widget for Container {
         Element::new().build(state, self.dropdown, |builder| 
             builder
                 .set_height(Pixels(5.0))
+                .set_selectable(false)
         );
 
         container.set_background_color(state, Color::white()).set_focusable(state, false)
@@ -141,7 +144,7 @@ impl Widget for Container {
 fn main() {
     let app = Application::new(
     WindowDescription::new()
-            .with_title("Spinbox")
+            .with_title("Dropdown")
             .with_inner_size(300, 300),
     |state, window| {
 

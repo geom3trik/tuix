@@ -79,6 +79,7 @@ pub struct Dropdown<T> {
     pub container: Entity,
     pub header: Entity,
     pub label: Entity,
+    pub list: Entity,
 
     text: String,
 
@@ -92,6 +93,7 @@ impl<T: 'static + Clone + Default> Dropdown<T> {
             container: Entity::null(),
             header: Entity::null(),
             label: Entity::null(),
+            list: Entity::null(),
             text: text.to_string(),
             value: T::default(),
         }
@@ -150,7 +152,7 @@ impl<T: 'static + Clone> Widget for Dropdown<T> {
                 .class("container")
         });
 
-        let list = List::new().build(state, self.container, |builder| 
+        self.list = List::new().build(state, self.container, |builder| 
             builder
                 .set_height(Auto)
         );
@@ -171,7 +173,7 @@ impl<T: 'static + Clone> Widget for Dropdown<T> {
             )
         );
 
-        list
+        self.list
     }
 
     fn on_update(&mut self, _state: &mut State, _entity: Entity, data: &Self::Data) {
@@ -194,6 +196,11 @@ impl<T: 'static + Clone> Widget for Dropdown<T> {
             match popup_event {
                 PopupEvent::Close => {
                     entity.emit(state, CheckboxEvent::Uncheck);
+                    state.set_focus(entity);
+                }
+
+                PopupEvent::Open => {
+                    state.set_focus(self.list);
                 }
 
                 _=> {}

@@ -50,26 +50,29 @@ impl Widget for List {
                         if let Some(next_entity) =
                             state.tree.get_next_sibling(self.checked_entity)
                         {
-                            self.selected_index += 1;
+                            if next_entity.is_selectable(state) {
+                                self.selected_index += 1;
+    
+                                //TODO
+                                // if state.data.get_checkable(next_sibling)
+    
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Unchecked)
+                                        .target(self.checked_entity)
+                                        .origin(entity)
+                                        .propagate(Propagation::Direct),
+                                );
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Checked)
+                                        .target(next_entity)
+                                        .origin(entity)
+                                        .propagate(Propagation::Direct),
+                                );
+                                self.checked_entity = next_entity;
+                            
+                                event.consume();
+                            }
 
-                            //TODO
-                            // if state.data.get_checkable(next_sibling)
-
-                            state.insert_event(
-                                Event::new(CheckboxEvent::Unchecked)
-                                    .target(self.checked_entity)
-                                    .origin(entity)
-                                    .propagate(Propagation::Direct),
-                            );
-                            state.insert_event(
-                                Event::new(CheckboxEvent::Checked)
-                                    .target(next_entity)
-                                    .origin(entity)
-                                    .propagate(Propagation::Direct),
-                            );
-                            self.checked_entity = next_entity;
-
-                            event.consume();
                         }
                     }
 
@@ -77,23 +80,26 @@ impl Widget for List {
                         if let Some(prev_entity) =
                             state.tree.get_prev_sibling(self.checked_entity)
                         {
-                            self.selected_index = self.selected_index.saturating_sub(1);
+                            if prev_entity.is_selectable(state) {
+                                self.selected_index = self.selected_index.saturating_sub(1);
+    
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Unchecked)
+                                        .target(self.checked_entity)
+                                        .origin(entity)
+                                        .propagate(Propagation::Direct),
+                                );
+                                state.insert_event(
+                                    Event::new(CheckboxEvent::Checked)
+                                        .target(prev_entity)
+                                        .origin(entity)
+                                        .propagate(Propagation::Direct),
+                                );
+                                self.checked_entity = prev_entity;
+                                
+                                event.consume();
+                            }
 
-                            state.insert_event(
-                                Event::new(CheckboxEvent::Unchecked)
-                                    .target(self.checked_entity)
-                                    .origin(entity)
-                                    .propagate(Propagation::Direct),
-                            );
-                            state.insert_event(
-                                Event::new(CheckboxEvent::Checked)
-                                    .target(prev_entity)
-                                    .origin(entity)
-                                    .propagate(Propagation::Direct),
-                            );
-                            self.checked_entity = prev_entity;
-
-                            event.consume();
                         }
                     }
 

@@ -85,6 +85,20 @@ impl<'a,T> Builder<'a,T> {
     }
 
 
+    /// Sets whether the entity can be checked
+    pub fn set_checkable(self, value: bool) -> Self {
+        self.state.data.set_checkable(self.entity, value);
+
+        self
+    }
+
+    /// Sets whether the entity can be selected
+    pub fn set_selectable(self, value: bool) -> Self {
+        self.state.data.set_selectable(self.entity, value);
+
+        self
+    }
+
     /// Sets whether the entity can be hovered
     pub fn set_hoverable(self, value: bool) -> Self {
         self.state.data.set_hoverable(self.entity, value);

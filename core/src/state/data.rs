@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::default;
+use std::fmt::Debug;
 
 use femtovg::ImageId;
 use morphorm::GeometryChanged;
@@ -10,6 +12,8 @@ use crate::style::Transform2D;
 
 use crate::storage::sparse_set::SparseSet;
 use crate::storage::sparse_set::SparseSetError;
+
+use bitflags::bitflags;
 
 /// Computed properties used for layout and drawing
 
@@ -72,6 +76,21 @@ impl Default for BoundingBox {
     }
 }
 
+bitflags! {
+    pub struct Abilities: u8 {
+        const HOVERABLE = 1;
+        const FOCUSABLE = 1 << 1;
+        const CHECKABLE = 1 << 2;
+        const SELECTABLE = 1 << 3;
+    } 
+}
+
+impl Default for Abilities {
+    fn default() -> Abilities {
+        Abilities::all()
+    }
+}
+
 /// Stores data which can be cached between system runs.
 ///
 /// When an event occurs or style data is changed systems run to determine the new state of the UI.
@@ -83,8 +102,7 @@ pub struct CachedData {
     pub(crate) display: SparseSet<Display>,
     pub(crate) opacity: SparseSet<f32>,
     // TODO - combine hoverable and focusable with a bitflag
-    pub(crate) hoverable: SparseSet<bool>,
-    pub(crate) focusable: SparseSet<bool>,
+    pub(crate) abilities: SparseSet<Abilities>,
 
     pub(crate) z_index: SparseSet<i32>,
 
@@ -130,8 +148,7 @@ impl CachedData {
         self.bounds.insert(entity, Default::default())?;
         self.visibility.insert(entity, Default::default())?;
         self.display.insert(entity, Default::default())?;
-        self.hoverable.insert(entity, true)?;
-        self.focusable.insert(entity, true)?;
+        self.abilities.insert(entity, Abilities::all())?;
         self.child_sum.insert(entity, (0.0, 0.0))?;
         self.child_max.insert(entity, (0.0, 0.0))?;
 
@@ -211,8 +228,7 @@ impl CachedData {
     pub fn remove(&mut self, entity: Entity) {
         self.bounds.remove(entity);
         self.visibility.remove(entity);
-        self.hoverable.remove(entity);
-        self.focusable.remove(entity);
+        self.abilities.remove(entity);
         self.child_sum.remove(entity);
         self.child_max.remove(entity);
 
@@ -690,28 +706,54 @@ impl CachedData {
     }
 
     pub fn get_hoverable(&self, entity: Entity) -> bool {
-        self.hoverable
+        self.abilities
             .get(entity)
             .cloned()
-            .unwrap()
+            .unwrap().intersects(Abilities::HOVERABLE)
     }
 
     pub fn get_focusable(&self, entity: Entity) -> bool {
-        self.focusable
+        self.abilities
             .get(entity)
             .cloned()
-            .unwrap()
+            .unwrap().intersects(Abilities::FOCUSABLE)
+    }
+
+    pub fn get_checkable(&self, entity: Entity) -> bool {
+        self.abilities
+            .get(entity)
+            .cloned()
+            .unwrap().intersects(Abilities::CHECKABLE)
+    }
+
+    pub fn get_selectable(&self, entity: Entity) -> bool {
+        self.abilities
+            .get(entity)
+            .cloned()
+            .unwrap().intersects(Abilities::SELECTABLE)
     }
 
     pub(crate) fn set_hoverable(&mut self, entity: Entity, val: bool) {
-        if let Some(hoverable) = self.hoverable.get_mut(entity) {
-            *hoverable = val;
+        if let Some(abilities) = self.abilities.get_mut(entity) {
+            abilities.set(Abilities::HOVERABLE, val);
         }
     }
 
     pub(crate) fn set_focusable(&mut self, entity: Entity, val: bool) {
-        if let Some(focusable) = self.focusable.get_mut(entity) {
-            *focusable = val;
+        if let Some(abilities) = self.abilities.get_mut(entity) {
+            abilities.set(Abilities::FOCUSABLE, val);
+        }
+    }
+
+    pub(crate) fn set_checkable(&mut self, entity: Entity, val: bool) {
+        if let Some(abilities) = self.abilities.get_mut(entity) {
+            abilities.set(Abilities::CHECKABLE, val);
+        }
+    }
+
+    pub(crate) fn set_selectable(&mut self, entity: Entity, val: bool) {
+        if let Some(abilities) = self.abilities.get_mut(entity) {
+            abilities.set(Abilities::SELECTABLE, val);
         }
     }
 

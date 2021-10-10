@@ -353,6 +353,44 @@ pub trait PropSet: AsEntity + Sized {
         self.entity()
     }
 
+    
+    /// Sets whether the entity can be checked.
+    ///
+    /// Entities which are *not* checkable will not receive checkbox events and cannot be selected in css
+    /// with the `:checked` pseudoclass.
+    ///
+    /// # Example
+    /// ```
+    /// entity.set_checkable(state, false);
+    /// ```
+    fn set_checkable(self, state: &mut State, value: bool) -> Entity {
+        state.data.set_checkable(self.entity(), value);
+
+        Entity::root().restyle(state);
+        Entity::root().relayout(state);
+        Entity::root().redraw(state);
+
+        self.entity()
+    }
+
+    /// Sets whether the entity can be selected in a list.
+    ///
+    /// Entities which are *not* selectable cannot be selected in css with the `:selected` pseudoclass.
+    ///
+    /// # Example
+    /// ```
+    /// entity.set_selectable(state, false);
+    /// ```
+    fn set_selectable(self, state: &mut State, value: bool) -> Entity {
+        state.data.set_selectable(self.entity(), value);
+
+        Entity::root().restyle(state);
+        Entity::root().relayout(state);
+        Entity::root().redraw(state);
+
+        self.entity()
+    }
+
     /// Sets whether the entity can be focused.
     ///
     /// Entities which are *not* focusable will not receive keyboard events and cannot be selected in css
@@ -1302,6 +1340,20 @@ pub trait PropGet: Sized + AsEntity {
     fn is_focused(self, state: &mut State) -> bool;
     fn is_selected(self, state: &mut State) -> bool;
     fn is_hovered(self, state: &mut State) -> bool;
+
+
+    fn is_hoverable(self, state: &mut State) -> bool {
+        state.data.get_hoverable(self.entity())
+    }
+    fn is_focusable(self, state: &mut State) -> bool {
+        state.data.get_focusable(self.entity())
+    }
+    fn is_checkable(self, state: &mut State) -> bool {
+        state.data.get_checkable(self.entity())
+    }
+    fn is_selectable(self, state: &mut State) -> bool {
+        state.data.get_selectable(self.entity())
+    }
 
     fn is_visible(self, state: &mut State) -> bool {
         state.data.get_visibility(self.entity()) == Visibility::Visible
