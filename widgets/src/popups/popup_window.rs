@@ -78,12 +78,12 @@ impl Widget for PopupWindow {
             match popup_event {
 
                 PopupEvent::Open => {
-                    entity.set_display(state, Display::Flex);
+                    entity.set_visibility(state, Visibility::Visible);
                     event.consume();
                 }
 
                 PopupEvent::Close => {
-                    entity.set_display(state, Display::None);
+                    entity.set_visibility(state, Visibility::Invisible);
                     event.consume();
                 }
 

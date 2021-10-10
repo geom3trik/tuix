@@ -40,14 +40,11 @@ impl Model for ColorPickerData {
                 }
 
                 ColorPickerEvent::SetColor(color) => {
-                    println!("Set Color: {:?}", color);
                     let (h, s, v) = rgb_to_hsv(color.r() as f64 / 255.0, color.g() as f64 / 255.0, color.b() as f64 / 255.0);
                     self.hue = h as f32;
                     self.sat = s as f32;
                     self.val = v as f32;
                     self.alpha = (color.a() as f64 / 255.0) as f32;
-
-                    println!("Set HSV: {} {} {}", h, s, v);
 
                     entity.emit(state, BindEvent::Update);
                 }
@@ -245,7 +242,6 @@ impl Widget for ColorPicker {
             if let Ok(value) = data.text.parse::<u8>() {
                 textbox.emit(state, ColorPickerEvent::SetAlpha(value as f32 / 255.0));
             } else {
-                println!("Buffer: {}", data.buffer);
                 textbox.emit(state, TextboxEvent::SetValue(data.buffer.clone()));
             }
         })
@@ -414,13 +410,13 @@ impl Widget for HueSlider {
     }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        
         if *data != self.value {
             let height = state.data.get_height(entity);
             let thumb_size = state.data.get_height(self.left_arrow);
     
             
             let dx = *data * (height - thumb_size) + (thumb_size / 2.0);
-    
             self.left_arrow.set_bottom(state, Units::Percentage(100.0 * (dx - thumb_size / 2.0) / height));
             self.right_arrow.set_bottom(state, Units::Percentage(100.0 * (dx - thumb_size / 2.0) / height));
             self.value = *data;
@@ -1107,7 +1103,13 @@ fn rgb_to_hsv(r: f64, g: f64, b: f64) -> (f64, f64, f64) {
         0.0
     };
 
-    h *= 60.0 / 360.0;
+    h *= 60.0;
+
+    if h < 0.0 {
+        h += 360.0;
+    }
+
+    h /= 360.0;
 
     let s = if v == 0.0 {
         0.0

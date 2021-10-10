@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use femtovg::ImageId;
 use morphorm::GeometryChanged;
+use crate::Display;
 use crate::Entity;
 
 use crate::style::Visibility;
@@ -79,6 +80,7 @@ impl Default for BoundingBox {
 pub struct CachedData {
     pub(crate) bounds: SparseSet<BoundingBox>,
     pub(crate) visibility: SparseSet<Visibility>,
+    pub(crate) display: SparseSet<Display>,
     pub(crate) opacity: SparseSet<f32>,
     // TODO - combine hoverable and focusable with a bitflag
     pub(crate) hoverable: SparseSet<bool>,
@@ -127,12 +129,13 @@ impl CachedData {
 
         self.bounds.insert(entity, Default::default())?;
         self.visibility.insert(entity, Default::default())?;
+        self.display.insert(entity, Default::default())?;
         self.hoverable.insert(entity, true)?;
         self.focusable.insert(entity, true)?;
         self.child_sum.insert(entity, (0.0, 0.0))?;
         self.child_max.insert(entity, (0.0, 0.0))?;
 
-        self.opacity.insert(entity, 0.0)?;
+        self.opacity.insert(entity, 1.0)?;
 
         self.rotate.insert(entity, 0.0)?;
         self.scale.insert(entity, (1.0, 1.0))?;
@@ -667,9 +670,22 @@ impl CachedData {
             .unwrap()
     }
 
+    pub fn get_display(&self, entity: Entity) -> Display {
+        self.display
+            .get(entity)
+            .cloned()
+            .unwrap()
+    }
+
     pub(crate) fn set_visibility(&mut self, entity: Entity, val: Visibility) {
         if let Some(visibility) = self.visibility.get_mut(entity) {
             *visibility = val;
+        }
+    }
+
+    pub(crate) fn set_display(&mut self, entity: Entity, val: Display) {
+        if let Some(display) = self.display.get_mut(entity) {
+            *display = val;
         }
     }
 

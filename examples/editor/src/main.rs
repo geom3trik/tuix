@@ -634,7 +634,7 @@ impl Widget for App {
                 .set_width(Pixels(480.0))
                 .set_height(Pixels(300.0))
                 .set_space(Stretch(1.0))
-                .set_display(Display::None)
+                .set_visibility(Visibility::Invisible)
                 //.set_child_space(Stretch(1.0))
         ).entity();
 

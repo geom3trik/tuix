@@ -78,45 +78,42 @@ pub fn apply_clipping(state: &mut State, tree: &Tree) {
 }
 
 pub fn apply_visibility(state: &mut State, tree: &Tree) {
-    //println!("Apply Visibility");
     let mut draw_tree: Vec<Entity> = tree.into_iter().collect();
     draw_tree.sort_by_cached_key(|entity| state.data.get_z_index(*entity));
 
-    for widget in draw_tree.into_iter() {
-        let visibility = state
-            .style
-            .visibility
-            .get(widget)
-            .cloned()
-            .unwrap_or_default();
-        state.data.set_visibility(widget, visibility);
+    for entity in draw_tree.into_iter() {
 
-        let opacity = state.style.opacity.get(widget).cloned().unwrap_or_default();
-
-        state.data.set_opacity(widget, opacity.0);
-
-        let display = state.style.display.get(widget).cloned().unwrap_or_default();
-
-        if display == Display::None {
-            state.data.set_visibility(widget, Visibility::Invisible);
+        if entity == Entity::root() {
+            continue;
         }
 
-        if let Some(parent) = widget.parent(tree) {
-            let parent_visibility = state.data.get_visibility(parent);
-            if parent_visibility == Visibility::Invisible {
-                state.data.set_visibility(widget, Visibility::Invisible);
+        let parent= entity.parent(tree).unwrap();
+
+        if state.data.get_visibility(parent) == Visibility::Invisible {
+            state.data.set_visibility(entity, Visibility::Invisible);
+        } else {
+            if let Some(visibility) = state.style.visibility.get(entity) {
+                state.data.set_visibility(entity, *visibility);
+            } else {
+                state.data.set_visibility(entity, Visibility::Visible);
             }
-            let parent_display = state.style.display.get(parent).cloned().unwrap_or_default();
-            if parent_display == Display::None {
-                state.data.set_visibility(widget, Visibility::Invisible);
-            }
-
-            let parent_opacity = state.data.get_opacity(parent);
-
-            let opacity = state.style.opacity.get(widget).cloned().unwrap_or_default();
-
-            state.data.set_opacity(widget, opacity.0 * parent_opacity);
         }
+
+        if state.data.get_display(parent) == Display::None {
+            state.data.set_display(entity, Display::None);
+        } else {
+            if let Some(display) = state.style.display.get(entity) {
+                state.data.set_display(entity, *display);
+            } else {
+                state.data.set_display(entity, Display::Flex);
+            }
+        }
+
+        let parent_opacity = state.data.get_opacity(parent);
+
+        let opacity = state.style.opacity.get(entity).cloned().unwrap_or_default();
+
+        state.data.set_opacity(entity, opacity.0 * parent_opacity);
     }
 }
 

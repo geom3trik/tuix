@@ -1,4 +1,6 @@
-use crate::{Entity, Event, FontOrId, Propagation, State, Tree, TreeExt, Visibility, WindowEvent};
+
+
+use crate::{Entity, Event, FontOrId, Propagation, State, Tree, TreeExt, Display, Visibility, WindowEvent};
 
 
 use femtovg::{
@@ -350,6 +352,10 @@ impl EventManager {
 
             // Skip invisible widgets
             if state.data.get_visibility(entity) == Visibility::Invisible {
+                continue;
+            }
+
+            if state.data.get_display(entity) == Display::None {
                 continue;
             }
 
