@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use femtovg::renderer::OpenGl;
 use femtovg::{ImageFlags, ImageId, PixelFormat, RenderTarget};
 use tuix::*;
@@ -5,6 +7,9 @@ use tuix::widgets::*;
 
 mod overlay;
 use overlay::*;
+
+mod treeview;
+use treeview::*;
 
 mod canvas_options;
 use canvas_options::*;
@@ -575,7 +580,15 @@ impl Widget for App {
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         
         // Placeholder for treeview
-        Element::new().build(state, entity, |builder|
+        // Element::new().build(state, entity, |builder|
+        //     builder
+        //         .set_width(Pixels(300.0))
+        //         .set_background_color(Color::rgb(56, 56, 56))
+        // );
+
+        TreeView::new()
+        .bind_ref(AppData::root)
+        .build(state, entity, |builder|
             builder
                 .set_width(Pixels(300.0))
                 .set_background_color(Color::rgb(56, 56, 56))
