@@ -168,6 +168,10 @@ path = "examples/binding/converter.rs"
 name = "basic"
 path = "examples/binding/basic.rs"
 
+[[example]]
+name = "treeview2"
+path = "examples/binding/treeview2.rs"
+
 
 [[example]]
 name = "model"
