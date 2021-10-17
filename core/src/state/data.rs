@@ -273,8 +273,20 @@ impl CachedData {
         self.grid_row_max.get(entity).cloned().unwrap_or_default()
     }
 
+    pub(crate) fn set_grid_row_max(&mut self, entity: Entity, value: f32) {
+        if let Some(grid_row_max) = self.grid_row_max.get_mut(entity) {
+            *grid_row_max = value;
+        }
+    }
+
     pub(crate) fn get_grid_col_max(&self, entity: Entity) -> f32 {
         self.grid_col_max.get(entity).cloned().unwrap_or_default()
+    }
+
+    pub(crate) fn set_grid_col_max(&mut self, entity: Entity, value: f32) {
+        if let Some(grid_col_max) = self.grid_col_max.get_mut(entity) {
+            *grid_col_max = value;
+        }
     }
 
     pub(crate) fn get_stack_child(&self, entity: Entity) -> (bool, bool) {

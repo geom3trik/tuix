@@ -68,7 +68,7 @@ pub enum WindowEvent {
     Relayout,
     /// Prints the debug message to the console
     Debug(String),
-    ///
-    // TODO - move to WidgetEvent
-    ChildAdded(Entity),
+    //
+    // // TODO - move to WidgetEvent
+    // ChildAdded(Entity),
 }

@@ -228,8 +228,16 @@ impl Cache for CachedData {
         self.get_grid_row_max(node)
     }
 
+    fn set_grid_row_max(&mut self, node: Self::Item, value: f32) {
+        self.set_grid_row_max(node, value);
+    }
+
     fn grid_col_max(&self, node: Self::Item) -> f32 {
         self.get_grid_col_max(node)
+    }
+
+    fn set_grid_col_max(&mut self, node: Self::Item, value: f32) {
+        self.set_grid_col_max(node, value);
     }
 
 

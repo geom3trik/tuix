@@ -68,28 +68,31 @@ pub fn apply_hover(state: &mut State) {
 
         //transform.premultiply(&scale_transform);
 
-        //transform.translate(origin.0, origin.1);
+        //transform.translate(-posx - width / 2.0, -posy - height / 2.0);
         transform.inverse();
         //transform.translate(-origin.0, -origin.1);
+        //transform.translate(posx + width / 2.0, posy + height / 2.0);
         
         let (cx, cy) = transform.transform_point(cursorx, cursory);
-        let (clip_x, clip_y) = transform.transform_point(clip_region.x, clip_region.y);
-        let (clip_w, clip_h) = transform.transform_point(clip_region.x + clip_region.w, clip_region.y + clip_region.h);
+        //transform.inverse();
+        //let (clip_x, clip_y) = transform.transform_point(clip_region.x, clip_region.y);
+        //let (clip_w, clip_h) = transform.transform_point(clip_region.x + clip_region.w, clip_region.y + clip_region.h);
         // let clip_posx = state.data.get_posx(clip_widget);
         // let clip_posy = state.data.get_posy(clip_widget);
         // let clip_width = state.data.get_width(clip_widget);
         // let clip_height = state.data.get_height(clip_widget);
 
-        //println!("entity: {} {} {} {} {}", entity, posx, posy, width, height);
+        //println!("entity: {} {} {} {} {}", entity, posx, posy, cx, cy);
+        //println!("entity: {} clip: {:?} tclip: BoundingBox {{ x: {}, y: {}, w: {}, h: {} }}", entity, clip_region, clip_x, clip_y, clip_w, clip_h);
 
         if cx >= posx
-            && cx >= clip_x
+            && cx >= clip_region.x
             && cx < (posx + width)
-            && cx < (clip_w)
+            && cx < (clip_region.x + clip_region.w)
             && cy >= posy
-            && cy >= clip_y
+            && cy >= clip_region.y
             && cy < (posy + height)
-            && cy < (clip_h)
+            && cy < (clip_region.y + clip_region.h)
         {
             hovered_widget = entity;
             if entity.is_over(state) == false {

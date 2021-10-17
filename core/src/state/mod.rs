@@ -55,6 +55,28 @@ const STYLE: &str = r#"
         border-color: black;
         border-width: 1px;
     }
+
+    /*
+    button {
+        background-color: #CCCCCC;
+        width: 100px;
+        height: 30px;
+        child-space: 1s;
+        border-radius: 3px;
+    }
+
+    button:hover {
+        background-color: #E6E6E6;
+    }
+
+    button:active {
+        background-color: #737373;
+    }
+
+    button:disabled {
+        color: #737373;
+    }
+    */
 "#;
 
 // #[derive(Clone)]

@@ -101,6 +101,10 @@ pub(crate) enum Property {
     Transition(Vec<Transition>),
 
     ZIndex(i32),
+
+    Translate((f32, f32)),
+    Rotate(f32),
+    Scale((f32, f32)),
 }
 
 /*

@@ -1,6 +1,8 @@
 // A container for a stack of widgets where only one widget is visible at a time
 
 
+use tuix_core::WidgetEvent;
+
 use crate::common::*;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -76,9 +78,9 @@ impl Widget for Stack {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
-        if let Some(window_event) = event.message.downcast() {
-            match window_event {
-                WindowEvent::ChildAdded(child) => {
+        if let Some(widget_event) = event.message.downcast() {
+            match widget_event {
+                WidgetEvent::ChildAdded(child) => {
                     if self.current_index != 0 {
                         child.set_display(state, Display::None);
                     }

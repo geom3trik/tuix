@@ -21,12 +21,12 @@ pub enum ButtonEvent {
 /// A basic button widget with an optional label.
 ///
 /// A Widget that can be pressed and released and may emit an event on_press and on_release.
-/// The button can also be triggered with a keyboard key (default space bar).
+/// The button can also be triggered with a keyboard key which can be specified (default is space bar).
 ///
 /// # Example
-/// Create a button which closes the window when pressed:
+/// Create a button, with a label, which closes the window when pressed:
 /// ```
-/// Button::new()
+/// Button::with_label("Close")
 ///     .on_press(|_, state, button| {
 ///         button.emit(state, WindowEvent::CloseWindow);
 ///     })
@@ -40,7 +40,7 @@ pub struct Button {
 }
 
 impl Button {
-    /// Create a new button widget with no callbacks.
+    /// Create a new button widget.
     ///
     /// # Example
     /// ```

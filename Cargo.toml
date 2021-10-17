@@ -55,6 +55,10 @@ name = "button"
 path = "examples/widgets/button.rs"
 
 [[example]]
+name = "button2"
+path = "examples/widgets/button2.rs"
+
+[[example]]
 name = "checkbox"
 path = "examples/widgets/checkbox.rs"
 
@@ -172,6 +176,10 @@ path = "examples/binding/basic.rs"
 name = "treeview2"
 path = "examples/binding/treeview2.rs"
 
+
+[[example]]
+name = "basic_treeview"
+path = "examples/widgets/treeview/basic_treeview.rs"
 
 [[example]]
 name = "model"

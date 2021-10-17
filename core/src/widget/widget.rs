@@ -1,4 +1,4 @@
-use crate::{Builder, EventHandler, WindowEvent};
+use crate::{Builder, EventHandler, PropSet, WidgetEvent, WindowEvent};
 use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, Lens, LensWrapRef, Node, PropType, State, TreeExt, LensWrap};
 use femtovg::{PixelFormat, RenderTarget};
 use femtovg::{
@@ -40,7 +40,8 @@ pub trait Widget: std::marker::Sized + 'static {
         // Create a new entity
         let entity = state.add(parent.entity());
 
-        state.insert_event(Event::new(WindowEvent::ChildAdded(entity)).direct(parent.entity()));
+        //state.insert_event(Event::new(WidgetEvent::ChildAdded(entity)).direct(parent.entity()));
+        parent.entity().emit(state, WidgetEvent::ChildAdded(entity));
 
         // Call the on_build function of the widget
         let ret = self.on_build(state, entity);
