@@ -264,7 +264,7 @@ impl<L: 'static + Lens, W: Widget> Widget for LensWrap<L,W> {
     }
 
     fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
-        println!("LensWrap On Update");
+        //println!("LensWrap On Update");
         // Apply the lens
         let view_data = self.lens.view(data);
         // Apply the converter function
