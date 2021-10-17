@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 const STYLE: &str = r#"
 
@@ -8,12 +9,10 @@ const STYLE: &str = r#"
 
     spinbox .increment {
         color: #ff5e1a;
-        text-justify: center;
     }
 
     spinbox .decrement {
         color: #ff5e1a;
-        text-justify: center;
     }
 
     spinbox>textbox {
@@ -43,6 +42,7 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
         self.spinbox = Spinbox::new(128u8)

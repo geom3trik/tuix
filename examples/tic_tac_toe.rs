@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 fn calculate_winner(squares: &[GameData; 9]) -> GameData {
     const LINES: [[usize; 3]; 8] = [
@@ -38,6 +39,15 @@ pub enum GameEvent {
     Restart,
 }
 
+#[derive(Debug, Clone, Lens)]
+pub struct GameState {
+
+}
+
+impl Model for GameState {
+
+}
+
 // Widget to describe the board state
 pub struct Board {
     squares: [GameData; 9],
@@ -64,13 +74,14 @@ impl Board {
 // Add the squares and the post-game overlay
 impl Widget for Board {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // Create three rows each with 3 buttons
         for r in 0..3 {
             let row = Row::new().build(state, entity, |builder| builder.class("row"));
             for c in 0..3 {
                 Square::default()
-                    .on_press(Event::new(GameEvent::SquarePressed(3 * r + c)))
+                    .on_press(GameEvent::SquarePressed(3 * r + c))
                     .build(state, row, |builder| builder.class("square"));
             }
         }
@@ -161,9 +172,10 @@ pub struct Square {
 }
 
 impl Square {
-    pub fn on_press(mut self, event: Event) -> Self {
-        self.button = self.button.on_press(move |_,state,entity|{
-            entity.emit_event(state, event.clone());
+    pub fn on_press<M: 'static + Message + Clone>(mut self, message: M) -> Self {
+        self.button = self.button.on_press(move |_,state, entity|{
+            //entity.emit_event(state, event);
+            state.insert_event(Event::new(message.clone()));
         });
 
         self
@@ -173,6 +185,7 @@ impl Square {
 // Inherits from button
 impl Widget for Square {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.button.on_build(state, entity)
     }

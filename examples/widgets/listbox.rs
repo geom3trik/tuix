@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 const STYLE: &str = r#"
     list {
@@ -14,6 +15,10 @@ const STYLE: &str = r#"
 
     list>check_button:hover {
         background-color: #e2e2e2;
+    }
+
+    list>check_button:active {
+        background-color: #c2c2c2;
     }
 
     list>check_button:checked {
@@ -39,6 +44,7 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
         self.listbox = List::new()
@@ -77,7 +83,7 @@ impl Widget for Container {
                     .set_color(Color::black())
             );
 
-        container.set_background_color(state, Color::white()).set_focusability(state, false)
+        container.set_background_color(state, Color::white()).set_focusable(state, false)
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -100,7 +106,7 @@ fn main() {
             .with_inner_size(300, 300),
     |state, window| {
 
-            window.set_background_color(state, Color::white()).set_focusability(state, false);
+            window.set_background_color(state, Color::white()).set_focusable(state, false);
 
             state.add_theme(STYLE);
             

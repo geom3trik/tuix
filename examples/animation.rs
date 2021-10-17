@@ -1,5 +1,6 @@
 extern crate tuix;
 use tuix::*;
+use tuix::widgets::*;
 
 static THEME: &'static str = include_str!("themes/animation_theme.css");
 
@@ -19,6 +20,26 @@ fn main() {
 #[derive(Debug, Clone, PartialEq)]
 enum AnimationsEvent {
     Play,
+}
+
+pub struct AnimationControls {
+
+}
+
+impl AnimationControls {
+    pub fn new() -> Self {
+        Self {
+            
+        }
+    }
+}
+
+impl Widget for AnimationControls {
+    type Ret = Entity;
+    type Data = ();
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        entity
+    }
 }
 
 pub struct Animations {
@@ -87,6 +108,7 @@ impl Animations {
 
 impl Widget for Animations {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         // Horizontal split
@@ -264,6 +286,8 @@ impl Widget for Animations {
         // self.border_radius_button = Button::with_label("Border Radius")
         //     .on_press(Event::new(AnimationsEvent::Play))
         //     .build(state, column, |builder| builder);
+
+
 
         entity
     }

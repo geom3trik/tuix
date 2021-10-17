@@ -1,60 +1,107 @@
+//! # UI State
+//!
+//! [State] is where all of the UI data is stored. In ECS terms, [State] is the world and manages
+//! the creation of entities (see [Widget]), and the storage of components (see [Style]).
+
+/// Entity ID
 pub mod entity;
-pub use entity::*;
+pub use entity::{Entity, AsEntity};
 
-pub mod hierarchy;
-pub use hierarchy::*;
-
-pub mod storage;
-pub use storage::*;
-
-pub mod style;
-pub use style::*;
-
+/// Cached UI Data
 pub mod data;
 pub use data::*;
 
-pub mod animation;
-pub use animation::*;
-
+/// Mouse Data
 pub mod mouse;
 pub use mouse::*;
 
-pub mod resource;
+mod resource;
 pub use resource::*;
 
 pub mod geometry;
 pub use geometry::*;
 
+mod layer;
+pub use layer::*;
 
-pub use crate::events::{Builder, Event, Propagation, Widget, EventHandler};
-pub use crate::window_event::WindowEvent;
 
-use femtovg::FontId;
+use crate::storage::shared_set::SharedSet;
+use crate::{AnimationBuilder, Builder, Color, Event, EventHandler, PropSet, Propagation, Rule, Style};
+use crate::{WindowEvent, Tree, TreeExt};
 
-use std::collections::VecDeque;
+use crate::IdManager;
+
+use femtovg::{TextContext};
+
+use std::collections::{HashMap, VecDeque};
 
 use fnv::FnvHashMap;
 
-use std::rc::Rc;
+// TODO - Move this somewhere more appropriate
+const STYLE: &str = r#"
+    textbox>.caret {
+        background-color: red;
+    }
 
-#[derive(Clone)]
-pub struct Fonts {
-    pub regular: Option<FontId>,
-    pub bold: Option<FontId>,
-    pub icons: Option<FontId>,
-    pub emoji: Option<FontId>,
-    pub arabic: Option<FontId>,
-}
+    textbox>.selection {
+        background-color: #40000000;
+    }
 
+    scroll_container>.scrollbar {
+        background-color: #606060;
+        width: 15px;
+    }
+
+    checkbox {
+        width: 20px;
+        height: 20px;
+        border-color: black;
+        border-width: 1px;
+    }
+
+    /*
+    button {
+        background-color: #CCCCCC;
+        width: 100px;
+        height: 30px;
+        child-space: 1s;
+        border-radius: 3px;
+    }
+
+    button:hover {
+        background-color: #E6E6E6;
+    }
+
+    button:active {
+        background-color: #737373;
+    }
+
+    button:disabled {
+        color: #737373;
+    }
+    */
+"#;
+
+// #[derive(Clone)]
+// pub struct Fonts {
+//     pub regular: Option<FontId>,
+//     pub bold: Option<FontId>,
+//     pub icons: Option<FontId>,
+//     pub emoji: Option<FontId>,
+//     pub arabic: Option<FontId>,
+// }
+
+
+/// Stores the gloabal state of the UI application.
 pub struct State {
-    // Creates and destroys entities
-    pub(crate) entity_manager: EntityManager, 
+    /// Creates and destroys entities
+    pub(crate) entity_manager: IdManager<Entity>,
     // The widget tree
-    pub hierarchy: Hierarchy,
+    pub tree: Tree,
     // The style properties for every widget
     pub style: Style,
     // Computed data for every widget
-    pub data: Data,
+    pub data: CachedData,
     // Mouse state
     pub mouse: MouseState,
     // Modifiers state
@@ -70,10 +117,10 @@ pub struct State {
     pub focused: Entity,
 
 
-    pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
+    // pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
 
     // Map of widgets
-    pub(crate) event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
+    pub event_handlers: FnvHashMap<Entity, Box<dyn EventHandler>>,
 
     // List of removed entities
     pub(crate) removed_entities: Vec<Entity>,
@@ -81,40 +128,49 @@ pub struct State {
     // Queue of events
     pub event_queue: VecDeque<Event>,
 
-    pub fonts: Fonts, //TODO - Replace with resource manager
+    // pub fonts: Fonts, //TODO - Replace with resource manager
 
-    pub(crate) resource_manager: ResourceManager, //TODO
+    pub resource_manager: ResourceManager, //TODO
 
     // Flag which signifies that a restyle is required
     pub needs_restyle: bool,
     pub needs_relayout: bool,
     pub needs_redraw: bool,
+
+    pub text_context: TextContext,
+
+    pub layers: HashMap<i32, Layer>,
+
+    pub listeners: FnvHashMap<Entity, Box<dyn Fn(&mut dyn EventHandler, &mut State, Entity, &mut Event)>>,
 }
 
 impl State {
     pub fn new() -> Self {
-        let mut entity_manager = EntityManager::new();
-        let root = entity_manager.create_entity();
-        let hierarchy = Hierarchy::new();
+        let mut entity_manager = IdManager::new();
+        let _root = entity_manager.create();
+        let tree = Tree::new();
         let mut style = Style::default();
-        let mut data = Data::default();
+        let mut data = CachedData::default();
         let mouse = MouseState::default();
         let modifiers = ModifiersState::default();
 
         let root = Entity::root();
 
-        data.add(root);
+        data.add(root).expect("Failed to add root entity to data cache");
         style.add(root);
 
-        style.clip_widget.set(root, root);
+        style.clip_widget.insert(root, root).expect("msg");
 
-        style.background_color.insert(root, Color::rgb(80, 80, 80));
+        style.background_color.insert(root, Color::rgb(255, 255, 255));
 
-        
+        style.default_font = "roboto".to_string();
+
+        let mut resource_manager =ResourceManager::new();
+        resource_manager.themes.push(STYLE.to_string());
 
         State {
             entity_manager,
-            hierarchy,
+            tree,
             style,
             data,
             mouse,
@@ -123,21 +179,27 @@ impl State {
             active: Entity::null(),
             captured: Entity::null(),
             focused: Entity::root(),
-            callbacks: FnvHashMap::default(),
+            //callbacks: FnvHashMap::default(),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),
             removed_entities: Vec::new(),
-            fonts: Fonts {
-                regular: None,
-                bold: None,
-                icons: None,
-                emoji: None,
-                arabic: None,
-            },
-            resource_manager: ResourceManager::new(),
+            // fonts: Fonts {
+            //     regular: None,
+            //     bold: None,
+            //     icons: None,
+            //     emoji: None,
+            //     arabic: None,
+            // },
+            resource_manager,
             needs_restyle: false,
             needs_relayout: false,
             needs_redraw: false,
+
+            text_context: TextContext::default(),
+
+            layers: HashMap::default(),
+
+            listeners: FnvHashMap::default(),
         }
     }
 
@@ -182,7 +244,7 @@ impl State {
         self.reload_styles().expect("Failed to reload styles");
     }
 
-    /// Adds a style rule to the application
+    /// Adds a style rule to the application (TODO)
     ///
     /// This function adds a style rule to the application allowing for multiple entites to share the same style properties based on the rule selector.
     ///
@@ -191,21 +253,30 @@ impl State {
     /// ```
     /// state.add_style_rule(StyleRule::new(Selector::element("button")).property(Property::FlexGrow(1.0)))
     /// ```
-    pub fn add_style_rule(&mut self, style_rule: StyleRule) {
-        self.style.add_rule(style_rule);
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+    pub fn add_style_rule(&mut self) -> Rule {
+        self.style.rule_manager.create()
     }
 
     //TODO
-    pub fn add_image(&mut self, image: image::DynamicImage) -> Rc<()> {
-        self.resource_manager.add_image(image)
+    // pub fn add_image(&mut self, image: image::DynamicImage) -> Rc<()> {
+    //     self.resource_manager.add_image(image)
+    // }
+
+    /// Add a font from memory to the application
+    pub fn add_font_mem(&mut self, name: &str, data: &[u8]) {
+        // TODO - return error
+        if self.resource_manager.fonts.contains_key(name) {
+            println!("Font already exists");
+            return;
+        }
+        //let id = self.text_context.add_font_mem(&data.clone()).expect("failed");
+        //println!("{} {:?}", name, id);
+        self.resource_manager.fonts.insert(name.to_owned(), FontOrId::Font(data.to_vec()));
     }
 
-    //TODO
-    pub fn add_font(&mut self, _name: &str, _path: &str) {
-        println!("Add an font to resource manager");
+    /// Sets the global default font for the application
+    pub fn set_default_font(&mut self, name: &str) {
+        self.style.default_font = name.to_string();
     }
 
     // Removes all style data and then reloads the stylesheets
@@ -215,6 +286,12 @@ impl State {
             return Ok(());
         }
 
+        for rule in self.style.rules.iter() {
+            self.style.rule_manager.destroy(rule.id);
+        }
+
+        self.style.rules.clear();
+        
         self.style.remove_all();
 
         let mut overall_theme = String::new();
@@ -233,9 +310,9 @@ impl State {
 
         self.style.parse_theme(&overall_theme);
 
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        Entity::root().restyle(self);
+        Entity::root().relayout(self);
+        Entity::root().redraw(self);
 
         Ok(())
     }
@@ -250,15 +327,16 @@ impl State {
     /// state.insert_event(Event::new(WindowEvent::WindowClose));
     /// ```
     pub fn insert_event(&mut self, event: Event) {
-        if event.unique {
-            self.event_queue.retain(|e| e != &event);
-        }
+        // if event.unique {
+        //     self.event_queue.retain(|e| e != &event);
+        // }
 
         self.event_queue.push_back(event);
     }
 
     // This should probably be moved to state.mouse
     pub fn capture(&mut self, entity: Entity) {
+        //println!("CAPTURE: {}", entity);
         if entity != Entity::null() && self.captured != entity {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureEvent)
@@ -281,15 +359,20 @@ impl State {
 
     // This should probably be moved to state.mouse
     pub fn release(&mut self, id: Entity) {
+        
         if self.captured == id {
             self.insert_event(
                 Event::new(WindowEvent::MouseCaptureOutEvent)
                     .target(self.captured)
                     .propagate(Propagation::Direct),
             );
+
+            //println!("RELEASE: {}", id);
+            
             self.captured = Entity::null();
             self.active = Entity::null();
         }
+        
     }
 
     pub fn set_focus(&mut self, entity: Entity) {
@@ -304,8 +387,6 @@ impl State {
                 entity.set_focus(self, true);
                 self.insert_event(Event::new(WindowEvent::FocusIn).target(self.focused));
             }
-            
-            
         }  
     }
 
@@ -313,37 +394,41 @@ impl State {
     pub(crate) fn add(&mut self, parent: Entity) -> Entity {
         let entity = self
             .entity_manager
-            .create_entity()
-            .expect("Failed to create entity");
-
-        self.hierarchy.add(entity, parent);
-        self.data.add(entity);
+            .create();
+        self.tree.add(entity, parent).expect("");
+        self.data.add(entity).expect("Failed to add entity to data cache");
         self.style.add(entity);
 
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        Entity::root().restyle(self);
+        Entity::root().relayout(self);
+        Entity::root().redraw(self);
 
         entity
     }
 
     //  TODO
     pub fn remove(&mut self, entity: Entity) {
-        // Collect all entities below the removed entity on the same branch of the hierarchy
-        let delete_list = entity.branch_iter(&self.hierarchy).collect::<Vec<_>>();
+        println!("Request Remove: {}", entity);
+        // Collect all entities below the removed entity on the same branch of the tree
+        let delete_list = entity.branch_iter(&self.tree).collect::<Vec<_>>();
 
         for entity in delete_list.iter().rev() {
-            self.hierarchy.remove(*entity);
-            //self.hierarchy.remove(*entity);
+            println!("Removing: {}", entity);
+            self.tree.remove(*entity).expect("");
             self.data.remove(*entity);
             self.style.remove(*entity);
             self.removed_entities.push(*entity);
-            self.entity_manager.destroy_entity(*entity);
+            self.entity_manager.destroy(*entity);
         }
 
-        self.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-        self.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+        Entity::root().restyle(self);
+        Entity::root().relayout(self);
+        Entity::root().redraw(self);
+    }
+
+    pub fn create_animation(&mut self, duration: std::time::Duration) -> AnimationBuilder {
+        let id = self.style.animation_manager.create();
+        AnimationBuilder::new(id, self, duration)
     }
 
     // Run all pending animations
@@ -352,57 +437,58 @@ impl State {
 
         let time = std::time::Instant::now();
 
-        self.style.background_color.animate(time);
+        self.style.background_color.tick(time);
         
         // Spacing
-        self.style.left.animate(time);
-        self.style.right.animate(time);
-        self.style.top.animate(time);
-        self.style.bottom.animate(time);
+        self.style.left.tick(time);
+        self.style.right.tick(time);
+        self.style.top.tick(time);
+        self.style.bottom.tick(time);
 
         // Spacing Constraints
-        self.style.min_left.animate(time);
-        self.style.max_left.animate(time);
-        self.style.min_right.animate(time);
-        self.style.max_right.animate(time);
-        self.style.min_top.animate(time);
-        self.style.max_top.animate(time);
-        self.style.min_bottom.animate(time);
-        self.style.max_bottom.animate(time);
+        self.style.min_left.tick(time);
+        self.style.max_left.tick(time);
+        self.style.min_right.tick(time);
+        self.style.max_right.tick(time);
+        self.style.min_top.tick(time);
+        self.style.max_top.tick(time);
+        self.style.min_bottom.tick(time);
+        self.style.max_bottom.tick(time);
 
         // Size
-        self.style.width.animate(time);
-        self.style.height.animate(time);
+        self.style.width.tick(time);
+        self.style.height.tick(time);
 
         // Size Constraints
-        self.style.min_width.animate(time);
-        self.style.max_width.animate(time);
-        self.style.min_height.animate(time);
-        self.style.max_height.animate(time);
+        self.style.min_width.tick(time);
+        self.style.max_width.tick(time);
+        self.style.min_height.tick(time);
+        self.style.max_height.tick(time);
 
         // Child Spacing
-        self.style.child_left.animate(time);
-        self.style.child_right.animate(time);
-        self.style.child_top.animate(time);
-        self.style.child_bottom.animate(time);
-        self.style.child_between.animate(time);
+        self.style.child_left.tick(time);
+        self.style.child_right.tick(time);
+        self.style.child_top.tick(time);
+        self.style.child_bottom.tick(time);
+        self.style.row_between.tick(time);
+        self.style.col_between.tick(time);
 
-        self.style.opacity.animate(time);
-        self.style.rotate.animate(time);
+        self.style.opacity.tick(time);
+        self.style.rotate.tick(time);
 
         // Border Radius
-        self.style.border_radius_top_left.animate(time);
-        self.style.border_radius_top_right.animate(time);
-        self.style.border_radius_bottom_left.animate(time);
-        self.style.border_radius_bottom_right.animate(time);
+        self.style.border_radius_top_left.tick(time);
+        self.style.border_radius_top_right.tick(time);
+        self.style.border_radius_bottom_left.tick(time);
+        self.style.border_radius_bottom_right.tick(time);
         
         // Border
-        self.style.border_width.animate(time);
-        self.style.border_color.animate(time);
+        self.style.border_width.tick(time);
+        self.style.border_color.tick(time);
 
         // Font
-        self.style.font_size.animate(time);
-        self.style.font_color.animate(time);
+        self.style.font_size.tick(time);
+        self.style.font_color.tick(time);
         
 
         self.style.background_color.has_animations()
@@ -434,7 +520,8 @@ impl State {
             || self.style.child_right.has_animations()
             || self.style.child_top.has_animations()
             || self.style.child_bottom.has_animations()
-            || self.style.child_between.has_animations()
+            || self.style.row_between.has_animations()
+            || self.style.col_between.has_animations()
             //
             || self.style.opacity.has_animations()
             || self.style.rotate.has_animations()

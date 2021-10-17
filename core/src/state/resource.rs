@@ -1,29 +1,35 @@
 #![allow(dead_code)]
 
 use std::collections::HashMap;
-use std::rc::Rc;
-pub struct Image {
-    name: String,
-    pub width: u32,
-    pub height: u32,
-    pub data: Vec<u8>,
+
+// pub struct Image {
+//     name: String,
+//     pub width: u32,
+//     pub height: u32,
+//     pub data: Vec<u8>,
+// }
+
+// pub enum ImageOrId {
+//     Image(image::DynamicImage),
+//     Id(femtovg::ImageId),
+// }
+
+pub enum FontOrId {
+    Font(Vec<u8>),
+    Id(femtovg::FontId),
 }
 
-pub enum ImageOrId {
-    Image(image::DynamicImage),
-    Id(femtovg::ImageId),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Resource(u32);
+// #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+// pub struct Resource(u32);
 
 pub struct ResourceManager {
     //pub images: HashMap<String, Image>,
     pub stylesheets: Vec<String>, // Stylesheets refer to a fiel path
     pub themes: Vec<String>,      // Themes are the string content stylesheets
-    pub images: Vec<Image>,
+    //pub images: Vec<Image>,
+    pub fonts: HashMap<String, FontOrId>,
 
-    pub image_ids: HashMap<Rc<()>, ImageOrId>,
+    //pub image_ids: HashMap<Rc<()>, ImageOrId>,
     count: u32,
 }
 
@@ -33,28 +39,29 @@ impl ResourceManager {
             //images: HashMap::new(),
             stylesheets: Vec::new(),
             themes: Vec::new(),
-            images: Vec::new(),
-            image_ids: HashMap::new(),
+            //images: Vec::new(),
+            //image_ids: HashMap::new(),
             count: 0,
+            fonts: HashMap::new(),
         }
     }
 
     // TODO
-    pub(crate) fn add_image(&mut self, image: image::DynamicImage) -> Rc<()> {
-        // self.images.push(Image {
-        //     name: name.to_string(),
-        //     width,
-        //     height,
-        //     data,
-        // });
+    // pub(crate) fn add_image(&mut self, image: image::DynamicImage) -> Rc<()> {
+    //     // self.images.push(Image {
+    //     //     name: name.to_string(),
+    //     //     width,
+    //     //     height,
+    //     //     data,
+    //     // });
 
-        let resource = Rc::new(());
+    //     let resource = Rc::new(());
 
-        self.image_ids
-            .insert(resource.clone(), ImageOrId::Image(image));
+    //     self.image_ids
+    //         .insert(resource.clone(), ImageOrId::Image(image));
 
-        resource.clone()
-    }
+    //     resource.clone()
+    // }
 
     pub(crate) fn add_font(&mut self, _name: &str, _path: &str) {}
     // pub fn add_stylesheet(&mut self, path: String) -> Result<(), std::io::Error> {

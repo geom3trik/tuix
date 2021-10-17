@@ -1,6 +1,7 @@
 
 
 use tuix::*;
+use tuix::widgets::*;
 
 const STYLE: &str = r#"
     .one {
@@ -34,6 +35,7 @@ impl TransformWidget {
 
 impl Widget for TransformWidget {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         let one = Element::new().build(state, entity, |builder| 

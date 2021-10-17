@@ -1,5 +1,5 @@
-/*
 use tuix::*;
+use tuix::widgets::*;
 
 const STYLE: &str = r#"
 
@@ -61,6 +61,7 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
 
         self.vec_edit = VectorEdit::new()
@@ -68,9 +69,9 @@ impl Widget for Container {
             .with_y(255u8)
             .with_z(255u8)
             .with_w(255u8)
-            .on_change(|vec_edit, state, entity| {
-                
-                state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba(vec_edit.x, vec_edit.y, vec_edit.z, vec_edit.w))).target(entity));
+            .on_change(|data, state, vec_edit| {
+                vec_edit.emit(state, CustomEvent::ChangeColor(Color::rgba(data.x, data.y, data.z, data.w)));
+                //state.insert_event(Event::new(CustomEvent::ChangeColor(Color::rgba(vec_edit.x, vec_edit.y, vec_edit.z, vec_edit.w))).target(entity));
             })
             .build(state, entity, |builder| {
                 builder
@@ -110,9 +111,4 @@ fn main() {
     );
 
     app.run();
-}
-*/
-
-fn main() {
-
 }

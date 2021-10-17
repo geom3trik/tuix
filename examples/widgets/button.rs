@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 use rand::prelude::*;
 
 const STYLE: &str = r#"
@@ -31,6 +32,7 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
         self.button = Button::with_label("Change Color")

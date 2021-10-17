@@ -1,55 +1,55 @@
-use crate::{Entity, State};
+use crate::Entity;
 
 use std::any::{Any, TypeId};
 use std::fmt::Debug;
 
-/// Determines how the event propagates through the hierarchy
+/// Determines how the event propagates through the tree
 #[derive(Debug, Clone, PartialEq)]
 pub enum Propagation {
-    /// Events propagate down the hierarchy to the target entity, e.g. from grand-parent to parent to child (target)
+    /// Events propagate down the tree to the target entity, e.g. from grand-parent to parent to child (target)
     Down,
-    /// Events propagate up the hierarchy to the target entity, e.g. from child (target) to parent to grand-parent
+    /// Events propagate up the tree to the target entity, e.g. from child (target) to parent to grand-parent
     Up,
-    /// Events propagate down the hierarchy to the target entity and then back up to the root
+    /// Events propagate down the tree to the target entity and then back up to the root
     DownUp,
     /// Events propagate from the target entity to all entities below but on the same branch
     Fall,
     /// Events propagate directly to the target entity and to no others
     Direct,
-    /// Events propagate to all entities in the hierarchy
+    /// Events propagate to all entities in the tree
     All,
 }
 
-// A message is a wrapper around an Any but with the added ability to Clone the message
-pub trait Message: Any + MessageClone + Debug {
+/// A message can be any static type.
+pub trait Message: Any {
     // An &Any can be cast to a reference to a concrete type.
     fn as_any(&self) -> &dyn Any;
 
     // Perform the test
-    fn equals_a(&self, _: &dyn Message) -> bool;
+    // fn equals_a(&self, _: &dyn Message) -> bool;
 }
 
 // An Any is not normally clonable. This is a way around that.
-pub trait MessageClone {
-    fn clone_message(&self) -> Box<Message>;
-}
+// pub trait MessageClone {
+//     fn clone_message(&self) -> Box<Message>;
+// }
 
 // Implements MessageClone for any type that Implements Message and Clone
-impl<T> MessageClone for T
-where
-    T: 'static + Message + Clone,
-{
-    fn clone_message(&self) -> Box<Message> {
-        Box::new(self.clone())
-    }
-}
+// impl<T> MessageClone for T
+// where
+//     T: 'static + Message + Clone,
+// {
+//     fn clone_message(&self) -> Box<Message> {
+//         Box::new(self.clone())
+//     }
+// }
 
 // An implementation of clone for boxed messages
-impl Clone for Box<Message> {
-    fn clone(&self) -> Box<Message> {
-        self.clone_message()
-    }
-}
+// impl Clone for Box<Message> {
+//     fn clone(&self) -> Box<Message> {
+//         self.clone_message()
+//     }
+// }
 
 impl dyn Message {
     // Check if a message is a certain type
@@ -78,23 +78,25 @@ impl dyn Message {
 }
 
 // Implements message for any static type that implements Clone
-impl<S: 'static + PartialEq + Clone + Debug> Message for S {
+impl<S: 'static> Message for S {
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn equals_a(&self, other: &dyn Message) -> bool {
-        //other.as_any().type_id() == self.as_any().type_id()
+    // fn equals_a(&self, other: &dyn Message) -> bool {
+    //     //other.as_any().type_id() == self.as_any().type_id()
 
-        other
-            .as_any()
-            .downcast_ref::<S>()
-            .map_or(false, |a| self == a)
-    }
+    //     //println!("{:?} {:?}", other.as_any().type_id(), self.as_any().type_id());
+    //     //println!("{:?} {:?}", other, self);
+
+    //     other
+    //         .as_any()
+    //         .downcast_ref::<S>()
+    //         .map_or(false, |a| self == a)
+    // }
 }
 
-/// An event is a wrapper around a message and provides metadata on how the event should be propagated through the hierarchy
-#[derive(Clone, Debug)]
+/// An event is a wrapper around a message and provides metadata on how the event should be propagated through the tree
 pub struct Event {
     // The entity that produced the event. Entity::null() for OS events or unspecified.
     pub origin: Entity,
@@ -114,14 +116,14 @@ pub struct Event {
     pub message: Box<dyn Message>,
 }
 
-// Allows events to be compared for equality
-impl PartialEq for Event {
-    fn eq(&self, other: &Event) -> bool {
-        self.message.equals_a(&*other.message)
-            //&& self.origin == other.origin
-            && self.target == other.target
-    }
-}
+// // Allows events to be compared for equality
+// impl PartialEq for Event {
+//     fn eq(&self, other: &Event) -> bool {
+//         self.message.equals_a(&*other.message)
+//             //&& self.origin == other.origin
+//             && self.target == other.target
+//     }
+// }
 
 impl Event {
     /// Creates a new event with a specified message
@@ -132,10 +134,10 @@ impl Event {
         Event {
             origin: Entity::null(),
             target: Entity::null(),
-            propagation: Propagation::DownUp,
+            propagation: Propagation::Up,
             consumable: true,
             consumed: false,
-            unique: true,
+            unique: false,
             order: 0,
             message: Box::new(message),
         }

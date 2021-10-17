@@ -1,9 +1,8 @@
 use tuix::*;
-
-use tuix::style::themes::DEFAULT_THEME;
+use tuix::widgets::*;
 // An example for demonstrating the addition and removal of entities
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub enum AddRemoveEvent {
     Add,
     Remove,
@@ -14,7 +13,7 @@ struct Controller {}
 
 impl Widget for Controller {
     type Ret = Entity;
-
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         state.focused = entity;
 
@@ -26,12 +25,15 @@ impl Widget for Controller {
             match counter_event {
                 AddRemoveEvent::Add => {
                     Button::new().build(state, entity, |builder| {
-                        builder.set_height(Units::Pixels(30.0)).set_space(Pixels(5.0))
+                        builder
+                            .set_height(Units::Pixels(30.0))
+                            .set_space(Pixels(5.0))
+                            .set_background_color(Color::red())
                     });
                 }
 
                 AddRemoveEvent::Remove => {
-                    if let Some(first_child) = state.hierarchy.get_first_child(entity) {
+                    if let Some(first_child) = state.tree.get_first_child(entity) {
                         state.remove(first_child);
                     }
                 }
@@ -59,7 +61,6 @@ impl Widget for Controller {
 fn main() {
     // Create the app
     let app = Application::new(WindowDescription::new().with_title("Add / Remove"),|state, window| {
-        state.add_theme(DEFAULT_THEME);
 
         Controller::default().build(state, window.entity(), |builder| builder);
     });

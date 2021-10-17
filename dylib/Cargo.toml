@@ -1,0 +1,15 @@
+[package]
+name = "tuix_dylib"
+version = "0.2.0"
+authors = ["George Atkinson"]
+license = "MIT"
+repository = "https://github.com/geom3trik/tuix"
+edition = "2018"
+description = "Crate for forcing tuix to dynamically link"
+
+
+[lib]
+crate-type = ["dylib"]
+
+[dependencies]
+tuix_internal = {version = "0.2.0", path = "../internal"}

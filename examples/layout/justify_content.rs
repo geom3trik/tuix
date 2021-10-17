@@ -1,4 +1,5 @@
 use tuix::*;
+use tuix::widgets::*;
 
 // Example showing how to emulate flexbox justify-content in tuix
 
@@ -136,7 +137,7 @@ fn main() {
                 builder
                     .set_background_color(Color::rgb(70, 70, 70))
                     .set_child_space(Stretch(1.0))
-                    .set_child_between(Stretch(2.0))
+                    .set_col_between(Stretch(2.0))
                     .set_layout_type(LayoutType::Row)
             });
 
@@ -177,7 +178,7 @@ fn main() {
                     .set_background_color(Color::rgb(50, 50, 50))
                     .set_child_top(Stretch(1.0))
                     .set_child_bottom(Stretch(1.0))
-                    .set_child_between(Stretch(1.0))
+                    .set_col_between(Stretch(1.0))
                     .set_layout_type(LayoutType::Row)
             });
 
@@ -217,7 +218,7 @@ fn main() {
                 builder
                     .set_background_color(Color::rgb(70, 70, 70))
                     .set_child_space(Stretch(1.0))
-                    .set_child_between(Stretch(1.0))
+                    .set_col_between(Stretch(1.0))
                     .set_layout_type(LayoutType::Row)
             });
 

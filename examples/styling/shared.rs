@@ -1,5 +1,5 @@
 use tuix::*;
-
+use tuix::widgets::*;
 // Two buttons which share the same style
 
 fn main() {
@@ -7,23 +7,31 @@ fn main() {
         WindowDescription::new().with_title("Shared Styles"),
         |state, window| {
 
-        // Create a shared style rule for button elements
-        let style_rule: StyleRule = StyleRule::new()
-            .selector(Selector::element("button"))
-            .set_width(Pixels(100.0))
-            .set_height(Pixels(30.0))
-            .set_background_color(Color::from("#ff5e1a"))
-            .set_child_space(Stretch(1.0))
-            .set_space(Pixels(5.0));
+    //     let style_rule = state.create_rule()
+    //         .selector(state, Selector::element("button"))
+    //         .set_width(state, Pixels(100.0))
+    //         .set_height(state, Pixels(300.0))
+    //         .set_background_color(state, Color::from("#ff5e1a"))
+    //         .set_child_space(state, Stretch(1.0))
+    //         .set_space(state, Pixels(5.0));
 
-        // Add the shared style rule to state
-        state.add_style_rule(style_rule);
+    //     // // Create a shared style rule for button elements
+    //     // let style_rule: StyleRule = StyleRule::new()
+    //     //     .selector(Selector::element("button"))
+    //     //     .set_width(Pixels(100.0))
+    //     //     .set_height(Pixels(30.0))
+    //     //     .set_background_color(Color::from("#ff5e1a"))
+    //     //     .set_child_space(Stretch(1.0))
+    //     //     .set_space(Pixels(5.0));
 
-        // Add first button
-        Button::with_label("Button 1").build(state, window.entity(), |builder| builder);
+    //     // Add the shared style rule to state
+    //     state.add_style_rule(style_rule);
 
-        // Add second button
-        Button::with_label("Button 2").build(state, window.entity(), |builder| builder);
+    //     // Add first button
+    //     Button::with_label("Button 1").build(state, window.entity(), |builder| builder);
+
+    //     // Add second button
+    //     Button::with_label("Button 2").build(state, window.entity(), |builder| builder);
     });
 
     app.run();

@@ -1,5 +1,5 @@
 use tuix::*;
-
+use tuix::widgets::*;
 
 
 fn main() {
@@ -18,12 +18,12 @@ fn main() {
 
         // Create a shared style rule for hovered buttons
         let hover_rule: StyleRule = StyleRule::new()
-            .selector(Selector::element("button").set(PseudoClasses::HOVER))
+            .selector(Selector::element("button").set(PseudoClass::HOVER))
             .set_background_color(Color::from("#ff701a"));
 
         // Create a shared style rule for hovered buttons
         let active_rule: StyleRule = StyleRule::new()
-            .selector(Selector::element("button").set(PseudoClasses::ACTIVE))
+            .selector(Selector::element("button").set(PseudoClass::ACTIVE))
             .set_background_color(Color::from("#ee5a1d"));
 
         // Add the shared style rule to state

@@ -1,5 +1,5 @@
 use tuix::*;
-
+use tuix::widgets::*;
 // Example showing extending the slider widget, adding on_press and on_release callbacks
 
 
@@ -68,6 +68,7 @@ impl ExtendedSlider {
 
 impl Widget for ExtendedSlider {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         self.slider.on_build(state, entity)
     }

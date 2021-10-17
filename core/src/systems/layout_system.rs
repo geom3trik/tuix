@@ -3,18 +3,18 @@ use prop::PropGet;
 
 use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};
 
-use crate::hierarchy::*;
+use crate::tree::*;
 use crate::style::*;
 
 use crate::flexbox::AlignItems;
 
-pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
-    for entity in hierarchy.into_iter() {
+pub fn apply_z_ordering(state: &mut State, tree: &Tree) {
+    for entity in tree.into_iter() {
         if entity == Entity::root() {
             continue;
         }
 
-        let parent = hierarchy.get_parent(entity).unwrap();
+        let parent = tree.get_parent(entity).unwrap();
 
         if let Some(z_order) = state.style.z_order.get(entity) {
             state.data.set_z_order(entity, *z_order);
@@ -26,7 +26,7 @@ pub fn apply_z_ordering(state: &mut State, hierarchy: &Hierarchy) {
 }
 
 fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
-    // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
+    // Safe to unwrap because every entity in the tree has a parent except window which is skipped
     let parent = child.get_parent(state).unwrap();
 
     let parent_flex_direction = parent.get_flex_direction(state);
@@ -163,7 +163,7 @@ fn calculate_up(state: &mut State, child: Entity) -> (f32, f32) {
 }
 
 fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
-    // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
+    // Safe to unwrap because every entity in the tree has a parent except window which is skipped
     let parent = child.get_parent(state).unwrap();
 
     let parent_flex_direction = parent.get_flex_direction(state);
@@ -430,23 +430,23 @@ fn calculate_down(state: &mut State, child: Entity) -> (f32, f32) {
     (new_main, new_cross)
 }
 
-pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_layout(state: &mut State, tree: &Tree) {
     //println!("RELAYOUT");
 
-    let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
+    let layout_tree = tree.into_iter().collect::<Vec<Entity>>();
 
     ///////////
     // Reset //
     ///////////
-    for entity in layout_hierarchy.iter() {
+    for entity in layout_tree.iter() {
         state.data.set_child_sum(*entity, 0.0);
         state.data.set_child_max(*entity, 0.0);
     }
 
     ///////////////////////////
-    // Walk up the hierarchy //
+    // Walk up the tree //
     ///////////////////////////
-    for child in layout_hierarchy.iter().rev() {
+    for child in layout_tree.iter().rev() {
         // Stop before the window
         if *child == Entity::root() {
             break;
@@ -458,7 +458,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
             continue;
         }
 
-        // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
+        // Safe to unwrap because every entity in the tree has a parent except window which is skipped
         let parent = child.get_parent(state).unwrap();
 
         let parent_flex_direction = parent.get_flex_direction(state);
@@ -510,9 +510,9 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
     }
 
     /////////////////////////////
-    // Walk down the hierarchy //
+    // Walk down the tree //
     /////////////////////////////
-    for parent in layout_hierarchy.iter() {
+    for parent in layout_tree.iter() {
         // Skip non-displayed entities
         let parent_display = parent.get_display(state);
         if parent_display == Display::None {
@@ -581,7 +581,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         /////////////////////
         // Resize entities //
         /////////////////////
-        for child in parent.child_iter(&hierarchy) {
+        for child in parent.child_iter(&tree) {
             // Skip non-displayed entities
             let child_display = child.get_display(state);
             if child_display == Display::None {
@@ -665,7 +665,7 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
         if free_space > 0.0 && flex_grow_sum > 0.0 {
             // Filter to keep only flexible children
             let mut flexible_children = parent
-                .child_iter(&hierarchy)
+                .child_iter(&tree)
                 .filter(|child| child.get_flex_grow(state) > 0.0)
                 .collect::<Vec<_>>();
 
@@ -803,10 +803,10 @@ pub fn apply_layout(state: &mut State, hierarchy: &Hierarchy) {
 
         let children = match parent_flex_direction {
             FlexDirection::Row | FlexDirection::Column => {
-                parent.child_iter(&hierarchy).collect::<Vec<_>>()
+                parent.child_iter(&tree).collect::<Vec<_>>()
             }
             FlexDirection::RowReverse | FlexDirection::ColumnReverse => {
-                parent.child_iter(&hierarchy).rev().collect::<Vec<_>>()
+                parent.child_iter(&tree).rev().collect::<Vec<_>>()
             }
         };
 

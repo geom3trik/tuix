@@ -1,5 +1,5 @@
 use tuix::*;
-use rand::prelude::*;
+use tuix::widgets::*;
 
 const STYLE: &str = r#"
 
@@ -10,11 +10,6 @@ const STYLE: &str = r#"
 
 "#;
 
-#[derive(Debug, Clone, PartialEq)]
-enum CustomEvent {
-    ChangeColor(Color),
-}
-
 #[derive(Default)]
 struct Container {
 
@@ -22,6 +17,7 @@ struct Container {
 
 impl Widget for Container {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, container: Entity) -> Self::Ret {
 
         Label::new("Hello World")

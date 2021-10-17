@@ -1,6 +1,5 @@
-
-
 use tuix::*;
+use tuix::widgets::*;
 
 const STYLE: &str = r#"
     list {
@@ -136,6 +135,7 @@ impl WidgetGallery {
 
 impl Widget for WidgetGallery {
     type Ret = Entity;
+    type Data = ();
     fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
         // Horizontal Split
         let row = Row::new().build(state, entity, |builder| builder);
@@ -256,7 +256,7 @@ fn main() {
     WindowDescription::new().with_title("Widget Gallery"),
     |state, window| {
 
-            window.set_background_color(state, Color::white()).set_focusability(state, false);
+            window.set_background_color(state, Color::white()).set_focusable(state, false);
 
             state.add_theme(STYLE);
             

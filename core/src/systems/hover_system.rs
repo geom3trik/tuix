@@ -1,18 +1,23 @@
-use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, PseudoClasses, State, Transform2D, Units, Visibility, WindowEvent};
+use morphorm::Cache;
+
+use crate::{Display, Entity, Event, PropGet, PropSet, Propagation, State, Units, Visibility, WindowEvent};
 
 /// Determines the hovered entity based on the mouse cursor position
 pub fn apply_hover(state: &mut State) {
-    let mut draw_hierarchy: Vec<Entity> = state.hierarchy.into_iter().collect();
+    //println!("Apply Hover");
+    let mut draw_tree: Vec<Entity> = state.tree.into_iter().collect();
 
     // This should be cached somewhere probably
-    draw_hierarchy.sort_by_cached_key(|entity| state.data.get_z_order(*entity));
+    draw_tree.sort_by_cached_key(|entity| state.data.get_z_index(*entity));
 
     let cursorx = state.mouse.cursorx;
     let cursory = state.mouse.cursory;
 
     let mut hovered_widget = Entity::root();
 
-    for entity in draw_hierarchy.into_iter() {
+    for entity in draw_tree.into_iter() {
+
+        //println!("Entity: {} Display: {:?}", entity, state.data.display.get(entity));
         // Skip invisible widgets
         if state.data.get_visibility(entity) == Visibility::Invisible {
             continue;
@@ -24,12 +29,12 @@ pub fn apply_hover(state: &mut State) {
         }
 
         // Skip non-displayed widgets
-        if entity.get_display(state) == Display::None {
+        if state.data.get_display(entity) == Display::None {
             continue;
         }
 
         // Skip non-hoverable widgets
-        if state.data.get_hoverability(entity) != true {
+        if state.data.get_hoverable(entity) != true {
             continue;
         }
 
@@ -63,27 +68,31 @@ pub fn apply_hover(state: &mut State) {
 
         //transform.premultiply(&scale_transform);
 
-
-        let origin = state.data.get_origin(entity);
-
-        //transform.translate(origin.0, origin.1);
+        //transform.translate(-posx - width / 2.0, -posy - height / 2.0);
         transform.inverse();
         //transform.translate(-origin.0, -origin.1);
+        //transform.translate(posx + width / 2.0, posy + height / 2.0);
         
         let (cx, cy) = transform.transform_point(cursorx, cursory);
+        //transform.inverse();
+        //let (clip_x, clip_y) = transform.transform_point(clip_region.x, clip_region.y);
+        //let (clip_w, clip_h) = transform.transform_point(clip_region.x + clip_region.w, clip_region.y + clip_region.h);
         // let clip_posx = state.data.get_posx(clip_widget);
         // let clip_posy = state.data.get_posy(clip_widget);
         // let clip_width = state.data.get_width(clip_widget);
         // let clip_height = state.data.get_height(clip_widget);
 
+        //println!("entity: {} {} {} {} {}", entity, posx, posy, cx, cy);
+        //println!("entity: {} clip: {:?} tclip: BoundingBox {{ x: {}, y: {}, w: {}, h: {} }}", entity, clip_region, clip_x, clip_y, clip_w, clip_h);
+
         if cx >= posx
-            //&& cx >= clip_region.x
+            && cx >= clip_region.x
             && cx < (posx + width)
-            //&& cx < (clip_region.x + clip_region.w)
+            && cx < (clip_region.x + clip_region.w)
             && cy >= posy
-            //&& cy >= clip_region.y
+            && cy >= clip_region.y
             && cy < (posy + height)
-            //&& cy < (clip_region.y + clip_region.h)
+            && cy < (clip_region.y + clip_region.h)
         {
             hovered_widget = entity;
             if entity.is_over(state) == false {
@@ -114,14 +123,16 @@ pub fn apply_hover(state: &mut State) {
 
         #[cfg(debug_assertions)]
         println!(
-            "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {}",
+            "Hover changed to {:?} parent: {:?}, posx: {}, posy: {} width: {} height: {} z_order: {} {} {}",
             hovered_widget,
-            state.hierarchy.get_parent(hovered_widget),
+            state.tree.get_parent(hovered_widget),
             state.data.get_posx(hovered_widget),
             state.data.get_posy(hovered_widget),
             state.data.get_width(hovered_widget),
             state.data.get_height(hovered_widget),
-            state.data.get_z_order(hovered_widget),
+            state.data.get_z_index(hovered_widget),
+            state.data.stack_first_child(hovered_widget),
+            state.data.stack_last_child(hovered_widget),
         );
 
         hovered_widget.set_hover(state, true);
@@ -151,7 +162,7 @@ pub fn apply_hover(state: &mut State) {
         state.insert_event(Event::new(WindowEvent::MouseEnter).target(hovered_widget));
         state.insert_event(Event::new(WindowEvent::MouseLeave).target(state.hovered));
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+        Entity::root().restyle(state);
 
         state.hovered = hovered_widget;
         state.active = Entity::null();

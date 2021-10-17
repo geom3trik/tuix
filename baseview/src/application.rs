@@ -4,17 +4,16 @@ use crate::Renderer;
 use baseview::{Window, WindowScalePolicy};
 use femtovg::Canvas;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use tuix_core::state::hierarchy::IntoHierarchyIterator;
-use tuix_core::state::mouse::{MouseButton, MouseButtonState};
-use tuix_core::state::Fonts;
-use tuix_core::window::WindowWidget;
+use tuix_core::TreeExt;
+use tuix_core::{MouseButton, MouseButtonState};
+use tuix_core::WindowWidget;
 use tuix_core::{
-    events::{Event, Propagation},
-    window_description,
+    Event, Propagation,
+    WindowDescription,
     BoundingBox
 };
 use tuix_core::{
-    Entity, EventManager, Hierarchy, PropSet, Size, State, Units, Visibility, WindowDescription,
+    Entity, EventManager, Tree, PropSet, WindowSize, State, Units, Visibility,
     WindowEvent,
 };
 
@@ -25,6 +24,7 @@ where
 {
     app: F,
     window_description: WindowDescription,
+    on_idle: Option<Box<dyn Fn(&mut State) + Send>>,
 }
 
 impl<F> Application<F>
@@ -36,6 +36,7 @@ where
         Self {
             app,
             window_description,
+            on_idle: None,
         }
     }
 
@@ -46,7 +47,7 @@ where
     ///
     /// * `app` - The Tuix application builder.
     pub fn run(self) {
-        TuixWindow::open_blocking(self.window_description, self.app)
+        TuixWindow::open_blocking(self.window_description, self.app, self.on_idle)
     }
 
     /// Open a new child window.
@@ -57,7 +58,7 @@ where
     /// * `parent` - The parent window.
     /// * `app` - The Tuix application builder.
     pub fn open_parented<P: HasRawWindowHandle>(self, parent: &P) {
-        TuixWindow::open_parented(parent, self.window_description, self.app)
+        TuixWindow::open_parented(parent, self.window_description, self.app, self.on_idle)
     }
 
     /// Open a new window as if it had a parent window.
@@ -67,15 +68,40 @@ where
     ///
     /// * `app` - The Tuix application builder.
     pub fn open_as_if_parented(self) -> RawWindowHandle {
-        TuixWindow::open_as_if_parented(self.window_description, self.app)
+        TuixWindow::open_as_if_parented(self.window_description, self.app, self.on_idle)
     }
+
+
+    /// Takes a closure which will be called at the end of every loop of the application.
+    /// 
+    /// The callback provides a place to run 'idle' processing and happens at the end of each loop but before drawing.
+    /// If the callback pushes events into the queue in state then the event loop will re-run. Care must be taken not to
+    /// push events into the queue every time the callback runs unless this is intended.
+    ///
+    /// # Example
+    /// ```
+    /// Application::new(WindowDescription::new(), |state, window|{
+    ///     // Build application here
+    /// })
+    /// .on_idle(|state|{
+    ///     // Code here runs at the end of every event loop after OS and tuix events have been handled 
+    /// })
+    /// .run();
+    /// ```
+    pub fn on_idle<I: 'static + Fn(&mut State) + Send>(mut self, callback: I) -> Self {
+        self.on_idle = Some(Box::new(callback));
+
+        self
+    } 
+
+
 }
 
 pub(crate) struct ApplicationRunner {
     state: State,
     event_manager: EventManager,
     canvas: Canvas<Renderer>,
-    hierarchy: Hierarchy,
+    tree: Tree,
     pos: (f32, f32),
     should_redraw: bool,
     scale_policy: WindowScalePolicy,
@@ -98,7 +124,7 @@ impl ApplicationRunner {
         };
 
         let logical_size = win_desc.inner_size;
-        let physical_size = Size {
+        let physical_size = WindowSize {
             width: (logical_size.width as f64 * scale).round() as u32,
             height: (logical_size.height as f64 * scale).round() as u32,
         };
@@ -109,16 +135,13 @@ impl ApplicationRunner {
         let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
         let icon_font = include_bytes!("../../resources/entypo.ttf");
         let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
+        let arabic_font = include_bytes!("../../resources/amiri-regular.ttf");
 
-        let fonts = Fonts {
-            regular: Some(canvas.add_font_mem(regular_font).expect("Cannot add font")),
-            bold: Some(canvas.add_font_mem(bold_font).expect("Cannot add font")),
-            icons: Some(canvas.add_font_mem(icon_font).expect("Cannot add font")),
-            emoji: Some(canvas.add_font_mem(emoji_font).expect("Cannot add font")),
-            arabic: Some(canvas.add_font_mem(emoji_font).expect("Cannot add font")),
-        };
-
-        state.fonts = fonts;
+        state.add_font_mem("roboto", regular_font);
+        state.add_font_mem("roboto-bold", bold_font);
+        state.add_font_mem("icon", icon_font);
+        state.add_font_mem("emoji", emoji_font);
+        state.add_font_mem("arabic", arabic_font);
 
         canvas.scale(scale as f32, scale as f32);
 
@@ -147,18 +170,20 @@ impl ApplicationRunner {
 
         WindowWidget::new().build_window(&mut state);
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        let root = Entity::root();
 
-        let hierarchy = state.hierarchy.clone();
+        root.restyle(&mut state);
+        root.relayout(&mut state);
 
-        //tuix_core::systems::apply_styles(&mut state, &hierarchy);
+        let tree = state.tree.clone();
+
+        //tuix_core::systems::apply_styles(&mut state, &tree);
 
         ApplicationRunner {
             event_manager,
             state,
             canvas,
-            hierarchy,
+            tree,
             pos: (0.0, 0.0),
             should_redraw: true,
             scale_policy,
@@ -184,9 +209,9 @@ impl ApplicationRunner {
 
         
         if self.state.apply_animations() {
-            self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-            self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));    
-            self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));    
+            Entity::root().restyle(&mut self.state);
+            Entity::root().relayout(&mut self.state);
+            Entity::root().redraw(&mut self.state);
         }
 
         while !self.state.event_queue.is_empty() {
@@ -202,8 +227,8 @@ impl ApplicationRunner {
     }
 
     pub fn render(&mut self) {
-        let hierarchy = self.state.hierarchy.clone();
-        tuix_core::apply_clipping(&mut self.state, &hierarchy);
+        let tree = self.state.tree.clone();
+        tuix_core::apply_clipping(&mut self.state, &tree);
         self.event_manager.draw(&mut self.state, &mut self.canvas);
         self.should_redraw = false;
     }
@@ -262,13 +287,13 @@ impl ApplicationRunner {
                         _ => {}
                     };
 
-                    if self.state.hovered != Entity::null()
-                        && self.state.active != self.state.hovered
-                    {
-                        self.state.active = self.state.hovered;
-                        self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                        self.state.needs_restyle = true;
-                    }
+                    // if self.state.hovered != Entity::null()
+                    //     && self.state.active != self.state.hovered
+                    // {
+                    //     self.state.active = self.state.hovered;
+                    //     self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                    //     self.state.needs_restyle = true;
+                    // }
 
                     let target = if self.state.captured != Entity::null() {
                         self.state.insert_event(
@@ -336,9 +361,9 @@ impl ApplicationRunner {
                         _ => {}
                     };
 
-                    self.state.active = Entity::null();
-                    self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                    self.state.needs_restyle = true;
+                    // self.state.active = Entity::null();
+                    // self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                    // self.state.needs_restyle = true;
 
                     if self.state.captured != Entity::null() {
                         self.state.insert_event(
@@ -454,8 +479,8 @@ impl ApplicationRunner {
                             self.state.focused = prev_focus;
                             self.state.focused.set_focus(&mut self.state, true);
                         } else {
-                            // TODO impliment reverse iterator for hierarchy
-                            // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
+                            // TODO impliment reverse iterator for tree
+                            // state.focused = match state.focused.into_iter(&state.tree).next() {
                             //     Some(val) => val,
                             //     None => Entity::root(),
                             // };
@@ -468,7 +493,7 @@ impl ApplicationRunner {
                         } else {
                             self.state.focused.set_focus(&mut self.state, false);
                             self.state.focused =
-                                match self.state.focused.into_iter(&self.hierarchy).next() {
+                                match self.state.focused.tree_iter(&self.tree).next() {
                                     Some(val) => val,
                                     None => Entity::root(),
                                 };
@@ -476,11 +501,7 @@ impl ApplicationRunner {
                         }
                     }
 
-                    self.state.insert_event(
-                        Event::new(WindowEvent::Restyle)
-                            .target(Entity::root())
-                            .origin(Entity::root()),
-                    );
+                    Entity::root().restyle(&mut self.state);
                 }
 
                 match s {
@@ -535,9 +556,9 @@ impl ApplicationRunner {
             }
             baseview::Event::Window(event) => match event {
                 baseview::WindowEvent::Focused => {
-                    self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                    self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                    self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                    Entity::root().restyle(&mut self.state);
+                    Entity::root().relayout(&mut self.state);
+                    Entity::root().redraw(&mut self.state);
                 }
                 baseview::WindowEvent::Resized(window_info) => {
                     self.scale_factor = match self.scale_policy {
@@ -577,9 +598,9 @@ impl ApplicationRunner {
 
                     self.state.data.set_clip_region(Entity::root(), bounding_box);
 
-                    self.state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                    self.state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                    self.state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                    Entity::root().restyle(&mut self.state);
+                    Entity::root().relayout(&mut self.state);
+                    Entity::root().redraw(&mut self.state);
 
                 }
                 baseview::WindowEvent::WillClose => {
@@ -588,6 +609,12 @@ impl ApplicationRunner {
                 }
                 _ => {}
             },
+        }
+    }
+
+    pub fn handle_idle(&mut self, on_idle: &Option<Box<dyn Fn(&mut State) + Send>>) {
+        if let Some(idle_callback) = on_idle {
+            (idle_callback)(&mut self.state);
         }
     }
 }

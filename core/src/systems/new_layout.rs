@@ -1,19 +1,20 @@
-use crate::hierarchy::*;
-use crate::style::*;
+use crate::*;
 
-use crate::{Entity, Event, GeometryChanged, Propagation, State, WindowEvent};
+use crate::{Entity, State};
 
 
-pub fn apply_transform(state: &mut State, hierarchy: &Hierarchy) {
+pub fn apply_transform(state: &mut State, tree: &Tree) {
     //println!("Apply Transform");
-    for entity in hierarchy.into_iter() {
+    for entity in tree.into_iter() {
+
+        //println!("Entity: {}", entity);
         
         if entity == Entity::root() {
             continue;
         }
         
-        let parent = hierarchy.get_parent(entity).unwrap();
-        let parent_origin = state.data.get_origin(parent);
+        let parent = tree.get_parent(entity).unwrap();
+        //let parent_origin = state.data.get_origin(parent);
         let parent_transform = state.data.get_transform(parent);
 
         state.data.set_transform(entity, Transform2D::identity());
@@ -35,6 +36,7 @@ pub fn apply_transform(state: &mut State, hierarchy: &Hierarchy) {
             state.data.set_rotate(entity, (*rotate).to_radians());
             state.data.set_translate(entity, (-x,-y));
         }
+        //println!("End");
 
         if let Some(scale) = state.style.scale.get(entity) {
             let x = bounds.x + (bounds.w / 2.0);
@@ -42,9 +44,7 @@ pub fn apply_transform(state: &mut State, hierarchy: &Hierarchy) {
             state.data.set_translate(entity, (x,y));
             state.data.set_scale(entity, *scale);
             state.data.set_translate(entity, (-x,-y));
-        }
-
-        
+        }       
 
     }
 }
@@ -57,16 +57,17 @@ enum Axis {
     After,
 }
 
-pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
+/*
+pub fn apply_layout2(state: &mut State, tree: &Tree) {
     //println!("Apply Layout");
-    let layout_hierarchy = hierarchy.into_iter().collect::<Vec<Entity>>();
+    let layout_tree = tree.into_iter().collect::<Vec<Entity>>();
 
-    // for entity in layout_hierarchy.iter() {
+    // for entity in layout_tree.iter() {
     //     state.data.set_child_sum(*entity, 0.0);
     //     state.data.set_child_max(*entity, 0.0);
     // }
 
-    for parent in layout_hierarchy.iter() {
+    for parent in layout_tree.iter() {
 
         // Skip non-displayed entities
         let parent_display = parent.get_display(state);
@@ -78,8 +79,10 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         let mut found_first = false;
         let mut last_child = Entity::null();
 
-        state.data.set_child_sum(*parent, 0.0);
-        state.data.set_child_max(*parent, 0.0);
+        state.data.set_child_width_sum(*parent, 0.0);
+        state.data.set_child_height_sum(*parent, 0.0);
+        state.data.set_child_width_max(*parent, 0.0);
+        state.data.set_child_height_max(*parent, 0.0);
 
         state.data
             .set_prev_width(*parent, state.data.get_width(*parent));
@@ -87,7 +90,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             .data
             .set_prev_height(*parent, state.data.get_height(*parent));
 
-        for child in parent.child_iter(hierarchy) {
+        for child in parent.child_iter(tree) {
 
             let child_display = child.get_display(state);
             if child_display == Display::None {
@@ -122,8 +125,8 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         state.data.set_stack_last_child(last_child, true);
     }
 
-    // Walk up the hierarchy
-    for child in layout_hierarchy.iter().rev() {
+    // Walk up the tree
+    for child in layout_tree.iter().rev() {
         // Stop before the window
         if *child == Entity::root() {
             break;
@@ -137,7 +140,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
     
 
-        // Safe to unwrap because every entity in the hierarchy has a parent except window which is skipped
+        // Safe to unwrap because every entity in the tree has a parent except window which is skipped
         let parent = child.get_parent(state).unwrap();
 
         let parent_layout_type = state
@@ -312,12 +315,14 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 //println!("{} Auto", child);
                 match child_layout_type {
                     LayoutType::Column => {
-                        state.data.get_child_max(*child) + 2.0 * child_border_width
+                        state.data.get_child_width_max(*child) + 2.0 * child_border_width
                     }
 
-                    LayoutType::Row => state.data.get_child_sum(*child) + 2.0 * child_border_width,
+                    LayoutType::Row => state.data.get_child_width_sum(*child) + 2.0 * child_border_width,
 
-                    _ => 0.0,
+                    LayoutType::Grid => state.data.get_child_width_sum(*child) + 2.0 * child_border_width,
+
+                    LayoutType::None => 0.0,
                 }
             }
         };
@@ -337,11 +342,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             Units::Stretch(_) => 0.0,
 
             Units::Auto => match child_layout_type {
-                LayoutType::Column => state.data.get_child_sum(*child) + 2.0 * child_border_width,
+                LayoutType::Column => state.data.get_child_height_sum(*child) + 2.0 * child_border_width,
 
-                LayoutType::Row => state.data.get_child_max(*child) + 2.0 * child_border_width,
+                LayoutType::Row => state.data.get_child_height_max(*child) + 2.0 * child_border_width,
 
-                _ => 0.0,
+                _ => state.data.get_child_height_sum(*child) + 2.0 * child_border_width,
             },
         };
 
@@ -433,11 +438,15 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             Units::Auto => {
                 match child_layout_type {
                     LayoutType::Column => {
-                        new_width = state.data.get_child_max(*child) + 2.0 * child_border_width;
+                        new_width = state.data.get_child_width_max(*child) + 2.0 * child_border_width;
                     }
 
                     LayoutType::Row => {
-                        new_width = state.data.get_child_sum(*child) + 2.0 * child_border_width;
+                        new_width = state.data.get_child_width_sum(*child) + 2.0 * child_border_width;
+                    }
+
+                    LayoutType::Grid => {
+                        new_width = state.data.get_child_width_sum(*child) + 2.0 * child_border_width;
                     }
 
                     _ => {}
@@ -476,11 +485,15 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
             Units::Auto => {
                 match child_layout_type {
                     LayoutType::Column => {
-                        new_height = state.data.get_child_sum(*child) + 2.0 * child_border_width;
+                        new_height = state.data.get_child_height_sum(*child) + 2.0 * child_border_width;
                     }
 
                     LayoutType::Row => {
-                        new_height = state.data.get_child_max(*child) + 2.0 * child_border_width;
+                        new_height = state.data.get_child_height_max(*child) + 2.0 * child_border_width;
+                    }
+
+                    LayoutType::Grid => {
+                        new_height = state.data.get_child_height_sum(*child) + 2.0 * child_border_width;
                     }
 
                     _ => {}
@@ -512,35 +525,57 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
         //println!("{} Row used space {}", child, horizontal_used_space);
 
-        match parent_layout_type {
-            LayoutType::Column => {
-                if child_positioning_type == PositionType::ParentDirected {
-                    state.data.set_child_sum(
-                        parent,
-                        state.data.get_child_sum(parent) + vertical_used_space,
-                    );
-                    state.data.set_child_max(
-                        parent,
-                        horizontal_used_space.max(state.data.get_child_max(parent)),
-                    );
-                }
-            }
+        if child_positioning_type == PositionType::ParentDirected {
+            state.data.set_child_height_sum(
+                parent,
+                state.data.get_child_height_sum(parent) + vertical_used_space,
+            );
 
-            LayoutType::Row => {
-                if child_positioning_type == PositionType::ParentDirected {
-                    state.data.set_child_sum(
-                        parent,
-                        state.data.get_child_sum(parent) + horizontal_used_space,
-                    );
-                    state.data.set_child_max(
-                        parent,
-                        vertical_used_space.max(state.data.get_child_max(parent)),
-                    );
-                }
-            }
+            state.data.set_child_height_max(
+                parent,
+                vertical_used_space.max(state.data.get_child_height_max(parent)),
+            );
 
-            _ => {}
+            state.data.set_child_width_sum(
+                parent,
+                state.data.get_child_width_sum(parent) + horizontal_used_space,
+            );
+
+            state.data.set_child_width_max(
+                parent,
+                horizontal_used_space.max(state.data.get_child_width_max(parent)),
+            );
         }
+
+        // match parent_layout_type {
+        //     LayoutType::Column => {
+        //         if child_positioning_type == PositionType::ParentDirected {
+        //             state.data.set_child_height_sum(
+        //                 parent,
+        //                 state.data.get_child_height_sum(parent) + vertical_used_space,
+        //             );
+        //             state.data.set_child_height_max(
+        //                 parent,
+        //                 horizontal_used_space.max(state.data.get_child_width_max(parent)),
+        //             );
+        //         }
+        //     }
+
+        //     LayoutType::Row => {
+        //         if child_positioning_type == PositionType::ParentDirected {
+        //             state.data.set_child_width_sum(
+        //                 parent,
+        //                 state.data.get_child_width_sum(parent) + horizontal_used_space,
+        //             );
+        //             state.data.set_child_width_max(
+        //                 parent,
+        //                 vertical_used_space.max(state.data.get_child_width_max(parent)),
+        //             );
+        //         }
+        //     }
+
+        //     _ => {}
+        // }
 
         state.data.set_height(*child, new_height);
         state.data.set_width(*child, new_width);
@@ -551,7 +586,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
     }
 
     // Depth first traversal of all nodes from root
-    for parent in layout_hierarchy.into_iter() {
+    for parent in layout_tree.into_iter() {
 
 
         // Skip non-displayed entities
@@ -623,7 +658,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 // ////////////////////////////////
                 // Calculate inflexible children //
                 ///////////////////////////////////
-                for child in parent.child_iter(&hierarchy) {
+                for child in parent.child_iter(&tree) {
 
                     let child_display = child.get_display(state);
                     if child_display == Display::None {
@@ -825,11 +860,11 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                             //println!("{} Auto", child);
                             match child_layout_type {
                                 LayoutType::Column => {
-                                    state.data.get_child_max(child) + 2.0 * child_border_width
+                                    state.data.get_child_width_max(child) + 2.0 * child_border_width
                                 }
 
-                                LayoutType::Row => {
-                                    state.data.get_child_sum(child) + 2.0 * child_border_width
+                                LayoutType::Row | LayoutType::Grid => {
+                                    state.data.get_child_width_sum(child) + 2.0 * child_border_width
                                 }
 
                                 _ => 0.0,
@@ -852,12 +887,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                         Units::Stretch(_) => 0.0,
 
                         Units::Auto => match child_layout_type {
-                            LayoutType::Column => {
-                                state.data.get_child_sum(child) + 2.0 * child_border_width
+                            LayoutType::Column | LayoutType::Grid => {
+                                state.data.get_child_height_sum(child) + 2.0 * child_border_width
                             }
 
                             LayoutType::Row => {
-                                state.data.get_child_max(child) + 2.0 * child_border_width
+                                state.data.get_child_height_max(child) + 2.0 * child_border_width
                             }
 
                             _ => 0.0,
@@ -906,12 +941,12 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                             match child_layout_type {
                                 LayoutType::Column => {
                                     new_width =
-                                        state.data.get_child_max(child) + 2.0 * child_border_width;
+                                        state.data.get_child_width_max(child) + 2.0 * child_border_width;
                                 }
 
-                                LayoutType::Row => {
+                                LayoutType::Row | LayoutType::Grid=> {
                                     new_width =
-                                        state.data.get_child_sum(child) + 2.0 * child_border_width;
+                                        state.data.get_child_width_sum(child) + 2.0 * child_border_width;
                                 }
 
                                 _ => {}
@@ -980,14 +1015,14 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
 
                         Units::Auto => {
                             match child_layout_type {
-                                LayoutType::Column => {
+                                LayoutType::Column | LayoutType::Grid => {
                                     new_height =
-                                        state.data.get_child_sum(child) + 2.0 * child_border_width;
+                                        state.data.get_child_height_sum(child) + 2.0 * child_border_width;
                                 }
 
                                 LayoutType::Row => {
                                     new_height =
-                                        state.data.get_child_max(child) + 2.0 * child_border_width;
+                                        state.data.get_child_height_max(child) + 2.0 * child_border_width;
                                 }
 
                                 _ => {}
@@ -1291,7 +1326,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 ///////////////////////
                 // Position Children //
                 ///////////////////////
-                for child in parent.child_iter(&hierarchy) {
+                for child in parent.child_iter(&tree) {
 
                     let child_display = child.get_display(state);
                     if child_display == Display::None {
@@ -1445,8 +1480,8 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 }
 
 
-                let mut current_row_pos = state.data.get_posx(parent);
-                let mut current_col_pos = state.data.get_posy(parent);
+                let mut current_row_pos = state.data.get_posy(parent);
+                let mut current_col_pos = state.data.get_posx(parent);
 
                 for (i, row) in grid_rows.iter().enumerate() {
                     match row {
@@ -1480,7 +1515,7 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
                 let col_widths_len = col_widths.len() - 1;
                 col_widths[col_widths_len].0 = current_col_pos;
 
-                for child in parent.child_iter(&hierarchy) {
+                for child in parent.child_iter(&tree) {
 
                     let child_display = child.get_display(state);
                     if child_display == Display::None {
@@ -1558,3 +1593,4 @@ pub fn apply_layout2(state: &mut State, hierarchy: &Hierarchy) {
         }
     }
 }
+*/

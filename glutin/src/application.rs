@@ -1,100 +1,91 @@
 #![allow(deprecated)]
 
 use glutin::event_loop::{ControlFlow, EventLoop};
+use glutin::window::WindowId;
 
 use crate::keyboard::{scan_to_code, vcode_to_code, vk_to_key};
 
 use crate::window::Window;
 
 use tuix_core::{BoundingBox, Units};
-use tuix_core::{Entity, State};
+use tuix_core::{Entity, State, PropSet};
 
-use tuix_core::state::mouse::{MouseButton, MouseButtonState};
+use tuix_core::{MouseButton, MouseButtonState};
 
 use tuix_core::events::{Event, EventManager, Propagation};
 
-use tuix_core::state::hierarchy::IntoHierarchyIterator;
-
-use tuix_core::state::Fonts;
+use tuix_core::TreeExt;
 
 use tuix_core::style::{Display, Visibility};
 
-use tuix_core::state::style::prop::*;
-
 use tuix_core::{WindowDescription, WindowEvent, WindowWidget};
 
-use tuix_core::systems::*;
+use tuix_core::{apply_hover, apply_clipping};
 
 use glutin::event::VirtualKeyCode;
 
 type GEvent<'a, T> = glutin::event::Event<'a, T>;
 
+
+/// The Application is the primary struct of the GUI application.
+/// 
+/// There can only be one application. The `Application::new()` method constructs the initial widgets and loads in
+/// resources such as styles and fonts.
+/// The `run()` method enters the event loop of the application. Events received from winit are propagated to widgets
+/// and results in calls to the `on_event()` method of the [Widget] trait.
+/// 
+/// # Example
+/// Application::new(WindowDescription::new(), |state, window|{
+///     // Build widgets here
+/// }).run();
 pub struct Application {
-    pub window: Window,
-    pub state: State,
+    window: Window,
+    state: State,
     event_loop: EventLoop<()>,
-    pub event_manager: EventManager,
+    event_manager: EventManager,
+    on_idle: Option<Box<dyn Fn(&mut State)>>,
 }
 
 impl Application {
+
+    /// Takes a closure which provides a mutable reference to [State] and a window [Entity].
+    /// 
+    /// The callback provides a place to build the initial widget tree and load resources, such as styles and fonts,
+    /// and will be called once on the creation of the application.
     pub fn new<F: FnOnce(&mut State, Entity)>(
         window_description: WindowDescription,
         app: F,
     ) -> Self {
         let event_loop = EventLoop::new();
         let mut state = State::new();
+        state.reload_styles().expect("Failed to reload styles");
 
         let mut event_manager = EventManager::new();
 
         let root = Entity::root();
-        //state.hierarchy.add(Entity::root(), None);
 
-        event_manager.hierarchy = state.hierarchy.clone();
+        //event_manager.tree = state.tree.clone();
+        
+        let regular_font = include_bytes!("../fonts/Roboto-Regular.ttf");
+        let bold_font = include_bytes!("../fonts/Roboto-Bold.ttf");
+        let icon_font = include_bytes!("../fonts/entypo.ttf");
+        let emoji_font = include_bytes!("../fonts/OpenSansEmoji.ttf");
+        let arabic_font = include_bytes!("../fonts/amiri-regular.ttf");
 
-        app(&mut state, root);
+        state.add_font_mem("roboto", regular_font);
+        state.add_font_mem("roboto-bold", bold_font);
+        state.add_font_mem("icon", icon_font);
+        state.add_font_mem("emoji", emoji_font);
+        state.add_font_mem("arabic", arabic_font);
 
         let mut window = Window::new(&event_loop, &window_description);
+        
+        event_manager.load_resources(&mut state, &mut window.canvas);
+        
+        app(&mut state, root);
 
-        let regular_font = include_bytes!("../../resources/FiraCode-Regular.ttf");
-        let bold_font = include_bytes!("../../resources/Roboto-Bold.ttf");
-        let icon_font = include_bytes!("../../resources/entypo.ttf");
-        let emoji_font = include_bytes!("../../resources/OpenSansEmoji.ttf");
-        let arabic_font = include_bytes!("../../resources/amiri-regular.ttf");
 
-        let fonts = Fonts {
-            regular: Some(
-                window
-                    .canvas
-                    .add_font_mem(regular_font)
-                    .expect("Cannot add font"),
-            ),
-            bold: Some(
-                window
-                    .canvas
-                    .add_font_mem(bold_font)
-                    .expect("Cannot add font"),
-            ),
-            icons: Some(
-                window
-                    .canvas
-                    .add_font_mem(icon_font)
-                    .expect("Cannot add font"),
-            ),
-            emoji: Some(
-                window
-                    .canvas
-                    .add_font_mem(emoji_font)
-                    .expect("Cannot add font"),
-            ),
-            arabic: Some(
-                window
-                    .canvas
-                    .add_font_mem(arabic_font)
-                    .expect("Cannot add font"),
-            ),
-        };
 
-        state.fonts = fonts;
 
         state.style.width.insert(
             Entity::root(),
@@ -112,6 +103,8 @@ impl Application {
             .data
             .set_height(Entity::root(), window_description.inner_size.height as f32);
         state.data.set_opacity(Entity::root(), 1.0);
+    
+        //state.data.set_focusable(Entity::root(), false);
 
     
         Entity::root().set_element(&mut state, "window");
@@ -129,35 +122,63 @@ impl Application {
             event_loop: event_loop,
             event_manager: event_manager,
             state: state,
+            on_idle: None,
         }
     }
 
+    /// Takes a closure which will be called at the end of every loop of the application.
+    /// 
+    /// The callback provides a place to run 'idle' processing and happens at the end of each loop but before drawing.
+    /// If the callback pushes events into the queue in state then the event loop will re-run. Care must be taken not to
+    /// push events into the queue every time the callback runs unless this is intended.
+    /// 
+    /// # Example
+    /// ```
+    /// Application::new(WindowDescription::new(), |state, window|{
+    ///     // Build application here
+    /// })
+    /// .on_idle(|state|{
+    ///     // Code here runs at the end of every event loop after OS and tuix events have been handled 
+    /// })
+    /// .run();
+    /// ```
+    pub fn on_idle<F: 'static + Fn(&mut State)>(mut self, callback: F) -> Self {
+        self.on_idle = Some(Box::new(callback));
+
+        self
+    } 
+
+    /// The `run` method starts the application event loop, passing events from the OS to
+    /// the input system and then on to the widgets via the `on_event` method of the [Widget] trait.
+    /// The event loop is also responsible for redrawing the main window when required.
     pub fn run(self) {
 
         let mut state = self.state;
 
         let mut event_manager = self.event_manager;
-        event_manager.hierarchy = state.hierarchy.clone();
+        //event_manager.tree = state.tree.clone();
     
 
-        //println!("Event Manager: {:?}", event_manager.hierarchy);
+        //println!("Event Manager: {:?}", event_manager.tree);
 
         let mut window = self.window;
         let mut should_quit = false;
 
-        //let hierarchy = state.hierarchy.clone();
+        //let tree = state.tree.clone();
 
-        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-        state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
+        Entity::root().restyle(&mut state);
+        Entity::root().relayout(&mut state);
 
         let event_loop_proxy = self.event_loop.create_proxy();
 
         state.needs_redraw = true;
 
         let mut click_time = std::time::Instant::now();
-        let DOUBLE_CLICK_INTERVAL = std::time::Duration::from_millis(500);
+        let double_click_interval = std::time::Duration::from_millis(500);
         let mut double_click = false;
         let mut click_pos = (0.0, 0.0);
+
+        let mut on_idle = self.on_idle;
 
         self.event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
@@ -170,11 +191,14 @@ impl Application {
                 }
 
                 GEvent::MainEventsCleared => {
-
+                    
+                    //let start = std::time::Instant::now();
                     
                     while !state.event_queue.is_empty() {
                         event_manager.flush_events(&mut state);
                     }
+                    
+                    //println!("{:.2?} seconds to run loop.", start.elapsed());
 
                     if state.apply_animations() {
 
@@ -188,22 +212,31 @@ impl Application {
                         *control_flow = ControlFlow::Wait;
                     }
 
-                    let hierarchy = state.hierarchy.clone();
+                    let tree = state.tree.clone();
 
                     if state.needs_redraw {
                         // TODO - Move this to EventManager
-                        apply_clipping(&mut state, &hierarchy);
+                        apply_clipping(&mut state, &tree);
                         window.handle.window().request_redraw();
                         state.needs_redraw = false;
                     }
 
+                    if let Some(idle_callback) = &on_idle {
+                        (idle_callback)(&mut state);
 
+                        if !state.event_queue.is_empty() {
+                            event_loop_proxy.send_event(()).unwrap();
+                        }
+                    }
+                    
                 }
 
                 // REDRAW
 
                 GEvent::RedrawRequested(_) => {
+                    //let start = std::time::Instant::now();
                     event_manager.draw(&mut state, &mut window.canvas);
+                    //println!("{:.2?} seconds to draw everything.", start.elapsed());
                     // Swap buffers
                     window
                         .handle
@@ -251,9 +284,9 @@ impl Application {
                             //         .origin(Entity::root()),
                             // );
 
-                            state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+                            Entity::root().restyle(&mut state);
+                            Entity::root().relayout(&mut state);
+                            Entity::root().redraw(&mut state);
                         }
 
                         ////////////////////
@@ -296,12 +329,12 @@ impl Application {
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::H && s == MouseButtonState::Pressed {
-                                    println!("Focused Widget: {}", state.focused);
+                                    //println!("Focused Widget: {}", state.focused);
                                     
-                                    //println!("Hierarchy");
-                                    //for entity in state.hierarchy.into_iter() {
-                                        //println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity));
-                                    //}
+                                    println!("Tree");
+                                    // for entity in state.tree.into_iter() {
+                                    //     println!("Entity: {} posx: {} posy: {} width: {} height: {} style: {:?} clip: {:?}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity), state.style.child_left.get_rule_id(entity), state.data.get_clip_region(entity));
+                                    // }
                                 }
 
                                 if virtual_keycode == VirtualKeyCode::Tab
@@ -329,14 +362,14 @@ impl Application {
                                             // state.focused.set_focus(&mut state, true);
                                             state.set_focus(prev_focus);
                                         } else {
-                                            // TODO impliment reverse iterator for hierarchy
-                                            // state.focused = match state.focused.into_iter(&state.hierarchy).next() {
+                                            // TODO impliment reverse iterator for tree
+                                            // state.focused = match state.focused.into_iter(&state.tree).next() {
                                             //     Some(val) => val,
                                             //     None => Entity::root(),
                                             // };
                                         }
                                     } else {
-                                        let hierarchy = state.hierarchy.clone();
+                                        let tree = state.tree.clone();
 
 
                                         //let next = iter.next();
@@ -355,12 +388,12 @@ impl Application {
 
                                             //state.focused.set_focus(&mut state, false);
 
-                                            let mut iter =  state.focused.into_iter(&hierarchy);
+                                            let mut iter =  state.focused.tree_iter(&tree);
                                             iter.next();
 
 
                                             if let Some(mut temp) = iter.next() {
-                                                while !state.data.get_focusability(temp)
+                                                while !state.data.get_focusable(temp)
                                                     || state.data.get_visibility(temp) == Visibility::Invisible
                                                     || state.data.get_opacity(temp) == 0.0
                                                     || state.style.display.get(temp) == Some(&Display::None)
@@ -368,8 +401,12 @@ impl Application {
                                                     temp = match iter.next() {
                                                         Some(e) => e,
                                                         None => {
-                                                            break;
+                                                            Entity::root()
                                                         }
+                                                    };
+
+                                                    if temp == Entity::root() {
+                                                        break;
                                                     }
                                                 }
 
@@ -382,13 +419,7 @@ impl Application {
                                         }
                                     }
 
-
-
-                                    state.insert_event(
-                                        Event::new(WindowEvent::Restyle)
-                                            .target(Entity::root())
-                                            .origin(Entity::root()),
-                                    );
+                                    Entity::root().restyle(&mut state);
 
                                 }
                             }
@@ -459,9 +490,10 @@ impl Application {
                             // state.insert_event(
                             //     Event::new(WindowEvent::Relayout).target(Entity::root()),
                             // );
-                            state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                            state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
-                            state.insert_event(Event::new(WindowEvent::Redraw).target(Entity::root()));
+
+                            Entity::root().restyle(&mut state);
+                            Entity::root().relayout(&mut state);
+                            Entity::root().redraw(&mut state);
 
                         }
 
@@ -530,21 +562,21 @@ impl Application {
 
                             match s {
                                 MouseButtonState::Pressed => {
-                                    if state.hovered != Entity::null()
-                                        && state.active != state.hovered
-                                    {
-                                        state.active = state.hovered;
-                                        state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
-                                        state.needs_restyle = true;
-                                    }
+                                    // if state.hovered != Entity::null()
+                                    //     && state.active != state.hovered
+                                    // {
+                                    //     state.active = state.hovered;
+                                    //     state.insert_event(Event::new(WindowEvent::Restyle).target(Entity::root()));
+                                    //     state.needs_restyle = true;
+                                    // }
 
                                     let new_click_time = std::time::Instant::now();
                                     let click_duration = new_click_time - click_time;
                                     let new_click_pos = (state.mouse.cursorx, state.mouse.cursory);
 
-                                    if click_duration <= DOUBLE_CLICK_INTERVAL && new_click_pos == click_pos{
+                                    if click_duration <= double_click_interval && new_click_pos == click_pos{
                                         if !double_click {
-                                            let target = if state.captured != Entity::null() {
+                                            let _target = if state.captured != Entity::null() {
                                                 state.insert_event(
                                                     Event::new(WindowEvent::MouseDoubleClick(b))
                                                         .target(state.captured)
@@ -568,7 +600,7 @@ impl Application {
                                     click_time = new_click_time;
                                     click_pos = new_click_pos;
 
-                                    let target = if state.captured != Entity::null() {
+                                    let _target = if state.captured != Entity::null() {
                                         state.insert_event(
                                             Event::new(WindowEvent::MouseDown(b))
                                                 .target(state.captured)
@@ -613,9 +645,9 @@ impl Application {
                                 }
 
                                 MouseButtonState::Released => {
-                                    state.active = Entity::null();
+                                    //state.active = Entity::null();
                                     //state.insert_event(Event::new(WindowEvent::Restyle));
-                                    state.needs_restyle = true;
+                                    //state.needs_restyle = true;
 
                                     if state.captured != Entity::null() {
                                         state.insert_event(
@@ -692,4 +724,6 @@ impl Application {
             }
         });
     }
+
+
 }

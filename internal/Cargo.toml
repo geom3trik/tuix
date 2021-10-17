@@ -1,0 +1,21 @@
+[package]
+name = "tuix_internal"
+version = "0.2.0"
+authors = ["George Atkinson"]
+license = "MIT"
+repository = "https://github.com/geom3trik/tuix"
+edition = "2018"
+description = "Collection of tuix crates used for dynamic linking"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+glutin = ["tuix_glutin"]
+baseview = ["tuix_baseview"]
+
+
+[dependencies]
+tuix_core = { version = "0.2.0", path = "../core" }
+tuix_widgets = { version = "0.2.0", path = "../widgets"}
+tuix_glutin = { version = "0.2.0", path = "../glutin", optional = true }
+tuix_baseview = { version = "0.2.0", path = "../baseview", optional = true }
+tuix_derive = {version = "0.2.0", path = "../tuix_derive"}
