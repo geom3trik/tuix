@@ -7,6 +7,9 @@ repository = "https://github.com/geom3trik/tuix"
 edition = "2018"
 description = "Core parts of tuix"
 
+[features]
+rounding = ["morphorm/rounding"]
+
 [dependencies]
 cssparser = "0.27.2"
 femtovg = "0.2.5"

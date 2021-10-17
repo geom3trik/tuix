@@ -224,6 +224,7 @@ glutin = ["tuix_internal/glutin"]
 baseview = ["tuix_internal/baseview"]
 
 dynamic = ["tuix_dylib"]
+rounding = ["tuix_internal/rounding"]
 
 [dependencies]
 tuix_dylib = {version = "0.2.0", path = "dylib", optional = true}

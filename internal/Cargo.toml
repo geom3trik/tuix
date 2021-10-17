@@ -11,10 +11,11 @@ description = "Collection of tuix crates used for dynamic linking"
 [features]
 glutin = ["tuix_glutin"]
 baseview = ["tuix_baseview"]
+rounding = ["tuix_core/rounding"]
 
 
 [dependencies]
-tuix_core = { version = "0.2.0", path = "../core" }
+tuix_core = { version = "0.2.0", path = "../core"}
 tuix_widgets = { version = "0.2.0", path = "../widgets"}
 tuix_glutin = { version = "0.2.0", path = "../glutin", optional = true }
 tuix_baseview = { version = "0.2.0", path = "../baseview", optional = true }
