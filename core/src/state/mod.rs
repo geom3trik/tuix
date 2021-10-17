@@ -283,6 +283,12 @@ impl State {
             return Ok(());
         }
 
+        for rule in self.style.rules.iter() {
+            self.style.rule_manager.destroy(rule.id);
+        }
+
+        self.style.rules.clear();
+        
         self.style.remove_all();
 
         let mut overall_theme = String::new();

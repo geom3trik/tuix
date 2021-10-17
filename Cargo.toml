@@ -40,6 +40,16 @@ path = "examples/styling/inline.rs"
 name = "shared"
 path = "examples/styling/shared.rs"
 
+[[example]]
+name = "font"
+path = "examples/styling/font.rs"
+
+
+[[example]]
+name = "hot_reload"
+path = "examples/styling/hot_reload.rs"
+
+
 # [[example]]
 # name = "hover"
 # path = "examples/styling/hover.rs"
