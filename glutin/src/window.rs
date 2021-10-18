@@ -98,6 +98,15 @@ impl Widget for Window {
 
         if let Some(window_event) = event.message.downcast() {
             match window_event {
+
+                tuix_core::WindowEvent::GrabCursor(flag) => {
+                    self.handle.window().set_cursor_grab(*flag);
+                }
+
+                tuix_core::WindowEvent::SetCursorPosition(x, y) => {
+                    self.handle.window().set_cursor_position(Position::Physical(PhysicalPosition::new(*x as i32, *y as i32)));
+                }
+
                 tuix_core::WindowEvent::SetCursor(cursor) => {
                     match *cursor {
                         tuix_core::CursorIcon::Default => {

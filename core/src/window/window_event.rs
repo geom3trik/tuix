@@ -52,8 +52,12 @@ pub enum WindowEvent {
     KeyDown(Code, Option<Key>),
     /// Emitted when a keyboard key is released
     KeyUp(Code, Option<Key>),
-    /// Sets the mouse cursor
+    /// Sets the mouse cursor icon
     SetCursor(CursorIcon),
+    /// Grabs the mouse cursor, preventing it from leaving the window
+    GrabCursor(bool),
+    /// Sets the (x,y) position of the mouse cursor in window coordinates
+    SetCursorPosition(u32, u32),
     /// Emitted when mouse events have been captured
     MouseCaptureEvent,
     /// Emitted when mouse events have been released
