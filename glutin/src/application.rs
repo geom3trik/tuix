@@ -331,7 +331,7 @@ impl Application {
                                 if virtual_keycode == VirtualKeyCode::H && s == MouseButtonState::Pressed {
                                     //println!("Focused Widget: {}", state.focused);
                                     
-                                    println!("Tree");
+                                    // println!("Tree");
                                     // for entity in state.tree.into_iter() {
                                     //     println!("Entity: {} posx: {} posy: {} width: {} height: {}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity));
                                     // }
