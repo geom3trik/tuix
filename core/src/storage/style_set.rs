@@ -147,7 +147,34 @@ where
     /// background_color.remove(entity);
     /// ```
     pub fn remove(&mut self, entity: Entity) -> Option<T> {
-        self.inline_data.remove(entity)
+        let entity_index = entity.index();
+        
+        if entity_index < self.inline_data.sparse.len() {
+            let data_index = self.inline_data.sparse[entity_index].data_index;
+            if data_index.is_inline() {
+                self.inline_data.remove(entity)
+            } else {
+                self.inline_data.sparse[entity_index] = Index::null();
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn clear_rules(&mut self) {
+        // Remove transitions (TODO)
+        for _index in self.shared_data.sparse.iter() {
+            //let anim_index = index.anim_index as usize;
+        }
+
+        self.shared_data.clear();
+
+        for index in self.inline_data.sparse.iter_mut() {
+            if !index.data_index.is_inline() {
+                index.data_index = DataIndex::null();
+            }
+        }
     }
 
     pub fn insert_rule(&mut self, rule: Rule, value: T) {
