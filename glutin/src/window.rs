@@ -101,143 +101,182 @@ impl Widget for Window {
                 tuix_core::WindowEvent::SetCursor(cursor) => {
                     match *cursor {
                         tuix_core::CursorIcon::Default => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Default);
                         }
 
                         tuix_core::CursorIcon::Crosshair => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Crosshair);
                         }
 
                         tuix_core::CursorIcon::Hand => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Hand);
                         }
 
                         tuix_core::CursorIcon::Arrow => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Arrow);
                         }
 
                         tuix_core::CursorIcon::Move => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Move);
                         }
 
                         tuix_core::CursorIcon::Text => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Text);
                         }
 
                         tuix_core::CursorIcon::Wait => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Wait);
                         }
 
                         tuix_core::CursorIcon::Help => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Help);
                         }
 
                         tuix_core::CursorIcon::Progress => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Progress);
                         }
 
                         tuix_core::CursorIcon::NotAllowed => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::NotAllowed);
                         }
 
                         tuix_core::CursorIcon::ContextMenu => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::ContextMenu);
                         }
 
                         tuix_core::CursorIcon::Cell => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Cell);
                         }
 
                         tuix_core::CursorIcon::VerticalText => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::VerticalText);
                         }
 
                         tuix_core::CursorIcon::Alias => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Alias);
                         }
 
                         tuix_core::CursorIcon::Copy => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Copy);
                         }
 
                         tuix_core::CursorIcon::NoDrop => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::NoDrop);
                         }
 
                         tuix_core::CursorIcon::Grab => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Grab);
                         }
 
                         tuix_core::CursorIcon::Grabbing => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::Grabbing);
                         }
 
                         tuix_core::CursorIcon::AllScroll => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::AllScroll);
                         }
 
                         tuix_core::CursorIcon::ZoomIn => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::ZoomIn);
                         }
 
                         tuix_core::CursorIcon::ZoomOut => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::ZoomOut);
                         }
 
                         tuix_core::CursorIcon::EResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::EResize);
                         }
 
                         tuix_core::CursorIcon::NResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::NResize);
                         }
 
                         tuix_core::CursorIcon::NeResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::NeResize);
                         }
 
                         tuix_core::CursorIcon::NwResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::NwResize);
                         }
 
                         tuix_core::CursorIcon::SResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::SResize);
                         }
 
                         tuix_core::CursorIcon::SeResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::SeResize);
                         }
 
                         tuix_core::CursorIcon::SwResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::SwResize);
                         }
 
                         tuix_core::CursorIcon::WResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::WResize);
                         }
 
                         tuix_core::CursorIcon::EwResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::EwResize);
                         }
 
                         tuix_core::CursorIcon::NsResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::NsResize);
                         }
 
                         tuix_core::CursorIcon::NeswResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::NeswResize);
                         }
 
                         tuix_core::CursorIcon::NwseResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::NwseResize);
                         }
 
                         tuix_core::CursorIcon::ColResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::ColResize);
                         }
 
                         tuix_core::CursorIcon::RowResize => {
+                            self.handle.window().set_cursor_visible(true);
                             self.handle.window().set_cursor_icon(CursorIcon::RowResize);
+                        }
+
+                        tuix_core::CursorIcon::None => {
+                            self.handle.window().set_cursor_visible(false);
                         }
                     }
                 }

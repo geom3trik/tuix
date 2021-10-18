@@ -135,6 +135,10 @@ pub fn apply_hover(state: &mut State) {
             state.data.stack_last_child(hovered_widget),
         );
 
+        let cursor = state.style.cursor.get(hovered_widget).cloned().unwrap_or_default();
+
+        hovered_widget.emit(state, WindowEvent::SetCursor(cursor));
+
         hovered_widget.set_hover(state, true);
         state.hovered.set_hover(state, false);
 

@@ -64,7 +64,7 @@ fn main() {
         HoverButton::new("NwseResize", CursorIcon::NwseResize).build(state, column, |builder| builder);
         HoverButton::new("ColResize", CursorIcon::ColResize).build(state, column, |builder| builder);
         HoverButton::new("RowResize", CursorIcon::RowResize).build(state, column, |builder| builder);
-        Element::new().build(state, column, |builder| builder.set_width(Pixels(150.0)));
+        HoverButton::new("None", CursorIcon::None).build(state, column, |builder| builder);
     
     });
 

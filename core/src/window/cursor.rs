@@ -37,4 +37,11 @@ pub enum CursorIcon {
     NwseResize,
     ColResize,
     RowResize,
+    None,
+}
+
+impl Default for CursorIcon {
+    fn default() -> Self {
+        CursorIcon::Default
+    }
 }

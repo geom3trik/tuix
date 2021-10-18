@@ -8,7 +8,7 @@ use cssparser::{Parser, ParserInput};
 
 use std::collections::HashSet;
 
-use crate::{Animation, IdManager};
+use crate::{Animation, CursorIcon, IdManager};
 use crate::{Entity, Transition};
 
 use crate::Interpolator;
@@ -213,6 +213,8 @@ pub struct Style {
 
 
     pub name: StyleSet<String>,
+
+    pub cursor: StyleSet<CursorIcon>,
 }
 
 impl Style {
@@ -535,6 +537,10 @@ impl Style {
 
                     Property::ColBetween(value) => {
                         self.col_between.insert_rule(rule_id, value);
+                    }
+
+                    Property::Cursor(cursor) => {
+                        self.cursor.insert_rule(rule_id, cursor);
                     }
 
                     // Transitions
