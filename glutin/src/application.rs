@@ -7,7 +7,7 @@ use crate::keyboard::{scan_to_code, vcode_to_code, vk_to_key};
 
 use crate::window::Window;
 
-use tuix_core::{BoundingBox, Units};
+use tuix_core::{BoundingBox, Units, Widget};
 use tuix_core::{Entity, State, PropSet};
 
 use tuix_core::{MouseButton, MouseButtonState};
@@ -39,7 +39,8 @@ type GEvent<'a, T> = glutin::event::Event<'a, T>;
 ///     // Build widgets here
 /// }).run();
 pub struct Application {
-    window: Window,
+    //window: Window,
+    window: Entity,
     state: State,
     event_loop: EventLoop<()>,
     event_manager: EventManager,
@@ -81,6 +82,8 @@ impl Application {
         let mut window = Window::new(&event_loop, &window_description);
         
         event_manager.load_resources(&mut state, &mut window.canvas);
+
+        state.event_handlers.insert(Entity::root(), Box::new(window));
         
         app(&mut state, root);
 
@@ -115,10 +118,10 @@ impl Application {
 
         state.data.set_clip_region(Entity::root(), bounding_box);
 
-        WindowWidget::new().build_window(&mut state);
+        //WindowWidget::new().build_window(&mut state);
 
         Application {
-            window: window,
+            window: Entity::root(),
             event_loop: event_loop,
             event_manager: event_manager,
             state: state,
@@ -187,7 +190,13 @@ impl Application {
                 GEvent::LoopDestroyed => return,
 
                 GEvent::UserEvent(_) => {
-                    window.handle.window().request_redraw();
+                    if let Some(mut window_event_handler) = state.event_handlers.remove(&Entity::root()) {
+                        if let Some(window) = window_event_handler.downcast::<Window>() {
+                            window.handle.window().request_redraw();
+                        }
+
+                        state.event_handlers.insert(Entity::root(), window_event_handler);
+                    }
                 }
 
                 GEvent::MainEventsCleared => {
@@ -207,7 +216,14 @@ impl Application {
                         state.insert_event(Event::new(WindowEvent::Relayout).target(Entity::root()));
 
                         event_loop_proxy.send_event(()).unwrap();
-                        window.handle.window().request_redraw();
+                        //window.handle.window().request_redraw();
+                        if let Some(mut window_event_handler) = state.event_handlers.remove(&Entity::root()) {
+                            if let Some(window) = window_event_handler.downcast::<Window>() {
+                                window.handle.window().request_redraw();
+                            }
+
+                            state.event_handlers.insert(Entity::root(), window_event_handler);
+                        }
                     } else {
                         *control_flow = ControlFlow::Wait;
                     }
@@ -217,7 +233,13 @@ impl Application {
                     if state.needs_redraw {
                         // TODO - Move this to EventManager
                         apply_clipping(&mut state, &tree);
-                        window.handle.window().request_redraw();
+                        //window.handle.window().request_redraw();
+                        if let Some(mut window_event_handler) = state.event_handlers.remove(&Entity::root()) {
+                            if let Some(window) = window_event_handler.downcast::<Window>() {
+                                window.handle.window().request_redraw();
+                            }
+                            state.event_handlers.insert(Entity::root(), window_event_handler);
+                        }
                         state.needs_redraw = false;
                     }
 
@@ -235,13 +257,20 @@ impl Application {
 
                 GEvent::RedrawRequested(_) => {
                     //let start = std::time::Instant::now();
-                    event_manager.draw(&mut state, &mut window.canvas);
+                    if let Some(mut window_event_handler) = state.event_handlers.remove(&Entity::root()) {
+                        if let Some(window) = window_event_handler.downcast::<Window>() {
+                            event_manager.draw(&mut state, &mut window.canvas);
+                            window
+                                .handle
+                                .swap_buffers()
+                                .expect("Failed to swap buffers");
+                        }
+
+                        state.event_handlers.insert(Entity::root(), window_event_handler);
+
+                    }
                     //println!("{:.2?} seconds to draw everything.", start.elapsed());
                     // Swap buffers
-                    window
-                        .handle
-                        .swap_buffers()
-                        .expect("Failed to swap buffers");
                 }
 
                 GEvent::WindowEvent {
@@ -331,7 +360,7 @@ impl Application {
                                 if virtual_keycode == VirtualKeyCode::H && s == MouseButtonState::Pressed {
                                     //println!("Focused Widget: {}", state.focused);
                                     
-                                    println!("Tree");
+                                    // println!("Tree");
                                     // for entity in state.tree.into_iter() {
                                     //     println!("Entity: {} posx: {} posy: {} width: {} height: {}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity));
                                     // }
@@ -462,7 +491,14 @@ impl Application {
 
                         // Window Resize Event
                         glutin::event::WindowEvent::Resized(physical_size) => {
-                            window.handle.resize(physical_size);
+                            
+
+                            if let Some(mut window_event_handler) = state.event_handlers.remove(&Entity::root()) {
+                                if let Some(window) = window_event_handler.downcast::<Window>() {
+                                    window.handle.resize(physical_size);
+                                }
+                                state.event_handlers.insert(Entity::root(), window_event_handler);
+                            }
 
                             state
                                 .style

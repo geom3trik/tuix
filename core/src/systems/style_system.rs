@@ -557,6 +557,11 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
         }
 
 
+        if state.style.cursor.link(entity, &matched_rules) {
+            //should_relayout = true;
+            //should_redraw = true;
+        }
+
         for rule_id in matched_rules.iter() {
             // TODO - remove cloned
             if let Some(rule_index) = state.style.rules.iter().position(|rule| rule.id == *rule_id) {

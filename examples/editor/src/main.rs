@@ -8,8 +8,8 @@ use tuix::widgets::*;
 mod overlay;
 use overlay::*;
 
-mod treeview;
-use treeview::*;
+// mod treeview;
+// use treeview::*;
 
 mod canvas_options;
 use canvas_options::*;
@@ -586,13 +586,13 @@ impl Widget for App {
         //         .set_background_color(Color::rgb(56, 56, 56))
         // );
 
-        TreeView::new()
-        .bind_ref(AppData::root)
-        .build(state, entity, |builder|
-            builder
-                .set_width(Pixels(300.0))
-                .set_background_color(Color::rgb(56, 56, 56))
-        );
+        // TreeView::new()
+        // .bind_ref(AppData::root)
+        // .build(state, entity, |builder|
+        //     builder
+        //         .set_width(Pixels(300.0))
+        //         .set_background_color(Color::rgb(56, 56, 56))
+        // );
 
 
         Element::new().build(state, entity, |builder|

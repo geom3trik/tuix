@@ -13,7 +13,6 @@ fn main() {
 
         Element::new().build(state, window, |builder|
             builder
-                .set_width(Pixels(100.0))
                 .set_height(Pixels(30.0))
                 .set_text("Something123")
                 .class("custom")

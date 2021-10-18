@@ -4,4 +4,6 @@
     background-color: red;
     child-space: 1s;
     child-left: 5px;
+    width: 1s;
+    height: 50px;
 }

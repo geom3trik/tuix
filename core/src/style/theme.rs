@@ -9,7 +9,7 @@ use cssparser::{
 use crate::style::property::Property;
 use crate::style::selector::{SelectorRelation, Selector};
 
-use crate::Transition;
+use crate::{CursorIcon, Transition};
 use crate::style::StyleRule;
 
 use crate::style::*;
@@ -442,6 +442,8 @@ impl<'i> cssparser::DeclarationParser<'i> for DeclarationParser {
 
             "z-index" => Property::ZIndex(parse_z_index(input)?),
 
+            "cursor" => Property::Cursor(parse_cursor(input)?),
+
             ident => Property::Unknown(ident.to_owned(), parse_unknown(input)?),
 
             // _ => {
@@ -829,6 +831,67 @@ fn parse_positioning_type<'i, 't>(
         Token::Ident(name) => match name.as_ref() {
             "self-directed" => PositionType::SelfDirected,
             "parent-directed" => PositionType::ParentDirected,
+
+            t => {
+                return Err(
+                    CustomParseError::InvalidStringName(name.to_owned().to_string()).into(),
+                );
+            }
+        },
+
+        t => {
+            let basic_error = BasicParseError {
+                kind: BasicParseErrorKind::UnexpectedToken(t.to_owned()),
+                location,
+            };
+            return Err(basic_error.into());
+        }
+    })
+}
+
+fn parse_cursor<'i, 't>(
+    input: &mut Parser<'i, 't>,
+) -> Result<CursorIcon, ParseError<'i, CustomParseError>> {
+    let location = input.current_source_location();
+
+    Ok(match input.next()? {
+        Token::Ident(name) => match name.as_ref() {
+            "default" => CursorIcon::Default,
+            "crosshair" => CursorIcon::Crosshair,
+            "hand" => CursorIcon::Hand,
+            "arrow" => CursorIcon::Arrow,
+            "move" => CursorIcon::Move,
+            "text" => CursorIcon::Text,
+            "wait" => CursorIcon::Wait,
+            "help" => CursorIcon::Help,
+            "progress" => CursorIcon::Progress,
+            "not-allowed" => CursorIcon::NotAllowed,
+            "context-menu" => CursorIcon::ContextMenu,
+            "cell" => CursorIcon::Cell,
+            "vertical-text" => CursorIcon::VerticalText,
+            "alias" => CursorIcon::Alias,
+            "copy" => CursorIcon::Copy,
+            "no-drop" => CursorIcon::NoDrop,
+            "grab" => CursorIcon::Grab,
+            "grabbing" => CursorIcon::Grabbing,
+            "all-scroll" => CursorIcon::AllScroll,
+            "zoom-in" => CursorIcon::ZoomIn,
+            "zoom-out" => CursorIcon::ZoomOut,
+            "e-resize" => CursorIcon::EResize,
+            "n-resize" => CursorIcon::NResize,
+            "ne-resize" => CursorIcon::NeResize,
+            "nw-resize" => CursorIcon::NwResize,
+            "s-resize" => CursorIcon::SResize,
+            "se-resize" => CursorIcon::SeResize,
+            "sw-resize" => CursorIcon::SwResize,
+            "w-resize" => CursorIcon::WResize,
+            "ew-resize" => CursorIcon::EwResize,
+            "ns-resize" => CursorIcon::NsResize,
+            "nesw-resize" => CursorIcon::NeswResize,
+            "nwse-resize" => CursorIcon::NwseResize,
+            "col-resize" => CursorIcon::ColResize,
+            "row-resize" => CursorIcon::RowResize,
+            "none" => CursorIcon::None,
 
             t => {
                 return Err(

@@ -8,7 +8,7 @@ use cssparser::{Parser, ParserInput};
 
 use std::collections::HashSet;
 
-use crate::{Animation, IdManager};
+use crate::{Animation, CursorIcon, IdManager};
 use crate::{Entity, Transition};
 
 use crate::Interpolator;
@@ -213,6 +213,8 @@ pub struct Style {
 
 
     pub name: StyleSet<String>,
+
+    pub cursor: StyleSet<CursorIcon>,
 }
 
 impl Style {
@@ -535,6 +537,10 @@ impl Style {
 
                     Property::ColBetween(value) => {
                         self.col_between.insert_rule(rule_id, value);
+                    }
+
+                    Property::Cursor(cursor) => {
+                        self.cursor.insert_rule(rule_id, cursor);
                     }
 
                     // Transitions
@@ -1318,9 +1324,26 @@ impl Style {
     }
 
     pub fn remove_all(&mut self) {
+
+
+        self.z_order.clear_rules();
+        self.rotate.clear_rules();
+        self.translate.clear_rules();
+        self.scale.clear_rules();
+        self.overflow.clear_rules();
+
         // Remove all non-inline style data
         self.background_color.clear_rules();
+        self.background_image.clear_rules();
+        self.background_gradient.clear_rules();
+
+
         self.font_color.clear_rules();
+        self.font.clear_rules();
+        self.font_size.clear_rules();
+
+        self.positioning_type.clear_rules();
+        self.layout_type.clear_rules();
 
         // Position
         self.left.clear_rules();
@@ -1348,6 +1371,12 @@ impl Style {
         self.min_height.clear_rules();
         self.max_height.clear_rules();
 
+        //
+        self.child_left.clear_rules();
+        self.child_right.clear_rules();
+        self.child_top.clear_rules();
+        self.child_bottom.clear_rules();
+
         // Border
         self.border_width.clear_rules();
         self.border_color.clear_rules();
@@ -1357,6 +1386,11 @@ impl Style {
         self.border_radius_top_right.clear_rules();
         self.border_radius_bottom_left.clear_rules();
         self.border_radius_bottom_right.clear_rules();
+
+        self.border_shape_top_left.clear_rules();
+        self.border_shape_top_right.clear_rules();
+        self.border_shape_bottom_left.clear_rules();
+        self.border_shape_bottom_right.clear_rules();
 
         // Display
         self.display.clear_rules();
@@ -1374,5 +1408,17 @@ impl Style {
         self.outer_shadow_v_offset.clear_rules();
         self.outer_shadow_blur.clear_rules();
         self.outer_shadow_color.clear_rules();
+
+        self.grid_rows.clear_rules();
+        self.grid_cols.clear_rules();
+        self.row_between.clear_rules();
+        self.col_between.clear_rules();
+
+        self.row_index.clear_rules();
+        self.col_index.clear_rules();
+        self.row_span.clear_rules();
+        self.col_span.clear_rules();
+
+        
     }
 }

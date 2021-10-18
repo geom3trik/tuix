@@ -1,4 +1,5 @@
 
+use crate::CursorIcon;
 use crate::Display;
 
 use crate::Color;
@@ -105,6 +106,8 @@ pub(crate) enum Property {
     Translate((f32, f32)),
     Rotate(f32),
     Scale((f32, f32)),
+
+    Cursor(CursorIcon),
 }
 
 /*
