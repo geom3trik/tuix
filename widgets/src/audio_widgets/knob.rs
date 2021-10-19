@@ -1,4 +1,4 @@
-use crate::common::*;
+use crate::{SliderEvent, common::*};
 use femtovg::*;
 
 use super::NormalizedMap;
@@ -314,6 +314,8 @@ impl<T: NormalizedMap> Widget for Knob<T> {
                 (callback)(self_ref, state, entity);
                 self_ref.on_changing = Some(callback);
             }
+
+            entity.emit(state, SliderEvent::ValueChanged(self_ref.normalized_value));
 
             if let Some(track) = state.query::<ArcTrack>(self_ref.value_track) {
                 track.normalized_value = self_ref.normalized_value;
