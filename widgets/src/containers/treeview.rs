@@ -1,9 +1,19 @@
+
 use std::marker::PhantomData;
+use std::sync::Arc;
+
 
 use crate::{ScrollContainer, common::*};
 use crate::{Label};
 
 const ICON_DOWN_OPEN_BIG: &str = "\u{e75c}";
+
+pub trait TreeIter {
+    type Item: TreeIter + Clone + 'static;
+    type IntoIter: Iterator<Item = Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter;
+}
 
 #[derive(Debug, Clone, Copy)]
 pub struct NullType;
@@ -14,11 +24,20 @@ impl Iterator for NullType {
         None
     }
 }
+
+impl TreeIter for NullType {
+    type Item = NullType;
+    type IntoIter = NullType;
+
+    fn into_iter(self) -> Self::IntoIter {
+        NullType
+    }
+}
 pub struct TreeView<T = NullType> {
 
     scroll: Entity,
 
-    template: Option<Box<dyn Fn(&mut State, Entity) -> Entity>>,
+    template: Option<Arc<dyn Fn(&mut State, Entity) -> Entity>>,
     p: PhantomData<T>,
 }
 
@@ -33,40 +52,52 @@ impl TreeView<NullType> {
 }
 
 impl<T: Node> TreeView<T> 
-where T: Clone + IntoIterator<Item = T> + std::fmt::Debug
+where T: Clone + TreeIter + std::fmt::Debug
 {
     pub fn with_template<F>(template: F) -> Self 
     where F: 'static + Fn(&mut State, Entity) -> Entity {
         Self {
             scroll: Entity::null(),
-            template: Some(Box::new(template)),
+            template: Some(Arc::new(template)),
             p: PhantomData::default(),
         }
     }
 
-    fn build_tree(&mut self, state: &mut State, _entity: Entity, data: &T, level: u32) {
+    fn build_tree<U: TreeIter + Clone>(&mut self, state: &mut State, entity: Entity, data: &U, level: u32) {
         for item in data.clone().into_iter() {
-            // let tree_item = TreeViewItem::with_header_template(|state, parent|{
-            //     Label::new("Test")
-            //         .bind_ref(TreeData::name)
-            //         .build(state, parent, |builder| 
-            //             builder
-            //                 .set_child_space(Stretch(1.0))
-            //                 .set_child_left(Pixels(0.0))
-            //         )
-            // }).build(state, self.scroll, |builder| 
-            //     builder
-            //         .set_height(Pixels(30.0))
-            //         .set_left(Pixels(level as f32 * 15.0))
-            // );
+            let tree_item = if let Some(template) = self.template.clone() {
+                let tree_item = TreeViewItem::with_header_template(move |state, parent|{
+                    (template)(state, parent)
+                }).build(state, entity, |builder| 
+                    builder
+                        .set_height(Pixels(30.0))
+                        .set_left(Pixels(level as f32 * 15.0))
+                );
 
-            //self.build_tree(state, tree_item, &item, level + 1);
+                tree_item
+            } else {
+                TreeViewItem::with_header_template(move |state, parent|{
+                    Label::new("Test")
+                    //.bind_ref(TreeData::name)
+                    .build(state, parent, |builder| 
+                        builder
+                            .set_child_space(Stretch(1.0))
+                            .set_child_left(Pixels(0.0))
+                    )
+                }).build(state, entity, |builder| 
+                    builder
+                        .set_height(Pixels(30.0))
+                        .set_left(Pixels(level as f32 * 15.0))
+                )
+            };
+            
+            self.build_tree(state, tree_item, &item, level + 1);
         }
     }
 
-    fn update_tree(&mut self, state: &mut State, _entity: Entity, data: &T) {
-        for (item, child) in data.clone().into_iter().zip(self.scroll.child_iter(&state.tree.clone())) {
-            println!("Update with: {:?} {}", item, child);
+    fn update_tree<U: TreeIter + Clone>(&mut self, state: &mut State, entity: Entity, data: &U) {
+        for (item, child) in TreeIter::into_iter(data.clone()).zip(entity.child_iter(&state.tree.clone())) {
+            //println!("Update with: {:?} {}", item, child);
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
                 event_handler.on_update_(state, child, &item);
 
@@ -82,7 +113,7 @@ where T: Clone + IntoIterator<Item = T> + std::fmt::Debug
 }
 
 impl<T: Node> Widget for TreeView<T> 
-where T: Clone + IntoIterator<Item = T> + std::fmt::Debug
+where T: Clone + TreeIter + std::fmt::Debug
 {
     type Ret = Entity;
     type Data = T;
@@ -96,9 +127,9 @@ where T: Clone + IntoIterator<Item = T> + std::fmt::Debug
 
         
 
-        let scroll = ScrollContainer::new().build(state, entity, |builder| builder);
+        self.scroll = ScrollContainer::new().build(state, entity, |builder| builder);
 
-        scroll
+        self.scroll
     }
 
     fn on_update(&mut self, state: &mut State, _entity: Entity, data: &Self::Data) {
@@ -109,22 +140,22 @@ where T: Clone + IntoIterator<Item = T> + std::fmt::Debug
             state.remove(child);
         }
 
-        // let tree_item = TreeViewItem::with_header_template(|state, parent| {
-        //     Label::new("Root")
-        //         .bind_ref(TreeData::name)
-        //         .build(state, parent, |builder| 
-        //             builder
-        //                 .set_child_space(Stretch(1.0))
-        //                 .set_child_left(Pixels(0.0))
-        //         )
-        // }).build(state, self.scroll, |builder| 
-        //     builder
-        //         .set_height(Pixels(30.0))
-        // );
+        let tree_item = TreeViewItem::with_header_template(|state, parent| {
+            Label::new("Root")
+                //.bind_ref(TreeData::name)
+                .build(state, parent, |builder| 
+                    builder
+                        .set_child_space(Stretch(1.0))
+                        .set_child_left(Pixels(0.0))
+                )
+        }).build(state, self.scroll, |builder| 
+            builder
+                .set_height(Pixels(30.0))
+        );
 
-        //self.build_tree(state, tree_item, data, 1);
+        self.build_tree(state, tree_item, data, 1);
 
-        //self.update_tree(state, tree_item, data);
+        self.update_tree(state, tree_item, data);
         
         // for item in data.clone().into_iter() {
         //     println!("Item: {:?}", item);
@@ -152,7 +183,7 @@ pub struct TreeViewItem {
     collapsed: bool,
 
     // Template for item(s) to be placed after the expand/collapse arrow
-    header_template: Option<Box<dyn Fn(&mut State, Entity) -> Entity>>,
+    header_template: Option<Box<dyn FnOnce(&mut State, Entity) -> Entity>>,
 }
 
 impl TreeViewItem {
@@ -189,7 +220,7 @@ impl TreeViewItem {
     }
 
     pub fn with_header_template<F>(template: F) -> Self 
-    where F: 'static + Fn(&mut State, Entity) -> Entity,
+    where F: 'static + FnOnce(&mut State, Entity) -> Entity,
     {
         Self {
             header: Entity::null(),

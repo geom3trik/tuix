@@ -6,6 +6,13 @@ const ICON_DOWN_OPEN_BIG: &str = "\u{e75c}";
 
 const STYLE: &str = r#"
 
+    label {
+        background-color: white;
+    }
+
+    label:hover {
+        background-color: #CCCCCC;
+    }
 "#;
 
 fn main() {
@@ -38,10 +45,18 @@ fn main() {
                 }
             ],
         }.build(state, window);
-        
-        // let treeview = TreeView::with_template(|state, parent| Label::new("default").build(state, parent, |builder| builder))
-        //     .bind_ref(TreeData::root)
-        //     .build(state, tree_data, |builder| builder);
+
+        let treeview = TreeView::with_template(|state, parent| {
+            Label::new("default")
+                .bind_ref(TreeData::name)
+                .build(state, parent, |builder| 
+                    builder
+                        .set_child_space(Stretch(1.0))
+                        .set_child_left(Pixels(0.0))
+                )
+        })
+        .bind_ref(TreeData::root)
+        .build(state, tree_data, |builder| builder);
     });
 
     app.run();
@@ -73,7 +88,7 @@ impl TreeData {
 //     }
 // }
 
-impl<'a> IntoIterator for TreeData {
+impl TreeIter for TreeData {
     type Item = TreeData;
     type IntoIter = std::vec::IntoIter<TreeData>;
     

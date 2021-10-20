@@ -186,6 +186,10 @@ path = "examples/binding/basic.rs"
 name = "treeview2"
 path = "examples/binding/treeview2.rs"
 
+[[example]]
+name = "treeview3"
+path = "examples/binding/treeview3.rs"
+
 
 [[example]]
 name = "basic_treeview"
