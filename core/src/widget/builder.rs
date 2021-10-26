@@ -16,12 +16,12 @@ pub struct Builder<'a,T> {
 impl<'a,T> Builder<'a,T> {
 
     /// Creates a new Builder
-    pub(crate) fn new(state: &'a mut State, entity: Entity) -> Self {
+    pub fn new(state: &'a mut State, entity: Entity) -> Self {
         Builder::<T> { entity, state, phantom: PhantomData}
     }
 
     /// Builds the widget into State
-    pub(crate) fn build(self, event_handler: T) -> Entity
+    pub fn build(self, event_handler: T) -> Entity
     where
         T: EventHandler + 'static + Sized,
     {

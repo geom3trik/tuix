@@ -23,7 +23,7 @@ pub use layer::*;
 
 
 use crate::storage::shared_set::SharedSet;
-use crate::{AnimationBuilder, Builder, Color, Event, EventHandler, PropSet, Propagation, Rule, Style};
+use crate::{AnimationBuilder, BindEvent, Builder, Color, Event, EventHandler, PropSet, Propagation, Rule, Style};
 use crate::{WindowEvent, Tree, TreeExt};
 
 use crate::IdManager;
@@ -388,7 +388,7 @@ impl State {
     }
 
     // Adds a new entity with a specified parent
-    pub(crate) fn add(&mut self, parent: Entity) -> Entity {
+    pub fn add(&mut self, parent: Entity) -> Entity {
         let entity = self
             .entity_manager
             .create();
@@ -405,17 +405,13 @@ impl State {
 
     //  TODO
     pub fn remove(&mut self, entity: Entity) {
-        println!("Request Remove: {}", entity);
+        //println!("Request Remove: {}", entity);
         // Collect all entities below the removed entity on the same branch of the tree
         let delete_list = entity.branch_iter(&self.tree).collect::<Vec<_>>();
 
         for entity in delete_list.iter().rev() {
-            println!("Removing: {}", entity);
-            self.tree.remove(*entity).expect("");
-            self.data.remove(*entity);
-            self.style.remove(*entity);
+            //println!("Removing: {}", entity);
             self.removed_entities.push(*entity);
-            self.entity_manager.destroy(*entity);
         }
 
         Entity::root().restyle(self);

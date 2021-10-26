@@ -362,7 +362,7 @@ impl Application {
                                     
                                     // println!("Tree");
                                     // for entity in state.tree.into_iter() {
-                                    //     println!("Entity: {} posx: {} posy: {} width: {} height: {}", entity, state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity));
+                                    //     println!("Entity: {} Parent: {:?} posx: {} posy: {} width: {} height: {}", entity, entity.parent(&state.tree), state.data.get_posx(entity), state.data.get_posy(entity), state.data.get_width(entity), state.data.get_height(entity));
                                     // }
                                 }
 

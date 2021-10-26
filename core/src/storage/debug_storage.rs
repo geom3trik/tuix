@@ -156,7 +156,7 @@ impl DenseIndex for SharedIndex {
 /// Animations are moved from animations to active_animations when played. This allows the active
 /// animations to be quickly iterated to update the value.
 #[derive(Default, Debug)]
-pub struct AnimatableSet<T: Interpolator> {
+pub struct DebugStorage<T: Interpolator> {
     /// Shared data determined by style rules
     pub(crate) shared_data: SparseSetGeneric<T,SharedIndex>,
     /// Inline data defined on specific entities
@@ -167,7 +167,7 @@ pub struct AnimatableSet<T: Interpolator> {
     active_animations: Vec<AnimationState<T>>,
 }
 
-impl<T> AnimatableSet<T>
+impl<T> DebugStorage<T>
 where
     T: 'static + Default + Clone + Interpolator + PartialEq + std::fmt::Debug
 {
@@ -506,7 +506,6 @@ where
         // Loop through matched rules and link to the first valid rule
         for rule in rules.iter() {
             if let Some(shared_data_index) = self.shared_data.dense_idx(*rule) {
-                
                 // If the entity doesn't have any previous shared data then create space for it
                 if entity_index >= self.inline_data.sparse.len() {
                     self.inline_data.sparse.resize(entity_index + 1, InlineIndex::null());
@@ -565,6 +564,12 @@ where
                 
                 return true;
             
+            } else {
+                // No rule
+                // if entity_index < self.inline_data.sparse.len() {
+                //     self.inline_data.sparse[entity_index].data_index = DataIndex::null();
+                // }
+                // return true;
             }
         }
 
@@ -656,7 +661,7 @@ mod tests {
     /// Test for constructing a new empty animatable storage
     #[test]
     fn new() {
-        let animatable_storage = AnimatableSet::<f32>::new();
+        let animatable_storage = DebugStorage::<f32>::new();
         assert_eq!(animatable_storage.inline_data.is_empty(), true);
         assert_eq!(animatable_storage.shared_data.is_empty(), true);
         assert_eq!(animatable_storage.animations.is_empty(), true);
@@ -666,7 +671,7 @@ mod tests {
     /// Test inserting inline data into the storage
     #[test]
     fn insert_inline() {
-        let mut animatable_storage = AnimatableSet::new();
+        let mut animatable_storage = DebugStorage::new();
         animatable_storage.insert(Entity::root(), 5.0);
         //assert_eq!(animatable_storage.entity_indices.first().unwrap().data_index, DataIndex::inline(0));
     }

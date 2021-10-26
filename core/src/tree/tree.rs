@@ -57,14 +57,18 @@ impl Tree {
     pub fn get_last_child(&self, entity: Entity) -> Option<Entity> {
         //check if entity exists
         let index = entity.index();
-        let mut f = self.first_child[index];
-        let mut r = None;
-        while f != None {
-            r = f;
-            f = self.next_sibling[f.unwrap().index()];
+        if index < self.first_child.len() {
+            let mut f = self.first_child[index];
+            let mut r = None;
+            while f != None {
+                r = f;
+                f = self.next_sibling[f.unwrap().index()];
+            }
+    
+            return r;
+        } else {
+            None
         }
-
-        return r;
     }
 
     /// Returns the nth child of an entity

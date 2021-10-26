@@ -1,4 +1,4 @@
-use crate::{Builder, EventHandler, PropSet, WidgetEvent, WindowEvent};
+use crate::{Builder, EventHandler, PropSet, WidgetEvent, WindowEvent, entity};
 use crate::{AsEntity, BorderCornerShape, Entity, FontOrId, Lens, LensWrapRef, Node, PropType, State, TreeExt, LensWrap};
 use femtovg::{PixelFormat, RenderTarget};
 use femtovg::{
@@ -52,6 +52,24 @@ pub trait Widget: std::marker::Sized + 'static {
         // Return the entity or entities returned by the on_build method
         ret
     }
+
+    fn build2(mut self, state: &mut State, parent: Entity) -> Self::Ret {
+        // Create a new entity
+        let entity = state.add(parent.entity());
+
+        //state.insert_event(Event::new(WidgetEvent::ChildAdded(entity)).direct(parent.entity()));
+        parent.entity().emit(state, WidgetEvent::ChildAdded(entity));
+
+        // Call the on_build function of the widget
+        let ret = self.on_build(state, entity);
+
+        // Call the builder closure
+        Builder::new(state, entity).build(self);
+
+        // Return the entity or entities returned by the on_build method
+        ret
+    }
+
     /// Bind a piece of data to the widget using a lens and a conversion closure
     fn bind<L: Lens, F>(self, lens: L, converter: F) -> LensWrap<L, Self> 
     where F: 'static + Fn(&<L as Lens>::Target) -> <Self as Widget>::Data

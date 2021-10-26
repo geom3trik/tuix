@@ -116,6 +116,7 @@ mod lens;
 mod bind_ext;
 pub use bind_ext::BindExt;
 use std::any::TypeId;
+use std::ops::Deref;
 
 pub use node::*;
 pub use lens::{Lens, LensExt};
@@ -138,7 +139,26 @@ pub enum BindEvent {
     Bind(Entity, TypeId),
     /// Sent manually when data in [Model] is updated. 
     Update,
+
+    /// Remove a widget from the list of observers
+    Remove(Entity),
 }
+
+// TODO
+// pub enum BoundData<'a, T> {
+//     Bind(&'a T),
+//     Update(&'a T),
+// }
+
+// impl<'a,T: Sized> Deref for BoundData<'a,T> {
+//     type Target = T;
+//     fn deref(&self) -> &Self::Target {
+//         match self {
+//             BoundData::Bind(val) => val,
+//             BoundData::Update(val) => val,
+//         }
+//     }
+// }   
 
 
 /// A [LensWrap] without a converter, allowing data to be passed from [Model] to the bound [Widget] as a reference.

@@ -1,6 +1,6 @@
 
 
-use crate::{Entity, Event, FontOrId, Propagation, State, Tree, TreeExt, Display, Visibility, WindowEvent};
+use crate::{BindEvent, Display, Entity, Event, FontOrId, Propagation, State, Tree, TreeExt, Visibility, WindowEvent, entity};
 
 
 use femtovg::{
@@ -44,6 +44,26 @@ impl EventManager {
         let mut needs_restyle = false;
         let mut needs_relayout = false;
 
+        for entity in state.removed_entities.clone().iter() {
+            for ancestor in entity.parent_iter(&state.tree.clone()) {
+                if let Some(mut event_handler) = state.event_handlers.remove(&ancestor) {
+                    event_handler.on_event_(state, ancestor, &mut Event::new(BindEvent::Remove(*entity)));
+                
+                    state.event_handlers.insert(ancestor, event_handler);
+                }
+            }
+        }
+
+        // Remove widgets that should be removed
+        for entity in state.removed_entities.iter() {
+            state.tree.remove(*entity).expect("");
+            state.data.remove(*entity);
+            state.style.remove(*entity);
+            state.event_handlers.remove(entity);
+            state.entity_manager.destroy(*entity);
+            state.tree.changed = true;
+        }
+
         if state.tree.changed {
             self.tree = state.tree.clone();
             state.tree.changed = false;
@@ -52,12 +72,7 @@ impl EventManager {
         // Clear the event queue in the event manager
         self.event_queue.clear();
 
-        // Remove widgets that should be removed
-        // for entity in state.removed_entities.iter() {
-        //     self.event_handlers.remove(entity);
-        // }
-
-        //state.removed_entities.clear();
+        state.removed_entities.clear();
 
         // Move events from state to event manager
         self.event_queue.extend(state.event_queue.drain(0..));

@@ -94,7 +94,7 @@ impl<'a> TreeIter for TreeData {
     type Item = TreeItem;
     type IntoIter = std::vec::IntoIter<TreeItem>;
     
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self, state: &mut State) -> Self::IntoIter {
         self.children.into_iter()
     }
 }
@@ -109,7 +109,7 @@ impl TreeIter for TreeItem {
     type Item = TreeSubItem;
     type IntoIter = std::vec::IntoIter<TreeSubItem>;
 
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self, state: &mut State) -> Self::IntoIter {
         self.children.into_iter()
     }
 
@@ -124,7 +124,7 @@ impl TreeIter for TreeSubItem {
     type Item = NullType;
     type IntoIter = NullType;
 
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self, state: &mut State) -> Self::IntoIter {
         NullType
     }
 }

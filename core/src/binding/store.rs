@@ -39,7 +39,9 @@ impl<D: Model + Node> Widget for Store<D> {
                         //println!("Compatible");
                         self.observers.insert(*target);
                         //entity.emit(state, BindEvent::Update);
+                        
                         if let Some(mut event_handler) = state.event_handlers.remove(target) {
+                            //println!("send update: {}", *target);
                             event_handler.on_update_(state, *target, &self.data_widget);
     
                             state.event_handlers.insert(*target, event_handler);
@@ -56,6 +58,7 @@ impl<D: Model + Node> Widget for Store<D> {
                     for observer in self.observers.iter() {
                         if *observer != event.origin {
                             if let Some(mut event_handler) = state.event_handlers.remove(observer) {
+                                //println!("Update observer: {}", observer);
                                 event_handler.on_update_(state, *observer, &self.data_widget);
 
                                 state.event_handlers.insert(*observer, event_handler);
@@ -64,6 +67,10 @@ impl<D: Model + Node> Widget for Store<D> {
                     }                        
                     
                 }
+
+                BindEvent::Remove(target) => {
+                    self.observers.remove(target);
+                } 
             }
         }
 

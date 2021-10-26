@@ -169,6 +169,14 @@ scroll_container:disabled>.scrollbar {
     transition: width 0.1 0.0;
 }
 
+.scrollbar:hover {
+    background-color: #8a8a8a;
+}
+
+.scrollbar:active {
+    background-color: #8a8a8a;
+}
+
 
 tab_manager {
     width: 1s;
@@ -223,4 +231,12 @@ button.test {
     width: 100px;
     height: 60px;
     background-color: #8a8a8a;
+}
+
+check_button {
+    background-color: red;
+}
+
+check_button:checked {
+    background-color: blue;
 }

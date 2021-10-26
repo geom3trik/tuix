@@ -240,9 +240,9 @@ pub fn apply_styles(state: &mut State, tree: &Tree) {
 
         //println!("Entity: {}, Matched Rules: {:?}", entity, &matched_rules);
 
-        if matched_rules.len() == 0 {
-            continue;
-        }
+        // if matched_rules.len() == 0 {
+        //     continue;
+        // }
 
         let mut should_relayout = false;
         let mut should_redraw = false;

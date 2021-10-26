@@ -1,7 +1,10 @@
 
+use std::collections::binary_heap::IntoIter;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
+
+use tuix_core::ChildIterator;
 
 use crate::{ScrollContainer, common::*};
 use crate::{Label};
@@ -9,10 +12,10 @@ use crate::{Label};
 const ICON_DOWN_OPEN_BIG: &str = "\u{e75c}";
 
 pub trait TreeIter {
-    type Item: TreeIter + Clone + 'static;
+    type Item: TreeIter + Clone + std::fmt::Debug + 'static;
     type IntoIter: Iterator<Item = Self::Item>;
 
-    fn into_iter(self) -> Self::IntoIter;
+    fn into_iter(self, store: &mut State) -> Self::IntoIter;
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -29,22 +32,32 @@ impl TreeIter for NullType {
     type Item = NullType;
     type IntoIter = NullType;
 
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self, store: &mut State) -> Self::IntoIter {
         NullType
     }
 }
+
+impl TreeIter for Entity {
+    type Item = Entity;
+    type IntoIter = std::vec::IntoIter<Entity>;
+
+    fn into_iter(self, state: &mut State) -> Self::IntoIter {
+        self.child_iter(&state.tree).collect::<Vec<_>>().into_iter()
+    }
+}
+
 pub struct TreeView<T = NullType> {
 
-    scroll: Entity,
+    //scroll: Entity,
 
-    template: Option<Arc<dyn Fn(&mut State, Entity) -> Entity>>,
+    template: Option<Arc<dyn Fn(&mut State, Entity, &T) -> Entity>>,
     p: PhantomData<T>,
 }
 
 impl TreeView<NullType> {
     pub fn new() -> Self {
         Self {
-            scroll: Entity::null(),
+            //scroll: Entity::null(),
             template: None,
             p: PhantomData::default(),
         }
@@ -52,22 +65,23 @@ impl TreeView<NullType> {
 }
 
 impl<T: Node> TreeView<T> 
-where T: Clone + TreeIter + std::fmt::Debug
+where T: 'static + Clone + TreeIter + std::fmt::Debug
 {
     pub fn with_template<F>(template: F) -> Self 
-    where F: 'static + Fn(&mut State, Entity) -> Entity {
+    where F: 'static + Fn(&mut State, Entity, &T) -> Entity {
         Self {
-            scroll: Entity::null(),
+            //scroll: Entity::null(),
             template: Some(Arc::new(template)),
             p: PhantomData::default(),
         }
     }
 
-    fn build_tree<U: TreeIter + Clone>(&mut self, state: &mut State, entity: Entity, data: &U, level: u32) {
-        for item in data.clone().into_iter() {
+    fn build_tree<U: TreeIter + Clone + std::fmt::Debug>(&mut self, state: &mut State, entity: Entity, data: &U, root: &T, level: u32) {
+
+        for item in data.clone().into_iter(state) {
             let tree_item = if let Some(template) = self.template.clone() {
                 let tree_item = TreeViewItem::with_header_template(move |state, parent|{
-                    (template)(state, parent)
+                    (template)(state, parent, root)
                 }).build(state, entity, |builder| 
                     builder
                         .set_height(Pixels(30.0))
@@ -91,13 +105,13 @@ where T: Clone + TreeIter + std::fmt::Debug
                 )
             };
             
-            self.build_tree(state, tree_item, &item, level + 1);
+            self.build_tree(state, tree_item, &item, root, level + 1);
         }
     }
 
-    fn update_tree<U: TreeIter + Clone>(&mut self, state: &mut State, entity: Entity, data: &U) {
-        for (item, child) in TreeIter::into_iter(data.clone()).zip(entity.child_iter(&state.tree.clone())) {
-            //println!("Update with: {:?} {}", item, child);
+    fn update_tree<U: TreeIter + Clone + std::fmt::Debug>(&mut self, state: &mut State, entity: Entity, data: &U) {
+        for (item, child) in data.clone().into_iter(state).zip(entity.child_iter(&state.tree.clone())) {
+            println!("Update with: {:?} {}", item, child);
             if let Some(mut event_handler) = state.event_handlers.remove(&child) {
                 event_handler.on_update_(state, child, &item);
 
@@ -113,7 +127,7 @@ where T: Clone + TreeIter + std::fmt::Debug
 }
 
 impl<T: Node> Widget for TreeView<T> 
-where T: Clone + TreeIter + std::fmt::Debug
+where T: 'static + Clone + TreeIter + std::fmt::Debug
 {
     type Ret = Entity;
     type Data = T;
@@ -125,18 +139,17 @@ where T: Clone + TreeIter + std::fmt::Debug
                 
         // );
 
-        
+        //self.scroll = ScrollContainer::new().build(state, entity, |builder| builder);
 
-        self.scroll = ScrollContainer::new().build(state, entity, |builder| builder);
-
-        self.scroll
+        //self.scroll
+        entity
     }
 
-    fn on_update(&mut self, state: &mut State, _entity: Entity, data: &Self::Data) {
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
         
         println!("Update: {:?}", data);
 
-        for child in self.scroll.child_iter(&state.tree.clone()) {
+        for child in entity.child_iter(&state.tree.clone()) {
             state.remove(child);
         }
 
@@ -148,12 +161,12 @@ where T: Clone + TreeIter + std::fmt::Debug
                         .set_child_space(Stretch(1.0))
                         .set_child_left(Pixels(0.0))
                 )
-        }).build(state, self.scroll, |builder| 
+        }).build(state, entity, |builder| 
             builder
                 .set_height(Pixels(30.0))
         );
 
-        self.build_tree(state, tree_item, data, 1);
+        self.build_tree(state, tree_item, data, &data, 1);
 
         self.update_tree(state, tree_item, data);
         
@@ -174,7 +187,7 @@ where T: Clone + TreeIter + std::fmt::Debug
         // }
     }
 }
-pub struct TreeViewItem {
+pub struct TreeViewItem<T> {
     header: Entity,
     arrow: Entity,
     container: Entity,
@@ -183,10 +196,10 @@ pub struct TreeViewItem {
     collapsed: bool,
 
     // Template for item(s) to be placed after the expand/collapse arrow
-    header_template: Option<Box<dyn FnOnce(&mut State, Entity) -> Entity>>,
+    header_template: Option<Box<dyn FnOnce(&mut State, Entity, &T) -> Entity>>,
 }
 
-impl TreeViewItem {
+impl<T> TreeViewItem<T> {
     pub fn new() -> Self {
         Self {
             header: Entity::null(),
@@ -207,7 +220,7 @@ impl TreeViewItem {
             item: Entity::null(),
             container: Entity::null(),
 
-            header_template: Some(Box::new(move |state, entity| 
+            header_template: Some(Box::new(move |state, entity, data| 
                 Label::new(&label.to_owned()).build(state, entity, |builder| 
                     builder
                         .set_child_space(Stretch(1.0))
@@ -220,7 +233,7 @@ impl TreeViewItem {
     }
 
     pub fn with_header_template<F>(template: F) -> Self 
-    where F: 'static + FnOnce(&mut State, Entity) -> Entity,
+    where F: 'static + FnOnce(&mut State, Entity, &T) -> Entity,
     {
         Self {
             header: Entity::null(),
@@ -235,7 +248,7 @@ impl TreeViewItem {
     }
 }
 
-impl Widget for TreeViewItem {
+impl<T: 'static> Widget for TreeViewItem<T> {
     type Ret = Entity;
     type Data = ();
 
@@ -293,22 +306,22 @@ impl Widget for TreeViewItem {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
         // Intercept bind event so that the tree view widget has to update its items
         // TODO - be more selective about this. It should only apply to treeview items
-        if let Some(bind_event) = event.message.downcast() {
-            match bind_event {
-                BindEvent::Bind(target, _) => {
+        // if let Some(bind_event) = event.message.downcast() {
+        //     match bind_event {
+        //         BindEvent::Bind(target, _) => {
                     
-                    if target.is_child_of(&state.tree, self.header) {
-                        if *target != entity {
-                            event.consume();
-                        }                        
-                    }                        
+        //             if target.is_child_of(&state.tree, self.header) {
+        //                 if *target != entity {
+        //                     event.consume();
+        //                 }
+        //             }                        
                     
 
-                }
+        //         }
 
-                _=> {}
-            }
-        }
+        //         _=> {}
+        //     }
+        // }
 
         if let Some(window_event) = event.message.downcast() {
             match window_event {
@@ -341,7 +354,7 @@ impl Widget for TreeViewItem {
             match widget_event {
                 WidgetEvent::ChildAdded(_) => {
                     if event.target == self.container {
-                        println!("Child added");
+                        //println!("Child added");
                         self.arrow.set_visibility(state, Visibility::Visible);
                     }
                 }

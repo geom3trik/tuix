@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::collections::binary_heap::IntoIter;
+use std::collections::btree_map::Entry;
 
 use femtovg::renderer::OpenGl;
 use femtovg::{ImageFlags, ImageId, PixelFormat, RenderTarget};
@@ -10,6 +12,9 @@ use overlay::*;
 
 // mod treeview;
 // use treeview::*;
+
+mod border_widget;
+use border_widget::*;
 
 mod canvas_options;
 use canvas_options::*;
@@ -24,8 +29,12 @@ fn main() {
         window.set_background_color(state, Color::rgb(80, 80, 80));
 
         let app_data = AppData::default().build(state, window);
+
         
-        App::default().build(state, app_data, |builder| builder);
+        let appy = App::default().build(state, app_data, |builder| builder);
+        for e in appy.parent_iter(&state.tree.clone()) {
+            println!("e: {}", e);
+        }
 
     });
 
@@ -111,7 +120,7 @@ pub enum AppEvent {
     SetOuterShadowBlur(Units),
 }
 
-#[derive(Default, Clone, Lens)]
+#[derive(Default, Clone, Lens, Debug)]
 pub struct StyleData {
 
     current_color: ColorPickFor,
@@ -228,31 +237,13 @@ impl StyleData {
     }
 }
 
-#[derive(Clone)]
-pub struct CanvasData {
-    width: u32,
-    height: u32,
-    background_color: Color,
-}
 
-impl CanvasData {
-    pub fn new() -> Self {
-        Self {
-            width: 400,
-            height: 400,
-            background_color: Color::white(),
-        }
-    }
-}
-
-#[derive(Lens)]
+#[derive(Lens, Clone, Debug)]
 pub struct AppData {
     pub style_data: StyleData,
-    pub canvas_data: CanvasData,
     pub canvas: Entity,
     pub color_picker: Entity,
     pub selected: Entity,
-    pub tree: Tree,
 }
 
 impl Default for AppData {
@@ -260,12 +251,19 @@ impl Default for AppData {
 
         Self {
             style_data: StyleData::new(),
-            canvas_data: CanvasData::new(),
             selected: Entity::null(),
             canvas: Entity::null(),
             color_picker: Entity::null(),
-            tree: Tree::new(),
         }
+    }
+}
+
+impl TreeIter for AppData {
+    type Item = Entity;
+    type IntoIter = std::vec::IntoIter<Entity>;
+
+    fn into_iter(self, store: &mut State) -> Self::IntoIter {
+        self.selected.into_iter(store)
     }
 }
 
@@ -298,6 +296,8 @@ impl Model for AppData {
                                         .set_height(Pixels(40.0))
                                         .set_background_color(Color::rgb(150, 180, 200))
                                 );
+
+                            
                             self.style_data.update(state, self.selected);
                             entity.emit(state, BindEvent::Update);
                             
@@ -321,15 +321,18 @@ impl Model for AppData {
                 }
 
                 AppEvent::SelectWidget(selected) => {
-                    self.selected = *selected;
+                    if self.selected != *selected {
+                        self.selected = *selected;
 
-                    self.style_data.update(state, self.selected);
+                        self.style_data.update(state, self.selected);
 
-                    if self.color_picker.is_visible(state) {
-                        entity.emit(state, AppEvent::OpenColorPicker(self.style_data.current_color));
+                        // if self.color_picker.is_visible(state) {
+                        //     entity.emit(state, AppEvent::OpenColorPicker(self.style_data.current_color));
+                        // }
+                        println!("Update Selected");
+                        entity.emit(state, BindEvent::Update);
                     }
 
-                    entity.emit(state, BindEvent::Update);
 
                 }
 
@@ -586,13 +589,21 @@ impl Widget for App {
         //         .set_background_color(Color::rgb(56, 56, 56))
         // );
 
-        // TreeView::new()
-        // .bind_ref(AppData::root)
-        // .build(state, entity, |builder|
-        //     builder
-        //         .set_width(Pixels(300.0))
-        //         .set_background_color(Color::rgb(56, 56, 56))
-        // );
+        TreeView::with_template(|state, parent, data|{
+            TreeItem::new("item", data.selected)
+                .bind_ref(AppData::selected)
+                .build(state, parent, |builder| 
+                    builder
+                        .set_child_space(Stretch(1.0))
+                        .set_child_left(Pixels(5.0))
+                )
+        })
+        .bind_ref(AppData::root)
+        .build(state, entity, |builder|
+            builder
+                .set_width(Pixels(300.0))
+                .set_background_color(Color::rgb(56, 56, 56))
+        );
 
 
         Element::new().build(state, entity, |builder|
@@ -651,43 +662,43 @@ impl Widget for App {
                     //.set_background_color(Color::red())
             );
 
-        Element::new().build(state, entity, |builder|
-            builder
-                .class("divider")
-        );
+        // Element::new().build(state, entity, |builder|
+        //     builder
+        //         .class("divider")
+        // );
 
-        StyleControls::default()
-            .bind_ref(AppData::style_data)
-            .build(state, entity, |builder| 
-                builder
-                    .set_background_color(Color::rgb(56,56,56))
+        // StyleControls::default()
+        //     .bind_ref(AppData::style_data)
+        //     .build(state, entity, |builder| 
+        //         builder
+        //             .set_background_color(Color::rgb(56,56,56))
                     
-            );
+        //     );
 
-        self.color_picker = PopupWindow::new("Color Picker").build(state, entity, |builder| 
-            builder
-                .set_width(Pixels(480.0))
-                .set_height(Pixels(300.0))
-                .set_space(Stretch(1.0))
-                .set_visibility(Visibility::Invisible)
-                //.set_child_space(Stretch(1.0))
-        ).entity();
+        // self.color_picker = PopupWindow::new("Color Picker").build(state, entity, |builder| 
+        //     builder
+        //         .set_width(Pixels(480.0))
+        //         .set_height(Pixels(300.0))
+        //         .set_space(Stretch(1.0))
+        //         .set_visibility(Visibility::Invisible)
+        //         //.set_child_space(Stretch(1.0))
+        // ).entity();
 
-        let color_picker = ColorPicker::new()
-            .on_changing(|data, state, color_picker|{
-                color_picker.emit(state, AppEvent::SetColor(data.color()));
-            })
-            .build(state, self.color_picker, |builder| 
-                builder
-                    .set_left(Pixels(10.0))
-                    .set_top(Pixels(10.0))
-            );
+        // let color_picker = ColorPicker::new()
+        //     .on_changing(|data, state, color_picker|{
+        //         color_picker.emit(state, AppEvent::SetColor(data.color()));
+        //     })
+        //     .build(state, self.color_picker, |builder| 
+        //         builder
+        //             .set_left(Pixels(10.0))
+        //             .set_top(Pixels(10.0))
+        //     );
         
-        entity.emit(state, AppEvent::SetColorPicker(color_picker));
+        // entity.emit(state, AppEvent::SetColorPicker(color_picker));
 
-        Overlay::new()
-            .bind(AppData::selected, |selected| *selected)
-            .build(state, canvas, |builder| builder);
+        // Overlay::new()
+        //     .bind(AppData::selected, |selected| *selected)
+        //     .build(state, canvas, |builder| builder);
         
         entity.set_layout_type(state, LayoutType::Row)
     }
@@ -1144,6 +1155,12 @@ impl Widget for StyleControls {
 
         border_shape_dropdown(state, row, Corner::BottomRight, AppData::style_data.then(StyleData::border_bottom_right_shape));
 
+
+        BorderWidget::new().build(state, border_radius_panel, |builder| 
+            builder
+                .set_height(Pixels(100.0))
+        );
+
         Element::new().build(state, scroll, |builder| builder.class("spacer"));
     
         let shadow_panel = Panel::new("SHADOW").build(state, scroll, |builder| 
@@ -1427,6 +1444,45 @@ impl Widget for ColorButton {
                 femtovg::Paint::color(background_color),
             );
             canvas.restore();
+        }
+    }
+}
+
+pub struct TreeItem {
+    entity: Entity,
+    check_button: CheckButton,
+}
+
+impl TreeItem {
+    pub fn new(name: &str, entity: Entity) -> Self {
+        Self {
+            entity,
+            check_button: CheckButton::with_label(name)
+                .on_checked(|_,_,_| println!("CHECKED"))
+                .on_unchecked(|_,_,_| println!("UNCHECKED")),
+        }
+    }
+}
+
+impl Widget for TreeItem {
+    type Ret = Entity;
+    type Data = Entity;
+
+    fn on_build(&mut self, state: &mut State, entity: Entity) -> Self::Ret {
+        self.check_button.on_build(state, entity)
+    }
+
+    fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+        self.check_button.on_event(state, entity, event)
+    }
+
+    fn on_update(&mut self, state: &mut State, entity: Entity, data: &Self::Data) {
+        if self.entity.is_null() {
+            self.entity = *data;
+            self.check_button.on_update(state, entity,&(*data == self.entity));
+        } else {
+            println!("Selected: {} {} {}", entity, data, self.entity);
+            self.check_button.on_update(state, entity,&(*data == self.entity));
         }
     }
 }
