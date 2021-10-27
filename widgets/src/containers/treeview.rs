@@ -50,7 +50,7 @@ pub struct TreeView<T = NullType> {
 
     //scroll: Entity,
 
-    template: Option<Arc<dyn Fn(&mut State, Entity, &T) -> Entity>>,
+    template: Option<Arc<dyn Fn(&mut State, Entity) -> Entity>>,
     p: PhantomData<T>,
 }
 
@@ -68,7 +68,7 @@ impl<T: Node> TreeView<T>
 where T: 'static + Clone + TreeIter + std::fmt::Debug
 {
     pub fn with_template<F>(template: F) -> Self 
-    where F: 'static + Fn(&mut State, Entity, &T) -> Entity {
+    where F: 'static + Fn(&mut State, Entity) -> Entity {
         Self {
             //scroll: Entity::null(),
             template: Some(Arc::new(template)),
@@ -76,12 +76,12 @@ where T: 'static + Clone + TreeIter + std::fmt::Debug
         }
     }
 
-    fn build_tree<U: TreeIter + Clone + std::fmt::Debug>(&mut self, state: &mut State, entity: Entity, data: &U, root: &T, level: u32) {
+    fn build_tree<U: TreeIter + Clone + std::fmt::Debug>(&mut self, state: &mut State, entity: Entity, data: &U, level: u32) {
 
         for item in data.clone().into_iter(state) {
             let tree_item = if let Some(template) = self.template.clone() {
                 let tree_item = TreeViewItem::with_header_template(move |state, parent|{
-                    (template)(state, parent, root)
+                    (template)(state, parent)
                 }).build(state, entity, |builder| 
                     builder
                         .set_height(Pixels(30.0))
@@ -105,7 +105,7 @@ where T: 'static + Clone + TreeIter + std::fmt::Debug
                 )
             };
             
-            self.build_tree(state, tree_item, &item, root, level + 1);
+            self.build_tree(state, tree_item, &item, level + 1);
         }
     }
 
@@ -166,7 +166,7 @@ where T: 'static + Clone + TreeIter + std::fmt::Debug
                 .set_height(Pixels(30.0))
         );
 
-        self.build_tree(state, tree_item, data, &data, 1);
+        self.build_tree(state, tree_item, data, 1);
 
         self.update_tree(state, tree_item, data);
         
@@ -187,7 +187,7 @@ where T: 'static + Clone + TreeIter + std::fmt::Debug
         // }
     }
 }
-pub struct TreeViewItem<T> {
+pub struct TreeViewItem {
     header: Entity,
     arrow: Entity,
     container: Entity,
@@ -196,10 +196,10 @@ pub struct TreeViewItem<T> {
     collapsed: bool,
 
     // Template for item(s) to be placed after the expand/collapse arrow
-    header_template: Option<Box<dyn FnOnce(&mut State, Entity, &T) -> Entity>>,
+    header_template: Option<Box<dyn FnOnce(&mut State, Entity) -> Entity>>,
 }
 
-impl<T> TreeViewItem<T> {
+impl TreeViewItem {
     pub fn new() -> Self {
         Self {
             header: Entity::null(),
@@ -220,7 +220,7 @@ impl<T> TreeViewItem<T> {
             item: Entity::null(),
             container: Entity::null(),
 
-            header_template: Some(Box::new(move |state, entity, data| 
+            header_template: Some(Box::new(move |state, entity| 
                 Label::new(&label.to_owned()).build(state, entity, |builder| 
                     builder
                         .set_child_space(Stretch(1.0))
@@ -233,7 +233,7 @@ impl<T> TreeViewItem<T> {
     }
 
     pub fn with_header_template<F>(template: F) -> Self 
-    where F: 'static + FnOnce(&mut State, Entity, &T) -> Entity,
+    where F: 'static + FnOnce(&mut State, Entity) -> Entity,
     {
         Self {
             header: Entity::null(),
@@ -248,7 +248,7 @@ impl<T> TreeViewItem<T> {
     }
 }
 
-impl<T: 'static> Widget for TreeViewItem<T> {
+impl Widget for TreeViewItem {
     type Ret = Entity;
     type Data = ();
 

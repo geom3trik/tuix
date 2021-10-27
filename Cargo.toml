@@ -25,14 +25,6 @@ name = "justify_content"
 path = "examples/layout/justify_content.rs"
 
 [[example]]
-name = "align_items"
-path = "examples/layout/align_items.rs"
-
-[[example]]
-name = "flex_grow"
-path = "examples/layout/flex_grow.rs"
-
-[[example]]
 name = "inline"
 path = "examples/styling/inline.rs"
 
@@ -75,10 +67,6 @@ path = "examples/widgets/checkbox.rs"
 [[example]]
 name = "switch"
 path = "examples/widgets/switch.rs"
-
-[[example]]
-name = "vector_edit"
-path = "examples/widgets/vector_edit.rs"
 
 # [[example]]
 # name = "vector"
@@ -190,10 +178,6 @@ path = "examples/binding/treeview2.rs"
 name = "treeview3"
 path = "examples/binding/treeview3.rs"
 
-
-[[example]]
-name = "basic_treeview"
-path = "examples/widgets/treeview/basic_treeview.rs"
 
 [[example]]
 name = "model"

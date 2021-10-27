@@ -258,14 +258,14 @@ impl Default for AppData {
     }
 }
 
-impl TreeIter for AppData {
-    type Item = Entity;
-    type IntoIter = std::vec::IntoIter<Entity>;
+// impl TreeIter for AppData {
+//     type Item = Entity;
+//     type IntoIter = std::vec::IntoIter<Entity>;
 
-    fn into_iter(self, store: &mut State) -> Self::IntoIter {
-        self.selected.into_iter(store)
-    }
-}
+//     fn into_iter(self, store: &mut State) -> Self::IntoIter {
+//         self.selected.into_iter(store)
+//     }
+// }
 
 impl Model for AppData {
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
@@ -589,21 +589,21 @@ impl Widget for App {
         //         .set_background_color(Color::rgb(56, 56, 56))
         // );
 
-        TreeView::with_template(|state, parent, data|{
-            TreeItem::new("item", data.selected)
-                .bind_ref(AppData::selected)
-                .build(state, parent, |builder| 
-                    builder
-                        .set_child_space(Stretch(1.0))
-                        .set_child_left(Pixels(5.0))
-                )
-        })
-        .bind_ref(AppData::root)
-        .build(state, entity, |builder|
-            builder
-                .set_width(Pixels(300.0))
-                .set_background_color(Color::rgb(56, 56, 56))
-        );
+        // TreeView::with_template(|state, parent, data|{
+        //     TreeItem::new("item", data.selected)
+        //         .bind_ref(AppData::selected)
+        //         .build(state, parent, |builder| 
+        //             builder
+        //                 .set_child_space(Stretch(1.0))
+        //                 .set_child_left(Pixels(5.0))
+        //         )
+        // })
+        // .bind_ref(AppData::root)
+        // .build(state, entity, |builder|
+        //     builder
+        //         .set_width(Pixels(300.0))
+        //         .set_background_color(Color::rgb(56, 56, 56))
+        // );
 
 
         Element::new().build(state, entity, |builder|
