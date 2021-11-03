@@ -411,7 +411,7 @@ impl State {
 
         for entity in delete_list.iter().rev() {
             //println!("Removing: {}", entity);
-            self.tree.remove(*entity);
+            //self.tree.remove(*entity);
             self.removed_entities.push(*entity);
         }
 

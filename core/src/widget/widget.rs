@@ -151,7 +151,7 @@ pub trait Widget: std::marker::Sized + 'static {
         let parent = state
             .tree
             .get_parent(entity)
-            .expect("Failed to find parent somehow");
+            .expect(&format!("Failed to find parent somehow: {}", entity));
 
         let parent_width = state.data.get_width(parent);
         let parent_height = state.data.get_height(parent);
