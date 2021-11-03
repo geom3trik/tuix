@@ -45,6 +45,7 @@ pub struct Application {
     event_loop: EventLoop<()>,
     event_manager: EventManager,
     on_idle: Option<Box<dyn Fn(&mut State)>>,
+    should_poll: bool,
 }
 
 impl Application {
@@ -126,6 +127,7 @@ impl Application {
             event_manager: event_manager,
             state: state,
             on_idle: None,
+            should_poll: false,
         }
     }
 
@@ -150,6 +152,12 @@ impl Application {
 
         self
     } 
+
+    pub fn should_poll(mut self) -> Self {
+        self.should_poll = true;
+
+        self
+    }
 
     /// The `run` method starts the application event loop, passing events from the OS to
     /// the input system and then on to the widgets via the `on_event` method of the [Widget] trait.
@@ -183,8 +191,15 @@ impl Application {
 
         let mut on_idle = self.on_idle;
 
+        let should_poll = self.should_poll;
+
         self.event_loop.run(move |event, _, control_flow| {
-            *control_flow = ControlFlow::Wait;
+            if should_poll {
+                *control_flow = ControlFlow::Poll;
+            } else {
+                *control_flow = ControlFlow::Wait;
+            }
+            
 
             match event {
                 GEvent::LoopDestroyed => return,
@@ -225,7 +240,11 @@ impl Application {
                             state.event_handlers.insert(Entity::root(), window_event_handler);
                         }
                     } else {
-                        *control_flow = ControlFlow::Wait;
+                        if should_poll {
+                            *control_flow = ControlFlow::Poll;
+                        } else {
+                            *control_flow = ControlFlow::Wait;
+                        }
                     }
 
                     let tree = state.tree.clone();
