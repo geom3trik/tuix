@@ -367,10 +367,13 @@ impl Application {
                         glutin::event::WindowEvent::CloseRequested => {
 
                             if let Some(entity) = windows.get(&window_id) {
-                                state.remove(*entity);
+                                //state.remove(*entity);
+                                state.event_handlers.remove(entity);
+
                                 // Remove from tree and state
                                 //state.components.remove(entity);
                             }
+
 
                             windows.remove(&window_id);
 
@@ -588,27 +591,31 @@ impl Application {
                         glutin::event::WindowEvent::Resized(physical_size) => {
                             //window.handle.resize(physical_size);
 
-                            state
-                                .style
-                                .width
-                                .insert(Entity::root(), Units::Pixels(physical_size.width as f32));
-                            state
-                                .style
-                                .height
-                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32));
+                            if let Some(window) = windows.get(&window_id) {
+                                state
+                                    .style
+                                    .width
+                                    .insert(*window, Units::Pixels(physical_size.width as f32));
+                                state
+                                    .style
+                                    .height
+                                    .insert(*window, Units::Pixels(physical_size.height as f32));
+    
+                                state
+                                    .data
+                                    .set_width(*window, physical_size.width as f32);
+                                state
+                                    .data
+                                    .set_height(*window, physical_size.height as f32);
+    
+                                let mut bounding_box = BoundingBox::default();
+                                bounding_box.w = physical_size.width as f32;
+                                bounding_box.h = physical_size.height as f32;
+    
+                                state.data.set_clip_region(*window, bounding_box);
 
-                            state
-                                .data
-                                .set_width(Entity::root(), physical_size.width as f32);
-                            state
-                                .data
-                                .set_height(Entity::root(), physical_size.height as f32);
+                            }
 
-                            let mut bounding_box = BoundingBox::default();
-                            bounding_box.w = physical_size.width as f32;
-                            bounding_box.h = physical_size.height as f32;
-
-                            state.data.set_clip_region(Entity::root(), bounding_box);
 
                             // state.insert_event(Event::new(WindowEvent::Restyle).origin(Entity::root()).target(Entity::root()));
                             // state.insert_event(

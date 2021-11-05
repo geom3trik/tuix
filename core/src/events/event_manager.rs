@@ -301,8 +301,8 @@ impl EventManager {
         //         }
         //     });
 
-        let width = state.data.get_width(Entity::root());
-        let height = state.data.get_height(Entity::root());
+        let width = state.data.get_width(window);
+        let height = state.data.get_height(window);
         // TODO: Move this to the window widget
         let dpi_factor = 1.0;
 
@@ -311,6 +311,7 @@ impl EventManager {
             || self.prev_height != height
             || self.prev_dpi_factor != dpi_factor
         {
+            println!("Set Canvas Size: {} {}", width, height);
             canvas.set_size(width as u32, height as u32, dpi_factor as f32);
         }
 
@@ -318,7 +319,7 @@ impl EventManager {
         let background_color: femtovg::Color = state
             .style
             .background_color
-            .get(Entity::root())
+            .get(window)
             .cloned()
             .unwrap_or_default()
             .into();
@@ -339,7 +340,7 @@ impl EventManager {
             println!("Draw: {:?}", entity);
 
             // Skip window
-            if entity == Entity::root() {
+            if entity == window {
                 continue;
             }
 
