@@ -324,18 +324,21 @@ impl EventManager {
         //         }
         //     });
 
-        let width = state.data.get_width(Entity::root());
-        let height = state.data.get_height(Entity::root());
+        let dpi_factor = state.scale_factor;
+
+        let width = state.data.get_width(Entity::root()) * dpi_factor;
+        let height = state.data.get_height(Entity::root()) * dpi_factor;
         // TODO: Move this to the window widget
-        let dpi_factor = 1.0;
 
         // Set the canvas size
         if self.prev_width != width
             || self.prev_height != height
-            || self.prev_dpi_factor != dpi_factor
+            || self.prev_dpi_factor != dpi_factor as f64
         {
-            canvas.set_size(width as u32, height as u32, dpi_factor as f32);
+            canvas.set_size(width as u32, height as u32, dpi_factor);
         }
+
+
 
         // Get the desired window background color
         let background_color: femtovg::Color = state
@@ -352,6 +355,8 @@ impl EventManager {
         //canvas.save();
         // Reset any canvas transforms
         canvas.reset();
+
+        canvas.scale(dpi_factor, dpi_factor);
 
         // Sort the tree by z order
         let mut draw_tree: Vec<Entity> = self.tree.into_iter().collect();

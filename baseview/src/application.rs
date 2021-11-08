@@ -125,8 +125,8 @@ impl ApplicationRunner {
 
         let logical_size = win_desc.inner_size;
         let physical_size = WindowSize {
-            width: (logical_size.width as f64 * scale).round() as u32,
-            height: (logical_size.height as f64 * scale).round() as u32,
+            width: (logical_size.width as f64).round() as u32,
+            height: (logical_size.height as f64).round() as u32,
         };
 
         canvas.set_size(physical_size.width, physical_size.height, 1.0);
@@ -143,7 +143,7 @@ impl ApplicationRunner {
         state.add_font_mem("emoji", emoji_font);
         state.add_font_mem("arabic", arabic_font);
 
-        canvas.scale(scale as f32, scale as f32);
+        //canvas.scale(1.25 as f32, 1.25 as f32);
 
         state
             .style
@@ -187,7 +187,7 @@ impl ApplicationRunner {
             pos: (0.0, 0.0),
             should_redraw: true,
             scale_policy,
-            scale_factor: scale,
+            scale_factor: 1.0,
         }
     }
 
@@ -566,6 +566,8 @@ impl ApplicationRunner {
                         WindowScalePolicy::SystemScaleFactor => window_info.scale(),
                     };
 
+                    self.state.scale_factor =  self.scale_factor as f32;
+
                     let logical_size = (
                         (window_info.physical_size().width as f64 / self.scale_factor),
                         (window_info.physical_size().height as f64 / self.scale_factor),
@@ -575,6 +577,8 @@ impl ApplicationRunner {
                         window_info.physical_size().width,
                         window_info.physical_size().height,
                     );
+
+                    //println!("Physcial: {:?}  Logical: {:?}", physical_size, logical_size);
 
                     self.state
                         .style
@@ -587,10 +591,10 @@ impl ApplicationRunner {
 
                     self.state
                         .data
-                        .set_width(Entity::root(), physical_size.0 as f32);
+                        .set_width(Entity::root(), logical_size.0 as f32);
                     self.state
                         .data
-                        .set_height(Entity::root(), physical_size.1 as f32);
+                        .set_height(Entity::root(), logical_size.1 as f32);
 
                     let mut bounding_box = BoundingBox::default();
                     bounding_box.w = physical_size.0 as f32;

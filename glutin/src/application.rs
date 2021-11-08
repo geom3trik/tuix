@@ -1,5 +1,6 @@
 #![allow(deprecated)]
 
+use glutin::dpi::LogicalSize;
 use glutin::event_loop::{ControlFlow, EventLoop};
 use glutin::window::WindowId;
 
@@ -278,6 +279,8 @@ impl Application {
                     //let start = std::time::Instant::now();
                     if let Some(mut window_event_handler) = state.event_handlers.remove(&Entity::root()) {
                         if let Some(window) = window_event_handler.downcast::<Window>() {
+                            let scale_factor = window.handle.window().scale_factor();
+                            state.scale_factor = scale_factor as f32;
                             event_manager.draw(&mut state, &mut window.canvas);
                             window
                                 .handle
@@ -519,21 +522,25 @@ impl Application {
                                 state.event_handlers.insert(Entity::root(), window_event_handler);
                             }
 
+                            let logical_size: LogicalSize<f32> = physical_size.to_logical(state.scale_factor as f64);
+
                             state
                                 .style
                                 .width
-                                .insert(Entity::root(), Units::Pixels(physical_size.width as f32));
+                                .insert(Entity::root(), Units::Pixels(logical_size.width as f32));
                             state
                                 .style
                                 .height
-                                .insert(Entity::root(), Units::Pixels(physical_size.height as f32));
+                                .insert(Entity::root(), Units::Pixels(logical_size.height as f32));
 
                             state
                                 .data
-                                .set_width(Entity::root(), physical_size.width as f32);
+                                .set_width(Entity::root(), logical_size.width as f32);
                             state
                                 .data
-                                .set_height(Entity::root(), physical_size.height as f32);
+                                .set_height(Entity::root(), logical_size.height as f32);
+
+                            println!("Resize: {:?}", physical_size);
 
                             let mut bounding_box = BoundingBox::default();
                             bounding_box.w = physical_size.width as f32;
@@ -558,8 +565,9 @@ impl Application {
                             position,
                             modifiers: _,
                         } => {
-                            let cursorx = (position.x) as f32;
-                            let cursory = (position.y) as f32;
+
+                            let cursorx = (position.x as f32) / state.scale_factor;
+                            let cursory = (position.y as f32) / state.scale_factor;
 
                             state.mouse.cursorx = cursorx as f32;
                             state.mouse.cursory = cursory as f32;

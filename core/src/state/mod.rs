@@ -113,6 +113,8 @@ pub struct State {
     // Focused entity
     pub focused: Entity,
 
+    pub scale_factor: f32,
+
 
     // pub(crate) callbacks: FnvHashMap<Entity, Box<dyn FnMut(&mut Box<dyn EventHandler>, &mut Self, Entity)>>,
 
@@ -176,6 +178,7 @@ impl State {
             active: Entity::null(),
             captured: Entity::null(),
             focused: Entity::root(),
+            scale_factor: 1.0,
             //callbacks: FnvHashMap::default(),
             event_handlers: FnvHashMap::default(),
             event_queue: VecDeque::new(),

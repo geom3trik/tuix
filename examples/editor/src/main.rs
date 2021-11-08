@@ -662,18 +662,18 @@ impl Widget for App {
                     //.set_background_color(Color::red())
             );
 
-        // Element::new().build(state, entity, |builder|
-        //     builder
-        //         .class("divider")
-        // );
+        Element::new().build(state, entity, |builder|
+            builder
+                .class("divider")
+        );
 
-        // StyleControls::default()
-        //     .bind_ref(AppData::style_data)
-        //     .build(state, entity, |builder| 
-        //         builder
-        //             .set_background_color(Color::rgb(56,56,56))
+        StyleControls::default()
+            .bind_ref(AppData::style_data)
+            .build(state, entity, |builder| 
+                builder
+                    .set_background_color(Color::rgb(56,56,56))
                     
-        //     );
+            );
 
         // self.color_picker = PopupWindow::new("Color Picker").build(state, entity, |builder| 
         //     builder

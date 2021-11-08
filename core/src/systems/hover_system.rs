@@ -74,6 +74,8 @@ pub fn apply_hover(state: &mut State) {
         //transform.translate(posx + width / 2.0, posy + height / 2.0);
         
         let (cx, cy) = transform.transform_point(cursorx, cursory);
+
+        //println!("cx {} cy {}", cx, cy);
         //transform.inverse();
         //let (clip_x, clip_y) = transform.transform_point(clip_region.x, clip_region.y);
         //let (clip_w, clip_h) = transform.transform_point(clip_region.x + clip_region.w, clip_region.y + clip_region.h);
