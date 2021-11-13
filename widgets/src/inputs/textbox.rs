@@ -469,7 +469,8 @@ impl Widget for Textbox {
                 // }
 
                 TextboxEvent::BeginEdit => {
-                    if self.edit == false && !entity.is_disabled(state) {
+                    if !entity.is_disabled(state) {
+                        self.edit = true;
                         self.cursor_pos = text_data.len() as u32;
                         self.select_pos = 0;
                         self.buffer = text_data.clone();
