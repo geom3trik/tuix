@@ -11,6 +11,8 @@ pub enum TextboxEvent {
     ValueChanged(String),
     //ResetValue,
     Clear,
+    BeginEdit,
+    EndEdit,
 }
 
 //impl Message for TextboxEvent {}
@@ -440,6 +442,9 @@ impl Widget for Textbox {
     }
 
     fn on_event(&mut self, state: &mut State, entity: Entity, event: &mut Event) {
+
+        let text_data = state.style.text.get(entity).cloned().unwrap_or_default();
+
         if let Some(textbox_event) = event.message.downcast::<TextboxEvent>() {
             match textbox_event {
                 TextboxEvent::SetValue(val) => {
@@ -462,11 +467,37 @@ impl Widget for Textbox {
                 //         text_data.text = self.buffer.clone();
                 //     }
                 // }
+
+                TextboxEvent::BeginEdit => {
+                    if self.edit == false && !entity.is_disabled(state) {
+                        self.cursor_pos = text_data.len() as u32;
+                        self.select_pos = 0;
+                        self.buffer = text_data.clone();
+                        state.capture(entity);
+                        entity.set_active(state, true);
+                        state.set_focus(entity);
+
+                        self.caret.set_display(state, Display::Flex);
+                        self.selection.set_display(state, Display::Flex);
+
+                        self.set_caret(state, entity);
+                        
+                    }
+                }
+
+                TextboxEvent::EndEdit => {
+                    self.edit = false;
+                    self.caret.set_display(state, Display::None);
+                    self.selection.set_display(state, Display::None);
+                    entity.set_active(state, false);
+                    state.release(entity);
+                }
+
                 _ => {}
             }
         }
 
-        let text_data = state.style.text.get(entity).cloned().unwrap_or_default();
+
 
         if let Some(window_event) = event.message.downcast::<WindowEvent>() {
             match window_event {

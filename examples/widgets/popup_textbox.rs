@@ -144,7 +144,7 @@ impl Widget for Container {
             match window_event {
                 WindowEvent::MouseUp(button) if *button == MouseButton::Right => {
                     container.emit_to(state, self.popup, PopupEvent::OpenAtCursor);
-                    //state.set_focus(self.textbox);
+                    self.textbox.emit(state, TextboxEvent::BeginEdit);
                 }
 
                 _=> {}
