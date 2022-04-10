@@ -1,9 +1,9 @@
 //use crate::event_manager::EventManager;
 use crate::window::TuixWindow;
 use crate::Renderer;
-use baseview::{Window, WindowScalePolicy};
+use baseview::{WindowHandle, WindowScalePolicy};
 use femtovg::Canvas;
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+use raw_window_handle::HasRawWindowHandle;
 use tuix_core::TreeExt;
 use tuix_core::{MouseButton, MouseButtonState};
 use tuix_core::WindowWidget;
@@ -13,8 +13,7 @@ use tuix_core::{
     BoundingBox
 };
 use tuix_core::{
-    Entity, EventManager, Tree, PropSet, WindowSize, State, Units, Visibility,
-    WindowEvent,
+    Entity, EventManager, Tree, PropSet, WindowSize, State, Units, WindowEvent,
 };
 
 pub struct Application<F>
@@ -57,7 +56,7 @@ where
     ///
     /// * `parent` - The parent window.
     /// * `app` - The Tuix application builder.
-    pub fn open_parented<P: HasRawWindowHandle>(self, parent: &P) {
+    pub fn open_parented<P: HasRawWindowHandle>(self, parent: &P) -> WindowHandle {
         TuixWindow::open_parented(parent, self.window_description, self.app, self.on_idle)
     }
 
@@ -67,7 +66,7 @@ where
     /// used in the context of audio plugins.
     ///
     /// * `app` - The Tuix application builder.
-    pub fn open_as_if_parented(self) -> RawWindowHandle {
+    pub fn open_as_if_parented(self) -> WindowHandle {
         TuixWindow::open_as_if_parented(self.window_description, self.app, self.on_idle)
     }
 

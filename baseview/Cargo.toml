@@ -1,6 +1,6 @@
 [package]
 name = "tuix_baseview"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["George Atkinson <geomyles@yahoo.co.uk>", "Billy Messenger <BillyDM@protonmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -11,7 +11,7 @@ description = "Baseview backend for tuix"
 [dependencies]
 raw-gl-context = "0.1"
 tuix_core = { path = "../core" }
-baseview = { git = "https://github.com/RustAudio/baseview.git", rev = "e7a6c661eff90000b5a62d28fb8e1eec3997d2aa"}
+baseview = { git = "https://github.com/RustAudio/baseview.git", rev = "f6e99e9aa6f5aeb6b721cb05e4d882a51d995909"}
 keyboard-types = { version = "0.5.0", default-features = false }
 raw-window-handle = "0.3"
 femtovg = "0.2.5"

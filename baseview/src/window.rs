@@ -1,6 +1,6 @@
 use crate::{application::ApplicationRunner, Renderer};
-use baseview::{Event, EventStatus, Window, WindowHandler, WindowOpenOptions, WindowScalePolicy};
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+use baseview::{Event, EventStatus, Window, WindowHandle, WindowHandler, WindowOpenOptions, WindowScalePolicy};
+use raw_window_handle::HasRawWindowHandle;
 use tuix_core::{Entity, State, WindowDescription};
 
 /// Handles an tuix_baseview application
@@ -29,7 +29,7 @@ impl TuixWindow {
     ///
     /// * `parent` - The parent window.
     /// * `app` - The Tuix application builder.
-    pub fn open_parented<P, F>(parent: &P, win_desc: WindowDescription, mut app: F, on_idle: Option<Box<dyn Fn(&mut State) + Send>>)
+    pub fn open_parented<P, F>(parent: &P, win_desc: WindowDescription, mut app: F, on_idle: Option<Box<dyn Fn(&mut State) + Send>>) -> WindowHandle
     where
         P: HasRawWindowHandle,
         F: FnOnce(&mut State, Entity),
@@ -63,7 +63,7 @@ impl TuixWindow {
     /// Open a new window as if it had a parent window.
     ///
     /// * `app` - The Tuix application builder.
-    pub fn open_as_if_parented<F>(win_desc: WindowDescription, mut app: F, on_idle: Option<Box<dyn Fn(&mut State) + Send>>) -> RawWindowHandle
+    pub fn open_as_if_parented<F>(win_desc: WindowDescription, mut app: F, on_idle: Option<Box<dyn Fn(&mut State) + Send>>) -> WindowHandle
     where
         F: FnOnce(&mut State, Entity),
         F: 'static + Send,
